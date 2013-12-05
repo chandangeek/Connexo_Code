@@ -9,9 +9,9 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.util.Calendar;
 
 /**
- * 
+ *
  * @author Koen
  */
 public class PACTConnection extends Connection {

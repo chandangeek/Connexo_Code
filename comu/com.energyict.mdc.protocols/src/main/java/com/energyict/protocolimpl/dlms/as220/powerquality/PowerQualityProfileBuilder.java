@@ -1,17 +1,23 @@
 package com.energyict.protocolimpl.dlms.as220.powerquality;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * TODO allot has to be done to parse this content, waiting for the new firmware so the ObisCode is correct

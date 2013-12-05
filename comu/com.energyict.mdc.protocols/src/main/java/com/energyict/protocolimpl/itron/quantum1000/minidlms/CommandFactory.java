@@ -10,32 +10,32 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class CommandFactory {
-    
+
     private ProtocolLink protocolLink;
-            
+
     /** Creates a new instance of CommandFactory */
     public CommandFactory(ProtocolLink protocolLink) {
         this.protocolLink=protocolLink;
     }
-    
+
     public InitiateResponse initiate() throws IOException {
         InitiateCommand ic = new InitiateCommand(this);
         ic.invoke();
         return (InitiateResponse)ic.getResponse();
-    }   
-    
+    }
+
     public void abort() throws IOException {
         Abort a = new Abort(this);
         a.invoke();
     }
-    
+
     public ReadCommand read(int variableName) throws IOException {
         ReadCommand rc = new ReadCommand(this);
         rc.setVariableName(variableName);
@@ -43,7 +43,7 @@ public class CommandFactory {
         //return (ReadReply)rc.getResponse();
         return rc;
     }
-    
+
     public ReadIndexedCommand readIndexed(int variableName,int index, int indexTag) throws IOException {
         ReadIndexedCommand rc = new ReadIndexedCommand(this);
         rc.setVariableName(variableName);
@@ -53,7 +53,7 @@ public class CommandFactory {
         //return (ReadReply)rc.getResponse();
         return rc;
     }
-    
+
     public ReadIndexedWithRangeCommand readIndexedWithRange(int variableName,int index, int range, int indexRangeTag) throws IOException {
         ReadIndexedWithRangeCommand rc = new ReadIndexedWithRangeCommand(this);
         rc.setVariableName(variableName);
@@ -64,23 +64,23 @@ public class CommandFactory {
         //return (ReadReply)rc.getResponse();
         return rc;
     }
-    
-    public WriteCommand write(int variableName,byte[] data) throws IOException { 
+
+    public WriteCommand write(int variableName,byte[] data) throws IOException {
         WriteCommand wc = new WriteCommand(this);
         wc.setVariableName(variableName);
         wc.setData(data);
         return wc;
     }
-    
-    public WriteIndexedCommand writeIndexed(int variableName, int index, byte[] data) throws IOException { 
+
+    public WriteIndexedCommand writeIndexed(int variableName, int index, byte[] data) throws IOException {
         WriteIndexedCommand wc = new WriteIndexedCommand(this);
         wc.setVariableName(variableName);
         wc.setIndex(index);
         wc.setData(data);
         return wc;
     }
-    
-    public WriteIndexedWithRangeCommand writeIndexedWithRange(int variableName, int index, int range, byte[] data) throws IOException { 
+
+    public WriteIndexedWithRangeCommand writeIndexedWithRange(int variableName, int index, int range, byte[] data) throws IOException {
         WriteIndexedWithRangeCommand wc = new WriteIndexedWithRangeCommand(this);
         wc.setVariableName(variableName);
         wc.setIndex(index);
@@ -88,24 +88,24 @@ public class CommandFactory {
         wc.setData(data);
         return wc;
     }
-    
-    public InitiateUploadCommand initiateUpload(int dataSetId)  throws IOException { 
+
+    public InitiateUploadCommand initiateUpload(int dataSetId)  throws IOException {
        InitiateUploadCommand iuc = new InitiateUploadCommand(this);
        iuc.setDataSetID(dataSetId);
-       return iuc; 
+       return iuc;
     }
-    
-    public UploadSegmentCommand uploadSegment(int segmentNumber)  throws IOException { 
+
+    public UploadSegmentCommand uploadSegment(int segmentNumber)  throws IOException {
        UploadSegmentCommand usc = new UploadSegmentCommand(this);
        usc.setSegmentNumber(segmentNumber);
-       return usc; 
+       return usc;
     }
-    
-    public TerminateLoadCommand terminateLoad()  throws IOException { 
+
+    public TerminateLoadCommand terminateLoad()  throws IOException {
        TerminateLoadCommand tlc = new TerminateLoadCommand(this);
-       return tlc; 
+       return tlc;
     }
-    
+
     public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
@@ -113,6 +113,6 @@ public class CommandFactory {
     public void setProtocolLink(ProtocolLink protocolLink) {
         this.protocolLink = protocolLink;
     }
-    
-    
+
+
 }

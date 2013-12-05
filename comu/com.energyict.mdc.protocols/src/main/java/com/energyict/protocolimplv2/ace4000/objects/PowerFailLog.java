@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import org.w3c.dom.Element;
 

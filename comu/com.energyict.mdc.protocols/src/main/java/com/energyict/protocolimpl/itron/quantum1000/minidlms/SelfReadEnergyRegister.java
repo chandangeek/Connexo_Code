@@ -10,21 +10,21 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadEnergyRegister {
-    
-    
+
+
     private QuantityId qid; // QUANTITY_ID,
     private double integralValue; // DOUBLE,
     private double fractionalValue; // DOUBLE.
-    
+
     /**
      * Creates a new instance of SelfReadEnergyRegister
      */
@@ -35,9 +35,9 @@ public class SelfReadEnergyRegister {
         offset+=8;
         setFractionalValue(Double.longBitsToDouble(ProtocolUtils.getLong(data,offset)));
         offset+=8;
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -47,7 +47,7 @@ public class SelfReadEnergyRegister {
         strBuff.append("   qid="+getQid()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 18;
     }
@@ -75,7 +75,7 @@ public class SelfReadEnergyRegister {
     public void setFractionalValue(double fractionalValue) {
         this.fractionalValue = fractionalValue;
     }
-    
-    
-    
+
+
+
 }

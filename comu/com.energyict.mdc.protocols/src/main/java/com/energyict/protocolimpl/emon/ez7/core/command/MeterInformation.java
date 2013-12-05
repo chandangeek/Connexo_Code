@@ -10,36 +10,34 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.math.BigDecimal;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class MeterInformation extends AbstractCommand {
-    
+
     private static final int DEBUG=0;
     private static final String COMMAND="VM";
     private static final int NR_OF_CHANNELS=8;
-    
+
     int[] voltageMeterId=new int[NR_OF_CHANNELS];
     int[] currentMeterId=new int[NR_OF_CHANNELS];
     int[] ctSets = new int[NR_OF_CHANNELS];
     int[] inpType = new int[NR_OF_CHANNELS];
-    
+
     static public final int MANUFACTURER_OTHERS=0;
     static public final int MANUFACTURER_EMON=1;
     int[] manufacturer = new int[NR_OF_CHANNELS];
-    
+
     static public final int ENERGY_TYPE_OTHERS=0;
     static public final int ENERGY_TYPE_ELECTRIC=1;
     static public final int ENERGY_TYPE_WATER=2;
@@ -55,17 +53,17 @@ public class MeterInformation extends AbstractCommand {
     int[] pulseRatePerMinute = new int[NR_OF_CHANNELS];
     int[] cTRatio = new int[NR_OF_CHANNELS];
     int[] pTRatio = new int[NR_OF_CHANNELS];
-    
-    
-    
+
+
+
     /** Creates a new instance of MeterInformation */
     public MeterInformation(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
-        
+
         strBuff.append("MeterInformation:\n");
         for(int channel=0;channel<NR_OF_CHANNELS;channel++) {
            strBuff.append("voltageMeterId="+getVoltageMeterId(channel)+" currentMeterId="+getCurrentMeterId(channel)+" ctSets="+getCtSets(channel)+" inpType="+getInpType(channel)+" manufacturer="+getManufacturer(channel)+" energyType="+getEnergyType(channel)+" pulseFactor="+getPulseFactor(channel)+" kWhMultiplies="+getKWhMultiplies(channel)+" pulseRatePerMinute="+getPulseRatePerMinute(channel)+" cTRatio="+getCTRatio(channel)+" pTRatio="+getPTRatio(channel)+"\n");
@@ -73,7 +71,7 @@ public class MeterInformation extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
+
     public boolean isElectricEnergyType(int channel) {
         if ((getEnergyType(channel) == ENERGY_TYPE_ELECTRIC) ||
             (getEnergyType(channel) == ENERGY_TYPE_ELECTRIC_DUAL_CHANNELS_PULSE_RATE_H) ||
@@ -83,31 +81,31 @@ public class MeterInformation extends AbstractCommand {
         else
             return false; // other, gas, water, reserved
     }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
-    }    
+    }
 
     protected void parse(byte[] data) {
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
-        
+        if (DEBUG>=1)
+           System.out.println(new String(data));
+
         CommandParser cp = new CommandParser(data);
-        
+
         List values = cp.getValues("LINE-3");
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
             int value = Integer.parseInt((String)values.get(channel),16);
             voltageMeterId[channel]= value&0x000F;
-            currentMeterId[channel]= (value&0x00F0)>>4; 
-            ctSets[channel]= (value&0x0300)>>8; 
-            inpType[channel]= (value&0x0C00)>>10; 
-            manufacturer[channel]= (value&0x1000)>>12; 
-            energyType[channel]= (value&0xE000)>>13; 
+            currentMeterId[channel]= (value&0x00F0)>>4;
+            ctSets[channel]= (value&0x0300)>>8;
+            inpType[channel]= (value&0x0C00)>>10;
+            manufacturer[channel]= (value&0x1000)>>12;
+            energyType[channel]= (value&0xE000)>>13;
         }
-        
-        
+
+
         List values4 = cp.getValues("LINE-4");
         List values5 = cp.getValues("LINE-5");
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
@@ -116,7 +114,7 @@ public class MeterInformation extends AbstractCommand {
             pulseFactor[channel]= (value4&0xFF00)>>8;
             kWhMultiplies[channel]= (((value4&0x00FF)<<16)|value5)/100;
         }
-        
+
         values = cp.getValues("LINE-6");
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
             int value = Integer.parseInt((String)values.get(channel),16);
@@ -127,7 +125,7 @@ public class MeterInformation extends AbstractCommand {
             else
                 pulseRatePerMinute[channel]=value;
         }
-        
+
         values = cp.getValues("LINE-7");
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
             int value = Integer.parseInt((String)values.get(channel),16);
@@ -139,8 +137,8 @@ public class MeterInformation extends AbstractCommand {
             pTRatio[channel]=value;
         }
     } // protected void parse(byte[] data)
-    
-    
+
+
     // Page 28..31 of the EZ7 protocoldocumentation. Needs more clearification
     public double getPulseValue(int channel) {
         double pulseValue=1;
@@ -150,27 +148,27 @@ public class MeterInformation extends AbstractCommand {
                // if csets == 0, use 1!!! (KV 27052005)
               pulseValue = (1*(double)(kWhMultiplies[channel]*(ctSets[channel]==0?1:ctSets[channel])))/(256*pulseFactor[channel]);
            else
-              pulseValue = cTRatio[channel]*pTRatio[channel]; 
+              pulseValue = cTRatio[channel]*pTRatio[channel];
         }
         return pulseValue;
     }
 
-    
-    
-    
+
+
+
     private BigDecimal convert2BigDecimal(double val, int channel) {
         BigDecimal bd = new BigDecimal(val);
         bd = bd.setScale(ez7CommandFactory.getEz7().getProtocolChannelValue(channel),BigDecimal.ROUND_HALF_UP);
         return bd;
-    }    
-    
+    }
+
     // Helper method that to calculate engineering values based upon
     // the configured ChannelMap info and this MeterInformation
     // @return double value
     public BigDecimal calculateValue(int channel, long value) {
         if (ez7CommandFactory.getEz7().getProtocolChannelValue(channel) == -1)
             return BigDecimal.valueOf(value);
-        else {    
+        else {
 //            if (ez7CommandFactory.getEz7().getProtocolChannelValue(channel)<10) {
 //                double multiplier = Math.pow((double)10, (double)(ez7CommandFactory.getEz7().getProtocolChannelValue(channel)));
 //                val = (double)Math.round(value*getPulseValue(channel)*multiplier)/multiplier;
@@ -181,7 +179,7 @@ public class MeterInformation extends AbstractCommand {
             return convert2BigDecimal(val, channel);
         }
     }
-    
+
     // Get the EnergyUnit based on
     public ChannelInfo getChannelInfo(int channel, boolean energy) {
           Unit unit = doGetUnit(channel,energy);
@@ -190,25 +188,25 @@ public class MeterInformation extends AbstractCommand {
           chi.setMultiplier(bd);
           return chi;
     }
-    
+
     public Unit getUnit(int channel, boolean energy) {
        if ((ez7CommandFactory.getEz7().getProtocolChannelValue(channel) != -1) && (isElectricEnergyType(channel))) {
            return doGetUnit(channel, energy);
        }
        else return Unit.get("");
     }
-    
+
     private Unit doGetUnit(int channel, boolean energy) {
        if ((channel%2) == 0)
            return energy?Unit.get("kW").getVolumeUnit():Unit.get("kW");
        else
            return energy?Unit.get("kvar").getVolumeUnit():Unit.get("kvar");
     }
-    
+
     public int getVoltageMeterId(int channel) {
         return voltageMeterId[channel];
     }
-    
+
     public int getCurrentMeterId(int channel) {
         return currentMeterId[channel];
     }
@@ -220,15 +218,15 @@ public class MeterInformation extends AbstractCommand {
     public int getInpType(int channel) {
         return inpType[channel];
     }
-    
+
     public int getManufacturer(int channel) {
         return manufacturer[channel];
     }
-    
+
     public int getEnergyType(int channel) {
         return energyType[channel];
     }
-    
+
     public int getPulseFactor(int channel) {
         return pulseFactor[channel];
     }
@@ -239,7 +237,7 @@ public class MeterInformation extends AbstractCommand {
     public int getPulseRatePerMinute(int channel) {
         return pulseRatePerMinute[channel];
     }
-    
+
     public int getCTRatio(int channel) {
         return cTRatio[channel];
     }

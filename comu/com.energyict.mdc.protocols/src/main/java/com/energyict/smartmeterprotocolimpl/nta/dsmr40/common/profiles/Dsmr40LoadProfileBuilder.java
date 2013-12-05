@@ -1,13 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Providing functionality to fetch and create {@link com.energyict.protocol.ProfileData ProfileData} objects for {@link com.energyict.protocol.SmartMeterProtocol DSMR 4.0 SmartMeterProtocols}
+ * Providing functionality to fetch and create {@link com.energyict.mdc.protocol.device.data.ProfileData ProfileData} objects for {@link com.energyict.protocol.SmartMeterProtocol DSMR 4.0 SmartMeterProtocols}
  *
  * @author sva
  * @since 30/01/13 - 14:25

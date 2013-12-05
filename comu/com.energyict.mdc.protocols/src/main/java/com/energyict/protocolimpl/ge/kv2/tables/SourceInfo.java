@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 import com.energyict.protocolimpl.ge.kv2.GEKV2;
 
@@ -21,18 +21,18 @@ import java.math.BigDecimal;
  * @author Koen
  */
 public class SourceInfo {
-    
+
     GEKV2 gekv2;
-    
+
     /** Creates a new instance of SourceUnits */
     public SourceInfo(GEKV2 gekv2) {
         this.gekv2=gekv2;
     }
-    
+
     public ObisCodeDescriptor getObisCodeDescriptor(int dataControlEntryIndex) throws IOException {
         if (gekv2.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[dataControlEntryIndex]) {
             UOMEntryBitField uomEntryBitField = gekv2.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[dataControlEntryIndex];
-            
+
             int byte0=-1;
             int byte1=-1;
             if (uomEntryBitField.isNfs() && (gekv2.getStandardTableFactory().getSourceDefinitionTable().getDataControlFlag()[dataControlEntryIndex])) {
@@ -44,7 +44,7 @@ public class SourceInfo {
         }
         return null;
     }
-    
+
     public Unit getUnit(int dataControlEntryIndex) throws IOException {
         if (gekv2.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[dataControlEntryIndex]) {
             UOMEntryBitField uomEntryBitField = gekv2.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[dataControlEntryIndex];
@@ -53,9 +53,9 @@ public class SourceInfo {
         }
         return null; // KV_TO_DO ??
     }
-    
+
     public Unit getChannelUnit(int sourceIndex) throws IOException {
-     
+
         if (gekv2.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[sourceIndex]) {
             UOMEntryBitField uomEntryBitField = gekv2.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[sourceIndex];
             UOM2ObisTranslator uom2ObisTranslator = new UOM2ObisTranslator(uomEntryBitField);
@@ -63,7 +63,7 @@ public class SourceInfo {
         }
         return null; // KV_TO_DO ??
     }
-    
+
     public BigDecimal basic2engineering(BigDecimal value, int index) throws IOException {
         return basic2engineering(value, index,true);
     }
@@ -71,18 +71,18 @@ public class SourceInfo {
         return basic2engineering(value, index,loadProfile,loadProfile);
     }
 
-    
-    
+
+
     public BigDecimal basic2engineering(BigDecimal bd, int index, boolean loadProfile, boolean energy) throws IOException {
         UOMEntryBitField uomEntryBitField=null;
         int sourceIndex=-1;
-        
+
         if (loadProfile) {
             // source index is load profile channel
             sourceIndex = gekv2.getStandardTableFactory().getLoadProfileControlTable().getLoadProfileSelectionSet1()[index].getLoadProfileSourceSelect();
         }
         else sourceIndex=index;
-        
+
         if (gekv2.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[sourceIndex]) {
             uomEntryBitField = gekv2.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[sourceIndex];
 
@@ -92,7 +92,7 @@ public class SourceInfo {
             long voltageL2NScaleFactor = gekv2.getManufacturerTableFactory().getScaleFactorTable().getVoltSquareLine2NeutralScaleFactor();
             long currentScaleFactor = gekv2.getManufacturerTableFactory().getScaleFactorTable().getCurrentSquareScaleFactor();
             long currentNeutralScaleFactor = gekv2.getManufacturerTableFactory().getScaleFactorTable().getNeutralCurrentSquareScaleFactor();
-            
+
             // parse idCode, netflow & quadrants
             switch(uomEntryBitField.getIdCode()) {
                 case 3: // VA phasor
@@ -109,7 +109,7 @@ public class SourceInfo {
                     }
                     bd = bd.movePointLeft(6+3); // see kv2 doc
                     return bd;
-                } 
+                }
 
                 case 8: { // RMS volts
                     bd = bd.movePointLeft(1); // see kv2 doc
@@ -121,7 +121,7 @@ public class SourceInfo {
                         bd = bd.multiply(BigDecimal.valueOf(voltageL2NScaleFactor));
                     else
                         bd = bd.multiply(BigDecimal.valueOf(voltageL2LScaleFactor));
-                    
+
                     if (loadProfile) {
                         if (gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().isScalarDivisorFlagSet1()) {
                             bd = bd.multiply(BigDecimal.valueOf((long)gekv2.getStandardTableFactory().getLoadProfileControlTable().getDivisorSet1()[index]));
@@ -131,7 +131,7 @@ public class SourceInfo {
                     }
                     bd = bd.movePointLeft(6+3); // see kv2 doc
                     return bd;
-                } 
+                }
 
                 case 12: { // RMS amps
                     bd = bd.movePointLeft(1); // see kv2 doc
@@ -143,7 +143,7 @@ public class SourceInfo {
                         bd = bd.multiply(BigDecimal.valueOf(currentNeutralScaleFactor));
                     else
                         bd = bd.multiply(BigDecimal.valueOf(currentScaleFactor));
-                    
+
                     if (loadProfile) {
                         if (gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().isScalarDivisorFlagSet1()) {
                             bd = bd.multiply(BigDecimal.valueOf((long)gekv2.getStandardTableFactory().getLoadProfileControlTable().getDivisorSet1()[index]));
@@ -158,7 +158,7 @@ public class SourceInfo {
                     return bd;
                 }
 
-                case 16: // THDV IEEE 
+                case 16: // THDV IEEE
                 case 17: { // THDI IEEE
                     bd = bd.movePointLeft(2); // see kv2 doc
                     return bd;
@@ -173,25 +173,25 @@ public class SourceInfo {
                 case 33: { // Frequency
                     bd = bd.movePointLeft(2); // see kv2 doc
                     return bd;
-                } 
+                }
 
                 case 34: { // Counter
                     return bd;
-                } 
+                }
 
                 default:
                     throw new IOException("SourceInfo, basic2engineering(), invalid id code "+uomEntryBitField.getIdCode());
             }
         }
-        
-        throw new IOException("SourceInfo, basic2engineering(), no UOMEntryBitField, cannot calculate engineering value!"); 
-        
+
+        throw new IOException("SourceInfo, basic2engineering(), no UOMEntryBitField, cannot calculate engineering value!");
+
     } // public BigDecimal basic2engineering(BigDecimal value, boolean loadProfile) throws IOException
-    
+
     public BigDecimal getMultiplier(int index) throws IOException {
         return getMultiplier(index, true,true);
     }
-    
+
     public BigDecimal getMultiplier(int index, boolean loadProfile, boolean energy) throws IOException {
         UOMEntryBitField uomEntryBitField=null;
         int sourceIndex=-1;
@@ -201,7 +201,7 @@ public class SourceInfo {
             sourceIndex = gekv2.getStandardTableFactory().getLoadProfileControlTable().getLoadProfileSelectionSet1()[index].getLoadProfileSourceSelect();
         }
         else sourceIndex=index;
-        
+
         if (gekv2.getStandardTableFactory().getSourceDefinitionTable().getUomEntryFlag()[sourceIndex]) {
             uomEntryBitField = gekv2.getStandardTableFactory().getUnitOfMeasureEntryTable().getUomEntryBitField()[sourceIndex];
 
@@ -211,7 +211,7 @@ public class SourceInfo {
             long voltageL2NScaleFactor = gekv2.getManufacturerTableFactory().getScaleFactorTable().getVoltSquareLine2NeutralScaleFactor();
             long currentScaleFactor = gekv2.getManufacturerTableFactory().getScaleFactorTable().getCurrentSquareScaleFactor();
             long currentNeutralScaleFactor = gekv2.getManufacturerTableFactory().getScaleFactorTable().getNeutralCurrentSquareScaleFactor();
-            
+
             // parse idCode, netflow & quadrants
             switch(uomEntryBitField.getIdCode()) {
                 case 3: // VA phasor
@@ -228,7 +228,7 @@ public class SourceInfo {
                     }
                     bd = bd.movePointLeft(6+3); // see kv2 doc
                     return bd;
-                } 
+                }
 
                 case 8: { // RMS volts
                     bd = bd.movePointLeft(1); // see kv2 doc
@@ -240,7 +240,7 @@ public class SourceInfo {
                         bd = bd.multiply(BigDecimal.valueOf(voltageL2NScaleFactor));
                     else
                         bd = bd.multiply(BigDecimal.valueOf(voltageL2LScaleFactor));
-                    
+
                     if (loadProfile) {
                         if (gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().isScalarDivisorFlagSet1()) {
                             bd = bd.multiply(BigDecimal.valueOf((long)gekv2.getStandardTableFactory().getLoadProfileControlTable().getDivisorSet1()[index]));
@@ -250,7 +250,7 @@ public class SourceInfo {
                     }
                     bd = bd.movePointLeft(6+3); // see kv2 doc
                     return bd;
-                } 
+                }
 
                 case 12: { // RMS amps
                     bd = bd.movePointLeft(1); // see kv2 doc
@@ -262,7 +262,7 @@ public class SourceInfo {
                         bd = bd.multiply(BigDecimal.valueOf(currentNeutralScaleFactor));
                     else
                         bd = bd.multiply(BigDecimal.valueOf(currentScaleFactor));
-                    
+
                     if (loadProfile) {
                         if (gekv2.getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet().isScalarDivisorFlagSet1()) {
                             bd = bd.multiply(BigDecimal.valueOf((long)gekv2.getStandardTableFactory().getLoadProfileControlTable().getDivisorSet1()[index]));
@@ -277,7 +277,7 @@ public class SourceInfo {
                     return bd;
                 }
 
-                case 16: // THDV IEEE 
+                case 16: // THDV IEEE
                 case 17: { // THDI IEEE
                     bd = bd.movePointLeft(2); // see kv2 doc
                     return bd;
@@ -292,18 +292,18 @@ public class SourceInfo {
                 case 33: { // Frequency
                     bd = bd.movePointLeft(2); // see kv2 doc
                     return bd;
-                } 
+                }
 
                 case 34: { // Counter
                     return bd;
-                } 
+                }
 
                 default:
                     throw new IOException("SourceInfo, basic2engineering(), invalid id code "+uomEntryBitField.getIdCode());
             }
         }
-        
+
         throw new IOException("SourceInfo, basic2engineering(), no UOMEntryBitField, cannot calculate engineering value!");
     }
-    
+
 }

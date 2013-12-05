@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -16,7 +16,7 @@ import java.util.List;
  * Time: 14:00
  * Author: khe
  */
-public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<CollectedLogBook>> {
+public class ReadMeterEvents extends AbstractRequest<CanFindLogBook, List<CollectedLogBook>> {
 
     public ReadMeterEvents(ACE4000Outbound ace4000) {
         super(ace4000);
@@ -46,10 +46,15 @@ public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<Col
             List<CollectedLogBook> result = new ArrayList<CollectedLogBook>();
             CollectedLogBook deviceLogBook = getAce4000().getObjectFactory().getDeviceLogBook(getInput());
             ResultType resultType = ResultType.DataIncomplete;
-            if (deviceLogBook.getCollectedMeterEvents().size() == 0) {
+            if (deviceLogBook.getCollectedMeterEvents().isEmpty()) {
                 resultType = ResultType.NotSupported;
             }
-            deviceLogBook.setFailureInformation(resultType, MdcManager.getIssueCollector().addProblem(getInput(), "Requested events, meter returned NACK." + getReasonDescription(), getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
+            deviceLogBook.setFailureInformation(
+                    resultType,
+                    MdcManager.getIssueCollector().addProblem(
+                            getInput(),
+                            "Requested events, meter returned NACK." + getReasonDescription(),
+                            getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
             result.add(deviceLogBook);
             setResult(result);
         }

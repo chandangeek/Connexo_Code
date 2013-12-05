@@ -1,16 +1,26 @@
 package com.energyict.protocolimpl.coronis.wavesense;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.wavesense.core.parameter.ApplicationStatus;
 import com.energyict.protocolimpl.coronis.wavesense.core.parameter.OperatingMode;
-import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.*;
+import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.DetectionTable;
+import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.ExtendedDataloggingTable;
+import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.ThresholdEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 public class ProfileDataReader {
 
@@ -133,7 +143,7 @@ public class ProfileDataReader {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
             intervalValues.add(new IntervalValue(aRawIntervalData, 0, 0));    //The module doesn't send any information about the value's status..
             if (calendar.getTime().after(lastReading) && calendar.getTime().before(toDate)) {
-                intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));   //Only add the values when they fit in the requested interval.                
+                intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));   //Only add the values when they fit in the requested interval.
             }
             if (!monthly) {
                 calendar.add(Calendar.SECOND, -1 * getProfileIntervalInSeconds());

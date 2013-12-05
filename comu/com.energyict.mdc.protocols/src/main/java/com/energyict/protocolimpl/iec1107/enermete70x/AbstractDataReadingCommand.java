@@ -6,23 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocolimpl.base.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+
+import java.io.IOException;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public abstract class AbstractDataReadingCommand {
-    
+
     abstract public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException;
-    
+
     DataReadingCommandFactory dataReadingCommandFactory;
-    
+
     /** Creates a new instance of AbstractDataReadingCommand */
     public AbstractDataReadingCommand(DataReadingCommandFactory dataReadingCommandFactory) {
         this.dataReadingCommandFactory=dataReadingCommandFactory;
@@ -36,14 +34,14 @@ public abstract class AbstractDataReadingCommand {
         byte[] retVal = read(command,data);
         parse(retVal,getDataReadingCommandFactory().getEnermet().getTimeZone());
     }
-    
+
     /*
      *  Must be overridden to implement the data builder...
      */
     protected byte[] buildData() {
         return null;
     }
-    
+
     protected void write(String command, String data) throws ProtocolConnectionException,IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(command);
@@ -54,7 +52,7 @@ public abstract class AbstractDataReadingCommand {
         if (str != null)
              validateData(str);
     }
-    
+
     private byte[] read(String Command,String data) throws ProtocolConnectionException,IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(Command);
@@ -65,7 +63,7 @@ public abstract class AbstractDataReadingCommand {
         byte[] ba = getDataReadingCommandFactory().getEnermet().getIec1107Connection().receiveRawData();
         return validateData(ba);
     }
-    
+
     protected String buildLength(int value,int length) {
         String str=Integer.toHexString(value);
         StringBuffer strbuff = new StringBuffer();
@@ -75,15 +73,15 @@ public abstract class AbstractDataReadingCommand {
         strbuff.append(str);
         return strbuff.toString();
     }
-        
+
     private void validateData(String str) throws ProtocolConnectionException {
         validateData(str.getBytes());
     }
-    
+
     private byte[] validateData(byte[] data) throws ProtocolConnectionException {
         String str = new String(data);
         int errorCodeReturnIndex = str.indexOf("([");
-        
+
         // check explicit if ([..]) starts at first position in returned data. in the register data ([4]) indicates
         // that a certain register is not existing
         if (errorCodeReturnIndex == 0) {
@@ -91,10 +89,10 @@ public abstract class AbstractDataReadingCommand {
         }
         return data;
     }
-    
- 
-    
- 
+
+
+
+
     /**
      * Getter for property dataReadingCommandFactory.
      * @return Value of property dataReadingCommandFactory.

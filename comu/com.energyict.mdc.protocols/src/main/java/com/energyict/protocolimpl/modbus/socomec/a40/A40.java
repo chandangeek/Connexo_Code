@@ -13,10 +13,10 @@ package com.energyict.protocolimpl.modbus.socomec.a40;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
@@ -37,25 +37,25 @@ import java.util.logging.Logger;
  * @author Koen
  */
 public class A40 extends Modbus {
-    
+
     private MultiplierFactory multiplierFactory=null;
     private String socomecType;
     private SocomecProfile profile;
-    
+
     /**
-     * Creates a new instance of A20 
+     * Creates a new instance of A20
      */
     public A40() {
     }
 
     protected void doTheConnect() throws IOException {
     }
-    
+
     protected void doTheDisConnect() throws IOException {
     }
-    
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	
+
     	if(getProfile().isSupported()){
     		ProfileData profileData = new ProfileData();
     		profileData.setChannelInfos(getProfile().getChannelInfos());
@@ -65,28 +65,28 @@ public class A40 extends Modbus {
     	} else {
     		throw new UnsupportedException("ProfileData is not supported by the meter.");
     	}
-    	
+
     }
-    
+
     public int getProfileInterval() throws UnsupportedException, IOException {
     	return getProfile().getProfileInterval();
     }
-    
+
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
         setSocomecType(properties.getProperty("SocomecType"));
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "unknown";
     }
-    
+
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add("SocomecType");
         return result;
     }
-    
+
     @Override
     public String getProtocolDescription() {
         return "Socomec Diris A40";
@@ -95,11 +95,11 @@ public class A40 extends Modbus {
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
-    
+
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
-    
+
     public Date getTime() throws IOException {
     	getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getReadHoldingRegistersRequest().getRegisters();
         return new Date();
@@ -108,8 +108,8 @@ public class A40 extends Modbus {
     public DiscoverResult discover(DiscoverTools discoverTools) {
         // discovery is implemented in the GenericModbusDiscover protocol
         return null;
-    } 
-    
+    }
+
     static public void main(String[] args) {
         try {
             // ********************** Dialer **********************
@@ -120,7 +120,7 @@ public class A40 extends Modbus {
                                                              SerialCommunicationChannel.PARITY_NONE,
                                                              SerialCommunicationChannel.STOPBITS_1);
             dialer.connect();
-            
+
             // ********************** Properties **********************
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "900");
@@ -131,25 +131,25 @@ public class A40 extends Modbus {
             // ********************** EictRtuModbus **********************
             A40 eictRtuModbus = new A40();
             //System.out.println(eictRtuModbus.translateRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            
+
             eictRtuModbus.setProperties(properties);
             eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
             eictRtuModbus.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             eictRtuModbus.connect();
-            
+
             //System.out.println(eictRtuModbus.getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification());
-            
+
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).getReadHoldingRegistersRequest());
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValue());
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(3034).dateValue());
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValueWithParser("BigDecimal"));
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).objectValueWithParser("powerfactor"));
-            
+
             //System.out.println(eictRtuModbus.getFirmwareVersion());
             //System.out.println(eictRtuModbus.getClass().getName());
             //System.out.println(eictRtuModbus.getTime());
-            
-            
+
+
             //System.out.println(eictRtuModbus.getRegisterFactory().findRegister("versie").values()[0]);
             System.out.println(eictRtuModbus.getRegistersInfo(1));
             //System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.12.7.0.255")));
@@ -163,15 +163,15 @@ public class A40 extends Modbus {
 //            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
 //            System.out.println(eictRtuModbus.getRegistersInfo(0));
 //            System.out.println(eictRtuModbus.getRegistersInfo(1));
-            
+
             eictRtuModbus.disconnect();
-            
+
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-        
-    } 
+
+    }
 
     /**
      * @param address - the given address
@@ -179,11 +179,11 @@ public class A40 extends Modbus {
      */
     public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
         return getMultiplierFactory().getMultiplier(address);
-    }    
-    
+    }
+
     /**
      * Getter for the {@link MultiplierFactory}
-     * 
+     *
      * @return the MulitpliereFactory
      */
     public MultiplierFactory getMultiplierFactory() {
@@ -195,7 +195,7 @@ public class A40 extends Modbus {
 
     /**
      * Getter for the SocomecType (A20/A40)
-     * 
+     *
      * @return
      */
     public String getSocomecType() {
@@ -204,7 +204,7 @@ public class A40 extends Modbus {
 
     /**
      * Setter for the SocomecType (A20/A40)
-     * 
+     *
      * @param socomecType - the type
      */
     private void setSocomecType(String socomecType) {
@@ -213,22 +213,22 @@ public class A40 extends Modbus {
 
     /**
      * Setter for the {@link ModbusConnection}
-     * 
+     *
      * @param modbusConnection - the used modbusConnection
      */
     protected void setModbusConnection(ModbusConnection modbusConnection){
     	this.modbusConnection = modbusConnection;
     }
-    
+
     /**
      * Setter for the {@link Logger}
-     * 
+     *
      * @param logger - the desired logger
      */
     protected void setLogger(Logger logger){
     	setAbstractLogger(logger);
     }
-    
+
     /**
      * @return the current SocomecProfile
      */
@@ -238,10 +238,10 @@ public class A40 extends Modbus {
     	}
     	return this.profile;
     }
-    
+
     /**
      * Read the raw registers from the MobBus device
-     * 
+     *
      * @param address - startAddress
      * @param length - the required data length
      * @return the registers from the device
@@ -252,7 +252,7 @@ public class A40 extends Modbus {
         r.setRegisterFactory(getRegisterFactory());
         return r.getReadHoldingRegistersRequest().getRegisters();
     }
-    
+
     /**
      * @return the number of channels
      */

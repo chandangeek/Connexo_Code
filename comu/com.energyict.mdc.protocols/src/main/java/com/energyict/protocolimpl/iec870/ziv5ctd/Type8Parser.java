@@ -7,16 +7,16 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+
 import java.math.BigDecimal;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 
 /** @author fbo */
 
 public class Type8Parser implements TypeParser {
-   
+
     /** Creates a new instance of Type8Parser */
     public Type8Parser() { }
 
@@ -24,7 +24,7 @@ public class Type8Parser implements TypeParser {
 
         ByteArray vBArray = byteArray.sub(6);
         InformationObject8 i8 = new InformationObject8( );
-        
+
         CP40Time t = new CP40Time(TimeZone.getDefault(), byteArray.sub( 54, 5 ) );
         i8.setDate( t.getDate() );
         i8.setQuanitity1( toQuantity( vBArray.intValue(1, 4), Unit.get("kWh") ) );
@@ -40,11 +40,11 @@ public class Type8Parser implements TypeParser {
         i8.setQuanitity6( toQuantity( vBArray.intValue(31, 4), Unit.get("kVAar") ) );
         i8.setStatus6(vBArray.intValue(35, 1));
         return (InformationObject)i8;
-        
+
     }
-    
+
     Quantity toQuantity( int v, Unit u ){
         return new Quantity( new BigDecimal(v), u);
     }
-   
+
 }

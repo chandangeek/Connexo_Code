@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class CommandResponseException extends IOException {
-    
+
     /** Creates a new instance of RegisterNumMismatchException */
     public CommandResponseException(String str) {
         super(str);
     }
-    
+
 }

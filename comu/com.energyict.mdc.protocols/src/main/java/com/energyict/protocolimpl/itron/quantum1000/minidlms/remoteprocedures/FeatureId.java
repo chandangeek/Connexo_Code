@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 abstract public class FeatureId extends AbstractRemoteProcedure {
-    
+
     public static final int FID_PROTOCOL_DNP30 = 1;
     public static final int FID_PROTOCOL_IEC870_5_102 = 2;
     public static final int FID_EXTENDED_LOAD_PROFILE_1 = 3;
@@ -47,11 +47,11 @@ abstract public class FeatureId extends AbstractRemoteProcedure {
     public static final int FID_CANADA = 27;
     public static final int FID_TIME_OF_USE_ADVANCED = 28;
     public static final int FID_SPAIN_DIST = 29;
-    public static final int FID_SPAIN_GEN = 30;    
-    
+    public static final int FID_SPAIN_GEN = 30;
+
     /** Creates a new instance of FeatureId */
     public FeatureId(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
+
 }

@@ -2,9 +2,7 @@ package com.energyict.protocols.mdc.services;
 
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.services.DeviceProtocolMessageService;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * Copyrights EnergyICT

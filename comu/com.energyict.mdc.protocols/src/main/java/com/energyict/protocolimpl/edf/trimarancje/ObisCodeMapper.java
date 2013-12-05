@@ -10,45 +10,45 @@
 
 package com.energyict.protocolimpl.edf.trimarancje;
 
-import java.io.IOException;
-
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterNameFactory;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeMapper {
-    
+
     Trimaran trimeran;
-    
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(Trimaran trimeran) {
         this.trimeran=trimeran;
     }
-    
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(RegisterNameFactory.findObisCode(obisCode));
     }
-    
-    
+
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 
         Register register = trimeran.getRegisterFactory().findRegister(obisCode);
         if (register != null){
             return register.getRegisterValue();
         }
-        
+
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
     } // private Object getRegisterValue(ObisCode obisCode, boolean read)
-    
-    
-    
-    
+
+
+
+
 }

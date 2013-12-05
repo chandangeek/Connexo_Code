@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.io.IOException;
 import java.util.List;

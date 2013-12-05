@@ -6,29 +6,34 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-import com.energyict.cbo.*;
-import java.util.logging.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec870.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author  Koen
  */
 public class DatawattProfile {
-    
+
     DataWatt dataWatt = null;
     private static final int DEBUG=0;
-    
+
     /** Creates a new instance of DatawattProfile */
     public DatawattProfile(DataWatt dataWatt) {
         this.dataWatt=dataWatt;
     }
-    
+
     public ProfileData getProfileData(Calendar calendar,boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
         profileData.setChannelInfos(buildChannelInfos());
@@ -37,12 +42,12 @@ public class DatawattProfile {
         profileData.applyEvents(dataWatt.getProfileInterval()/60);
         return profileData;
     }
-    
+
     private List buildChannelInfos() {
         List channelInfos = new ArrayList();
         // build channelinfos
         for (int i=0;i<dataWatt.getChannelMap().getNrOfChannels();i++) {
-            ChannelInfo chi = new ChannelInfo(i,"datawatt_channel_"+i,Unit.get(""));
+            ChannelInfo chi = new ChannelInfo(i,"datawatt_channel_"+i, Unit.get(""));
             if (dataWatt.getChannelMap().getChannel(i).isCumulative()) {
                 chi.setCumulativeWrapValue(new BigDecimal(DataWatt.MAX_COUNTER));
             }
@@ -50,7 +55,7 @@ public class DatawattProfile {
         }
         return channelInfos;
     } // private List buildChannelInfos()
-    
+
     private List buildIntervalDatas(Calendar calendar) throws IOException {
         int t,i;
         List intervalDatas = new ArrayList();
@@ -59,12 +64,12 @@ public class DatawattProfile {
         HistoricalValue hist=null;
         List partial=null;
         List historicalValues;
-        
+
         // get historical data
         historicalValues = dataWatt.getApplicationFunction().historicalDataASDU(calendar);
         historicalValues = removeUnwantedHistoricalValues(historicalValues);
         if (DEBUG >=1) printHistoricalValuesList(historicalValues);
-        
+
         // build intervaldata from historical data
         while(true) {
             partial = getChannelValues(historicalValues);
@@ -89,22 +94,22 @@ public class DatawattProfile {
         } // while(true)
         return intervalDatas;
     } // private List buildIntervalDatas(Calendar calendar)
-    
-    
+
+
     private static final int UNIGAS_TZ=0; // metertype
     private static final int UNIGASTZ_COMMUNICATIESTORING=12;
     private static final int UNIGASTZ_ALARM_BEGIN=5;
     private static final int UNIGASTZ_ALARM_END=11;
-    
+
     private static final int UNIGAS_KAMSTRUP=1; // metertype
     private static final int UNIGASKAMSTRUP_POWERUP=12;
     private static final int UNIGASKAMSTRUP_ALARM_BEGIN=2;
     private static final int UNIGASKAMSTRUP_ALARM_END=5;
-    
+
     private static final int NO_METER=2; // metertype
     private static final int NO_METER_COMMUNICATIESTORING=5;
-    
-    
+
+
     private List buildMeterEvents(boolean includeEvents) throws IOException {
         List meterEvents = new ArrayList();
         if (includeEvents) {
@@ -129,10 +134,10 @@ public class DatawattProfile {
                 }
             }
         }
-        
+
         return meterEvents;
     } // private List buildMeterEvents()
-    
+
     private List getChannelValues(List historicalValues) {
         List partial = null;
         int count;
@@ -159,8 +164,8 @@ public class DatawattProfile {
         }
         return partial;
     }
-    
-    
+
+
     private List removeUnwantedHistoricalValues(List historicalValues) {
         Iterator it = historicalValues.iterator();
         HistoricalValue hist=null;
@@ -170,7 +175,7 @@ public class DatawattProfile {
         }
         return historicalValues;
     }
-    
+
     protected void doLogMeterDataCollection(ProfileData profileData) {
         if (profileData == null) return;
         int i,iNROfChannels=profileData.getNumberOfChannels();
@@ -188,9 +193,9 @@ public class DatawattProfile {
         for (z=0;z<iNROfEvents;z++) {
             System.out.println("Event "+z+" = "+profileData.getEvent(z).getEiCode()+", "+profileData.getEvent(z).getProtocolCode()+" at "+profileData.getEvent(z).getTime());
         }
-        
+
     } // protected void doLogMeterDataCollection(ProfileData profileData)
-    
+
     private void printHistoricalValuesList(List list) {
         if (list.size() > 0)
             System.out.println("****************************** printHistoricalValuesList ******************************");
@@ -199,5 +204,5 @@ public class DatawattProfile {
             System.out.println(((HistoricalValue)it.next()).toString());
         }
     }
-    
+
 } // public class DatawattProfile

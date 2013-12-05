@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.nta.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +11,7 @@ public class TicLog extends AbstractEvent{
 
 	private static final int EVENT_PERCC = 240;
 	private static final int EVENT_PERCP = 241;
-	
+
 	public TicLog(TimeZone timeZone, DataContainer ticContainter) {
         super(ticContainter, timeZone);
 	}

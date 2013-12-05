@@ -10,20 +10,23 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
-public class LogicalIDFactory { 
-    
+public class LogicalIDFactory {
+
     static List list = new ArrayList();
-    
+
     static {
         list.add(new LogicalID("ALL_SEC_ENERGIES_TOTAL",0x140000BF,null,null));
         list.add(new LogicalID("ALL_SEC_ENERGIES_RATE_A",0x740800BF,null,null));
@@ -57,7 +60,7 @@ public class LogicalIDFactory {
         list.add(new LogicalID("LAST_SR_ALL_SEC_ENERGIES_RATE_E",0x5DA800BF,null,null));
         list.add(new LogicalID("LAST_SR_ALL_SEC_ENERGIES_RATE_F",0x5DB000BF,null,null));
         list.add(new LogicalID("LAST_SR_ALL_SEC_ENERGIES_RATE_G",0x5DB800BF,null,null));
-        list.add(new LogicalID("WH_DELIVERED",0x14000081,ObisCode.fromString("1.1.1.8.0.255"),Unit.get("Wh")));
+        list.add(new LogicalID("WH_DELIVERED",0x14000081, ObisCode.fromString("1.1.1.8.0.255"), Unit.get("Wh")));
         list.add(new LogicalID("WH_RECEIVED",0x14000082,ObisCode.fromString("1.1.2.8.0.255"),Unit.get("Wh")));
         list.add(new LogicalID("VARH_Q1",0x14000083,ObisCode.fromString("1.1.5.8.0.255"),Unit.get("varh")));
         list.add(new LogicalID("VARH_Q2",0x14000084,ObisCode.fromString("1.1.6.8.0.255"),Unit.get("varh")));
@@ -165,7 +168,7 @@ public class LogicalIDFactory {
         list.add(new LogicalID("MAX_TOTALIZER3",0x1C0040AD,ObisCode.fromString("1.3."+ObisCodeExtensions.OBISCODE_C_TOTALIZER+".6.0.255"),Unit.get("")));
         list.add(new LogicalID("PK_2_W_DELIVERED",0x1C008081,ObisCode.fromString("1.1.1."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("W")));
         list.add(new LogicalID("PK_2_W_RECEIVED",0x1C008082,ObisCode.fromString("1.1.2."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("W")));
-        list.add(new LogicalID("PK_2_VAR_Q1",0x1C008083,ObisCode.fromString("1.1.5."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("var"))); 
+        list.add(new LogicalID("PK_2_VAR_Q1",0x1C008083,ObisCode.fromString("1.1.5."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("var")));
         list.add(new LogicalID("PK_2_VAR_Q2",0x1C008084,ObisCode.fromString("1.1.6."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("var")));
         list.add(new LogicalID("PK_2_VAR_Q3",0x1C008085,ObisCode.fromString("1.1.7."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("var")));
         list.add(new LogicalID("PK_2_VAR_Q4",0x1C008086,ObisCode.fromString("1.1.8."+ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK+".0.255"),Unit.get("var")));
@@ -1391,16 +1394,16 @@ public class LogicalIDFactory {
         list.add(new LogicalID("LP_INTERVAL_DATA_TYPE",0x48000014,null,null));
         list.add(new LogicalID("LP_LAST_VALID_BLOCK_INDEX",0x4C000004,null,null));
         list.add(new LogicalID("LP_LAST_BLOCK_INTERVALS",0x4C000002,null,null));
-        
-        
-        
+
+
+
     }
-    
+
     /** Creates a new instance of LogicalIDFactory */
     private LogicalIDFactory() {
-        
+
     }
-    
+
     static public LogicalID findLogicalId(ObisCode obisCode) throws IOException {
         Iterator it = list.iterator();
         while(it.hasNext()) {
@@ -1409,10 +1412,10 @@ public class LogicalIDFactory {
                 return lid;
             }
         }
-        
+
         throw new IOException("LogicalIDFactory, findLogicalId, illegal logical obisCode "+obisCode);
     }
-    
+
     static public LogicalID findLogicalId(String description) throws IOException {
         Iterator it = list.iterator();
         while(it.hasNext()) {
@@ -1421,11 +1424,11 @@ public class LogicalIDFactory {
                 return lid;
             }
         }
-        
+
         throw new IOException("LogicalIDFactory, findLogicalId, illegal logical description "+description);
     }
-    
-    
+
+
     static public LogicalID findLogicalId(long id) throws IOException {
         Iterator it = list.iterator();
         while(it.hasNext()) {
@@ -1434,10 +1437,10 @@ public class LogicalIDFactory {
                 return lid;
             }
         }
-        
+
         throw new IOException("LogicalIDFactory, findLogicalId, illegal logical id 0x"+Long.toHexString(id));
     }
-    
+
 //    static public void main(String[] args) {
 //        try {
 //            System.out.println(LogicalIDFactory.findLogicalId(0123));

@@ -10,38 +10,36 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
 
-/**  
+import java.io.IOException;
+
+/**
  *
  * @author Koen
  */
 public class AddressWriteBasePage extends AbstractBasePage {
-    
-    
+
+
     private int address;
     private byte[] data;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public AddressWriteBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new RealTimeBasePage(null)));
-//    }     
-    
+//    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         BasePageDescriptor bs = new BasePageDescriptor(getAddress(), getData().length);
         bs.setData(getData());
         return bs;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         //getBasePagesFactory().getFulcrum().getTimeZone()
@@ -63,5 +61,5 @@ public class AddressWriteBasePage extends AbstractBasePage {
         this.data = data;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

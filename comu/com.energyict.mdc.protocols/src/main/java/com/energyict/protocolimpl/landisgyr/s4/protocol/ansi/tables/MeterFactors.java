@@ -10,12 +10,14 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ActualSourcesLimitingTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -23,7 +25,7 @@ import java.math.*;
  */
 public class MeterFactors extends AbstractTable {
 
-    
+
     private BigDecimal kFactors; // K_FACTOR : ARRAY[3] OF BCD32;
     //IF ACT_SOURCES_LIM_TBL.THERMAL_DEMAND_FLAG THEN
     private BigDecimal demandKFactor; // DEMAND_K_FACTOR : ARRAY[3] OF UINT838
@@ -33,13 +35,13 @@ public class MeterFactors extends AbstractTable {
     private int scaleFactor; // SCALE_FACTOR : UINT8;
     private int demandOverlowdValue; // DEMAND_OVERLOAD_VALUE : UINT16;
     private int testModeKh; // TEST_MODE_KH : ARRAY[3] OF BCD32;
-    private int testModeKFactor; // TEST_MODE_K_FACTOR : ARRAY[3] OF BCD32;  
-      
+    private int testModeKFactor; // TEST_MODE_K_FACTOR : ARRAY[3] OF BCD32;
+
     /** Creates a new instance of TableTemplate */
     public MeterFactors(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(16,true));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -51,19 +53,19 @@ public class MeterFactors extends AbstractTable {
         strBuff.append("   testModeKFactor="+getTestModeKFactor()+"\n");
         strBuff.append("   testModeKh="+getTestModeKh()+"\n");
         return strBuff.toString();
-    }  
+    }
 
 
     public BigDecimal getEnergyMultiplier() {
         return getKFactors().movePointLeft(3); // kWh = pulseCount * (kf / 1000) S4 implementation guide page 174
     }
-    
+
     public BigDecimal getDemandMultiplier() throws IOException {
         BigDecimal bd =  getKFactors().movePointLeft(3); // kW = pulseCount * (kf / 1000) * (intervals/hour) S4 implementation guide page 174
         bd = bd.multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
         return bd;
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         ConfigurationTable cfgt = getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualSourcesLimitingTable aslt = getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable();
@@ -71,9 +73,9 @@ public class MeterFactors extends AbstractTable {
 
         setKFactors(BigDecimal.valueOf(C12ParseUtils.getBCD2Long(tableData, offset, 3, cfgt.getDataOrder())));
         setKFactors(getKFactors().movePointLeft(3)); // see S4 C12 implementation page 113
-        
+
         offset+=3;
-        
+
         if (aslt.isThermalDemand()) {
             setDemandKFactor(Utils.getS4FloatingPoint(tableData, offset));
             offset+=3;
@@ -83,18 +85,18 @@ public class MeterFactors extends AbstractTable {
             setDemandKFactor(getDemandKFactor().movePointLeft(3)); // see S4 C12 implementation page 113
             offset+=3;
         }
-        
+
         setScaleFactor((int)tableData[offset++] & 0xFF);
         setDemandOverlowdValue(C12ParseUtils.getInt(tableData,offset,2, cfgt.getDataOrder()));
         offset+=2;
-        
+
         setTestModeKh((int)C12ParseUtils.getBCD2Long(tableData, offset, 3, cfgt.getDataOrder()));
         offset+=3;
         setTestModeKFactor((int)C12ParseUtils.getBCD2Long(tableData, offset, 3, cfgt.getDataOrder()));
         offset+=3;
 
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
@@ -146,6 +148,6 @@ public class MeterFactors extends AbstractTable {
     public void setTestModeKFactor(int testModeKFactor) {
         this.testModeKFactor = testModeKFactor;
     }
-    
+
 
 }

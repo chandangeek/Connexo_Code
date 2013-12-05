@@ -10,21 +10,21 @@
 
 package com.energyict.protocolimpl.ge.kv2;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeInfo {
-    
+
     private ObisCode obisCode;
     private String description;
     private Unit unit;
     int registerIndex;
     private int datacontrolEntryIndex;
-    
+
     /** Creates a new instance of ObisCodeInfo */
     public ObisCodeInfo(ObisCode obisCode,String description,Unit unit,int registerIndex, int datacontrolEntryIndex) {
         this.obisCode=obisCode;
@@ -49,7 +49,7 @@ public class ObisCodeInfo {
     public Unit getUnit() {
         return unit;
     }
-    
+
     public boolean isCurrent() {
         return getObisCode().getF()==ObisCodeInfoFactory.CURRENT;
     }
@@ -71,11 +71,11 @@ public class ObisCodeInfo {
     public int getTierIndex() {
         return getObisCode().getE()-1;
     }
-    
+
     public int getOccurance() {
         return 0; //getObisCode().getB()-1; Occurances only 1! see KV2 doc! // B field is used to indicate harmonics or fundamental and special segmentation between phases!
     }
-    
+
     public boolean isTimeIntegral() {
         return getObisCode().getD() == ObisCode.CODE_D_TIME_INTEGRAL;
     }

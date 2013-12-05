@@ -1,33 +1,33 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.LogBookReader;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -111,25 +111,30 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    public PropertySpec getPropertySpec (String name) {
+        for (PropertySpec propertySpec : this.getPropertySpecs()) {
+            if (name.equals(propertySpec.getName())) {
+                return propertySpec;
+            }
+        }
+        return null;
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(PropertySpecFactory.booleanPropertySpec(defaultOptionalProperty));
-        optionalProperties.add(PropertySpecFactory.codeTableReferencePropertySpec("SDKCodeTableProperty"));
-        optionalProperties.add(PropertySpecFactory.obisCodePropertySpecWithValues("SDKObisCodeProperty",
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().booleanPropertySpec(defaultOptionalProperty));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().codeTableReferencePropertySpec("SDKCodeTableProperty"));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
                 ObisCode.fromString("1.0.1.8.0.255"),
                 ObisCode.fromString("1.0.1.8.1.255"),
                 ObisCode.fromString("1.0.1.8.2.255"),
                 ObisCode.fromString("1.0.2.8.0.255"),
                 ObisCode.fromString("1.0.2.8.1.255"),
                 ObisCode.fromString("1.0.2.8.2.255")));
-        optionalProperties.add(PropertySpecFactory.bigDecimalPropertySpec("SDKBigDecimalWithDefault", new BigDecimal("666.156")));
-        optionalProperties.add(PropertySpecFactory.dateTimePropertySpec("MyDateTimeProperty"));
-//        optionalProperties.add(PropertySpecFactory.fixedLengthHexStringPropertySpec("MyFixedHexStringPropertySpec", 16));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec("SDKBigDecimalWithDefault", new BigDecimal("666.156")));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().dateTimePropertySpec("MyDateTimeProperty"));
+//        optionalProperties.add(OptionalPropertySpecFactory.newInstance().fixedLengthHexStringPropertySpec("MyFixedHexStringPropertySpec", 16));
         return optionalProperties;
     }
 
@@ -336,7 +341,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void copyProperties(TypedProperties properties) {
         this.logger.log(Level.INFO, "Adding the properties to the DeviceProtocol instance.");
         this.typedProperties.setAllProperties(properties);
     }

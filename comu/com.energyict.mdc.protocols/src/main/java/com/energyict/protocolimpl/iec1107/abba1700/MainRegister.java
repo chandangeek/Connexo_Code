@@ -6,52 +6,46 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.math.BigDecimal;
-import java.io.IOException;
+import com.energyict.mdc.common.Quantity;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
  */
 public class MainRegister {
-    
+
     Quantity quantity=null;
     HistoricalValueSetInfo historicalValueSetInfo=new HistoricalValueSetInfo();
-    
+
     /** Creates a new instance of MainRegister */
     public MainRegister() {
     }
     public MainRegister(Quantity quantity) {
         this.quantity=quantity;
     }
-    
+
     // implementing BillingRegister
     public void setHistoricalValueSetInfo(HistoricalValueSetInfo historicalValueSetInfo) {
         this.historicalValueSetInfo=historicalValueSetInfo;
     }
     public HistoricalValueSetInfo getHistoricalValueSetInfo() {
-        return historicalValueSetInfo; 
-    }    
-    
+        return historicalValueSetInfo;
+    }
+
     /**
      * Getter for property quantity.
      * @return Value of property quantity.
      */
-    public com.energyict.cbo.Quantity getQuantity() {
+    public Quantity getQuantity() {
         return quantity;
     }
-    
+
     /**
      * Setter for property quantity.
      * @param quantity New value of property quantity.
      */
-    public void setQuantity(com.energyict.cbo.Quantity quantity) {
+    public void setQuantity(Quantity quantity) {
         this.quantity = quantity;
     }
-    
+
 }

@@ -10,35 +10,37 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadTriggerInfo {
-    
+
     // If TRUE, the corresponding date and time trigger is enabled. A freeze occurs and the programmed action is performed at the specified date and time.
     private boolean enabled; // BOOLEAN,
-    
+
     // This is date and time at which the freeze occurs. There are 12 entries which allow the user to schedule freezes.
     private Date freezeTime; // DATE_AND_TIME,
-    
-    // When a freeze occurs, the meter executes the freeze action set for this trigger. The actions can be combined. 
+
+    // When a freeze occurs, the meter executes the freeze action set for this trigger. The actions can be combined.
     // The action byte is broken down as: Bit0 = Demand Reset Bit1 = Digital State Output Bits 2-7 = Reserved No bits on = No action to be taken.
     private int actionCode; // UNSIGNED8
-    
+
     /** Creates a new instance of Result */
     public SelfReadTriggerInfo(byte[] data,int offset,TimeZone timeZone) throws IOException {
         setEnabled(ProtocolUtils.getInt(data,offset++,1) == 1);
         setFreezeTime(Utils.getCalendarFromDateTime(data,offset, timeZone).getTime());
         offset+=Utils.getDateTimeSize();
         setActionCode(ProtocolUtils.getInt(data,offset++,1));
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -48,7 +50,7 @@ public class SelfReadTriggerInfo {
         strBuff.append("   freezeTime="+getFreezeTime()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 8;
     }
@@ -76,7 +78,7 @@ public class SelfReadTriggerInfo {
     public void setActionCode(int actionCode) {
         this.actionCode = actionCode;
     }
-    
 
-    
+
+
 }

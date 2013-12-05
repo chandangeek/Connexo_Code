@@ -1,16 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Creates a MessageEntry based on the

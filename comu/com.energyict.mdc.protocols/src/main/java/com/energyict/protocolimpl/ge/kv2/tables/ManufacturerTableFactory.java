@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ManufacturerTableFactory extends TableFactory {
-    
+
     private C12ProtocolLink c12ProtocolLink;
-    
+
     // cached tables
     private GEDeviceTable geDeviceTable=null;
     private MeterProgramConstants1 meterProgramConstants1=null;
     private MeterProgramConstants2 meterProgramConstants2=null;
     private ScaleFactorTable scaleFactorTable=null;
-    private DisplayConfigurationTable displayConfigurationTable=null;        
-    
+    private DisplayConfigurationTable displayConfigurationTable=null;
+
     /** Creates a new instance of TableFactory */
     public ManufacturerTableFactory(C12ProtocolLink c12ProtocolLink) {
         this.c12ProtocolLink = c12ProtocolLink;
@@ -37,44 +37,44 @@ public class ManufacturerTableFactory extends TableFactory {
     public C12ProtocolLink getC12ProtocolLink() {
         return c12ProtocolLink;
     }
-    
-    public GEDeviceTable getGEDeviceTable() throws IOException {  
+
+    public GEDeviceTable getGEDeviceTable() throws IOException {
         if (geDeviceTable==null) {
             geDeviceTable = new GEDeviceTable(this);
             geDeviceTable.build();
         }
         return geDeviceTable;
     }
-    
-    public MeterProgramConstants1 getMeterProgramConstants1() throws IOException {  
+
+    public MeterProgramConstants1 getMeterProgramConstants1() throws IOException {
         if (meterProgramConstants1==null) {
             meterProgramConstants1 = new MeterProgramConstants1(this);
             meterProgramConstants1.build();
         }
         return meterProgramConstants1;
     }
-    
-    public MeterProgramConstants2 getMeterProgramConstants2() throws IOException {  
+
+    public MeterProgramConstants2 getMeterProgramConstants2() throws IOException {
         if (meterProgramConstants2==null) {
             meterProgramConstants2 = new MeterProgramConstants2(this);
             meterProgramConstants2.build();
         }
         return meterProgramConstants2;
     }
-    public ScaleFactorTable getScaleFactorTable() throws IOException {  
+    public ScaleFactorTable getScaleFactorTable() throws IOException {
         if (scaleFactorTable==null) {
             scaleFactorTable = new ScaleFactorTable(this);
             scaleFactorTable.build();
         }
         return scaleFactorTable;
     }
-    
-    public DisplayConfigurationTable getDisplayConfigurationTable() throws IOException {  
+
+    public DisplayConfigurationTable getDisplayConfigurationTable() throws IOException {
         if (displayConfigurationTable==null) {
             displayConfigurationTable = new DisplayConfigurationTable(this);
             displayConfigurationTable.build();
         }
         return displayConfigurationTable;
     }
-    
+
 }

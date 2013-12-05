@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
 
 /**
  * The link layer accepts, performs and controls transmission service functions
@@ -52,7 +52,7 @@ public class LinkLayer extends Connection {
     FrameFactory frameFactory;
     AsduFactory asduFactory;
     boolean fcb;
-    
+
     int timeoutMilli = 3000;
     int retries;
 
@@ -82,7 +82,7 @@ public class LinkLayer extends Connection {
         } catch (ParseException e) {
             e.printStackTrace();
             throw new IOException();
-        }     
+        }
     }
 
     /** during connect init the fcb is not used */
@@ -91,14 +91,14 @@ public class LinkLayer extends Connection {
         Frame result = receive();
         return result;
     }
-    
+
     /** during connect init the fcb is not used */
     Frame requestRespondConnect( FixedFrame frame ) throws IOException, ParseException {
         sendRawData( frame.toByteArray().toByteArray() );
         return receive();
     }
 
-    
+
     void send( Frame frame ) throws IOException {
         String dbg = frame.toByteArray().toHexaString();
         dbg += " " + frame;
@@ -106,16 +106,16 @@ public class LinkLayer extends Connection {
         sendRawData(frame.toByteArray().toByteArray());
     }
 
-    
+
     /** double dispatch */
     Frame requestRespond( Frame frame ) throws IOException, ParseException {
         return frame.requestRespond(this);
     }
-            
+
     Frame requestRespond( VariableFrame frame ) throws IOException, ParseException {
         int tryNr = 0;
         try {
-        
+
             while( tryNr < retries ) {
                 tryNr = tryNr + 1;
                 // step 1
@@ -130,12 +130,12 @@ public class LinkLayer extends Connection {
                 Frame sFrame = frameFactory.createFixed(FunctionCode.PRIMARY[0xb]);
                 send(setFcb(sFrame));
 
-                // step 4 
+                // step 4
                 return (VariableFrame)receive();
             }
-            
+
             throw new IOException( "Severed connection. ");
-            
+
         } catch( IOException ioe ) {
             ioe.printStackTrace();
         } catch( ParseException pe ) {
@@ -147,38 +147,38 @@ public class LinkLayer extends Connection {
     Frame requestRespond( FixedFrame frame ) throws IOException, ParseException {
         sendRawData( setFcb( frame ).toByteArray().toByteArray() );
         return receive();
-    }    
-    
+    }
+
     /** not sure if this method belongs here */
     Frame requestRespond( Asdu asdu ) throws IOException {
         try {
-            Frame frame = 
+            Frame frame =
                 frameFactory.createVariable( FunctionCode.PRIMARY[3], asdu );
             return requestRespond((VariableFrame)frame);
         } catch (ParseException e) {
             e.printStackTrace();
             throw new IOException( e.getMessage() );
-        }     
+        }
     }
-    
+
     Frame setFcb( Frame frame ) {
         fcb = !fcb;
         return frame.setFcb(fcb).setFcv(true);
     }
-        
+
     public Frame receive( ) throws IOException, ParseException {
-        
+
         ByteArray buffer = new ByteArray();
         copyEchoBuffer();
         long endTime = System.currentTimeMillis() + timeoutMilli;
-        
+
         int aChar;
         while( (aChar = readIn()) == -1 && isNotTimeOut(endTime) );
         buffer.add((byte)aChar);
-            
+
         if( aChar == Frame.START_FIXED ) {
             for( int i = 0; i < 5 && isNotTimeOut(endTime); i ++ ){
-                if( (aChar = readIn()) != -1 ) buffer.add((byte) aChar); 
+                if( (aChar = readIn()) != -1 ) buffer.add((byte) aChar);
             }
         } else {
             int length1 = readIn();
@@ -190,17 +190,17 @@ public class LinkLayer extends Connection {
                     if( (aChar = readIn()) != -1 ) buffer.add((byte) aChar);
                 }
             } else {
-                String msg = 
-                    "Length fields do not match " + Integer.toHexString( aChar) 
+                String msg =
+                    "Length fields do not match " + Integer.toHexString( aChar)
                     + " " + Integer.toHexString( length1) + " " + Integer.toHexString( length2 );
-                
+
                 throw new IOException( msg );
             }
         }
         Frame frame = frameFactory.parse(buffer);
         return frame;
     }
-    
+
     private boolean isNotTimeOut( long endTime ){
         return System.currentTimeMillis() < endTime;
     }

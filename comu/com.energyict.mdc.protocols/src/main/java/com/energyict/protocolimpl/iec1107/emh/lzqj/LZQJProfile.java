@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 
+ *
  * @author Koen Changes: KV 20012005 Initial version
  */
 public class LZQJProfile extends VDEWProfile {
@@ -63,7 +63,7 @@ public class LZQJProfile extends VDEWProfile {
 
 	/**
 	 * Fetch the {@link ProfileData} from a certain date in the past. Include the events if necessary.
-	 * 
+	 *
 	 * @param lastReading
 	 *            - the date in the past
 	 * @param includeEvents
@@ -90,7 +90,7 @@ public class LZQJProfile extends VDEWProfile {
 
 	/**
 	 * Fetch the {@link ProfileData} from a certain date in the past to a certain date. Include the events if necessary.
-	 * 
+	 *
 	 * @param fromReading
 	 *            - the date in the past
 	 * @param toReading
@@ -128,7 +128,7 @@ public class LZQJProfile extends VDEWProfile {
 
 	/**
 	 * Parse the string from a given byteArray with a given offset
-	 * 
+	 *
 	 * @param data
 	 *            - the byteArray to fetch out the string
 	 * @param iOffset

@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.mdc.common.BusinessException;
 
 import java.io.IOException;
 import java.sql.SQLException;

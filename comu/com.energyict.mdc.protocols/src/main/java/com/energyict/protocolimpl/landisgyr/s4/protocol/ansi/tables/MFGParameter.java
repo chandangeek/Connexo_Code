@@ -11,54 +11,55 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MFGParameter {
-    
-    
-    private PowerFactorMethod powerFactorMethod; 
+
+
+    private PowerFactorMethod powerFactorMethod;
     private ReverseRotation reverseRotation;
     private TransformerFactor transformerFactor;
     private TestModeParam testModeParam;
     private DemandResetConfig demandResetConfig;
     private int peakDemandWindow; // : UINT8;
     private VerificationLedConfig verificationLedConfig;
-    private int selfReadDaysLastReset; // : UINT16;    
+    private int selfReadDaysLastReset; // : UINT16;
 
     /** Creates a new instance of RecordTemplate */
     public MFGParameter(byte[] data, int offset, ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
-        
+
         setPowerFactorMethod(new PowerFactorMethod(data, offset, tableFactory));
         offset += PowerFactorMethod.getSize(tableFactory);
-        
+
         setReverseRotation(new ReverseRotation(data, offset, tableFactory));
         offset += ReverseRotation.getSize(tableFactory);
-        
+
         setTransformerFactor(new TransformerFactor(data, offset, tableFactory));
         offset += TransformerFactor.getSize(tableFactory);
-        
+
         setTestModeParam(new TestModeParam(data, offset, tableFactory));
         offset += TestModeParam.getSize(tableFactory);
-        
+
         setDemandResetConfig(new DemandResetConfig(data, offset, tableFactory));
         offset += DemandResetConfig.getSize(tableFactory);
-        
+
         setPeakDemandWindow((int)data[offset++]&0xFF);
-        
+
         setVerificationLedConfig(new VerificationLedConfig(data, offset, tableFactory));
         offset += VerificationLedConfig.getSize(tableFactory);
-        
+
         setSelfReadDaysLastReset(C12ParseUtils.getInt(data,offset,2, cfgt.getDataOrder()));
         offset+=2;
-                
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -72,8 +73,8 @@ public class MFGParameter {
         strBuff.append("   transformerFactor="+getTransformerFactor()+"\n");
         strBuff.append("   verificationLedConfig="+getVerificationLedConfig()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return PowerFactorMethod.getSize(tableFactory)+
@@ -149,5 +150,5 @@ public class MFGParameter {
     private void setSelfReadDaysLastReset(int selfReadDaysLastReset) {
         this.selfReadDaysLastReset = selfReadDaysLastReset;
     }
-    
+
 }

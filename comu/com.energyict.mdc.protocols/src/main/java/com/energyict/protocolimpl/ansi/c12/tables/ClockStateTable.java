@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -22,9 +21,9 @@ import com.energyict.protocolimpl.ansi.c12.*;
  */
 public class ClockStateTable extends AbstractTable {
     private Date clockCalendar;
-    
+
     private TimeDateQualifier timeDateQualifier;
-    
+
     private int statusBitfield; // 16 bit
     private int currSummTier; // bit 0..2
     private int currDemandTier; // bit 3..5
@@ -32,35 +31,35 @@ public class ClockStateTable extends AbstractTable {
     private int tierDrive; // bit 6..7
     private int specialScheduleActive; // bit 8..11
     private int season; // 12..15
-    
+
     /** Creates a new instance of ClockStateTable */
     public ClockStateTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(55));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ClockStateTable: clockCalendar="+getClockCalendar()+", timeDateQualifier="+getTimeDateQualifier()+" statusBitfield="+Integer.toHexString(getStatusBitfield())+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         int offset=0;
-        if (getTableFactory().getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0) 
+        if (getTableFactory().getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0)
             setClockCalendar(C12ParseUtils.getDateFromLTimeAndAdjustForTimeZone(tableData, offset, cfgt.getTimeFormat(), getTableFactory().getC12ProtocolLink().getTimeZone(),dataOrder));
         else
             setClockCalendar(C12ParseUtils.getDateFromLTime(tableData, offset, cfgt.getTimeFormat(), getTableFactory().getC12ProtocolLink().getTimeZone(),dataOrder));
-                
+
         offset+=C12ParseUtils.getLTimeSize(cfgt.getTimeFormat());
         setTimeDateQualifier(new TimeDateQualifier(tableData, offset, getTableFactory()));
         offset++;
         setStatusBitfield(C12ParseUtils.getInt(tableData,offset));
-    }         
+    }
 
     public Date getClockCalendar() {
         return clockCalendar;

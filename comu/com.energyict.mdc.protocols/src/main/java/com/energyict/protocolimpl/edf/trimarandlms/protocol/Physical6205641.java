@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
@@ -21,21 +20,21 @@ public class Physical6205641 {
 
     Connection62056 connection;
     Frame frame;
-    
+
     public Physical6205641(Connection62056 connection) {
         this.connection=connection;
     }
-    
+
     public void initPhysical() {
-        
+
     }
 
 //    int debugCount=0;
-    
+
     public void request(Frame frame) throws IOException {
         // send frame
         this.frame=frame;
-        
+
 //        // KV_DEBUG ***DEBUG***
 //        debugCount++;
 //        if ((debugCount%20)==0) {
@@ -43,10 +42,10 @@ public class Physical6205641 {
 //            frame.getData()[frame.getData().length-2]=0;
 //            System.out.print("Simulate BAD FRAME SEND\n");
 //        }
-        
+
         connection.sendData(frame.getData());
     }
-    
+
     public void respond() throws IOException {
         // must receive something...
         byte[] data = connection.receiveData();
@@ -54,12 +53,12 @@ public class Physical6205641 {
         frame.init(data);
         connection.getDatalink6205641().indicate(frame);
     }
-    
-    public void abort() {
-        
-    }
-    
 
-    
-    
+    public void abort() {
+
+    }
+
+
+
+
 } // public class Datalink6205641

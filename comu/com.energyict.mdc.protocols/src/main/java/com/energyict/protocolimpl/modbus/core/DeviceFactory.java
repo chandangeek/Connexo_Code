@@ -10,23 +10,24 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class DeviceFactory {
-    
+
     static List devices = new ArrayList();
-    
+
     static {
         devices.add(new Device("Square D", "15210"));
         devices.add(new Device("GE", "PQM2"));
     }
-    
+
     /** Creates a new instance of DeviceFactory */
     public DeviceFactory() {
     }
-    
+
 }

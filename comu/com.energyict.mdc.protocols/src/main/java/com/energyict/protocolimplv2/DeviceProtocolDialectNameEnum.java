@@ -8,8 +8,8 @@ package com.energyict.protocolimplv2;
  * The length of the name is limited to 24 characters!
  * </p>
  *
- * @author: sva
- * @since: 17/10/12 (10:23)
+ * @author sva
+ * @since 17/10/12 (10:23)
  */
 public enum DeviceProtocolDialectNameEnum {
 

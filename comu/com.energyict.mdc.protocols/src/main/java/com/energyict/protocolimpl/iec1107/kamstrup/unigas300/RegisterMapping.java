@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Copyrights EnergyICT

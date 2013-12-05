@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import com.energyict.mdc.common.Unit;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
-
-import com.energyict.cbo.Unit;
 
 
 /**
@@ -21,7 +21,7 @@ import com.energyict.cbo.Unit;
  * @author koen
  */
 public class LoadSurveyChannel implements Serializable{
-	
+
 	/** Generated SerialVersionUID */
 	private static final long serialVersionUID = -2989828166913742560L;
 	private int register;
@@ -32,13 +32,13 @@ public class LoadSurveyChannel implements Serializable{
     private int offset;
     private int scaling;
     private BigDecimal scalingFactor;
-    
-    
-    
+
+
+
     /** Creates a new instance of LoadSurveyChannel */
     public LoadSurveyChannel() {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -58,7 +58,7 @@ public class LoadSurveyChannel implements Serializable{
         return register;
     }
 
-   
+
     public void setRegister(int register) {
         this.register = register;
     }
@@ -118,5 +118,5 @@ public class LoadSurveyChannel implements Serializable{
     public void setScalingFactor(BigDecimal scalingFactor) {
         this.scalingFactor = scalingFactor;
     }
-    
+
 }

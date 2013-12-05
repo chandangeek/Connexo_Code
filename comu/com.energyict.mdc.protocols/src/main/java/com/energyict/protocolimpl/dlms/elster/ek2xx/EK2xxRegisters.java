@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
+import com.energyict.mdc.common.ObisCode;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.energyict.obis.ObisCode;
 
 public class EK2xxRegisters {
 

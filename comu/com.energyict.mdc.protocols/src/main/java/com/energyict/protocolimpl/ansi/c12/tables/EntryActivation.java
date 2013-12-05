@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -23,9 +21,9 @@ import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
  */
 public class EntryActivation {
 
-    
+
     static public final int SIZE=Event.SIZE+4;
-    
+
     private Event event;
 
     private int tableIDABitfield; // 16 bit
@@ -36,8 +34,8 @@ public class EntryActivation {
     private boolean flag1; // bit 13
     private boolean flag2; // bit 14
     private boolean flag3; // bit 15
-    
-    
+
+
     /** Creates a new instance of EntryActivation */
     public EntryActivation(byte[] data, int dataOrder) throws IOException {
         event = new Event(ProtocolUtils.getSubArray2(data, 0, Event.SIZE));
@@ -48,14 +46,14 @@ public class EntryActivation {
         flag1 = ((tableIDABitfield&0x2000)==0x2000);
         flag2 = ((tableIDABitfield&0x4000)==0x4000);
         flag3 = ((tableIDABitfield&0x8000)==0x8000);
-        
+
     }
 
     public String toString() {
         return "EntryActivation: event="+getEvent()+", tableIDABitfield="+getTableIDABitfield()+", procedureNr="+getProcedureNr()+
                ", stdVsMfgFlag="+isStdVsMfgFlag()+", pendingFlag="+isPendingFlag()+", flag1="+isFlag1()+", flag2="+isFlag2()+", flag3="+isFlag3();
     }
-    
+
     public Event getEvent() {
         return event;
     }
@@ -119,5 +117,5 @@ public class EntryActivation {
     public void setProcedureNr(int procedureNr) {
         this.procedureNr = procedureNr;
     }
-    
+
 }

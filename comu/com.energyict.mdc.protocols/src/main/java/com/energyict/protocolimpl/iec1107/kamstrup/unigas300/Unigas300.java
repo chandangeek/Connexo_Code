@@ -7,14 +7,14 @@
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;

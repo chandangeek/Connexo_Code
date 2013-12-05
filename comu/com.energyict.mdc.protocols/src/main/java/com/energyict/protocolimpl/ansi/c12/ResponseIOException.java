@@ -10,20 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ResponseIOException extends IOException {
-    
+
   private int reason;
-  
+
   public int getReason() {
      return reason;
   }
-   
+
   public ResponseIOException(String str)
   {
       super(str);
@@ -34,7 +34,7 @@ public class ResponseIOException extends IOException {
   {
       super();
       this.reason = -1;
-      
+
   } // public ResponseProtocolException()
 
   public ResponseIOException(String str, int reason)
@@ -42,6 +42,6 @@ public class ResponseIOException extends IOException {
       super(str);
       this.reason = reason;
 
-  } // public ResponseProtocolException(String str)    
-    
+  } // public ResponseProtocolException(String str)
+
 }

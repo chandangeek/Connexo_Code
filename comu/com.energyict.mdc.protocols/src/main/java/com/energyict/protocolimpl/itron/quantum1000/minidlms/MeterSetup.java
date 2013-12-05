@@ -10,18 +10,17 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class MeterSetup extends AbstractDataDefinition {
-    
+
     private int lineFrequency; // Unsigned8,
     private int synchronization; // Unsigned8, 1=LineSync, 0=XtalSync
     private boolean DSTEnabled; // Boolean,
@@ -40,14 +39,14 @@ public class MeterSetup extends AbstractDataDefinition {
     private BigDecimal customMultiplier; // FLOAT,
     private int dateFormat; // Unsigned8,
     private String shortSerialNumber; // OctetString(16),
-    
+
 // Average Power Factor Calculation Parameters
     private boolean quadrant_I_enable; // Boolean,
     private boolean quadrant_II_enable; // Boolean,
     private boolean quadrant_III_enable; // Boolean,
     private boolean quadrant_IV_enable; // Boolean,
     private boolean useArithmeticVA; // Boolean,
-    
+
 // Global EOI source Parameters
     private long intervalLength; // Unsigned32,
     private long graceLength; // Unsigned32,
@@ -56,11 +55,11 @@ public class MeterSetup extends AbstractDataDefinition {
     private long testModeSwitchTimeOut; //  Unsigned32,
     private float nominalVoltage; //  FLOAT,
     private float nominalCurrent; //  FLOAT,
-    
+
 // installation
     private int form; // UNSIGNED8,
     private int service; // UNSIGNED8,
-    
+
 // ct/vt compensation -phase A
     private boolean phaseAvtCompEnable; // Boolean,
     private float phaseAvtRatioCorrect; // FLOAT,
@@ -69,7 +68,7 @@ public class MeterSetup extends AbstractDataDefinition {
     private boolean phaseActCompEnable; // Boolean,
     private float phaseActRatioCorrect; // FLOAT,
     private float phaseActPhaseCorrect; // FLOAT,
-    
+
 // ct/vt compensation -phase B
     private boolean phaseBvtCompEnable; // Boolean,
     private float phaseBvtRatioCorrect; // FLOAT,
@@ -78,7 +77,7 @@ public class MeterSetup extends AbstractDataDefinition {
     private boolean phaseBctCompEnable; // Boolean,
     private float phaseBctRatioCorrect; // FLOAT,
     private float phaseBctPhaseCorrect; // FLOAT,
-    
+
 // ct/vt compensation -phase C
     private boolean phaseCvtCompEnable; // Boolean,
     private float phaseCvtRatioCorrect; // FLOAT,
@@ -87,14 +86,14 @@ public class MeterSetup extends AbstractDataDefinition {
     private boolean phaseCctCompEnable; // Boolean,
     private float phaseCctRatioCorrect; // FLOAT,
     private float phaseCctPhaseCorrect; // FLOAT,
-    
+
     /**
      * Creates a new instance of MeterSetup
      */
     public MeterSetup(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -154,11 +153,11 @@ public class MeterSetup extends AbstractDataDefinition {
         strBuff.append("   useArithmeticVA="+isUseArithmeticVA()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 22; // DLMS_METER_SET_UP
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setLineFrequency(ProtocolUtils.getInt(data,offset++,1)); // Unsigned8,
@@ -185,14 +184,14 @@ public class MeterSetup extends AbstractDataDefinition {
         setDateFormat(ProtocolUtils.getInt(data,offset++,1));
         setShortSerialNumber(new String(ProtocolUtils.getSubArray2(data, offset, 16))); // OctetString(16),
         offset+=16;
-        
+
 // Average Power Factor Calculation Parameters
         setQuadrant_I_enable(ProtocolUtils.getInt(data,offset++,1) == 1); // Boolean,
         setQuadrant_II_enable(ProtocolUtils.getInt(data,offset++,1) == 1); // Boolean,
         setQuadrant_III_enable(ProtocolUtils.getInt(data,offset++,1) == 1); // Boolean,
         setQuadrant_IV_enable(ProtocolUtils.getInt(data,offset++,1) == 1); // Boolean,
         setUseArithmeticVA(ProtocolUtils.getInt(data,offset++,1) == 1); // Boolean,
-        
+
 // Global EOI source Parameters
         setIntervalLength(ProtocolUtils.getLong(data,offset,4));
         offset+=4;
@@ -206,11 +205,11 @@ public class MeterSetup extends AbstractDataDefinition {
         offset+=4;
         setNominalCurrent(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
         offset+=4;
-        
+
 // installation
         setForm(ProtocolUtils.getInt(data,offset++,1));
         setService(ProtocolUtils.getInt(data,offset++,1));
-        
+
 // ct/vt compensation -phase A
         setPhaseAvtCompEnable(ProtocolUtils.getInt(data,offset++,1) == 1);
         setPhaseAvtRatioCorrect(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
@@ -224,7 +223,7 @@ public class MeterSetup extends AbstractDataDefinition {
         offset+=4;
         setPhaseActPhaseCorrect(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
         offset+=4;
-        
+
 // ct/vt compensation -phase B
         setPhaseBvtCompEnable(ProtocolUtils.getInt(data,offset++,1) == 1);
         setPhaseBvtRatioCorrect(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
@@ -238,7 +237,7 @@ public class MeterSetup extends AbstractDataDefinition {
         offset+=4;
         setPhaseBctPhaseCorrect(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
         offset+=4;
-        
+
 // ct/vt compensation -phase C
         setPhaseCvtCompEnable(ProtocolUtils.getInt(data,offset++,1) == 1);
         setPhaseCvtRatioCorrect(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));

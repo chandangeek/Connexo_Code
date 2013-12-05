@@ -10,31 +10,30 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.*;
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class PhysicalLayer {
-    
+
     LayerManager layerManager=null;
     byte[] frame;
-    
+
     /** Creates a new instance of PhysicalLayer */
     public PhysicalLayer(LayerManager layerManager) {
         this.layerManager=layerManager;
     }
 
-    
+
     public void phyAbort() {
-        
+
     }
-    
+
     public void phyRequestSendData(byte[] frame) throws IOException {
         // request from datalink layer to send data
         this.frame=frame;
         //stateMachine(EVENT_DL_REQUEST);
-    }    
+    }
 }

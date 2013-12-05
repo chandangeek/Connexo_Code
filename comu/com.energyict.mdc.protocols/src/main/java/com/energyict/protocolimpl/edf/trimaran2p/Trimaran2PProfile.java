@@ -1,23 +1,23 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+
 import java.io.IOException;
 import java.util.Date;
-
-import com.energyict.protocol.ProfileData;
 
 /**
  * @author gna
  *
  */
 public class Trimaran2PProfile {
-	
+
 	Trimaran2P trimaran;
 
 	/**
-	 * 
+	 *
 	 */
 	public Trimaran2PProfile() {
 	}

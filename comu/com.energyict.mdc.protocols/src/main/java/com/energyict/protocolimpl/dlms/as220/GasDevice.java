@@ -3,22 +3,22 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.protocol.messaging.Message;

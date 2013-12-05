@@ -5,7 +5,9 @@ import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RouteConfig
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
@@ -247,7 +249,7 @@ public class ParameterFactory {
         samplingPeriod = new SamplingPeriod(rtm);
         samplingPeriod.setSamplingPeriodInSeconds(seconds);
         samplingPeriod.write();
-        writeSamplingIntervalMultiplier(1);     //So the sampling interval is equal to the profile data interval        
+        writeSamplingIntervalMultiplier(1);     //So the sampling interval is equal to the profile data interval
     }
 
     public void setLeakageDetectionPeriod(int residualOrExtreme, int inputChannel, int period) throws IOException {

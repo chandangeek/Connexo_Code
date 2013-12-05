@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.device.data.CollectedData;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -26,8 +26,8 @@ import java.util.List;
  * All requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
  *
- * @author: sva
- * @since: 29/10/12 (10:34)
+ * @author sva
+ * @since 29/10/12 (10:34)
  */
 public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
@@ -140,7 +140,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void copyProperties(TypedProperties properties) {
         this.typedProperties = properties;
     }
 
@@ -152,16 +152,17 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     protected ComChannel getComChannel () {
         return comChannel;
     }
+
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
+    public PropertySpec getPropertySpec (String name) {
+        return null;
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_KEY));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY));
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_KEY));
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_KEY));
         return propertySpecs;
     }
 

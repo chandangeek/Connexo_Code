@@ -10,20 +10,19 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class CallPurposeTableForRemotePorts extends AbstractTable { 
-			   
-    
+public class CallPurposeTableForRemotePorts extends AbstractTable {
+
+
     /*
     Memory storage: RAM
     Total table size: (bytes) Length of ST-3 + 2
@@ -43,14 +42,14 @@ public class CallPurposeTableForRemotePorts extends AbstractTable {
                                      // b3: STATUS_CALL ST-3 warning triggered call (Alarm
                                      // b4: IMMEDIATE_CALL Call triggered by procedure (Call back)
                                      // b5-11: unused (spare) = 0
-                                     // b12-15: Mfg. specific.								 
-    // Copy of ST-3 table, absorb								 
-    
+                                     // b12-15: Mfg. specific.
+    // Copy of ST-3 table, absorb
+
     /** Creates a new instance of CallPurposeTableForRemotePorts */
     public CallPurposeTableForRemotePorts(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(96,true));
     }
- 
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -58,15 +57,15 @@ public class CallPurposeTableForRemotePorts extends AbstractTable {
         strBuff.append("   callPurposeBitfield=0x"+Integer.toHexString(getCallPurposeBitfield())+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;
         setCallPurposeBitfield(C12ParseUtils.getInt(tableData,offset,2, dataOrder));
         offset+=2;
         // absorb all the rest of the table
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }

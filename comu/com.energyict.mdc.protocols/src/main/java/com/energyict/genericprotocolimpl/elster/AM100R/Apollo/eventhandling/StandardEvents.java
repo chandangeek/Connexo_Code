@@ -1,9 +1,8 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.TimeZone;
 
 /**
  * Contains all events not recorded in a special event log, e.g. firmware update, end of billing periods,
@@ -16,7 +15,7 @@ import java.util.*;
 public class StandardEvents extends AbstractEvent{
 
     private static final int StandardEventGroup = 1;
-    
+
     /**
      * Constructor
      *

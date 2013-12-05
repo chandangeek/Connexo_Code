@@ -10,29 +10,29 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
+
 import java.io.IOException;
 import java.io.Serializable;
-
-import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 /**
  *
  * @author koen
  */
 public class ExtensionFactory implements Serializable{
-    
+
 	/** Generated SerialVersionUID */
 	private static final long serialVersionUID = -5199838318963041028L;
 	private Extension[] extensions;
     private int nrOfLoadedExtensions;
     CommandFactory commandFactory;
-    
-    
+
+
     /** Creates a new instance of ExtensionFactory */
     public ExtensionFactory(CommandFactory commandFactory) throws IOException {
         this.commandFactory=commandFactory;
         init();
     }
-    
+
     private void init() throws IOException {
         nrOfLoadedExtensions = commandFactory.getReadCommand(0x0002F001).getRegister().getBigDecimal().intValue();
         setExtensions(new Extension[nrOfLoadedExtensions]);
@@ -63,9 +63,9 @@ public class ExtensionFactory implements Serializable{
             }
         }
         throw new IOException("ExtensionFactory, findLoadSurvey, load survey with name '"+name+"' not found! Existing extensions are: "+getExtensionNames());
-        
+
     }
-    
+
     private String getExtensionNames() {
         StringBuffer strBuff = new StringBuffer();
         for (int extension = 0;extension < getNrOfLoadedExtensions(); extension++) {

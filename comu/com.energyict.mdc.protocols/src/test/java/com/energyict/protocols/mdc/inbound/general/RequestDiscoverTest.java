@@ -1,23 +1,27 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.issues.Bus;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.issues.IssueCollector;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.NoLogBooksCollectedData;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.device.data.CollectedData;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.device.data.NoLogBooksCollectedData;
+import com.energyict.mdc.protocol.device.data.ResultType;
+import com.energyict.mdc.protocol.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
@@ -25,9 +29,6 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
-import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.util.IssueCollector;
-import com.energyict.util.IssueCollectorProvider;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentMatcher;
@@ -81,8 +82,6 @@ public class RequestDiscoverTest {
     @Mock
     protected CollectedDataFactory collectedDataFactory;
     @Mock
-    protected IssueCollectorProvider issueCollectorProvider;
-    @Mock
     protected IssueCollector issueCollector;
     @Mock
     private CollectedRegisterList collectedRegisterList;
@@ -126,17 +125,18 @@ public class RequestDiscoverTest {
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
-        when(issueCollectorProvider.getIssueCollector()).thenReturn(issueCollector);
-        when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
-        IssueCollectorProvider.instance.set(issueCollectorProvider);
+        when(collectedDataFactory.createCollectedRegisterList(any(CanFindDevice.class))).thenReturn(this.collectedRegisterList);
+        IssueService issueService = mock(IssueService.class);
+        when(issueService.newIssueCollector()).thenReturn(issueCollector);
+        Bus.setIssueService(issueService);
     }
 
     @Test
     public void testRegisters() throws IOException {
         CollectedRegister defaultCollectedRegister = mock(CollectedRegister.class);
         CollectedRegister maxDemandCollectedRegister = mock(CollectedRegister.class);
-        when(collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).thenReturn(defaultCollectedRegister);
-        when(collectedDataFactory.createMaximumDemandCollectedRegister(any(RegisterIdentifier.class))).thenReturn(maxDemandCollectedRegister);
+        when(collectedDataFactory.createDefaultCollectedRegister(any(CanFindRegister.class))).thenReturn(defaultCollectedRegister);
+        when(collectedDataFactory.createMaximumDemandCollectedRegister(any(CanFindRegister.class))).thenReturn(maxDemandCollectedRegister);
         inboundFrame = "<REGISTER>serialId=204006174,1.1.1.8.6.255=1234 kW 080510121516, 1.1.3.8.0.255=4321 kvarh,readTime=080501214600</REGISTER>".getBytes();
         mockComChannel();
 
@@ -187,7 +187,7 @@ public class RequestDiscoverTest {
     @Test
     public void testDeploy() throws IOException {
         CollectedTopology collectedTopology = mock(CollectedTopology.class);
-        when(collectedDataFactory.createCollectedTopology(any(DeviceIdentifier.class))).thenReturn(collectedTopology);
+        when(collectedDataFactory.createCollectedTopology(any(CanFindDevice.class))).thenReturn(collectedTopology);
         inboundFrame = "<DEPLOY>serialId=1234567890,type=as220, ipAddress=10.0.0.255</DEPLOY>".getBytes();
         mockComChannel();
 
@@ -212,7 +212,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEventPO() throws IOException {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
-        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
+        when(collectedDataFactory.createCollectedLogBook(any(CanFindLogBook.class))).thenReturn(collectedLogBook);
 
         inboundFrame = "<EVENTPO>meterType=AS230,serialId=1234567890,dbaseId=5,ipAddress=192.168.0.1,event=10000101100110</EVENTPO>".getBytes();
         mockComChannel();
@@ -245,7 +245,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEventPOForDeviceHavingNoLogBooksConfigured() throws IOException {
         NoLogBooksCollectedData noLogBooksCollectedData = mock(NoLogBooksCollectedData.class);
-        when(collectedDataFactory.createNoLogBookCollectedData(any(DeviceIdentifier.class))).thenReturn(noLogBooksCollectedData);
+        when(collectedDataFactory.createNoLogBookCollectedData(any(CanFindDevice.class))).thenReturn(noLogBooksCollectedData);
         inboundFrame = "<EVENTPO>meterType=AS230,serialId=1234567890,dbaseId=5,ipAddress=192.168.0.1,event=10000101100110</EVENTPO>".getBytes();
         when(this.device.getLogBooks()).thenReturn(new ArrayList<LogBook>());
         mockComChannel();
@@ -264,7 +264,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEvents() throws IOException {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
-        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
+        when(collectedDataFactory.createCollectedLogBook(any(CanFindLogBook.class))).thenReturn(collectedLogBook);
 
         inboundFrame = "<EVENT>serialId=204006174,event0=123 8 080514092400, event1=20 6995 080514092505</EVENT>".getBytes();
         mockComChannel();
@@ -303,7 +303,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEventsForDeviceHavingNoLogBooksConfigured() throws IOException {
         NoLogBooksCollectedData noLogBooksCollectedData = mock(NoLogBooksCollectedData.class);
-        when(collectedDataFactory.createNoLogBookCollectedData(any(DeviceIdentifier.class))).thenReturn(noLogBooksCollectedData);
+        when(collectedDataFactory.createNoLogBookCollectedData(any(CanFindDevice.class))).thenReturn(noLogBooksCollectedData);
         inboundFrame = "<EVENT>serialId=204006174,event0=123 8 080514092400, event1=20 6995 080514092505</EVENT>".getBytes();
         when(this.device.getLogBooks()).thenReturn(new ArrayList<LogBook>());
         mockComChannel();
@@ -324,7 +324,7 @@ public class RequestDiscoverTest {
         properties.setProperty(TIMEOUT_KEY, new BigDecimal(1000));
         properties.setProperty(RETRIES_KEY, BigDecimal.ZERO);
         RequestDiscover requestDiscover = new RequestDiscover();
-        requestDiscover.addProperties(properties);
+        requestDiscover.copyProperties(properties);
         return requestDiscover;
     }
 

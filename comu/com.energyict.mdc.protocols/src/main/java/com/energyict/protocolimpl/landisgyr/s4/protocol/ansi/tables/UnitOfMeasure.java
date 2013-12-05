@@ -10,39 +10,35 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author Koen
  */
 public class UnitOfMeasure {
-    
+
     private int id;
     private Unit unit;
     private int quadrantInfo;
     private String description;
     private int obisCField;
     private int quadrantInfoLP;
-    private String descriptionLP; 
+    private String descriptionLP;
     private int obisCFieldLP;
     private int multiplierMethod;
-    
-    
+
+
     private final int NO_MULTIPLIER=0;
     private final int POWER_MULTIPLIER=1;
     private final int VOLT_MULTIPLIER=2;
     private final int CURRENT_MULTIPLIER=3;
-    
-            
+
+
     /** Creates a new instance of UnitOfMeasure */
     public UnitOfMeasure(int id, Unit unit, int quadrantInfo, String description, int obisCField, int multiplierMethod) {
         this(id, unit, quadrantInfo, description, obisCField, multiplierMethod, quadrantInfo, description, obisCField);
-        
+
     }
     public UnitOfMeasure(int id, Unit unit, int quadrantInfo, String description, int obisCField, int multiplierMethod, int quadrantInfoLP, String descriptionLP, int obisCFieldLP) {
         this.setId(id);
@@ -54,7 +50,7 @@ public class UnitOfMeasure {
         this.setDescriptionLP(descriptionLP);
         this.setObisCFieldLP(obisCFieldLP);
         this.setMultiplierMethod(multiplierMethod);
-        
+
     }
 
     public boolean isNoMultiplier() {
@@ -69,7 +65,7 @@ public class UnitOfMeasure {
     public boolean isPOWERMultiplier() {
         return getMultiplierMethod()==POWER_MULTIPLIER;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -141,7 +137,7 @@ public class UnitOfMeasure {
     public void setMultiplierMethod(int multiplierMethod) {
         this.multiplierMethod = multiplierMethod;
     }
-    
-    
-    
+
+
+
 }

@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.Device;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -57,10 +57,10 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         }
     }
 
-    private List<DeviceIdentifier> parseIds (String deviceIds) {
+    private List<CanFindDevice> parseIds (String deviceIds) {
         try {
             String[] stringIds = deviceIds.split(",");
-            List<DeviceIdentifier> ids = new ArrayList<>(stringIds.length);
+            List<CanFindDevice> ids = new ArrayList<>(stringIds.length);
             for (String stringId : stringIds) {
                 ids.add(new DeviceIdentifierById(stringId));
             }
@@ -71,9 +71,9 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         }
     }
 
-    private List<Device> findDevices (List<DeviceIdentifier> deviceIds) {
+    private List<Device> findDevices (List<CanFindDevice> deviceIds) {
         List<Device> devices = new ArrayList<>(deviceIds.size());
-        for (DeviceIdentifier deviceId : deviceIds) {
+        for (CanFindDevice deviceId : deviceIds) {
             Device device = deviceId.findDevice();
             devices.add(device);
         }

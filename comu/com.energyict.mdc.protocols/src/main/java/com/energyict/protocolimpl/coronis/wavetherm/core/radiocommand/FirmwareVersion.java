@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class FirmwareVersion extends AbstractRadioCommand {
 
@@ -45,8 +47,8 @@ public class FirmwareVersion extends AbstractRadioCommand {
 					getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
-		
+		}
+
 	}
 
 	@Override

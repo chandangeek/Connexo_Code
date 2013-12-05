@@ -6,20 +6,19 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import java.util.*;
-import java.math.BigDecimal;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.obis.ObisCode;
 import com.energyict.dlms.ScalerUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.protocol.NoSuchRegisterException;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  *
  * @author  Koen
  */
 public class BillingValue {
-    
+
     Date captureDateTime;
     Quantity quantityR1;
     Quantity quantityR2;
@@ -30,7 +29,7 @@ public class BillingValue {
     long value;
     ScalerUnit scalerUnit;
     Quantity quantity;
-    
+
     /** Creates a new instance of BillingValue */
     public BillingValue(Date captureDateTime, long value, ScalerUnit scalerUnit, ObisCode obisCode) {
         this.captureDateTime=captureDateTime;
@@ -40,7 +39,7 @@ public class BillingValue {
         quantity = new Quantity(BigDecimal.valueOf(value),scalerUnit.getEisUnit());
     }
 
-    
+
     public BillingValue(Date captureDateTime, Quantity quantity, ObisCode obisCode) {
         this.captureDateTime=captureDateTime;
         this.quantity=quantity;
@@ -48,7 +47,7 @@ public class BillingValue {
         value = quantity.longValue();
         scalerUnit = new ScalerUnit(quantity.getUnit().getScale(),quantity.getUnit().getDlmsCode());
     }
-    
+
     public BillingValue(Date captureDateTime, int state, long R1, long R2, long plus, long minus){
     	//unit is the same, eg. WattHour
     	scalerUnit = new ScalerUnit(0,30);
@@ -62,29 +61,29 @@ public class BillingValue {
 
 
 	public long getRegisterValue(int register) throws NoSuchRegisterException{
-    	
+
     	switch(register){
-    		case 0: 
+    		case 0:
     			return quantityR1.longValue();
-    		
-    		case 1: 
+
+    		case 1:
     			return quantityR2.longValue();
-    		
+
     		case 2:
     			return quantityTotalPlus.longValue();
-    			
+
     		case 3:
     			return quantityTotalMinus.longValue();
-    			
+
     		default:
     			throw new NoSuchRegisterException("No such register supported!");
     	}
     }
-    
+
     public String toString() {
         return "ObisCode="+obisCode+", quantity="+(quantity)+(captureDateTime!=null?(", capture datetime="+captureDateTime):"");
     }
-    
+
     /**
      * Getter for property captureDateTime.
      * @return Value of property captureDateTime.
@@ -92,7 +91,7 @@ public class BillingValue {
     public java.util.Date getCaptureDateTime() {
         return captureDateTime;
     }
-    
+
     /**
      * Setter for property captureDateTime.
      * @param captureDateTime New value of property captureDateTime.
@@ -100,41 +99,41 @@ public class BillingValue {
     public void setCaptureDateTime(java.util.Date captureDateTime) {
         this.captureDateTime = captureDateTime;
     }
-    
 
-    
+
+
     /**
      * Getter for property obisCode.
      * @return Value of property obisCode.
      */
-    public com.energyict.obis.ObisCode getObisCode() {
+    public ObisCode getObisCode() {
         return obisCode;
     }
-    
+
     /**
      * Setter for property obisCode.
      * @param obisCode New value of property obisCode.
      */
-    public void setObisCode(com.energyict.obis.ObisCode obisCode) {
+    public void setObisCode(ObisCode obisCode) {
         this.obisCode = obisCode;
     }
-    
+
     /**
      * Getter for property quantity.
      * @return Value of property quantity.
      */
-    public com.energyict.cbo.Quantity getQuantity() {
+    public Quantity getQuantity() {
         return quantity;
     }
-    
+
     /**
      * Setter for property quantity.
      * @param quantity New value of property quantity.
      */
-    public void setQuantity(com.energyict.cbo.Quantity quantity) {
+    public void setQuantity(Quantity quantity) {
         this.quantity = quantity;
     }
-    
+
     /**
      * Getter for property value.
      * @return Value of property value.
@@ -142,7 +141,7 @@ public class BillingValue {
     public long getValue() {
         return value;
     }
-    
+
     /**
      * Setter for property value.
      * @param value New value of property value.
@@ -150,7 +149,7 @@ public class BillingValue {
     public void setValue(int value) {
         this.value = value;
     }
-    
+
     /**
      * Getter for property scalerUnit.
      * @return Value of property scalerUnit.
@@ -158,7 +157,7 @@ public class BillingValue {
     public com.energyict.dlms.ScalerUnit getScalerUnit() {
         return scalerUnit;
     }
-    
+
     /**
      * Setter for property scalerUnit.
      * @param scalerUnit New value of property scalerUnit.
@@ -166,5 +165,5 @@ public class BillingValue {
     public void setScalerUnit(com.energyict.dlms.ScalerUnit scalerUnit) {
         this.scalerUnit = scalerUnit;
     }
-    
+
 }

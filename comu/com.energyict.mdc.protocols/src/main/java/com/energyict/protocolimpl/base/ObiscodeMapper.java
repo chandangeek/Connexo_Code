@@ -3,11 +3,11 @@
  */
 package com.energyict.protocolimpl.base;
 
-import java.io.IOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import java.io.IOException;
 
 /**
  * @author jme
@@ -15,18 +15,8 @@ import com.energyict.protocol.RegisterValue;
  */
 public interface ObiscodeMapper {
 
-	/**
-	 * @param obisCode
-	 * @return
-	 * @throws IOException
-	 */
 	RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException;
 
-	/**
-	 * @param obisCode
-	 * @return
-	 * @throws IOException
-	 */
 	RegisterValue getRegisterValue(ObisCode obisCode) throws IOException;
 
 }

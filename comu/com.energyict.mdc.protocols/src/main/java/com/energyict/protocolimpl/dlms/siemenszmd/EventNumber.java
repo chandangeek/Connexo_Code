@@ -6,9 +6,12 @@
 
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -16,12 +19,12 @@ import java.util.*;
  * @author  Koen
  */
 public class EventNumber {
-    
+
     static final int ALERT=0;
     static final int ERROR=1;
     static final int UNDEF=2;
     static final int ERRORALERT=3;
-    
+
     static List events = new ArrayList();
     static {
         events.add(new EventNumber(2,"EnergyRegistersCleared","Indicates that tariff energy registers were cleared cleared (but not the total energy registers).",UNDEF));
@@ -74,16 +77,16 @@ public class EventNumber {
         events.add(new EventNumber(1024, "FatalErrorOccurred", "Indicates that a fatal error occurred.", ERROR));
         events.add(new EventNumber(524288, "FatalErrorOccurred", "Indicates that a fatal error occurred.", ERROR));
     }
-    
-    
-    
+
+
+
     private static final String[] strTypes={" (Alert)"," (Error)",""," (Error/Alert)"};
-    
+
     int type;
     int id;
     String idDescription;
     String eventDescription;
-    
+
     /** Creates a new instance of EventLog */
     private EventNumber(int id, String idDescription, String eventDescription, int type) {
         this.id=id;
@@ -99,9 +102,9 @@ public class EventNumber {
             if (en.getId() == id)
                 return en;
         }
-        return null; 
+        return null;
     }
-    
+
 //    static private String getEventDescr(int id) {
 //        Iterator it = events.iterator();
 //        while(it.hasNext()) {
@@ -111,7 +114,7 @@ public class EventNumber {
 //        }
 //        return "Event description not found in list, id "+id+" is an unknown event";
 //    }
-//    
+//
 //    static private String getIdDescr(int id) {
 //        Iterator it = events.iterator();
 //        while(it.hasNext()) {
@@ -121,16 +124,16 @@ public class EventNumber {
 //        }
 //        return "Id description not found in list, id "+id+" is an unknown event";
 //    }
-    
+
     static public MeterEvent toMeterEvent(int id,Date dateTime) {
-        
+
         EventNumber eventNumber = EventNumber.getEventNumber(id);
-        if (eventNumber==null) 
+        if (eventNumber==null)
             return null;
-        
+
         String idDescr = eventNumber.getIdDescription();
         int eiCode=MeterEvent.OTHER;
-        
+
         if (idDescr.compareTo("EnergyRegistersCleared") == 0) {
             eiCode=MeterEvent.CLEAR_DATA;
         }
@@ -278,7 +281,7 @@ public class EventNumber {
 
         return new MeterEvent(dateTime,eiCode,id,eventNumber.getEventDescription());
     }
-    
+
     /**
      * Getter for property id.
      * @return Value of property id.
@@ -286,15 +289,15 @@ public class EventNumber {
     private int getId() {
         return id;
     }
-    
+
     private int getType() {
         return type;
     }
-    
+
     private String getStrType() {
         return strTypes[getType()];
     }
-    
+
     /**
      * Setter for property id.
      * @param id New value of property id.
@@ -302,7 +305,7 @@ public class EventNumber {
     private void setId(int id) {
         this.id = id;
     }
-    
+
     /**
      * Getter for property idDescription.
      * @return Value of property idDescription.
@@ -310,7 +313,7 @@ public class EventNumber {
     private java.lang.String getIdDescription() {
         return idDescription;
     }
-    
+
     /**
      * Setter for property idDescription.
      * @param idDescription New value of property idDescription.
@@ -318,7 +321,7 @@ public class EventNumber {
     private void setIdDescription(java.lang.String idDescription) {
         this.idDescription = idDescription;
     }
-    
+
     /**
      * Getter for property eventDescription.
      * @return Value of property eventDescription.
@@ -326,7 +329,7 @@ public class EventNumber {
     private java.lang.String getEventDescription() {
         return eventDescription;
     }
-    
+
     /**
      * Setter for property eventDescription.
      * @param eventDescription New value of property eventDescription.
@@ -334,5 +337,5 @@ public class EventNumber {
     private void setEventDescription(java.lang.String eventDescription) {
         this.eventDescription = eventDescription;
     }
-    
+
 }

@@ -10,24 +10,25 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping;
 
-import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.*;
-import java.io.*;
+import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.S4s;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class RegisterMapperFactory {
-    
+
     S4s s4s;
-    RegisterMapper registerMapper=null;        
-    
+    RegisterMapper registerMapper=null;
+
     /** Creates a new instance of RegisterMapperFactory */
     public RegisterMapperFactory(S4s s4s) {
         this.s4s=s4s;
     }
-    
-    
+
+
     public RegisterMapper getRegisterMapper() throws IOException {
         if (registerMapper == null) {
             if (s4s.getCommandFactory().getFirmwareVersionCommand().isRX()) {
@@ -39,5 +40,5 @@ public class RegisterMapperFactory {
         }
         return registerMapper;
     }
-    
+
 }

@@ -10,28 +10,28 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class IdentificationRequest extends AbstractRequest { 
-    
+public class IdentificationRequest extends AbstractRequest {
+
     RequestData requestData=new RequestData(IDENTIFICATION);
-    
+
     /** Creates a new instance of IdentificationRequest */
     public IdentificationRequest(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
           response = new IdentificationResponse(getPSEMServiceFactory());
           response.build(responseData);
     }
-    
+
     protected RequestData getRequestData() {
         return requestData;
     }
-    
+
 }

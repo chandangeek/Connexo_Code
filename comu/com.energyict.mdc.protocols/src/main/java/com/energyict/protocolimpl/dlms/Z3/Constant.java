@@ -1,16 +1,16 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.dlms.Z3;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * @author gna
- * 
+ *
  * This interface replaces the objectList from the meter. This way we do not
  * need to read it from the device, saves time and money ...
- * 
+ *
  */
 public interface Constant {
 

@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import java.util.TimeZone;
-
 import com.energyict.protocolimpl.itron.protocol.schlumberger.CommandFactory;
 
+import java.util.TimeZone;
+
 /**
- * 
+ *
  * @author Koen
  */
 public interface ProtocolLink {

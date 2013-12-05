@@ -10,19 +10,19 @@
 
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.energyict.protocol.MeterEvent;
-
 /**
  *
  * @author kvds
  */
-public class LogbookEvent { 
-    
+public class LogbookEvent {
+
     static List list=new ArrayList();
     static {
         list.add(new LogbookEvent(1,"Parameter changed","Indicates that one or several parameters have been changed.",MeterEvent.CONFIGURATIONCHANGE));
@@ -84,12 +84,12 @@ public class LogbookEvent {
         list.add(new LogbookEvent(187,"Terminal cover closed","Indicates that the terminal cover has been closed. Linked to event 133. ",MeterEvent.OTHER));
         list.add(new LogbookEvent(189,"reserved","Indicates that the breaker log was cleared.",MeterEvent.OTHER));
     }
-    
+
     private int id;
     private String event;
     private String eventDescription;
     private int meterEventCode;
-    
+
     /** Creates a new instance of LogbookEvent */
     private LogbookEvent(int id,String event,String eventDescription,int meterEventCode) {
         this.id=id;
@@ -97,7 +97,7 @@ public class LogbookEvent {
         this.eventDescription=eventDescription;
         this.meterEventCode=meterEventCode;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -108,7 +108,7 @@ public class LogbookEvent {
         strBuff.append("   meterEventCode="+getMeterEventCode()+"\n");
         return strBuff.toString();
     }
-    
+
     static public LogbookEvent findLogbookEvent(int id) {
         Iterator it = list.iterator();
         while(it.hasNext()) {
@@ -117,13 +117,13 @@ public class LogbookEvent {
             	return o;
             }
         }
-        return new LogbookEvent(id,"Unknown LogbookEvent id "+id,"",MeterEvent.OTHER);        
+        return new LogbookEvent(id,"Unknown LogbookEvent id "+id,"",MeterEvent.OTHER);
     }
 
     public MeterEvent meterEvent(Date date) {
         return new MeterEvent(date,getMeterEventCode(),getId(), getEvent()+(getEventDescription().compareTo("")==0?"":", "+getEventDescription()));
     }
-    
+
     public int getId() {
         return id;
     }
@@ -155,5 +155,5 @@ public class LogbookEvent {
     public void setMeterEventCode(int meterEventCode) {
         this.meterEventCode = meterEventCode;
     }
-    
+
 }

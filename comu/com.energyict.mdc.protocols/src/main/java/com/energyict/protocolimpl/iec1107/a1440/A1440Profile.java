@@ -5,22 +5,36 @@
 
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author Koen
  * @author fbo
- * 
+ *
  */
 public class A1440Profile extends VDEWProfile {
 
@@ -118,10 +132,10 @@ public class A1440Profile extends VDEWProfile {
 	}
 
 	/* Overrides VDEWProfile#getMeterEvent().
-	 * 
+	 *
 	 * Difference:
 	 * map bit 4 (reset of cumulation) to MeterEvent.MAXIMUM_DEMAND_RESET
-	 * 
+	 *
 	 * (non-Javadoc)
 	 * @see VDEWProfile#getMeterEvent(Date, long, String)
 	 */
@@ -181,10 +195,10 @@ public class A1440Profile extends VDEWProfile {
 	}
 
 	/* Overrides VDEWProfile#mapStatus2IntervalStateBits().
-	 * 
+	 *
 	 * Difference:
 	 * map bit 2 (Measure value disturbed) to IntervalStateBits.SHORTLONG
-	 * 
+	 *
 	 * (non-Javadoc)
 	 * @see VDEWProfile#mapStatus2IntervalStateBits(int)
 	 */

@@ -10,19 +10,18 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import java.io.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ClassReadCommand extends CommandBuilder {
-    
+
     private static final int COMMANDBYTE = 5;
     int timeout;
     int expectedFrameType;
-    
+
     /** Creates a new instance of ClassReadCommand */
     public ClassReadCommand(AlphaConnection alphaConnection) {
         super(alphaConnection);
@@ -31,21 +30,21 @@ public class ClassReadCommand extends CommandBuilder {
         super(alphaConnection);
         this.timeout = timeout;
     }
-    
+
     protected int getExpectedFrameType() {
         return expectedFrameType;
     }
-    
+
     public ResponseFrame readClass(int classId,int classLength) throws IOException {
         return readClass(classId,classLength,false);
     } // public ResponseFrame readClassMultiple(int classId,int classLength) throws IOException
-    
+
     public ResponseFrame readClass(int classId,int classLength, boolean multiple) throws IOException {
-        if (multiple) 
+        if (multiple)
             expectedFrameType = AlphaConnection.FRAME_RESPONSE_TYPE_DATA_MULTIPLE;
         else
             expectedFrameType = AlphaConnection.FRAME_RESPONSE_TYPE_DATA_SINGLE;
-        
+
         byte[] data = new byte[7];
         data[0] = COMMANDBYTE;
         data[1] = (byte)timeout; // pad
@@ -56,5 +55,5 @@ public class ClassReadCommand extends CommandBuilder {
         data[6] = (byte)classId;
         return sendCommandWithResponse(data);
     } // public ResponseFrame readClass(int classId,int classLength, boolean multiple) throws IOException
-    
+
 } // public class ClassReadCommand extends CommandBuilder

@@ -1,19 +1,19 @@
 
 package com.energyict.protocolimpl.iec1107.ppm.opus;
 
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
-
 /**
  * Data object for grouping a meter-response; this consists of a single
  * definition message and 0 .. n dataMessages.
- * 
+ *
  * @author fbo
  */
 
@@ -39,7 +39,7 @@ public class OpusResponse {
 
 	/**
 	 * for non 550 registers only !
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */

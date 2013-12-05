@@ -10,32 +10,35 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm800;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  *
  * @author Koen
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-    
+
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
     }
-    
+
     protected void init() {
         // options
         setZeroBased(true); // this means that reg2read = reg-1
-        
+
         // registers
-        getRegisters().add(new HoldingRegister(1716,4,ObisCode.fromString("1.1.16.8.0.255")));
+        getRegisters().add(new HoldingRegister(1716,4, ObisCode.fromString("1.1.16.8.0.255")));
         getRegisters().add(new HoldingRegister(1143,1,ObisCode.fromString("1.1.1.7.0.255")).setParser("scale F"));
         getRegisters().add(new HoldingRegister(1147,1,ObisCode.fromString("1.1.3.7.0.255")).setParser("scale F"));
         getRegisters().add(new HoldingRegister(1151,1,ObisCode.fromString("1.1.9.7.0.255")).setParser("scale F"));
@@ -61,7 +64,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         //getRegisters().add(new HoldingRegister(1122,1,ObisCode.fromString("1.1.1.4.0.255")));
         getRegisters().add(new HoldingRegister(1373,1,ObisCode.fromString("1.1.1.3.0.255")));
         getRegisters().add(new HoldingRegister(1378,1,ObisCode.fromString("1.1.1.6.0.255")));
-        
+
         // Time&Date
         getRegisters().add(new HoldingRegister(3034,3,"present datetime"));
 
@@ -70,7 +73,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(3212,1,"scale D").setParser("scalefactor"));
         getRegisters().add(new HoldingRegister(3213,1,"scale E").setParser("scalefactor"));
         getRegisters().add(new HoldingRegister(3214,1,"scale F").setParser("scalefactor"));
-        
+
     }
     protected void initParsers() {
         // BigDecimal parser
@@ -81,7 +84,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                     val += values[i]*(long)Math.pow(10, i*4);
                 }
                 return BigDecimal.valueOf(val);
-                
+
 //                long val=0;
 //                long multiplier=1;
 //                for (int i=0;i<values.length;i++) {
@@ -89,7 +92,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
 //                    if (val != 0) {
 //                       int exp = (int)(Math.log(val) / Math.log(10))+1;
 //                       multiplier = (long)Math.pow(10, exp);
-//                    }                       
+//                    }
 //                }
 //                return BigDecimal.valueOf(val);
             }
@@ -126,7 +129,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += values[i]*(long)Math.pow(10, i*4);
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('A')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('A'));
             }
         });
         getParserFactory().addParser("scale B",new Parser() {
@@ -135,7 +138,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += values[i]*(long)Math.pow(10, i*4);
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('B')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('B'));
             }
         });
         getParserFactory().addParser("scale D",new Parser() {
@@ -144,7 +147,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += values[i]*(long)Math.pow(10, i*4);
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('D')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('D'));
             }
         });
         getParserFactory().addParser("scale E",new Parser() {
@@ -153,7 +156,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += values[i]*(long)Math.pow(10, i*4);
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('E')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('E'));
             }
         });
         getParserFactory().addParser("scale F",new Parser() {
@@ -162,9 +165,9 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += values[i]*(long)Math.pow(10, i*4);
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('F')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('F'));
             }
         });
     } //private void initParsers()
-    
+
 } // public class RegisterFactory extends AbstractRegisterFactory

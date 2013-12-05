@@ -1,15 +1,13 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.MeterEvent;
-
 public class MeterEventMapEntry {
 
-	
+
 	int statusId; // 0..20
 	int bitId; // 0..7
 	int meterEventCode;
 	String description;
-	
+
 	public MeterEventMapEntry(int statusId, int bitId, int meterEventCode, String description) {
 		// TODO Auto-generated constructor stub
 		this.statusId=statusId;
@@ -27,8 +25,8 @@ public class MeterEventMapEntry {
         strBuff.append("   statusId="+getStatusId()+"\n");
         strBuff.append("   description="+getDescription()+"\n");
         return strBuff.toString();
-    }  	
-	
+    }
+
 	public int getStatusId() {
 		return statusId;
 	}

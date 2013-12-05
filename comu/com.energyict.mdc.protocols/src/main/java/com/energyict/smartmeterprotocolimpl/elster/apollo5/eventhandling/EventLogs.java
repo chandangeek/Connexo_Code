@@ -1,12 +1,23 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;
-import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.*;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.CommonEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.DemandManagementEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.DisconnectControlEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.FirmwareEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.FraudDetectionEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.PowerContractEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.PowerQualityFinishedEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.PowerQualityNotFinishedEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.StandardEvents;
+import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.SynchronizationEvents;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * TODO the events are fetched without using the fromCalendar

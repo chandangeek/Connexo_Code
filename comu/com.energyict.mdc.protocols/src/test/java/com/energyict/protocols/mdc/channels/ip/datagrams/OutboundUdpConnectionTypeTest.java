@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.ip.datagrams;
 
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
@@ -50,7 +50,7 @@ public class OutboundUdpConnectionTypeTest {
         properties.add(bufferSize);
 
         try {
-            ComChannel comChannel = udpConnectionType.connect(comPort, properties);
+            ComChannel comChannel = udpConnectionType.connect(properties);
             comChannel.write("Hello".getBytes());
         } catch (ConnectionException e) {
             // Expected a ConnectionException but want to assert that the cause is a SocketTimeoutException
@@ -74,7 +74,7 @@ public class OutboundUdpConnectionTypeTest {
         ComChannel comChannel = null;
         try {
             // Business method
-            comChannel = connectionType.connect(getMockedComPort(), new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
 
             socketCloseLatch.await();
 
@@ -106,7 +106,7 @@ public class OutboundUdpConnectionTypeTest {
         try {
             startLatch.await();
             // Business method
-            comChannel = connectionType.connect(getMockedComPort(), new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
             comChannel.write(firstRequest.getBytes());
 
             comChannel.startReading();

@@ -10,18 +10,15 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadRegisterIdentification {
-    
+
     private static final int[][] SELFREAD_REGISTER_DATAID = {{415,423,431,439},
                                                             {416,424,432,440},
                                                             {417,425,433,441},
@@ -46,13 +43,13 @@ public class SelfReadRegisterIdentification {
             list.add(new RegisterDataId(RegisterDataId.RECORDER_VALID_READING,RegisterDataId.LONG,SELFREAD_REGISTER_DATAID[8][channel],channel+1, 0,0, "Self read register, "+RegisterDataId.PHENOMENONS[8]+" for channel "+(channel+1)));
         }
     }
-                                                            
+
     /** Creates a new instance of SelfReadRegisterIdentification */
     private SelfReadRegisterIdentification() {
     }
-    
+
     static public List getRegisterDataIds() {
         return list;
     }
-    
+
 }

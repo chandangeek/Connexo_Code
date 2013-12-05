@@ -1,10 +1,10 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.util.Date;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+
+import java.util.Date;
 
 public final class AXDRDate {
 

@@ -1,11 +1,13 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.dlms.DlmsSession;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
-import com.energyict.protocolimpl.dlms.g3.registers.mapping.*;
+import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2MACSetupMapping;
+import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2PHYAndMACCountersMapping;
+import com.energyict.protocolimpl.dlms.g3.registers.mapping.SixLowPanAdaptationLayerSetupMapping;
 
 import java.io.IOException;
 

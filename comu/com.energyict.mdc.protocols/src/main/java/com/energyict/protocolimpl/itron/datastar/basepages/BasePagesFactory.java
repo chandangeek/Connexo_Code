@@ -10,19 +10,21 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.datastar.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.itron.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.itron.datastar.Datastar;
+import com.energyict.protocolimpl.itron.protocol.AbstractBasePageFactory;
+import com.energyict.protocolimpl.itron.protocol.ProtocolLink;
+
+import java.io.IOException;
+import java.util.TimeZone;
 /**
  *
  * @author Koen
  */
 public class BasePagesFactory extends AbstractBasePageFactory {
-    
+
     private Datastar datastar;
-    
+
 
     MassMemoryBasePages massMemoryBasePages=null;
 
@@ -35,39 +37,39 @@ public class BasePagesFactory extends AbstractBasePageFactory {
       FirmwareAndSoftwareRevision firmwareAndSoftwareRevision=null;
 //      RegisterMultiplierBasePage registerMultiplierBasePage=null;
       MassMemoryRecordBasePage currentMassMemoryRecordBasePage=null;
-      PulseMultiplierAndDisplayUnits pulseMultiplierAndDisplayUnits=null;        
-      
+      PulseMultiplierAndDisplayUnits pulseMultiplierAndDisplayUnits=null;
+
     /** Creates a new instance of BasePagesFactory */
     public BasePagesFactory(Datastar datastar) {
         this.setDatastar(datastar);
     }
-    
+
     public PulseMultiplierAndDisplayUnits getPulseMultiplierAndDisplayUnits() throws IOException {
         if (pulseMultiplierAndDisplayUnits==null) {
             pulseMultiplierAndDisplayUnits = new PulseMultiplierAndDisplayUnits(this);
             pulseMultiplierAndDisplayUnits.invoke();
         }
         return pulseMultiplierAndDisplayUnits;
-    }            
-    
+    }
+
     public void writeBasePage(int address, byte[] data) throws IOException {
         AddressWriteBasePage a = new AddressWriteBasePage(this);
         a.setAddress(address);
         a.setData(data);
         a.invoke();
     }
-    
+
     public void setRealTimeBasePage() throws IOException {
         RealTimeBasePage o = new RealTimeBasePage(this);
         TimeZone tz = getProtocolLink().getTimeZone();
         if (!getOperatingSetUpBasePage().isDstEnabled()) {
-            tz = ProtocolUtils.getWinterTimeZone(tz);     
+            tz = ProtocolUtils.getWinterTimeZone(tz);
         }
-        
+
         o.setCalendar(ProtocolUtils.getCalendar(tz));
         o.invoke();
     }
-    
+
     public MassMemoryRecordBasePage getCurrentMassMemoryRecordBasePage() throws IOException {
         if (currentMassMemoryRecordBasePage==null) {
             currentMassMemoryRecordBasePage = new MassMemoryRecordBasePage(this);
@@ -76,69 +78,69 @@ public class BasePagesFactory extends AbstractBasePageFactory {
             currentMassMemoryRecordBasePage.invoke();
         }
         return currentMassMemoryRecordBasePage;
-    }        
-    
+    }
+
     public FirmwareAndSoftwareRevision getFirmwareAndSoftwareRevision() throws IOException {
         if (firmwareAndSoftwareRevision==null) {
             firmwareAndSoftwareRevision = new FirmwareAndSoftwareRevision(this);
             firmwareAndSoftwareRevision.invoke();
         }
         return firmwareAndSoftwareRevision;
-    }    
-    
+    }
+
 //    public RegisterConfigurationBasePage getRegisterConfigurationBasePage() throws IOException {
 //        if (registerConfigurationBasePage==null) {
 //            registerConfigurationBasePage = new RegisterConfigurationBasePage(this);
 //            registerConfigurationBasePage.invoke();
 //        }
 //        return registerConfigurationBasePage;
-//    }    
-//    
+//    }
+//
 //    public MeterKhBasePage getMeterKhBasePage() throws IOException {
 //        if (meterKhBasePage==null) {
 //            meterKhBasePage = new MeterKhBasePage(this);
 //            meterKhBasePage.invoke();
 //        }
 //        return meterKhBasePage;
-//    }    
-//    
+//    }
+//
 //    public ModelTypeBasePage getModelTypeBasePage() throws IOException {
 //        if (modelTypeBasePage==null) {
 //            modelTypeBasePage = new ModelTypeBasePage(this);
 //            modelTypeBasePage.invoke();
 //        }
 //        return modelTypeBasePage;
-//    }    
-//    
+//    }
+//
 //    public FirmwareOptionsBasePage getFirmwareOptionsBasePage() throws IOException {
 //        if (firmwareOptionsBasePage==null) {
 //            firmwareOptionsBasePage = new FirmwareOptionsBasePage(this);
 //            firmwareOptionsBasePage.invoke();
 //        }
 //        return firmwareOptionsBasePage;
-//    }    
-//    
+//    }
+//
     public OperatingSetUpBasePage getOperatingSetUpBasePage() throws IOException {
         if (operatingSetUpBasePage==null) {
             operatingSetUpBasePage = new OperatingSetUpBasePage(this);
             operatingSetUpBasePage.invoke();
         }
         return operatingSetUpBasePage;
-    }    
-    
+    }
+
 //    public FrontEndFirmwareVersionBasePage getFrontEndFirmwareVersionBasePage() throws IOException {
 //        if (frontEndFirmwareVersionBasePage==null) {
 //            frontEndFirmwareVersionBasePage = new FrontEndFirmwareVersionBasePage(this);
 //            frontEndFirmwareVersionBasePage.invoke();
 //        }
 //        return frontEndFirmwareVersionBasePage;
-//    }    
-    
+//    }
+
 
     public MassMemoryBasePages getMassMemoryBasePages() throws IOException {
         return getMassMemoryBasePages(false);
     }
-    
+
     public MassMemoryBasePages getMassMemoryBasePages(boolean refresh) throws IOException {
         if ((massMemoryBasePages==null) || (refresh)){
             massMemoryBasePages = new MassMemoryBasePages(this);
@@ -150,36 +152,36 @@ public class BasePagesFactory extends AbstractBasePageFactory {
     public Datastar getDatastar() {
         return datastar;
     }
-    
+
     public void setDatastar(Datastar datastar) {
         this.datastar = datastar;
     }
-    
+
     public ProtocolLink getProtocolLink() {
         return (ProtocolLink)datastar;
-    }    
-    
+    }
+
     public RealTimeBasePage getRealTimeBasePage() throws IOException {
         RealTimeBasePage o = new RealTimeBasePage(this);
         o.invoke();
         return o;
     }
-    
+
 //    public SelfreadIndexBasePage getSelfreadIndexBasePage() throws IOException {
 //        SelfreadIndexBasePage o = new SelfreadIndexBasePage(this);
 //        o.invoke();
 //        return o;
-//        
-//    }    
-//    
+//
+//    }
+//
 //    public SelfreadTimestampBasePage getSelfreadTimestampBasePage(int index) throws IOException {
 //        SelfreadTimestampBasePage o = new SelfreadTimestampBasePage(this);
 //        o.setIndex(index);
 //        o.invoke();
 //        return o;
-//        
-//    }   
-//    
+//
+//    }
+//
 //    public RegisterBasePage getRegisterBasePage(Register register) throws IOException {
 //        RegisterBasePage o = new RegisterBasePage(this);
 //        o.setRegister(register);
@@ -187,8 +189,8 @@ public class BasePagesFactory extends AbstractBasePageFactory {
 //        if (register.getAddress2() != -1)
 //            o.invoke();
 //        return o;
-//        
-//    }    
+//
+//    }
 
 
     public MassMemoryRecordBasePage getMassMemoryRecordBasePageByRecordNr(int recordNr) throws IOException {
@@ -196,20 +198,20 @@ public class BasePagesFactory extends AbstractBasePageFactory {
         o.setRecordNr(recordNr);
         o.invoke();
         return o;
-        
+
     }
-    
+
     public KYZDividersBasePage getKYZDividersBasePage() throws IOException {
         KYZDividersBasePage o = new KYZDividersBasePage(this);
         o.invoke();
         return o;
-        
+
     }
 
     public DataBuffersBasePage getDataBuffersBasePage() throws IOException {
         DataBuffersBasePage o = new DataBuffersBasePage(this);
         o.invoke();
         return o;
-        
-    }            
+
+    }
 }

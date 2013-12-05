@@ -6,9 +6,9 @@
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;

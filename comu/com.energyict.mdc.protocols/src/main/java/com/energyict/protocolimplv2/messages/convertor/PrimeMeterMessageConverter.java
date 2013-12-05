@@ -1,16 +1,32 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.HexString;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.AdvancedTagMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activationDatedAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols
@@ -21,7 +37,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public class PrimeMeterMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
+     * Represents a mapping between {@link com.energyict.mdc.protocol.device.messages.DeviceMessageSpec}s
      * and the corresponding {@link MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();

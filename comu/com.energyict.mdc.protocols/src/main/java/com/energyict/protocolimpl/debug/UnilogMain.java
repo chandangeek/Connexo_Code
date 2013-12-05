@@ -2,9 +2,11 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.iec1107.unilog.*;
+import com.energyict.protocolimpl.iec1107.unilog.Unilog;
+import com.energyict.protocolimpl.iec1107.unilog.UnilogRegister;
+import com.energyict.protocolimpl.iec1107.unilog.UnilogRegistry;
 
 import java.io.IOException;
 import java.util.List;

@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class StandardProcedureFactory extends ProcedureFactory {
-    
-    
+
+
     /** Creates a new instance of StandardProcedureFactory */
     public StandardProcedureFactory(C12ProtocolLink c12ProtocolLink) {
         super(c12ProtocolLink);
@@ -30,6 +30,6 @@ public class StandardProcedureFactory extends ProcedureFactory {
         SetDateTime sdt = new SetDateTime(this);
         sdt.setSequenceNr(getNewSequenceNr());
         sdt.initiateProcedure();
-    } 
-    
+    }
+
 }

@@ -9,25 +9,26 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12;
-import java.io.*;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
-public class LogoffRequest extends AbstractRequest { 
-    
+public class LogoffRequest extends AbstractRequest {
+
     RequestData requestData=new RequestData(LOGOFF);
-    
+
     /** Creates a new instance of LogoffRequest */
     public LogoffRequest(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
           response = new LogoffResponse(getPSEMServiceFactory());
           response.build(responseData);
     }
-    
+
     protected RequestData getRequestData() {
         return requestData;
     }

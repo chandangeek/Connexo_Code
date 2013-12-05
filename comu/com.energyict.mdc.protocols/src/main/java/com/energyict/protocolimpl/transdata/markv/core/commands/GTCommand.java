@@ -10,31 +10,34 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author koen
  */
 public class GTCommand  extends AbstractCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("GT");
 
     private Date date;
     int dayOfWeek;
-    
+
     /** Creates a new instance of GTCommand */
     public GTCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         return "GTCommand: "+getDate()+", "+dayOfWeek;
     }
-    
+
     protected void parse(String strData) throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getMarkV().getTimeZone());
@@ -48,7 +51,7 @@ public class GTCommand  extends AbstractCommand {
         dayOfWeek=Integer.parseInt(br.readLine()); // not used for the moment
         setDate(cal.getTime());
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }

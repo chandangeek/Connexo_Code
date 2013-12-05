@@ -1,11 +1,11 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.LoadProfileReader;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 

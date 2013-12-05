@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport} component
- * 
+ *
  * Copyrights EnergyICT
  * Date: 31/01/13
  * Time: 14:05

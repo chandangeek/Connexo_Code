@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
+import com.energyict.mdc.protocol.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.obis.ObisCode;
 
 import java.util.List;
 
@@ -18,14 +19,14 @@ import java.util.List;
  * Date: 13/05/13
  * Time: 13:24
  */
-public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdentifier {
+public class RegisterDataIdentifierByObisCodeAndDevice implements CanFindRegister {
 
     private final ObisCode registerObisCode;
-    private final DeviceIdentifier deviceIdentifier;
+    private final CanFindDevice deviceIdentifier;
 
     private Register register;
 
-    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, DeviceIdentifier deviceIdentifier) {
+    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, CanFindDevice deviceIdentifier) {
         this.registerObisCode = registerObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
@@ -57,7 +58,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         return registerObisCode;
     }
 
-    public DeviceIdentifier getDeviceIdentifier() {
+    public CanFindDevice getDeviceIdentifier() {
         return deviceIdentifier;
     }
 }

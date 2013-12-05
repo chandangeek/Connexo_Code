@@ -11,16 +11,17 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DSPFirmwareRevision {
-    
-    
+
+
     private int dspMinorRevision; // DSP_MINOR_REVISION : ARRAY[1] OF BCD;
     private int dspMajorRevision; // DSP_MAJOR_REVISION : ARRAY[1] OF BCD;
 
@@ -29,9 +30,9 @@ public class DSPFirmwareRevision {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         setDspMinorRevision((int)C12ParseUtils.getBCD2Long(data, offset++, 1, cfgt.getDataOrder()));
         setDspMajorRevision((int)C12ParseUtils.getBCD2Long(data, offset++, 1, cfgt.getDataOrder()));
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,8 +40,8 @@ public class DSPFirmwareRevision {
         strBuff.append("   dspMajorRevision="+getDspMajorRevision()+"\n");
         strBuff.append("   dspMinorRevision="+getDspMinorRevision()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 2;
@@ -61,5 +62,5 @@ public class DSPFirmwareRevision {
     public void setDspMajorRevision(int dspMajorRevision) {
         this.dspMajorRevision = dspMajorRevision;
     }
-    
+
 }

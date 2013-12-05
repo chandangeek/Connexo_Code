@@ -10,36 +10,35 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ProcedureResponseTable extends AbstractTable {
-    
-    
+
+
     private TableIDBBitfield tableIDBBitfield;
-    
+
     private int resultCode; //byte
     private int sequenceNr; // byte
     private byte[] procedureResponseData; // byte[]
-    
+
     /** Creates a new instance of ProcedureResponseTable */
     public ProcedureResponseTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(8));
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setTableIDBBitfield(new TableIDBBitfield(tableData, 0,  dataOrder));
         setSequenceNr(C12ParseUtils.getInt(tableData,2));
-        setResultCode(C12ParseUtils.getInt(tableData,3)); 
+        setResultCode(C12ParseUtils.getInt(tableData,3));
         // KV meter has selector != 2 but no response data for the procedure
         // e.g. setdatetime, no response data...
         if ((tableData.length-4)>0)

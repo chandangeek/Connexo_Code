@@ -10,18 +10,15 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 /**
  *
  * @author koen
  */
 public class DaysBitfield {
-    
+
     private boolean sunday;
     private boolean monday;
     private boolean tuesday;
@@ -29,7 +26,7 @@ public class DaysBitfield {
     private boolean thursday;
     private boolean friday;
     private boolean saturday;
-    
+
     /** Creates a new instance of DaysBitfield */
     public DaysBitfield(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int temp = C12ParseUtils.getInt(data,offset++);
@@ -40,7 +37,7 @@ public class DaysBitfield {
         thursday = (temp & 0x10) == 0x10;
         friday = (temp & 0x20) == 0x20;
         saturday = (temp & 0x40) == 0x40;
-        
+
     }
 
     public String toString() {
@@ -60,7 +57,7 @@ public class DaysBitfield {
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 1;
     }
-    
+
     public boolean isSunday() {
         return sunday;
     }
@@ -88,5 +85,5 @@ public class DaysBitfield {
     public boolean isSaturday() {
         return saturday;
     }
-    
+
 }

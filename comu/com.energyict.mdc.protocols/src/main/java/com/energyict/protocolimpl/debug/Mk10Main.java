@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 

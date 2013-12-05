@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class CommandDescription {
-    
-    
+
+
     static List commandDescriptions = new ArrayList();
     static {
         commandDescriptions.add(new String[]{"RV","RV, event logbook"});
@@ -28,17 +28,17 @@ public class CommandDescription {
         commandDescriptions.add(new String[]{"TI","TI, set time date"});
         commandDescriptions.add(new String[]{"TC","TC, set schedule dialin time date"});
     }
-    
+
     /** Creates a new instance of CommandDescription */
     public CommandDescription() {
     }
-    
+
     static public String getDescriptionFor(String command) {
         for (int i=0;i<commandDescriptions.size();i++) {
             String[] strs = (String[])commandDescriptions.get(i);
             if (strs[0].compareTo(command) == 0)
                 return strs[1];
-            
+
         }
         return command+" (no description found)";
     }

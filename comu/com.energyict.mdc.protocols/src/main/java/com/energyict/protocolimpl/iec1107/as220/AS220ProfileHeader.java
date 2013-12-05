@@ -5,10 +5,10 @@
 
 package com.energyict.protocolimpl.iec1107.as220;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+
+import java.io.IOException;
 
 /**
  *

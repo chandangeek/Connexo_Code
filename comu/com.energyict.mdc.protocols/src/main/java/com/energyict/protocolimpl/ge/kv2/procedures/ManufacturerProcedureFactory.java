@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.ge.kv2.procedures;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ManufacturerProcedureFactory extends ProcedureFactory {
-    
-    
+
+
     /** Creates a new instance of ManufacturerProcedureFactory */
     public ManufacturerProcedureFactory(C12ProtocolLink c12ProtocolLink) {
         super(c12ProtocolLink);
@@ -31,6 +31,6 @@ public class ManufacturerProcedureFactory extends ProcedureFactory {
         SnapShotData ssd = new SnapShotData(this);
         ssd.setSequenceNr(getNewSequenceNr());
         ssd.initiateProcedure();
-    } 
-    
+    }
+
 }

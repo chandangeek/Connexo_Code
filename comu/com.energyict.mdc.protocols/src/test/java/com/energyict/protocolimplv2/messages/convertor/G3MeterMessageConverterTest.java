@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;

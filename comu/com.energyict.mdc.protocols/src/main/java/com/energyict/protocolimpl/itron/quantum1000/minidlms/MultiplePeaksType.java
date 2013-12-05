@@ -10,16 +10,17 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class MultiplePeaksType {
-    
+
     private QuantityId quantityID; // QUANTITY_ID,
     private int demandType; // UNSIGNED8,
     private boolean peakOrMin; // BOOLEAN,
@@ -27,7 +28,7 @@ public class MultiplePeaksType {
     private QuantityId coincidentReg2Quantity; // QUANTITY_ID,
     private QuantityId coincidentReg3Quantity; // QUANTITY_ID,
     private PeakValue[] peakValues;
-    
+
     /**
      * Creates a new instance of MultiplePeaksType
      */
@@ -47,9 +48,9 @@ public class MultiplePeaksType {
             getPeakValues()[i] = new PeakValue(data, offset, timeZone);
             offset+=PeakValue.size();
         }
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -65,7 +66,7 @@ public class MultiplePeaksType {
         strBuff.append("   quantityID="+getQuantityID()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 10+5*PeakValue.size();
     }
@@ -125,7 +126,7 @@ public class MultiplePeaksType {
     public void setPeakValues(PeakValue[] peakValues) {
         this.peakValues = peakValues;
     }
-    
-    
-    
+
+
+
 }

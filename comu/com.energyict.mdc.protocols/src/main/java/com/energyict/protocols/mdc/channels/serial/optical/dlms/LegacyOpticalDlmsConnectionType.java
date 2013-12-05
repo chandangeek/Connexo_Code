@@ -1,13 +1,12 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -40,8 +39,8 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        return getActualConnectionType().connect(comPort, properties);
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
+        return getActualConnectionType().connect(properties);
     }
 
     @Override
@@ -63,32 +62,42 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
-    public boolean isRequiredProperty(String name) {
-        return getActualConnectionType().isRequiredProperty(name);
-    }
-
-    @Override
     public String getVersion() {
         return "$Date$";
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getActualConnectionType().getRequiredProperties();
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        propertySpecs.addAll(this.getActualConnectionType().getPropertySpecs());
+        propertySpecs.add(this.getAddressingModePropertySpec());
+        propertySpecs.add(this.getConnectionPropertySpec());
+        propertySpecs.add(this.getServerMacAddress());
+        propertySpecs.add(this.getServerLowerMacAddress());
+        propertySpecs.add(this.getServerUpperMacAddress());
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalProperties = getActualConnectionType().getOptionalProperties();
-        optionalProperties.add(getAddressingModePropertySpec());
-        optionalProperties.add(getConnectionPropertySpec());
-        optionalProperties.add(getServerMacAddress());
-        optionalProperties.add(getServerLowerMacAddress());
-        optionalProperties.add(getServerUpperMacAddress());
-        return optionalProperties;
+    PropertySpec getServerLowerMacAddress () {
+        return this.getServerLowerMacAddress(false);
     }
 
-    PropertySpec getConnectionPropertySpec(){
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, new BigDecimal(0));
+    @Override
+    PropertySpec getServerUpperMacAddress () {
+        return this.getServerUpperMacAddress(false);
     }
+
+    @Override
+    PropertySpec getServerMacAddress () {
+        return this.getServerMacAddress(false);
+    }
+
+    @Override
+    PropertySpec getAddressingModePropertySpec () {
+        return this.getAddressingModePropertySpec(false);
+    }
+
+    PropertySpec getConnectionPropertySpec() {
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, BigDecimal.ZERO);
+    }
+
 }

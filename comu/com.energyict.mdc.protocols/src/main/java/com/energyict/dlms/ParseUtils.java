@@ -1,6 +1,6 @@
 package com.energyict.dlms;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * DLMS ParseUtils

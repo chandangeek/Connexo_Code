@@ -4,8 +4,12 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 public class OpusCommandFactory {
 	/**
@@ -38,17 +42,17 @@ public class OpusCommandFactory {
 	 *  Comments:<p>
 	 *  released for testing:
 	 * ---------------------------------------------------------------------------------<p>
-	 *  
+	 *
 	 */
-	
+
 	private static final char STX =0x0002;  // start of text
 	private static final char ETX =0x0003;  // end of text
-	private static final char EOT =0x0004;  // end of transmission 
+	private static final char EOT =0x0004;  // end of transmission
 	private static final char ENQ =0x0005;  // enquiry
 	private static final char ACK =0x0006;  // acknowledge
 	private static final char CR  =0x000D;  // carriage return
 	private static final char NAK =0x0021;  // negative acknowledge
-	
+
 	private boolean	ERROR_FLAG=false;
 
 
@@ -75,8 +79,8 @@ public class OpusCommandFactory {
 	/*
 	 * Constructor (no empty constructor allowed)
 	 */
-	OpusCommandFactory(int outstationID, 
-			String oldPassword, 
+	OpusCommandFactory(int outstationID,
+			String oldPassword,
 			String newPassword,
 			InputStream inputStream,
 			OutputStream outputStream){
@@ -86,7 +90,7 @@ public class OpusCommandFactory {
 		this.inputStream=inputStream;
 		this.outputStream=outputStream;
 	}
-	
+
 	/*
 	 * 1) Processing of the command (after making an instance of the class)
 	 */
@@ -96,7 +100,7 @@ public class OpusCommandFactory {
 		if(numChan==-1){
 			s=writeReadControlOutstation(attempts, timeOut);
 			String[] str=(String[])s.get(0);
-			this.numChan=Integer.parseInt(str[1]);					// set number of channels in this object			
+			this.numChan=Integer.parseInt(str[1]);					// set number of channels in this object
 		}
 		try {
 			Thread.sleep(1000);
@@ -116,7 +120,7 @@ public class OpusCommandFactory {
 		else if(command==102){s=fetchTimeDateFromOutstation(attempts,timeOut);}
 		else if(command==111){s=retrievalDeltaMinAdvance(attempts, timeOut,cal,numChan);} // use command as deltamin
 		else if(command==121){s=writeReadControlOutstation(attempts, timeOut); }
-		//further command implementation not needed 
+		//further command implementation not needed
 		else if(command==200){s=null;}
 		else if(command==550){s=null;}// commands for PPM stations, so far not implemented
 		else if(command==860){s=null;}
@@ -144,12 +148,12 @@ public class OpusCommandFactory {
 		return stateMachine1(5,attempts,timeOut,numChan,data);
 	}
 	private ArrayList retrievalOfDailyPeriodData(int commandnr,int attempts, int timeOut, int numChan, int offset, int cap, Calendar cal) throws IOException {
-		realtimeout=true;						// FIRMWARE BUG tool 
+		realtimeout=true;						// FIRMWARE BUG tool
 		ArrayList aL=new ArrayList();
 		String d=""+offset;
 		String c=""+cap;
 		String[] data=dataArrayBuilder("0",d,c,"0","0","0",oldPassword,newPassword); // build data packet
-		try{									// catch firmware bug if number of channels is less then number of channels defined in frame 1 
+		try{									// catch firmware bug if number of channels is less then number of channels defined in frame 1
 			aL = stateMachine2(commandnr,attempts,timeOut,data,cal, aL);
 		}catch(IOException e){
 			if(realtimeout){
@@ -198,11 +202,11 @@ public class OpusCommandFactory {
 //		return stateMachine3(1,attempts,timeOut,data);
 //	}
 
-	
+
 	/*
 	 * 3) State Machines, can be dumped in objects!! work with overriding on each state, here it is implemented as methods
-	 */	
-	private ArrayList stateMachine1(int commandnr,int attempts, int timeOut, int numChan, String[] data) throws IOException{	
+	 */
+	private ArrayList stateMachine1(int commandnr,int attempts, int timeOut, int numChan, String[] data) throws IOException{
 		int attempts1= attempts,attempts2=attempts, attempts3=attempts,attempts4=attempts;  // number of retries
 		ArrayList returnedData=new ArrayList();		// data stack
 		boolean temp=true,loop=true; 									// to pass true or false flags from state to state and end the loop
@@ -210,12 +214,12 @@ public class OpusCommandFactory {
 		String s="";													// string stack for data reception
         long interFrameTimeout;											// timout
 		int i=0; 														// returned data, is stacked on s
-		int state=1; 													// start state;	
+		int state=1; 													// start state;
 		int packetnr=0;													// automatic packet numbering
 		interFrameTimeout = System.currentTimeMillis() + timeOut; 		// timeout between states
-		while(loop){			
+		while(loop){
 			// time out check
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 	        // last loop attempt
@@ -236,7 +240,7 @@ public class OpusCommandFactory {
 					packetnr++;
 					attempts1--;
 					break;
-				case 2:	
+				case 2:
 					state=acknak(3,1,2,17);
 					break;
 				case 3:
@@ -259,14 +263,14 @@ public class OpusCommandFactory {
 				case 10:
 					state=detectUnstable(data,temp,11,4,1);
 					break;
-				case 11:					
+				case 11:
 					returnedData.add(data);
 					s=getStringArray();
 					receivePacket=new OpusBuildPacket(s.toCharArray());
 					temp=receivePacket.verifyCheckSum();
 					data=receivePacket.getData();
 					state=12;
-					attempts3--;					
+					attempts3--;
 					break;
 				case 12:
 					state=acknack(temp,13,11);
@@ -278,7 +282,7 @@ public class OpusCommandFactory {
 					temp=receivePacket.verifyCheckSum();
 					data=receivePacket.getData();
 					state=14;
-					attempts4--;					
+					attempts4--;
 					break;
 				case 14:
 					if(temp){
@@ -309,8 +313,8 @@ public class OpusCommandFactory {
 					outputStream.write(CR);
 					loop=false;
 					// in fact not necessary
-					break;			
-			}	
+					break;
+			}
 		}
 		return returnedData;
 	}
@@ -324,17 +328,17 @@ public class OpusCommandFactory {
 		String s="";
         long interFrameTimeout;
 		int i=0; // returned data;
-		int state=1; // start state;	
+		int state=1; // start state;
 		int packetnr=0;
 		int channr=0;
 		int numChan=1;
 		int datanr=0;
-		int numData=8; 
+		int numData=8;
 		//int day=0,month=0,year=0;
 		interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states
-		while(loop){			
+		while(loop){
 			// time out check
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 	        // last loop attempt
@@ -355,7 +359,7 @@ public class OpusCommandFactory {
 					packetnr++;
 					attempts1--;
 					break;
-				case 2:	
+				case 2:
 					state=acknak(3,1,2);
 					break;
 				case 3:
@@ -402,7 +406,7 @@ public class OpusCommandFactory {
 					/*/BUG
 					 * TODO: here the exceeding channel problem of the OPUS should be solved
 					 * TODO: This channel problem should be solved in the FIRMWARE!!
-					 * 
+					 *
 					 * This problem is a FIRMWARE BUG.  The problem is that the number of channels
 					 * retured by the OPUS is not taken from the register where the channels are stored
 					 * but taken in a register containing current up to date information.  Historical
@@ -410,13 +414,13 @@ public class OpusCommandFactory {
 					 * as current up to date registers.  The firmware does the following: takes number of
 					 * channels used NOW and transmit that to the server.  Read the register, and transfer
 					 * all channels stored in that register not using the previously transferred number
-					 * of channels. 
-					 * 
+					 * of channels.
+					 *
 					 * Possible solution: scan all channels by using ENQ and count number of headers, close with a timeout
 					 */
 					boolean checkLastChan=false;
-					if(enq==0x1 && temp){ // status ok & checksum ok		
-						if(channelMap.isProtocolChannel(channr-1)){// more channels show up than initially installed (strange problem appeared on test meter in historical data) 
+					if(enq==0x1 && temp){ // status ok & checksum ok
+						if(channelMap.isProtocolChannel(channr-1)){// more channels show up than initially installed (strange problem appeared on test meter in historical data)
 							if(channr-1!=0 && !channelMap.isProtocolChannelEnabled(channr-1)){// ENQ will not be sent on channel 1 (is no problem for this software, might be a problem for the software of elster
 								outputStream.write(ENQ); // not first channel and channel disabled
 								state=7;
@@ -431,7 +435,7 @@ public class OpusCommandFactory {
 						}
 						if(channr==numChan && checkLastChan){ // if ENQ for last channel then goto 13;
 							state=13;
-						}						
+						}
 					}else{
 						state=acknack(temp,9,7);
 					}
@@ -478,7 +482,7 @@ public class OpusCommandFactory {
 		}
 		return returnedData;
 	}
-	
+
 	// state machine 3 commands 101 and 102, 121
 	private ArrayList stateMachine3(int commandnr,int attempts, int timeOut, String[] data) throws IOException{
 		ArrayList returnedData=new ArrayList();
@@ -487,16 +491,16 @@ public class OpusCommandFactory {
 		OpusBuildPacket sendPacket,receivePacket;
 		String s="";
         long interFrameTimeout;
-		int state=1; // start state;	
+		int state=1; // start state;
 		int packetnr=0;
-		
-		
+
+
 		// build time and date data package
 		interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states
-		
-		while(loop){			
+
+		while(loop){
 			// time out check
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 	        // last loop attempt
@@ -517,7 +521,7 @@ public class OpusCommandFactory {
 					packetnr++;
 					attempts1--;
 					break;
-				case 2:	
+				case 2:
 					state=acknak(3,1,2);
 					break;
 				case 3:
@@ -527,7 +531,7 @@ public class OpusCommandFactory {
 				case 4:
 				case 5: // 5-7-9 implement the same data structures, 4 is different but could not be serparted from this unit
 				case 7:
-				case 9: 
+				case 9:
 					s=getStringArray();
 					receivePacket=new OpusBuildPacket(s.toCharArray());
 					temp=receivePacket.verifyCheckSum(); // checksum test (apply before parsing)
@@ -535,7 +539,7 @@ public class OpusCommandFactory {
 					if(s.charAt(0)==EOT){
 						state=11;
 					}else if(temp){
-						state=10;						
+						state=10;
 					}else{
 						state=1;
 					}
@@ -568,15 +572,15 @@ public class OpusCommandFactory {
 		OpusBuildPacket sendPacket,receivePacket;
 		String s="";
         long interFrameTimeout;
-		int state=1; // start state;	
+		int state=1; // start state;
 		int packetnr=0;
 		int channr=0;
 		int i=0;
 		// build time and date data package
 		interFrameTimeout = System.currentTimeMillis() + timeOut; // timeout between states
-		while(loop){			
+		while(loop){
 			// time out check
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 	        // last loop attempt
@@ -597,7 +601,7 @@ public class OpusCommandFactory {
 					packetnr++;
 					attempts1--;
 					break;
-				case 2:	
+				case 2:
 					state=acknak(3,1,2);
 					break;
 				case 3:
@@ -617,7 +621,7 @@ public class OpusCommandFactory {
 						// deltamin conversion to time
 						if(Integer.parseInt(data[0])==000 || Integer.parseInt(data[0])==999 ){
 							outputStream.write(EOT);
-							loop=false;							
+							loop=false;
 						}else{
 							outputStream.write(ACK);
 							state=6;
@@ -636,7 +640,7 @@ public class OpusCommandFactory {
 					receivePacket=new OpusBuildPacket(s.toCharArray());
 					temp=receivePacket.verifyCheckSum();
 					data=receivePacket.getData();
-					channr=Integer.parseInt(data[0].substring(5));					
+					channr=Integer.parseInt(data[0].substring(5));
 					attempts3--;
 					break;
 				case 7:
@@ -653,7 +657,7 @@ public class OpusCommandFactory {
 					data=receivePacket.getData();
 					attempts4--;
 					break;
-				case 9:					
+				case 9:
 					state=acknack(temp,10,8);
 					if(state==10){
 						returnedData.add(data);
@@ -663,7 +667,7 @@ public class OpusCommandFactory {
 							if(channr==numChan){state=14;} // jump to next state when all channels are read
 						}
 						if(data[0].charAt(0)=='S'){ // in case 8-16 measurements are taken, then no '?' is detected!!!!
-							state=8; 
+							state=8;
 						}
 					}
 					break;
@@ -674,7 +678,7 @@ public class OpusCommandFactory {
 					temp=receivePacket.verifyCheckSum();
 					data=receivePacket.getData();
 					attempts4--;
-					break;					
+					break;
 				case 11:
 					state=acknack(temp,12,10);
 					if(state==12){
@@ -688,7 +692,7 @@ public class OpusCommandFactory {
 							state=8;
 						}
 					}
-					break;					
+					break;
 				case 12:
 					s=getStringArray();
 					state=13;
@@ -696,7 +700,7 @@ public class OpusCommandFactory {
 					temp=receivePacket.verifyCheckSum();
 					data=receivePacket.getData();
 					attempts4--;
-					break;					
+					break;
 				case 13:
 					state=acknack(temp,6,12);
 					if(state==6){returnedData.add(data);attempts4++;}
@@ -704,7 +708,7 @@ public class OpusCommandFactory {
 						state=8;
 					}
 					if(channr==numChan){state=14;} // jump to next state when all channels are read
-					break;					
+					break;
 				case 14:
 					i=inputStream.read();
 					if(i==EOT){state=15;}
@@ -713,7 +717,7 @@ public class OpusCommandFactory {
 					outputStream.write(CR);
 					loop=false;
 					// in fact not necessary
-					break;			}		
+					break;			}
 		}
 		return returnedData;
 	}
@@ -722,7 +726,7 @@ public class OpusCommandFactory {
 	 * Support functions
 	 * ---------------------------------------------------------------------------------
 	 */
-	
+
 	/*
 	 * State Machine support and data build support functions
 	 */
@@ -769,7 +773,7 @@ public class OpusCommandFactory {
 		data[7]=newPassword;
 		return data;
 	}
-	
+
 	/*
 	 * State machine read and write functions
 	 */
@@ -780,14 +784,14 @@ public class OpusCommandFactory {
 			outputStream.write(EOT);
 			// introduce timeout pause
 			state=k;
-		}else{ 
+		}else{
 			state=acknack(temp,i,j);
-		}			
+		}
 		return state;
 	}
 	private int debugChannelBug() throws IOException {
 		int i=0;
-		String s="";					
+		String s="";
 		while(i!=EOT && i!=ETX){
 			long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 			boolean test=false;
@@ -815,7 +819,7 @@ public class OpusCommandFactory {
 	}
 	private String getStringArray() throws IOException {
 		int i=0;
-		String s="";					
+		String s="";
 		while(i!=ETX){	// timeout!
 			long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 			boolean test=false;
@@ -845,7 +849,7 @@ public class OpusCommandFactory {
 		return state;
 	}
 	private int acknak(int ACKstate, int NAKstate,int curstate) throws IOException{
-		int state=curstate; 
+		int state=curstate;
 		int i=0x00; // will timeout
 		long interCharacterTimeout = System.currentTimeMillis() + timeOut; // timeout between states
 		boolean test=false;
@@ -864,7 +868,7 @@ public class OpusCommandFactory {
 		}else if(i==NAK){
 			// checksum error
 			state=NAKstate;
-		}	
+		}
 		return state;
 	}
 
@@ -893,10 +897,10 @@ public class OpusCommandFactory {
 		}
 		return state;
 	}
-	
+
 	/*
 	 * Setters and Getters
-	 */	
+	 */
 
 	public String getNewPassword() {
 		return newPassword;
@@ -962,7 +966,7 @@ public class OpusCommandFactory {
 	}
 
 	public void setTimeZone(TimeZone timezone) {
-		this.timezone=timezone;		
+		this.timezone=timezone;
 	}
 
 

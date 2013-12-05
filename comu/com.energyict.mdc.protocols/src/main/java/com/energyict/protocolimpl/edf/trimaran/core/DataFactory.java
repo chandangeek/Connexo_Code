@@ -11,25 +11,26 @@
 package com.energyict.protocolimpl.edf.trimaran.core;
 
 import com.energyict.protocolimpl.edf.trimaran.Trimaran;
-import java.io.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DataFactory {
-    
+
     private Trimaran trimeran;
-    
+
     MonthInfoTable currentMonthInfoTable=null;
     MonthInfoTable previousMonthInfoTable=null;
     MeterStatusTable meterStatusTable=null;
-    
+
     /** Creates a new instance of DataFactory */
     public DataFactory(Trimaran trimeran) {
         this.trimeran=trimeran;
     }
-    
+
     public MeterStatusTable getMeterStatusTable() throws IOException {
         if (meterStatusTable==null) {
             meterStatusTable = new MeterStatusTable(this);
@@ -38,7 +39,7 @@ public class DataFactory {
         }
         return meterStatusTable;
     }
-    
+
     public MonthInfoTable getCurrentMonthInfoTable() throws IOException {
         if (currentMonthInfoTable==null) {
             currentMonthInfoTable = new MonthInfoTable(this);
@@ -48,7 +49,7 @@ public class DataFactory {
         }
         return currentMonthInfoTable;
     }
-    
+
     public MonthInfoTable getPreviousMonthInfoTable() throws IOException {
         if (previousMonthInfoTable==null) {
             previousMonthInfoTable = new MonthInfoTable(this);
@@ -65,7 +66,7 @@ public class DataFactory {
         dv.invoke();
         return dv;
     }
-    
+
     public Trimaran getTrimeran() {
         return trimeran;
     }
@@ -73,6 +74,6 @@ public class DataFactory {
     private void setTrimeran(Trimaran trimeran) {
         this.trimeran = trimeran;
     }
-    
-    
+
+
 }

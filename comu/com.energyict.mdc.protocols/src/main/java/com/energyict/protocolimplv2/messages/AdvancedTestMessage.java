@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +22,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public enum AdvancedTestMessage implements DeviceMessageSpec {
 
-    XML_CONFIG(PropertySpecFactory.stringPropertySpec(xmlConfigAttributeName)),
-    USERFILE_CONFIG(PropertySpecFactory.userFileReferencePropertySpec(UserFileConfigAttributeName)),
+    XML_CONFIG(RequiredPropertySpecFactory.newInstance().stringPropertySpec(xmlConfigAttributeName)),
+    USERFILE_CONFIG(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(UserFileConfigAttributeName)),
     LogObjectList();
 
     private static final DeviceMessageCategory advancedTestCategory = DeviceMessageCategories.ADVANCED_TEST;

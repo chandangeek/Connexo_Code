@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -7,9 +10,6 @@ import java.util.Date;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 
 /**
  * 1 byte       billing triggers
@@ -25,20 +25,20 @@ import com.energyict.cbo.Unit;
  */
 
 public class HistoricalRegisterSet extends Register {
-    
+
     private int dbg = 0;
-    
-    public static final String[] triggerSrc = { 
+
+    public static final String[] triggerSrc = {
         "Timed Billing Event",
         "Season Start Billing Event",
         "Tarif Changeover Billing Event",
         "Remote Port Commanded Billing",
-        "FLAG Port Commanded Billing", 
+        "FLAG Port Commanded Billing",
         "Battery Fail Billing"
     };
-    
+
     public static final int [] triggerSrcCode =  {
-        0x01, 
+        0x01,
         0x02,
         0x04,
         0x08,
@@ -71,7 +71,7 @@ public class HistoricalRegisterSet extends Register {
                 return hr2.getTime().compareTo(hr1.getTime());
             }
         });
-        
+
         int setSize = length / sets;
         Unit uWh = Unit.get("mWh");
         DataType dataType = a140.getDataType();
@@ -99,18 +99,18 @@ public class HistoricalRegisterSet extends Register {
             Quantity r2 = dataType.bcd.toQuantity(ba, sOff+22, 5, uWh);
             Quantity r3 = dataType.bcd.toQuantity(ba, sOff+27, 5, uWh);
             Quantity r4 = dataType.bcd.toQuantity(ba, sOff+32, 5, uWh);
-            
-            byte src[] = new byte[1]; 
+
+            byte src[] = new byte[1];
             System.arraycopy( ba, sOff+37, src, 0, 1 );
             TouSourceRegister tsr = new TouSourceRegister( a140 );
             tsr.read( src );
-                
+
             hrSet.add(new HistoricalRegister( trSrc, d, ci, ce, r1, r2, r3, r4, tsr));
 
         }
 
         hr = (HistoricalRegister[])hrSet.toArray( new HistoricalRegister[0] );
-        
+
         if(dbg > 0) a140.getLogger().log(Level.FINEST, this.toString());
 
     }

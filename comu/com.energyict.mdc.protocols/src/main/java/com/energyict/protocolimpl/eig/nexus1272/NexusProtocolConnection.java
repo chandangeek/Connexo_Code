@@ -1,23 +1,22 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
 
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Logger;
-
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,7 +70,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		return null;
 	}
 	public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
-		return null;   
+		return null;
 	}
 
 	public void delayAndFlush(int delay) throws IOException {
@@ -83,11 +82,11 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 	}
 
 	private final long TIMEOUT = 8000;
-	
+
 	public enum RESPONSE_STATES {BUILD_TID, BUILD_PID, BUILD_LEN, BUILD_UID, BUILD_FC, HANDLE_READ_RESPONSE, HANDLE_WRITE_RESPONSE, CHECK_COMPLETE};
 	public enum READ_RESPONSE_STATES {BUILD_BC, BUILD_DATA};
 	public enum WRITE_RESPONSE_STATES{BUILD_SA, BUILD_DATA};
-	
+
 	public ByteArrayOutputStream receiveWriteResponse(Command c) throws IOException {
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
@@ -96,20 +95,20 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		byte[] startAddress = new byte[2];
 		byte[] data = new byte[2];
 		int byteCount = 0;
-		
+
 		//Initial States
 		RESPONSE_STATES state = RESPONSE_STATES.BUILD_TID;
 		WRITE_RESPONSE_STATES writeState = WRITE_RESPONSE_STATES.BUILD_SA;
 		READ_RESPONSE_STATES readState = READ_RESPONSE_STATES.BUILD_BC;
 		byte kar = -2;
-		
+
 		ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 		long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-		
+
 		copyEchoBuffer();
 		int count = 0;
 		while(true) {
-			
+
 			int kar2;
 			if ((kar2 = readIn()) != -1) {
 				kar = (byte) kar2;
@@ -206,7 +205,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					throw new IOException("Response is longer than expected, revieved " + ProtocolUtils.outputHexString(kar) + " when expecting nothing");
 				} // CHECK_COMPLETE
 				}
-				
+
 			} // if ((kar = readIn()) != -1)
 
 			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -215,12 +214,12 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 			if (state == RESPONSE_STATES.CHECK_COMPLETE && kar2 == -1) {
 				return resultArrayOutputStream;
 			}
-			
+
 		} // while(true)
 	}
-	
+
 	public void receiveReadResponse(Command c) throws IOException {
-		
+
 		RESPONSE_STATES state;
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
@@ -229,12 +228,12 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		state = RESPONSE_STATES.BUILD_TID;
 		ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 		long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-		
-		
+
+
 		copyEchoBuffer();
 		int count = 0;
 		while(true) {
-			
+
 			int kar2;
 			if ((kar2 = readIn()) != -1) {
 				kar = (byte) kar2;
@@ -280,7 +279,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 					throw new IOException("Response is longer than expected, revieved " + ProtocolUtils.outputHexString(kar) + " when expecting nothing");
 				}
 				}
-				
+
 			} // if ((kar = readIn()) != -1)
 
 			if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -289,7 +288,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 			if (state == RESPONSE_STATES.CHECK_COMPLETE && kar2 == -1) {
 				return;
 			}
-			
+
 		} // while(true)
 	}
 
@@ -321,12 +320,12 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		} // while(true)
 
 	} // public Response receiveResponse()
-	
+
 	//Get 16 bit integer
 	public static int getSmallInt(byte[] byteBuffer) {
 		return((((int)byteBuffer[0]<<8)& 0x0000FF00) |
 				(((int)byteBuffer[1])&    0x000000FF));
 	}
-	
+
 }
 

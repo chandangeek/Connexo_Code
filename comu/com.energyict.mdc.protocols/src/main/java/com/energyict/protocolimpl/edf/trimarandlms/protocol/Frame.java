@@ -10,32 +10,32 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Frame {
-    
+
     private boolean send;
     private boolean confirm;
     private DSDU dsdu;
     private byte[] data;
     private boolean checkFrame;
-    
+
     /** Creates a new instance of Frame */
     public Frame() {
     }
-    
+
 //        public static void main(String[] args) {
 //            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new Frame()));
-//        }     
-            
+//        }
+
 
     public String toString() {
         // Generated code by ToStringBuilder
@@ -53,24 +53,24 @@ public class Frame {
             e.printStackTrace();
         }
         return strBuff.toString();
-    }    
-        
+    }
+
     public boolean isText() throws IOException {
         if (getData()[0] != 0) {
-            return true;   
+            return true;
         } else {
             return false;
         }
-        
+
         //throw new IOException("Frame, isText, program flow error!");
     }
-    
-    
+
+
     public void init(byte[] data) throws IOException {
-        
+
         setData(data);
         setCheckFrame(true);
-        
+
         // length >= 4 ?
         if (getData().length < 4) {
 			setCheckFrame(false);
@@ -91,26 +91,26 @@ public class Frame {
         if (((getData()[1]&0x0f) != 0x0f) && ((getData()[1]&0x0f) != 0x0c) && ((getData()[1]&0x0f) != 0x03) && ((getData()[1]&0x0f) != 0x00)) {
 			setCheckFrame(false);
 		}
-        
+
         if (isCheckFrame()) {
             int temp = (int)data[1]&0xff;
             setSend((temp & 0x0c) != 0);
             setConfirm((temp & 0x03) != 0);
             boolean priority = (temp & 0x10) != 0;
             setDsdu(new DSDU());
-            
+
             if (getData().length>4) {
 				getDsdu().init(ProtocolUtils.getSubArray(getData(),2), priority);
 			} else {
 				getDsdu().init(priority);
 			}
         }
-        
-    } // public void init(byte[] data)
-    
 
-    
-    
+    } // public void init(byte[] data)
+
+
+
+
     public void init(boolean send, boolean confirm) throws IOException {
         DSDU dsdu = new DSDU();
         dsdu.init(null);
@@ -136,7 +136,7 @@ public class Frame {
         if (getDsdu().getData()!=null) {
 			baos.write(getDsdu().getData());
 		}
-        
+
         int crc = CRCGenerator.calcCCITTCRCReverse(baos.toByteArray());
         baos.write((crc >> 8)&0xff);
         baos.write(crc&0xff);
@@ -182,5 +182,5 @@ public class Frame {
     private void setCheckFrame(boolean checkFrame) {
         this.checkFrame = checkFrame;
     }
-    
+
 }

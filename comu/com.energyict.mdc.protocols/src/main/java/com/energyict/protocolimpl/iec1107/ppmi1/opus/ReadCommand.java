@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.ConnectionException;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -86,7 +86,7 @@ class ReadCommand extends OpusCommand {
 
 	/**
 	 * Z field in definition message must be "R"
-	 * 
+	 *
 	 * @param rsp
 	 * @throws IOException
 	 */

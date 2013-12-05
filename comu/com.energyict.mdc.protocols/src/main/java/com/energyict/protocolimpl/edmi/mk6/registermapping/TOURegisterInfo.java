@@ -10,21 +10,21 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  *
  * @author koen
  */
 public class TOURegisterInfo {
-    
+
     private ObisCode obisCode;
     private int edmiEnergyRegisterId;
     private String description;
     private boolean timeOfMaxDemand;
-    private boolean billingTimestampFrom;   
-    private boolean billingTimestampTo;   
-    
+    private boolean billingTimestampFrom;
+    private boolean billingTimestampTo;
+
     /** Creates a new instance of ObisCodeInfo */
     public TOURegisterInfo(ObisCode obisCode, int edmiEnergyRegisterId, String description, boolean timeOfMaxDemand, boolean billingTimestampFrom, boolean billingTimestampTo) {
         this.obisCode=obisCode;
@@ -35,8 +35,8 @@ public class TOURegisterInfo {
         this.billingTimestampTo=billingTimestampTo;
     }
 
-    
-    
+
+
     public ObisCode getObisCode() {
         return obisCode;
     }
@@ -85,6 +85,6 @@ public class TOURegisterInfo {
         this.billingTimestampTo = billingTimestampTo;
     }
 
- 
-    
+
+
 }

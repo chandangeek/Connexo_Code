@@ -5,18 +5,19 @@
  */
 
 package com.energyict.protocolimpl.base;
-import java.io.*;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
  */
 public class DataParseException extends IOException {
-    
+
     /** Creates a new instance of DataParseException */
     public DataParseException() {
         super();
     }
-    
+
     public DataParseException(String s) {
         super(s);
     }

@@ -10,27 +10,28 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class ProgramTableBasePage extends AbstractBasePage {
-    
+
     private boolean alternate;
     private List programEntries;
-    
+
     /** Creates a new instance of ProgramTableBasePage */
     public ProgramTableBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -46,19 +47,19 @@ public class ProgramTableBasePage extends AbstractBasePage {
         }
         //strBuff.append("   programEntries="+getProgramEntries()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         if (isAlternate())
             return new BasePageDescriptor(414,128);
         else
             return new BasePageDescriptor(680,128);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setProgramEntries(new ArrayList());
-        
+
         while(data[offset+1] != 0) {
             getProgramEntries().add(new ProgramEntry(data,offset));
             offset+=ProgramEntry.size();
@@ -81,6 +82,6 @@ public class ProgramTableBasePage extends AbstractBasePage {
         this.alternate = alternate;
     }
 
-    
-        
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

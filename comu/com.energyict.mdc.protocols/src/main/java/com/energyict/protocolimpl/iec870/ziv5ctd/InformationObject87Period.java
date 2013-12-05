@@ -7,18 +7,18 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.mdc.common.Quantity;
+
 import java.util.Date;
 
-import com.energyict.cbo.Quantity;
-
 /**A Period is a TOU within a Contract
- * 
+ *
  * @author fbo */
 
 public class InformationObject87Period extends InformationObject {
-    
+
     private int infoAddress;
-    
+
     private Quantity absoluteA;
     private Quantity incrementalA;
     //
@@ -37,113 +37,113 @@ public class InformationObject87Period extends InformationObject {
     //
     private Date startPeriod;
     private Date endPeriod;
-    
+
     public InformationObject87Period() { }
-    
+
     int getInfoAddress() {
         return infoAddress;
     }
-    
+
     void setInfoAddress(int infoAddress) {
         this.infoAddress = infoAddress;
     }
-    
+
     Quantity getAbsoluteA() {
         return absoluteA;
     }
-    
+
     void setAbsoluteA(Quantity absoluteA) {
         this.absoluteA = absoluteA;
     }
-    
+
     Quantity getIncrementalA() {
         return incrementalA;
     }
-    
+
     void setIncrementalA(Quantity incrementalA) {
         this.incrementalA = incrementalA;
     }
-    
+
     Quantity getAbsoluteRi() {
         return absoluteRi;
     }
-    
+
     void setAbsoluteRi(Quantity absoluteRi) {
         this.absoluteRi = absoluteRi;
     }
-    
+
     Quantity getIncrementalRi() {
         return incrementalRi;
     }
-    
+
     void setIncrementalRi(Quantity incrementalRi) {
         this.incrementalRi = incrementalRi;
     }
-    
+
     Quantity getAbsoluteRc() {
         return absoluteRc;
     }
-    
+
     void setAbsoluteRc(Quantity absoluteRc) {
         this.absoluteRc = absoluteRc;
     }
-    
+
     Quantity getIncrementalRc() {
         return incrementalRc;
     }
-    
+
     void setIncrementalRc(Quantity incrementalRc) {
         this.incrementalRc = incrementalRc;
     }
-    
+
     Quantity getReserva7() {
         return reserva7;
     }
-    
+
     void setReserva7(Quantity reserva7) {
         this.reserva7 = reserva7;
     }
-    
+
     Quantity getReserva8() {
         return reserva8;
     }
-    
+
     void setReserva8(Quantity reserva8) {
         this.reserva8 = reserva8;
     }
-    
+
     Quantity getMaxPotentia() {
         return maxPotentia;
     }
-    
+
     void setMaxPotentia(Quantity maxPotentia) {
         this.maxPotentia = maxPotentia;
     }
-    
+
     Date getMaxPotentiaDate() {
         return maxPotentiaDate;
     }
-    
+
     void setMaxPotentiaDate(Date maxPotentiaDate) {
         this.maxPotentiaDate = maxPotentiaDate;
     }
-    
+
     Date getStartPeriod() {
         return startPeriod;
     }
-    
+
     void setStartPeriod(Date startPeriod) {
         this.startPeriod = startPeriod;
     }
-    
+
     Date getEndPeriod() {
         return endPeriod;
     }
-    
+
     void setEndPeriod(Date endPeriod) {
         this.endPeriod = endPeriod;
     }
-    
+
     public String toString( ){
         return "InformationObject19["
                 + " infoAddress " + getInfoAddress() + ", \n"
@@ -161,5 +161,5 @@ public class InformationObject87Period extends InformationObject {
                 + " endPeriod " + getEndPeriod()
                 + "]";
     }
-    
+
 }

@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 /**
  * Describes an enumeration of all possible Events defined in the AS300 meter.

@@ -10,22 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadData {
-    
+
     private int selfReadSeqNr; // 16 bit
     private RegisterInf registerInfo;
     private RegisterData selfReadRegisterData;
-    
+
     /** Creates a new instance of SelfReadData */
     public SelfReadData(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -41,7 +39,7 @@ public class SelfReadData {
         setSelfReadRegisterData(new RegisterData(data,offset,tableFactory));
         offset+=RegisterData.getSize(tableFactory);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("SelfReadData: \n");
@@ -49,9 +47,9 @@ public class SelfReadData {
         strBuff.append("registerInfo="+getRegisterInfo()+"\n");
         strBuff.append("selfReadRegisterData="+getSelfReadRegisterData()+"\n");
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -60,7 +58,7 @@ public class SelfReadData {
         size+=RegisterInf.getSize(tableFactory);
         size+=RegisterData.getSize(tableFactory);
         return size;
-    }      
+    }
 
     public int getSelfReadSeqNr() {
         return selfReadSeqNr;

@@ -10,20 +10,21 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
 /**
  *
  * @author Koen
  */
 public class MassMemoryBasePages extends AbstractBasePage {
-    
+
     private BigDecimal[] channelPulseWidths = new BigDecimal[2]; // max 2 channels
     private int profileInterval; // in minutes
     private int logicalStartAddress;
@@ -37,12 +38,12 @@ public class MassMemoryBasePages extends AbstractBasePage {
     private int nrOfChannels;
     private int[] channelRegisterAddresses = new int[2]; // max 2 channels
     private int intervalTimer;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public MassMemoryBasePages(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -65,8 +66,8 @@ public class MassMemoryBasePages extends AbstractBasePage {
         strBuff.append("   outageLength="+getOutageLength()+"\n");
         strBuff.append("   profileInterval="+getProfileInterval()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     public int getMassMemoryRecordLength() {
         if (getNrOfChannels() == 1) {
             return 108;
@@ -74,15 +75,15 @@ public class MassMemoryBasePages extends AbstractBasePage {
         else if (getNrOfChannels() == 2) {
             return 204;
         }
-        
+
         return 0;
-        
+
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2500,0x2541-0x2500);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         getChannelPulseWidths()[0] = ParseUtils.convertBCDFixedPoint(data,offset,4,8);
@@ -126,13 +127,13 @@ public class MassMemoryBasePages extends AbstractBasePage {
         offset+=2; // skip 2 bytes address 253F
     }
 
-    
+
     private void buildDate(byte[] data,int offset) throws IOException {
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
-        
+
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
             tz = ProtocolUtils.getWinterTimeZone(tz);
-        
+
         setColdStartTime(ProtocolUtils.getCleanCalendar(tz));
         getColdStartTime().set(Calendar.DAY_OF_WEEK,(int)ParseUtils.getBCD2Long(data,6,1));
         getColdStartTime().set(Calendar.SECOND,(int)ParseUtils.getBCD2Long(data,5, 1));
@@ -142,8 +143,8 @@ public class MassMemoryBasePages extends AbstractBasePage {
         getColdStartTime().set(Calendar.MONTH,(int)ParseUtils.getBCD2Long(data,1, 1)-1);
         int year = (int)ParseUtils.getBCD2Long(data,0, 1);
         getColdStartTime().set(Calendar.YEAR,year>50?year+1900:year+2000);
-         
-    }    
+
+    }
 
 
 
@@ -250,5 +251,5 @@ public class MassMemoryBasePages extends AbstractBasePage {
     public void setIntervalTimer(int intervalTimer) {
         this.intervalTimer = intervalTimer;
     }
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

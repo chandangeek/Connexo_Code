@@ -10,29 +10,27 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ModelTypeBasePage extends AbstractBasePage {
-    
+
     private boolean demandOnly;
     private boolean demandTOU;
     private boolean demandTOUMassMemory;
-    
-    
+
+
     /** Creates a new instance of ModelTypeBasePage */
     public ModelTypeBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,11 +40,11 @@ public class ModelTypeBasePage extends AbstractBasePage {
         strBuff.append("   demandTOUMassMemory="+isDemandTOUMassMemory()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2110,1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         int temp = (int)data[0]&0xFF;
@@ -80,5 +78,5 @@ public class ModelTypeBasePage extends AbstractBasePage {
     }
 
 
-        
+
 } // public class FirmwareOptionsBasePage extends AbstractBasePage

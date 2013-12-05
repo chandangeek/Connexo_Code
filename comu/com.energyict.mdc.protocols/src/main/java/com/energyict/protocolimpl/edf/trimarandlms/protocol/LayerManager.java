@@ -10,31 +10,31 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.ConnectionException;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LayerManager {
-    
+
     final int DEBUG=0;
-    
+
     Connection62056 connection;
     int sourceTransportAddress;
     int destinationTransportAddress;
-            
+
     /** Creates a new instance of LayerManager */
-    public LayerManager(Connection62056 connection) { 
+    public LayerManager(Connection62056 connection) {
         this.connection=connection;
     }
-    
+
     public byte[] send(byte[] applicationData) throws IOException {
         int retryRespond=0;
         int retryTimeout=0;
-        int retryRequest=0;        
+        int retryRequest=0;
         while(true) {
             try {
                 TSDU tsdu = new TSDU();
@@ -55,7 +55,7 @@ public class LayerManager {
 					throw e;
 				}
             }
-            
+
             while(true) {
                 try {
                     if (DEBUG>=1) {
@@ -80,11 +80,11 @@ public class LayerManager {
 					}
                 }
             } // while(true)
-            
-            
+
+
         } // while(true)
     } // public byte[] send(byte[] applicationData) throws IOException {
-    
+
     public void init(int sourceTransportAddress, int destinationTransportAddress) {
         this.sourceTransportAddress=sourceTransportAddress;
         this.destinationTransportAddress=destinationTransportAddress;

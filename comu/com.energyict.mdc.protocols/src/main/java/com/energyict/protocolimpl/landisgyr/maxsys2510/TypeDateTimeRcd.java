@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /** @author fbo */
 
@@ -17,9 +17,9 @@ class TypeDateTimeRcd {
     int hour;
     int minute;
     int second;
-    
+
     static TypeDateTimeRcd parse(Assembly assembly){
-        TypeDateTimeRcd r = new TypeDateTimeRcd( );  
+        TypeDateTimeRcd r = new TypeDateTimeRcd( );
         r.timeZone = assembly.getMaxSys().getTimeZone();
         r.month = assembly.byteValue();
         r.day = assembly.byteValue();
@@ -33,41 +33,41 @@ class TypeDateTimeRcd {
     /** 2 BCD digits 1 to 12 */
     int getMonth(){
         return month;
-    } 
+    }
 
     /** 2 BCD digits 1 to 31 */
     int getDay(){
         return day;
-    } 
+    }
 
     /** 2 BCD digits 00 to 99 */
     int getYear(){
         return year;
-    } 
+    }
 
     /** 2 BCD digits 0 to 23 */
     int getHour(){
         return hour;
-    } 
+    }
 
     /** 2 BCD digits 0 to 59 */
     int getMinute(){
         return minute;
-    } 
+    }
 
     /** 2 BCD digits 0 to 59 */
     int getSecond(){
         return second;
-    } 
-    
+    }
+
     Date toDate(){
-        
+
         int cYear;
         if( year > 50 )
             cYear = 1900+year;
         else
             cYear = 2000+year;
-        
+
         Calendar c = ProtocolUtils.getCalendar( timeZone );
         c.set( Calendar.YEAR, cYear );
         c.set( Calendar.MONTH, month-1 );
@@ -75,11 +75,11 @@ class TypeDateTimeRcd {
         c.set( Calendar.HOUR_OF_DAY, hour);
         c.set( Calendar.MINUTE, minute);
         c.set( Calendar.SECOND, second);
-        
+
         return c.getTime();
-        
+
     }
-    
+
     public String toString( ){
         return new StringBuffer()
         .append( "TypeDateTimeRcd[ " )
@@ -87,5 +87,5 @@ class TypeDateTimeRcd {
         .append( hour + ":" + minute + ":" + second + "]" )
         .toString();
     }
-    
+
 }

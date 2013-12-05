@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 public class MaximizeRecsPerRead extends AbstractViewRpc {
-    
+
 
     /** Creates a new instance of SelectViewableFileId */
     public MaximizeRecsPerRead(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
-    
+
+
     protected int getSubfunction() {
         return getVRPC_MAXIMIZE_RECSPERREAD();
     }
-    
+
     protected byte[] getSubfunctionParameters() {
         return null;
     }

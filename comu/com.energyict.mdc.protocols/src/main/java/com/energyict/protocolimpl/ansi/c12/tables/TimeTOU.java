@@ -10,47 +10,45 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TimeTOU {
-    
-    
+
+
     private int timeFunctionFlagBitfield1; // 8 bit
-    private boolean touSelfReadFlag; // bit 0 : tou self read flag 
+    private boolean touSelfReadFlag; // bit 0 : tou self read flag
     private boolean seasonSelfReadFlag; // bit 1 : season self read flag
     private boolean seasonDemandResetflag; // bit 2 : season demand reset flag
     private boolean seasonChangeArmedFlag; // bit 3 : season chng armed flag
     private boolean sortDatesFlag; // bit 4 : sort dates flag
     private boolean anchorDateFlag; // bit 5 : anchor date flag
-    
+
     private int timeFunctionFlagBitfield2; // 8 bit
     private boolean capabilityDSTSwitchAutoFlag; // bit 0 : cap dst auto flag
     private boolean separateWeekdaysFlag; // bit 1 : separate weekdays flag
     private boolean separateSumDemandsFlag; // bit 2 : separate sum demands flag
     private boolean sortTierSwitchesFlag; // bit 3 : sort tier switches flag
     private boolean timeZoneOffsetCapability; // bit 4 : cap tm zn offset flag
-    
+
     private int calendarBitfield; // 8 bit
     private int nrOfSeasons; // bit 3..0 : number of seasons
     private int nrOfSpecialSchedules; // bit 7..4 : number of special schedules
 
     private int nrOfNonRecurringDates; // 8 bit
     private int nrOfRecurringDates; // 8 bit
-    private int nrOfTierSwitches; // 16 bit 
+    private int nrOfTierSwitches; // 16 bit
     private int calendarTableSize; // 16 bit
-    
+
     /** Creates a new instance of TimeTOU */
     public TimeTOU(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setTimeFunctionFlagBitfield1(C12ParseUtils.getInt(data,offset++));
         setTouSelfReadFlag((getTimeFunctionFlagBitfield1() & 0x01) == 0x01);
         setSeasonSelfReadFlag((getTimeFunctionFlagBitfield1() & 0x02) == 0x02);
@@ -77,16 +75,16 @@ public class TimeTOU {
         setCalendarTableSize(C12ParseUtils.getInt(data,offset,2,dataOrder));
         offset+=2;
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("TimeTOU: timeFunctionFlagBitfield1=0x"+Integer.toHexString(getTimeFunctionFlagBitfield1())+", timeFunctionFlagBitfield2=0x"+Integer.toHexString(getTimeFunctionFlagBitfield2())+", calendarBitfield=0x"+Integer.toHexString(getCalendarBitfield())+", nrOfSeasons="+getNrOfSeasons()+", nrOfSpecialSchedules="+getNrOfSpecialSchedules()+", nrOfNonRecurringDates="+getNrOfNonRecurringDates()+", nrOfRecurringDates="+getNrOfRecurringDates()+", nrOfTierSwitches="+getNrOfTierSwitches()+", calendarTableSize="+getCalendarTableSize()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return  9;
-    }    
+    }
 
     public int getTimeFunctionFlagBitfield1() {
         return timeFunctionFlagBitfield1;

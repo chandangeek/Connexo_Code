@@ -5,29 +5,37 @@
  */
 
 package com.energyict.protocolimpl.iec1107.sdc;
-import java.io.*;
-import java.util.*;
+
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+
+import java.io.IOException;
 import java.math.BigDecimal;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class HistorySeriesRead extends AbstractDataReadingCommand {
-    
+
     private static final int DEBUG=1;
-    
-    
+
+
     LoadProfileDataBlock loadProfileDataBlock=null;
     int nrOfIntervals=0;
-    
+
     /** Creates a new instance of HistorySeriesRead */
     public HistorySeriesRead(DataReadingCommandFactory drcf) {
         super(drcf);
     }
-    
+
     public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException {
         Date firstStartingDate = null;
         Date stepDate = null; Calendar stepCalendar = Calendar.getInstance(timeZone);
@@ -37,32 +45,32 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         DataParser dp = new DataParser(timeZone);
         String strExpression = new String(data);
         if (DEBUG >=1)
-            System.out.println(strExpression);        
-        
+            System.out.println(strExpression);
+
         try {
         	int stringCounter = 0;
         	String dataString = strExpression.substring(1, strExpression.length() - 1);
             do{
-            	
+
             	if ( dataString.compareTo("") != 0){
                 	String str = dataString.substring(dataString.indexOf('(',stringCounter) + 1, dataString.indexOf(')',stringCounter + 1));
                 	stringCounter = dataString.indexOf(')',stringCounter + 1);
                     if (stringContains(str)) { //  check for a date
                     	if (firstStartingDate == null){
-    	                	profileInterval = Integer.parseInt(str.substring(0,2)) * 60;                	
-    	                	firstStartingDate = dp.parseDateTime(str.substring(2, 22)); 
+    	                	profileInterval = Integer.parseInt(str.substring(0,2)) * 60;
+    	                	firstStartingDate = dp.parseDateTime(str.substring(2, 22));
     	                	stepDate = firstStartingDate;
     	                	stepCalendar.setTime(stepDate);
-                    	
+
     	                    if (profileInterval != getDataReadingCommandFactory().getSdc().getProfileInterval())
     	                         throw new IOException("HistorySeriesRead, parse, DataParseException, error different profileInterval bewteen meter ("+profileInterval+") and configured ("+getDataReadingCommandFactory().getSdc().getProfileInterval()+")");
                     	}
-                    	
-                    	
+
+
                     	else{
                     		tempDate = dp.parseDateTime(str.substring(2,22));
                     		tempCalendar.setTime(tempDate);
-                    		
+
                     		while(stepCalendar.getTime().before(tempCalendar.getTime())){
                         			stepCalendar.add(Calendar.SECOND, profileInterval);
                         			if( stepCalendar.getTime().before(tempCalendar.getTime()) )
@@ -85,13 +93,13 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
                             }
                             else
                                 bd = new BigDecimal(str2);
-                            
+
 //                            Unit unit = Unit.get(str.split("\\*")[1]);
                             Unit unit = Unit.get(getUnitCode(str.split("\\*")[1]));
                             loadProfileEntries.add(new LoadProfileEntry(new Quantity(bd,unit),status));
                             stepCalendar.add(Calendar.SECOND, profileInterval);
                         }
-                        
+
                     }
             	}
             	else
@@ -104,7 +112,7 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         }
         loadProfileDataBlock = new LoadProfileDataBlock(firstStartingDate,loadProfileEntries,profileInterval);
     }
-    
+
     /**
      * Getter for property loadProfile.
      * @return Value of property loadProfile.
@@ -117,15 +125,15 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         int nrOfIntervalsPerDay = (24*3600) / profileInterval;
         return getLoadProfileDataBlock(from, nrOfIntervalsPerDay, channel);
     }
-    
+
     public LoadProfileDataBlock getLoadProfileDataBlock(Date from,int nrOfIntervals, int channel) throws IOException {
         this.nrOfIntervals=nrOfIntervals + 3;
 //        Calendar cal = ProtocolUtils.getCleanCalendar(TimeZoneManager.getTimeZone("GMT"));
         Calendar cal = ProtocolUtils.getCleanCalendar(getDataReadingCommandFactory().getSdc().getTimeZone());
         cal.setTime(from);
-        
+
 //        retrieve("HRR","0");
-        
+
 //****************************************************************************
 //        this is the correct one!
         retrieve("PRR",(channel)+","+
@@ -133,20 +141,20 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         		(cal.get(Calendar.MONTH)+1)+","+
         		cal.get(Calendar.DAY_OF_MONTH));
 //****************************************************************************
-        
+
 //        retrieve("HRR","0");
-        
+
 //        retrieve("HSZ","0"+","+cal.get(Calendar.YEAR)+
 //        		","+cal.get(Calendar.MONTH)+
 //        		","+cal.get(Calendar.DAY_OF_MONTH));
 ////        		","+cal.get(Calendar.HOUR)+
 ////        		","+cal.get(Calendar.MINUTE)+
 ////        		","+cal.get(Calendar.SECOND));
-        
+
         /*HSZ(<series>, <number>, <year>, <month>, <day>, <hour>, <min>, <sec>)*/
-        
+
 //        retrieve("HSR",channel+","+
-        
+
 //        retrieve("HSZ",channel+","+
 //                nrOfIntervals+","+
 //                cal.get(Calendar.YEAR)+","+
@@ -155,7 +163,7 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
 //                cal.get(Calendar.HOUR_OF_DAY)+","+
 //                cal.get(Calendar.MINUTE)+","+
 //                cal.get(Calendar.SECOND));
-        
+
 //        retrieve("HSR",channel+","+
 //        nrOfIntervals+","+
 //        cal.get(Calendar.YEAR)+","+
@@ -166,20 +174,20 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
 //        cal.get(Calendar.MINUTE)+","+
 //        cal.get(Calendar.SECOND)+","+
 //        cal.get(Calendar.AM_PM));				//history : 04/12/07
-        
+
 //        retrieve ("MVR",Integer.toString(1));
-        
+
 //        retrieve (new String("30C0"),new String("10"));
 //        retrieve (new String("30D0"),new String("10"));
 //        retrieve ("HSR",new String("1"));
-        
+
         return getLoadProfileDataBlock();
     }
-    
+
     public String toString() {
         return getLoadProfileDataBlock().toString();
     }
-    
+
     /**
      * Getter for property loadProfileDataBlock.
      * @return Value of property loadProfileDataBlock.
@@ -187,20 +195,20 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
     private LoadProfileDataBlock getLoadProfileDataBlock() {
         return loadProfileDataBlock;
     }
-    
+
     private int getUnitCode(String stringCode){
     	if ( stringCode.compareTo("WH") == 0 ){
     		return 30; // WattHour
     	}
     	else return 0;
     }
-    
+
     private boolean stringContains(String string){
     	if ( string.indexOf(",") > 0)
     		return true;
     	else
     		return false;
     }
-    
-    
+
+
 }

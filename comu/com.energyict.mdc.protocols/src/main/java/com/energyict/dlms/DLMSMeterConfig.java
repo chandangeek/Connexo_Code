@@ -9,7 +9,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;
@@ -39,13 +39,13 @@ public class DLMSMeterConfig {
     /** A Manufacturer identification String */
     private String manuf;
 
-    /** 
+    /**
      * Extra info from the Manufacturer String.<br>
      * This value was added because originally there were errors in our DLMS implementation. By using the <i>extra</i> parameter, it is possible to still use the
      * incorrect DLMS implementation for older meters (specifically older NTA meters).
      * <br> <br>
      * Currently there are 2 values defined:
-     * <li> <b>{@link #OLD}</b> 	: this is used for parsing the ActionResponse. Originally we skipped one byte 
+     * <li> <b>{@link #OLD}</b> 	: this is used for parsing the ActionResponse. Originally we skipped one byte
      * <li> <b>{@link #OLD2}</b> 	: this is used in the HLS association. Originally step 3 and 4 of the authentication were not encrypted if an encrypted session was proposed.
      */
     private String extra;

@@ -10,28 +10,29 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import java.math.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class RegisterMap {
-    
+
     private ObisCode obisCode;
     private String descriptions;
     private Unit unit;
     private int id; // depends on register, demand or selfread
     private int type; // register=0, demand=1, selfread=2
     private BigDecimal multiplier;
-    
+
     static private final int REGISTER=0;
     static private final int DEMAND=1;
     static private final int SELFREAD=2;
-    
-            
+
+
     /** Creates a new instance of RegisterMap */
     public RegisterMap(ObisCode obisCode,String descriptions, Unit unit,int id,int type,BigDecimal multiplier) {
         this.setObisCode(obisCode);
@@ -45,7 +46,7 @@ public class RegisterMap {
     public String toString() {
         return obisCode+", "+descriptions+", "+unit+"\n";
     }
-    
+
     public ObisCode getObisCode() {
         return obisCode;
     }
@@ -73,7 +74,7 @@ public class RegisterMap {
     static public int getSELFREAD() {
         return SELFREAD;
     }
-    
+
     public boolean isREGISTER() {
         return getType()==getREGISTER();
     }
@@ -117,5 +118,5 @@ public class RegisterMap {
     public void setMultiplier(BigDecimal multiplier) {
         this.multiplier = multiplier;
     }
-    
+
 }

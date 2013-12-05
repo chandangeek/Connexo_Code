@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
-import java.util.*;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MeterEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
 *
@@ -27,7 +28,7 @@ public final class MT83CodeMapper {
            exceptionInfoMap.put("ER12","IEC1107_UNKNOWN");
     }
 
-	
+
 	public static final Map LogBookEvent = new HashMap();
 	static {
 
@@ -35,14 +36,14 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x0008), new MT83EventType("DST", MeterEvent.CONFIGURATIONCHANGE));
 
 		LogBookEvent.put(new Integer(0x0010), new MT83EventType("Billing reset", MeterEvent.BILLING_ACTION)); // NOT documented in MT83 specifications, but used by the meter.
-		
+
 		LogBookEvent.put(new Integer(0x0020), new MT83EventType("RTC Set", MeterEvent.SETCLOCK));
 		LogBookEvent.put(new Integer(0x0040), new MT83EventType("Power up", MeterEvent.POWERUP));
 		LogBookEvent.put(new Integer(0x0080), new MT83EventType("Power down", MeterEvent.POWERDOWN));
 
 		LogBookEvent.put(new Integer(0x2000), new MT83EventType("Log-Book erased", MeterEvent.CLEAR_DATA));
 		LogBookEvent.put(new Integer(0x4000), new MT83EventType("Load-Profile erased", MeterEvent.CLEAR_DATA));
-		
+
 		LogBookEvent.put(new Integer(0x8102), new MT83EventType("Voltage down phase L1", MeterEvent.POWERDOWN ));
 		LogBookEvent.put(new Integer(0x8103), new MT83EventType("Voltage down phase L2", MeterEvent.POWERDOWN));
 		LogBookEvent.put(new Integer(0x8104), new MT83EventType("Voltage down phase L3", MeterEvent.POWERDOWN));
@@ -58,12 +59,12 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x810B), new MT83EventType("Over-voltage phase L1", MeterEvent.VOLTAGE_SWELL));
 		LogBookEvent.put(new Integer(0x810C), new MT83EventType("Over-voltage phase L2", MeterEvent.VOLTAGE_SWELL));
 		LogBookEvent.put(new Integer(0x810D), new MT83EventType("Over-voltage phase L3", MeterEvent.VOLTAGE_SWELL));
-		
+
 		LogBookEvent.put(new Integer(0x810E), new MT83EventType("Billing reset", MeterEvent.BILLING_ACTION));
 
 		LogBookEvent.put(new Integer(0x810F), new MT83EventType("RTC sync start", MeterEvent.SETCLOCK_BEFORE));
 		LogBookEvent.put(new Integer(0x8110), new MT83EventType("RTC sync end", MeterEvent.SETCLOCK_AFTER));
-		
+
 		LogBookEvent.put(new Integer(0x8117), new MT83EventType("Parameters changed", MeterEvent.CONFIGURATIONCHANGE));
 		LogBookEvent.put(new Integer(0x8118), new MT83EventType("Watch dog", MeterEvent.WATCHDOGRESET));
 
@@ -87,7 +88,7 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x8126), new MT83EventType("Remote communication ended", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x8127), new MT83EventType("GPS communication established", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x8128), new MT83EventType("GPS communication lost", MeterEvent.PROGRAM_FLOW_ERROR));
-		
+
 		LogBookEvent.put(new Integer(0x8129), new MT83EventType("Contract1 communication started", MeterEvent.OTHER));
 		LogBookEvent.put(new Integer(0x812A), new MT83EventType("Contract1 parameter changed", MeterEvent.CONFIGURATIONCHANGE));
 		LogBookEvent.put(new Integer(0x812B), new MT83EventType("Contract1 parameter changed", MeterEvent.CONFIGURATIONCHANGE));
@@ -138,13 +139,13 @@ public final class MT83CodeMapper {
 		LogBookEvent.put(new Integer(0x8152), new MT83EventType("Current without Voltage L1 - start", MeterEvent.APPLICATION_ALERT_START));
 		LogBookEvent.put(new Integer(0x8153), new MT83EventType("Current without Voltage L2 - start", MeterEvent.APPLICATION_ALERT_START));
 		LogBookEvent.put(new Integer(0x8154), new MT83EventType("Current without Voltage L3 - start", MeterEvent.APPLICATION_ALERT_START));
-		
+
 		LogBookEvent.put(new Integer(0x8155), new MT83EventType("Current without Voltage L1 - end", MeterEvent.APPLICATION_ALERT_STOP));
 		LogBookEvent.put(new Integer(0x8156), new MT83EventType("Current without Voltage L2 - end", MeterEvent.APPLICATION_ALERT_STOP));
 		LogBookEvent.put(new Integer(0x8157), new MT83EventType("Current without Voltage L3 - end", MeterEvent.APPLICATION_ALERT_STOP));
-			
+
 	}
-	
+
 	public static final int STATUS_ERROR = 0x01;
 	public static final int STATUS_RTC_BATTERY_DISCHARGED = 0x02;
 	public static final int STATUS_INVALID_CHECKSUM = 0x04;
@@ -153,36 +154,36 @@ public final class MT83CodeMapper {
 	public static final int STATUS_RTC_SET = 0x20;
 	public static final int STATUS_POWER_UP = 0x40;
 	public static final int STATUS_POWER_DOWN = 0x80;
-	
+
 	public static int mapInterval2EiStatus(int statuscode) {
 		int eistatus = 0;
-		
+
 		if ((statuscode & STATUS_ERROR) != 0) {
-			eistatus |= IntervalData.DEVICE_ERROR; 
+			eistatus |= IntervalData.DEVICE_ERROR;
 		}
 		if ((statuscode & STATUS_RTC_BATTERY_DISCHARGED) != 0) {
-			eistatus |= IntervalData.BATTERY_LOW; 
+			eistatus |= IntervalData.BATTERY_LOW;
 		}
 		if ((statuscode & STATUS_INVALID_CHECKSUM) != 0) {
-			eistatus |= IntervalData.CORRUPTED; 
+			eistatus |= IntervalData.CORRUPTED;
 		}
 		if ((statuscode & STATUS_DST_SEASON_CHANGE) != 0) {
-			eistatus |= IntervalData.SHORTLONG; 
+			eistatus |= IntervalData.SHORTLONG;
 		}
 		if ((statuscode & STATUS_MASTER_DEVICE_RESET) != 0) {
-			eistatus |= IntervalData.OTHER; 
+			eistatus |= IntervalData.OTHER;
 		}
 		if ((statuscode & STATUS_RTC_SET) != 0) {
-			eistatus |= IntervalData.SHORTLONG; 
+			eistatus |= IntervalData.SHORTLONG;
 		}
 		if ((statuscode & STATUS_POWER_UP) != 0) {
-			eistatus |= IntervalData.SHORTLONG; 
+			eistatus |= IntervalData.SHORTLONG;
 		}
 		if ((statuscode & STATUS_POWER_DOWN) != 0) {
-			eistatus |= IntervalData.SHORTLONG; 
+			eistatus |= IntervalData.SHORTLONG;
 		}
-		
+
 		return eistatus;
 	}
-	
+
 }

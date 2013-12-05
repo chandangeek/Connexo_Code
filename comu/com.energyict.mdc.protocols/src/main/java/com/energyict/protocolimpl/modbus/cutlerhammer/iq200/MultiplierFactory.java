@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq200;
 
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -28,7 +28,7 @@ public class MultiplierFactory {
     private BigDecimal e;
 
     IQ200 pm750;
-    
+
     /** Creates a new instance of MultiplierFactory */
     public MultiplierFactory(IQ200 pm750) {
         this.pm750=pm750;
@@ -51,11 +51,11 @@ public class MultiplierFactory {
            scalefactor = getE();
         }
         else throw new IOException("PM750, invalid scale "+(char)scale);
-        
+
         //return new BigDecimal(""+Math.pow(10, scalefactor.longValue()));
         return (new BigDecimal("1")).movePointRight((int)scalefactor.longValue());
     }
-    
+
     private BigDecimal getI() throws IOException {
         if (i==null)
             i= pm750.getRegisterFactory().findRegister("scale I").quantityValue().getAmount();

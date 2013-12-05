@@ -10,43 +10,44 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 /**
  *
  * @author koen
  */
 public class EventLogCodes {
-    
+
     static Map map = new HashMap();
-    
+
     static {
-        
+
         map.put(new Integer(0x01),new EventLogCodeMapping("Voltage Sag - Phase A",MeterEvent.VOLTAGE_SAG));
-        map.put(new Integer(0x02),new EventLogCodeMapping("Voltage Sag - Phase C",MeterEvent.VOLTAGE_SAG)); 
-        map.put(new Integer(0x03),new EventLogCodeMapping("Voltage Sag - Phase B",MeterEvent.VOLTAGE_SAG)); 
+        map.put(new Integer(0x02),new EventLogCodeMapping("Voltage Sag - Phase C",MeterEvent.VOLTAGE_SAG));
+        map.put(new Integer(0x03),new EventLogCodeMapping("Voltage Sag - Phase B",MeterEvent.VOLTAGE_SAG));
         map.put(new Integer(0x04),new EventLogCodeMapping("Voltage Swell - Phase A",MeterEvent.VOLTAGE_SWELL));
         map.put(new Integer(0x05),new EventLogCodeMapping("Voltage Swell - Phase C",MeterEvent.VOLTAGE_SWELL));
         map.put(new Integer(0x06),new EventLogCodeMapping("Voltage Swell - Phase B",MeterEvent.VOLTAGE_SWELL));
-        map.put(new Integer(0x20),new EventLogCodeMapping("Voltage Outage - Phase A",MeterEvent.PHASE_FAILURE)); 
-        map.put(new Integer(0x21),new EventLogCodeMapping("Voltage Outage - Phase C",MeterEvent.PHASE_FAILURE)); 
-        map.put(new Integer(0x22),new EventLogCodeMapping("Voltage Outage - Phase B",MeterEvent.PHASE_FAILURE)); 
+        map.put(new Integer(0x20),new EventLogCodeMapping("Voltage Outage - Phase A",MeterEvent.PHASE_FAILURE));
+        map.put(new Integer(0x21),new EventLogCodeMapping("Voltage Outage - Phase C",MeterEvent.PHASE_FAILURE));
+        map.put(new Integer(0x22),new EventLogCodeMapping("Voltage Outage - Phase B",MeterEvent.PHASE_FAILURE));
         map.put(new Integer(0x26),new EventLogCodeMapping("Breaker Operation-Phase A",MeterEvent.OTHER));
-        map.put(new Integer(0x27),new EventLogCodeMapping("Breaker Operation-Phase C",MeterEvent.OTHER));     
-        map.put(new Integer(0x28),new EventLogCodeMapping("Breaker Operation-Phase B",MeterEvent.OTHER));     
-        map.put(new Integer(0x30),new EventLogCodeMapping("Volt. Angle Outside Limit-Phase A",MeterEvent.OTHER)); 
-        map.put(new Integer(0x31),new EventLogCodeMapping("Volt. Angle Outside Limit-Phase C",MeterEvent.OTHER));  
-        map.put(new Integer(0x32),new EventLogCodeMapping("Volt. Angle Outside Limit-Phase B",MeterEvent.OTHER)); 
-        map.put(new Integer(0x33),new EventLogCodeMapping("Current Angle Outside Limit-Ph. A",MeterEvent.OTHER));  
+        map.put(new Integer(0x27),new EventLogCodeMapping("Breaker Operation-Phase C",MeterEvent.OTHER));
+        map.put(new Integer(0x28),new EventLogCodeMapping("Breaker Operation-Phase B",MeterEvent.OTHER));
+        map.put(new Integer(0x30),new EventLogCodeMapping("Volt. Angle Outside Limit-Phase A",MeterEvent.OTHER));
+        map.put(new Integer(0x31),new EventLogCodeMapping("Volt. Angle Outside Limit-Phase C",MeterEvent.OTHER));
+        map.put(new Integer(0x32),new EventLogCodeMapping("Volt. Angle Outside Limit-Phase B",MeterEvent.OTHER));
+        map.put(new Integer(0x33),new EventLogCodeMapping("Current Angle Outside Limit-Ph. A",MeterEvent.OTHER));
         map.put(new Integer(0x34),new EventLogCodeMapping("Current Angle Outside Limit-Ph. C",MeterEvent.OTHER));
-        map.put(new Integer(0x35),new EventLogCodeMapping("Current Angle Outside Limit-Ph. B",MeterEvent.OTHER)); 
-        map.put(new Integer(0x36),new EventLogCodeMapping("Cur. Below Limit-Phase A",MeterEvent.OTHER));    
-        map.put(new Integer(0x37),new EventLogCodeMapping("Cur. Below Limit-Phase C",MeterEvent.OTHER));     
-        map.put(new Integer(0x38),new EventLogCodeMapping("Cur. Below Limit-Phase B",MeterEvent.OTHER)); 
-        map.put(new Integer(0x39),new EventLogCodeMapping("PF Outside Limit -Phase A",MeterEvent.OTHER)); 
-        map.put(new Integer(0x3A),new EventLogCodeMapping("PF Outside Limit -Phase C",MeterEvent.OTHER)); 
-        map.put(new Integer(0x3B),new EventLogCodeMapping("PF Outside Limit -Phase B",MeterEvent.OTHER));  
+        map.put(new Integer(0x35),new EventLogCodeMapping("Current Angle Outside Limit-Ph. B",MeterEvent.OTHER));
+        map.put(new Integer(0x36),new EventLogCodeMapping("Cur. Below Limit-Phase A",MeterEvent.OTHER));
+        map.put(new Integer(0x37),new EventLogCodeMapping("Cur. Below Limit-Phase C",MeterEvent.OTHER));
+        map.put(new Integer(0x38),new EventLogCodeMapping("Cur. Below Limit-Phase B",MeterEvent.OTHER));
+        map.put(new Integer(0x39),new EventLogCodeMapping("PF Outside Limit -Phase A",MeterEvent.OTHER));
+        map.put(new Integer(0x3A),new EventLogCodeMapping("PF Outside Limit -Phase C",MeterEvent.OTHER));
+        map.put(new Integer(0x3B),new EventLogCodeMapping("PF Outside Limit -Phase B",MeterEvent.OTHER));
         map.put(new Integer(0x50),new EventLogCodeMapping("Ext. Input 1 Open (High)",MeterEvent.OTHER));
         map.put(new Integer(0x51),new EventLogCodeMapping("Ext. Input 1 Closed (Low)",MeterEvent.OTHER));
         map.put(new Integer(0x52),new EventLogCodeMapping("Ext. Input 2 Open (High)",MeterEvent.OTHER));
@@ -101,14 +102,14 @@ public class EventLogCodes {
         map.put(new Integer(0x9B),new EventLogCodeMapping("No Pulse Outputs Timeout (SSR6000)",MeterEvent.OTHER));
         map.put(new Integer(0x9C),new EventLogCodeMapping("Zero Crossing Loss Detected (SSR6000)",MeterEvent.OTHER));
     }
-    
+
     static public EventLogCodeMapping getEventLogMapping(int logCode) {
         EventLogCodeMapping elcm = (EventLogCodeMapping)map.get(new Integer(logCode));
         if (elcm==null) {
             return new EventLogCodeMapping("Invalid log code (not found in protocoldescription, "+logCode+")", MeterEvent.OTHER);
         }
         else return elcm;
-        
+
     }
 
     /** Creates a new instance of EventLogCodes */
@@ -116,5 +117,5 @@ public class EventLogCodes {
     }
 
 
-    
+
 }

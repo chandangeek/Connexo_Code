@@ -10,19 +10,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfileSetStatus {
-    
+
     private int loadProfileSetStatusflags; // 8 bit
     private int blockOrder; // bit 0  0=ascending order, 1=descending order
     private boolean overflowFlag; //bit 1
@@ -31,18 +28,18 @@ public class LoadProfileSetStatus {
     private int intervalOrder; // bit 4  0=ascending order, 1=descending order
     private boolean activeModeFlag; // bit 5
     private int testMode; // bit 6
-    
+
     private int nrOfValidBlocks; // 16 bit number of valid load profile data blocks in load profile data tables
     private int lastBlockElement; // 16 bit the array element of the newest valid data block in the load profile data array
     private long lastBlockSequenceNumber; // 32 bit the sequence number of the last element in the load profile data array
     private int nrOfUnreadBlocks; // 16 bit the number of load profile data blocks that not have been read
     private int nrOfValidIntervals; // 16 bit nr of valid intervals stored in the last load profile block array. The range is 0 to actual dimension of number of intervals per block
-    
-    
+
+
     /** Creates a new instance of LoadProfileSetStatus */
     public LoadProfileSetStatus(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setLoadProfileSetStatusflags(C12ParseUtils.getInt(data,offset++));
         setBlockOrder(getLoadProfileSetStatusflags() & 0x01);
         setOverflowFlag((getLoadProfileSetStatusflags() & 0x02) == 0x02);
@@ -51,7 +48,7 @@ public class LoadProfileSetStatus {
         setIntervalOrder((getLoadProfileSetStatusflags() & 0x10) >> 4);
         setActiveModeFlag((getLoadProfileSetStatusflags() & 0x20) == 0x20);
         setTestMode((getLoadProfileSetStatusflags() & 0x40) >> 6);
-    
+
         setNrOfValidBlocks(C12ParseUtils.getInt(data,offset, 2, dataOrder));
         offset+=2;
         setLastBlockElement(C12ParseUtils.getInt(data,offset, 2, dataOrder));
@@ -63,7 +60,7 @@ public class LoadProfileSetStatus {
         setNrOfValidIntervals(C12ParseUtils.getInt(data,offset, 2, dataOrder));
         offset+=2;
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("LoadProfileSetStatus: \n");
@@ -76,10 +73,10 @@ public class LoadProfileSetStatus {
         strBuff.append("    intervalOrder="+intervalOrder+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 13;
-    }      
+    }
 
     public int getLoadProfileSetStatusflags() {
         return loadProfileSetStatusflags;

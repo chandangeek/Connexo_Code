@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import java.io.Serializable;
+import com.energyict.mdc.common.Unit;
 
-import com.energyict.cbo.*;
+import java.io.Serializable;
 
 /**
  * FIXME: Run the tests again with the serialVersionUID so you can rebuild the registers correctly with the fixed ID
  * @author Koen
  */
 public class VariableName implements Serializable{
-    
-    
+
+
 	private static final long serialVersionUID = 6576743255886418829L;
-	
+
 	public static final int ENERGIE = 0;
     public static final int TEMPS_FONCTIONNEMENT = 1;
     public static final int DEPASSEMENT_QUADRATIUQUE = 2;
@@ -31,7 +31,7 @@ public class VariableName implements Serializable{
     public static final int ABSTRACT = 5;
     public static final int ARRETE_JOURNALIER = 6;
     public static final int ARRETES_PROGRAMMABLES = 7;
-    
+
     private int code;
     private String description;
     private Unit unit;
@@ -40,16 +40,16 @@ public class VariableName implements Serializable{
     private int obisDField;
     private int obisFField;
     private int type;
-    
+
     /** Creates a new instance of VariableName */
     public VariableName(String description, int code, int type) {
         this(description, code, null,-1,-1,-1, -1, type);
     }
-    
+
     public VariableName(String description, int code, Unit unit, int obisCField, int obisDField, int obisFField, int type) {
         this(description,code,unit,1,obisCField,obisDField,obisFField, type);
     }
-    
+
     public VariableName(String description, int code, Unit unit, int obisAField, int obisCField, int obisDField, int obisFField, int type) {
         this.setCode(code);
         this.setDescription(description);
@@ -60,11 +60,11 @@ public class VariableName implements Serializable{
         setObisFField(obisFField);
         setType(type);
     }
-    
+
 	public String toString() {
         return code+", "+description;
     }
-    
+
     public int getCode() {
         return code;
     }
@@ -152,13 +152,13 @@ public class VariableName implements Serializable{
     public boolean isABSTRACT() {
         return type==ABSTRACT;
     }
-    
+
     public boolean isARRETE_JOURNALIER(){
     	return type == ARRETE_JOURNALIER;
     }
-    
+
     public boolean isARRETES_PROGRAMMABLES(){
     	return type == ARRETES_PROGRAMMABLES;
     }
-    
+
 }

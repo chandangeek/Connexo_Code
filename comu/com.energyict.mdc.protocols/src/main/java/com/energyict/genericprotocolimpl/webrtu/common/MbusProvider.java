@@ -5,13 +5,13 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
 /**
  * Provider for the Mbus serialNumber
- * 
+ *
  * @author gna
  *
  */
@@ -19,14 +19,14 @@ public class MbusProvider {
 
 	private CosemObjectFactory cosemObjectFactory;
 	private final boolean fixMbusHexShortId;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param cof
 	 *            - the {@link CosemObjectFactory} to use
-	 * 
+	 *
 	 * @param fixMbusHexShortId
 	 *            - boolean indicating we need to convert the Identification number from hex or from BCD (true is
 	 *            converting from hex)
@@ -35,11 +35,11 @@ public class MbusProvider {
 		this.cosemObjectFactory = cof;
 		this.fixMbusHexShortId = fixMbusHexShortId;
 	}
-	
+
 	/**
 	 * Construct the serialNumber for the given Mbus channel The serialNumber is constructed according to:
 	 * "RFC13 of Enexis NTA 2009 meter project and RFC037 of Enexis Gridfield II project"
-	 * 
+	 *
 	 * @param mbusChannel
 	 *            - the given Mbus channel
 	 * @return - the constructed serialNumber of the Mbus device
@@ -54,7 +54,7 @@ public class MbusProvider {
 		Unsigned8 devicet = mClient.getDeviceType();
 		return constructShortId(manId, idNum, version, devicet);
 	}
-	
+
 	/**
 	 * Construct the shortId from the four given fields
 	 * @param manufacturer - the manufacturer ID of the meter
@@ -65,16 +65,16 @@ public class MbusProvider {
 	 */
 	protected String constructShortId(Unsigned16 manufacturer, Unsigned32 identification, Unsigned8 version, Unsigned8 deviceType){
 		StringBuilder strBuilder = new StringBuilder();
-		
+
 		strBuilder.append((char)(((manufacturer.getValue()&0x7D00)/32/32)+64));
 		strBuilder.append((char)(((manufacturer.getValue()&0x03E0)/32)+64));
 		strBuilder.append((char)((manufacturer.getValue()&0x001F)+64));
-		
+
 		strBuilder.append(String.format((this.fixMbusHexShortId)?"%08d":"%08x", identification.getValue()));	// 8 Hex digits with leading zeros
 		strBuilder.append(String.format("%03d", version.getValue()));			// 3 Dec digits with leading zeros
 		strBuilder.append(String.format("%02d", deviceType.getValue()));		// 2 Dec digits with leading zeros
-		
+
 		return strBuilder.toString();
 	}
-	
+
 }

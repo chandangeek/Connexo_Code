@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Structure;
+
+import java.io.IOException;
 
 /**
  * @author jme

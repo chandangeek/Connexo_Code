@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.modbus.squared.pm750;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
@@ -33,7 +33,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * 
+ *
  * @author Koen
  */
 public class PM750 extends Modbus  {
@@ -57,7 +57,7 @@ public class PM750 extends Modbus  {
 	}
 
 	protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		
+
 		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "50").trim()));
 	}
 
@@ -104,20 +104,20 @@ public class PM750 extends Modbus  {
             if ((args==null) || (args.length<=3))
             	countMax=200;
             else
-            	countMax=Integer.parseInt(args[3]);				
-			
+            	countMax=Integer.parseInt(args[3]);
+
 			int count = 0;
 			while (count++ < countMax) {
-				
+
 				// ********************** Dialer **********************
 				Dialer dialer = DialerFactory.getDirectDialer().newDialer();
 	            String comport;
 	            if ((args==null) || (args.length<=1))
 	                comport="COM1";
 	            else
-	                comport=args[1]; //"/dev/ttyXR0";			
+	                comport=args[1]; //"/dev/ttyXR0";
 				dialer.init(comport);
-				
+
 				dialer.getSerialCommunicationChannel().setParams(9600,
 						SerialCommunicationChannel.DATABITS_8,
 						SerialCommunicationChannel.PARITY_NONE,
@@ -135,18 +135,18 @@ public class PM750 extends Modbus  {
 	            if ((args==null) || (args.length==0))
 	                ift=50;
 	            else
-	                ift=Integer.parseInt(args[0]);				
+	                ift=Integer.parseInt(args[0]);
 	            properties.setProperty("InterframeTimeout", ""+ift);
-	            
+
 
 	            int hdt;
 	            if ((args==null) || (args.length<=2))
 	            	hdt=-1;
 	            else
-	            	hdt=Integer.parseInt(args[2]);				
-				properties.setProperty("HalfDuplex", ""+hdt); 
-	            
-	            
+	            	hdt=Integer.parseInt(args[2]);
+				properties.setProperty("HalfDuplex", ""+hdt);
+
+
 				// ********************** EictRtuModbus **********************
 				PM750 eictRtuModbus = new PM750();
 				// System.out.println(eictRtuModbus.translateRegister(ObisCode.fromString("1.1.1.8.0.255")));

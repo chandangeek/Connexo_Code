@@ -12,39 +12,41 @@ package com.energyict.protocolimpl.transdata.markv.core.commands;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import java.io.*; 
-import java.util.*;
 
-import com.energyict.cbo.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author koen
  */
 public class RCCommand extends AbstractCommand {
-    
+
     private List intervals;
     private static final int DEBUG = 0;
     private static final CommandIdentification commandIdentification = new CommandIdentification("RC",true,false);
-    
+
     /** Creates a new instance of RCCommand */
     public RCCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
-         StringBuffer strBuff = new StringBuffer(); 
+         StringBuffer strBuff = new StringBuffer();
          strBuff.append("RCCommand:\n");
          for(int interval=0;interval<intervals.size();interval++) {
              int[] channelValues = (int[])intervals.get(interval);
              strBuff.append("interval "+interval+": ");
              for(int channel=0;channel<channelValues.length;channel++) {
-                 strBuff.append(channelValues[channel]+" ");                 
+                 strBuff.append(channelValues[channel]+" ");
              }
              strBuff.append("\n");
-         }  
+         }
          return strBuff.toString();
     }
-    
+
     protected void parse(String strData) throws IOException {
         int nrOfChannels = getCommandFactory().getDCCommand().getProtocolChannelMap().getNrOfProtocolChannels();
         int recordingType = getCommandFactory().getISCommand().getRecordingType();
@@ -52,9 +54,9 @@ public class RCCommand extends AbstractCommand {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         int nrOfRecords = Integer.parseInt(br.readLine());
         int offset=1024;
-        
+
         byte[] data = strData.getBytes();
-        
+
         if (DEBUG>=1) {
             ProtocolUtils.printResponseDataFormatted2(data);
             System.out.println("\nKV_DEBUG> nrOfChannels="+nrOfChannels);
@@ -63,7 +65,7 @@ public class RCCommand extends AbstractCommand {
             System.out.println("KV_DEBUG> nrOfRecords="+nrOfRecords);
         }
         int nrOfIntervals = nrOfRecords/pcm.getNrOfUsedProtocolChannels();
-        
+
         intervals = new ArrayList();
         for (int interval=0;interval<nrOfIntervals;interval++) {
             int[] channelValues = new int[pcm.getNrOfUsedProtocolChannels()];
@@ -72,17 +74,17 @@ public class RCCommand extends AbstractCommand {
                 if (!pcm.isProtocolChannelZero(channel)) {
                    channelValues[channel] = ProtocolUtils.getInt(data,offset, 2);
 //System.out.println("interval= "+interval+", channel="+channel+", value="+channelValues[channel]);
-                   offset+=2; 
+                   offset+=2;
                 }
             }
             intervals.add(channelValues);
         } // for (int interval=0;interval<nrOfIntervals;interval++)
     } // protected void parse(String strData) throws IOException
-    
+
     public void setNrOfRecords(int nrOfRecords) {
         commandIdentification.setArguments(new String[]{Integer.toString(nrOfRecords)});
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }
@@ -90,5 +92,5 @@ public class RCCommand extends AbstractCommand {
     public List getIntervals() {
         return intervals;
     }
-    
+
 } // public class RCCommand extends AbstractCommand

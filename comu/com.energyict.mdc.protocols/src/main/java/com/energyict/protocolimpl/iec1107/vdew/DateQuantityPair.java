@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.util.Date;
+import com.energyict.mdc.common.Quantity;
 
-import com.energyict.cbo.Quantity;
+import java.util.Date;
 
 /**
  *
@@ -16,7 +16,7 @@ import com.energyict.cbo.Quantity;
  */
 public class DateQuantityPair {
 
-    
+
     Date date;
     Quantity quantity;
     /** Creates a new instance of DateValuePair */
@@ -24,7 +24,7 @@ public class DateQuantityPair {
         this.date = date;
         this.quantity = quantity;
     }
-    
+
     /**
      * Getter for property value.
      * @return Value of property value.
@@ -32,7 +32,7 @@ public class DateQuantityPair {
     public Quantity getQuantity() {
         return quantity;
     }
-    
+
     /**
      * Setter for property value.
      * @param value New value of property value.
@@ -40,7 +40,7 @@ public class DateQuantityPair {
     public void setValue(Quantity quantity) {
         this.quantity = quantity;
     }
-    
+
     /**
      * Getter for property date.
      * @return Value of property date.
@@ -48,7 +48,7 @@ public class DateQuantityPair {
     public java.util.Date getDate() {
         return date;
     }
-    
+
     /**
      * Setter for property date.
      * @param date New value of property date.
@@ -56,7 +56,7 @@ public class DateQuantityPair {
     public void setDate(java.util.Date date) {
         this.date = date;
     }
-    
+
     public String toString() {
         return getQuantity()+", "+getDate();
     }

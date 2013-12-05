@@ -10,15 +10,17 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class ViewableFileId {
-    
+
     static private final int MASS_MEMORY_1 = 100;
     static private final int MASS_MEMORY_2 = 101;
     static private final int EXTENDED_EVENT_LOG_1 = 150;
@@ -27,7 +29,7 @@ public class ViewableFileId {
     static private final int EXTENDED_EVENT_LOG_4 = 153;
     static private final int EXTENDED_EVENT_LOG_5 = 154;
     static private final int EXTENDED_EVENT_LOG_6 = 155;
-    
+
     static List viewableFileIds = new ArrayList();
     static {
         viewableFileIds.add(new ViewableFileId(MASS_MEMORY_1,"mass memory","first mass memory"));
@@ -79,53 +81,53 @@ public class ViewableFileId {
         viewableFileIds.add(new ViewableFileId(600,"voltage quality","Imbalance Phase A"));
         viewableFileIds.add(new ViewableFileId(601,"voltage quality","Imbalance Phase B"));
         viewableFileIds.add(new ViewableFileId(602,"voltage quality","Imbalance Phase C"));
-        
+
     }
-    
-    
+
+
     private int id;
     private String type;
     private String comment;
-    
+
     /** Creates a new instance of ViewableFileId */
     private ViewableFileId(int id, String type, String comment) {
         this.setId(id);
         this.setType(type);
         this.setComment(comment);
     }
-    
+
     public boolean isMassMemory1() {
         return getId()==MASS_MEMORY_1;
     }
-    
+
     public boolean isMassMemory2() {
         return getId()==MASS_MEMORY_2;
     }
-    
+
     public boolean isExtendedEventLog1() {
         return getId()==EXTENDED_EVENT_LOG_1;
     }
-    
+
     public boolean isExtendedEventLog2() {
         return getId()==EXTENDED_EVENT_LOG_2;
     }
-    
+
     public boolean isExtendedEventLog3() {
         return getId()==EXTENDED_EVENT_LOG_3;
     }
-    
+
     public boolean isExtendedEventLog4() {
         return getId()==EXTENDED_EVENT_LOG_4;
     }
-    
+
     public boolean isExtendedEventLog5() {
         return getId()==EXTENDED_EVENT_LOG_5;
     }
-    
+
     public boolean isExtendedEventLog6() {
         return getId()==EXTENDED_EVENT_LOG_6;
     }
-    
+
     static ViewableFileId findViewableFileId(int id) throws IOException {
         Iterator it = viewableFileIds.iterator();
         while(it.hasNext()) {
@@ -135,7 +137,7 @@ public class ViewableFileId {
         }
         throw new IOException("ViewableFileId, findViewableFileId, invalid id "+id);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -145,27 +147,27 @@ public class ViewableFileId {
         strBuff.append("   type="+getType()+"\n");
         return strBuff.toString();
     }
-    
+
     public int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public String getType() {
         return type;
     }
-    
+
     public void setType(String type) {
         this.type = type;
     }
-    
+
     public String getComment() {
         return comment;
     }
-    
+
     public void setComment(String comment) {
         this.comment = comment;
     }
@@ -201,7 +203,7 @@ public class ViewableFileId {
     public static ViewableFileId getEXTENDED_EVENT_LOG_6() throws IOException {
         return findViewableFileId(EXTENDED_EVENT_LOG_6);
     }
-    
-    
-    
+
+
+
 }

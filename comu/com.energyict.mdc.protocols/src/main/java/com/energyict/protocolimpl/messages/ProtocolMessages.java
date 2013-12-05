@@ -1,8 +1,12 @@
 package com.energyict.protocolimpl.messages;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 
 import java.util.Iterator;
 

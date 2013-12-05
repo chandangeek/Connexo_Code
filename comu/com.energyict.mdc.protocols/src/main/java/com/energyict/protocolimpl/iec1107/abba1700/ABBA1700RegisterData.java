@@ -6,22 +6,29 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter2;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.PowerDownCounter;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.PowerDownCounter2;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.ProgrammingCounter;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.ReverseRunCounter;
+import com.energyict.protocolimpl.iec1107.abba1700.counters.ReverseRunCounter2;
 
-import com.energyict.cbo.*;
-
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.abba1700.counters.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author  Koen
  */
 abstract public class ABBA1700RegisterData {
-    
+
     static final int ABBA_STRING=0;
     static final int ABBA_DATE=1;
     static final int ABBA_NUMBER=2;
@@ -67,63 +74,63 @@ abstract public class ABBA1700RegisterData {
     abstract protected int getLength();
 
     abstract protected ABBA1700MeterType getMeterType();
-    
+
 
     protected String buildData(Object object) throws IOException {
        switch(getType()) {
            case ABBA_STRING:
                return (String)object;
-               
+
            case ABBA_DATE:
                return buildDate((Date)object);
-               
+
            case ABBA_NUMBER:
                return null;
-               
+
            case ABBA_LONG:
                return null;
-               
+
            case ABBA_INTEGER:
                return null;
-               
+
            case ABBA_64BITFIELD:
                return null;
-               
+
            case ABBA_BYTEARRAY:
                return null;
-               
+
            case ABBA_QUANTITY:
                return null;
-               
+
            case ABBA_BIGDECIMAL:
                return null;
-           
+
            case ABBA_HEX:
                return null;
-           
+
            case ABBA_HEX_LE:
                return buildHexLE((Long)object);
-               
-           default: 
+
+           default:
                throw new IOException("ABBA1700RegisterData, parse , unknown type "+getType());
        }
     }
-    
+
     private String buildHexLE(Long val) {
         long lVal = val.longValue();
         byte[] data = new byte[4];
         ProtocolUtils.val2HEXascii((int)lVal&0xFF,data,0);
         ProtocolUtils.val2HEXascii((int)(lVal>>8)&0xFF,data,2);
-        
+
         return new String(data);
     }
-    
+
     private String buildDate(Date date) {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.clear();
         calendar.setTime(date);
         byte[] data = new byte[14];
-        
+
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.SECOND),data,0);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.MINUTE),data,2);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.HOUR_OF_DAY),data,4);
@@ -131,10 +138,10 @@ abstract public class ABBA1700RegisterData {
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.MONTH)+1,data,8);
         ProtocolUtils.val2BCDascii(0,data,10);
         ProtocolUtils.val2BCDascii(calendar.get(Calendar.YEAR)-2000,data,12);
-        
+
         return new String(data);
     }
-    
+
     protected Object parse(byte[] data) throws IOException {
        try {
            switch(getType()) {
@@ -164,43 +171,43 @@ abstract public class ABBA1700RegisterData {
 
                case ABBA_BIGDECIMAL:
                    return parseBigDecimal(data);
-                   
+
                case ABBA_HEX:
                    return parseLongHex(data);
-                   
+
                case ABBA_HEX_LE:
                    return parseLongHexLE(data);
 
                case ABBA_MD:
                    return new MaximumDemand(ProtocolUtils.getSubArray2(data,getOffset(),getLength()), getProtocolLink().getTimeZone());
-                   
+
                case ABBA_CMD:
                    return new CumulativeMaximumDemand(ProtocolUtils.getSubArray2(data,getOffset(),getLength()));
-                   
+
                case ABBA_HISTORICALVALUES:
                    return new HistoricalValues(data, getProtocolLink().getTimeZone(),getMeterType());
-               
+
                case ABBA_REGISTER:
                    return new MainRegister(parseQuantity(data));
-                   
+
                case ABBA_HISTORICALEVENTS:
                    return new HistoricalEvents(data, getProtocolLink().getTimeZone());
-                   
+
                case ABBA_SYSTEMSTATUS:
                    return new SystemStatus(data);
-                   
+
                case ABBA_TARIFFSOURCES:
                    return new TariffSources(data,getMeterType());
-                   
-               case ABBA_HISTORICALDISPLAYSCALINGS:    
+
+               case ABBA_HISTORICALDISPLAYSCALINGS:
                    return new HistoricalDisplayScalings(data,getMeterType());
-                   
+
                case ABBA_MDSOURCES:
                    return new MDSources(data);
-               
+
                case ABBA_INSTANTANEOUSVALUES:
                    return new InstantaneousValue(data);
-                   
+
                case ABBA_CUSTDEFREGCONFIG:
                    return new CustDefRegConfig(data);
 
@@ -242,7 +249,7 @@ abstract public class ABBA1700RegisterData {
                case ABBA_BATTERY_STATUS:
                    BatterySupportStatus bss = new BatterySupportStatus(getProtocolLink(), data);
                    return bss;
-               default: 
+               default:
                    throw new IOException("ABBA1700RegisterData, parse , unknown type "+getType());
            }
        }
@@ -250,15 +257,15 @@ abstract public class ABBA1700RegisterData {
            throw new IOException("ABBA1700RegisterData, parse error");
        }
     }
-    
-    private Long parseLongHexLE(byte[] data) throws IOException,NumberFormatException { 
+
+    private Long parseLongHexLE(byte[] data) throws IOException,NumberFormatException {
         return new Long(ProtocolUtils.getLongLE(data,getOffset(),getLength()));
     }
 
     private Long parseLongHex(byte[] data) throws IOException,NumberFormatException {
         return new Long(ProtocolUtils.getLong(data,getOffset(),getLength()));
     }
-    
+
     private BigDecimal parseBigDecimal(byte[] data) throws IOException,NumberFormatException {
         if (getLength() > 8) {
             throw new IOException("ABBA1700RegisterData, parseBigDecimal, datalength should not exceed 8!");
@@ -273,8 +280,8 @@ abstract public class ABBA1700RegisterData {
         }
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return new Quantity(bd,getUnit());
-    } 
-    
+    }
+
     private Long parseBitfield(byte[] data) throws IOException {
         if (getLength() > 8) {
             throw new IOException("ABBA1700RegisterData, parseBitfield, datalength should not exceed 8!");
@@ -288,14 +295,14 @@ abstract public class ABBA1700RegisterData {
         }
         return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
     }
-    
+
     private Integer parseInteger(byte[] data) throws IOException,NumberFormatException {
         if (getLength() > 4) {
             throw new IOException("ABBA1700RegisterData, parseInteger, datalength should not exceed 4!");
         }
         return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data,getOffset(),getLength()))));
     }
-    
+
     protected Date parseDate(byte[] data) throws IOException {
        Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
        calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
@@ -307,11 +314,11 @@ abstract public class ABBA1700RegisterData {
        calendar.set(Calendar.YEAR,y == 99 ? 1999 : y+2000);
        return calendar.getTime();
     }
-    
+
     /**
      * Creates a new instance of ABBA1700RegisterData
      */
     public ABBA1700RegisterData() {
     }
-    
+
 }

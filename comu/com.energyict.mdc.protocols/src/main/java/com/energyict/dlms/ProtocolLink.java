@@ -5,11 +5,11 @@
 
 package com.energyict.dlms;
 
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocol.MeterProtocol;
+
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  * @author Koen

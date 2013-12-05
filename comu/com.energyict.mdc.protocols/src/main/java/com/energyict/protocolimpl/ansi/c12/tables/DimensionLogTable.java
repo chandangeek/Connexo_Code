@@ -10,35 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DimensionLogTable extends AbstractTable {
-    
+
     private Log log;
-    
+
     /** Creates a new instance of DimensionLogTable */
     public DimensionLogTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(70));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DimensionLogTable: log="+getLog()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         setLog(new Log(tableData,0,getTableFactory()));
-    }         
+    }
 
     public Log getLog() {
         return log;

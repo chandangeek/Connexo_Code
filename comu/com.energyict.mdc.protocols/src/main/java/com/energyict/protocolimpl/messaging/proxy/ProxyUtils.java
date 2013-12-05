@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messaging.proxy;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
@@ -123,7 +123,7 @@ public class ProxyUtils {
     /**
      * Convert a given String value to the expected return type. The following types are supported:
      * <p/>
-     * {@link String}, {@link java.util.Date}, {@link java.util.TimeZone}, {@link com.energyict.obis.ObisCode}, {@link com.energyict.cbo.Unit}, {@link java.math.BigDecimal}
+     * {@link String}, {@link java.util.Date}, {@link java.util.TimeZone}, {@link ObisCode}, {@link Unit}, {@link java.math.BigDecimal}
      * {@link Float}, {@link Double}, {@link Long}, {@link Integer}, {@link Short}, {@link Byte} and {@link Boolean}
      *
      * @param value      The value to convert to the expected return type

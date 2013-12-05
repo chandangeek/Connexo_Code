@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.NotFoundException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -77,7 +77,7 @@ public class IEC870TypeIdentification {
         typeids.add(new IEC870TypeIdentification(124,"Ack file, ack section","F_AF_NA_1"));
         typeids.add(new IEC870TypeIdentification(125,"Segment","F_SG_NA_1"));
         typeids.add(new IEC870TypeIdentification(126,"Directory {blank or X, only available in monitor (standard) direction}","F_DR_TA_1"));
-        
+
         // reserved type identification ranges
         typeids.add(new IEC870TypeIdentification(127,"Reserved for further compatible definitions",""));
         typeids.add(new IEC870TypeIdentification(114,"(114..119)Reserved for further compatible definitions",""));
@@ -86,7 +86,7 @@ public class IEC870TypeIdentification {
         typeids.add(new IEC870TypeIdentification(52,"(52..69)Reserved for further compatible definitions",""));
         typeids.add(new IEC870TypeIdentification(41,"(41..44)Reserved for further compatible definitions",""));
         typeids.add(new IEC870TypeIdentification(22,"(22..29)Reserved for further compatible definitions",""));
-        
+
         // Datawatt specific
         typeids.add(new IEC870TypeIdentification(136,"Hang up dialled line","C_HU_NA_P"));
         typeids.add(new IEC870TypeIdentification(137,"Login data","C_LD_NA_P"));
@@ -99,7 +99,7 @@ public class IEC870TypeIdentification {
         typeids.add(new IEC870TypeIdentification(200,"DSAP message","X_DS_NA_P"));
         typeids.add(new IEC870TypeIdentification(201,"Master Poll request (for radio)","X_MP_NA_P"));
     }
-    
+
     int id;
     String description;
     String shortdescr;
@@ -119,7 +119,7 @@ public class IEC870TypeIdentification {
         return id;
     }
     public static IEC870TypeIdentification getTypeIdentification(int id) {
-        
+
         // // reserved type identification ranges
         if ((id>=114)&&(id<=119)) id=114;
         if ((id>=107)&&(id<=109)) id=107;
@@ -127,7 +127,7 @@ public class IEC870TypeIdentification {
         if ((id>=52)&&(id<=69)) id=52;
         if ((id>=41)&&(id<=44)) id=41;
         if ((id>=22)&&(id<=29)) id=22;
-        
+
         Iterator it = typeids.iterator();
         while(it.hasNext()) {
             IEC870TypeIdentification tid = (IEC870TypeIdentification)it.next();
@@ -135,7 +135,7 @@ public class IEC870TypeIdentification {
         }
         throw new NotFoundException("IEC870TypeIdentification, id "+id+" not found");
     }
-    
+
     public static IEC870TypeIdentification getTypeIdentification(String shortdescr) {
         Iterator it = typeids.iterator();
         while(it.hasNext()) {

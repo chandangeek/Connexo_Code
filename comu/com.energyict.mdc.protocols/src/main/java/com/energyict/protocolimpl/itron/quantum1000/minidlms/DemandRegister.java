@@ -10,20 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class DemandRegister {
-    
+
     private QuantityId quantityId;
     private int demandType; // INSTANTANEOUS=0, THERMAL=1, BLOCKINTERVAL=2
-    
+
     private QuantityId[] coincidentQuantities = new QuantityId[3];
     // options
     // bit 0..2 multiplierId
@@ -35,8 +35,8 @@ public class DemandRegister {
     private boolean touSummaryRequired;
     private boolean multiplePeaksRequired;
     private boolean multipleMinimumRequired;
-    
-    
+
+
     /** Creates a new instance of Result */
     public DemandRegister(byte[] data,int offset, MeterSetup meterSetup) throws IOException {
         setQuantityId(QuantityFactory.findQuantityId(ProtocolUtils.getInt(data,offset, 2)));
@@ -48,7 +48,7 @@ public class DemandRegister {
         }
         int options = ProtocolUtils.getInt(data,offset++, 1);
         setMultiplierId(options & 0x07);
-        
+
         // Multiplier ID
         // 0 = 1.0
         // 1 = CT value
@@ -57,28 +57,28 @@ public class DemandRegister {
         // 4 = customized value
         //int multiplierId = ProtocolUtils.getInt(data,offset++,1);
         switch(multiplierId) {
-            case 0: 
+            case 0:
                 setMultiplier(new BigDecimal("1.0"));
                 break;
-            case 1: 
+            case 1:
                 setMultiplier(meterSetup.getCtMultiplier());
                 break;
-            case 2: 
+            case 2:
                 setMultiplier(meterSetup.getPtMultiplier());
                 break;
-            case 3: 
+            case 3:
                 setMultiplier(meterSetup.getCtMultiplier().multiply(meterSetup.getPtMultiplier()));
                 break;
-            case 4: 
+            case 4:
                 setMultiplier(meterSetup.getCustomMultiplier());
                 break;
-        }        
+        }
         setTouSummaryRequired((options & 0x08) == 0x08);
         setMultiplePeaksRequired((options & 0x10) == 0x10);
         setMultipleMinimumRequired((options & 0x20) == 0x20);
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -93,12 +93,12 @@ public class DemandRegister {
         strBuff.append("   quantityId="+getQuantityId()+"\n");
         strBuff.append("   touSummaryRequired="+isTouSummaryRequired()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     static public int size() {
         return 10;
     }
-    
+
     public QuantityId getQuantityId() {
         return quantityId;
     }
@@ -165,5 +165,5 @@ public class DemandRegister {
 
 
 
-    
+
 }

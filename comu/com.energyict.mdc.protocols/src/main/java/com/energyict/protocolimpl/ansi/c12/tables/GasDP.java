@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
@@ -25,7 +23,7 @@ public class GasDP {
     static private final int SIZE=2; // 2 x NiFormat
     private Number gasDpZero;
     private Number gasDpFullscale;
-    
+
     /** Creates a new instance of GasDp */
     public GasDP(byte[] data,int offset, int niFormat, int dataOrder) throws IOException {
         setGasDpZero(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
@@ -36,7 +34,7 @@ public class GasDP {
     static public int getSize(int niFormat) throws IOException {
         return SIZE*C12ParseUtils.getNonIntegerSize(niFormat);
     }
-    
+
     public Number getGasDpZero() {
         return gasDpZero;
     }

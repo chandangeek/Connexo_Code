@@ -1,19 +1,28 @@
 package com.energyict.protocolimpl.dlms.g3.profile;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.LogicalName;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
 import com.energyict.protocolimpl.dlms.g3.G3Cache;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT

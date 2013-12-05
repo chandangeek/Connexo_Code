@@ -10,21 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TerminateLoadResponse extends AbstractCommandResponse {
-    
+
     private int responseID;
-    
+
     /** Creates a new instance of TerminateLoadResponse */
     public TerminateLoadResponse() {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -33,11 +32,11 @@ public class TerminateLoadResponse extends AbstractCommandResponse {
         return strBuff.toString();
     }
 
-    
+
     protected void parse(byte[] rawData) throws IOException {
         int offset = 0;
         offset++; // skip confirmed service response
-        setResponseID((int)rawData[offset++]&0xFF); 
+        setResponseID((int)rawData[offset++]&0xFF);
      }
 
     public int getResponseID() {
@@ -47,5 +46,5 @@ public class TerminateLoadResponse extends AbstractCommandResponse {
     public void setResponseID(int responseID) {
         this.responseID = responseID;
     }
-    
+
 }

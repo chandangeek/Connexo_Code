@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.a1800;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCode;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
 /**
@@ -18,8 +18,8 @@ import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
  * @author jsm
  */
 public class EventLogMfgCodeFactory extends EventLogCodeFactory {
-    
-    
+
+
     static {
         getMfgList().add(new EventLogCode(0,"Enter Tier override",""));
         getMfgList().add(new EventLogCode(1,"Exit Tier override",""));
@@ -36,15 +36,15 @@ public class EventLogMfgCodeFactory extends EventLogCodeFactory {
         getMfgList().add(new EventLogCode(12,"Ph C OFF event","",MeterEvent.PHASE_FAILURE));
         getMfgList().add(new EventLogCode(13,"Ph C ON event",""));
     }
-    
+
     /** Creates a new instance of EventLogMfgCodeFactory */
     public EventLogMfgCodeFactory() {
     }
-    
+
     static public void main(String[] args) {
         EventLogMfgCodeFactory elmcf = new EventLogMfgCodeFactory();
         System.out.println(elmcf.getEvent(0, true));
         System.out.println(elmcf.getEvent(1, true));
-        
+
     }
 }

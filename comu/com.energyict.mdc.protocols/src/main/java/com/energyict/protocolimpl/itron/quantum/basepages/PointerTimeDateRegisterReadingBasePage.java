@@ -10,38 +10,37 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class PointerTimeDateRegisterReadingBasePage extends AbstractBasePage {
-    
+
     private int registerReadOffset;
-            
+
     /** Creates a new instance of RealTimeBasePage */
     public PointerTimeDateRegisterReadingBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("PointerTimeDateRegisterReadingBasePage:\n");
         strBuff.append("   registerReadOffset="+getRegisterReadOffset()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(312,2);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setRegisterReadOffset(ProtocolUtils.getInt(data,offset,2) - getBasePagesFactory().getMemStartAddress());
@@ -55,5 +54,5 @@ public class PointerTimeDateRegisterReadingBasePage extends AbstractBasePage {
         this.registerReadOffset = registerReadOffset;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

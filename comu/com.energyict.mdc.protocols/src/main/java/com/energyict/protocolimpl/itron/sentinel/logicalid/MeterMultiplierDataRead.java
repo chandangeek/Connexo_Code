@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 
+import java.io.IOException;
+
 /**
- * 
+ *
  * @author Koen
  */
 public class MeterMultiplierDataRead extends AbstractDataRead {

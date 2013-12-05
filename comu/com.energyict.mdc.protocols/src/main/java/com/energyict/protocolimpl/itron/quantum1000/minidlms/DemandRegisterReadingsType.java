@@ -10,22 +10,24 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class DemandRegisterReadingsType {
-    
-    
+
+
     private QuantityId qid; // QUANTITY_ID,2
     private float presentDemand; // FLOAT,6                             D=4
     private float previousDemand; // FLOAT,10                           D=5
-    private float projectedDemand; // FLOAT,14                          D=200 (OBISCODE_D_PROJECTED_DEMAND) manufacturer specific  
-    private float cumulativeDemand; // FLOAT,18                         D=2 
+    private float projectedDemand; // FLOAT,14                          D=200 (OBISCODE_D_PROJECTED_DEMAND) manufacturer specific
+    private float cumulativeDemand; // FLOAT,18                         D=2
     private float contCumulativeDemand; // FLOAT,22                     D=143 (OBISCODE_D_CONTINUOUS_CUMULATIVE_DEMAND)
     private float peakValue; // FLOAT,26                                D=6
     private Date peakTime; // EXTENDED_DATE_TIME,34
@@ -34,18 +36,18 @@ public class DemandRegisterReadingsType {
     private QuantityId coincidentReg3Quantity; // QUANTITY_ID,40        D=135 (OBISCODE_D_COINCIDENT)
     private float peakCoincidentReg1Value; // FLOAT,44                  D=136 (OBISCODE_D_COINCIDENT)
     private float peakCoincidentReg2Value; // FLOAT,48                  D=137 (OBISCODE_D_COINCIDENT)
-    private float peakCoincidentReg3Value; // FLOAT,52                  D=138 (OBISCODE_D_COINCIDENT)  
+    private float peakCoincidentReg3Value; // FLOAT,52                  D=138 (OBISCODE_D_COINCIDENT)
     private float valleyValue; // FLOAT,56                              D=3
     private Date valleyTime; // EXTENDED_DATE_TIME,64
-    private float valleyCoincidentReg1Value; // FLOAT,68                D=139 (OBISCODE_D_COINCIDENT) 
-    private float valleyCoincidentReg2Value; // FLOAT,72                D=140 (OBISCODE_D_COINCIDENT) 
-    private float valleyCoincidentReg3Value; // FLOAT,76                D=141 (OBISCODE_D_COINCIDENT) 
-    
+    private float valleyCoincidentReg1Value; // FLOAT,68                D=139 (OBISCODE_D_COINCIDENT)
+    private float valleyCoincidentReg2Value; // FLOAT,72                D=140 (OBISCODE_D_COINCIDENT)
+    private float valleyCoincidentReg3Value; // FLOAT,76                D=141 (OBISCODE_D_COINCIDENT)
+
     /**
      * Creates a new instance of DemandRegisterReadingsType
      */
     public DemandRegisterReadingsType(byte[] data,int offset,TimeZone timeZone) throws IOException {
-        
+
         setQid(QuantityFactory.findQuantityId(ProtocolUtils.getInt(data,offset, 2)));
         offset+=2;
         setPresentDemand(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset, 4)));
@@ -83,10 +85,10 @@ public class DemandRegisterReadingsType {
         setValleyCoincidentReg2Value(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset, 4)));
         offset+=4;
         setValleyCoincidentReg3Value(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset, 4)));
-        offset+=4;   
-        
+        offset+=4;
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -112,7 +114,7 @@ public class DemandRegisterReadingsType {
         strBuff.append("   valleyValue="+getValleyValue()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 76;
     }
@@ -268,7 +270,7 @@ public class DemandRegisterReadingsType {
     public void setValleyCoincidentReg3Value(float valleyCoincidentReg3Value) {
         this.valleyCoincidentReg3Value = valleyCoincidentReg3Value;
     }
-    
-    
-    
+
+
+
 }

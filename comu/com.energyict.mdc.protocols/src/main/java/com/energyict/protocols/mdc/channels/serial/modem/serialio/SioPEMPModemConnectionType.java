@@ -1,20 +1,21 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.SerialComChannel;
-import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.channels.serial.modem.*;
-import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
+import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType}
+ * <p>Provides an implementation for the {@link ConnectionType}
  * interface for Serial PEMP communication, using the Sio library.</p>
  *
  * @author sva
@@ -25,15 +26,15 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     private PEMPModemComponent pempModemComponent;
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
 
         pempModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newPEMPModemComponent(new TypedPEMPModemProperties(properties));
         /*
        create the serial ComChannel and set all property values
         */
-        ComChannel comChannel = super.connect(comPort, properties);
+        ComChannel comChannel = super.connect(properties);
         try {
-            pempModemComponent.connect(comPort.getName(), (SerialComChannel) comChannel);
+            pempModemComponent.connect(this.getComPortNameValue(), (SerialComChannel) comChannel);
         } catch (Exception e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
             throw new ConnectionException(e);
@@ -49,24 +50,9 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> allOptionalProperties = new ArrayList<>();
-        allOptionalProperties.addAll(super.getOptionalProperties());    // need to create a new list because the super returns a fixed list
-        allOptionalProperties.addAll(new TypedPaknetModemProperties().getOptionalProperties());
-        return allOptionalProperties;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        requiredProperties.addAll(super.getRequiredProperties());  // need to create a new list because the super returns a fixed list
-        requiredProperties.addAll(new TypedPaknetModemProperties().getRequiredProperties());
-        return requiredProperties;
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return super.isRequiredProperty(name) || new TypedPaknetModemProperties().isRequiredProperty(name);
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        super.addPropertySpecs(propertySpecs);
+        propertySpecs.addAll(new TypedPaknetModemProperties().getPropertySpecs());
     }
 
     @Override
@@ -77,4 +63,5 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
         }
         return propertySpec;
     }
+
 }

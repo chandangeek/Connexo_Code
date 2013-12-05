@@ -1,20 +1,19 @@
 package com.energyict.protocols.mdc.channels.ip;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Groups common behavior for outbound IP related connectionTypes
- * <p/>
+ * Groups common behavior for outbound IP related connectionTypes.
+ *
  * Copyrights EnergyICT
- * Date: 9/11/12
- * Time: 11:28
+ * @since 9/11/12 (11:28)
  */
 public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
 
@@ -23,7 +22,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
 
     private PropertySpec hostPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(HOST_PROPERTY_NAME);
+        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(HOST_PROPERTY_NAME);
     }
 
     protected String hostPropertyValue() {
@@ -31,11 +30,11 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec portNumberPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(PORT_PROPERTY_NAME);
+        return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PORT_PROPERTY_NAME);
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME);
     }
 
     protected int portNumberPropertyValue() {
@@ -65,6 +64,13 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        propertySpecs.add(this.hostPropertySpec());
+        propertySpecs.add(this.portNumberPropertySpec());
+        propertySpecs.add(this.connectionTimeOutPropertySpec());
+    }
+
+    @Override
     public PropertySpec getPropertySpec(String name) {
         switch (name) {
             case HOST_PROPERTY_NAME:
@@ -78,23 +84,4 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
         }
     }
 
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return HOST_PROPERTY_NAME.equals(name) || PORT_PROPERTY_NAME.equals(name);
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = new ArrayList<>(2);
-        requiredProperties.add(this.hostPropertySpec());
-        requiredProperties.add(this.portNumberPropertySpec());
-        return requiredProperties;
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optional = new ArrayList<>();
-        optional.add(this.connectionTimeOutPropertySpec());
-        return optional;
-    }
 }

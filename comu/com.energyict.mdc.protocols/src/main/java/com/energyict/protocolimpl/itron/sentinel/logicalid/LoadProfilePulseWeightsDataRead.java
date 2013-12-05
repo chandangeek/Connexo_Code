@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfilePulseWeightsDataRead extends AbstractDataRead {
-    
+
     private int[] loadProfilePulseWeights;
-    
+
     /** Creates a new instance of ConstantsDataRead */
     public LoadProfilePulseWeightsDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -38,10 +35,10 @@ public class LoadProfilePulseWeightsDataRead extends AbstractDataRead {
             strBuff.append("       loadProfilePulseWeights["+i+"]="+getLoadProfilePulseWeights()[i]+"\n");
         }
         return strBuff.toString();
-    }   
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
-        
+
         int offset=0;
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         setLoadProfilePulseWeights(new int[getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels()]);
@@ -50,9 +47,9 @@ public class LoadProfilePulseWeightsDataRead extends AbstractDataRead {
             offset+=2;
         }
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         long[] lids = new long[]{LogicalIDFactory.findLogicalId("LP_CHAN_1_PULSE_WT").getId(),
                                  LogicalIDFactory.findLogicalId("LP_CHAN_2_PULSE_WT").getId(),
                                  LogicalIDFactory.findLogicalId("LP_CHAN_3_PULSE_WT").getId(),
@@ -61,9 +58,9 @@ public class LoadProfilePulseWeightsDataRead extends AbstractDataRead {
                                  LogicalIDFactory.findLogicalId("LP_CHAN_6_PULSE_WT").getId(),
                                  LogicalIDFactory.findLogicalId("LP_CHAN_7_PULSE_WT").getId(),
                                  LogicalIDFactory.findLogicalId("LP_CHAN_8_PULSE_WT").getId()};
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels(), lids));    
-        
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels(), lids));
+
     } // protected void prepareBuild() throws IOException
 
     public int[] getLoadProfilePulseWeights() {
@@ -73,5 +70,5 @@ public class LoadProfilePulseWeightsDataRead extends AbstractDataRead {
     public void setLoadProfilePulseWeights(int[] loadProfilePulseWeights) {
         this.loadProfilePulseWeights = loadProfilePulseWeights;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
@@ -12,6 +7,11 @@ import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.InstrometConnection;
 import com.energyict.protocolimpl.instromet.connection.ResponseReceiver;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class Instromet444Connection extends InstrometConnection {
 

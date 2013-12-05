@@ -1,11 +1,15 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MovingPeak extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "movingPeak";
 	protected final static String MOVINGPEAKELEMENTS = "movingPeakScript";
 	protected final static String ATTRIBUTESCRIPTID = "scriptId";
@@ -13,14 +17,14 @@ public class MovingPeak extends ComplexCosemObject {
 	protected final static String ATTRIBUTECLASSID = "classId";
 	protected final static String ATTRIBUTELOGICALNAME = "logicalName";
 	protected final static String ATTRIBUTEINDEX = "index";
-	
+
 
 	private List scripts = new ArrayList();
 
 	public MovingPeak() {
 		super();
 	}
-	
+
 	public MovingPeak(Element element){
 		super(element);
 		NodeList scriptNodes = element.getElementsByTagName(MOVINGPEAKELEMENTS);
@@ -35,7 +39,7 @@ public class MovingPeak extends ComplexCosemObject {
 			scripts.add(script);
 		}
 	}
-	
+
         public String toString() {
             StringBuffer strBuff = new StringBuffer();
             for (int i=0; i< scripts.size(); i++) {
@@ -44,11 +48,11 @@ public class MovingPeak extends ComplexCosemObject {
             }
             return strBuff.toString();
         }
-        
+
 //        public static void main(String[] args) {
 //            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new MovingPeak()));
-//        }    
-        
+//        }
+
 	public void addScript(int scriptId, int serviceId, int classId,
 			String logicalName, int index){
 		scripts.add(new MovingPeakScript(scriptId,serviceId,classId,
@@ -62,7 +66,7 @@ public class MovingPeak extends ComplexCosemObject {
 	public void setScripts(List scripts) {
 		this.scripts = scripts;
 	}
-	
+
 	public MovingPeakScript getScript(int index){
 		if (index < 0 || index >= scripts.size()){
 			return null;
@@ -70,7 +74,7 @@ public class MovingPeak extends ComplexCosemObject {
 			return (MovingPeakScript) scripts.get(index);
 		}
 	}
-	
+
 	public Element generateXMLElement(Document document){
 			Element root = document.createElement(ELEMENTNAME);
 			for (Iterator it = scripts.iterator();it.hasNext();){
@@ -86,6 +90,6 @@ public class MovingPeak extends ComplexCosemObject {
 			return root;
 	}
 
-	
-	
+
+
 }

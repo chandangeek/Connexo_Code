@@ -9,24 +9,25 @@
  */
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 public class IsFeatureKnown extends FeatureId {
-    
-    
 
-    
+
+
+
     private int featureId;
-    
+
     /** Creates a new instance of IsFeatureEnabled */
     public IsFeatureKnown(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
+
     public byte[] getParameters() {
         byte[] data = new byte[4];
         data[3] = (byte)(getFeatureId()>>24);
@@ -35,18 +36,18 @@ public class IsFeatureKnown extends FeatureId {
         data[0] = (byte)(getFeatureId());
         return data;
     }
-    
+
     public int getFunctionName() {
         return 0x0056; // 86 RPC_IS_FEATURE_KNOWN
     }
-    
+
     public int getFeatureId() {
         return featureId;
     }
-    
+
     public void setFeatureId(int featureId) {
         this.featureId = featureId;
     }
-    
-    
+
+
 } // public class IsFeatureEnabled extends AbstractRemoteProcedure

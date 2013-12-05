@@ -16,11 +16,11 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.EventNumber;
@@ -521,7 +521,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         Base64EncoderDecoder base64Encoder = new Base64EncoderDecoder();
         return base64Encoder.encode(content);
     }
-    
+
     public void activityCalendarUpgrade(String xmlContent) throws IOException {
         MessageResult result = getMeterProtocol().queryMessage(new MessageEntry(xmlContent, "trackGna"));
         System.out.println("ActivityCalender upgrade " + (result.isSuccess() ? "SUCCESS" : "FAILED"));

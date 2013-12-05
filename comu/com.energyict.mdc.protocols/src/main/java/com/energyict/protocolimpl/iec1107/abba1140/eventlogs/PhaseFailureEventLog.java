@@ -1,18 +1,19 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.TimeZone;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
- 
+
 public class PhaseFailureEventLog extends AbstractEventLog {
 
 	static final String EVENT_NAME 		= "Phase failure event";
 	static final int EVENT_CODE 		= MeterEvent.PHASE_FAILURE;
 	private static final int INFO_SIZE	= 1;
-	
+
 	private int[] infoField = new int[NUMBER_OF_EVENTS];
-	
+
 	/*
 	 * Constructors
 	 */
@@ -31,7 +32,7 @@ public class PhaseFailureEventLog extends AbstractEventLog {
         }
 		debug();
 	}
-	
+
 	protected void debug() {
 		if (DEBUG<=0) return;
 		System.out.println("count = " + count);
@@ -60,5 +61,5 @@ public class PhaseFailureEventLog extends AbstractEventLog {
 			default: return "Invalid info field: " + infoField;
 		}
 	}
-	
+
 }

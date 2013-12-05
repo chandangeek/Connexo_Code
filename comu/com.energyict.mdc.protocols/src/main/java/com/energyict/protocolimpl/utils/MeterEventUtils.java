@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.mdw.core.DeviceEvent;
-import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT

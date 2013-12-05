@@ -1,17 +1,17 @@
 package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * This class parses the raw data of the PLC statistics <br>

@@ -1,18 +1,39 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.RegisterCache;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 
-abstract public class WaveFlow100mW extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RegisterCache {
+public abstract class WaveFlow100mW extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RegisterCache {
 
     private static final int WAVEFLOW_NR_OF_CHANNELS = 2;
     private static final String READ_LOAD_PROFILE_PROPERTY = "ReadLoadProfile";
@@ -21,17 +42,17 @@ abstract public class WaveFlow100mW extends AbstractProtocol implements MessageP
     private static final String SERIAL_NUMBER_A = "SerialNumberA";
     private static final String SERIAL_NUMBER_B = "SerialNumberB";
 
-    abstract protected void doTheConnect() throws IOException;
+    protected abstract void doTheConnect() throws IOException;
 
-    abstract protected void doTheInit() throws IOException;
+    protected abstract void doTheInit() throws IOException;
 
-    abstract protected void doTheDisConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
 
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
 
-    abstract protected ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
+    protected abstract ProfileData getTheProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException;
 
-    abstract protected MeterProtocolType getMeterProtocolType();
+    protected abstract MeterProtocolType getMeterProtocolType();
 
     public enum MeterProtocolType {
         SM150E(0),

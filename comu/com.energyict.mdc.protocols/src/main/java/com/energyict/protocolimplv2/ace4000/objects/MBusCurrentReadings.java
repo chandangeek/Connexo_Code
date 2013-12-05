@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.DataRecord;

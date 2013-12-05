@@ -1,14 +1,13 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.TimeZone;
 
 /**
  * Contains all events related to the detection of fraud attempts, e.g. removal of terminal cover,
  * removal of meter cover, strong DC field detection, accoss with wrong password
- * <br/>                     
+ * <br/>
  * Copyrights EnergyICT<br/>
  * Date: 6-dec-2010<br/>
  * Time: 15:12:50<br/>

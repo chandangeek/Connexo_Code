@@ -6,27 +6,33 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 
 /**
  *
  * @author  Koen
  */
 public class DataDumpParser {
-    
+
     String strFrame;
-    
+
     static public final String ENERMET_DUMP_DATETIME_SIGNATURE="yy-MM-dd HH:mm";
     String datetimeSignature;
-    
+
     /** Creates a new instance of SCTMDumpData */
     public DataDumpParser(byte[] frame) throws IOException {
         this(frame,ENERMET_DUMP_DATETIME_SIGNATURE);
@@ -38,7 +44,7 @@ public class DataDumpParser {
 		}
         strFrame = new String(frame);
     }
-    
+
     public String toString() {
         return strFrame;
     }
@@ -48,7 +54,7 @@ public class DataDumpParser {
         String strValue = searchRegister(strRegister);
         return strValue.substring(0,strValue.indexOf("\r"));
     }
-    
+
     public String getRegisterStrValue(String strReg) throws IOException {
         String strRegister="\n"+strReg;
         String strValue = searchRegister(strRegister);
@@ -59,18 +65,18 @@ public class DataDumpParser {
 //        }
 //        else return strValue;
     }
-    
+
     public Date getRegisterDateTime(String strReg, TimeZone timeZone) throws IOException {
         String strRegister="\n"+strReg;
         strRegister=searchRegister(strRegister);
         strRegister = strRegister.substring(1,strRegister.indexOf("\r"));
         if (datetimeSignature.compareTo(ENERMET_DUMP_DATETIME_SIGNATURE)==0) {
             try {
-                
+
                 if (strRegister.length() < (datetimeSignature.length()+1)) {
 					return null;
 				}
-                
+
                 strRegister = strRegister.substring(strRegister.length()-(datetimeSignature.length()+1),strRegister.length()-1);
                 return ProtocolUtils.parseDateTimeWithTimeZone(strRegister, datetimeSignature, timeZone);
             }
@@ -134,7 +140,7 @@ public class DataDumpParser {
 			return quantity;
 		}
     }
-    
+
     private String findBaseRegister(String strRegister) throws IOException {
         if (hasBaseRegister(strRegister,".&")) {
 			return doGetBaseRegister(strRegister,".&"); // KV 04102004
@@ -150,7 +156,7 @@ public class DataDumpParser {
 		}
         return null;
     }
-    
+
     private boolean hasBaseRegister(String strRegister,String strDelimiter) {
         if (strRegister.indexOf(strDelimiter) != -1) {
 			return true;
@@ -158,22 +164,22 @@ public class DataDumpParser {
 			return false;
 		}
     }
-    
+
     private String doGetBaseRegister(String strRegister,String strDelimiter) throws IOException {
         //StringTokenizer st = new StringTokenizer(strRegister,strDelimiter);
         //return st.nextToken();
         // KV 04102004
         return strRegister.substring(0,strRegister.indexOf(strDelimiter));
     }
-    
+
     private String searchRegister(String strRegister) throws IOException {
        int iIndex = strFrame.indexOf(strRegister+"(");
        if (iIndex == -1) {
 			throw new NoSuchRegisterException("DataDumpParser, searchRegister, register not found");
-       }       
+       }
        return strFrame.substring(iIndex);//-1);
     }
-    
+
     private Quantity parseQuantity(String val) throws IOException {
        StringBuffer stringBufferVal = new StringBuffer();
        StringBuffer stringBufferUnit = new StringBuffer();
@@ -188,20 +194,20 @@ public class DataDumpParser {
 		} else if (((val.charAt(i) >= '0') && (val.charAt(i) <= '9')) || (val.charAt(i) == '.')) {
                if (state==1) {
 				stringBufferVal.append(val.charAt(i));
-			} 
+			}
            }
            else {
                if (state==2) {
 				stringBufferUnit.append(val.charAt(i));
-			} 
+			}
            }
        } // for (i=0;i<frame.length;i++)
-       
-       Quantity quantity = new Quantity(new BigDecimal(stringBufferVal.toString()), 
+
+       Quantity quantity = new Quantity(new BigDecimal(stringBufferVal.toString()),
                                Unit.get(stringBufferUnit.toString()));
        return quantity;
     }
-    
+
     static public byte[] readFile() {
         try {
             File file = new File("zmd.txt");
@@ -216,10 +222,10 @@ public class DataDumpParser {
         }
         return null;
     }
-    
+
     public static void main(String[] args) {
         try {
-        	
+
 /*        	byte[] dataDump = DLMSUtils.hexStringToByteArray("02302e302e30283030393438303239290d0a302e302e31283030393438303239290d0a302e302e32283030303030303030290d0a302e392e31283131303230302" +
         			"90d0a302e392e3228303930383138290d0a312e362e3128302e3330342a6b572928303930383035313733303030290d0a312e362e312a303628302e3236382a6b572928303930373033313331353030290d0a312e3" +
         			"62e312a303528302e3235332a6b572928303930363235313631353030290d0a312e362e312a303428302e3233312a6b572928303930353130313630303030290d0a312e362e312a303328302e3236382a6b5729283" +
@@ -279,10 +285,10 @@ public class DataDumpParser {
         	DataDumpParser ddp = new DataDumpParser(dataDump);
 
         	ddp.getBillingCounter();*/
-        	
+
             //String str = new String("1-1:F.F(00)\r\n1-1:0.0.0(62127388)\r\n1-1:0.1.0(01)\r\n1-1:1.2.1(00000.0*kW)\r\n1-1:1.2.2(00000.0*kW)\r\n1-1:1.2.3(00000.0*kW)\r\n1-1:1.2.4(00000.0*kW)\r\n1-1:1.6.1(000.0*kW)\r\n1-1:1.6.2(000.0*kW)\r\n1-1:1.6.3(000.0*kW)\r\n1-1:1.6.4(000.0*kW)\r\n1-1:1.8.1(0002000.030*kWh)\r\n1-1:1.8.2(0000000.0*kWh)\r\n1-1:1.8.3(0000000.0*kWh)\r\n1-1:1.8.4(0000000.0*kWh)\r\n1-1:5.8.1(9000000.123*kvarh)\r\n1-1:5.8.2(0000000.0*kvarh)\r\n1-1:5.8.3(0000000.0*kvarh)\r\n1-1:5.8.4(0000000.0*kvarh)\r\n1-1:8.8.1(0000000.0*kvarh)\r\n1-1:8.8.2(0000000.0*kvarh)\r\n1-1:8.8.3(0000000.0*kvarh)\r\n1-1:8.8.4(0000000.0*kvarh)\r\n!\r\n");
             //String str = new String("9.2(123456789*Wh)\r\n10.2(0001234*kWh)\r\n10.2&01(1234.567)\r\n9.2*00(0.56789)\r\n10.2*99(0000000)\r\n10.2*98(0000000)\r\n10.2*97(0000000)");
-            
+
 //            byte[] frame = readFile();
 //            DataDumpParser dumpData = new DataDumpParser(frame);
 ////            q = dumpData.getRegister("8.1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
@@ -291,25 +297,25 @@ public class DataDumpParser {
 ////            System.out.println(q.toString());
 ////            q = dumpData.getRegister("8.1"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
 ////            System.out.println(q.toString());
-//            
+//
 ////            q = dumpData.getRegister("1-1:1.6.1*02");
 ////            System.out.println(q.toString());
 ////            System.out.println(dumpData.getRegisterStrValue("1-1:1.6.1*02"));
-////            
+////
 ////            q = dumpData.getRegister("1-1:1.6.3");
 ////            System.out.println("1-1:1.6.3 --> "+q.toString());
-////            
+////
 //            String str = dumpData.getRegisterStrValue("1.6.3*06");
 //            Quantity q = dumpData.getRegister("1.6.3*06");
 //            Date d = dumpData.getRegisterDateTime("1.6.3*06",TimeZone.getTimeZone("ECT"));
 //            System.out.println("1.6.3*06 --> "+str+", q="+q+", d="+d);
-//            
+//
 //            str = dumpData.getRegisterStrValue("1.6.3*6");
 //            q = dumpData.getRegister("1.6.3*6");
 //            d = dumpData.getRegisterDateTime("1.6.3*6",TimeZone.getTimeZone("ECT"));
 //            System.out.println("1.6.3*6 --> "+str+", q="+q+", d="+d);
 //
-//            
+//
 //            str = dumpData.getRegisterStrValue("1.6.3");
 //            q = dumpData.getRegister("1.6.3");
 //            d = dumpData.getRegisterDateTime("1.6.3",TimeZone.getTimeZone("ECT"));
@@ -319,7 +325,7 @@ public class DataDumpParser {
 //            q = dumpData.getRegister("0.1.0");
 //            d = dumpData.getRegisterDateTime("0.1.0",TimeZone.getTimeZone("ECT"));
 //            System.out.println("0.1.0 --> "+str+", q="+q+", d="+d);
-//            
+//
 //            str = dumpData.getRegisterStrValue("0.1.0*06");
 //            q = dumpData.getRegister("0.1.0*06");
 //            d = dumpData.getRegisterDateTime("0.1.0*06",TimeZone.getTimeZone("ECT"));
@@ -329,8 +335,8 @@ public class DataDumpParser {
 //            q = dumpData.getRegister("0.1.0*6");
 //            d = dumpData.getRegisterDateTime("0.1.0*6",TimeZone.getTimeZone("ECT"));
 //            System.out.println("0.1.0*6 --> "+str+", q="+q+", d="+d);
-//            
-            
+//
+
             //str = dumpData.getRegisterFFStrValue("F.F");
             //System.out.println("F.F --> "+str);
 //            q = dumpData.getRegister("20"); //dumpData.getRegister("10.2"); //dumpData.getRegister("1-1:5.8.1");
@@ -339,19 +345,19 @@ public class DataDumpParser {
 //            System.out.println(q.toString());
 //            Date date = dumpData.getRegisterDateTime("8.1",TimeZone.getTimeZone("WET"));
 //            System.out.println(date);
-//            
+//
 //            System.out.println("billingCounter = "+dumpData.getBillingCounter());
-//            
+//
 //            q = dumpData.getRegister("10.2&01"); //dumpData.getRegister("1-1:5.8.1");
 //            System.out.println(q.toString());
 //            q = dumpData.getRegister("9.2*00"); //dumpData.getRegister("1-1:5.8.1");
 //            System.out.println(q.toString());
         }
         catch(Exception  e) {
-           System.out.println(e.getMessage());   
+           System.out.println(e.getMessage());
         }
-        
-        
+
+
     }
 
     public String getStrFrame() {

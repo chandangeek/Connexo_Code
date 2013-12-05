@@ -1,7 +1,13 @@
 package com.energyict.protocolimpl.utils.communicationdump;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class is a representation of a 'Full debug log file' from the CommServerJ

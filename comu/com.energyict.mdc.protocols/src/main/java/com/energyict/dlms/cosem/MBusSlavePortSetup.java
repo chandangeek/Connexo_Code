@@ -2,9 +2,11 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 
 import java.io.IOException;
 
@@ -42,7 +44,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	/**
-	 * Get the default {@link com.energyict.obis.ObisCode} of the object
+	 * Get the default {@link ObisCode} of the object
 	 * @return
 	 */
 	public static ObisCode getDefaultObisCode() {

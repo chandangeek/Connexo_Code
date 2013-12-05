@@ -1,12 +1,15 @@
 package com.energyict.protocolimpl.dlms.prime.events;
 
 import com.energyict.dlms.DlmsSession;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Provides functionality to collect the events from the device and return them as a list of {@link com.energyict.protocol.MeterEvent}

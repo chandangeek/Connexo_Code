@@ -1,28 +1,28 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
@@ -573,7 +573,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return protocolChannelMap;
     }
 
-    public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         if (obisCode.getF() != 255) {
             RegisterValue billingPointRegister = doReadRegister(ObisCode.fromString("1.1.0.1.0.255"), false);
             int billingPoint = billingPointRegister.getQuantity().intValue();
@@ -780,7 +780,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
-    private RegisterValue findRegisterValue(com.energyict.obis.ObisCode obisCode) {
+    private RegisterValue findRegisterValue(ObisCode obisCode) {
         if (registerValues == null) {
             registerValues = new ArrayList();
         } else {
@@ -796,7 +796,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
     }
 
 
-    public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
 

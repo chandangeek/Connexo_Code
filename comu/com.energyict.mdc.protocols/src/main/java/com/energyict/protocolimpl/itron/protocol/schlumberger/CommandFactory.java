@@ -10,19 +10,20 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class CommandFactory {
-    
+
     private SchlumbergerProtocol schlumbergerProtocol;
-    
+
     IdentifyCommand identifyCommand=null;
-    
+
     /** Creates a new instance of CommandFactory */
     public CommandFactory(SchlumbergerProtocol schlumbergerProtocol) {
         this.setSchlumbergerProtocol(schlumbergerProtocol);
@@ -49,7 +50,7 @@ public class CommandFactory {
         //}
         return identifyCommand;
     }
-    
+
     public void securityCommand(String securityCode) throws IOException {
         SecurityCommand securityCommand = new SecurityCommand(getSchlumbergerProtocol());
         securityCommand.setSecurityCode(securityCode);
@@ -63,19 +64,19 @@ public class CommandFactory {
         downloadCommand.invoke();
         downloadCommand.setData(data);
         downloadCommand.invoke();
-    }    
-    
+    }
+
     public UploadCommand getUploadCommand(int firstAddress, int lastAddress) throws IOException {
         UploadCommand uploadCommand = new UploadCommand(getSchlumbergerProtocol());
         uploadCommand.setFirstAddress(firstAddress);
         uploadCommand.setLastAddress(lastAddress);
         uploadCommand.invoke();
         return uploadCommand;
-    }    
-    
+    }
+
     public void enqCommand() throws IOException {
         ENQCommand enq = new ENQCommand(getSchlumbergerProtocol());
         enq.invoke();
-    }    
-    
+    }
+
 } // public class CommandFactory

@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.ppm.register;
 
-import java.util.Date;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ppm.MetaRegister;
+
+import java.util.Date;
 
 /** @author Koen, fbo */
 
@@ -26,7 +26,7 @@ public class MainRegister {
 
 	/**
 	 * Getter for property quantity.
-	 * 
+	 *
 	 * @return Value of property quantity.
 	 */
 	public Quantity getQuantity() {
@@ -35,7 +35,7 @@ public class MainRegister {
 
 	/**
 	 * Setter for property quantity.
-	 * 
+	 *
 	 * @param quantity New value of property quantity.
 	 */
 	public void setQuantity(Quantity quantity) {

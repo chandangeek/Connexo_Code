@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -22,8 +21,8 @@ import java.util.*;
  * @author Koen
  */
 public class CurrentStateDataRead extends AbstractDataRead {
-    
-   
+
+
     private int currentDemandResetCount;  // UINT16
     private int currentNonFatalErrors; // UINT8 (see Appendix B)
     private int currentFatalErrors; // UINT8 (see Appendix B)
@@ -43,12 +42,12 @@ public class CurrentStateDataRead extends AbstractDataRead {
     private int currentDiag6Count; // UINT8 only for FW versions 5 and higher otherwise non existing
     private Date currentTimeDate; // UINT32 (in seconds since 00:00:00 01/01/2000)
     private int currentSeason; // UINT8 (see Appendix B)
-    
+
     /** Creates a new instance of ConstantsDataRead */
     public CurrentStateDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -73,13 +72,13 @@ public class CurrentStateDataRead extends AbstractDataRead {
         strBuff.append("   currentTimeDate="+getCurrentTimeDate()+"\n");
         strBuff.append("   currentTimesProgrammedCount="+getCurrentTimesProgrammedCount()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
-        
+
         int offset=0;
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setCurrentDemandResetCount(C12ParseUtils.getInt(data,offset,2, dataOrder));
         offset+=2;
         setCurrentNonFatalErrors(C12ParseUtils.getInt(data,offset++));
@@ -98,22 +97,22 @@ public class CurrentStateDataRead extends AbstractDataRead {
         setCurrentEarlyPowerFailCount(C12ParseUtils.getInt(data,offset,2, dataOrder));
         offset+=2;
         setCurrentNonFatalErrors2(C12ParseUtils.getInt(data,offset++));
-        
+
         if (getDataReadFactory().getConstantsDataRead().getFirmwareVersionRevision() >= 5) {
             setCurrentDiag6Count(C12ParseUtils.getInt(data,offset++));
         }
-        
+
         setCurrentTimeDate(Utils.parseTimeStamp(C12ParseUtils.getLong(data,offset,4, dataOrder), getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getTimeZone()));
         offset+=4;
-        
+
         setCurrentSeason(C12ParseUtils.getInt(data,offset++));
-        
+
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         long[] lids=null;
-        
+
         if (getDataReadFactory().getConstantsDataRead().getFirmwareVersionRevision() >= 5) {
             lids = new long[]{LogicalIDFactory.findLogicalId("DEMAND_RESET_COUNT").getId(),
                                      LogicalIDFactory.findLogicalId("ALL_STATE_DATA_3").getId(),
@@ -126,9 +125,9 @@ public class CurrentStateDataRead extends AbstractDataRead {
                                      LogicalIDFactory.findLogicalId("CURRENT_TIME_DATE").getId(),
                                      LogicalIDFactory.findLogicalId("CURRENT_SEASON").getId()};
         }
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x04, lids));    
-        
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x04, lids));
+
     } // protected void prepareBuild() throws IOException
 
     public int getCurrentDemandResetCount() {
@@ -282,5 +281,5 @@ public class CurrentStateDataRead extends AbstractDataRead {
     public void setCurrentSeason(int currentSeason) {
         this.currentSeason = currentSeason;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

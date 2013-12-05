@@ -1,31 +1,31 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
+
+import com.energyict.protocol.ProtocolUtils;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.energyict.protocol.ProtocolUtils;
-
 
 /**
  * Contains the time and date values for the Countis Ci protocol
- * 
+ *
  * @author gna
  * @since 10-dec-2009
  *
  */
 public class DateTime {
 
-	
+
 	private static int seconds;
 	private static int minutes;
 	private static int day;
 	private static int year;
 	private static int hour;
 	private static int month;
-	
+
 	private static int dayIndex = 0;
 	private static int monthIndex = 1;
 	private static int yearIndex = 2;
@@ -34,7 +34,7 @@ public class DateTime {
 	private static int secIndex = 5;
 
 	private Calendar meterCalendar;
-	
+
 	/**
 	 * Private constructor
 	 * @param cal
@@ -42,10 +42,10 @@ public class DateTime {
 	private DateTime(Calendar cal) {
 		this.meterCalendar = cal;
 	}
-	
+
 	/**
 	 * Getter for the meterCalendar
-	 * 
+	 *
 	 * @return the metercalendar
 	 */
 	protected Calendar getMeterCalender(){
@@ -60,7 +60,7 @@ public class DateTime {
 		if(values.length != 6){
 			throw new IllegalArgumentException("The dateTime did not contain 6 digits but " + values.length);
 		}
-		
+
 		day = values[dayIndex];
 		month = values[monthIndex];
 		year = values[yearIndex] + 2000;
@@ -73,7 +73,7 @@ public class DateTime {
 	/**
 	 * The DateTime object is created.
 	 * <b>GMT TimeZone is used because the meter has no knowledge of Timezones</b>
-	 * 
+	 *
 	 * @return the DateTimeObject
 	 */
 	private static DateTime createDateTime(){
@@ -105,5 +105,5 @@ public class DateTime {
 		dateArray[11] = (byte) gmtCal.get(Calendar.SECOND);
 		return dateArray;
 	}
-	
+
 }

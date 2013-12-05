@@ -1,17 +1,19 @@
 /**
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,17 +24,17 @@ import java.util.Date;
  *
  */
 public class MbusObisCodeMapper {
-	
+
 	CosemObjectFactory cof = new CosemObjectFactory(null);
 	private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection", "UNKNOWN state"};
-	
+
 	public MbusObisCodeMapper(CosemObjectFactory cosemObjectFactory) {
 		cof = cosemObjectFactory;
 	}
 
 	public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		RegisterValue rv = null;
-		
+
     	//Mbus related ObisRegisters
     	if ((obisCode.getA() == 0) && (obisCode.getC() == 24) ){
     		if((obisCode.getD() == 2) && ((obisCode.getE() >= 0) && (obisCode.getE() <= 4))){

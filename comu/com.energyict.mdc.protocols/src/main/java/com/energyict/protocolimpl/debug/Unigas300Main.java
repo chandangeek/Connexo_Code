@@ -2,10 +2,12 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.*;
+import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMapping;
+import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMappingFactory;
+import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.Unigas300;
 
 import java.io.IOException;
 import java.util.List;

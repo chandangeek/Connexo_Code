@@ -6,18 +6,18 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
  */
 public class Counters extends MeterReadingsBlockImpl {
-    
+
 	private Date meterDateTime;
 	private int encryptedLoadSurveyAttempts;
 	private int nonEncryptedLoadSurveyAttempts;
@@ -37,19 +37,19 @@ public class Counters extends MeterReadingsBlockImpl {
 	private int minutesOffPowerSinceManuf;
 	private int cumulativeTransactions;
 	private int cumulativeTransactionsAtLastBillingPoint;
-    
+
 	private int mask;
-    
+
     /** Creates a new instance of Counters */
     public Counters(byte[] data, TimeZone timeZone) {
         super(data,timeZone);
     }
-    
+
     protected void parse() throws IOException {
         int type = ProtocolUtils.byte2int(getData()[1]);
-        
+
         if (type == 0) {
-            setMeterDateTime(PactUtils.getCalendar2(ProtocolUtils.getIntLE(getData(),2,3),ProtocolUtils.getIntLE(getData(),5,3),getTimeZone()).getTime()); 
+            setMeterDateTime(PactUtils.getCalendar2(ProtocolUtils.getIntLE(getData(),2,3),ProtocolUtils.getIntLE(getData(),5,3),getTimeZone()).getTime());
         }
         else if (type == 1) {
             setEncryptedLoadSurveyAttempts(ProtocolUtils.getIntLE(getData(),2,3));
@@ -75,7 +75,7 @@ public class Counters extends MeterReadingsBlockImpl {
             setSuccessTimeSet(ProtocolUtils.getIntLE(getData(),2,3));
         }
         else if (type == 7) {
-            setBillingActionsFromAllSources(ProtocolUtils.getIntLE(getData(),2,3));            
+            setBillingActionsFromAllSources(ProtocolUtils.getIntLE(getData(),2,3));
         }
         else if (type == 8) {
             setHoursOnOverCurrent(ProtocolUtils.getIntLE(getData(),2,3));
@@ -94,15 +94,15 @@ public class Counters extends MeterReadingsBlockImpl {
         }
         mask |= (0x01 << type);
     } // parse()
-    
+
     public int getBillingResetCounter() {
         return billingActionsFromAllSources+mDResetsButton+mDResetsComm;
     }
-    
+
     protected String print() {
        StringBuffer strBuff = new StringBuffer();
        boolean pre = false;
-        
+
        if ((mask & 0x0001) == 0x0001) {
            strBuff.append("Meter Date="+getMeterDateTime());
            pre = true;
@@ -177,10 +177,10 @@ public class Counters extends MeterReadingsBlockImpl {
            strBuff.append("Cumulative transactions="+getCumulativeTransactions()+", Cumulative transactions at last billing point="+getCumulativeTransactionsAtLastBillingPoint());
            pre = true;
        }
-       
+
        return strBuff.toString();
     }
-    
+
     /** Getter for property meterDateTime.
      * @return Value of property meterDateTime.
      *
@@ -188,7 +188,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public java.util.Date getMeterDateTime() {
         return meterDateTime;
     }
-    
+
     /** Setter for property meterDateTime.
      * @param meterDateTime New value of property meterDateTime.
      *
@@ -196,7 +196,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setMeterDateTime(java.util.Date meterDateTime) {
         this.meterDateTime = meterDateTime;
     }
-    
+
     /** Getter for property encryptedLoadSurveyAttempts.
      * @return Value of property encryptedLoadSurveyAttempts.
      *
@@ -204,7 +204,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getEncryptedLoadSurveyAttempts() {
         return encryptedLoadSurveyAttempts;
     }
-    
+
     /** Setter for property encryptedLoadSurveyAttempts.
      * @param encryptedLoadSurveyAttempts New value of property encryptedLoadSurveyAttempts.
      *
@@ -212,7 +212,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setEncryptedLoadSurveyAttempts(int encryptedLoadSurveyAttempts) {
         this.encryptedLoadSurveyAttempts = encryptedLoadSurveyAttempts;
     }
-    
+
     /** Getter for property nonEncryptedLoadSurveyAttempts.
      * @return Value of property nonEncryptedLoadSurveyAttempts.
      *
@@ -220,7 +220,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getNonEncryptedLoadSurveyAttempts() {
         return nonEncryptedLoadSurveyAttempts;
     }
-    
+
     /** Setter for property nonEncryptedLoadSurveyAttempts.
      * @param nonEncryptedLoadSurveyAttempts New value of property nonEncryptedLoadSurveyAttempts.
      *
@@ -228,7 +228,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setNonEncryptedLoadSurveyAttempts(int nonEncryptedLoadSurveyAttempts) {
         this.nonEncryptedLoadSurveyAttempts = nonEncryptedLoadSurveyAttempts;
     }
-    
+
     /** Getter for property mDResetsComm.
      * @return Value of property mDResetsComm.
      *
@@ -236,7 +236,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getMDResetsComm() {
         return mDResetsComm;
     }
-    
+
     /** Setter for property mDResetsComm.
      * @param mDResetsComm New value of property mDResetsComm.
      *
@@ -244,7 +244,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setMDResetsComm(int mDResetsComm) {
         this.mDResetsComm = mDResetsComm;
     }
-    
+
     /** Getter for property mDResetsButton.
      * @return Value of property mDResetsButton.
      *
@@ -252,7 +252,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getMDResetsButton() {
         return mDResetsButton;
     }
-    
+
     /** Setter for property mDResetsButton.
      * @param mDResetsButton New value of property mDResetsButton.
      *
@@ -260,7 +260,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setMDResetsButton(int mDResetsButton) {
         this.mDResetsButton = mDResetsButton;
     }
-    
+
     /** Getter for property hoursOnPower.
      * @return Value of property hoursOnPower.
      *
@@ -268,7 +268,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getHoursOnPower() {
         return hoursOnPower;
     }
-    
+
     /** Setter for property hoursOnPower.
      * @param hoursOnPower New value of property hoursOnPower.
      *
@@ -276,7 +276,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setHoursOnPower(int hoursOnPower) {
         this.hoursOnPower = hoursOnPower;
     }
-    
+
     /** Getter for property hoursOffPower.
      * @return Value of property hoursOffPower.
      *
@@ -284,7 +284,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getHoursOffPower() {
         return hoursOffPower;
     }
-    
+
     /** Setter for property hoursOffPower.
      * @param hoursOffPower New value of property hoursOffPower.
      *
@@ -292,7 +292,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setHoursOffPower(int hoursOffPower) {
         this.hoursOffPower = hoursOffPower;
     }
-    
+
     /** Getter for property readsOnPrioPort.
      * @return Value of property readsOnPrioPort.
      *
@@ -300,7 +300,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getReadsOnPrioPort() {
         return readsOnPrioPort;
     }
-    
+
     /** Setter for property readsOnPrioPort.
      * @param readsOnPrioPort New value of property readsOnPrioPort.
      *
@@ -308,7 +308,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setReadsOnPrioPort(int readsOnPrioPort) {
         this.readsOnPrioPort = readsOnPrioPort;
     }
-    
+
     /** Getter for property readsOnNonPrioPort.
      * @return Value of property readsOnNonPrioPort.
      *
@@ -316,7 +316,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getReadsOnNonPrioPort() {
         return readsOnNonPrioPort;
     }
-    
+
     /** Setter for property readsOnNonPrioPort.
      * @param readsOnNonPrioPort New value of property readsOnNonPrioPort.
      *
@@ -324,7 +324,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setReadsOnNonPrioPort(int readsOnNonPrioPort) {
         this.readsOnNonPrioPort = readsOnNonPrioPort;
     }
-    
+
     /** Getter for property successTariffDownLoads.
      * @return Value of property successTariffDownLoads.
      *
@@ -332,7 +332,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getSuccessTariffDownLoads() {
         return successTariffDownLoads;
     }
-    
+
     /** Setter for property successTariffDownLoads.
      * @param successTariffDownLoads New value of property successTariffDownLoads.
      *
@@ -340,7 +340,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setSuccessTariffDownLoads(int successTariffDownLoads) {
         this.successTariffDownLoads = successTariffDownLoads;
     }
-    
+
     /** Getter for property failedPasswordClearAttempts.
      * @return Value of property failedPasswordClearAttempts.
      *
@@ -348,7 +348,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getFailedPasswordClearAttempts() {
         return failedPasswordClearAttempts;
     }
-    
+
     /** Setter for property failedPasswordClearAttempts.
      * @param failedPasswordClearAttempts New value of property failedPasswordClearAttempts.
      *
@@ -356,7 +356,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setFailedPasswordClearAttempts(int failedPasswordClearAttempts) {
         this.failedPasswordClearAttempts = failedPasswordClearAttempts;
     }
-    
+
     /** Getter for property successTimeSet.
      * @return Value of property successTimeSet.
      *
@@ -364,7 +364,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getSuccessTimeSet() {
         return successTimeSet;
     }
-    
+
     /** Setter for property successTimeSet.
      * @param successTimeSet New value of property successTimeSet.
      *
@@ -372,7 +372,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setSuccessTimeSet(int successTimeSet) {
         this.successTimeSet = successTimeSet;
     }
-    
+
     /** Getter for property billingActionsFromAllSources.
      * @return Value of property billingActionsFromAllSources.
      *
@@ -380,7 +380,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getBillingActionsFromAllSources() {
         return billingActionsFromAllSources;
     }
-    
+
     /** Setter for property billingActionsFromAllSources.
      * @param billingActionsFromAllSources New value of property billingActionsFromAllSources.
      *
@@ -388,7 +388,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setBillingActionsFromAllSources(int billingActionsFromAllSources) {
         this.billingActionsFromAllSources = billingActionsFromAllSources;
     }
-    
+
     /** Getter for property hoursOnOverCurrent.
      * @return Value of property hoursOnOverCurrent.
      *
@@ -396,7 +396,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getHoursOnOverCurrent() {
         return hoursOnOverCurrent;
     }
-    
+
     /** Setter for property hoursOnOverCurrent.
      * @param hoursOnOverCurrent New value of property hoursOnOverCurrent.
      *
@@ -404,7 +404,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setHoursOnOverCurrent(int hoursOnOverCurrent) {
         this.hoursOnOverCurrent = hoursOnOverCurrent;
     }
-    
+
     /** Getter for property hoursOnImbalance.
      * @return Value of property hoursOnImbalance.
      *
@@ -412,7 +412,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getHoursOnImbalance() {
         return hoursOnImbalance;
     }
-    
+
     /** Setter for property hoursOnImbalance.
      * @param hoursOnImbalance New value of property hoursOnImbalance.
      *
@@ -420,7 +420,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setHoursOnImbalance(int hoursOnImbalance) {
         this.hoursOnImbalance = hoursOnImbalance;
     }
-    
+
     /** Getter for property minutesOnPowerSinceManuf.
      * @return Value of property minutesOnPowerSinceManuf.
      *
@@ -428,7 +428,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getMinutesOnPowerSinceManuf() {
         return minutesOnPowerSinceManuf;
     }
-    
+
     /** Setter for property minutesOnPowerSinceManuf.
      * @param minutesOnPowerSinceManuf New value of property minutesOnPowerSinceManuf.
      *
@@ -436,7 +436,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setMinutesOnPowerSinceManuf(int minutesOnPowerSinceManuf) {
         this.minutesOnPowerSinceManuf = minutesOnPowerSinceManuf;
     }
-    
+
     /** Getter for property minutesOffPowerSinceManuf.
      * @return Value of property minutesOffPowerSinceManuf.
      *
@@ -444,7 +444,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getMinutesOffPowerSinceManuf() {
         return minutesOffPowerSinceManuf;
     }
-    
+
     /** Setter for property minutesOffPowerSinceManuf.
      * @param minutesOffPowerSinceManuf New value of property minutesOffPowerSinceManuf.
      *
@@ -452,7 +452,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setMinutesOffPowerSinceManuf(int minutesOffPowerSinceManuf) {
         this.minutesOffPowerSinceManuf = minutesOffPowerSinceManuf;
     }
-    
+
     /** Getter for property cumulativeTransactions.
      * @return Value of property cumulativeTransactions.
      *
@@ -460,7 +460,7 @@ public class Counters extends MeterReadingsBlockImpl {
     public int getCumulativeTransactions() {
         return cumulativeTransactions;
     }
-    
+
     /** Setter for property cumulativeTransactions.
      * @param cumulativeTransactions New value of property cumulativeTransactions.
      *
@@ -468,14 +468,14 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setCumulativeTransactions(int cumulativeTransactions) {
         this.cumulativeTransactions = cumulativeTransactions;
     }
-    
+
     /** Getter for property cumulativeTransactionsAtLastBillingPoint.
      * @return Value of property cumulativeTransactionsAtLastBillingPoint.
      *
      */
     public int getCumulativeTransactionsAtLastBillingPoint() {
         return cumulativeTransactionsAtLastBillingPoint;
-    }    
+    }
 
     /** Setter for property cumulativeTransactionsAtLastBillingPoint.
      * @param cumulativeTransactionsAtLastBillingPoint New value of property cumulativeTransactionsAtLastBillingPoint.
@@ -484,5 +484,5 @@ public class Counters extends MeterReadingsBlockImpl {
     public void setCumulativeTransactionsAtLastBillingPoint(int cumulativeTransactionsAtLastBillingPoint) {
         this.cumulativeTransactionsAtLastBillingPoint = cumulativeTransactionsAtLastBillingPoint;
     }
-    
+
 }

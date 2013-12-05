@@ -10,32 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadList {
-    
+
     private int listStatusBitfield; // 8 bit
     private int nrOfValidEntries; // 8 bit
     private int lastEntryElement; // 8 bit
     private int lastEntrySeqNr; // 16 bit
     private int nrOfUnrteadEntries; // 8
     private SelfReadData[] selfReadEntries;
-    
-    
+
+
     /** Creates a new instance of SelfReadList */
     public SelfReadList(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setListStatusBitfield(C12ParseUtils.getInt(data,offset));
         offset++;
         setNrOfValidEntries(C12ParseUtils.getInt(data,offset));
@@ -62,16 +60,16 @@ public class SelfReadList {
         strBuff.append("    nrOfUnrteadEntries="+getNrOfUnrteadEntries()+"\n");
         for (int i=0;i<getSelfReadEntries().length;i++)
             strBuff.append("    selfReadEntries["+i+"]="+getSelfReadEntries()[i]+"\n");
-        
+
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 6+art.getNrOfSelfReads()*SelfReadData.getSize(tableFactory);
-    }      
+    }
 
     public int getListStatusBitfield() {
         return listStatusBitfield;

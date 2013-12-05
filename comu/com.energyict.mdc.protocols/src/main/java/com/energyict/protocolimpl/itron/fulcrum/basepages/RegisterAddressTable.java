@@ -10,27 +10,27 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class RegisterAddressTable extends AbstractBasePage {
-    
+
     final int MAX_NR_OF_SELFREAD_REGISTERS=100;
     List selfReadRegisterAddress;
-   
+
     /** Creates a new instance of RegisterAddressTable */
     public RegisterAddressTable(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,12 +39,12 @@ public class RegisterAddressTable extends AbstractBasePage {
             strBuff.append("       selfReadRegisterAddress "+i+" ="+(SelfReadRegisterAddress)getSelfReadRegisterAddress().get(i)+"\n");
         }
         return strBuff.toString();
-    }   
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x25EC, 100*5);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         selfReadRegisterAddress = new ArrayList();
@@ -64,5 +64,5 @@ public class RegisterAddressTable extends AbstractBasePage {
         this.selfReadRegisterAddress = selfReadRegisterAddress;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

@@ -1,5 +1,14 @@
 package com.energyict.protocolimpl.iec1107.ppm.opus;
 
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ppm.Encryption;
+import com.energyict.protocolimpl.iec1107.ppm.PPM;
+import com.energyict.protocolimpl.iec1107.ppm.PPMIOException;
+import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,20 +16,11 @@ import java.io.OutputStream;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppm.Encryption;
-import com.energyict.protocolimpl.iec1107.ppm.PPM;
-import com.energyict.protocolimpl.iec1107.ppm.PPMIOException;
-import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
-
 /**
  * For information regarding Opus protocol, read manufacturer documentation:
  * Protocol for communication between an instation and outstation.
- * 
- * 
+ *
+ *
  * @author fbo
  */
 
@@ -52,7 +52,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * Just a constructor, move along
-	 * 
+	 *
 	 * @param inputStream
 	 * @param outputStream
 	 * @param ppm
@@ -436,7 +436,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at ETX
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public byte[] receive() throws IOException {
@@ -445,7 +445,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at endCtrlChar
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public byte[] receive(CtrlChar endCtrlChar) throws IOException {
@@ -476,7 +476,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, receives single CtrlChar
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public CtrlChar receiveCtrlChar() throws IOException {
@@ -586,7 +586,7 @@ public class OpusConnection extends Connection {
 	 * outstation 7.3 pg 5. But the information in the manufacturer is
 	 * incorrect, the meter does NOT accept hexadecimal character, but only
 	 * decimal characters.
-	 * 
+	 *
 	 * @return next seed
 	 */
 	private String getNextSeed() {

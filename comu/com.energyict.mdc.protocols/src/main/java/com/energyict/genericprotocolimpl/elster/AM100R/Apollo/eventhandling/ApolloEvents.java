@@ -1,8 +1,10 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Straightforward summary fo the available ApolloEvents.

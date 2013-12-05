@@ -10,52 +10,52 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-//import com.energyict.protocolimpl.elster.alphaplus.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.elster.alpha.core.Alpha;
 import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
+
+import java.io.IOException;
+
+//import com.energyict.protocolimpl.elster.alphaplus.*;
 
 /**
  *
  * @author Koen
  */
 public class ClassFactory {
-    
+
     Alpha alpha;
-            
+
     // uncached
     Class9Status1 class9Status1=null; // current time/date is in this class
     Class17LoadProfileData class17LoadProfileData=null;
     Class16EventLogData class16EventLogData=null;
-    
+
     // cached lazy initialized classes
     Class0ComputationalConfiguration class0ComputationalConfiguration=null;
     Class2IdentificationAndDemandData class2IdentificationAndDemandData=null;
     Class6MeteringFunctionBlock class6MeteringFunctionBlock=null;
     Class7MeteringFunctionBlock class7MeteringFunctionBlock=null;
-    Class8FirmwareConfiguration class8FirmwareConfiguration=null;        
+    Class8FirmwareConfiguration class8FirmwareConfiguration=null;
     Class33ModemConfigurationInfo class33ModemConfigurationInfo=null;
-    Class32ModemAlarmCallConfiguration class32ModemAlarmCallConfiguration=null; 
-    Class31ModemBillingCallConfiguration class31ModemBillingCallConfiguration=null; 
-    Class11BillingData class11BillingData=null;        
-    Class12PreviousMonthBillingData class12PreviousMonthBillingData=null;        
-    Class13PreviousSeasonBillingData class13PreviousSeasonBillingData=null;  
+    Class32ModemAlarmCallConfiguration class32ModemAlarmCallConfiguration=null;
+    Class31ModemBillingCallConfiguration class31ModemBillingCallConfiguration=null;
+    Class11BillingData class11BillingData=null;
+    Class12PreviousMonthBillingData class12PreviousMonthBillingData=null;
+    Class13PreviousSeasonBillingData class13PreviousSeasonBillingData=null;
     Class14LoadProfileConfiguration class14LoadProfileConfiguration=null;
     Class10Status2 class10Status2=null;
     Class15EventLogConfiguration class15EventLogConfiguration=null;
-    
-    
+
+
     /** Creates a new instance of ClassFactory */
     public ClassFactory(Alpha alpha) {
         this.alpha=alpha;
     }
-    
+
     public CommandFactory getCommandFactory() {
         return alpha.getCommandFactory();
     }
-    
+
     public Alpha getAlpha() {
         return alpha;
     }
@@ -67,7 +67,7 @@ public class ClassFactory {
         class9Status1.build();
         return class9Status1;
     }
-    
+
     public Class17LoadProfileData getClass17LoadProfileData(int nrOfDays) throws IOException {
         //getAlphaPlus().getCommandFactory().getFunctionWithDataCommand().PacketSize(4);
         Class17LoadProfileData class17LoadProfileData = new Class17LoadProfileData(this);
@@ -75,16 +75,16 @@ public class ClassFactory {
         class17LoadProfileData.build();
         return class17LoadProfileData;
     }
-    
+
     public Class16EventLogData getClass16EventLogData() throws IOException {
         Class16EventLogData class16EventLogData = new Class16EventLogData(this);
         class16EventLogData.build();
         return class16EventLogData;
     }
-    
+
     // **************************************************************************************************
     // cached lazy initialized classes
-    
+
     public Class32ModemAlarmCallConfiguration getClass32ModemAlarmCallConfiguration() throws IOException {
         if (class32ModemAlarmCallConfiguration == null) {
             class32ModemAlarmCallConfiguration = new Class32ModemAlarmCallConfiguration(this);
@@ -92,7 +92,7 @@ public class ClassFactory {
         }
         return class32ModemAlarmCallConfiguration;
     }
-    
+
     public Class31ModemBillingCallConfiguration getClass31ModemBillingCallConfiguration() throws IOException {
         if (class31ModemBillingCallConfiguration == null) {
             class31ModemBillingCallConfiguration = new Class31ModemBillingCallConfiguration(this);
@@ -100,7 +100,7 @@ public class ClassFactory {
         }
         return class31ModemBillingCallConfiguration;
     }
-    
+
     public Class0ComputationalConfiguration getClass0ComputationalConfiguration() throws IOException {
         if (class0ComputationalConfiguration == null) {
             class0ComputationalConfiguration = new Class0ComputationalConfiguration(this);
@@ -108,7 +108,7 @@ public class ClassFactory {
         }
         return class0ComputationalConfiguration;
     }
-    
+
     public Class2IdentificationAndDemandData getClass2IdentificationAndDemandData() throws IOException {
         if (class2IdentificationAndDemandData == null) {
             class2IdentificationAndDemandData = new Class2IdentificationAndDemandData(this);
@@ -116,7 +116,7 @@ public class ClassFactory {
         }
         return class2IdentificationAndDemandData;
     }
-    
+
     public Class6MeteringFunctionBlock getClass6MeteringFunctionBlock() throws IOException {
         if (class6MeteringFunctionBlock == null) {
             class6MeteringFunctionBlock = new Class6MeteringFunctionBlock(this);
@@ -124,14 +124,14 @@ public class ClassFactory {
         }
         return class6MeteringFunctionBlock;
     }
-    
+
     public long getSerialNumber() throws IOException {
         class7MeteringFunctionBlock = new Class7MeteringFunctionBlock(this);
         class7MeteringFunctionBlock.discoverSerialNumber();
         class7MeteringFunctionBlock.build();
         return class7MeteringFunctionBlock.getXMTRSN();
     }
-    
+
     public Class7MeteringFunctionBlock getClass7MeteringFunctionBlock() throws IOException {
         if (class7MeteringFunctionBlock == null) {
             class7MeteringFunctionBlock = new Class7MeteringFunctionBlock(this);
@@ -139,7 +139,7 @@ public class ClassFactory {
         }
         return class7MeteringFunctionBlock;
     }
-    
+
     public Class8FirmwareConfiguration getClass8FirmwareConfiguration() throws IOException {
         if (class8FirmwareConfiguration == null) {
             class8FirmwareConfiguration = new Class8FirmwareConfiguration(this);
@@ -147,7 +147,7 @@ public class ClassFactory {
         }
         return class8FirmwareConfiguration;
     }
-    
+
     public Class33ModemConfigurationInfo getClass33ModemConfigurationInfo() throws IOException {
         if (class33ModemConfigurationInfo == null) {
             class33ModemConfigurationInfo = new Class33ModemConfigurationInfo(this);
@@ -190,7 +190,7 @@ public class ClassFactory {
         }
         return class10Status2;
     }
-    
+
     public Class15EventLogConfiguration getClass15EventLogConfiguration() throws IOException {
         if (class15EventLogConfiguration == null) {
             class15EventLogConfiguration = new Class15EventLogConfiguration(this);

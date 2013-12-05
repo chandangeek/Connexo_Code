@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
@@ -25,18 +25,18 @@ import java.util.List;
  * @author  Koen
  */
 public class Metcom3FAF extends Metcom3 {
-    
+
     private static final int DEBUG = 0;
     //protected final String[] REG_NR_OF_CHANNELS8={"62300","63300"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     //protected final String[] REG_NR_OF_CHANNELS16={"62308","63308"}; Can be used but i prefer the channelmap entry for nr of channels with the buffer id
     protected final String REG_PROFILEINTERVAL="70300";
     protected final String DIGITS_PER_VALUE="82001";
-    
-    
+
+
     /** Creates a new instance of Metcom3FAF */
     public Metcom3FAF() {
     }
-    
+
     protected BufferStructure getBufferStructure(int bufferNr) throws IOException, UnsupportedException, NoSuchRegisterException {
         //BufferStructure bs = new BufferStructure(getNumberOfChannels(),getNrOfDecades(),getProfileInterval());
         BufferStructure bs=null;
@@ -57,7 +57,7 @@ public class Metcom3FAF extends Metcom3 {
             bs = new BufferStructure(nrOfChannels,digitsPerValue,profileInterval);
         }
         else throw new IOException("Metcom3FAF, invalid MeterClass property ("+getStrMeterClass()+")");
-        
+
         // Nr of channels can be found with
         //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS8[0]).trim()));
         //System.out.println("KV_DEBUG> "+Integer.parseInt(getRegister(REG_NR_OF_CHANNELS16[0]).trim()));
@@ -66,7 +66,7 @@ public class Metcom3FAF extends Metcom3 {
         //System.out.println("KV_DEBUG> "+bs);
         return bs;
     }
-    
+
     public String getDefaultChannelMap() {
         return "4";
     }

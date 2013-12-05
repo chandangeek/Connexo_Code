@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EnergyRegisterValue {
-    
+
     private QuantityId qid; // QUANTITY_ID,
     private double totalReg; // DOUBLE,
-    
+
     /** Creates a new instance of EnergyRegisterValue */
     public EnergyRegisterValue(byte[] data,int offset) throws IOException {
         setQid(QuantityFactory.findQuantityId(ProtocolUtils.getInt(data,offset, 2)));
@@ -30,7 +30,7 @@ public class EnergyRegisterValue {
         setTotalReg(Double.longBitsToDouble(ProtocolUtils.getLong(data,offset)));
         offset+=4;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,7 +39,7 @@ public class EnergyRegisterValue {
         strBuff.append("   totalReg="+getTotalReg()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 10;
     }
@@ -59,7 +59,7 @@ public class EnergyRegisterValue {
     public void setTotalReg(double totalReg) {
         this.totalReg = totalReg;
     }
-    
 
-    
+
+
 }

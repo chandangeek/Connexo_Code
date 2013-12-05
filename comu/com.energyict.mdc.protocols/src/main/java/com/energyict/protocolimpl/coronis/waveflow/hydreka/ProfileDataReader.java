@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.io.IOException;
 import java.util.Date;

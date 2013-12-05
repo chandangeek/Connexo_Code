@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;

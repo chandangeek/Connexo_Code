@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
+
+import java.io.IOException;
 
 /**
  * This class is used to change the valve state of an G-Meter connected to the AS220 device

@@ -10,21 +10,19 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Readings {
-    
+
     private Number blockEndRead;
     private long blockEndPulse;
-    
+
     /** Creates a new instance of Readings */
     public Readings(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -40,13 +38,13 @@ public class Readings {
             offset+=4;
         }
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Readings: blockEndRead="+getBlockEndRead()+", blockEndPulse="+getBlockEndPulse()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
@@ -56,7 +54,7 @@ public class Readings {
         if (alpt.getLoadProfileSet().isBlockEndPulseFlag())
             size+=4;
         return size;
-    }      
+    }
 
     public Number getBlockEndRead() {
         return blockEndRead;

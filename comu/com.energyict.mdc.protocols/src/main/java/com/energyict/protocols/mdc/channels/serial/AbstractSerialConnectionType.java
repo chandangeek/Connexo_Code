@@ -1,22 +1,24 @@
 package com.energyict.protocols.mdc.channels.serial;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.dynamicattributes.StringFactory;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.protocol.ComPortType;
+import com.energyict.mdc.protocol.SerialConnectionPropertyNames;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.BigDecimalFactory;
+import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.impl.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +42,12 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        this.ensurePropertySpecsInitialized();
+        propertySpecs.addAll(this.propertySpecs.values());
+    }
+
+    @Override
     public PropertySpec getPropertySpec(String name) {
         this.ensurePropertySpecsInitialized();
         return this.propertySpecs.get(name);
@@ -47,7 +55,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
     private void ensurePropertySpecsInitialized () {
         if (this.propertySpecs == null) {
-            Map<String, PropertySpec> temp = new HashMap<String, PropertySpec>();
+            Map<String, PropertySpec> temp = new HashMap<>();
             this.initializePropertySpecs(temp);
             this.propertySpecs = temp;
         }
@@ -61,53 +69,79 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         propertySpecs.put(SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControlPropertySpec());
     }
 
-    protected PropertySpec<String> flowControlPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(String.class, new StringFactory()).
-                name(SerialPortConfiguration.FLOW_CONTROL_NAME).
-                markExhaustive().
-                setDefaultValue(FlowControl.NONE.getFlowControl()).
-                addValues(FlowControl.getTypedValues()).
-                finish();
+    protected abstract PropertySpec<String> flowControlPropertySpec();
+
+    protected final PropertySpec<String> flowControlPropertySpec(boolean required) {
+        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(String.class, new StringFactory());
+        builder.
+            name(SerialPortConfiguration.FLOW_CONTROL_NAME).
+            markExhaustive().
+            setDefaultValue(FlowControl.NONE.getFlowControl()).
+            addValues(FlowControl.getTypedValues());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
-    protected PropertySpec<BigDecimal> nrOfDataBitsPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
-                name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
-                markExhaustive().
-                setDefaultValue(NrOfDataBits.EIGHT.getNrOfDataBits()).
-                addValues(NrOfDataBits.getTypedValues()).finish();
+    protected abstract PropertySpec<BigDecimal> nrOfDataBitsPropertySpec();
+
+    protected final PropertySpec<BigDecimal> nrOfDataBitsPropertySpec(boolean required) {
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        builder.
+            name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
+            markExhaustive().
+            setDefaultValue(NrOfDataBits.EIGHT.getNrOfDataBits()).
+            addValues(NrOfDataBits.getTypedValues());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
-    protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
-                name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
-                markExhaustive().
-                setDefaultValue(NrOfStopBits.ONE.getNrOfStopBits()).
-                addValues(NrOfStopBits.getTypedValues()).
-                finish();
+    protected abstract PropertySpec<BigDecimal> nrOfStopBitsPropertySpec();
+
+    protected final PropertySpec<BigDecimal> nrOfStopBitsPropertySpec(boolean required) {
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        builder.
+            name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
+            markExhaustive().
+            setDefaultValue(NrOfStopBits.ONE.getNrOfStopBits()).
+            addValues(NrOfStopBits.getTypedValues());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
-    protected PropertySpec<String> parityPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(String.class, new StringFactory()).
-                name(SerialPortConfiguration.PARITY_NAME).
-                markExhaustive().
-                setDefaultValue(Parities.NONE.getParity()).
-                addValues(Parities.getTypedValues()).
-                finish();
+    protected abstract PropertySpec<String> parityPropertySpec();
+
+    protected final PropertySpec<String> parityPropertySpec(boolean required) {
+        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(String.class, new StringFactory());
+        builder.
+            name(SerialPortConfiguration.PARITY_NAME).
+            markExhaustive().
+            setDefaultValue(Parities.NONE.getParity()).
+            addValues(Parities.getTypedValues());
+        if (required) {
+            builder.markRequired();
+        }
+        return  builder.finish();
     }
 
-    protected PropertySpec<BigDecimal> baudRatePropertySpec() {
-        return PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
-                name(SerialPortConfiguration.BAUDRATE_NAME).
-                markExhaustive().
-                setDefaultValue(BaudrateValue.BAUDRATE_57600.getBaudrate()).
-                addValues(BaudrateValue.getTypedValues()).
-                finish();
+    protected abstract PropertySpec<BigDecimal> baudRatePropertySpec();
+
+    protected final PropertySpec<BigDecimal> baudRatePropertySpec(boolean required) {
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        builder.
+            name(SerialPortConfiguration.BAUDRATE_NAME).
+            markExhaustive().
+            setDefaultValue(BaudrateValue.BAUDRATE_57600.getBaudrate()).
+            addValues(BaudrateValue.getTypedValues());
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
     protected Parities getParityValue() {
@@ -146,8 +180,13 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         }
     }
 
+    public String getComPortNameValue () {
+        return (String) this.getProperty(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME);
+    }
+
     @Override
     public Set<ComPortType> getSupportedComPortTypes() {
         return EnumSet.of(ComPortType.SERIAL);
     }
+
 }

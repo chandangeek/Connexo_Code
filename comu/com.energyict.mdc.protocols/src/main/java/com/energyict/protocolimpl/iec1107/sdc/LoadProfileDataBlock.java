@@ -6,28 +6,27 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author  Koen
  */
 public class LoadProfileDataBlock {
-    
+
     int profileInterval;
     Date firstStartingDate;
-    List loadProfileEntries; // of type LoadProfileEntry 
-    
+    List loadProfileEntries; // of type LoadProfileEntry
+
     /** Creates a new instance of LoadProfileDataBlock */
     public LoadProfileDataBlock(Date firstStartingDate, List loadProfileEntries, int profileInterval) {
         this.firstStartingDate=firstStartingDate;
         this.loadProfileEntries=loadProfileEntries;
         this.profileInterval=profileInterval;
     }
-    
+
     /**
      * Getter for property firstStartingDate.
      * @return Value of property firstStartingDate.
@@ -35,11 +34,11 @@ public class LoadProfileDataBlock {
     public java.util.Date getFirstStartingDate() {
         return firstStartingDate;
     }
-    
+
     public java.util.Date getFirstIntervalEndDate() {
         return new Date(firstStartingDate.getTime()+getProfileInterval()*3600000L);
     }
-    
+
     /**
      * Getter for property loadProfileEntries.
      * @return Value of property loadProfileEntries.
@@ -47,7 +46,7 @@ public class LoadProfileDataBlock {
     public java.util.List getLoadProfileEntries() {
         return loadProfileEntries;
     }
-    
+
     public String toString() {
         int count=0;
         long firstIntervalEndTimeStamp = firstStartingDate.getTime() + (getProfileInterval()*1000);
@@ -62,9 +61,9 @@ public class LoadProfileDataBlock {
         }
         return strBuff.toString();
     }
- 
-    
-    
+
+
+
     /**
      * Getter for property profileInterval.
      * @return Value of property profileInterval.
@@ -72,7 +71,7 @@ public class LoadProfileDataBlock {
     public int getProfileInterval() {
         return profileInterval;
     }
-    
+
     //public int
-    
+
 }

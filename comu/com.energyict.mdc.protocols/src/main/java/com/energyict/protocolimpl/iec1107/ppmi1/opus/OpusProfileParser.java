@@ -1,15 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
@@ -17,6 +9,14 @@ import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /** @author fbo */
 
@@ -217,13 +217,13 @@ public class OpusProfileParser {
 		 * Finally, the D.mned thing works ... Let me explain how: The length of
 		 * a reading varies as needed, so it can be 123, 1234, 12345, you get
 		 * the picture.
-		 * 
+		 *
 		 * The maximum length for a value is 5 digits. But it can also have a
 		 * status byte. So the maximum length for a demand value is 6 digits.
-		 * 
+		 *
 		 * If the length is shorter than 6, it does not have a status.
-		 * 
-		 * 
+		 *
+		 *
 		 */
 		void addReading(byte[] reading) throws IOException {
 
@@ -253,7 +253,7 @@ public class OpusProfileParser {
 
 		/**
 		 * A demand value is powerdown when it has a '999999' value ( so 6 9's )
-		 * 
+		 *
 		 * @return true if demand value is powerdown (999999)
 		 */
 		boolean isPowerDown() {
@@ -276,7 +276,7 @@ public class OpusProfileParser {
 
 		/**
 		 * A demand value is blank when it has a '?' value ( so 1 ? )
-		 * 
+		 *
 		 * @return true if demand value blank
 		 */
 		boolean isBlank() {

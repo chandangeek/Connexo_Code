@@ -1,9 +1,9 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.mdc.common.TimeDuration;
 
 public final class AXDRTimeDuration {
 

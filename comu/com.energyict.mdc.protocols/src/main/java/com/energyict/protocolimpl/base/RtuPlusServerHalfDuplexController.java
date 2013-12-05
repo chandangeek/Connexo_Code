@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.base;
 
-import java.io.IOException;
-
 import com.energyict.dialer.core.HalfDuplexController;
+
+import java.io.IOException;
 
 /**
  * This class is used to replace the default HalfDuplexController, received from

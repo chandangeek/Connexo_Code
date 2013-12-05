@@ -5,17 +5,21 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWRegister;
+import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWRegisterDataParse;
 
 /**
  *
  * @author  jme
  */
 public class MT83Registry extends AbstractVDEWRegistry {
-    
+
 	public static final String SERIAL = "MeterSerialNumber";
 	public static final String SOFTWARE_REVISION = "SoftwareRevisionNumber";
 	public static final String SOFTWARE_DATE = "SoftwareDate";
@@ -30,9 +34,9 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String TIME_AND_DATE_READONLY = "TimeDateReadOnly";
 	public static final String TIME_READONLY = "TimeReadOnly";
 	public static final String DATE_READONLY = "DateReadOnly";
-	
+
 	public static final String BILLING_RESET_COUNTER = "BillingResetCounter";
-	
+
 	public static final String BILLING_DATE_START = "1.0.0.1.2.0";
 	public static final String BILLING_DATE_1 = "1.0.0.1.2.1";
 	public static final String BILLING_DATE_2 = "1.0.0.1.2.2";
@@ -51,12 +55,12 @@ public class MT83Registry extends AbstractVDEWRegistry {
 	public static final String BILLING_DATE_15 = "1.0.0.1.2.15";
 
     public static final String BILLING_RESET_COMMAND = "0.0.5.0.4.0";
-		
+
     /** Creates a new instance of MK10Register */
     public MT83Registry(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink) {
         super(meterExceptionInfo,protocolLink);
     }
-    
+
 	protected void initRegisters() {
 		final byte[] READ1 = FlagIEC1107Connection.READ1;
 		final byte[] READ5 = FlagIEC1107Connection.READ5;
@@ -80,7 +84,7 @@ public class MT83Registry extends AbstractVDEWRegistry {
         registers.put(SOFTWARE_DATE, newReg("0.0.96.1.3.255", STRING, false, null, READ1, null));
         registers.put(DEVICE_TYPE, newReg("0.0.96.1.1.255", STRING, false, null, READ1, null));
 
-        
+
         registers.put(PROFILE_INTERVAL, newReg("1.0.0.8.5.255", INTEGER, false, null, READ1, null));
 
         registers.put(TIME_AND_DATE_STRING, newReg("1.0.0.9.4.255", STRING, false, null, READ1, null));
@@ -89,11 +93,11 @@ public class MT83Registry extends AbstractVDEWRegistry {
 
         registers.put(TIME_READONLY, newReg("1.0.0.9.1.255", TIME_HHMMSS, false, null, READ1, null));
         registers.put(DATE_READONLY, newReg("1.0.0.9.2.255",DATE_YYMMDD, true, null, READ1, WRITE1));
-        
-        
+
+
         registers.put(BILLING_RESET_COUNTER, newReg("1.0.0.1.0.255", INTEGER, false, null, READ1, null));
-        
-        registers.put(BILLING_DATE_1, newReg("1.0.0.1.2.1", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null)); 
+
+        registers.put(BILLING_DATE_1, newReg("1.0.0.1.2.1", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
         registers.put(BILLING_DATE_2, newReg("1.0.0.1.2.2", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
         registers.put(BILLING_DATE_3, newReg("1.0.0.1.2.3", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
         registers.put(BILLING_DATE_4, newReg("1.0.0.1.2.4", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
@@ -113,15 +117,15 @@ public class MT83Registry extends AbstractVDEWRegistry {
         registers.put(BILLING_RESET_COMMAND, newReg("0.0.5.0.4.0", STRING, VDEWRegister.NOT_CACHED, true, Unit.getUndefined(), null, COMMAND));
         registers.put(LAST_CONFIG_CHANGE_DATE, newReg("0.0.C.2.1", DATETIME_NOSEC, VDEWRegister.CACHED, false, null, READ1, null));
     }
-        
+
     private VDEWRegister newReg(String registerID_in, int dataType, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {
     	if (!isWritable) writeCommand = null;
     	return new VDEWRegister(registerID_in, dataType,0, -1, unit, isWritable, VDEWRegister.NOT_CACHED, readCommand, writeCommand, true);
     }
-    
+
     private VDEWRegister newReg(String registerID_in, int dataType, boolean isCached, boolean isWritable, Unit unit, byte[] readCommand, byte[] writeCommand) {
     	if (!isWritable) writeCommand = null;
     	return new VDEWRegister(registerID_in, dataType,0, -1, unit, isWritable, isCached, readCommand, writeCommand, true);
     }
-    
+
 }

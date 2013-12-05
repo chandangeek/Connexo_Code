@@ -10,40 +10,41 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.datastar.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryRecordBasePage extends AbstractBasePage {
-    
-    
-    
+
+
+
     private int recordNr=-1;
     private int offset=-1;
-    
+
     private int statusFlags;
     private long outageFlags;
     private Calendar calendar;
     private IntervalRecord[] intervalRecords;
     private BigDecimal[] totals;
-    private BigDecimal[] encoders; 
-    
+    private BigDecimal[] encoders;
+
     private boolean onlyRegisters=false;
-    
+
     /** Creates a new instance of MassMemoryRecordBasePage */
     public MassMemoryRecordBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -66,7 +67,7 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
         strBuff.append("   outageFlags=0x"+Long.toHexString(outageFlags)+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         if (getRecordNr() != -1)
             return new BasePageDescriptor(((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getMassMemoryStartOffset()+
@@ -76,13 +77,13 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
             return new BasePageDescriptor(getOffset(),
                     onlyRegisters? 35:((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength());
         throw new IOException("MassMemoryRecordBasePage, preparebuild(), no offset descriptor...");
-        
+
     } // protected BasePageDescriptor preparebuild() throws IOException
-    
+
     protected void parse(byte[] data) throws IOException {
-        
+
 //System.out.println("KV_DEBUG> getRecordNr() "+getRecordNr()+", data.length="+data.length);
-        
+
         int offset = 0;
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
@@ -90,38 +91,38 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
         setCalendar(ProtocolUtils.getCleanCalendar(tz));
         getCalendar().set(Calendar.MONTH,ProtocolUtils.getInt(data,0,1)-1);
         getCalendar().set(Calendar.DAY_OF_MONTH,ProtocolUtils.getInt(data,1, 1));
-        getCalendar().set(Calendar.HOUR_OF_DAY,ProtocolUtils.getInt(data,2,1)); 
+        getCalendar().set(Calendar.HOUR_OF_DAY,ProtocolUtils.getInt(data,2,1));
         Calendar now = ProtocolUtils.getCalendar(tz);
         ParseUtils.adjustYear2(now, getCalendar());
         offset+=3;
-        
-        
+
+
         int nrOfChannels = ((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().getNrOfChannels();
-        
+
         //int nrOfChannels = 4;
-        
+
         setOutageFlags(ProtocolUtils.getLong(data,offset, 8));
         offset+=7;
         outageFlags >>= 4; // interval 1..56
-        
+
         setStatusFlags(ProtocolUtils.getInt(data,offset, 1));
         offset++;
         outageFlags |= ((statusFlags>>4)&0x0F); // interval 57..60
         statusFlags &= 0x0f;
 
-        
-        totals = new BigDecimal[nrOfChannels]; 
+
+        totals = new BigDecimal[nrOfChannels];
         for (int i=0;i<getTotals().length;i++) {
             getTotals()[i] = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, offset, 3)/10);
             offset+=3;
         }
-        
-        encoders = new BigDecimal[nrOfChannels];        
+
+        encoders = new BigDecimal[nrOfChannels];
         for (int i=0;i<getEncoders().length;i++) {
             getEncoders()[i] = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, offset, 3)/10);
             offset+=3;
         }
-        
+
         if (!isOnlyRegisters()) {
             int nibbleOffset = offset*2;
 
@@ -131,32 +132,32 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
                 nibbleOffset+=IntervalRecord.size(((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().getNrOfChannels());
             }
         }
-        
+
     }
-    
+
     public Calendar getCalendar() {
         return calendar;
     }
-    
+
     public void setCalendar(Calendar calendar) {
         this.calendar = calendar;
     }
-    
-    
 
-    
+
+
+
     public int getRecordNr() {
         return recordNr;
     }
-    
+
     public void setRecordNr(int recordNr) {
         this.recordNr = recordNr;
     }
-    
+
     public int getOffset() {
         return offset;
     }
-    
+
     public void setOffset(int offset) {
         this.offset = offset;
     }
@@ -210,6 +211,6 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
     }
 
 
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

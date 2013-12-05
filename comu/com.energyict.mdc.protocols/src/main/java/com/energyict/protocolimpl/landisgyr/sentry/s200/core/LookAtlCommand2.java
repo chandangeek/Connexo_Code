@@ -10,17 +10,14 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LookAtlCommand2 extends AbstractCommand {
-    
+
     // enc t/n
     private int encoderType; // high order nibble
                      // 0 = PSI encoder
@@ -28,19 +25,19 @@ public class LookAtlCommand2 extends AbstractCommand {
                      // 2 = JEM2 meter readings
                      // 3-F = reserved for future use
     private int nrOfEncoders; // low order nibble
-    
+
     private int encoderFlags; // bit1 = MID
                       // bit0 = M
-    
+
     private int[] pulseDivisors = new int[4]; // inputs 5..8
-    
+
     //enc
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public LookAtlCommand2(CommandFactory cm) {
         super(cm);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -52,8 +49,8 @@ public class LookAtlCommand2 extends AbstractCommand {
             strBuff.append("       pulseDivisors["+i+"]="+getPulseDivisors()[i]+"\n");
         }
         return strBuff.toString();
-    }         
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setEncoderType((((int)data[offset]&0xFF)>>4) & 0xF);
@@ -63,11 +60,11 @@ public class LookAtlCommand2 extends AbstractCommand {
             getPulseDivisors()[i] = (int)data[offset++]&0xFF;
         }
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('l');
     }
-    
+
 //    protected byte[] prepareData() throws IOException {
 //        return null;
 //    }
@@ -103,5 +100,5 @@ public class LookAtlCommand2 extends AbstractCommand {
     public void setPulseDivisors(int[] pulseDivisors) {
         this.pulseDivisors = pulseDivisors;
     }
-    
+
 }

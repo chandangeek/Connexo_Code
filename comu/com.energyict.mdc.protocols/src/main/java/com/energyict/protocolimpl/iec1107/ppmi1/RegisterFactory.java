@@ -1,18 +1,18 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalDataSet;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
 
 public interface RegisterFactory {
 

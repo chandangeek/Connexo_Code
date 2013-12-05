@@ -9,32 +9,32 @@
  */
 
 package com.energyict.protocolimpl.meteridentification;
-import java.io.*;
-import java.util.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class S4Fam extends AbstractManufacturer {
-    
+
     /** Creates a new instance of KV2 */
     public S4Fam() {
     }
-    
+
     public String getManufacturer() throws IOException {
         return "Landis & Gyr";
     }
-    
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.S4";
     }
-    
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
     }
-    
+
     public String getMeterDescription() throws IOException {
         return "Landis & Gyr S4 meter family";
-    }    
+    }
 }

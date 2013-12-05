@@ -8,28 +8,27 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.meteridentification;  
+package com.energyict.protocolimpl.meteridentification;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class EMONIDR08A extends AbstractManufacturer {
-    
+
     public String getManufacturer() throws IOException {
         return "Emon";
-    }    
-    
+    }
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.emon.ez7.EZ7";
-    }    
-    
+    }
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
-    }    
-    
+    }
+
     public String getMeterDescription() throws IOException {
         return "Emon datalogger";
     }

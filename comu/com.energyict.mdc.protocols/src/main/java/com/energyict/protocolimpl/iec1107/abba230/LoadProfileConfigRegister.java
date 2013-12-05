@@ -7,28 +7,30 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /** 29 may 2006 Bugfix
  * The load profile was being read with energy units.  The meter was actually
  * reporting power units.
- * The fix with the least impact on the code was to use functionality of 
+ * The fix with the least impact on the code was to use functionality of
  * the Unit class to tranform to a flow unit.
- * 
+ *
  * @author fbo */
 
 public class LoadProfileConfigRegister implements ProfileConfigRegister {
-    
+
     private ABBA230RegisterFactory rFactory;
     private byte [] channelMask = null;
-    
+
     private ArrayList register = new ArrayList();
     private ArrayList channelInfo = new ArrayList();
-    
+
     private boolean importWh = false;
     private boolean exportWh = false;
     private boolean q1Varh = false;
@@ -46,7 +48,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
         this.channelMask = data.clone();
         init();
     }
-    
+
     public void loadConfig(ABBA230RegisterFactory rFactory, int data ) throws IOException {
         this.rFactory = rFactory;
         byte b1 = (byte)((data&0xFF00)>>8);
@@ -55,10 +57,10 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
         this.channelMask = ba;
         init();
     }
-    
+
     private void init( ) throws IOException {
         int i = 0;
-        
+
         if( ( channelMask[1] & 0x01 ) > 0 ) {
             importWh = true;
             ABBA230Register r = rFactory.getCummMainImport();
@@ -67,7 +69,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[1] & 0x02 ) > 0 ) {
             exportWh = true;
             ABBA230Register r = rFactory.getCummMainExport();
@@ -75,8 +77,8 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             Unit u = r.getUnit().getFlowUnit();
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
-        }        
-        
+        }
+
         if( ( channelMask[1] & 0x04 ) > 0 ) {
             q1Varh = true;
             ABBA230Register r =  rFactory.getCummMainQ1();
@@ -85,7 +87,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[1] & 0x08 ) > 0 ) {
             q2Varh = true;
             ABBA230Register r = rFactory.getCummMainQ2();
@@ -94,7 +96,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[1] & 0x10 ) > 0 ) {
             q3Varh = true;
             ABBA230Register r = rFactory.getCummMainQ3();
@@ -103,7 +105,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[1] & 0x20 ) > 0 ) {
             q4Varh = true;
             ABBA230Register r = rFactory.getCummMainQ4();
@@ -112,7 +114,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[1] & 0x40 ) > 0 ) {
             vah1 = true;
             ABBA230Register r = rFactory.getCummMainVAImport();
@@ -121,7 +123,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[1] & 0x80 ) > 0 ) {
             vah2 = true;
             ABBA230Register r = rFactory.getCummMainVAExport();
@@ -138,7 +140,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERAS230_channel_"+ i, u ) );
             i = i + 1;
         }
-        
+
         if( ( channelMask[0] & 0x80 ) > 0 ) {
             customerDefined2 = true;
             ABBA230Register r = rFactory.getCummMainvarhExport();
@@ -152,7 +154,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
     public int getNumberRegisters() {
         return register.size();
     }
-    
+
     public Collection getRegisters(){
         return register;
     }
@@ -205,11 +207,11 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
     boolean isCustomerDefined2() {
         return customerDefined2;
     }
-    
+
     public Collection toChannelInfo() throws IOException {
         return channelInfo;
     }
-    
+
     public String toShortString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( " [" );
@@ -221,7 +223,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
         rslt.append( "] " );
         return rslt.toString();
     }
-    
+
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "LoadProfileConfigRegister [" );
@@ -231,7 +233,7 @@ public class LoadProfileConfigRegister implements ProfileConfigRegister {
             while( i.hasNext() ){
                 ChannelInfo ci = (ChannelInfo)i.next();
                 rslt.append( "ChannelInfo [" + ci.getId() + " " + ci.getName() + " " + ci.getChannelId() + " ]\n" );
-            }    
+            }
         } catch( IOException ioe ){
             rslt.append( ioe );
         }

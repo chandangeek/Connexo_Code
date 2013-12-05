@@ -1,31 +1,18 @@
 package com.energyict.protocolimpl.ametek;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -39,12 +26,25 @@ import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 public abstract class Jem extends AbstractProtocol implements MessageProtocol
 {
 
 	protected final static int REGULAR = 0;
 	protected final static int ALTERNATE = 1;
-	
+
 	protected JemProtocolConnection connection;
 	protected InputStream inputStream;
 	protected OutputStream outputStream;
@@ -63,7 +63,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 	}
 
 	/*******************************************************************************************
-    M e s s a g e P r o t o c o l  i n t e r f a c e 
+    M e s s a g e P r o t o c o l  i n t e r f a c e
 	 *******************************************************************************************/
 	// message protocol
 	public void applyMessages(List messageEntries) throws IOException {
@@ -142,7 +142,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 		buf.append( msgTag.getName() );
 		buf.append(">");
 
-		return buf.toString();    
+		return buf.toString();
 	}
 
 	public String writeValue(MessageValue value) {
@@ -151,9 +151,9 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 
 
 	protected void doConnect() throws IOException {
-		//getLogger().info("call abstract method doConnect()");      
-		//getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");     
-		//getLogger().info("--> here the login and other authentication and setup should be done");     
+		//getLogger().info("call abstract method doConnect()");
+		//getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
+		//getLogger().info("--> here the login and other authentication and setup should be done");
 
 		if(getInfoTypeNodeAddress() == null || getInfoTypeNodeAddressNumber() < 1)
 			throw new IOException("Invalid Node Address");
@@ -198,9 +198,9 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 
 
 	protected void doDisConnect() throws IOException {
-		//getLogger().info("call abstract method doDisConnect()");        
-		//getLogger().info("--> here the logoff should be done");     
-		//getLogger().info("--> after that point, we will close the communicationlink with the meter");     
+		//getLogger().info("call abstract method doDisConnect()");
+		//getLogger().info("--> here the logoff should be done");
+		//getLogger().info("--> after that point, we will close the communicationlink with the meter");
 	}
 
 
@@ -210,7 +210,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 	}
 
 	/*******************************************************************************************
-   R e g i s t e r P r o t o c o l  i n t e r f a c e 
+   R e g i s t e r P r o t o c o l  i n t e r f a c e
 	 *******************************************************************************************/
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
 		////getLogger().info("call overrided method translateRegister()");
@@ -267,7 +267,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 		return connection;
 	}
 
-	
+
 
 
 
@@ -279,16 +279,16 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 	}
 
 	protected long convertHexToLongLE(InputStream byteStream, int length) throws IOException
-	{	
+	{
 		return ProtocolUtils.getLongLE((ByteArrayInputStream)byteStream,length);
-	}    
+	}
 
 
 	protected SimpleDateFormat getDateFormatter() {
 		SimpleDateFormat format = new SimpleDateFormat("yyMMddhhmmss");
 		format.setTimeZone(getTimeZone());
 		return format;
-	}    
+	}
 
 	protected SimpleDateFormat getShortDateFormatter() {
 		SimpleDateFormat format = new SimpleDateFormat("MMddyyhhmm");
@@ -317,7 +317,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 		System.out.print(",0x" + zeropad + Integer.toHexString(val));
 
 	}
-	
+
 	protected void processList(ArrayList dataList, Calendar c, Date startDate, Date now) {
 		for (int i = dataList.size()-1; i>=0; i--) {
 			c.add(Calendar.SECOND, (getProfileInterval()*-1));
@@ -328,7 +328,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol
 				pd.addInterval(id);
 			}
 		}
-		
+
 	}
 
 	public int getProfileInterval() {

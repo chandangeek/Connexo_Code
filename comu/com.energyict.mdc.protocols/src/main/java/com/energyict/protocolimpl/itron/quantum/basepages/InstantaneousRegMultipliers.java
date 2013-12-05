@@ -10,29 +10,28 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class InstantaneousRegMultipliers extends AbstractBasePage {
-    
+
     private BigDecimal powerandSquare;
     private BigDecimal volts;
     private BigDecimal amps;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public InstantaneousRegMultipliers(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,21 +40,21 @@ public class InstantaneousRegMultipliers extends AbstractBasePage {
         strBuff.append("   powerandSquare="+getPowerandSquare()+"\n");
         strBuff.append("   volts="+getVolts()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(315,12);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         BigDecimal bd;
-        
+
         bd = BigDecimal.valueOf((long)ProtocolUtils.getInt(data,offset,3));
         offset+=3;
         setPowerandSquare(bd.add(BigDecimal.valueOf((long)((int)data[offset]&0xff), 2)));
         offset++;
-        
+
         bd = BigDecimal.valueOf((long)ProtocolUtils.getInt(data,offset,3));
         offset+=3;
         setVolts(bd.add(BigDecimal.valueOf((long)((int)data[offset]&0xff), 2)));
@@ -65,7 +64,7 @@ public class InstantaneousRegMultipliers extends AbstractBasePage {
         offset+=3;
         setAmps(bd.add(BigDecimal.valueOf((long)((int)data[offset]&0xff), 2)));
         offset++;
-        
+
     }
 
     public BigDecimal getPowerandSquare() {
@@ -92,5 +91,5 @@ public class InstantaneousRegMultipliers extends AbstractBasePage {
         this.amps = amps;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

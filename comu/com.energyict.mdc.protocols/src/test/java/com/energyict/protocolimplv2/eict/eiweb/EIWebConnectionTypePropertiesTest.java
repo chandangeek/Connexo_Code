@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;

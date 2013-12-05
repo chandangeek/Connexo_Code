@@ -1,6 +1,6 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class AXDRUnitTest {
 	private static final String	NO_UNIT_STRING			= "255.0";
 
 	/**
-	 * Test method for {@link com.energyict.dlms.axrdencoding.util.AXDRUnit#encode(com.energyict.cbo.Unit)}.
+	 * Test method for {@link com.energyict.dlms.axrdencoding.util.AXDRUnit#encode(Unit)}.
 	 */
 	@Test
 	public final void testEncode() {

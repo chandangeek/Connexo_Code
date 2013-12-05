@@ -1,13 +1,14 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.mdc.protocol.device.events.MeterProtocolEvent;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
@@ -43,7 +44,7 @@ public class EventPOFrame extends AbstractInboundFrame {
     @Override
     public void doParse() {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
-        LogBookIdentifier logBookIdentifier;
+        CanFindLogBook logBookIdentifier;
         Device device = this.getDevice();
         LogBook genericLogBook = LogBookFactoryProvider.instance.get().getLogBookFactory().findGenericLogBook(device);
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
@@ -24,23 +24,23 @@ import java.util.logging.Level;
  *
  */
 public class AS220ImageTransfer {
-	
+
 	private final AS220Messaging messaging;
 	private final MessageEntry messageEntry;
-	
-	private final ImageTransfer imageTransfer;	
-	
+
+	private final ImageTransfer imageTransfer;
+
 	private Unsigned32 size = null; 	// the size of the image
 	private byte[] data = null; // the complete image in byte
 	private int blockCount = -1; // the amount of block numbers
-	
+
 	private final int maxBlockRetryCount = 3;
 	private final int maxTotalRetryCount = 500;
 
 	/**
 	 * @param messaging
 	 * @param messageEntry
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public AS220ImageTransfer(AS220Messaging messaging, MessageEntry messageEntry) throws IOException {
 		this.messaging = messaging;
@@ -51,8 +51,8 @@ public class AS220ImageTransfer {
 
 
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
+	 *
 	 */
 	public void initiate() throws IOException {
 		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
@@ -72,7 +72,7 @@ public class AS220ImageTransfer {
 		    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
 		    throw new IOException(errorMessage + e.getMessage());
 		}
-		
+
 		// We requested an inlined file...
 		if (builder.getUserFile() != null) {
 			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
@@ -93,24 +93,24 @@ public class AS220ImageTransfer {
 
 		    throw new IOException(errorMessage);
 		}
-		
+
 		getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
 		final Base64EncoderDecoder decoder = new Base64EncoderDecoder();
 		this.data = decoder.decode(new String(this.data));
-		
+
 	}
-	
+
 	/**
-	 * @throws IOException 
-	 * @throws InterruptedException 
-	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 *
 	 */
 	public void upgrade() throws IOException {
 		try {
 			this.size = new Unsigned32(data.length);
-			
+
 			getAs220().getLogger().info("Upgrading AM500 module with new firmware image of size [" + this.size + "] bytes");
-			
+
 			// Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
 			imageTransfer.writeImageTransferEnabledState(true);
 
@@ -154,9 +154,9 @@ public class AS220ImageTransfer {
             //Absorb exception
 		}
 	}
-	
+
 	protected void transferImageBlocks() throws IOException{
-	    
+
 		byte[] octetStringData = null;
 		OctetString os = null;
 		Structure imageBlockTransfer;
@@ -170,13 +170,13 @@ public class AS220ImageTransfer {
 				octetStringData = new byte[(int)blockSize];
 				System.arraycopy(this.data, (int)(i*this.imageTransfer.readImageBlockSize().getValue()), octetStringData, 0,
 					(int)blockSize);
-			    
+
 			}
 			os = OctetString.fromByteArray(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
-			
+
 			try {
 				this.imageTransfer.imageBlockTransfer(imageBlockTransfer);
 			} catch (DataAccessResultException e) {
@@ -192,7 +192,7 @@ public class AS220ImageTransfer {
 			}
 		}
 	}
-	
+
 	/**
 	 * Check if there are missing blocks, if so, resent them
 	 * @throws IOException
@@ -205,7 +205,7 @@ public class AS220ImageTransfer {
 		int retryBlock = 0;
 		int totalRetry = 0;
 		while(this.imageTransfer.readFirstNotTransferedBlockNumber().getValue() < this.blockCount){
-			
+
 			if(previousMissingBlock == this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()){
 				if(retryBlock++ == this.maxBlockRetryCount){
 					throw new IOException("Exceeding the maximum retry for block " + this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
@@ -216,18 +216,18 @@ public class AS220ImageTransfer {
 				previousMissingBlock = this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue();
 				retryBlock = 0;
 			}
-			
+
 			if (this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue() < this.blockCount -1) {
 				octetStringData = new byte[(int)this.imageTransfer.readImageBlockSize().getValue()];
-				System.arraycopy(this.data, (int)(this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()*this.imageTransfer.readImageBlockSize().getValue()), octetStringData, 0, 
+				System.arraycopy(this.data, (int)(this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()*this.imageTransfer.readImageBlockSize().getValue()), octetStringData, 0,
 						(int)this.imageTransfer.readImageBlockSize().getValue());
 			} else {
 				long blockSize = this.size.getValue() - (this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()*this.imageTransfer.readImageBlockSize().getValue());
 				octetStringData = new byte[(int)blockSize];
-				System.arraycopy(this.data, (int)(this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()*this.imageTransfer.readImageBlockSize().getValue()), octetStringData, 0, 
+				System.arraycopy(this.data, (int)(this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()*this.imageTransfer.readImageBlockSize().getValue()), octetStringData, 0,
 						(int)blockSize);
 			}
-			
+
 			os = OctetString.fromByteArray(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32((int)this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()));
@@ -241,7 +241,7 @@ public class AS220ImageTransfer {
 					throw e;
 				}
 			}
-			
+
 		}
 	}
 
@@ -252,13 +252,13 @@ public class AS220ImageTransfer {
 
 	/**
 	 * Active the passive image
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void activate() throws IOException {
         getAs220().getLogger().log(Level.INFO, "Activating image ...");
 		this.imageTransfer.imageActivation();
         getAs220().getLogger().log(Level.INFO, "Activation of the image was succesfull at : " + new Date());
 	}
-	
+
 }
 

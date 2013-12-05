@@ -10,23 +10,21 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class OperatingSetUpBasePage extends AbstractBasePage {
-    
+
     /*
      Bit 0 should be set if the external line frequency is 60 Hz. It should be cleared if the
      line frequency is 50 Hz.
-     
+
      If bit 1 is set, the real time clock and demand intervals will be synchronized to the
      external line frequency. If bit 1 is clear, the real time clock and demand intervals
      will be synchronized to the microprocessor time keeping.
@@ -51,16 +49,16 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
      weekday, Saturday, Sunday, holiday (from left to right, 5th position unused). If it is
      clear, the WDE segments will operate normally.
      */
-    
+
     private int flags;
-    
+
     private boolean dstEnabled; // bit 4
-    
+
     /** Creates a new instance of OperatingSetUpBasePage */
     public OperatingSetUpBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -69,21 +67,21 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
         strBuff.append("   flags=0x"+Integer.toHexString(getFlags())+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2196, 1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setFlags((int)data[0]&0xff);
         setDstEnabled((getFlags() & 0x20) == 0x20);
     }
-    
+
     public boolean isDstEnabled() {
         return dstEnabled;
     }
-    
+
     private void setDstEnabled(boolean dstEnabled) {
         this.dstEnabled = dstEnabled;
     }
@@ -95,6 +93,6 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
     public void setFlags(int flags) {
         this.flags = flags;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

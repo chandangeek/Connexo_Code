@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.services;
 
 import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.protocol.PluggableClass;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
-import com.energyict.mdw.core.PluggableClass;
 import org.osgi.service.component.annotations.Component;
 
 /**

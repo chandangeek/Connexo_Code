@@ -1,17 +1,22 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
 
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages
@@ -23,26 +28,26 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
     ACTIVITY_CALENDAR_READ,
-    WRITE_CONTRACTS_FROM_XML_USERFILE(PropertySpecFactory.userFileReferencePropertySpec(contractsXmlUserFileAttributeName)),
-    ACTIVITY_CALENDER_SEND(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATETIME(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    WRITE_CONTRACTS_FROM_XML_USERFILE(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(contractsXmlUserFileAttributeName)),
+    ACTIVITY_CALENDER_SEND(RequiredPropertySpecFactory.newInstance().stringPropertySpec(activityCalendarNameAttributeName),
+            RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME(RequiredPropertySpecFactory.newInstance().stringPropertySpec(activityCalendarNameAttributeName),
+            RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
     ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE(
-            PropertySpecFactory.stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
-            PropertySpecFactory.datePropertySpec(activityCalendarActivationDateAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND(PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(activityCalendarNameAttributeName),
+            RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    ACTIVITY_CALENDER_SEND_WITH_DATE(RequiredPropertySpecFactory.newInstance().stringPropertySpec(activityCalendarNameAttributeName),
+            RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            RequiredPropertySpecFactory.newInstance().datePropertySpec(activityCalendarActivationDateAttributeName)),
+    SPECIAL_DAY_CALENDAR_SEND(RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
     SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE(
-            PropertySpecFactory.stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
-            PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(activityCalendarTypeAttributeName, ActivityCalendarType.getAllDescriptions()),
+            RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(),
-    ACTIVATE_PASSIVE_CALENDAR(PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName));
+    ACTIVATE_PASSIVE_CALENDAR(RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(activityCalendarActivationDateAttributeName));
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
 

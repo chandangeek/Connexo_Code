@@ -1,32 +1,32 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
-
 abstract public class AbstractEventLog {
-    
+
 	static final int DEBUG 				= 0;
 	static final int COUNT_SIZE 		= 2;
 	static final int TIMESTAMP_SIZE 	= 4;
 	static final int NUMBER_OF_EVENTS 	= 3;
-	
+
 	int count = 0;
 	TimeStamp[] timeStamp=new TimeStamp[NUMBER_OF_EVENTS];
 	TimeZone timeZone;
 	List meterEvents=new ArrayList();
-	
+
 	abstract protected String getEventName();
 	abstract protected int getEventCode();
 
 	/*
 	 * Constructors
 	 */
-	
+
 	public AbstractEventLog(TimeZone timeZone) {
         this.timeZone=timeZone;
     }
@@ -51,7 +51,7 @@ abstract public class AbstractEventLog {
 	/*
 	 * Public methods
 	 */
-	
+
 	public void parse(byte[] data) throws IOException {
 		count = ProtocolUtils.getIntLE(data, 0, COUNT_SIZE);
 		for( int i = 0; i < NUMBER_OF_EVENTS; i++ ) {
@@ -69,7 +69,7 @@ abstract public class AbstractEventLog {
 	public int getCount() {
 		return count;
 	}
-	
+
 	public TimeStamp[] getTimeStamp() {
 		return timeStamp;
 	}
@@ -81,7 +81,7 @@ abstract public class AbstractEventLog {
 	public List getMeterEvents() {
 		return meterEvents;
 	}
-	
+
 	public TimeZone getTimeZone() {
 		return timeZone;
 	}

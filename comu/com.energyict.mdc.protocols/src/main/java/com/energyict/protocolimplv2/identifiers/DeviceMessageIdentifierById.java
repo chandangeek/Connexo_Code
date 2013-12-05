@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindDeviceMessage;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 
 /**
@@ -10,7 +10,7 @@ import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
  * Time: 9:59
  * Author: khe
  */
-public class DeviceMessageIdentifierById implements MessageIdentifier {
+public class DeviceMessageIdentifierById implements CanFindDeviceMessage {
 
     private final int messageId;
 

@@ -10,16 +10,18 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryInfoType {
-    
+
     private boolean runFlag; // BOOLEAN
     private long fileSize; // UNSIGNE32,
     private long currentIntervalNumber; // UNSIGNED32,
@@ -39,7 +41,7 @@ public class MassMemoryInfoType {
     private boolean isConfigOK; // BOOLEAN,
     private boolean isFileStatusOK; // BOOLEAN,
     private boolean timeAdjustInterval; // BOOLEAN,
-    
+
     /**
      * Creates a new instance of MassMemoryInfoType
      */
@@ -74,7 +76,7 @@ public class MassMemoryInfoType {
         setIsFileStatusOK(ProtocolUtils.getInt(data,offset++,1) == 1);
         setTimeAdjustInterval(ProtocolUtils.getInt(data,offset++,1) == 1);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -106,7 +108,7 @@ public class MassMemoryInfoType {
     static public int size() {
       return 35+96+4;
     }
-    
+
     public boolean isRunFlag() {
         return runFlag;
     }
@@ -258,6 +260,6 @@ public class MassMemoryInfoType {
     public void setTimeAdjustInterval(boolean timeAdjustInterval) {
         this.timeAdjustInterval = timeAdjustInterval;
     }
-    
-    
+
+
 }

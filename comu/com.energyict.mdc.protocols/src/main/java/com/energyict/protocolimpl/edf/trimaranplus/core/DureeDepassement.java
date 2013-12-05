@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -23,13 +23,13 @@ import java.util.TimeZone;
  * @author Koen
  */
 public class DureeDepassement {
-    
+
     private int variableName;
     private DateType DateDebutPeriode;
-    private int CodeAF; 
-    private DateType DateFinPeriode; 
-    private Quantity[] valueDureeDepassement;     
-    
+    private int CodeAF;
+    private DateType DateFinPeriode;
+    private Quantity[] valueDureeDepassement;
+
     /** Creates a new instance of DureeDepassement */
     public DureeDepassement(TrimaranDataContainer dc, TimeZone timezone, int variableName) throws IOException {
         int offset = 0;
@@ -59,8 +59,8 @@ public class DureeDepassement {
             strBuff.append("       DureeDepassement["+i+"]="+getValueDureeDepassement()[i]+"\n");
         }
         return strBuff.toString();
-    }        
-    
+    }
+
     public DateType getDateDebutPeriode() {
         return DateDebutPeriode;
     }
@@ -100,5 +100,5 @@ public class DureeDepassement {
     public void setVariableName(int variableName) {
         this.variableName = variableName;
     }
-    
+
 }

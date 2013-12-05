@@ -6,24 +6,25 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.dlms.*;
-import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
  */
 public class Logbook {
-    
+
     private static final int DEBUG = 0;
-    
+
     TimeZone timeZone;
-    
+
     /// logbook event type
     private static final int EVENT_PERIODICAL_EOI=0;
     private static final int EVENT_ASYNCHRONOUS_EOI=1;
@@ -76,15 +77,15 @@ public class Logbook {
     private static final int EVENT_INDEX_CLOCK_LOSS=49;
     private static final int EVENT_SUCCESSFULL_COMMUNICATION=50;
     private static final int EVENT_COMMUNICATION_WITH_CONTRACT=51;
-    
+
     /** Creates a new instance of Logbook */
     public Logbook(TimeZone timeZone) {
         this.timeZone=timeZone;
     }
-    
+
     public List getMeterEvents(DataContainer dc) {
         List meterEvents = new ArrayList(); // of type MeterEvent
-        
+
         int size = dc.getRoot().getNrOfElements();
         Date eventTimeStamp = null; //new Date();
         for (int i = (size-1);i>=0;i--) {
@@ -93,44 +94,44 @@ public class Logbook {
             int eventParameter = ds.getStructure(0).getInteger(1);
             int eventId = ds.getInteger(1);
             eventTimeStamp = new Date(ds.getOctetString(2).toDate(eventTimeStamp,timeZone).getTime());
-            
+
             MeterEvent meterEvent = buildMeterEvent(eventType,eventParameter,eventTimeStamp);
             if (meterEvent != null) meterEvents.add(meterEvent);
             if (DEBUG >= 1) System.out.println("KV_DEBUG> eventType="+eventType+", eventParameter="+eventParameter+", eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
         }
-        
-        
+
+
         return meterEvents;
     }
-    
+
     private MeterEvent buildMeterEvent(int eventType, int eventParameter, Date eventTimeStamp) {
         int eiCode=MeterEvent.OTHER;
         String message=null;
-        
+
         switch(eventType) {
-            
-            case EVENT_PERIODICAL_EOI: 
+
+            case EVENT_PERIODICAL_EOI:
                 return null;
-            
-            case EVENT_ASYNCHRONOUS_EOI: 
+
+            case EVENT_ASYNCHRONOUS_EOI:
                 message = "Asynchroneous end of interval";
                 break;
-            
-            case EVENT_PERIODICAL_EOB: 
+
+            case EVENT_PERIODICAL_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
                 message = "Periodical end of billing";
                 break;
-                
-            case EVENT_PROGRAMMED_EOB: 
+
+            case EVENT_PROGRAMMED_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
                 message = "Programmed end of billing";
                 break;
-                
-            case EVENT_ASYNCHRONOUS_EOB: 
+
+            case EVENT_ASYNCHRONOUS_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
                 message = "Asynchroneous end of billing";
                 break;
-                
+
             case EVENT_INDEX_DPM:
                 message = "Index DPM";
                 break;
@@ -288,12 +289,12 @@ public class Logbook {
             default:
                 break;
         } // switch(eventType)
-        
+
         if (message==null)
            return new MeterEvent(eventTimeStamp,eiCode,eventType);
         else
            return new MeterEvent(eventTimeStamp,eiCode,eventType,message+" (event parameter="+eventParameter+")");
-        
+
     } // private MeterEvent buildMeterEvent(int eventType, int eventParameter, Date eventTimeStamp)
-    
+
 } // public class Logbook

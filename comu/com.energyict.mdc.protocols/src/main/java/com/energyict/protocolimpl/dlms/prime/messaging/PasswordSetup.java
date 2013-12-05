@@ -4,9 +4,9 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 
 import java.io.IOException;

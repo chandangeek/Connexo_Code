@@ -10,14 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.obis.ObisCode;
-
 /**
  *
  * @author koen
  */
 public class ObisCodeDescriptor {
-    
+
     private String description;
 
     private int cField;
@@ -25,7 +23,7 @@ public class ObisCodeDescriptor {
     private int bField;
 
     /**
-     * Creates a new instance of ObisCodeDescriptor 
+     * Creates a new instance of ObisCodeDescriptor
      */
     public ObisCodeDescriptor(int bField, int cField, String description) {
     this.setBField(bField);
@@ -57,5 +55,5 @@ public class ObisCodeDescriptor {
         this.bField = bField;
     }
 
-    
+
 }

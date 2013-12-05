@@ -3,7 +3,10 @@ package com.energyict.genericprotocolimpl.common.pooling;
 import com.energyict.cbo.SerialCommunicationSettings;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Straightforward implementation of the <CODE>RtuFullProtocolShadow</CODE> interface

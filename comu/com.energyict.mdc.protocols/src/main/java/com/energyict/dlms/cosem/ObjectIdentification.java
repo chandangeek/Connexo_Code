@@ -5,7 +5,7 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * @author kvds
@@ -39,7 +39,7 @@ public class ObjectIdentification {
 	/**
 	 * Getter for the obisCode field
 	 *
-	 * @return the {@link com.energyict.obis.ObisCode}
+	 * @return the {@link ObisCode}
 	 */
 	public ObisCode getObisCode() {
 		return obisCode;

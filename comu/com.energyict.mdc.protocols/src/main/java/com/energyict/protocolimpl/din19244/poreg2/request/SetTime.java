@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
-import com.energyict.protocolimpl.din19244.poreg2.core.*;
+import com.energyict.protocolimpl.din19244.poreg2.core.ASDU;
+import com.energyict.protocolimpl.din19244.poreg2.core.DinTimeParser;
+import com.energyict.protocolimpl.din19244.poreg2.core.Response;
 
 import java.io.IOException;
 import java.util.Date;

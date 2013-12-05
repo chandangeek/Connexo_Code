@@ -9,8 +9,8 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12;
-import java.io.*;
-import com.energyict.protocol.*;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -18,12 +18,12 @@ import com.energyict.protocol.*;
 public class SecurityResponse extends AbstractResponse {
 
     private boolean secure=false;
-    
+
     /** Creates a new instance of SecurityResponse */
     public SecurityResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         setSecure(true);

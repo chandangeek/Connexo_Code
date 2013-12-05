@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 
 /**
@@ -22,18 +21,18 @@ import com.energyict.protocolimpl.base.*;
  * @author Koen
  */
 public class PreviousIntervalDemandCommand extends AbstractCommand {
-    
+
     private int demandInLastCompleteIntervalInPulses;
     private int demandInLastCompleteIntervalForAdditionalSelectedMetricInPulses;
     private int powerFactorInLastCompleteInterval;
     private int averagePowerFactorSinceLastDemandReset;
     private int demandInLastCompleteIntervalForThirdMetricInPulses;
-    
+
     /** Creates a new instance of TemplateCommand */
     public PreviousIntervalDemandCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -44,14 +43,14 @@ public class PreviousIntervalDemandCommand extends AbstractCommand {
         strBuff.append("   powerFactorInLastCompleteInterval="+getPowerFactorInLastCompleteInterval()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00))
             return new byte[]{(byte)0xC6,0,0,0,0,0,0,0,0};
         else
             return new byte[]{(byte)0x14,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setDemandInLastCompleteIntervalInPulses(ProtocolUtils.getIntLE(data, offset, 2));offset+=2;

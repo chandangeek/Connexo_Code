@@ -6,30 +6,31 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.math.*;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen
  */
 public class SCTMRegister {
-    
+
     String register;
-    
+
     /** Creates a new instance of SCTMRegister */
     public SCTMRegister(byte[] data) throws IOException {
         if (data==null) throw new IOException("SCTMRegister, data == null!");
         if ((data.length != 16) && (data.length != 12)) throw new IOException("SCTMRegister, datalength != 16 or 12 ("+data.length+")");
         register = new String(data);
     }
-    
+
     public String toString() {
         return register;
     }
-    
+
     public long getLongValue() {
         try {
            return Long.parseLong(register);
@@ -38,7 +39,7 @@ public class SCTMRegister {
            return Long.parseLong(register,16);
         }
     }
-    
+
     public int getIntValue() {
         try {
            return Integer.parseInt(register);
@@ -47,24 +48,24 @@ public class SCTMRegister {
            return Integer.parseInt(register,16);
         }
     }
-    
+
     public boolean isQuantity() {
         String numStrValue=null;
         String unitStrValue=null;
         byte[] data = register.trim().getBytes();
         int i;
-        int countDots=0; // KV 06092005 WVEM some SCTM meters return registervalues like 
+        int countDots=0; // KV 06092005 WVEM some SCTM meters return registervalues like
         for(i = 0; i<data.length; i++) {
-            
-            if (data[i] == 0x2E) countDots++; // KV 06092005 WVEM some SCTM meters return registervalues like 
-            
+
+            if (data[i] == 0x2E) countDots++; // KV 06092005 WVEM some SCTM meters return registervalues like
+
             if (!(((data[i] >= 0x30) && (data[i] <= 0x39)) || (data[i] == 0x2E))) {
                 numStrValue = new String(ProtocolUtils.getSubArray(data,0,i-1));
                 unitStrValue = new String(ProtocolUtils.getSubArray(data,i,data.length-1));
                 break;
             }
         }
-        // KV 06092005 WVEM some SCTM meters return registervalues like 
+        // KV 06092005 WVEM some SCTM meters return registervalues like
         if (countDots>1) {
             register = register.replace('.',' ');
             numStrValue = register.trim();
@@ -76,10 +77,10 @@ public class SCTMRegister {
                 return false;
             }
             return true;
-            
+
         }
-        
-        if (i==data.length) 
+
+        if (i==data.length)
             return true;
         if ((numStrValue == null) || (unitStrValue == null))
             return false;
@@ -93,35 +94,35 @@ public class SCTMRegister {
             return false;
         return true;
     }
-    
+
     public Quantity getQuantityValue() throws IOException {
         String numStrValue;
         String unitStrValue;
-        int countDots=0; // KV 06092005 WVEM some SCTM meters return registervalues like 
+        int countDots=0; // KV 06092005 WVEM some SCTM meters return registervalues like
         byte[] data = register.trim().getBytes();
         for(int i = 0; i<data.length; i++) {
-            if (data[i] == 0x2E) countDots++; // KV 06092005 WVEM some SCTM meters return registervalues like 
+            if (data[i] == 0x2E) countDots++; // KV 06092005 WVEM some SCTM meters return registervalues like
             if (!(((data[i] >= 0x30) && (data[i] <= 0x39)) || (data[i] == 0x2E))) {
                 numStrValue = new String(ProtocolUtils.getSubArray(data,0,i-1));
                 unitStrValue = new String(ProtocolUtils.getSubArray(data,i,data.length-1));
                 return new Quantity(new BigDecimal(numStrValue),Unit.get(unitStrValue));
             }
-            
+
         }
-        
-        // KV 06092005 WVEM some SCTM meters return registervalues like 
+
+        // KV 06092005 WVEM some SCTM meters return registervalues like
         if (countDots>1) {
             register = register.replace('.',' ');
         }
-        
+
         // only numerical, no unit
         numStrValue = register.trim();
         unitStrValue = "";
         return new Quantity(new BigDecimal(numStrValue),Unit.get(unitStrValue));
-    }    
-    
+    }
+
     static public void main(String[] args) {
-        
+
         try {
             SCTMRegister sr=null;
             sr = new SCTMRegister("9000000.500MWh  ".getBytes());
@@ -131,7 +132,7 @@ public class SCTMRegister {
             sr = new SCTMRegister("54257653.000kWh ".getBytes());
             System.out.println(sr.getQuantityValue()+" "+sr.isQuantity());
             sr = new SCTMRegister("00000023....".getBytes());
-            
+
             System.out.println(sr.isQuantity());
             System.out.println(sr.getQuantityValue()+" "+sr.isQuantity());
             sr = new SCTMRegister("dit is een  ".getBytes());
@@ -142,5 +143,5 @@ public class SCTMRegister {
             e.printStackTrace();
         }
     }
-    
+
 }

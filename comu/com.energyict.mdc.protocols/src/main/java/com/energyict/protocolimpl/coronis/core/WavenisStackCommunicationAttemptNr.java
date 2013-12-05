@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class WavenisStackCommunicationAttemptNr extends AbstractEscapeCommand {
 
@@ -10,7 +12,7 @@ public class WavenisStackCommunicationAttemptNr extends AbstractEscapeCommand {
 	}
 
 	int communicationAttemptNr;
-	
+
 	@Override
     EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAVENIS_COMMUNICATION_ATTEMPT_NR;
@@ -18,13 +20,13 @@ public class WavenisStackCommunicationAttemptNr extends AbstractEscapeCommand {
 
 	@Override
 	void parse(byte[] data) throws IOException {
-		
+
 	}
 
 	@Override
 	byte[] prepare() throws IOException {
 		ByteArrayOutputStream baos = null;
-		try {	
+		try {
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
 			daos.writeByte((byte)communicationAttemptNr);
@@ -39,8 +41,8 @@ public class WavenisStackCommunicationAttemptNr extends AbstractEscapeCommand {
 					getProtocolStackLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}	
+		}
 	}
-	
-	
+
+
 }

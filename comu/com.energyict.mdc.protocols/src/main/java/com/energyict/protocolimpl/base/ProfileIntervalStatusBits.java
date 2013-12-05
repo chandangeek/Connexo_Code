@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+
 /**
- * Each {@link com.energyict.protocol.ProfileData} contains intervals with a status code.
+ * Each {@link com.energyict.mdc.protocol.device.data.ProfileData} contains intervals with a status code.
  * Depending on the protocol different interpretations are given to the statusFlags.
  * This interface generalizes the conversion of the intervalStateBits.
  * <br/>
@@ -12,10 +14,10 @@ package com.energyict.protocolimpl.base;
 public interface ProfileIntervalStatusBits {
 
     /**
-     * Convert the given protocolStatus code to a proper EIS {@link com.energyict.protocol.IntervalStateBits}
+     * Convert the given protocolStatus code to a proper EIS {@link IntervalStateBits}
      *
      * @param protocolStatusCode the statusCode from the device
-     * @return the status code according to the {@link com.energyict.protocol.IntervalStateBits}
+     * @return the status code according to the {@link IntervalStateBits}
      */
     public int getEisStatusCode(int protocolStatusCode);
 

@@ -13,16 +13,17 @@ import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
@@ -199,7 +200,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     // return serial.substring(2);
     // }
 
-    public com.energyict.cbo.Quantity getMeterReading(String name) throws java.io.IOException {
+    public Quantity getMeterReading(String name) throws java.io.IOException {
         if (name.indexOf("_") == 0) {
             return getInstantaneousFactory().getRegisterValue(name.substring(1));
         } else {
@@ -207,7 +208,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         }
     }
 
-    public com.energyict.cbo.Quantity getMeterReading(int channelId) throws java.io.IOException {
+    public Quantity getMeterReading(int channelId) throws java.io.IOException {
         getPactProfile().initChannelInfo();
         return getPactRegisterFactory().getMeterReadingsInterpreter().getValueEType(
                 getPactProfile().getLoadSurveyInterpreter().getEnergyTypeCode(channelId));

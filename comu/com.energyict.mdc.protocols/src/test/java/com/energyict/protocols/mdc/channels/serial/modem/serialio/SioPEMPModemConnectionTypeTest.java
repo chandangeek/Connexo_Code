@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
@@ -88,7 +88,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.DTR_TOGGLE_DELAY);
         dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.PHONE_NUMBER_PROPERTY_NAME);
-        phoneNumber.setValue(PHONE_NUMBER); 
+        phoneNumber.setValue(PHONE_NUMBER);
         ConnectionTaskPropertyImpl modemConfigurationKey = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.MODEM_CONFIGURATION_KEY);
         modemConfigurationKey.setValue(MODEM_CONFIGURATION_KEY);
 
@@ -121,7 +121,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioPEMPModemConnectionType modemConnectionType = new SioPEMPModemConnectionType();
 
         try {
-            modemConnectionType.connect(comPort, getProperProperties());
+            modemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-215")) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
@@ -143,7 +143,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioPEMPModemConnectionType modemConnectionType = new SioPEMPModemConnectionType();
 
         try {
-            modemConnectionType.connect(comPort, getProperProperties());
+            modemConnectionType.connect(getProperProperties());
         } catch (ModemException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-205")) {
                 fail("Should have gotten exception indicating a timeout, but was " + e.getMessage());
@@ -164,7 +164,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);
     }
@@ -180,7 +180,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);
@@ -197,7 +197,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);

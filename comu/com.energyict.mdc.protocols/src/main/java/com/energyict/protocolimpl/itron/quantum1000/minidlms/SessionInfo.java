@@ -10,21 +10,22 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SessionInfo {
-    
+
     private boolean sessionActive; // Boolean,
     private int portID; // UNSIGNED8,
     private int sourceAddr; // UNSIGNED8,
     private int passwordLevel; // UNSIGNED8,
-    private int timeRemainng; // UNSIGNED16    
-    
+    private int timeRemainng; // UNSIGNED16
+
     /** Creates a new instance of SessionInfo */
     public SessionInfo(byte[] data, int offset) throws IOException {
        setSessionActive(ProtocolUtils.getInt(data,offset++,1) == 1);
@@ -34,8 +35,8 @@ public class SessionInfo {
        setTimeRemainng(ProtocolUtils.getInt(data,offset,2));
        offset+=2;
     }
-    
-    
+
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -47,7 +48,7 @@ public class SessionInfo {
         strBuff.append("   timeRemainng="+getTimeRemainng()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 6;
     }
@@ -91,5 +92,5 @@ public class SessionInfo {
     public void setTimeRemainng(int timeRemainng) {
         this.timeRemainng = timeRemainng;
     }
-            
+
 }

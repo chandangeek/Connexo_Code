@@ -10,12 +10,7 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.cbo.TimeZoneManager;
-import com.energyict.protocolimpl.base.DataParser;
+import java.util.StringTokenizer;
 
 
 /**
@@ -23,26 +18,26 @@ import com.energyict.protocolimpl.base.DataParser;
  * @author Koen
  */
 public class CTVTRead extends AbstractDataReadingCommand {
-    
+
     String ctvtRatio;
-    
+
     /** Creates a new instance of CTVTRead */
     public CTVTRead(DataReadingCommandFactory drcf) {
         super(drcf);
     }
-    
-    
+
+
     public void parse(byte[] data, java.util.TimeZone timeZone) throws java.io.IOException {
         data = getDataReadingCommandFactory().getEnermet().getIec1107Connection().parseDataBetweenBrackets(data);
         String str = new String(data);
         StringTokenizer strTok = new StringTokenizer(str,",");
         ctvtRatio = "VT="+strTok.nextToken()+"/"+strTok.nextToken()+"(/"+strTok.nextToken()+"), CT="+strTok.nextToken()+"/"+strTok.nextToken()+"(/"+strTok.nextToken()+")";
-    }    
+    }
 
     public void retrieveCTVTRatio() throws java.io.IOException {
         retrieve("3");
     }
-    
+
     public String getCtvtRatio() {
         return ctvtRatio;
     }

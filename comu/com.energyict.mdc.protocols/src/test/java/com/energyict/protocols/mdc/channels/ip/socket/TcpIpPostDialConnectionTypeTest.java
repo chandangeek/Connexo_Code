@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
 
-import com.energyict.cbo.InvalidValueException;
+import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.cbo.TimeConstants;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ServerComChannel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class TcpIpPostDialConnectionTypeTest {
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_COMMAND, POST_DIAL_COMMAND);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_TRIES, new BigDecimal(-5));
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_DELAY, POST_DIAL_DELAY);
-        connectionType.addProperties(properties);
+        connectionType.copyProperties(properties);
 
         // Business method
         try {
@@ -56,7 +56,7 @@ public class TcpIpPostDialConnectionTypeTest {
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_COMMAND, POST_DIAL_COMMAND);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_TRIES, POST_DIAL_TRIES);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_DELAY, new BigDecimal(-100));
-        connectionType.addProperties(properties);
+        connectionType.copyProperties(properties);
 
         // Business method
         try {
@@ -74,7 +74,7 @@ public class TcpIpPostDialConnectionTypeTest {
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_COMMAND, POST_DIAL_COMMAND);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_TRIES, POST_DIAL_TRIES);
         properties.setProperty(TcpIpPostDialConnectionType.POST_DIAL_DELAY, POST_DIAL_DELAY);
-        connectionType.addProperties(properties);
+        connectionType.copyProperties(properties);
 
         long timeBeforePostDial = System.currentTimeMillis();
 
@@ -96,7 +96,7 @@ public class TcpIpPostDialConnectionTypeTest {
     public void sendPostDialCommandWhenNoPostDialCommandSpecifiedTest() throws Exception {
         TcpIpPostDialConnectionType connectionType = new TcpIpPostDialConnectionType();
         TypedProperties properties = TypedProperties.empty();
-        connectionType.addProperties(properties);
+        connectionType.copyProperties(properties);
 
         // Business method
         connectionType.sendPostDialCommand(comChannel);

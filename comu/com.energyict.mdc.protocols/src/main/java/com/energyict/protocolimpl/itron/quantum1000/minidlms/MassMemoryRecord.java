@@ -10,19 +10,22 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryRecord {
-    
+
     private Date date;
     private int statusBits; // 16 bit
-/*    
+/*
     (0) = Short Interval
     (1) = Long Interval
     (2) = Test Mode
@@ -37,10 +40,10 @@ public class MassMemoryRecord {
  */
    private int[] pulseCount; // 16 bit
    private int checkValue; // do not read... no explanation in protocoldoc and manufacturer tool does not read this value either
-   
-    
+
+
     /**
-     * Creates a new instance of MassMemoryRecord 
+     * Creates a new instance of MassMemoryRecord
      */
     public MassMemoryRecord(byte[] data, int offset, TimeZone timeZone, int nrOfChannels) throws IOException {
         setDate(Utils.getDateFromDateTime(data,offset, timeZone));
@@ -53,11 +56,11 @@ public class MassMemoryRecord {
             offset+=2;
         }
     }
-    
+
     public int getEIStatus() {
         int eiStatus=0;
         if (isShortInterval())
-            eiStatus|=IntervalStateBits.SHORTLONG;
+            eiStatus|= IntervalStateBits.SHORTLONG;
         if (isLongInterval())
             eiStatus|=IntervalStateBits.SHORTLONG;
         if (isTestMode())
@@ -70,10 +73,10 @@ public class MassMemoryRecord {
             eiStatus|=IntervalStateBits.SHORTLONG;
         if (isCheckSumError())
             eiStatus|=IntervalStateBits.CORRUPTED;
-        
+
         return eiStatus;
     }
-    
+
     public boolean isShortInterval() {
         return (getStatusBits() & 0x0001)==0x0001;
     }
@@ -107,7 +110,7 @@ public class MassMemoryRecord {
     public boolean isCheckSumError() {
         return (getStatusBits() & 0x8000)==0x8000;
     }
-            
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -120,7 +123,7 @@ public class MassMemoryRecord {
         strBuff.append("   statusBits="+getStatusBits()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size(int nrOfChannels) {
         return nrOfChannels*2+8;
     }
@@ -156,7 +159,7 @@ public class MassMemoryRecord {
     public void setCheckValue(int checkValue) {
         this.checkValue = checkValue;
     }
-    
 
-    
+
+
 }

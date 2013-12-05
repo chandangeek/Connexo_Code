@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 
 import java.io.IOException;
 

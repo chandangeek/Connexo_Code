@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TestModeParam {
-    
+
     private int testModeDemandInterval; // : UINT8;
     private int testModeTimeOut; // : UINT8;
 
@@ -28,7 +29,7 @@ public class TestModeParam {
         setTestModeDemandInterval((int)data[offset++]&0xff);
         setTestModeTimeOut((int)data[offset++]&0xff);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -36,8 +37,8 @@ public class TestModeParam {
         strBuff.append("   testModeDemandInterval="+getTestModeDemandInterval()+"\n");
         strBuff.append("   testModeTimeOut="+getTestModeTimeOut()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 2;
@@ -58,5 +59,5 @@ public class TestModeParam {
     private void setTestModeTimeOut(int testModeTimeOut) {
         this.testModeTimeOut = testModeTimeOut;
     }
-    
+
 }

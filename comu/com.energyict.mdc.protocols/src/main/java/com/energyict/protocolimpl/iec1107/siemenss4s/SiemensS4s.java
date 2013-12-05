@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
@@ -20,30 +20,30 @@ import java.util.List;
 import java.util.Properties;
 
 public class SiemensS4s extends AbstractIEC1107Protocol {
-	
+
 	private S4sObjectFactory objectFactory;
 	private SiemensS4sProfile profileObject;
 	private SiemensS4sObisCodeMapper obisCodeMapper;
-	
+
 	private String nodeAddress;
 	private String deviceId;
 	private String passWord;
 	private String serialNumber;
-	
+
 	private boolean requestDataReadout;
-	
+
 	private int securityLevel;
 	private int channelMap;
-	
+
 	private byte[] dataReadout;
-	
+
 	/**
 	 * Creates a new instance of the SiemesS4s protocol
 	 */
 	public SiemensS4s(){
 		super(new SiemensS4sEncryptor());
 	}
-	
+
     public void connect() throws IOException {
         try {
             if (requestDataReadout) {
@@ -56,7 +56,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
         catch(FlagIEC1107ConnectionException e) {
             throw new IOException(e.getMessage());
         }
-        
+
         try {
             validateSerialNumber();
         }
@@ -69,11 +69,11 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	protected void doConnect() throws IOException {
 		initLocalObjects();
 	}
-	
+
     public int getNumberOfChannels(){
         return this.channelMap;
      }
-	
+
 	/**
 	 * Initialize local objects
 	 */
@@ -85,7 +85,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	protected List doGetOptionalKeys() {
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Set certain properties before doing anything
 	 */
@@ -102,7 +102,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		this.serialNumber=properties.getProperty(MeterProtocol.SERIALNUMBER);
 		this.channelMap = Integer.parseInt(properties.getProperty("ChannelMap","1"));
 	}
-	
+
 	/**
 	 * Check if the serialNumber matches the one you read from the device. If not fail.
 	 * @throws IOException when mismatch or when received data isn't correct
@@ -113,11 +113,11 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		}
 		String s4sSerialNumber = getObjectFactory().getSerialNumberObject().getSerialNumber();
 		if(!s4sSerialNumber.equalsIgnoreCase(this.serialNumber)){
-			throw new ConnectionException("Wrong serialNumber, EIServer: " + this.serialNumber + 
+			throw new ConnectionException("Wrong serialNumber, EIServer: " + this.serialNumber +
 					" - Meter: " + s4sSerialNumber);
 		}
 	}
-	
+
 	/**
 	 * Read the time from the meter.
 	 */
@@ -125,14 +125,14 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 		Calendar s4sDateTime = getObjectFactory().getDateTimeObject().getMeterTime();
 		return s4sDateTime.getTime();
 	}
-	
+
 	/**
 	 * @return the meter his current profileInterval.
 	 */
 	public int getProfileInterval() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
 		return this.profileObject.getProfileInterval();
 	}
-	
+
 	/**
 	 * Create the profileObject
 	 * @param lastReading - the from date from where to start reading
@@ -142,7 +142,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		return this.profileObject.getProfileData(lastReading, includeEvents);
 	}
-	
+
 	/**
 	 * Read a register given the obisCode
 	 * @param obisCode - the ObisCode of the register
@@ -151,7 +151,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
-    
+
     /**
      * Getter for the obisCodeMapper. If he doesn't exist, then create ONE.
      * @return the registerObisCodeMapper
@@ -174,7 +174,7 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
     public String getProtocolDescription() {
         return "Landis&Gyr S4 IEC1107";
     }
-	
+
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

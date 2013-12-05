@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author koen
  */
 public class RegisterUnitParser {
-    
+
     /** Creates a new instance of RegisterUnitParser */
     public RegisterUnitParser() {
     }
-    
+
     public Unit parse(char code) {
         switch(code) {
             case 'A':
@@ -45,19 +45,19 @@ public class RegisterUnitParser {
                 return Unit.get(BaseUnit.MINUTE);
             case 'N':
                 return Unit.get("");
-            case 'O':    
+            case 'O':
                 return Unit.get(BaseUnit.CUBICMETER);
-            case 'P':    
+            case 'P':
                 return Unit.get(BaseUnit.PERCENT);
-            case 'Q': // power factor   
+            case 'Q': // power factor
                 return Unit.get("");
-            case 'R':    
+            case 'R':
                 return Unit.get("var");
-            case 'S':    
+            case 'S':
                 return Unit.get("VA");
-            case 'T':    
+            case 'T':
                 return Unit.get(BaseUnit.SECOND);
-            case 'U': // unknown   
+            case 'U': // unknown
                 return Unit.get("");
             case 'V':
                 return Unit.get(BaseUnit.VOLT);
@@ -69,9 +69,9 @@ public class RegisterUnitParser {
                 return Unit.get("varh");
             case 'Z':
                 return Unit.get("VAh");
-            default: 
+            default:
                 return Unit.get("");
         }
     }
-    
+
 }

@@ -4,7 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.methods.AssociationSNMethods;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
@@ -49,9 +49,9 @@ public class AssociationSN extends AbstractCosemObject {
 	}
 
 	/**
-	 * Getter for the default {@link com.energyict.obis.ObisCode} of this object
+	 * Getter for the default {@link ObisCode} of this object
 	 *
-	 * @return the logicalName ({@link com.energyict.obis.ObisCode}) of this object
+	 * @return the logicalName ({@link ObisCode}) of this object
 	 */
 	public static ObisCode getDefaultObisCode() {
 		return OBISCODE;

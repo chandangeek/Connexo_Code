@@ -6,40 +6,40 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 /**
  *
  * @author  Koen
  */
 public class Instantaneous {
-    
+
     private String description;
     private Unit unit;
     private int type;
-    
+
     /** Creates a new instance of instantaneous */
     public Instantaneous(String description,Unit unit,int type) {
         this.description=description;
         this.unit=unit;
         this.type=type;
     }
-    
+
     /**
      * Getter for property unit.
      * @return Value of property unit.
      */
-    public com.energyict.cbo.Unit getUnit() {
+    public Unit getUnit() {
         return unit;
     }
-    
+
     /**
      * Setter for property unit.
      * @param unit New value of property unit.
      */
-    public void setUnit(com.energyict.cbo.Unit unit) {
+    public void setUnit(Unit unit) {
         this.unit = unit;
     }
-    
+
     /**
      * Getter for property type.
      * @return Value of property type.
@@ -47,7 +47,7 @@ public class Instantaneous {
     public int getType() {
         return type;
     }
-    
+
     /**
      * Setter for property type.
      * @param type New value of property type.
@@ -55,7 +55,7 @@ public class Instantaneous {
     public void setType(int type) {
         this.type = type;
     }
-    
+
     /**
      * Getter for property description.
      * @return Value of property description.
@@ -63,7 +63,7 @@ public class Instantaneous {
     public java.lang.String getDescription() {
         return description;
     }
-    
+
     /**
      * Setter for property description.
      * @param description New value of property description.
@@ -71,5 +71,5 @@ public class Instantaneous {
     public void setDescription(java.lang.String description) {
         this.description = description;
     }
-    
+
 }

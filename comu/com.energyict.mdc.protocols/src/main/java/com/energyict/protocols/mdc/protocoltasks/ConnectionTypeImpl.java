@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
@@ -9,17 +8,23 @@ import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.exceptions.SerialPortException;
-import com.energyict.mdc.protocol.*;
-import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.ServerComChannel;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Serves as the root for components that intend to implement
- * the {@link com.energyict.mdc.tasks.ConnectionType} interface.
+ * the {@link ConnectionType} interface.
  * Mostly provides code reuse opportunities for storing properties.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -33,14 +38,23 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
         super();
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        this.properties = TypedProperties.copyOf(properties);
-    }
-
     protected TypedProperties getAllProperties() {
         return this.properties;
     }
+
+    @Override
+    public void copyProperties (TypedProperties properties) {
+        this.properties = TypedProperties.copyOf(properties);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs () {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        this.addPropertySpecs(propertySpecs);
+        return propertySpecs;
+    }
+
+    protected abstract void addPropertySpecs (List<PropertySpec> propertySpecs);
 
     protected Object getProperty(String propertyName) {
         return this.getAllProperties().getProperty(propertyName);

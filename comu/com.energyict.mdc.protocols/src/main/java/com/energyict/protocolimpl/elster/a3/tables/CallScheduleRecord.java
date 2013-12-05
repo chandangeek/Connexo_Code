@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -29,7 +26,7 @@ public class CallScheduleRecord {
     private int originateControl; // 1 byte b0-2: phone number identifier (0-2)
                                                              // b3: call pending. 1 = call pending to this number
                                                              // b4-6: unused
-                                                             // b7: useWindows. 1 = use call windows Call Purpose 1 
+                                                             // b7: useWindows. 1 = use call windows Call Purpose 1
                                                              // b0: outage call
                                                              // b1: restoration call
                                                              // b2: billing call
@@ -41,18 +38,18 @@ public class CallScheduleRecord {
                                               // b2: billing call
                                               // b3: alarm call
                                               // b4: immediate call
-                                              // b5-7: unused		
+                                              // b5-7: unused
 
-    
+
     /** Creates a new instance of SourceDefinitionEntry */
     public CallScheduleRecord(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         setRetriesRemaining(C12ParseUtils.getInt(data,offset++));
         setOriginateControl(C12ParseUtils.getInt(data,offset++));
         setCallPurpose(C12ParseUtils.getInt(data,offset++));
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -62,12 +59,12 @@ public class CallScheduleRecord {
         strBuff.append("   retriesRemaining="+getRetriesRemaining()+"\n");
         return strBuff.toString();
     }
-    
-    
-    
+
+
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 3;
-    }   
+    }
 
     public int getRetriesRemaining() {
         return retriesRemaining;

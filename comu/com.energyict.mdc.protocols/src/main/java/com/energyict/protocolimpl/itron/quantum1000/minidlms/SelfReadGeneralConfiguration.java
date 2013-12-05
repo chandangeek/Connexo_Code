@@ -10,61 +10,61 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadGeneralConfiguration extends AbstractDataDefinition {
-    
+
     private SelfReadTriggerInfo[] selfReadTriggerInfos = new SelfReadTriggerInfo[24];
-    
+
     private boolean freezeEveryNminutes; // BOOLEAN,
     private int numberOfMinutes; // UNSIGNED16,
     private int actionCode; // UNSIGNED8,
     private int synchTo; // UNSIGNED16,
-    
+
     private boolean monthlyOnNthDay; // BOOLEAN,
     private int onDay; // UNSIGNED8, --1..31
     private Date atTimeOnDay; // TIME,
     private int actionCodeAtime; // UNSIGNED8,
-    
+
     private boolean weekly; // BOOLEAN,
     private int actionCodeWeekly;// UNSIGNED8,
     private Date atTimeWeekly; // TIME,
     private int onDays; // UNSIGNED8, --Bit0 = Monday / Bit1 = Tuesday etc...
-    
+
     private boolean digitalStateInput; // BOOLEAN,
     private int actionCodeDigitalStateInput; // UNSIGNED8,
-    
+
     private boolean communicationCMD; // BOOLEAN,
     private int actionCodeCommunicationCMD; // UNSIGNED8,
-    
+
     private boolean demandReset; // BOOLEAN,
     private int actionCodeDemandReset; // UNSIGNED8,
-    
+
     private boolean afterSeasonChange; // BOOLEAN,
     private int actionCodeAfterSeasonChange; // UNSIGNED8,
-    
+
     private boolean oneTestModeEntry; // BOOLEAN,
     private int actionCodeOneTestModeEntry; // UNSIGNED8,
-    
+
     private boolean onTestModeExit; // BOOLEAN,
     private int actionCodeOnTestModeExit; // UNSIGNED8,
-    
+
     private int numRecordsPerFile; // UNSIGNED16, --At least 1
     private boolean currentLatentSwitch; // BOOLEAN,
     private int actionCodeCurrentLatentSwitch; // UNSIGNED8,
-    
+
     /** Creates a new instance of SelfReadGeneralConfiguration */
     public SelfReadGeneralConfiguration(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -102,56 +102,56 @@ public class SelfReadGeneralConfiguration extends AbstractDataDefinition {
         return strBuff.toString();
     }
 
-    
+
     protected int getVariableName() {
         return 0x0046; // 70 DLMS_SELF_READ_GENERAL_CONFIG
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        
+
         for (int i=0;i<getSelfReadTriggerInfos().length;i++) {
             getSelfReadTriggerInfos()[i] = new SelfReadTriggerInfo(data,offset, getDataDefinitionFactory().getProtocolLink().getProtocol().getTimeZone());
             offset+=SelfReadTriggerInfo.size();
         }
-        
+
         setFreezeEveryNminutes(ProtocolUtils.getInt(data,offset++,1)==1);
         setNumberOfMinutes(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
         setActionCode(ProtocolUtils.getInt(data,offset++,1));
         setSynchTo(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
-        
+
         setMonthlyOnNthDay(ProtocolUtils.getInt(data,offset++,1)==1);
         setOnDay(ProtocolUtils.getInt(data,offset++,1));
         setAtTimeOnDay(Utils.getDateFromTime(data, offset, getDataDefinitionFactory().getProtocolLink().getProtocol().getTimeZone()));
         offset+=Utils.getTimeSize();
         setActionCodeAtime(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setWeekly(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeWeekly(ProtocolUtils.getInt(data,offset++,1));
         setAtTimeWeekly(Utils.getDateFromTime(data, offset, getDataDefinitionFactory().getProtocolLink().getProtocol().getTimeZone()));
         offset+=Utils.getTimeSize();
         setOnDays(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setDigitalStateInput(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeDigitalStateInput(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setCommunicationCMD(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeCommunicationCMD(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setDemandReset(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeDemandReset(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setAfterSeasonChange(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeAfterSeasonChange(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setOneTestModeEntry(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeOneTestModeEntry(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setOnTestModeExit(ProtocolUtils.getInt(data,offset++,1)==1);
         setActionCodeOnTestModeExit(ProtocolUtils.getInt(data,offset++,1));
-        
+
         setNumRecordsPerFile(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
         if (data.length>224) {

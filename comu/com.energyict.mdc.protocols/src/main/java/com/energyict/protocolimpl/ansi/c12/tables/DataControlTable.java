@@ -10,12 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import java.io.IOException;
 
 
 
@@ -24,18 +21,18 @@ import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
  * @author Koen
  */
 public class DataControlTable extends AbstractTable {
-    
+
     /*
-     *   sourceId[nr of data control sources][manufacturer depending nr of octets] 
+     *   sourceId[nr of data control sources][manufacturer depending nr of octets]
      */
     private byte[][] sourceId;
-    
-    
+
+
     /** Creates a new instance of DataControlTable */
     public DataControlTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(14));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DataControlTable: \n");
@@ -44,7 +41,7 @@ public class DataControlTable extends AbstractTable {
         }
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         setSourceId(new byte[getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesDataControl()][getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getDataControlLength()]);
@@ -62,5 +59,5 @@ public class DataControlTable extends AbstractTable {
     public void setSourceId(byte[][] sourceId) {
         this.sourceId = sourceId;
     }
-    
+
 }

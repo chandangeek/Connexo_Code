@@ -1,17 +1,26 @@
 package com.energyict.protocolimpl.dlms.idis.registers;
 
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.HistoricalRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class IDISStoredValues implements com.energyict.dlms.cosem.StoredValues {
 
@@ -72,13 +81,13 @@ public class IDISStoredValues implements com.energyict.dlms.cosem.StoredValues {
      */
     public ProfileData getProfileData() throws IOException {
         ProfileData profileData = new ProfileData();
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         IntervalValue value;
 
         for (int index = 0; index < getBillingPointCounter(); index++) {
             DataStructure structure = getFullBuffer().getRoot().getStructure(index);
             Date timeStamp = new Date();
-            List<IntervalValue> values = new ArrayList<IntervalValue>();
+            List<IntervalValue> values = new ArrayList<>();
             for (int channel = 0; channel < structure.getNrOfElements(); channel++) {
                 if (channel == 0) {
                     timeStamp = structure.getOctetString(0).toDate();

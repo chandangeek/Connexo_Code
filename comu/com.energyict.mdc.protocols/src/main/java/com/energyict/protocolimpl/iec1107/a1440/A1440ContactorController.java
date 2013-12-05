@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.base.ContactorController;
+
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * The {@link ContactorController} for the {@link A1440} {@link MeterProtocol}

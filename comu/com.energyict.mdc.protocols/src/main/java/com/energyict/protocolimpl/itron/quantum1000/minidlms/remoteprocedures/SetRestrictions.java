@@ -10,27 +10,27 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 public class SetRestrictions extends AbstractViewRpc {
-    
+
     private byte[] restrictions;
-            
-    
+
+
     /** Creates a new instance of SelectViewableFileId */
     public SetRestrictions(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
-    
+
+
     protected int getSubfunction() {
         return getVRPC_SET_RESTRICTIONS();
     }
-    
+
     protected byte[] getSubfunctionParameters() {
         return getRestrictions();
     }

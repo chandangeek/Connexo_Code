@@ -10,19 +10,17 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class LastSelfReadStateDataRead extends AbstractDataRead {
-    
+
     // All FW versions
     private int lastSelfReadDemandResetCount; // UINT16
     private int lastSelfReadNonFatalErrors; // UINT8 (see Appendix B)
@@ -40,10 +38,10 @@ public class LastSelfReadStateDataRead extends AbstractDataRead {
     private int lastSelfReadTimesProgrammedCount; // UINT8
     private int lastSelfReadEarlyPowerFailCount; // UINT16
 
-    // Only 3 <= fw  
+    // Only 3 <= fw
     private int lastSelfReadNonFatalErrors2; // UINT8 (see Appendix B)
 
-    // Only 5 <= fw  
+    // Only 5 <= fw
     private int lastSelfReadDiag6Count; // UINT8
 
     // All FW versions
@@ -54,7 +52,7 @@ public class LastSelfReadStateDataRead extends AbstractDataRead {
     public LastSelfReadStateDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -79,15 +77,15 @@ public class LastSelfReadStateDataRead extends AbstractDataRead {
         strBuff.append("   seasonInUseAtTheEndOfTheLastSelfRead="+getSelfReadInUseAtTheEndOfTheLastSelfRead()+"\n");
         strBuff.append("   timeDateAtEndOfLastSelfRead="+getTimeDateAtEndOfLastSelfRead()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
-        
+
         int offset=0;
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         float firmware = getDataReadFactory().getConstantsDataRead().getFirmwareVersionRevision();
-        
-        
+
+
         setLastSelfReadDemandResetCount(C12ParseUtils.getInt(data,offset, 2, dataOrder));
         offset+=2;
         setLastSelfReadNonFatalErrors(C12ParseUtils.getInt(data,offset++));
@@ -108,25 +106,25 @@ public class LastSelfReadStateDataRead extends AbstractDataRead {
 
         if (firmware >= 3)
             setLastSelfReadNonFatalErrors2(C12ParseUtils.getInt(data,offset++));
-        
+
         if (firmware >= 5)
             setLastSelfReadDiag6Count(C12ParseUtils.getInt(data,offset++));
 
         // All FW versions
         setTimeDateAtEndOfLastSelfRead(Utils.parseTimeStamp(C12ParseUtils.getLong(data,offset,4, dataOrder), getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getTimeZone()));
         offset+=4;
-        
+
         setSelfReadInUseAtTheEndOfTheLastSelfRead(C12ParseUtils.getInt(data,offset++));
-        
-        
+
+
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         float firmware = getDataReadFactory().getConstantsDataRead().getFirmwareVersionRevision();
-        
+
         long[] lids=null;
-        
+
         if (firmware < 3) {
            lids = new long[]{LogicalIDFactory.findLogicalId("LAST_SR_DEMAND_RESET_COUNT").getId(),
                              LogicalIDFactory.findLogicalId("LAST_SR_ALL_STATE_DATA").getId(),
@@ -145,10 +143,10 @@ public class LastSelfReadStateDataRead extends AbstractDataRead {
                              LogicalIDFactory.findLogicalId("LAST_SR_TIME_DATE").getId(),
                              LogicalIDFactory.findLogicalId("LAST_SR_SEASON").getId()};
         }
-        
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x04, lids));    
-        
+
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x04, lids));
+
     } // protected void prepareBuild() throws IOException
 
     public int getLastSelfReadDemandResetCount() {
@@ -302,5 +300,5 @@ public class LastSelfReadStateDataRead extends AbstractDataRead {
     public void setSelfReadInUseAtTheEndOfTheLastSelfRead(int seasonInUseAtTheEndOfTheLastSelfRead) {
         this.seasonInUseAtTheEndOfTheLastSelfRead = seasonInUseAtTheEndOfTheLastSelfRead;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

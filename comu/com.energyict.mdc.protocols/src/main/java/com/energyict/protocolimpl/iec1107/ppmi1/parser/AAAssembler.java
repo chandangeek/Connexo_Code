@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
+
+import java.io.IOException;
 
 class AAAssembler implements Assembler {
 

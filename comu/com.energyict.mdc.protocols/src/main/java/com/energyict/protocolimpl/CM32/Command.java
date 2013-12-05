@@ -1,21 +1,19 @@
 package com.energyict.protocolimpl.CM32;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Command {
-	
+
 	private int activityIdentifier;
 	private boolean read;
 	private boolean isAck = false;
 	private byte[] sourceCode = {0x00, 0x00};
 	private byte[] destinationCode = {0x1A, 0x00};
-    
+
     public Command(int activityIdentifier) {
         this.setActivityIdentifier(activityIdentifier);
-    }   
-    
+    }
+
     public void validate() throws IOException {
 
     }
@@ -65,7 +63,7 @@ public class Command {
 		int readVal= (read) ? 0 : 16;
 		return (byte) (activityIdentifier + readVal + singleBlockVal + ackVal);
 	}
-	
+
 	public Command getAckCommand() {
 		Command command = new Command(this.getActivityIdentifier());
 		command.setDestinationCode(this.getDestinationCode());
@@ -74,8 +72,8 @@ public class Command {
 		this.setAck(true);
 		return command;
 	}
-    
-  
-    
+
+
+
 
 }

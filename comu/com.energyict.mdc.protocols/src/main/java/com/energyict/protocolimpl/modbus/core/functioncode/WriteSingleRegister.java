@@ -10,40 +10,42 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class WriteSingleRegister extends AbstractRequest {
-    
+
     private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_WRITESINGLEREGISTER);
-        
+
     int writeRegisterAddress;
     int writeRegisterValue;
     int readRegisterAddress;
     int readRegisterValue;
-            
+
     /** Creates a new instance of WriteSingleRegister */
     public WriteSingleRegister(FunctionCodeFactory functionCodeFactory) {
         super(functionCodeFactory);
     }
-    
+
     public String toString() {
         return "WriteSingleRegister: readRegisterAddress="+readRegisterAddress+", readRegisterValue="+readRegisterValue;
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         readRegisterAddress = ProtocolUtils.getInt(responseData.getData(),0, 2);
         readRegisterValue = ProtocolUtils.getInt(responseData.getData(),2, 2);
         if ((readRegisterAddress != writeRegisterAddress) || (readRegisterValue != writeRegisterValue)) {
             throw new ModbusException("WriteSingleRegister, parse, write error",ModbusException.WRITE_ERROR);
         }
-        
+
     }
 
     public void writeRegister(int writeRegisterAddress, int writeRegisterValue) {
@@ -59,6 +61,6 @@ public class WriteSingleRegister extends AbstractRequest {
 
     public RequestData getRequestData() {
         return requestData;
-    }    
-    
+    }
+
 }

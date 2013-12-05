@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +17,10 @@ import java.util.List;
  */
 public enum OpusConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetOpusOSNbr(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusOSNbrAttributeName)),
-    SetOpusPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusPasswordAttributeName)),
-    SetOpusTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusTimeoutAttributeName)),
-    SetOpusConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOpusConfigAttributeName));
+    SetOpusOSNbr(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetOpusOSNbrAttributeName)),
+    SetOpusPassword(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetOpusPasswordAttributeName)),
+    SetOpusTimeout(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetOpusTimeoutAttributeName)),
+    SetOpusConfig(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetOpusConfigAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.OPUS_CONFIGURATION;
 

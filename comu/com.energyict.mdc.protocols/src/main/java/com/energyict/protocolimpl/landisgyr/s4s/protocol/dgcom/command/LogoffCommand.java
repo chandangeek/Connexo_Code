@@ -10,25 +10,24 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LogoffCommand extends AbstractCommand {
-    
+
     /** Creates a new instance of TemplateCommand */
     public LogoffCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     protected byte[] prepareBuild() {
-        setResponseData(false);    
+        setResponseData(false);
         return new byte[]{(byte)0x79,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
     }
 }

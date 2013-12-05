@@ -1,9 +1,9 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.util.TimeZone;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
+
+import java.util.TimeZone;
 
 public final class AXDRTimeZone {
 

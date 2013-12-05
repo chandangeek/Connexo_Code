@@ -1,8 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -13,21 +21,21 @@ import java.util.List;
 public class StoredValuesImpl implements StoredValues {
 
     private static ObisCode OBIS_NUMBER_OF_AVAILABLE_HISTORICAL_SETS = ObisCode.fromString("0.0.0.1.1.255");
-    
+
     private static final int EOB_STATUS=0;
     private static final int TOTAL_ENERGY=1;
     private static final int ENERGY_RATES=2;
     private static final int MAXIMUM_DEMANDS=3;
     private static final int MD_RANGE=24; // 48 entries. ObisCode followed by struct, 24 times = 48 entries in the datacontainer
     private static final int CUMULATIVE_DEMAND=51; // unused for the moment...
-    
-    
+
+
     CosemObjectFactory cof;
     ProtocolLink protocolLink;
     ProfileGeneric profileGeneric=null;
-    
+
     List billingSets=new ArrayList();
-    
+
     /** Creates a new instance of StoredValues */
     public StoredValuesImpl(CosemObjectFactory cof) {
         this.cof=cof;
@@ -42,7 +50,7 @@ public class StoredValuesImpl implements StoredValues {
         com.energyict.dlms.cosem.Register cosmeRegister = cof.getRegister(OBIS_NUMBER_OF_AVAILABLE_HISTORICAL_SETS);
         return (int) cosmeRegister.getValue();
     }
-    
+
     public Date getBillingPointTimeDate(int billingPoint) throws IOException {
         if ((billingPoint+1) > billingSets.size()) {    // BillingSet for the billingPoint is not yet retrieved
             // retrieve billingSet
@@ -53,7 +61,7 @@ public class StoredValuesImpl implements StoredValues {
         }
         return ((BillingSet)billingSets.get(billingPoint)).getBillingDate();
     }
-    
+
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
         int billingPoint= Math.abs(obisCode.getF());
 
@@ -65,7 +73,7 @@ public class StoredValuesImpl implements StoredValues {
             DataContainer dc= profileGeneric.getBuffer();
             processDataContainer(dc);
         }
-        
+
         BillingSet billingSet = (BillingSet)billingSets.get(billingPoint);
         HistoricalValue historicalValue = new HistoricalValue();
         historicalValue.setBillingDate(billingSet.getBillingDate());
@@ -77,14 +85,14 @@ public class StoredValuesImpl implements StoredValues {
         extendedRegister.setScalerUnit(billingValue.getScalerUnit());
         extendedRegister.setCaptureTime(billingValue.getEventDateTime());
         historicalValue.setCosemObject(extendedRegister);
-        
+
         return historicalValue;
     }
-    
+
     public ProfileGeneric getProfileGeneric() {
         return profileGeneric;
     }
-    
+
 
 
     //********************************************************************************************

@@ -1,14 +1,20 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.EMCO.frame.*;
+import com.energyict.protocolimpl.EMCO.frame.ErrorResponseFrame;
+import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
+import com.energyict.protocolimpl.EMCO.frame.RequestFrame;
+import com.energyict.protocolimpl.EMCO.frame.ResponseFrame;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Used to send / receive requests.

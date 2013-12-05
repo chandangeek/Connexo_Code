@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TimeDateQualifier {
-    
+
     private int timeDataQualBitfield;
     private int dayOfWeek;
     private boolean dstFlag;
     private boolean gmtFlag;
     private boolean timeZoneAppliedFlag;
     private boolean dstAppliedFlag;
-    
+
     /** Creates a new instance of TimeDateQualifier */
     public TimeDateQualifier(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         setTimeDataQualBitfield(C12ParseUtils.getInt(data,offset));
@@ -45,10 +42,10 @@ public class TimeDateQualifier {
         strBuff.append(", dstFlag="+dstFlag+", gmtFlag="+gmtFlag+", timeZoneAppliedFlag="+timeZoneAppliedFlag+", dstAppliedFlag="+dstAppliedFlag+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 1;
-    }      
+    }
 
     public int getTimeDataQualBitfield() {
         return timeDataQualBitfield;

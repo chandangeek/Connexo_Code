@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryConfigType {
-    
+
     private int intervalLength; // UNSIGNED16,
     private int numberOfChannels; // UNSIGNED8,
     private long numberOfIntervalsToStore; // UNSIGNED32,
@@ -30,10 +30,10 @@ public class MassMemoryConfigType {
     private int TOURateSchedule; // unsigned8,
     private ChannelConfig[] channelConfigs = new ChannelConfig[24];
     private boolean tou;
-    
+
     /** Creates a new instance of Result */
     public MassMemoryConfigType(byte[] data,int offset, boolean tou) throws IOException {
-        
+
         this.setTou(tou);
         setIntervalLength(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
@@ -52,9 +52,9 @@ public class MassMemoryConfigType {
            getChannelConfigs()[i] = new ChannelConfig(data,offset);
            offset+=ChannelConfig.size();
         }
-        
-    } //  
-    
+
+    } //
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -73,12 +73,12 @@ public class MassMemoryConfigType {
             strBuff.append("   TOURateSchedule="+getTOURateSchedule()+"\n");
         }
         return strBuff.toString();
-    } 
-    
+    }
+
     static public int size() {
         return 11 + 24*ChannelConfig.size();
     }
-    
+
     static public int sizeTOU() {
         return 13 + 24*ChannelConfig.size();
     }
@@ -162,7 +162,7 @@ public class MassMemoryConfigType {
     public void setTou(boolean tou) {
         this.tou = tou;
     }
-    
 
-    
+
+
 }

@@ -10,18 +10,17 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author Koen
  */
 public class IntervalRecord {
-    
+
     private int[] values;
     private int nrOfChannels;
-    
+
     /** Creates a new instance of IntervalRecord */
     public IntervalRecord(byte[] data, int nibbleOffset, int nrOfChannels) {
         this.setNrOfChannels(nrOfChannels);
@@ -32,7 +31,7 @@ public class IntervalRecord {
                 value = (int)ProtocolUtils.getNibble(data,nibbleOffset+2)<<8;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset)<<4;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset+1);
-                
+
             } else {
                 value = (int)ProtocolUtils.getNibble(data,nibbleOffset)<<8;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset+1)<<4;
@@ -42,11 +41,11 @@ public class IntervalRecord {
             getValues()[i] = value;
         }
     }
-    
+
     static public int size(int nrOfChannel) {
         return nrOfChannel*3;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -58,7 +57,7 @@ public class IntervalRecord {
         strBuff.append("\n");
         return strBuff.toString();
     }
-        
+
     public int[] getValues() {
         return values;
     }
@@ -75,5 +74,5 @@ public class IntervalRecord {
         this.nrOfChannels = nrOfChannels;
     }
 
-    
+
 }

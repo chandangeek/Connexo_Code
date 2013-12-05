@@ -1,26 +1,27 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
-import com.energyict.obis.ObisCode;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.meterdata.identifiers.LogBookIdentifier} interface
- * that uses a device's {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} and the {@link com.energyict.obis.ObisCode} of the logbook to identify it
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier} interface
+ * that uses a device's {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} and the {@link ObisCode} of the logbook to identify it
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/05/13
  * Time: 16:12
  */
-public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
+public class LogBookIdentifierByObisCodeAndDevice implements CanFindLogBook {
 
-    private DeviceIdentifier deviceIdentifier;
+    private CanFindDevice deviceIdentifier;
     private ObisCode logBookObisCode;
 
-    public LogBookIdentifierByObisCodeAndDevice(DeviceIdentifier deviceIdentifier, ObisCode logBookObisCode) {
+    public LogBookIdentifierByObisCodeAndDevice(CanFindDevice deviceIdentifier, ObisCode logBookObisCode) {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.logBookObisCode = logBookObisCode;
@@ -46,7 +47,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
 
     /**
      * Check if the given {@link Object} is equal to this {@link LogBookIdentifierByObisCodeAndDevice}. <BR>
-     * WARNING: if comparing with a {@link com.energyict.mdc.meterdata.identifiers.LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
+     * WARNING: if comparing with a {@link com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
      * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdw.core.LogBook}!
      */
     public boolean equals(Object o) {

@@ -1,15 +1,22 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.w3c.dom.*;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author gna

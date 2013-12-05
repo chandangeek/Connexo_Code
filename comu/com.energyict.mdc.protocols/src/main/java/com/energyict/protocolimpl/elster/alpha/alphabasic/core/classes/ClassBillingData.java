@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
 
 /**
  *

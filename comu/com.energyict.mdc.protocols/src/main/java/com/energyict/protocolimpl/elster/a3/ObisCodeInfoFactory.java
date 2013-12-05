@@ -10,13 +10,17 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ActualRegisterTable;
+import com.energyict.protocolimpl.ansi.c12.tables.DataBlock;
+import com.energyict.protocolimpl.ansi.c12.tables.RegisterData;
+import com.energyict.protocolimpl.ansi.c12.tables.RegisterInf;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.elster.a3.tables.ObisCodeDescriptor;
 import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
 
@@ -87,16 +91,16 @@ public class ObisCodeInfoFactory {
 		switch(fField) {
 		case CURRENT: {
 			registerSetInfo = "current, ";
-		} break; 
+		} break;
 		case PREVIOUS_SEASON: {
 			registerSetInfo = "previous season, ";
-		} break; 
+		} break;
 		case PREVIOUS_DEMAND_RESET: {
 			registerSetInfo = "previous demand reset, ";
-		} break; 
+		} break;
 		default: { // SELF_READ_OFFSET
 			registerSetInfo = "self read, ";
-		} break; 
+		} break;
 		}
 
 		if (fField == CURRENT) {
@@ -129,9 +133,9 @@ public class ObisCodeInfoFactory {
         }
 		for(int tier=0;tier<=art.getNrOfTiers();tier++) {
 			for(int index=0;index<art.getNrOfSummations();index++) {
-				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getSummationSelects()[index]; 
+				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getSummationSelects()[index];
 				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex); 
+					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
 					if (obisCodeDescriptor != null) {
 						obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),ObisCode.CODE_D_TIME_INTEGRAL,tier,fField),registerSetInfo+"summation register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getVolumeUnit(),index,dataControlEntryIndex));
 					}
@@ -141,7 +145,7 @@ public class ObisCodeInfoFactory {
 			for(int index=0;index<art.getNrOfDemands();index++) {
 				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getDemandSelects()[index];
 				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex); 
+					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
 					if (obisCodeDescriptor != null) {
 						obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),ObisCode.CODE_D_MAXIMUM_DEMAND,tier,fField),registerSetInfo+"max/min demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getFlowUnit(),index,dataControlEntryIndex));
 						if (art.isCumulativeDemandFlag()) {
@@ -151,14 +155,14 @@ public class ObisCodeInfoFactory {
 							obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),CONT_CUMULATIVE_DEMAND,tier,fField),registerSetInfo+"continue cumulative demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getFlowUnit(),index,dataControlEntryIndex));
 						}
 					}
-				} 
+				}
 			}
 
 			for(int index=0;index<art.getNrOfCoinValues();index++) {
 
-				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getCoincidentSelects()[index];            
+				int dataControlEntryIndex = alphaA3.getStandardTableFactory().getDataSelectionTable().getCoincidentSelects()[index];
 				if (dataControlEntryIndex != 255) {
-					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex); 
+					ObisCodeDescriptor obisCodeDescriptor = si.getObisCodeDescriptor(dataControlEntryIndex);
 					if (obisCodeDescriptor != null) {
 						obisCodeInfos.add(new ObisCodeInfo(new ObisCode(1,obisCodeDescriptor.getBField(),obisCodeDescriptor.getCField(),COIN_DEMAND+index,tier,fField),registerSetInfo+"coincident demand register index "+index+", "+obisCodeDescriptor.getDescription(),si.getUnit(dataControlEntryIndex).getFlowUnit(),index,dataControlEntryIndex));
 					}
@@ -223,31 +227,31 @@ public class ObisCodeInfoFactory {
 		boolean energy=false;
 
 		if (obi.isTimeIntegral()) { // D FIELD
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getSummations()[registerIndex];
 			energy=true;
 		}
 		else if (obi.isMaximumDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getDemands()[registerIndex].getDemands()[obi.getOccurance()];
 			if (dataBlock.getDemands()[registerIndex].getEventTimes() != null)
 				date = dataBlock.getDemands()[registerIndex].getEventTimes()[obi.getOccurance()];
 		}
 		else if (obi.isCumulativeMaximumDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getDemands()[registerIndex].getCumDemand();
 		}
 		else if (obi.isContCumulativeMaximumDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getDemands()[registerIndex].getContinueCumDemand();
 		}
 		else if (obi.isCoinMaximumDemandDemand()) {
-			int registerIndex = obi.getRegisterIndex();// C 
+			int registerIndex = obi.getRegisterIndex();// C
 			value = dataBlock.getCoincidents()[registerIndex].getCoincidentValues()[obi.getOccurance()];
 		}
 		else if (obi.isInstantaneous()) {
 			Number[] data = alphaA3.getStandardTableFactory().getPresentRegisterDataTable().getPresentValues();
-			int registerIndex = obi.getRegisterIndex(); 
+			int registerIndex = obi.getRegisterIndex();
 			value = data[registerIndex];
 		}
 
@@ -257,7 +261,7 @@ public class ObisCodeInfoFactory {
 	}
 
 	private BigDecimal getEngineeringValue(BigDecimal bd, boolean energy, ObisCodeInfo obi) throws IOException {
-		SourceInfo si = new SourceInfo(alphaA3); 
+		SourceInfo si = new SourceInfo(alphaA3);
 		return si.basic2engineering(bd,obi.getDatacontrolEntryIndex(),false,energy);
 	}
 

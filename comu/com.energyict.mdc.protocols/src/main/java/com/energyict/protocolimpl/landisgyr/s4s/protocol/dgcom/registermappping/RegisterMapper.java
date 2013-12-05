@@ -10,28 +10,31 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping;
 
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.S4s;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
-abstract public class RegisterMapper {
-    
-    abstract protected void buildRegisterValues(int billingPoint) throws IOException;
-    abstract protected String getBillingExtensionDescription() throws IOException;
-    
+public abstract class RegisterMapper {
+
+    protected abstract void buildRegisterValues(int billingPoint) throws IOException;
+    protected abstract String getBillingExtensionDescription() throws IOException;
+
     S4s s4s;
     List registers;
-    
+
     boolean current;
     boolean[] selfread;
     private int nrOfBillingPeriods;
-            
+
     public RegisterMapper(S4s s4s) throws IOException {
         this.s4s=s4s;
         setNrOfBillingPeriods(s4s.getCommandFactory().getSelfReadConfigurationCommand().getNrOfSelfReadsToStore());
@@ -41,12 +44,12 @@ abstract public class RegisterMapper {
         for (int i=0;i<getNrOfBillingPeriods();i++)
             selfread[i] = false;
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obc) throws IOException {
-        
+
         ObisCode obisCode = new ObisCode(obc.getA(),obc.getB(),obc.getC(),obc.getD(),obc.getE(),Math.abs(obc.getF()));
         buildRegisterValues(obisCode.getF());
-        
+
         for (int i=0;i<getRegisters().size();i++) {
             Register reg = (Register)getRegisters().get(i);
             if (reg.getRegisterValue().getObisCode().equals(obisCode)) {
@@ -55,8 +58,8 @@ abstract public class RegisterMapper {
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
     }
-    
-    
+
+
     public String getRegisterInfo() throws IOException {
         StringBuffer strBuff = new StringBuffer();
         buildRegisterValues(255);
@@ -65,11 +68,11 @@ abstract public class RegisterMapper {
         }
         strBuff.append(getBillingExtensionDescription());
         return strBuff.toString();
-    }        
-    
+    }
+
     public List getRegisters() {
         return registers;
-    }    
+    }
 
     public int getNrOfBillingPeriods() {
         return nrOfBillingPeriods;

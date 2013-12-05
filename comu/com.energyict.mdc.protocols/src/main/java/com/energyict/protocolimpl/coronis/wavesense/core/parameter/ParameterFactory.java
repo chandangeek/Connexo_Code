@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.coronis.wavesense.core.parameter;
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
@@ -21,7 +23,7 @@ public class ParameterFactory {
     private static final int DAILY = 60 * 60 * 24;
     private static final int WEEKLY = DAILY * 7;
     private static final int MONTHLY = (WEEKLY * 4) - 1;
-    
+
     public ParameterFactory(final WaveSense waveSense) {
         this.waveSense = waveSense;
     }
@@ -238,7 +240,7 @@ public class ParameterFactory {
         measurementStep.read();
         return measurementStep.getMinutes();
     }
-      
+
     public void setMeasurementPeriod(int period) throws IOException {
         DetectionMeasurementPeriod measurementPeriod = new DetectionMeasurementPeriod(waveSense);
         measurementPeriod.setMinutes(period);
@@ -280,7 +282,7 @@ public class ParameterFactory {
         excessTime.read();
         return excessTime.getTime();
     }
-    
+
     public void setLowThresholdExcessTime(int time) throws IOException {
         LowThresholdExcessTime excessTime = new LowThresholdExcessTime(waveSense);
         excessTime.setTime(time);

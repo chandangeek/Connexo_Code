@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class FirmwareVersion extends AbstractRadioCommand {
 
@@ -10,12 +12,12 @@ public class FirmwareVersion extends AbstractRadioCommand {
 		super(waveFlow);
 	}
 
-	
+
 	private int modeOfTransmission;
-	
+
 	private int firmwareVersion;
-	
-	
+
+
 	final int getModeOfTransmission() {
 		return modeOfTransmission;
 	}
@@ -33,7 +35,7 @@ public class FirmwareVersion extends AbstractRadioCommand {
 	void parse(byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
-			
+
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			dais.readByte(); // skip character 'V' 0x56
 			modeOfTransmission = WaveflowProtocolUtils.toInt(dais.readShort());
@@ -48,8 +50,8 @@ public class FirmwareVersion extends AbstractRadioCommand {
 					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
-		
+		}
+
 	}
 
 	@Override

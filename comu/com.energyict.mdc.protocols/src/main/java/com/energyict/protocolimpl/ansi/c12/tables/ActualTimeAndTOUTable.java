@@ -10,34 +10,29 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ActualTimeAndTOUTable extends AbstractTable {
-    
+
     private TimeTOU timeTOU;
-    
+
     /** Creates a new instance of ActualTimeAndTOUTable */
     public ActualTimeAndTOUTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(51));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ActualTimeAndTOUTable: \n");
         strBuff.append("    timeTOU="+getTimeTOU()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         setTimeTOU(new TimeTOU(tableData, 0, getTableFactory()));
     }
 
@@ -48,6 +43,6 @@ public class ActualTimeAndTOUTable extends AbstractTable {
     public void setTimeTOU(TimeTOU timeTOU) {
         this.timeTOU = timeTOU;
     }
-    
+
 }
 

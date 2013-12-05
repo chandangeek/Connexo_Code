@@ -1,29 +1,25 @@
 /**
  * UNIFLO1200HoldingRegister.java
- * 
+ *
  * Created on 15-dec-2008, 11:40:55 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
-import java.io.IOException;
-import java.util.Date;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.modbus.core.AbstractRegister;
-import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
 import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
 import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author jme
@@ -36,7 +32,7 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 	private int baseSlaveID 					= 0;
 	private ModbusConnection modbusConnection 	= null;
 	private boolean oddAddress;
-	
+
 	public UNIFLO1200HoldingRegister(int reg, int range, ObisCode obisCode,	Unit unit, String name, int slaveID, ModbusConnection modbusConnection) {
 		super(reg, range, obisCode, unit, name);
 		this.slaveID = slaveID;
@@ -68,7 +64,7 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 		setReg(getReg()/2);
 		return;
 	}
-	
+
     private int getBaseSlaveID() {
     	return baseSlaveID;
 	}
@@ -84,7 +80,7 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 	private void activateSlaveID() {
 		getModbusConnection().setAddress(getBaseSlaveID() + getSlaveID());
 	}
-	
+
 	public void fixParser() {
 		if (isOddAddress()) {
 			if (getParser().equalsIgnoreCase(UNIFLO1200Parsers.PARSER_UINT8)) {
@@ -101,18 +97,18 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 	public boolean isOddAddress(){
 		return oddAddress;
 	}
-	
+
 	public void setOddAddress(boolean isOddAddress) {
 		this.oddAddress = isOddAddress;
 	}
-	
+
 	public Date dateValue() throws IOException {
 		activateSlaveID();
 		Date returnValue = super.dateValue();
 		defaultSlaveID();
 		return returnValue;
 	}
-	
+
 	public ReadHoldingRegistersRequest getReadHoldingRegistersRequest()	throws IOException {
 		activateSlaveID();
 		ReadHoldingRegistersRequest returnValue = super.getReadHoldingRegistersRequest();
@@ -186,5 +182,5 @@ public class UNIFLO1200HoldingRegister extends HoldingRegister {
 		defaultSlaveID();
 		return returnValue;
 	}
-	
+
 }

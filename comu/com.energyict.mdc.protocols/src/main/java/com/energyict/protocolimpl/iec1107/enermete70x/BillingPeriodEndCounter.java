@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import java.io.*;
 import com.energyict.protocolimpl.base.DataParser;
+
+import java.io.IOException;
 
 /**
  *
@@ -25,15 +26,15 @@ public class BillingPeriodEndCounter extends AbstractDataReadingCommand {
             billingPeriodEndCounter[i] = -1;
         }
     }
-    
+
     public void parse(byte[] data, java.util.TimeZone timeZone) throws java.io.IOException {
         DataParser dp = new DataParser();
         String strExpression = new String(data);
-        //for (int regId=0;regId<NR_OF_REGISTERS;regId++) 
-           billingPeriodEndCounter[regId] = 
+        //for (int regId=0;regId<NR_OF_REGISTERS;regId++)
+           billingPeriodEndCounter[regId] =
               Integer.parseInt(dp.parseBetweenBrackets(strExpression));
     }
-    
+
     public int getBillingPeriodEndCounter(int regId) throws IOException {
         this.regId=regId-1;
         if (billingPeriodEndCounter[regId] == -1) {
@@ -41,5 +42,5 @@ public class BillingPeriodEndCounter extends AbstractDataReadingCommand {
         }
         return billingPeriodEndCounter[regId-1];
     }
-    
+
 }

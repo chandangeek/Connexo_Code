@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
@@ -23,10 +21,10 @@ import com.energyict.protocolimpl.ansi.c12.*;
 public class PipeOrifDia {
 
     static private final int SIZE=2; // 2 x NiFormat
-   
+
     private Number pipeDia;
     private Number orifDia;
-    
+
     /** Creates a new instance of PipeOrifDia */
     public PipeOrifDia(byte[] data,int offset, int niFormat, int dataOrder) throws IOException {
         setPipeDia(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
@@ -37,7 +35,7 @@ public class PipeOrifDia {
     static public int getSize(int niFormat) throws IOException {
         return SIZE*C12ParseUtils.getNonIntegerSize(niFormat);
     }
-    
+
     public Number getPipeDia() {
         return pipeDia;
     }
@@ -53,5 +51,5 @@ public class PipeOrifDia {
     public void setOrifDia(Number orifDia) {
         this.orifDia = orifDia;
     }
-    
+
 }

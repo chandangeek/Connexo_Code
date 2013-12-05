@@ -10,35 +10,36 @@
 
 package com.energyict.protocolimpl.ge.kv.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ElectricalServiceConfiguration extends AbstractTable {
-    
+
     private boolean autoDetectServiceOverrideFlag;
     private int serviceOverride;
     private int defaultDSPCase;
     private String ansiForm;
-    
+
     /** Creates a new instance of ElectricalServiceConfiguration */
     public ElectricalServiceConfiguration(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(86,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ElectricalServiceConfiguration: autoDetectServiceOverrideFlag="+isAutoDetectServiceOverrideFlag()+", serviceOverride="+getServiceOverride()+", defaultDSPCase="+getDefaultDSPCase()+", ansiForm="+getAnsiForm()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException {   
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         setAutoDetectServiceOverrideFlag(C12ParseUtils.getInt(tableData,offset++)==1);
         setServiceOverride(C12ParseUtils.getInt(tableData,offset++));
@@ -78,5 +79,5 @@ public class ElectricalServiceConfiguration extends AbstractTable {
     public void setAnsiForm(String ansiForm) {
         this.ansiForm = ansiForm;
     }
-    
+
 }

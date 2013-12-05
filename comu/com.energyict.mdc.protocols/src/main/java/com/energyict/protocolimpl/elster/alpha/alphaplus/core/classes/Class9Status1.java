@@ -10,15 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -26,9 +22,9 @@ import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
  * @author koen
  */
 public class Class9Status1 extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(9,48,false);
-       
+
     int XUOM;
     int SYSERR;
     int SYSWARN;
@@ -48,7 +44,7 @@ public class Class9Status1 extends AbstractClass {
     int CUMDR;
     int CUMCOMM;
     int CUMOUT;
-    
+
     public String toString() {
         return "Class9Status1: XUOM=0x"+Integer.toHexString(XUOM)+", "+
                "SYSERR=0x"+Integer.toHexString(SYSERR)+", "+
@@ -70,12 +66,12 @@ public class Class9Status1 extends AbstractClass {
                "CUMCOMM="+CUMCOMM+", "+
                "CUMOUT="+CUMOUT;
     }
-    
+
     /** Creates a new instance of Class9Status1 */
     public Class9Status1(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         XUOM = ProtocolUtils.getInt(data,0, 1);
         SYSERR = ProtocolUtils.getInt(data,1, 3);
@@ -97,12 +93,12 @@ public class Class9Status1 extends AbstractClass {
         CUMCOMM = ProtocolUtils.getBCD2Int(data,45,1);
         CUMOUT = ProtocolUtils.getBCD2Int(data,46,2);
     }
-    
-    
-    
+
+
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }    
+        return classIdentification;
+    }
 
     public int getXUOM() {
         return XUOM;
@@ -179,5 +175,5 @@ public class Class9Status1 extends AbstractClass {
     public int getCUMOUT() {
         return CUMOUT;
     }
-    
+
 }

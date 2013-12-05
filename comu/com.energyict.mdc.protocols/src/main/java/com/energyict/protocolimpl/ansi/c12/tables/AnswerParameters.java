@@ -9,19 +9,17 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class AnswerParameters extends AbstractTable {
-    
+
     private long answerBitRate;
     private int lockoutDelay;
     private int retryAttempts;
@@ -30,13 +28,13 @@ public class AnswerParameters extends AbstractTable {
     private int numberOfRingsOutside;
     private String[] callerIds;
     private WindowRecord[] windows;
-    
-    
+
+
     /** Creates a new instance of AnswerParameters */
     public AnswerParameters(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(95));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -52,7 +50,7 @@ public class AnswerParameters extends AbstractTable {
         return strBuff.toString();
     }
 
-    protected void parse(byte[] tableData) throws IOException { 
+    protected void parse(byte[] tableData) throws IOException {
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualTelephoneTable att = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTelephoneTable();
         int offset=0;
@@ -70,19 +68,19 @@ public class AnswerParameters extends AbstractTable {
         if (att.getTelephoneRecord().getNumberOfAnswerWindows() > 0) {
             numberOfRingsOutside = C12ParseUtils.getInt(tableData,offset++);
         }
-        
+
         callerIds = new String[att.getTelephoneRecord().getNumberOfCallerIds()];
         for (int i=0;i<getCallerIds().length;i++) {
             getCallerIds()[i] = new String(ProtocolUtils.getSubArray2(tableData,offset,att.getTelephoneRecord().getCallerIdLength()));
             offset+=att.getTelephoneRecord().getCallerIdLength();
         }
-        
+
         windows = new WindowRecord[att.getTelephoneRecord().getNumberOfAnswerWindows()];
         for (int i=0;i<getWindows().length;i++) {
             getWindows()[i] = new WindowRecord(tableData,offset,getTableFactory());
             offset+=WindowRecord.getSize(getTableFactory());
         }
-    }         
+    }
 
     public long getAnswerBitRate() {
         return answerBitRate;

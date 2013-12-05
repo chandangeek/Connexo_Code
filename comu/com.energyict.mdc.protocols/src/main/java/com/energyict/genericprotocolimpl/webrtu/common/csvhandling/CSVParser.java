@@ -1,5 +1,9 @@
 package com.energyict.genericprotocolimpl.webrtu.common.csvhandling;
 
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.shadow.UserFileShadow;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,12 +11,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
-
 public class CSVParser {
-	
+
 	private String rawText;
 	private List lines = new ArrayList();
 
@@ -26,15 +26,15 @@ public class CSVParser {
 			endOffset = this.rawText.indexOf(new String(new byte[]{0x0D, 0x0A}), beginOffset+1);
 		}
 	}
-	
+
 	public TestObject getTestObject(int index){
 		return (TestObject)this.lines.get(index);
 	}
-	
+
 	public int size(){
 		return this.lines.size();
 	}
-	
+
 	public int getValidSize(){
 		int count = 0;
 		for(int i = 0; i < size(); i++){
@@ -43,8 +43,8 @@ public class CSVParser {
 			}
 		}
 		return count;
-	}	
-	
+	}
+
 	public boolean isValidLine(TestObject to){
 		if(to.size() == 0){
 			return false;
@@ -73,7 +73,7 @@ public class CSVParser {
 		}
 		}
 	}
-	
+
 	public static void main(String args[])throws IOException{
 		try {
 //			Utilities.createEnvironment();
@@ -81,7 +81,7 @@ public class CSVParser {
 			MeteringWarehouse mw = MeteringWarehouse.getCurrent();
 			int id = 460;
 			UserFile uf = mw.getUserFileFactory().find(id);
-			
+
 			CSVParser csvParser = new CSVParser();
 			csvParser.parse(uf.loadFileInByteArray());
 			System.out.println(csvParser.rawText);
@@ -92,7 +92,7 @@ public class CSVParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public UserFileShadow convertResultToUserFile(UserFile uf, int folderId) throws IOException{
@@ -108,11 +108,11 @@ public class CSVParser {
         ufs.setFile(file);
         return ufs;
 	}
-	
+
 	private String createFileName(String ufName){
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(System.currentTimeMillis());
-		
+
 		String name = "Result - " + ufName + " "
 			+ cal.get(Calendar.YEAR) + "-"
 			+ (cal.get(Calendar.MONTH)+1)+ "-"
@@ -122,8 +122,8 @@ public class CSVParser {
 			+ cal.get(Calendar.SECOND) + "s";
 		return name;
 	}
-	
-	
+
+
 	private byte[] convertToByteArray(){
 		int offset = 0;
 		StringBuffer strBuffer = new StringBuffer();

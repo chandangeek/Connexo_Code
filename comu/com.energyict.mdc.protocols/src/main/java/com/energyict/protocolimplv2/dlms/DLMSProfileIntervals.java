@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.io.IOException;

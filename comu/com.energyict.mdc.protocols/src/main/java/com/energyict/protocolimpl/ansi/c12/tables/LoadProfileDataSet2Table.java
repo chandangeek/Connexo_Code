@@ -10,26 +10,21 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfileDataSet2Table extends AbstractLoadProfileDataSetTable {
-    
+
     /** Creates a new instance of LoadProfileDataSet2Table */
     public LoadProfileDataSet2Table(StandardTableFactory tableFactory) {
         super(tableFactory,65);
     }
-    
+
     protected LoadProfileSetStatus getLoadProfileSetStatusCached() throws IOException {
         return getTableFactory().getC12ProtocolLink().getStandardTableFactory().getLoadProfileStatusTableCached().getLoadProfileSet1Status();
     }
-    
+
 }

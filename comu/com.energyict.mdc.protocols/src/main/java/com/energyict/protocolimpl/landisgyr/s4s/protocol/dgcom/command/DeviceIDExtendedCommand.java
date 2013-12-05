@@ -10,22 +10,21 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DeviceIDExtendedCommand extends AbstractCommand {
-    
+
     private String deviceID;
-    
+
     /** Creates a new instance of TemplateCommand */
     public DeviceIDExtendedCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -33,19 +32,19 @@ public class DeviceIDExtendedCommand extends AbstractCommand {
         strBuff.append("   deviceID="+getDeviceID()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() {
         return new byte[]{(byte)0x6F,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
-        
-        byte[] temp = new byte[data.length]; 
+
+        byte[] temp = new byte[data.length];
         for (int i=0;i<data.length;i++) {
-            temp[(data.length-1)-i] = data[i];    
+            temp[(data.length-1)-i] = data[i];
         }
         setDeviceID(new String(temp));
-        
+
     }
 
     public String getDeviceID() {

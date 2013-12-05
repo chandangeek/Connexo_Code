@@ -1,13 +1,11 @@
 package com.energyict.protocolimpl.cm10;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.energyict.protocol.ProtocolUtils;
 
+import java.io.IOException;
+
 public class Command {
-	
+
 	private int activityIdentifier;
 	private boolean read;
 	private boolean isAck = false;
@@ -15,31 +13,31 @@ public class Command {
 	private byte[] destinationCode = new byte[2]; //= {0x1A, 0x00};
 	private byte[] arguments;
 	private boolean sendAckAfterThisCommand = true; // only for testing power fail details which are erased after ack
-	
+
 	private CM10 cm10Protocol;
-	
+
 	public Command(int activityIdentifier) {
         this.setActivityIdentifier(activityIdentifier);
 	}
-	
+
 	public void setArguments(byte[] arguments) {
 		this.arguments = arguments;
 	}
-    
+
     public Command(int activityIdentifier, int outStationId) {
         this(activityIdentifier);
         destinationCode[0] = (byte) (outStationId & 0xFF);
         destinationCode[1] = (byte) ((outStationId>>8) & 0xFF);
-    }   
-    
+    }
+
     public void validate() throws IOException {
 
     }
-    
+
     public void setSendAckAfterThisCommand(boolean value) {
     	sendAckAfterThisCommand = value;
     }
-    
+
     public boolean sendAckAfterThisCommand() {
     	return sendAckAfterThisCommand;
     }
@@ -89,7 +87,7 @@ public class Command {
 		int readVal= (read) ? 0 : 16;
 		return (byte) (activityIdentifier + readVal + singleBlockVal + ackVal);
 	}
-	
+
 	public Command getAckCommand() {
 		Command command = new Command(this.getActivityIdentifier());
 		command.setDestinationCode(this.getDestinationCode());
@@ -99,12 +97,12 @@ public class Command {
 		this.setAck(true);
 		return command;
 	}
-	
+
 	public byte[] getBytes() {
 		int size = 11;
 		if (arguments != null)
 			size = size + arguments.length;
-		
+
 		byte[] data = new byte[size];
 		data[0] = getCM10Identifier();  // see p 5,6,7 CM10 doc
 		data[1] = (byte) size;
@@ -116,19 +114,19 @@ public class Command {
 		data[7] = 0x00; // destination extension
 		data[8] = 0x00; // protocol type CM10
 		data[9] = 0x00; // port (unused)
-		
+
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
 				data[10 + i] = arguments[i];
 			}
 		}
-		
+
 		data[size - 1] = getCrc(ProtocolUtils.getSubArray(data, 0, size - 1));
-		
-		
+
+
 		return data;
 	}
-	
+
 	protected byte getCrc(byte[] data) {
 		int size = data.length;
 		int sum = 0;
@@ -138,8 +136,8 @@ public class Command {
 		int crc = 256 - (sum % 256);
         return (byte) crc;
 	}
-    
-  
-    
+
+
+
 
 }

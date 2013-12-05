@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.messaging.MessageValueSpec;
 
 /**
@@ -37,7 +36,7 @@ public class MessageConverterTools {
         }
 
         @Override
-        public DeviceMessage getDeviceMessage() {
+        public OfflineDeviceMessage getDeviceMessage() {
             return null;
         }
     };

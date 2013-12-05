@@ -10,26 +10,25 @@
 
 package com.energyict.protocolimpl.edf.trimaran;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.edf.trimaran.core.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocolimpl.edf.trimaran.core.DemandData;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TrimaranProfile {
-    
+
     Trimaran trimeran;
-    
+
     /** Creates a new instance of TrimeranProfile */
     public TrimaranProfile(Trimaran trimeran) {
         this.trimeran=trimeran;
     }
-    
-    
+
+
     public ProfileData getProfileData() throws IOException {
         ProfileData profileData = new ProfileData();
         DemandData demandData = trimeran.getDataFactory().getDemandData();

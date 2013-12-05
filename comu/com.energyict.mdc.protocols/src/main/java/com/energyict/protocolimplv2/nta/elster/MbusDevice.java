@@ -6,8 +6,8 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 /**
- * @author: sva
- * @since: 2/11/12 (11:26)
+ * @author sva
+ * @since 2/11/12 (11:26)
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 

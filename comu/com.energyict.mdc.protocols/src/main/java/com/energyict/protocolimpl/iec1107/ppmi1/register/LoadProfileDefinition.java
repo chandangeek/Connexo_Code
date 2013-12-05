@@ -4,13 +4,13 @@
  */
 package com.energyict.protocolimpl.iec1107.ppmi1.register;
 
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
 
 /** @author fbo */
 

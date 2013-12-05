@@ -6,14 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
 
 /**
  *
@@ -22,12 +20,12 @@ import com.energyict.protocol.MeterExceptionInfo;
  * KV 17022004 extended with MeterExceptionInfo
  */
 public class IskraEmecoRegistry extends AbstractVDEWRegistry {
-    
+
     /** Creates a new instance of IskraEmecoRegister */
     public IskraEmecoRegistry(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink) {
         super(meterExceptionInfo,protocolLink);
     }
-    
+
     protected void initRegisters() {
 //        registers.put("Total Energy A+", new VDEWRegister("20",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,Unit.get("kWh"),VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
 //        registers.put("Total Energy R1", new VDEWRegister("22",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,Unit.get("kvarh"),VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
@@ -40,9 +38,9 @@ public class IskraEmecoRegistry extends AbstractVDEWRegistry {
         registers.put("TimeDateString", new VDEWRegister("0.9.4",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
         registers.put("software revision number", new VDEWRegister("0.2.0",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
         registers.put("meter serial number", new VDEWRegister("00",VDEWRegisterDataParse.VDEW_STRING,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
-        
-    }
-    
 
-    
+    }
+
+
+
 }

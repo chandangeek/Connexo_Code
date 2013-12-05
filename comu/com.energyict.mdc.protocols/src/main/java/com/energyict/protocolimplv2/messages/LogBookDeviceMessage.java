@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,23 +19,23 @@ import java.util.List;
  */
 public enum LogBookDeviceMessage implements DeviceMessageSpec {
 
-    SetInputChannel(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInputChannelAttributeName)),
-    SetCondition(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionAttributeName)),
-    SetConditionValue(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionValueAttributeName)),
-    SetTimeTrue(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeTrueAttributeName)),
-    SetTimeFalse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeFalseAttributeName)),
-    SetOutputChannel(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetOutputChannelAttributeName)),
-    SetAlarm(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAlarmAttributeName)),
-    SetTag(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTagAttributeName)),
-    SetInverse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInverseAttributeName)),
-    SetImmediate(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName)),
+    SetInputChannel(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetInputChannelAttributeName)),
+    SetCondition(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetConditionAttributeName)),
+    SetConditionValue(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetConditionValueAttributeName)),
+    SetTimeTrue(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTimeTrueAttributeName)),
+    SetTimeFalse(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTimeFalseAttributeName)),
+    SetOutputChannel(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetOutputChannelAttributeName)),
+    SetAlarm(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetAlarmAttributeName)),
+    SetTag(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTagAttributeName)),
+    SetInverse(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetInverseAttributeName)),
+    SetImmediate(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName)),
     ReadDebugLogBook(
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
     ),
     ReadManufacturerSpecificLogBook(
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
     ),
     ResetMainLogbook(),
     ResetCoverLogbook(),

@@ -33,6 +33,11 @@
           <version>${project.version}</version>
         </dependency>
         <dependency>
+          <groupId>com.energyict</groupId>
+          <artifactId>mdc-protocols-api</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc-all</artifactId>
             <version>${project.version}</version>

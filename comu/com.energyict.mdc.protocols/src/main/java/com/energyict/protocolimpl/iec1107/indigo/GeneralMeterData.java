@@ -6,21 +6,20 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class GeneralMeterData extends AbstractLogicalAddress {
-    
+
     // partially implemented...
-    
+
     int nrOfMDResets;
-    
+
     /** Creates a new instance of GeneralMeterData */
     public GeneralMeterData(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
@@ -28,11 +27,11 @@ public class GeneralMeterData extends AbstractLogicalAddress {
     public String toString() {
         return "GemeralMeterData: nrOfMDResets="+getNrOfMDResets();
     }
-    
+
     public void parse(byte[] data, java.util.TimeZone timeZone) throws IOException {
         setNrOfMDResets(ProtocolUtils.getInt(data,0,2));
     }
-    
+
     /**
      * Getter for property nrOfMDResets.
      * @return Value of property nrOfMDResets.
@@ -40,7 +39,7 @@ public class GeneralMeterData extends AbstractLogicalAddress {
     public int getNrOfMDResets() {
         return nrOfMDResets;
     }
-    
+
     /**
      * Setter for property nrOfMDResets.
      * @param nrOfMDResets New value of property nrOfMDResets.
@@ -48,5 +47,5 @@ public class GeneralMeterData extends AbstractLogicalAddress {
     public void setNrOfMDResets(int nrOfMDResets) {
         this.nrOfMDResets = nrOfMDResets;
     }
-    
+
 }

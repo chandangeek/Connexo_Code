@@ -8,10 +8,10 @@ package com.energyict.protocolimplv2.identifiers;
  */
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.mdw.core.MeteringWarehouse;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
@@ -20,7 +20,7 @@ import com.energyict.mdw.core.MeteringWarehouse;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:10)
  */
-public class DeviceIdentifierById implements DeviceIdentifier {
+public class DeviceIdentifierById implements CanFindDevice {
 
     private int id;
 

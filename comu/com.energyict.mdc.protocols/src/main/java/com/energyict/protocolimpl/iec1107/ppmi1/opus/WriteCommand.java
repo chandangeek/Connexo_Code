@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import java.io.IOException;
-
 import com.energyict.dialer.connection.ConnectionException;
+
+import java.io.IOException;
 
 class WriteCommand extends OpusCommand {
 

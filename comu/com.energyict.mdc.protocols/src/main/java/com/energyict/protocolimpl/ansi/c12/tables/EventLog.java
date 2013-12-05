@@ -10,19 +10,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EventLog {
-    
+
     private ListStatusBitfield eventFlags;
     private int nrOfValidentries; // 2 bytes
     private int lastEntryElement; // 2 bytes
@@ -30,12 +27,12 @@ public class EventLog {
     private int nrOfUnreadEntries; // 2 bytes
     private EventEntry[] entries;
 
-    
+
     /** Creates a new instance of EventLog */
     public EventLog(byte[] data, int offset, TableFactory tableFactory, int nrOfLogEntries, boolean header) throws IOException {
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         if (header) {
             setEventFlags(new ListStatusBitfield(data, offset));
             offset+=ListStatusBitfield.getSize();
@@ -53,7 +50,7 @@ public class EventLog {
             getEntries()[i] = new EventEntry(data, offset, tableFactory);
             offset+= EventEntry.getSize(tableFactory);
         }
-        
+
     }
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
@@ -62,15 +59,15 @@ public class EventLog {
             strBuff.append("entries["+i+"]="+entries[i]+"\n");
         }
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory, boolean header) throws IOException {
         int size=header?11:0;
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
         size += alt.getLog().getNrOfEventEntries()*EventEntry.getSize(tableFactory);
         return size;
-    }      
+    }
 
     public ListStatusBitfield getEventFlags() {
         return eventFlags;

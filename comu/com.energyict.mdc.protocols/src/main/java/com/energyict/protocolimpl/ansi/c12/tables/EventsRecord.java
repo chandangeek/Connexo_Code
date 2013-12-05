@@ -9,25 +9,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EventsRecord {
-    
-    
+
+
     private EndDeviceStdStatus1Bitfield endDeviceStdStatus1Bitfield;
     private EndDeviceStdStatus2Bitfield endDeviceStdStatus2Bitfield;
     private ControlBitfield controlBitfield;
-    
-    
+
+
     /** Creates a new instance of EventRecord */
     public EventsRecord(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         endDeviceStdStatus1Bitfield = new EndDeviceStdStatus1Bitfield(data,offset,tableFactory);
@@ -36,9 +31,9 @@ public class EventsRecord {
         offset+=EndDeviceStdStatus2Bitfield.getSize(tableFactory);
         controlBitfield = new ControlBitfield(data,offset,tableFactory);
         offset += ControlBitfield.getSize(tableFactory);
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -48,11 +43,11 @@ public class EventsRecord {
         strBuff.append("   endDeviceStdStatus2Bitfield="+getEndDeviceStdStatus2Bitfield()+"\n");
         return strBuff.toString();
     }
-     
-    
+
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return EndDeviceStdStatus1Bitfield.getSize(tableFactory)+EndDeviceStdStatus2Bitfield.getSize(tableFactory)+ControlBitfield.getSize(tableFactory);
-    }      
+    }
 
     public EndDeviceStdStatus1Bitfield getEndDeviceStdStatus1Bitfield() {
         return endDeviceStdStatus1Bitfield;

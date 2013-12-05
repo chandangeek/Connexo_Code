@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadRegisterConfigurationType {
-    
+
     private static final int INSTANTANEOUS_DEMAND=0;
     private static final int THERMAL_DEMAND=1;
     private static final int BLOCK_DEMAND=2;
@@ -27,12 +27,12 @@ public class SelfReadRegisterConfigurationType {
     private static final int RESERVED_FOR_MULTIPLE_PEAKS_AND_MINIMUMS=4;
     private static final int RESERVED_FOR_POWER_QUALITY=5;
     private static final int RESERVED_FOR_HARMONICS=6;
-    
-    private int registerType; 
+
+    private int registerType;
     private QuantityId quantityId;
     private int id2; // 16 bit TOU rate for registerType
     private int id3; // 16 bit reserved
-    
+
     /** Creates a new instance of Result */
     public SelfReadRegisterConfigurationType(byte[] data,int offset) throws IOException {
         setRegisterType(ProtocolUtils.getInt(data,offset++, 1));
@@ -42,17 +42,17 @@ public class SelfReadRegisterConfigurationType {
         offset+=2;
         setId3(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;
-        
+
     }
-    
+
     public boolean isSelfReadDemandRegisterType() {
         return (getRegisterType()==INSTANTANEOUS_DEMAND) || (getRegisterType()==THERMAL_DEMAND) || (getRegisterType()==BLOCK_DEMAND);
     }
-    
+
     public boolean isSelfReadEnergyRegisterType() {
         return (getRegisterType()==ENERGY);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -63,7 +63,7 @@ public class SelfReadRegisterConfigurationType {
         strBuff.append("   registerType="+getRegisterType()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 7;
     }
@@ -115,7 +115,7 @@ public class SelfReadRegisterConfigurationType {
     public void setId3(int id3) {
         this.id3 = id3;
     }
-    
 
-    
+
+
 }

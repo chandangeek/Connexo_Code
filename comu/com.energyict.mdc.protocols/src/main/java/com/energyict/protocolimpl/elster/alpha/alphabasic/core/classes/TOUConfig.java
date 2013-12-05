@@ -10,18 +10,20 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author Koen
  */
 public class TOUConfig {
-    
+
     static List touConfigEntries = new ArrayList();
     static {
-        
+
         // TOU BLOCKS 1..4
         touConfigEntries.add(new TOUConfigEntry(0x80, -1, 1, Unit.get("kW"), "Active import"));
         touConfigEntries.add(new TOUConfigEntry(0x40, -1, 2, Unit.get("kW"), "Active export"));
@@ -35,7 +37,7 @@ public class TOUConfig {
         touConfigEntries.add(new TOUConfigEntry(0x4, -1, 6, Unit.get("kvar"), "Reactive Q2"));
         touConfigEntries.add(new TOUConfigEntry(0x2, -1, 7, Unit.get("kvar"), "Reactive Q3"));
         touConfigEntries.add(new TOUConfigEntry(0x1, -1, 8, Unit.get("kvar"), "Reactive Q4"));
-        
+
         // TOU BLOCK 5..6
         touConfigEntries.add(new TOUConfigEntry(0x89, -1, 128, Unit.get("kVA"), "Apparent Q1&Q4"));
         touConfigEntries.add(new TOUConfigEntry(0x81, -1, 129, Unit.get("kVA"), "Apparent Q1"));
@@ -45,20 +47,20 @@ public class TOUConfig {
         touConfigEntries.add(new TOUConfigEntry(0x44, -1, 133, Unit.get("kVA"), "Apparent Q3"));
         touConfigEntries.add(new TOUConfigEntry(0x83, -1, 134, Unit.get("kvar"), "Reactive import"));
         touConfigEntries.add(new TOUConfigEntry(0x4C, -1, 135, Unit.get("kvar"), "Reactive export"));
-        
+
     }
-    
-    
+
+
     /** Creates a new instance of TOUConfig */
     public TOUConfig() {
-        
+
     }
-    
+
     static public Unit getTOUUnit(int toucfg, int meterType, boolean energy) throws IOException {
-        
+
         for (int i=0;i<touConfigEntries.size();i++) {
             TOUConfigEntry touce = (TOUConfigEntry)touConfigEntries.get(i);
-            
+
             if (touce.getToucfg() == toucfg) {
                 if (touce.getMeterType() != -1) {
                     if (touce.getMeterType() == meterType) {
@@ -72,7 +74,7 @@ public class TOUConfig {
         }
         throw new IOException("TOUConfig, getTOUUnit, No unit found for TOUCFG code "+toucfg+" and meterType "+meterType);
     }
-    
+
     static public int getTOUObisCField(int toucfg, int meterType) throws IOException {
         for (int i=0;i<touConfigEntries.size();i++) {
             TOUConfigEntry touce = (TOUConfigEntry)touConfigEntries.get(i);
@@ -89,7 +91,7 @@ public class TOUConfig {
         }
         throw new IOException("TOUConfig, getTOUUnit, No obiscode C field found for TOUCFG code "+toucfg+" and meterType "+meterType);
     }
-    
+
     static public String getTOUDescription(int toucfg, int meterType) throws IOException {
         for (int i=0;i<touConfigEntries.size();i++) {
             TOUConfigEntry touce = (TOUConfigEntry)touConfigEntries.get(i);
@@ -106,5 +108,5 @@ public class TOUConfig {
         }
         throw new IOException("TOUConfig, getTOUUnit, No description found for TOUCFG code "+toucfg+" and meterType "+meterType);
     }
- 
+
 }

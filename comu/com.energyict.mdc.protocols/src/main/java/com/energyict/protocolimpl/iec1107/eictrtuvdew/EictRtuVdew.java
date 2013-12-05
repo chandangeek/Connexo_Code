@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.eictrtuvdew;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -15,6 +14,12 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -22,11 +27,7 @@ import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -486,13 +487,13 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     }
 
 
-    public RegisterValue readRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         String edisNotation = obisCode.getA() + "-" + obisCode.getB() + ":" + obisCode.getC() + "." + obisCode.getD() + "." + obisCode.getE() + (obisCode.getF() == 255 ? "" : "*" + Math.abs(obisCode.getF()));
         BigDecimal bd = doGetRegister(edisNotation + "(;)");
         return new RegisterValue(obisCode, new Quantity(bd, obisCode.getUnitElectricity(scaler)));
     }
 
-    public RegisterInfo translateRegister(com.energyict.obis.ObisCode obisCode) throws IOException {
+    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
 

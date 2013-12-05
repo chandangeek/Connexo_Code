@@ -10,43 +10,43 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.edmi.mk6.core.ResponseData;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+
 /**
  *
  * @author koen
  */
 public class MK6Connection extends Connection  implements ProtocolConnection, Serializable {
-    
+
     /** Generated SerialVersionUID */
 	private static final long serialVersionUID = 4993375627564701564L;
 	private static final int DEBUG=0;
     private static final long TIMEOUT=60000;
-    
+
     private int timeout;
     private int maxRetries;
     private transient ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
-    
+
     private long sourceId;
     private long destinationId=-1;
     private int sequenceNr=0xFFFE; // initial sequencenumber
     private long forcedDelay;
-    
+
     /** Creates a new instance of AlphaConnection */
     public MK6Connection(InputStream inputStream,
                          OutputStream outputStream,
@@ -64,26 +64,26 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
 			destinationId=Long.parseLong(serialNumber);
 		}
     } // EZ7Connection(...)
-    
+
     public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
         sourceId = Long.parseLong(nodeId);
         return null;
     }
-    
-    public byte[] dataReadout(String strID, String nodeId) throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;
     }
-    
-    public void disconnectMAC() throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
     }
-    
+
     public HHUSignOn getHhuSignOn() {
         return null;
     }
-    
+
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
     }
-    
+
     private void sendByte(byte txbyte) throws ConnectionException {
         switch(txbyte) {
             case STX:
@@ -108,7 +108,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
                 sendFrame();
                 return receiveFrame();
             }
-            catch(ConnectionException e) { 
+            catch(ConnectionException e) {
                 if (retry++>=maxRetries) {
 //                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                 	throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e);
@@ -116,7 +116,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
             }
         } // while(true)
     } // public void sendCommand(byte[] cmdData) throws ConnectionException
-    
+
     private void genSequenceNr() {
         if ((sequenceNr==0) || (sequenceNr==0xFFFF)) {
 			sequenceNr=1;
@@ -124,7 +124,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
 			sequenceNr++;
 		}
     }
-    
+
     private byte[] getExtendedCommandHeader() {
         byte[] cmdData = new byte[11];
         cmdData[0]='E';
@@ -141,22 +141,22 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
         cmdData[10]=(byte)(sequenceNr);
         return cmdData;
     }
-    
+
     // multidrop?
     private boolean isExtendedCommunication() {
         return (destinationId != -1);
     }
-    
+
     private void assembleFrame(byte txbyte) {
         txOutputStream.write(txbyte);
     }
-    
+
     private void sendFrame() throws ConnectionException {
-        
+
         sendOut(txOutputStream.toByteArray());
     }
-    
-    
+
+
     private void doSendCommand(byte[] rawData) throws ConnectionException {
         txOutputStream.reset();
         assembleFrame(STX);
@@ -180,51 +180,51 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
 				sendByte(txFrame[i]);
 			}
         }
-        
+
         assembleFrame(ETX); // [ETX]
     } // void sendData(byte[] cmdData) throws ConnectionException
 
-    
+
     private static final int STATE_WAIT_FOR_STX=0;
     private static final int STATE_WAIT_FOR_DATA=1;
-    
+
     public ResponseData receiveFrame() throws NestedIOException, IOException {
-        
+
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state = STATE_WAIT_FOR_STX;
         boolean dleKar=false;
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
-        
+
         interFrameTimeout = System.currentTimeMillis() + timeout;
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-        
+
         resultArrayOutputStream.reset();
         allDataArrayOutputStream.reset();
-        
+
         copyEchoBuffer();
         while(true) {
-            
+
             if ((kar = readIn()) != -1) {
                 if (DEBUG == 1) {
                     System.out.print(",0x");
                     ProtocolUtils.outputHex( ((int)kar));
                 }
-                
+
                 switch(state) {
                     case STATE_WAIT_FOR_STX:
                         interFrameTimeout = System.currentTimeMillis() + timeout;
-                        
+
                         if (kar==STX) {
                             allDataArrayOutputStream.write(kar);
                             state = STATE_WAIT_FOR_DATA;
                         }
-                        
+
                         break; // STATE_WAIT_FOR_STX
-                        
+
                     case STATE_WAIT_FOR_DATA:
-                        
+
                         if (kar==DLE) {
                             dleKar=true;
                         }
@@ -233,7 +233,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
                             byte[] rxFrame = allDataArrayOutputStream.toByteArray();
                             if (CRCGenerator.ccittCRC(rxFrame)==0) {
                                 // OK
-//System.out.println("rxFrame = "+ProtocolUtils.outputHexString(rxFrame));    
+//System.out.println("rxFrame = "+ProtocolUtils.outputHexString(rxFrame));
                                 if (isExtendedCommunication()) {
                                    int rxSequenceNr = (((int)rxFrame[10]&0xFF)<<8) | ((int)rxFrame[11]&0xFF);
                                    if (rxSequenceNr != sequenceNr) {
@@ -243,7 +243,7 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
 								}
                                 } else {
 									return new ResponseData(ProtocolUtils.getSubArray(rxFrame,1, rxFrame.length-3));
-								} 
+								}
                             }
                             else {
                                 // ERROR, CRC error
@@ -252,31 +252,31 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
                         }
                         else {
                             if (dleKar) {
-//System.out.println("dle");                                
+//System.out.println("dle");
                                 allDataArrayOutputStream.write(kar&0xBF);
                             }
                             else {
-                                allDataArrayOutputStream.write(kar);    
+                                allDataArrayOutputStream.write(kar);
                             }
                             dleKar=false;
                         }
-                        
+
                         break; // STATE_WAIT_FOR_DATA
-                        
+
                 } // switch(state)
-            
+
             } // if ((kar = readIn()) != -1)
-            
+
             if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
             if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
-            
+
         } // while(true)
-        
-        
+
+
     } // public void receiveFrame() throws ConnectionException
-    
+
 } // public class MK6Connection extends Connection  implements ProtocolConnection

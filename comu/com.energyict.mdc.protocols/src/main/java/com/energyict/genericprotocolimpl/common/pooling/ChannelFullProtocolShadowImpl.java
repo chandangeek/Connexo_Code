@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 
 import java.util.Date;
 
@@ -39,7 +39,7 @@ public class ChannelFullProtocolShadowImpl implements ChannelFullProtocolShadow{
     }
 
     /**
-     * Returns the interval in seconds for this channel. The seconds are calculated using the {@link com.energyict.cbo.TimeDuration}. For asynchronous periods this means:
+     * Returns the interval in seconds for this channel. The seconds are calculated using the {@link TimeDuration}. For asynchronous periods this means:
      * <ul>
      * <li> YEARS : amount * {@link #oneYearDurationInSeconds};
      * <li> MONTHS : amount * {@link #oneMonthDurationInSeconds};

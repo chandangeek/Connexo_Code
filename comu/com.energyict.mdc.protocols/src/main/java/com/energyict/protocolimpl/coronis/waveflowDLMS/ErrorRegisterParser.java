@@ -1,13 +1,17 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Reads out the error registers (FF, FF1, FF2 and FF3) and generates matching events.

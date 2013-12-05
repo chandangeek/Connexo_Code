@@ -10,9 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
-import java.io.*;
-
 /**
  *
  * @author Koen
@@ -20,17 +17,17 @@ import java.io.*;
 public class TSDU {
 
     byte[] data;
-    
+
     /** Creates a new instance of DSDU */
     public TSDU() {
     }
-    
+
     public void init(byte[] data) {
         setData(data);
     }
-    
-    
- 
+
+
+
     public byte[] getData() {
         return data;
     }

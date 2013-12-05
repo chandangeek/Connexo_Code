@@ -6,26 +6,26 @@
 
 package com.energyict.protocolimpl.pact.core.survey;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.pact.core.common.ChannelMap;
-import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 /**
  *
  * @author  Koen
  */
 public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter {
-    
+
     protected static final int DEBUG=0;
-    
+
     protected abstract void parseData(byte[] data) throws IOException;
     protected abstract int[] doGetEnergyTypeCodes();
     protected abstract int doGetNrOfBlocks(Date from, Date to) throws IOException;
     protected abstract int doGetNrOfDays(Date from, Date to) throws IOException;
-    
+
     private int[] energyTypeCodes=null;
     private byte[] loadSurveyData;
     private MeterReadingsInterpreter mri;
@@ -39,7 +39,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
         this.mri=mri;
         profileData = new ProfileData();
     }
-    
+
     public void parse(byte[] loadSurveyData, ChannelMap channelMap, boolean statusFlagChannel) throws IOException {
     	if(loadSurveyData != null){
     		this.loadSurveyData=loadSurveyData.clone();
@@ -51,15 +51,15 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
 		}
         parseData(loadSurveyData);
     }
-    
+
     public byte[] getLoadSurveyData() {
         return loadSurveyData;
     }
-    
+
     public String toString() {
-        return profileData.toString();   
+        return profileData.toString();
     }
-    
+
     /** Getter for property mri.
      * @return Value of property mri.
      *
@@ -67,7 +67,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     public MeterReadingsInterpreter getMri() {
         return mri;
     }
-    
+
     /** Setter for property mri.
      * @param mri New value of property mri.
      *
@@ -75,23 +75,23 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     public void setMri(MeterReadingsInterpreter mri) {
         this.mri = mri;
     }
-    
+
     /** Getter for property profileData.
      * @return Value of property profileData.
      *
      */
-    public com.energyict.protocol.ProfileData getProfileData() {
+    public com.energyict.mdc.protocol.device.data.ProfileData getProfileData() {
         return profileData;
     }
-    
+
     /** Setter for property profileData.
      * @param profileData New value of property profileData.
      *
      */
-    public void setProfileData(com.energyict.protocol.ProfileData profileData) {
+    public void setProfileData(com.energyict.mdc.protocol.device.data.ProfileData profileData) {
         this.profileData = profileData;
     }
-    
+
     /** Getter for property channelMap.
      * @return Value of property channelMap.
      *
@@ -99,7 +99,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     public ChannelMap getChannelMap() {
         return channelMap;
     }
-    
+
     /** Setter for property channelMap.
      * @param channelMap New value of property channelMap.
      *
@@ -107,7 +107,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     public void setChannelMap(ChannelMap channelMap) {
         this.channelMap = channelMap;
     }
-    
+
     /** Getter for property timeZone.
      * @return Value of property timeZone.
      *
@@ -115,7 +115,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     public java.util.TimeZone getTimeZone() {
         return timeZone;
     }
-    
+
     /** Setter for property timeZone.
      * @param timeZone New value of property timeZone.
      *
@@ -123,20 +123,20 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
     public void setTimeZone(java.util.TimeZone timeZone) {
         this.timeZone = timeZone;
     }
-    
-    
-    
+
+
+
     public int[] getEnergyTypeCodes() {
         if (energyTypeCodes == null) {
 			energyTypeCodes = doGetEnergyTypeCodes();
 		}
-        return energyTypeCodes;   
+        return energyTypeCodes;
     }
-    
+
     public int getEnergyTypeCode(int channel) {
         return getEnergyTypeCodes()[channel];
     }
-    
+
     public int getNrOfSurveyChannels() {
         if (getEnergyTypeCodes() == null) {
 			return 0;
@@ -144,14 +144,14 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
 			return getEnergyTypeCodes().length;
 		}
     }
-    
+
     public int getNrOfBlocks(Date from, Date to) throws IOException {
         return doGetNrOfBlocks(from,to);
     }
     public int getNrOfDays(Date from, Date to) throws IOException {
         return doGetNrOfDays(from,to);
     }
-    
+
     /**
      * Getter for property statusFlagChannel.
      * @return Value of property statusFlagChannel.

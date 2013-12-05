@@ -10,21 +10,20 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.protocolimpl.transdata.markv.MarkV;
-import com.energyict.protocolimpl.transdata.markv.core.connection.*;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author koen
  */
 public class CommandFactory {
-    
+
     private MarkV markV=null;
-    
-    
+
+
     // cached
     //IICommand iICommand=null; // meter identification
     SCCommand sCCommand=null; // meter registers scroll quantities
@@ -33,20 +32,20 @@ public class CommandFactory {
     DCCommand dCCommand=null; // meter's channellist
     IDCommand iDCommand=null; // meter id & serial number
     ISCommand iSCommand=null; // profile & meter configuration
-    
+
     //GTCommand gTCommand=null; // get meter's time date command
     //LOCommand lOCommand=null; // logoff command
     MICommand mICommand=null; // meter's model & serial number
     //RCCommand rCCommand=null; // profile data
     //RVCommand rVCommand=null; // event log
     //TICommand tICommand=null; // set time
-    
+
     /** Creates a new instance of CommandFactory */
     public CommandFactory(MarkV markV) {
         this.setMarkV(markV);
     }
-    
-    
+
+
 //
 //    public IICommand getIICommand() throws IOException {
 //        if (iICommand == null) {
@@ -120,19 +119,19 @@ public class CommandFactory {
         TICommand tICommand = new TICommand(this);
         tICommand.build();
     }
-    
+
     public void issueTCCommand(Date nextDialin) throws IOException {
         TCCommand tCCommand = new TCCommand(this);
         tCCommand.setNextDialin(nextDialin);
         tCCommand.build();
     }
-    
-    // logoff    
+
+    // logoff
     public void issueLOCommand() throws IOException {
         LOCommand lOCommand = new LOCommand(this);
         lOCommand.build();
     }
-    
+
     // get time
     public GTCommand getGTCommand() throws IOException {
         GTCommand gTCommand = new GTCommand(this);
@@ -144,7 +143,7 @@ public class CommandFactory {
         gCCommand.build();
         return gCCommand;
     }
-    
+
     public MarkV getMarkV() {
         return markV;
     }
@@ -152,6 +151,6 @@ public class CommandFactory {
     public void setMarkV(MarkV markV) {
         this.markV = markV;
     }
-    
-    
+
+
 }

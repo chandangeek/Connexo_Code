@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -19,16 +18,16 @@ import com.energyict.protocol.*;
 public class WriteResponse extends AbstractResponse {
 
     private boolean written;
-    
+
     /** Creates a new instance of WriteResponse */
     public WriteResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     public String toString() {
         return null;
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         written = true;

@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.elster.alpha.core.connection.ResponseFrame;
+
+import java.io.IOException;
 
 
 /**

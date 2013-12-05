@@ -10,18 +10,18 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.edf.trimarancje.Trimaran;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SPDUFactory {
-    
+
     private Trimaran trimeran;
-            
+
     /** Creates a new instance of SPDUFactory */
     public SPDUFactory(Trimaran trimeran) {
         this.setTrimeran(trimeran);
@@ -39,17 +39,17 @@ public class SPDUFactory {
         XID xid = new XID(this);
         xid.setSlavePassword(Integer.parseInt(getTrimeran().getInfoTypePassword()));
         xid.invoke();
-        
+
     }
     public void logoff() throws IOException {
         EOS eos = new EOS(this);
         eos.invoke();
     }
-    
+
     public ENQ enq(int code, int len) throws IOException{
     	return enq(code, len, 0);
     }
-    
+
     public ENQ enq(int code, int len, int pointer) throws IOException {
         ENQ enq = new ENQ(this);
         enq.setCode(code);

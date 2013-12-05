@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import org.w3c.dom.*;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @author gna

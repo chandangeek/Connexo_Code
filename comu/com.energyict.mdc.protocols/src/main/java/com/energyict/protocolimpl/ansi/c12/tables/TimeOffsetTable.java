@@ -10,33 +10,32 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author Koen
  */
 public class TimeOffsetTable extends AbstractTable {
-    
+
     private Date dstTimeShift; // time moment of shift
     private int dstShiftValue; // 8 bit, shift in minutes
     private int timeZoneOffset; // signed 16 bit, in minutes
-    
+
     /** Creates a new instance of TimeOffsetTable */
     public TimeOffsetTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(53));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("TimeOffsetTable: dstTimeShift="+dstTimeShift+", dstShiftValue="+dstShiftValue+", timeZoneOffset="+timeZoneOffset);
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfg = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -49,7 +48,7 @@ public class TimeOffsetTable extends AbstractTable {
              setTimeZoneOffset((int)C12ParseUtils.getExtendedLong(tableData,offset,2,dataOrder));
              offset+=2;
         }
-    }         
+    }
 
 
     public Date getDstTimeShift() {

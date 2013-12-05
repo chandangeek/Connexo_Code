@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 
@@ -13,7 +13,34 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activateNowAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activationDatedAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractualPowerLimitAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.controlThreshold1dAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.controlThreshold2dAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.controlThreshold3dAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.controlThreshold4dAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.controlThreshold5dAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.controlThreshold6dAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.invertDigitalOutput1AttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.invertDigitalOutput2AttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadLimitEndDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadLimitGroupIDAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadLimitStartDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.phaseAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.powerLimitThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
 
 /**
  * Provides a summary of all messages related to
@@ -30,63 +57,63 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
 
     WriteControlThresholds(
-            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold1dAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold2dAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold3dAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold4dAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold5dAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold6dAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(activationDatedAttributeName)),
-    SetDemandCloseToContractPowerThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(controlThreshold1dAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(controlThreshold2dAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(controlThreshold3dAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(controlThreshold4dAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(controlThreshold5dAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(controlThreshold6dAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(activationDatedAttributeName)),
+    SetDemandCloseToContractPowerThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeName)),
     CONFIGURE_LOAD_LIMIT_PARAMETERS(
-            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
-            PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(normalThresholdAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(emergencyThresholdAttributeName),
+            RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(overThresholdDurationAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(emergencyProfileIdAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(emergencyProfileDurationAttributeName)
     ),
     CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(
-            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(readFrequencyInMinutesAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
-            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(overThresholdDurationAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput1AttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput2AttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(activateNowAttributeName)
+            RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(readFrequencyInMinutesAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(normalThresholdAttributeName),
+            RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(overThresholdDurationAttributeName),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(invertDigitalOutput1AttributeName),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(invertDigitalOutput2AttributeName),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(activateNowAttributeName)
     ),
     CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(monitoredValueAttributeName, MonitoredValue.TotalInstantCurrent.getDescription(), MonitoredValue.getAllDescriptions()),
-            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
-            PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
-            PropertySpecFactory.timeDurationPropertySpec(underThresholdDurationAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(emergencyProfileActivationDateAttributeName),
-            PropertySpecFactory.timeDurationPropertySpec(emergencyProfileDurationAttributeName),
-            PropertySpecFactory.stringPropertySpec(emergencyProfileGroupIdListAttributeName),      //List of values, comma separated
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValuesAndDefaultValue(monitoredValueAttributeName, MonitoredValue.TotalInstantCurrent.getDescription(), MonitoredValue.getAllDescriptions()),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(normalThresholdAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(emergencyThresholdAttributeName),
+            RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(overThresholdDurationAttributeName),
+            RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(underThresholdDurationAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(emergencyProfileIdAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(emergencyProfileActivationDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(emergencyProfileDurationAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(emergencyProfileGroupIdListAttributeName),      //List of values, comma separated
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())
     ),
     CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP(
-            PropertySpecFactory.bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(powerLimitThresholdAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(contractualPowerLimitAttributeName)
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(powerLimitThresholdAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(contractualPowerLimitAttributeName)
     ),
-    SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
+    SET_EMERGENCY_PROFILE_GROUP_IDS(RequiredPropertySpecFactory.newInstance().lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
     CLEAR_LOAD_LIMIT_CONFIGURATION(),
-    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.loadLimitGroupIDAttributeName)),
+    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.loadLimitGroupIDAttributeName)),
     ENABLE_LOAD_LIMITING(),
     ENABLE_LOAD_LIMITING_FOR_GROUP(
-            PropertySpecFactory.bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(loadLimitStartDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(loadLimitEndDateAttributeName)
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(loadLimitStartDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(loadLimitEndDateAttributeName)
     ),
     DISABLE_LOAD_LIMITING(),
     CONFIGURE_SUPERVISION_MONITOR(
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
-            PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(thresholdInAmpereAttributeName)
     ),
-    SET_LOAD_LIMIT_DURATION(PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName)),
-    SET_LOAD_LIMIT_THRESHOLD(PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName));
+    SET_LOAD_LIMIT_DURATION(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(overThresholdDurationAttributeName)),
+    SET_LOAD_LIMIT_THRESHOLD(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(normalThresholdAttributeName));
 
     private static final DeviceMessageCategory LOAD_BALANCE_CATEGORY = DeviceMessageCategories.LOAD_BALANCE;
 

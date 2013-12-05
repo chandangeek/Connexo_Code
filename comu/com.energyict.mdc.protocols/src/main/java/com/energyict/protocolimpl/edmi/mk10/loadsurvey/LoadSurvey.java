@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.core.SurveyChannelTypeParser;
@@ -258,7 +258,7 @@ public class LoadSurvey {
 	public long getUpdatedStoredEntries() throws IOException {
 		return getUpdatedLastEntry() - getUpdatedFirstEntry();
 	}
-	
+
 	/**
 	 * Read the firstEntry from the device again
 	 * @return the first entry from the buffer
@@ -267,7 +267,7 @@ public class LoadSurvey {
 	public long getUpdatedFirstEntry() throws IOException {
 		return getCommandFactory().getReadCommand(registerId + 2).getRegister().getBigDecimal().longValue();
 	}
-	
+
 	/**
 	 * Read the lastEntry from the device again
 	 * @return the last entry from the buffer

@@ -5,20 +5,21 @@
  */
 
 package com.energyict.protocolimpl.pact.core.common;
-import java.io.*;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
  */
 public class PACTProtocolException extends IOException {
-    
+
   private short sReason;
 
   public short getReason()
   {
      return sReason;
   }
-   
+
   public PACTProtocolException(String str)
   {
       super(str);
@@ -29,7 +30,7 @@ public class PACTProtocolException extends IOException {
   {
       super();
       this.sReason = -1;
-      
+
   } // public PACTProtocolException()
 
   public PACTProtocolException(String str, short sReason)
@@ -37,5 +38,5 @@ public class PACTProtocolException extends IOException {
       super(str);
       this.sReason = sReason;
 
-  } // public PACTProtocolException(String str)    
+  } // public PACTProtocolException(String str)
 }

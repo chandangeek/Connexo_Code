@@ -1,7 +1,13 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregConnection;
@@ -10,7 +16,9 @@ import com.energyict.protocolimpl.din19244.poreg2.factory.RegisterFactory;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RequestFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT

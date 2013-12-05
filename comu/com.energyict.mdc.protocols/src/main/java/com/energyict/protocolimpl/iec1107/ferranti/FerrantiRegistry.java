@@ -6,13 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.ferranti;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
 
 /**
  *
@@ -21,7 +19,7 @@ import com.energyict.protocolimpl.iec1107.vdew.*;
  * KV 04052004 Initial version
  */
 public class FerrantiRegistry extends AbstractVDEWRegistry {
-    
+
     /** Creates a new instance of KamstrupRegister */
     public FerrantiRegistry(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink) {
         // Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the
@@ -38,5 +36,5 @@ public class FerrantiRegistry extends AbstractVDEWRegistry {
         registers.put("Actual status code", new VDEWRegister("7-"+obisB+":97.97.0*255",VDEWRegisterDataParse.VDEW_INTEGER,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED));
         registers.put("Time in the device", new VDEWRegister("0-"+obisB+":1.0.0*255",VDEWRegisterDataParse.VDEW_TIMEDATE_FERRANTI,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED,false));
     }
-    
+
 }

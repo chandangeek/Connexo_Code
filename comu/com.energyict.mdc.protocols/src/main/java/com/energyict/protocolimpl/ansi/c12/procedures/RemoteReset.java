@@ -11,39 +11,37 @@
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import java.io.*;
-import java.util.*;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class RemoteReset extends AbstractProcedure {
-    
-    
-    
+
+
+
     private int actionFlagBitfield;
     private int responseActionFlagBitfield;
-    
+
     /** Creates a new instance of RemoteReset */
     public RemoteReset(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(9));
     }
-    
+
     protected void prepare() throws IOException {
         setProcedureData(new byte[]{(byte)getActionFlagBitfield()});
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         responseActionFlagBitfield = C12ParseUtils.getInt(data,0);
     }
-    
+
     public void setDemandReset(boolean demandReset) {
         if (demandReset)
-           setActionFlagBitfield(getActionFlagBitfield() | 0x01);    
+           setActionFlagBitfield(getActionFlagBitfield() | 0x01);
         else
-           setActionFlagBitfield(getActionFlagBitfield() & (0x01^0xFF));     
+           setActionFlagBitfield(getActionFlagBitfield() & (0x01^0xFF));
     }
 
     public int getActionFlagBitfield() {

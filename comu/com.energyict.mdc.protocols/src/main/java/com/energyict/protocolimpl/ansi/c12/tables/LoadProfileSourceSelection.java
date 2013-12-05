@@ -10,25 +10,22 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfileSourceSelection {
-    
+
     private int channelFlag; // 8 bit
     private boolean endReadingFlag; // bit 0, if true, the channel does have an associated end reading
-    
+
     private int loadProfileSourceSelect; // 8 bit index in the source definition table describing the source of the interval data for a specific channel
     private int endTimeBlockReadingSourceSelect; // 8 bit index in the source definition table describing the source of the block end time reading data for a specific channel
-    
+
     /** Creates a new instance of LoadProfileSourceSelection */
     public LoadProfileSourceSelection(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         setChannelFlag(C12ParseUtils.getInt(data,offset++));
@@ -41,10 +38,10 @@ public class LoadProfileSourceSelection {
         strBuff.append("LoadProfileSourceSelection: channelFlag=0x"+Integer.toHexString(getChannelFlag())+", loadProfileSourceSelect="+getLoadProfileSourceSelect()+", endTimeBlockReadingSourceSelect="+getEndTimeBlockReadingSourceSelect()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 3;
-    }      
+    }
 
     public int getChannelFlag() {
         return channelFlag;

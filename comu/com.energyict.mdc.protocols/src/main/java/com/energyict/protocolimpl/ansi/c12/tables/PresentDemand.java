@@ -10,22 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class PresentDemand {
-    
+
     Date timeRemaining;
     Number demandValue;
-    
+
     /** Creates a new instance of PresentDemand */
     public PresentDemand(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -44,9 +42,9 @@ public class PresentDemand {
         strBuff.append("    timeRemaining="+timeRemaining+"\n");
         strBuff.append("    demandValue="+demandValue+"\n");
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -55,5 +53,5 @@ public class PresentDemand {
             size+=C12ParseUtils.getTimeSize(cfgt.getTimeFormat());
         size+=C12ParseUtils.getNonIntegerSize(cfgt.getNonIntFormat2());
         return size;
-    }      
+    }
 }

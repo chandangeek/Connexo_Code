@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.enermet.e120;
 
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.UnsupportedException;
+
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -7,13 +14,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 
 /**
  * Tiny utility class for merging SeriesResponse object into 1 ProfileData.

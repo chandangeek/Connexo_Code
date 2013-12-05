@@ -10,32 +10,33 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class QueryTimeCommand extends AbstractCommand {
-    
+
     private Date time;
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public QueryTimeCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     // =0x"+Integer.toHexString(
     public static void main(String[] args) {
         System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new QueryTimeCommand(null)));
-    }          
-    
+    }
 
-    
+
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         Calendar systemTime = ProtocolUtils.getCalendar(getCommandFactory().getS200().getTimeZone());
@@ -48,13 +49,13 @@ public class QueryTimeCommand extends AbstractCommand {
         meterTime.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[offset++]));
         ParseUtils.adjustYear(systemTime, meterTime);
         setTime(meterTime.getTime());
-        
+
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('Q');
     }
-    
+
 //    protected byte[] prepareData() throws IOException {
 //        return null;
 //    }
@@ -66,5 +67,5 @@ public class QueryTimeCommand extends AbstractCommand {
     private void setTime(Date time) {
         this.time = time;
     }
-    
+
 }

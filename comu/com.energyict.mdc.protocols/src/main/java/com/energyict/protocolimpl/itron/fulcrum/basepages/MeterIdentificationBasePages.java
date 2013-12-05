@@ -10,33 +10,32 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MeterIdentificationBasePages extends AbstractBasePage {
-    
+
     private String meterId;
     private String softwareRevisionLevel;
     private String firmwareRevisionLevel;
     private int programId;
     private String unitType;
     private String unitId;
-    
-    
+
+
     /** Creates a new instance of MeterIdentificationBasePages */
     public MeterIdentificationBasePages(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -49,7 +48,7 @@ public class MeterIdentificationBasePages extends AbstractBasePage {
         strBuff.append("   unitType="+getUnitType().trim()+"\n");
         return strBuff.toString();
     }
-    
+
     public String toString2() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -61,11 +60,11 @@ public class MeterIdentificationBasePages extends AbstractBasePage {
         strBuff.append("unitType="+getUnitType());
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x213C,0x215E-0x213C);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         if (ParseUtils.getBCD2Long(data, offset, 9) == 0)
@@ -132,6 +131,6 @@ public class MeterIdentificationBasePages extends AbstractBasePage {
     public void setUnitId(String unitId) {
         this.unitId = unitId;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

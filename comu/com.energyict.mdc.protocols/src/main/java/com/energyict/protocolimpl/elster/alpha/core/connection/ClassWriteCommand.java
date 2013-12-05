@@ -10,19 +10,18 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import java.io.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ClassWriteCommand extends CommandBuilder {
-    
+
     private static final int COMMANDBYTE = 0x11;
     int timeout;
     int expectedFrameType;
-    
+
     /** Creates a new instance of ClassWriteCommand */
     public ClassWriteCommand(AlphaConnection alphaConnection) {
         super(alphaConnection);
@@ -31,13 +30,13 @@ public class ClassWriteCommand extends CommandBuilder {
         super(alphaConnection);
         this.timeout = timeout;
     }
-    
+
     protected int getExpectedFrameType() {
         return AlphaConnection.FRAME_RESPONSE_TYPE_ACK_NAK;
     }
-    
+
     public void writeClass(int classId,int classLength, byte[] classData) throws IOException {
-        
+
         byte[] data = new byte[7+classData.length+1];
         data[0] = COMMANDBYTE;
         data[1] = (byte)timeout; // pad
@@ -48,11 +47,11 @@ public class ClassWriteCommand extends CommandBuilder {
         data[6] = (byte)classId;
         System.arraycopy(classData, 0, data, 7, classData.length);
         data[data.length-1] = (byte)calcChecksum(classData);
-        
+
         sendCommandWithResponse(data);
     } // public ResponseFrame readClass(int classId,int classLength, boolean multiple) throws IOException
-    
-    
+
+
     protected int calcChecksum(byte[] data) throws IOException {
        int checksum = 0;
        for (int i=0;i<data.length;i++)
@@ -60,17 +59,17 @@ public class ClassWriteCommand extends CommandBuilder {
        checksum= ((checksum&0xFF)^0xFF);
        return checksum;
     }
-    
+
     static public void main(String[] args) {
         try {
         ClassWriteCommand classWriteCommand = new ClassWriteCommand(null);
-        
+
         byte[] data1 = new byte[]{(byte)0x44,(byte)0x54,(byte)0x31,(byte)0x38,(byte)0x30,(byte)0x30,(byte)0x38,(byte)0x36,(byte)0x30,(byte)0x32,
                                   (byte)0x30,(byte)0x32,(byte)0x34,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
                                   (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
                                   (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
                                   (byte)0x00,(byte)0x00,(byte)0x04,(byte)0x04,(byte)0x00}; //,(byte)0x30};
-        
+
         byte[] data2 = new byte[]{(byte)0x44,(byte)0x54,(byte)0x31,(byte)0x38,(byte)0x30,(byte)0x30,(byte)0x38,(byte)0x36,(byte)0x30,(byte)0x32,
                                   (byte)0x30,(byte)0x32,(byte)0x34,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
                                   (byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,
@@ -82,8 +81,8 @@ public class ClassWriteCommand extends CommandBuilder {
         catch(IOException e) {
             e.printStackTrace();
         }
-        
-                                  
+
+
     }
-    
+
 } // public class ClassWriteCommand extends CommandBuilder

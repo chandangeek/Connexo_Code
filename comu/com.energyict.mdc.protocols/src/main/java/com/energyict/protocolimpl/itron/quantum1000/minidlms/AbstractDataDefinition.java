@@ -10,24 +10,24 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractDataDefinition {
-    
+
     private final int DEBUG=0;
-    
+
     abstract protected void parse(byte[] data) throws IOException;
     abstract protected int getVariableName();
-    
+
     private DataDefinitionFactory dataDefinitionFactory=null;
-            
+
     private int range;
     private int index;
-    
+
     /** Creates a new instance of AbstractDataDefinition */
     public AbstractDataDefinition(DataDefinitionFactory dataDefinitionFactory) {
         this.setDataDefinitionFactory(dataDefinitionFactory);
@@ -45,10 +45,10 @@ abstract public class AbstractDataDefinition {
                        setIndex(0);
                    readReply = getDataDefinitionFactory().getProtocolLink().getApplicationStateMachine().read(getVariableName(),getIndex(),getRange());
                 }
-                else if (getIndex() >= 0) 
+                else if (getIndex() >= 0)
                    readReply = getDataDefinitionFactory().getProtocolLink().getApplicationStateMachine().read(getVariableName(),getIndex());
                 else
-                   readReply = getDataDefinitionFactory().getProtocolLink().getApplicationStateMachine().read(getVariableName()); 
+                   readReply = getDataDefinitionFactory().getProtocolLink().getApplicationStateMachine().read(getVariableName());
                 parse(readReply.getData());
                 return;
             }
@@ -61,11 +61,11 @@ abstract public class AbstractDataDefinition {
             }
         }
     }
-    
+
     protected byte[] prepareBuild() {
         return null;
     }
-    
+
     public void invokeWrite() throws IOException {
         int retry=0;
         while(true) {
@@ -82,7 +82,7 @@ abstract public class AbstractDataDefinition {
             }
         }
     }
-    
+
 //    public void invokeUpload() {
 //        int retry=0;
 //        while(true) {
@@ -97,9 +97,9 @@ abstract public class AbstractDataDefinition {
 //                    throw e;
 //                }
 //            }
-//        }        
+//        }
 //    }
-    
+
     public DataDefinitionFactory getDataDefinitionFactory() {
         return dataDefinitionFactory;
     }
@@ -123,7 +123,7 @@ abstract public class AbstractDataDefinition {
     public void setIndex(int index) {
         this.index = index;
     }
-    
-    
-    
+
+
+
 }

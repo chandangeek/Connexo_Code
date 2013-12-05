@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.nta.abstractnta;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Summary of the different Obiscodes between the NTA and OMS specification

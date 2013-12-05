@@ -10,22 +10,23 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ReportSlaveId extends AbstractRequest {
-    
+
     private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_REPORTSLAVEID);
-    
+
     private int slaveId;
     private boolean run;
     private byte[] additionalData;
-    
+
     /** Creates a new instance of ReportSlaveId */
     public ReportSlaveId(FunctionCodeFactory functionCodeFactory) {
         super(functionCodeFactory);
@@ -40,7 +41,7 @@ public class ReportSlaveId extends AbstractRequest {
         strBuff.append("   run="+isRun()+"\n");
         strBuff.append("   slaveId="+getSlaveId()+"\n");
         return strBuff.toString();
-    }        
+    }
 
     protected void parse(ResponseData responseData) throws IOException {
         int offset = 1;
@@ -52,7 +53,7 @@ public class ReportSlaveId extends AbstractRequest {
 
     public RequestData getRequestData() {
         return requestData;
-    }        
+    }
 
     public int getSlaveId() {
         return slaveId;

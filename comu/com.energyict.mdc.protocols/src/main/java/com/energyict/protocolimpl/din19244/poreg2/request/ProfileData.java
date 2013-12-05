@@ -2,11 +2,17 @@ package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
-import com.energyict.protocolimpl.din19244.poreg2.core.*;
+import com.energyict.protocolimpl.din19244.poreg2.core.ASDU;
+import com.energyict.protocolimpl.din19244.poreg2.core.DinTimeParser;
+import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
+import com.energyict.protocolimpl.din19244.poreg2.core.RegisterDataParser;
+import com.energyict.protocolimpl.din19244.poreg2.core.Response;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class to read out a number of profile data entries.

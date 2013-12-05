@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.HexString;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.common.HexString;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -17,7 +17,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 public class CryptoDsmr40MessageConverter extends Dsmr40MessageConverter {
 
     /**
-     * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
+     * Represents a mapping between {@link com.energyict.mdc.protocol.device.messages.DeviceMessageSpec}s
      * and the corresponding {@link MessageEntryCreator}
      */
     static {

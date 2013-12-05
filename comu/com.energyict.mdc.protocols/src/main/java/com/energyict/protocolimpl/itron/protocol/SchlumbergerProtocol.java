@@ -10,20 +10,28 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.itron.protocol.schlumberger.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.itron.protocol.schlumberger.CommandFactory;
+import com.energyict.protocolimpl.itron.protocol.schlumberger.SchlumbergerConnection;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  *
  * @author Koen
  */
 abstract public class SchlumbergerProtocol extends AbstractProtocol implements ProtocolLink {
-    
+
     abstract protected void doTheInit();
     abstract protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
     abstract protected List doTheDoGetOptionalKeys();
@@ -31,7 +39,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void hangup() throws IOException;
     abstract protected void offLine() throws IOException;
-    
+
     private SchlumbergerConnection schlumbergerConnection=null;
     private CommandFactory commandFactory=null;
     private int delayAfterConnect;
@@ -40,17 +48,17 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
     private int blockSize;
     private boolean allowClockSet;
     private boolean daisyChain;
-     
+
     /** Creates a new instance of SchlumbergerProtocol */
     public SchlumbergerProtocol() {
-        
+
     }
-    
-    
-    protected void doConnect() throws IOException { 
-        
+
+
+    protected void doConnect() throws IOException {
+
         getSchlumbergerConnection().delayAndFlush(getDelayAfterConnect());
-        
+
         // is it allowd to send an extra I and S? why shouldn't it?
         //if ((!isDaisyChain()) || (isDaisyChain() && ((getInfoTypeNodeAddress()==null) || (getInfoTypeNodeAddress().compareTo("")==0)))) {
             getCommandFactory().enqCommand();
@@ -58,7 +66,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
             if (getInfoTypeSecurityLevel()>=1)
                 getCommandFactory().securityCommand(getInfoTypePassword());
         //}
-        
+
         if (isDaisyChain()) {
             if ((getInfoTypeNodeAddress()!=null) && (getInfoTypeNodeAddress().compareTo("")!=0)) {
                 hangup();
@@ -67,23 +75,23 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
                 if (getInfoTypeSecurityLevel()>=1)
                     getCommandFactory().securityCommand(getInfoTypePassword());
             }
-        }        
-        
+        }
+
         doTheConnect();
     }
-    
+
     protected void doDisConnect() throws IOException {
 
-        if (isDaisyChain()) 
+        if (isDaisyChain())
             getSchlumbergerConnection().sendEnqMultidrop(2);
         else
             hangup();
 
         //offLine();
-    }    
-    
+    }
+
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));  
+        setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
         setInfoTypeSecurityLevel(Integer.parseInt(properties.getProperty("SecurityLevel","1").trim()));
         setUnitType(properties.getProperty("UnitType"));
         setUnitId(properties.getProperty("UnitId"));
@@ -95,7 +103,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         setAllowClockSet(Integer.parseInt(properties.getProperty("AllowClockSet","0").trim()) == 1);
         doTheDoValidateProperties(properties);
     }
-    
+
     protected List doGetOptionalKeys() {
         List list = new ArrayList();
         list.add("UnitType");
@@ -107,15 +115,15 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
         list.addAll(doTheDoGetOptionalKeys());
         return list;
     }
-    
-    
+
+
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         setSchlumbergerConnection(new SchlumbergerConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, 0));
         setCommandFactory(new CommandFactory(this));
         doTheInit();
         return getSchlumbergerConnection();
     }
-    
+
     public SchlumbergerConnection getSchlumbergerConnection() {
         return schlumbergerConnection;
     }
@@ -130,7 +138,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
 
     private void setCommandFactory(CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
-    }    
+    }
 
     public String getUnitType() {
         return unitType;
@@ -179,7 +187,7 @@ abstract public class SchlumbergerProtocol extends AbstractProtocol implements P
     private void setUnitId(String unitId) {
         this.unitId = unitId;
     }
-    
-    
-    
+
+
+
 }

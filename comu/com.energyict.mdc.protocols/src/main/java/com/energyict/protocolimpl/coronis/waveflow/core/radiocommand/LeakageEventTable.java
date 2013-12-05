@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class LeakageEventTable extends AbstractRadioCommand {
 

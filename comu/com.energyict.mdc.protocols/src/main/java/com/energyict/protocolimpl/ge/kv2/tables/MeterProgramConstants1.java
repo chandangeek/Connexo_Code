@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MeterProgramConstants1 extends AbstractTable {
-    
+
     private int frequency; // 8 bit, 0=50Hz, 1=60Hz
     private int timeBase; // 8 bit, 0=line, 1=crystal
     private long kt; // 4 bytes
@@ -34,12 +35,12 @@ public class MeterProgramConstants1 extends AbstractTable {
     private int currSampleScalar; // 2 bytes
     private int currSampleDivisor; // 2 bytes
     //reserved 4 bytes
-    
+
     /** Creates a new instance of MeterProgramConstants1 */
     public MeterProgramConstants1(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(66,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("MeterProgramConstants1:\n");
@@ -55,12 +56,12 @@ public class MeterProgramConstants1 extends AbstractTable {
         strBuff.append("currSampleDivisor="+currSampleDivisor+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareTransfer() {
-        
+
     }
-    
-    protected void parse(byte[] tableData) throws IOException {    
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         setFrequency(C12ParseUtils.getInt(tableData,offset++));
@@ -82,7 +83,7 @@ public class MeterProgramConstants1 extends AbstractTable {
         offset+=2;
         setCurrSampleDivisor(C12ParseUtils.getInt(tableData,offset,2,dataOrder));
         offset+=2;
-        
+
     }
 
     public int getFrequency() {

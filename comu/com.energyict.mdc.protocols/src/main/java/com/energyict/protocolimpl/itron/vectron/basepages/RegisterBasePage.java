@@ -10,33 +10,35 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.itron.protocol.Utils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author Koen
  */
 public class RegisterBasePage extends AbstractBasePage {
-    
+
     private Register register;
     private boolean dateRequest=false;
     private BigDecimal value;
     private Date date=null;
     private Quantity quantity;
     private Date selfReadDate;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public RegisterBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -48,12 +50,12 @@ public class RegisterBasePage extends AbstractBasePage {
         strBuff.append("   selfReadDate="+getSelfReadDate()+"\n");
         strBuff.append("   value="+getValue()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
-        
+
         //System.out.println("KV_DEBUG> getRegister().getAddress()=0x"+Integer.toHexString(getRegister().getAddress()));
-        
+
         if (!isDateRequest()) {
             return new BasePageDescriptor(getRegister().getAddress(),getRegister().getLength());
         }
@@ -61,15 +63,15 @@ public class RegisterBasePage extends AbstractBasePage {
             return new BasePageDescriptor(getRegister().getAddress2(),4);
         }
     }
-    
-    
-    
+
+
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        
+
         if (register.isSelfRead())
             setSelfReadDate(((BasePagesFactory)getBasePagesFactory()).getSelfreadTimestampBasePage(Math.abs(getRegister().getObisCode().getF())).getSelfReadDate());
-        
+
         if (!isDateRequest()) {
             if (getRegister().isFloatingBCD()) {
                 setValue(ParseUtils.convertBCDFloatingPoint(data, offset, getRegister().getLength()));
@@ -77,19 +79,19 @@ public class RegisterBasePage extends AbstractBasePage {
             else {
                 setValue(ParseUtils.convertBCDFixedPoint(data, offset, getRegister().getLength(), 32));
             }
-            
+
             setQuantity(new Quantity(getValue(),getRegister().getRegisterConfig().getUnit()));
             setDateRequest(true);
         }
         else {
             TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
             if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-                tz = ProtocolUtils.getWinterTimeZone(tz);            
-            
+                tz = ProtocolUtils.getWinterTimeZone(tz);
+
             setDate(Utils.buildTOODate(data,offset, tz, ((BasePagesFactory)getBasePagesFactory()).getRealTimeBasePage().getCalendar()));
             setDateRequest(false);
         }
-        
+
     }
 
     public Register getRegister() {
@@ -140,5 +142,5 @@ public class RegisterBasePage extends AbstractBasePage {
         this.selfReadDate = selfReadDate;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

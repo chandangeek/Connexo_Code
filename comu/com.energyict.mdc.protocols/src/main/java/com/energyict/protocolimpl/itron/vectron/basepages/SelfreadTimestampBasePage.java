@@ -10,49 +10,50 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.itron.protocol.Utils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class SelfreadTimestampBasePage extends AbstractBasePage {
-    
+
     private int index;
     private Date selfReadDate;
-    
-    
+
+
     /** Creates a new instance of SelfreadIndexBasePage */
     public SelfreadTimestampBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("SelfreadIndexBasePage:\n");
         strBuff.append("   index="+getIndex()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(RegisterFactory.SELFREADS_BASE_ADDRESS+getIndex()*RegisterFactory.SELFREADS_BLOCK_SIZE,RegisterFactory.SELFREADS_BLOCK_SIZE);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        
+
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);            
+            tz = ProtocolUtils.getWinterTimeZone(tz);
 
-        setSelfReadDate(Utils.buildTOODate(data,offset, tz, ((BasePagesFactory)getBasePagesFactory()).getRealTimeBasePage().getCalendar()));        
+        setSelfReadDate(Utils.buildTOODate(data,offset, tz, ((BasePagesFactory)getBasePagesFactory()).getRealTimeBasePage().getCalendar()));
     }
 
     public int getIndex() {
@@ -71,5 +72,5 @@ public class SelfreadTimestampBasePage extends AbstractBasePage {
         this.selfReadDate = selfReadDate;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

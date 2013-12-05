@@ -10,41 +10,38 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.base.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class FirmwareAndSoftwareRevision extends AbstractBasePage {
-    
-    
+
+
     private int fwVersion;
-    
+
     /** Creates a new instance of FirmwareAndSoftwareRevision */
     public FirmwareAndSoftwareRevision(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("FirmwareAndSoftwareRevision:\n");
         strBuff.append("   fwVersion="+getFwVersion()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0xA5,1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setFwVersion(ProtocolUtils.getInt(data,offset,1));
@@ -61,5 +58,5 @@ public class FirmwareAndSoftwareRevision extends AbstractBasePage {
 
 
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

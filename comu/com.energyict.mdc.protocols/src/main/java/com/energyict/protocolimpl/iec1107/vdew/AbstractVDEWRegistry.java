@@ -8,10 +8,14 @@ package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -20,19 +24,19 @@ import java.util.*;
  * KV 17022004 extended with MeterExceptionInfo
  */
 public abstract class AbstractVDEWRegistry {
-    
+
     abstract protected void initRegisters();
-    
+
     protected Map registers = new HashMap();
     protected ProtocolLink protocolLink=null;
     private MeterExceptionInfo meterExceptionInfo=null;
     public int registerSet;
     protected String dateFormat;
-    
+
     private void addDefaultRegisters() {
         registers.put("DEFAULT_REGISTER", new VDEWRegister("",VDEWRegisterDataParse.VDEW_QUANTITY,0, -1,null,VDEWRegister.NOT_WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ1));
     }
-    
+
     protected void initLocals() {
         addDefaultRegisters();
         Iterator iterator = registers.values().iterator();
@@ -47,15 +51,15 @@ public abstract class AbstractVDEWRegistry {
     protected Map getRegisters() {
         return registers;
     }
-    
-    
-    
+
+
+
     public void setRegister(String name,String value) throws IOException {
         try {
             VDEWRegister register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(value);
             else throw new IOException("AbstractVDEWRegistry, setRegister, register not writeable");
-            
+
         }
         catch(FlagIEC1107ConnectionException e) {
             throw new IOException("AbstractVDEWRegistry, setRegister, "+e.getMessage());
@@ -66,19 +70,19 @@ public abstract class AbstractVDEWRegistry {
             VDEWRegister register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(object);
             else throw new IOException("AbstractVDEWRegistry, setRegister, register not writeable");
-            
+
         }
         catch(FlagIEC1107ConnectionException e) {
             throw new IOException("AbstractVDEWRegistry, setRegister, "+e.getMessage());
         }
     }
-    
+
     public Object getRegister(String name) throws IOException {
         VDEWRegister register = findRegister(name);
         return getRegister(name,register.isCached());
     }
-    
-    
+
+
     public Object getRegister(String name,boolean cached) throws IOException {
         try {
             VDEWRegister register = findRegister(name);
@@ -88,7 +92,7 @@ public abstract class AbstractVDEWRegistry {
             throw new IOException("AbstractVDEWRegistry, getRegister, "+e.getMessage());
         }
     }
-    
+
     public byte[] getRegisterRawData(String name) throws IOException {
         try {
             VDEWRegister register = findRegister(name);
@@ -98,7 +102,7 @@ public abstract class AbstractVDEWRegistry {
             throw new IOException("AbstractVDEWRegistry, getRegisterRawData, "+e.getMessage());
         }
     }
-    
+
     // search the map for the register info
     private VDEWRegister findRegister(String name) throws IOException {
         VDEWRegister register = (VDEWRegister)getRegisters().get(name);
@@ -110,8 +114,8 @@ public abstract class AbstractVDEWRegistry {
                     return register;
                 }
             }
-            
-            // If register does not exist, get the default one and set attributes 
+
+            // If register does not exist, get the default one and set attributes
             // using the extended attributes following the registername separated by a space
             register = (VDEWRegister)getRegisters().get("DEFAULT_REGISTER");
             register.setObjectID(parseObjectId(name));
@@ -124,7 +128,7 @@ public abstract class AbstractVDEWRegistry {
             return register;
         }
     }
-    
+
     private boolean parseCached(String name) {
         String attribs = getExtraAttributes(name);
         boolean cached = VDEWRegister.NOT_CACHED; // default
@@ -134,7 +138,7 @@ public abstract class AbstractVDEWRegistry {
            cached = VDEWRegister.NOT_CACHED;
         return cached;
     }
-    
+
     private int parseType(String name) {
         String attribs = getExtraAttributes(name);
         int type = VDEWRegisterDataParse.VDEW_QUANTITY; // default
@@ -173,7 +177,7 @@ public abstract class AbstractVDEWRegistry {
         }
         else return "";
     }
-    
+
     /** Getter for property meterExceptionInfo.
      * @return Value of property meterExceptionInfo.
      *
@@ -183,16 +187,16 @@ public abstract class AbstractVDEWRegistry {
     }
 
     public void validateData(byte[] data) throws IOException {
-        String str = new String(data); 
+        String str = new String(data);
         validateData(str);
     }
-    
+
     public void validateData(String str) throws IOException {
         // Pure VDEW
         if (str.indexOf("(ERROR)") != -1) {
             if (getMeterExceptionInfo() != null) {
                str=ProtocolUtils.stripBrackets(str);
-               throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
+               throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));
             }
             else throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
@@ -200,7 +204,7 @@ public abstract class AbstractVDEWRegistry {
         else if ((str.indexOf("ERROR") != -1) && ((str.indexOf("ERROR")+"ERROR".length()) == str.length()))  {
             if (getMeterExceptionInfo() != null) {
                str=ProtocolUtils.stripBrackets(str);
-               throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
+               throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));
             }
             else throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
@@ -208,28 +212,28 @@ public abstract class AbstractVDEWRegistry {
         else if ((str.indexOf("#") == 0) || (str.indexOf("(#") == 0)) {
             if (getMeterExceptionInfo() != null) {
                str=ProtocolUtils.stripBrackets(str);
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
+               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));
             }
             else throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
         // A1500 protocol
         else if (str.indexOf("ERROR") != -1) {
             if (getMeterExceptionInfo() != null)
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));                    
-            else 
+               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));
+            else
                throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
         // Iskra EMECO protocol
         else if ((str.indexOf("ER") == 0) || (str.indexOf("(ER") == 0)) {
             if (getMeterExceptionInfo() != null) {
                String exceptionId = str.substring(str.indexOf("ER"),str.indexOf("ER")+4);
-               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(exceptionId));                    
+               throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(exceptionId));
             }
             else throw new FlagIEC1107ConnectionException("AbstractVDEWRegister, validateData, error received ("+str+")");
         }
-        
-    }    
-    
+
+    }
+
     /**
      * Getter for property registerSet.
      * @return Value of property registerSet.
@@ -237,7 +241,7 @@ public abstract class AbstractVDEWRegistry {
     public int getRegisterSet() {
         return registerSet;
     }
-    
+
     /**
      * Setter for property registerSet.
      * @param registerSet New value of property registerSet.
@@ -245,7 +249,7 @@ public abstract class AbstractVDEWRegistry {
     public void setRegisterSet(int registerSet) {
         this.registerSet = registerSet;
     }
-    
+
     /** Creates a new instance of AbstractRegistry */
     public AbstractVDEWRegistry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
         this(meterExceptionInfo,protocolLink,-1, "yy/mm/dd");

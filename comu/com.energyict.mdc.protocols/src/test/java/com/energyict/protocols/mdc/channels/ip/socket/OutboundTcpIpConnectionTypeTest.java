@@ -1,14 +1,14 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
 import com.energyict.cbo.TimeConstants;
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
 import com.energyict.comserver.monitor.EventAPIStatistics;
 import com.energyict.comserver.monitor.ManagementBeanFactory;
 import com.energyict.comserver.monitorimpl.ComServerMonitor;
 import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
 import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
@@ -64,7 +64,7 @@ public class OutboundTcpIpConnectionTypeTest {
 
         try {
             // Business method
-            connectionType.connect(comPort, properties);
+            connectionType.connect(properties);
         }
         catch (ConnectionException e) {
             // Expected a ConnectionException but want to assert that the cause is a SocketTimeoutException
@@ -85,7 +85,7 @@ public class OutboundTcpIpConnectionTypeTest {
 
         try {
             // Business method
-            connectionType.connect(comPort, properties);
+            connectionType.connect(properties);
         }
         catch (ConnectionException e) {
             long timeAfterConnect = System.currentTimeMillis();
@@ -123,7 +123,7 @@ public class OutboundTcpIpConnectionTypeTest {
         ComChannel comChannel = null;
         try {
             // Business method
-            comChannel = connectionType.connect(getMockedComPort(), new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
 
             // Asserts
             assertThat(comChannel).isNotNull();
@@ -140,7 +140,7 @@ public class OutboundTcpIpConnectionTypeTest {
         ComChannel comChannel = null;
         try {
             // Business methods
-            comChannel = connectionType.connect(getMockedComPort(), new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
             comChannel.write("GET / HTTP/1.1\r\n\r\n".getBytes());
             comChannel.startReading();
             byte[] buffer = new byte[100];

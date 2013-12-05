@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCode;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
 /**
  *
  * @author Koen
  */
 public class EventLogMfgCodeFactory extends EventLogCodeFactory {
-    
-    
+
+
     static {
         getMfgList().add(new EventLogCode(0,"Diagnostic 1 - Polarity, Cross Phase, Reverse Energy Flow","Angle out of tolerance (phase B or C voltage, phase A, B, or C current)"));
         getMfgList().add(new EventLogCode(1,"Diagnostic 1 Condition Cleared",""));
@@ -52,15 +52,15 @@ public class EventLogMfgCodeFactory extends EventLogCodeFactory {
         getMfgList().add(new EventLogCode(28,"Calibration Mode Activated(kV meter does not advance time or date during calibration, so there is no need to record deactivation time)",""));
         getMfgList().add(new EventLogCode(30,"Revenue Guard Plus Event",""));
     }
-    
+
     /** Creates a new instance of EventLogMfgCodeFactory */
     public EventLogMfgCodeFactory() {
     }
-    
+
     static public void main(String[] args) {
         EventLogMfgCodeFactory elmcf = new EventLogMfgCodeFactory();
         System.out.println(elmcf.getEvent(7, false));
         System.out.println(elmcf.getEvent(7, true));
-        
+
     }
 }

@@ -10,29 +10,24 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class PreviousSeasonDataTable extends AbstractTable {
-    
+
     private RegisterInf registerInfo;
     private RegisterData previousSeasonRegisterData;
-    
+
     /** Creates a new instance of PreviousSeasonDataTable */
     public PreviousSeasonDataTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(24));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("PreviousSeasonDataTable: \n");
@@ -40,13 +35,13 @@ public class PreviousSeasonDataTable extends AbstractTable {
         strBuff.append("    previousSeasonRegisterData="+getPreviousSeasonRegisterData()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareBuild() throws IOException {
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,RegisterInf.getSize(getTableFactory())+RegisterData.getSize(getTableFactory()));
-        setPartialReadInfo(partialReadInfo);        
+        setPartialReadInfo(partialReadInfo);
     }
-        
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         setRegisterInfo(new RegisterInf(tableData, offset, getTableFactory()));
         offset+=RegisterInf.getSize(getTableFactory());
@@ -69,5 +64,5 @@ public class PreviousSeasonDataTable extends AbstractTable {
     public void setPreviousSeasonRegisterData(RegisterData previousSeasonRegisterData) {
         this.previousSeasonRegisterData = previousSeasonRegisterData;
     }
-        
+
 }

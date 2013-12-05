@@ -9,32 +9,32 @@
  */
 
 package com.energyict.protocolimpl.meteridentification;
-import java.io.*;
-import java.util.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SentinelItron extends AbstractManufacturer {
-    
+
     /** Creates a new instance of Sentinel */
     public SentinelItron() {
     }
-    
+
     public String getManufacturer() throws IOException {
         return "Itron";
     }
-    
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.itron.sentinel.Sentinel";
     }
-    
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
     }
-    
+
     public String getMeterDescription() throws IOException {
         return "Itron Sentinel meter";
-    }    
+    }
 }

@@ -8,33 +8,29 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.itron.quantum.basepages; 
+package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.mdc.common.Quantity;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class RegisterBasePage {
-    
+
     private Register register;
     BasePagesFactory basePagesFactory;
     private Quantity quantity;
     private Date selfReadDate = null;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public RegisterBasePage(BasePagesFactory basePagesFactory) {
         this.basePagesFactory=basePagesFactory;
     }
-    
+
     public void init() throws IOException {
         if (getRegister().getObisCode().getF() == RegisterFactory.PRESENT_REGISTERS) {
             setQuantity((Quantity)basePagesFactory.getRegisterDataBasePage().getQuantities().get(getRegister().getIndex()));
@@ -72,5 +68,5 @@ public class RegisterBasePage {
         this.selfReadDate = selfReadDate;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

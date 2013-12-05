@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.nta.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.List;
@@ -29,7 +29,7 @@ public class EventsLog extends AbstractEvent{
 	private static final int EVENT_MEASUREMENT_SYSTEM_ERROR = 16;
 	private static final int EVENT_FIRMWARE_READY_ACTIVATION = 17;
 	private static final int EVENT_FIRMWARE_ACTIVATED = 18;
-	
+
 	public EventsLog(TimeZone timeZone, DataContainer dc){
         super(dc, timeZone);
     }
@@ -38,7 +38,7 @@ public class EventsLog extends AbstractEvent{
      * {@inheritDoc}
      */
 	protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-		
+
 		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
 			switch(eventId){
 			case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Event log profile cleared."));}break;

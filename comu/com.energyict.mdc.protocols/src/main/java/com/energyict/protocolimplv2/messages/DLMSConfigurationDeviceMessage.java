@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,10 +17,10 @@ import java.util.List;
  */
 public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetDLMSDeviceID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSDeviceIDAttributeName)),
-    SetDLMSMeterID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSMeterIDAttributeName)),
-    SetDLMSPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSPasswordAttributeName)),
-    SetDLMSIdleTime(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDLMSIdleTimeAttributeName));
+    SetDLMSDeviceID(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDLMSDeviceIDAttributeName)),
+    SetDLMSMeterID(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDLMSMeterIDAttributeName)),
+    SetDLMSPassword(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDLMSPasswordAttributeName)),
+    SetDLMSIdleTime(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDLMSIdleTimeAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DLMS_CONFIGURATION;
 

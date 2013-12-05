@@ -3,32 +3,31 @@
  *
  * Created on 8 december 2006, 15:26
  *
- * To change this template, choose Tools | Options and locate the template under 
+ * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose
  * Open. You can then make changes to the template in the Source Editor.
  */
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class NextViewableFileRecord extends AbstractDataDefinition {
-    
+
     abstract protected void parseData(byte[] data) throws IOException;
-    
+
     private long currentRecordNumber; // unsigned32,
     private long numberRecords; // unsigned32,
     private byte[] data; // OctetString (as defined in view object config)
-    
+
     /**
-     * Creates a new instance of NextViewableFileRecord 
+     * Creates a new instance of NextViewableFileRecord
      */
     public NextViewableFileRecord(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
@@ -45,11 +44,11 @@ abstract public class NextViewableFileRecord extends AbstractDataDefinition {
         strBuff.append("   numberRecords="+getNumberRecords()+"\n");
         return strBuff.toString();
     }
-        
+
     protected int getVariableName() {
         return 0x003F; // 63 READ DLMS_NEXT_VIEWABLE_FILE_RECORD
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setCurrentRecordNumber(ProtocolUtils.getLong(data,offset,4));

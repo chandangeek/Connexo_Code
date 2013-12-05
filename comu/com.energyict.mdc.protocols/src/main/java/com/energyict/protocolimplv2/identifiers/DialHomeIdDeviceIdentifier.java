@@ -3,14 +3,14 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.inbound.FindMultipleDevices;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
-import com.energyict.mdw.offline.OfflineDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +19,13 @@ import java.util.List;
  * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
  * that uses an {@link com.energyict.mdw.core.Device}'s Call Home ID to uniquely identify it.
  *
- * @author: sva
- * @since: 26/10/12 (11:26)
+ * @author sva
+ * @since 26/10/12 (11:26)
  */
-public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
+public class DialHomeIdDeviceIdentifier implements CanFindDevice, FindMultipleDevices {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+    public static final com.energyict.cpo.PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
 
     private final String callHomeID;
     private Device device;

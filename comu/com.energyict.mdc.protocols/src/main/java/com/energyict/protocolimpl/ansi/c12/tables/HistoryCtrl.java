@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class HistoryCtrl {
-    
+
     private byte[] stdEventsMonitoredFlags;
     private byte[] mfgEventsMonitoredFlags;
     private byte[] stdTablesMonitoredFlags;
     private byte[] mfgTablesMonitoredFlags;
     private byte[] stdProcMonitoredFlags;
     private byte[] mfgProcMonitoredFlags;
-    
+
     /** Creates a new instance of HistoryCtrl */
     public HistoryCtrl(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -47,7 +44,7 @@ public class HistoryCtrl {
         setMfgProcMonitoredFlags(ProtocolUtils.getSubArray2(data, offset, cfgt.getDimMfgProcUsed()));
         offset+=cfgt.getDimMfgProcUsed();
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("HistoryCtrl: \n");
@@ -59,7 +56,7 @@ public class HistoryCtrl {
         strBuff.append("mfgProcMonitoredFlags = "+ProtocolUtils.getResponseData(getMfgProcMonitoredFlags())+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
@@ -71,7 +68,7 @@ public class HistoryCtrl {
         size+=cfgt.getDimStdProcUsed();
         size+=cfgt.getDimMfgProcUsed();
         return size;
-    }      
+    }
 
     public byte[] getStdEventsMonitoredFlags() {
         return stdEventsMonitoredFlags;

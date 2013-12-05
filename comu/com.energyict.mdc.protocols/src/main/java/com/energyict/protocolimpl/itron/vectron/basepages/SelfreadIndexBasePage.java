@@ -10,38 +10,37 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SelfreadIndexBasePage extends AbstractBasePage {
-    
+
     private int index;
-    
+
     /** Creates a new instance of SelfreadIndexBasePage */
     public SelfreadIndexBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("SelfreadIndexBasePage:\n");
         strBuff.append("   index="+getIndex()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x21c0,0x1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setIndex(ProtocolUtils.getInt(data,0,1));
@@ -55,5 +54,5 @@ public class SelfreadIndexBasePage extends AbstractBasePage {
         this.index = index;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

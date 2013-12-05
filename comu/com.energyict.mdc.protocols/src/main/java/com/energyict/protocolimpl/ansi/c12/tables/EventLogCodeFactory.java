@@ -10,18 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.util.*;
-import java.io.*;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author Koen
  */
 abstract public class EventLogCodeFactory {
-    
+
     static List stdList = new ArrayList();
     static List mfgList = new ArrayList();
-    
+
     static {
         // C12.19
         stdList.add(new EventLogCode(0, "No event",""));
@@ -54,7 +56,7 @@ abstract public class EventLogCodeFactory {
         stdList.add(new EventLogCode(27, "Tier switch change","New current tier (UINT8) followed by new demand tier (UINT8)"));
         stdList.add(new EventLogCode(28, "Pending table activation","Table number (TABLE_IDA_BFLD)"));
         stdList.add(new EventLogCode(29, "Pending table clear","Table number (TABLE_IDA_BFLD). Table removed from end device prior to activation."));
-        
+
         // C12.21 addendum
         stdList.add(new EventLogCode(30, "Metering mode started",""));
         stdList.add(new EventLogCode(31, "Metering mode stopped",""));
@@ -76,29 +78,29 @@ abstract public class EventLogCodeFactory {
         stdList.add(new EventLogCode(47, "Tamper attempt detected",""));
         stdList.add(new EventLogCode(48, "Reverse rotation detected",""));
     }
-    
+
     /** Creates a new instance of EventLogCodeFactory */
     public EventLogCodeFactory() {
-    
+
     }
-    
+
     static public List getMfgList() {
-       return mfgList;    
+       return mfgList;
     }
-    
-    
+
+
     public int getEICode(int code, boolean manufacturer) {
         return findEventLogCode(code,manufacturer).getEiCode();
     }
-    
+
     public String getEvent(int code, boolean manufacturer) {
         return findEventLogCode(code,manufacturer).getEvent();
-    } 
-    
+    }
+
     public String getArgument(int code, boolean manufacturer) {
         return findEventLogCode(code,manufacturer).getArgument();
-    } 
-    
+    }
+
     private EventLogCode findEventLogCode(int code, boolean manufacturer) {
         if (manufacturer) {
             Iterator it = mfgList.iterator();
@@ -117,6 +119,6 @@ abstract public class EventLogCodeFactory {
             return new EventLogCode(code, "Unknown standard log code! Code:" + code,"");
         }
     }
-    
-    
+
+
 }

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -27,7 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy IC AS300 protocol.
@@ -41,7 +43,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
     /**
-     * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
+     * Represents a mapping between {@link com.energyict.mdc.protocol.device.messages.DeviceMessageSpec}s
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
     protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();

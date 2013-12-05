@@ -1,13 +1,13 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -27,7 +27,7 @@ import java.util.Properties;
 public class CompactNSX extends Modbus {
 
 	/**
-	 * 
+	 *
 	 */
 	public CompactNSX() {
 	}
@@ -66,11 +66,11 @@ public class CompactNSX extends Modbus {
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
-    
+
     public String getFirmwareVersion() throws IOException {
     	return getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification().toString();
     }
-    
+
     public void setTime() throws IOException {
     	byte[] time = perpareCurrentTime();
     	byte[] regValues = prepareCommand(769, 18, 768, "0", time);
@@ -93,9 +93,9 @@ public class CompactNSX extends Modbus {
     	}
     	return getRegisterFactory().findRegister("Date").dateValue();
     }
-	
+
     /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    R e g i s t e r P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
        try {
@@ -108,9 +108,9 @@ public class CompactNSX extends Modbus {
                throw e;
        }
    }
-    
+
 	/**
-	 * 
+	 *
 	 * @param commandCode - Execution code (ex: 768 - readTime; 769 - setTime)
 	 * @param numbOfPars - Number of parameters to be set
 	 * @param destination - Destination

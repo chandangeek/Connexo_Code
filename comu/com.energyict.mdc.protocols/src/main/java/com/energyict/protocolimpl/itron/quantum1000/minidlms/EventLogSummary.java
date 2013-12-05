@@ -3,30 +3,29 @@
  *
  * Created on 8 december 2006, 15:26
  *
- * To change this template, choose Tools | Options and locate the template under 
+ * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose
  * Open. You can then make changes to the template in the Source Editor.
  */
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class EventLogSummary extends AbstractDataDefinition {
-    
+
     private final int NUM_EVENT_SUMMARIES=16;
-    
+
     private List eventLogSummariesTypes = new ArrayList();
-    
+
     /**
-     * Creates a new instance of EventLogSummary 
+     * Creates a new instance of EventLogSummary
      */
     public EventLogSummary(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
@@ -41,11 +40,11 @@ public class EventLogSummary extends AbstractDataDefinition {
         }
         return strBuff.toString();
     }
-        
+
     protected int getVariableName() {
         return 75; // DLMS_EVENT_LOG_SUMMARIES
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         for (int i=0;i<NUM_EVENT_SUMMARIES;i++) {

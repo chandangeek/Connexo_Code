@@ -3,13 +3,6 @@
  */
 package com.energyict.protocolimpl.debug;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
@@ -18,6 +11,13 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import com.energyict.protocolimpl.iec1107.ppm.PPM;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class can be used to test the PPM2 protocol without the need of the

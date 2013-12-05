@@ -10,40 +10,35 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DimensionLoadProfileTable extends AbstractTable {
-    
+
     private LoadProfileSet loadProfileSet;
-    
+
     /** Creates a new instance of DimensionLoadProfileTable */
     public DimensionLoadProfileTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(60));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DimensionLoadProfileTable: \n");
         strBuff.append("    loadProfileSet="+getLoadProfileSet()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int offset=0;
         setLoadProfileSet(new LoadProfileSet(tableData, offset,getTableFactory()));
-    }         
+    }
 
     public LoadProfileSet getLoadProfileSet() {
         return loadProfileSet;

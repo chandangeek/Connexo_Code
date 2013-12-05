@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.dlms.as220.plc;
 
-import java.io.IOException;
-
 import com.energyict.dlms.cosem.SFSKIec61334LLCSetup;
 import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractDLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+
+import java.io.IOException;
 
 /**
  * @author jme

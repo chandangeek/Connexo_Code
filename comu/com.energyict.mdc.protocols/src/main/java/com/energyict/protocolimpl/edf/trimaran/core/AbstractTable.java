@@ -10,36 +10,36 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractTable {
-    
+
     final int DEBUG=0;
-    
+
     abstract protected void parse(byte[] data) throws IOException;
     abstract protected int getCode();
     private int length;
-    
+
     private DataFactory dataFactory;
-            
+
     /** Creates a new instance of AbstractTable */
     public AbstractTable(DataFactory dataFactory) {
         this.setDataFactory(dataFactory);
         setLength(0);
     }
 
-    public DataFactory getDataFactory() { 
+    public DataFactory getDataFactory() {
         return dataFactory;
     }
 
     private void setDataFactory(DataFactory dataFactory) {
         this.dataFactory = dataFactory;
     }
-    
+
     public void invoke() throws IOException {
         // KV 09082006 retry mechanism
         int retries=0;
@@ -59,7 +59,7 @@ abstract public class AbstractTable {
                 else if (DEBUG>=1) System.out.println("KV_DEBUG> AbstractTable, invoke(), "+e.toString()+", retry "+retries);
             }
         } // while(true)
-        
+
     } // public void invoke() throws IOException
 
     private String getLogInfo() {
@@ -72,12 +72,12 @@ abstract public class AbstractTable {
                 return "requesting previous month registers";
             case 3:
                 return "requesting meter status";
-            
-            default: 
-                return "unknown requesting code "+getCode();     
+
+            default:
+                return "unknown requesting code "+getCode();
         }
     }
-    
+
     public int getLength() {
         return length;
     }
@@ -85,5 +85,5 @@ abstract public class AbstractTable {
     public void setLength(int length) {
         this.length = length;
     }
-    
+
 }

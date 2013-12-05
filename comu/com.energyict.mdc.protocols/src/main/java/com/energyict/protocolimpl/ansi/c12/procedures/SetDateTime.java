@@ -10,22 +10,26 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import java.io.*;
-import java.util.*;
 
-import com.energyict.protocol.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author Koen
  */
 public class SetDateTime extends AbstractProcedure {
-    
-    
+
+
     Date responseDateTimeBefore;
     Date responseDateTimeAfter;
-    
-    
+
+
     /** Creates a new instance of SetDateTime */
     public SetDateTime(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(10));
@@ -42,14 +46,14 @@ public class SetDateTime extends AbstractProcedure {
             responseDateTimeBefore = C12ParseUtils.getDateFromLTime(data, 0, timeFormat, getProcedureFactory().getC12ProtocolLink().getTimeZone(),dataOrder);
             responseDateTimeAfter = C12ParseUtils.getDateFromLTime(data, C12ParseUtils.getLTimeSize(timeFormat), timeFormat, getProcedureFactory().getC12ProtocolLink().getTimeZone(),dataOrder);
         }
-        
+
     }
-    
+
     // KV_TO_DO see C12.19 page 52 dst & timezone handling?
     protected void prepare() throws IOException {
         //edMode = getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getEndDeviceModeAndStatusTable().getEdMode();
         TimeZone timeZone = getProcedureFactory().getC12ProtocolLink().getTimeZone();
-        //byte[] data = new 
+        //byte[] data = new
         DataOutputStream dos = new DataOutputStream(new ByteArrayOutputStream());
         int setMaskBitfield = 0x03; // set time = true & date=true
         int timeFormat = getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getTimeFormat();
@@ -79,11 +83,11 @@ public class SetDateTime extends AbstractProcedure {
                 timeDate[4] = (byte)cal.get(Calendar.MINUTE);
                 timeDate[5] = (byte)cal.get(Calendar.SECOND);
             } break;
-                
+
             case 3: {
                 timeDate = new byte[6];
                 Calendar calGMT=null;
-                calGMT = Calendar.getInstance(TimeZone.getTimeZone("GMT")); 
+                calGMT = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 calGMT.add(Calendar.MILLISECOND,getProcedureFactory().getC12ProtocolLink().getInfoTypeRoundtripCorrection());
 
                 // Due to a spec non-conformity in the Sentinel meter for the UDATE (GMT minutes from 1970)
@@ -91,10 +95,10 @@ public class SetDateTime extends AbstractProcedure {
                     if (timeZone.inDaylightTime(calGMT.getTime()))
                         calGMT.add(Calendar.MILLISECOND, +(timeZone.getRawOffset()-3600000));
                     else
-                        calGMT.add(Calendar.MILLISECOND, +timeZone.getRawOffset());                 
+                        calGMT.add(Calendar.MILLISECOND, +timeZone.getRawOffset());
                 }
-                
-                
+
+
                 long minutes = (calGMT.getTime().getTime()/1000)/60;
                 int dataOrder = getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
                 if (dataOrder == 0) { // least significant first
@@ -114,7 +118,7 @@ public class SetDateTime extends AbstractProcedure {
                 else throw new IOException("SetTimeDate, prepare(), invalid dataOrder "+dataOrder);
             } break;
         } // switch(timeFormat)
-        
+
         byte[] data = new byte[1+timeDate.length+1];
         data[0] = (byte)setMaskBitfield;
         System.arraycopy(timeDate,0,data,1,timeDate.length);

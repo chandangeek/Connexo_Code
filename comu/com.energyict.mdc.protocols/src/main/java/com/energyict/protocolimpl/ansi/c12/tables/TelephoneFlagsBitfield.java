@@ -9,28 +9,25 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TelephoneFlagsBitfield {
-    
+
     private boolean answerFlag;
     private boolean sAnchorDateFlag;
     private boolean offhookDetectFlag;
     private int bitRate;
     private boolean idInPurpose;
     private boolean noLockoutParm;
-    
 
-    
+
+
     /** Creates a new instance of TelephoneFlagsBitfield */
     public TelephoneFlagsBitfield(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int temp = C12ParseUtils.getInt(data,offset++);
@@ -54,10 +51,10 @@ public class TelephoneFlagsBitfield {
         strBuff.append("   offhookDetectFlag="+isOffhookDetectFlag()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 1;
-    }      
+    }
 
     public boolean isAnswerFlag() {
         return answerFlag;

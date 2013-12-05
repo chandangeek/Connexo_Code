@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class EndOfBillingEventLog extends AbstractEventLog {
         billingEventSource.put(new Integer(0x10), "FLAG Port Commanded Billing");
         billingEventSource.put(new Integer(0x20), "Battery Fail Billing");
 	}
-	
+
 	public void parse(byte[] data) throws IOException {
 		int offset=0;
 		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);

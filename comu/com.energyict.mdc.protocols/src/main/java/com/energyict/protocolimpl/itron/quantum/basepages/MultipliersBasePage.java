@@ -10,13 +10,12 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -28,13 +27,13 @@ public class MultipliersBasePage extends AbstractBasePage {
     private BigDecimal voltSquare;
     private BigDecimal ampSquare;
     private BigDecimal energy;
-            
-    
+
+
     /** Creates a new instance of RealTimeBasePage */
     public MultipliersBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -44,12 +43,12 @@ public class MultipliersBasePage extends AbstractBasePage {
         strBuff.append("   ampSquare="+getAmpSquare()+"\n");
         strBuff.append("   energy="+getEnergy()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(811,831-811);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setDemand(BigDecimal.valueOf(ProtocolUtils.getLong(data,offset,5)));
@@ -60,7 +59,7 @@ public class MultipliersBasePage extends AbstractBasePage {
         offset+=5;
         setEnergy(BigDecimal.valueOf(ProtocolUtils.getLong(data,offset,5)));
         offset+=5;
-        
+
     }
 
     public BigDecimal getDemand() {
@@ -95,5 +94,5 @@ public class MultipliersBasePage extends AbstractBasePage {
         this.energy = energy;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

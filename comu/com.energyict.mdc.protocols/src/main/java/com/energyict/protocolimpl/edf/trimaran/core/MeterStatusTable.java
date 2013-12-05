@@ -10,25 +10,26 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class MeterStatusTable extends AbstractTable {
-    
+
     private Date timestamp;
     private int tarif;
-    
+
     private int modeta;
     private int sommod;
     private int errFat;
     private int errSes;
-    
+
     private int subscribedPowerPeak; // kW
     private int subscribedPowerNormalWinter; // kW
     private int subscribedPowerLowWinter; // kW
@@ -40,16 +41,16 @@ public class MeterStatusTable extends AbstractTable {
     private int subscribedPowerLowLowSeason; // kW
 
 
-    
+
     /** Creates a new instance of MonthInfoTable */
     public MeterStatusTable(DataFactory dataFactory) {
         super(dataFactory);
     }
-    
+
     protected int getCode() {
         return 3;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -71,7 +72,7 @@ public class MeterStatusTable extends AbstractTable {
         strBuff.append("   timestamp="+getTimestamp()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         Calendar cal = ProtocolUtils.getCleanCalendar(getDataFactory().getTrimeran().getTimeZone());
@@ -88,17 +89,17 @@ public class MeterStatusTable extends AbstractTable {
         setSommod(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
         setErrFat(ProtocolUtils.getIntLE(data,offset++,1));
         setErrSes(ProtocolUtils.getIntLE(data,offset++,1));
-        
-        setSubscribedPowerPeak(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerNormalWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerNormalSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerMobile(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerNormalHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowLowSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        
+
+        setSubscribedPowerPeak(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerNormalWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerNormalSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerMobile(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerNormalHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowLowSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+
     }
 
     public Date getTimestamp() {
@@ -222,5 +223,5 @@ public class MeterStatusTable extends AbstractTable {
     }
 
 
-    
+
 }

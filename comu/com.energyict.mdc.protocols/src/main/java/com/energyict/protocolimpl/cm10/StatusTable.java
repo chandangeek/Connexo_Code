@@ -1,17 +1,17 @@
 package com.energyict.protocolimpl.cm10;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 
+import java.io.IOException;
+
 public class StatusTable {
-	
+
 	private CM10 cm10Protocol;
-	
+
 	public StatusTable(CM10 cm10Protocol) {
 		this.cm10Protocol = cm10Protocol;
 	}
-	
+
 	private int totals;
 	private int demCnt;
 	private int demLyr;
@@ -29,11 +29,11 @@ public class StatusTable {
 	private int mnsCnt;
 	private int mtrs; // number of channels
 	private int batLow;
-	
+
 	public int getNumberOfChannels() {
 		return mtrs;
 	}
-	
+
 	public void parse(byte[] data) throws IOException {
 		//skip first 6 bytes (current time)
 		totals = data[6];
@@ -55,7 +55,7 @@ public class StatusTable {
 		batLow = data[data.length - 12];
 		//cm10Protocol.getLogger().info("bat low: " + batLow);
 	}
-	
+
 	public String toString() {
 		StringBuffer buf = new StringBuffer("");
 		buf.append("demCnt: " + demCnt).append("\n");
@@ -76,19 +76,19 @@ public class StatusTable {
 		buf.append("mtrs: " + mtrs).append("\n");
 		return buf.toString();
 	}
-	
+
 	public boolean isBatteryLow() {
 		return batLow > 0;
 	}
-	
+
 	public int getMostHistoricDemandCount() {
 		return om;
 	}
-	
+
 	public int getMostRecentDemandCount() {
 		return nm;
 	}
-	
+
 	public int getNumberOfMeterDemandsStored() {
 		return mCnt;
 	}
@@ -96,5 +96,5 @@ public class StatusTable {
 	public int getNumberOfDemandPeriodsPreviousYear() {
 		return demTyr;
 	}
-	
+
 }

@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ChangeEndDeviceMode extends AbstractProcedure {
-    
+
     /** Creates a new instance of ChangeEndDeviceMode */
     public ChangeEndDeviceMode(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(6));
@@ -27,6 +27,6 @@ public class ChangeEndDeviceMode extends AbstractProcedure {
         int edMode = getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getEndDeviceModeAndStatusTable().getEdMode();
         setProcedureData(new byte[]{(byte)edMode});
     }
-    
+
 
 }

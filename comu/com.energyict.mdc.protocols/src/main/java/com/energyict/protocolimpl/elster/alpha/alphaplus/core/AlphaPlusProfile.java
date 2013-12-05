@@ -10,17 +10,21 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.elster.alpha.core.Alpha;
+import com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class14LoadProfileConfiguration;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class17LoadProfileData;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.DayRecord;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -38,11 +42,11 @@ public class AlphaPlusProfile {
         Class17LoadProfileData class17LoadProfileData = alphaPlus.getClassFactory().getClass17LoadProfileData(nrOfDays);
         Class14LoadProfileConfiguration class14LoadProfileConfiguration = alphaPlus.getClassFactory().getClass14LoadProfileConfiguration();
         ProfileData profileData = new ProfileData();
-        
+
         // build ChannelInfos
         for (int profileChannel=0;profileChannel<alphaPlus.getNumberOfChannels();profileChannel++) {
-            Unit unit=Unit.get("");             
-        
+            Unit unit=Unit.get("");
+
             if (alphaPlus.getProtocolChannelMap()!=null) {
                 if (alphaPlus.getProtocolChannelMap().isProtocolChannel(profileChannel) &&
                     (alphaPlus.getProtocolChannelMap().getProtocolChannel(profileChannel).getValue()==1)) {
@@ -55,30 +59,30 @@ public class AlphaPlusProfile {
                     unit = class14LoadProfileConfiguration.getUnit(profileChannel).getVolumeUnit();
                 }
             }
-            
-            ChannelInfo channelInfo = new ChannelInfo(class14LoadProfileConfiguration.getMeterChannelIndex(profileChannel),"ELSTER ALPHA+ CHANNEL "+profileChannel,unit);    
+
+            ChannelInfo channelInfo = new ChannelInfo(class14LoadProfileConfiguration.getMeterChannelIndex(profileChannel),"ELSTER ALPHA+ CHANNEL "+profileChannel,unit);
             profileData.addChannel(channelInfo);
         }
-        
+
         // build Intervaldatas
         List intervalDatas= new ArrayList();
         Iterator it = class17LoadProfileData.getDayRecords().iterator();
         while(it.hasNext()) {
             DayRecord dayRecord = (DayRecord)it.next();
-            intervalDatas.addAll(dayRecord.getIntervalDatas()); 
+            intervalDatas.addAll(dayRecord.getIntervalDatas());
         }
         profileData.setIntervalDatas(intervalDatas);
-        
+
         // build MeterEvents
         if (includeEvents) {
            profileData.setMeterEvents(alphaPlus.getClassFactory().getClass16EventLogData().getMeterEvents());
            profileData.applyEvents(alphaPlus.getProfileInterval()/60);
         }
-        
+
         profileData.sort();
-        
+
         return profileData;
-    }    
+    }
 
     private int getNrOfDays(Date lastReading) throws IOException {
         Date now = new Date();
@@ -89,6 +93,6 @@ public class AlphaPlusProfile {
         }
         return nrOfDays;
     }
-    
-    
+
+
 }

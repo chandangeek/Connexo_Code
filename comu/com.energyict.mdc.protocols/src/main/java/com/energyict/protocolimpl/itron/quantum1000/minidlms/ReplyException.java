@@ -10,20 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ReplyException extends IOException {
-     
+
   private AbstractReplyError abstractReplyDataError;
-  
+
   public String toString() {
       return "ReplyException: "+super.toString()+", "+getAbstractReplyDataError();
   }
-  
+
   public ReplyException(String str)
   {
       super(str);
@@ -34,7 +34,7 @@ public class ReplyException extends IOException {
   {
       super();
       this.setAbstractReplyDataError(null);
-      
+
   } // public ReplyException()
 
   public ReplyException(AbstractReplyError abstractReplyDataError)
@@ -42,14 +42,14 @@ public class ReplyException extends IOException {
       super();
       this.setAbstractReplyDataError(abstractReplyDataError);
 
-  } // public ReplyException(String str)    
-  
+  } // public ReplyException(String str)
+
   public ReplyException(String str, AbstractReplyError abstractReplyDataError)
   {
       super(str);
       this.setAbstractReplyDataError(abstractReplyDataError);
 
-  } // public ReplyException(String str)    
+  } // public ReplyException(String str)
 
     public AbstractReplyError getAbstractReplyDataError() {
         return abstractReplyDataError;

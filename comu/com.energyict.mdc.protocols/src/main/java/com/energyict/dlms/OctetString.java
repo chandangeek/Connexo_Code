@@ -6,13 +6,13 @@
 
 package com.energyict.dlms;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen

@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.LittleEndianOutputStream;
-import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.DeviceIpAddress;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.protocol.device.data.CollectedData;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class PacketBuilder {
     private Integer nrOfAcceptedMessages = null;
 
     private Cryptographer cryptographer;
-    private DeviceIdentifier deviceIdentifier;
+    private CanFindDevice deviceIdentifier;
     private List<CollectedData> collectedData = new ArrayList<>();
     private Logger logger;
 

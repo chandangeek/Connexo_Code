@@ -6,10 +6,15 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.Calculate;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 
 
@@ -18,9 +23,9 @@ import com.energyict.protocol.*;
  * @author  Koen
  */
 public class IEC870ASDU {
-    
+
     private static final int DUI_LENGTH=6;
-    
+
     int typeIdentification;
     int varStructQualifier;
     int causeOfTransmission;
@@ -29,8 +34,8 @@ public class IEC870ASDU {
     List informationObjects=null;
     byte[] data=null;
     int length=-1;
-    
-    
+
+
     /** Creates a new instance of IEC870ASDU */
     public IEC870ASDU(int typeIdentification,int varStructQualifier,int causeOfTransmission,int originatorAddress,int commonAddressOfASDU,List informationObjects) throws IEC870ConnectionException {
         this.typeIdentification=typeIdentification; //1
@@ -40,13 +45,13 @@ public class IEC870ASDU {
         this.commonAddressOfASDU=commonAddressOfASDU; //2
         this.informationObjects=informationObjects;
     }
-    
+
     /** Creates a new instance of IEC870ASDU */
     public IEC870ASDU(int typeIdentification,int varStructQualifier,int causeOfTransmission,int originatorAddress,int commonAddressOfASDU,IEC870InformationObject io) throws IEC870ConnectionException {
         this(typeIdentification,varStructQualifier,causeOfTransmission,originatorAddress,commonAddressOfASDU,new ArrayList());
         informationObjects.add(io);
     }
-    
+
     public IEC870ASDU(byte[] data) throws IEC870ConnectionException {
         typeIdentification = ProtocolUtils.getByte2Int(data, 0);
         varStructQualifier = ProtocolUtils.getByte2Int(data, 1);
@@ -55,26 +60,26 @@ public class IEC870ASDU {
         commonAddressOfASDU = ProtocolUtils.getShortLE(data, 4);
         buildInformationObjects(ProtocolUtils.getSubArray(data,6));
     }
-    
+
     public int setOriginatorAddress(int originatorAddress) {
         this.originatorAddress=originatorAddress+1;
         return this.originatorAddress;
     }
     public byte[] getInformationObjectObjectData(int index) throws IOException {
         // KV_DEBUG KV 16072003 to avoid indexoutofboundsexception... when receiving DSAP messages ??
-        if (index >= getInformationObjects().size()) 
+        if (index >= getInformationObjects().size())
             throw new IOException("IEC870ASDU, getInformationObjectObjectData, wrong nr of informationobjects in ASDU, size="+getInformationObjects().size()+" index="+index);
         return ((IEC870InformationObject)getInformationObjects().get(index)).getObjData();
     }
-    
+
     public List getInformationObjects() {
-        return informationObjects;   
+        return informationObjects;
     }
-    
+
     public IEC870InformationObject getInformationObject() {
-        return (IEC870InformationObject)informationObjects.get(0);   
+        return (IEC870InformationObject)informationObjects.get(0);
     }
-    
+
     public byte[] getData() throws IEC870ConnectionException {
         buildData();
         return data;
@@ -85,7 +90,7 @@ public class IEC870ASDU {
     public String getTypeIdentificationDescription() {
         return IEC870TypeIdentification.getTypeIdentification(getTypeIdentification()).getDescription();
     }
-    
+
     public int getVarStructQualifierNumber() {
         return varStructQualifier & 0x7F;
     }
@@ -98,18 +103,18 @@ public class IEC870ASDU {
     public String getCauseOfTransmissionCauseDescription() {
         return  IEC870TransmissionCause.getTransmissionCause(getCauseOfTransmissionCause()).getDescription();
     }
-    
+
     public boolean isCauseOfTransmissionConfirm() {
         return  ((causeOfTransmission&0x40)!=0);
     }
     public boolean isCauseOfTransmissionTest() {
         return  ((causeOfTransmission&0x80)!=0);
     }
-    
+
     public String toString(TimeZone timeZone) {
         StringBuffer strbuff = new StringBuffer();
         String tidName=null,causeName=null;
-        
+
         try {
             tidName = IEC870TypeIdentification.getTypeIdentification(typeIdentification).getDescription()+" "+IEC870TypeIdentification.getTypeIdentification(typeIdentification).getShortdescr();
         }
@@ -123,14 +128,14 @@ public class IEC870ASDU {
             causeName = e.getMessage();
         }
         strbuff.append("********************** ASDU ************************\r\n");
-        
+
         strbuff.append("typeIdentification=0x"+Integer.toHexString(typeIdentification)+" ("+tidName+")\r\n"+
         "causeOfTransmission=0x"+Integer.toHexString(causeOfTransmission)+" ("+causeName+")\r\n"+
         "varStructQualifier=0x"+Integer.toHexString(varStructQualifier)+"\r\n"+
         "getVarStructQualifierNumber()=0x"+Integer.toHexString(getVarStructQualifierNumber())+"\r\n"+
         "originatorAddress=0x"+Integer.toHexString(originatorAddress)+"\r\n"+
         "commonAddressOfASDU=0x"+Integer.toHexString(commonAddressOfASDU)+"\r\n");
-        
+
         if (informationObjects != null) {
             for (int i=0;i<informationObjects.size();i++) {
                 strbuff.append("************** Information object "+i+" ****************\r\n");
@@ -185,8 +190,8 @@ public class IEC870ASDU {
                     try {
                         strbuff.append("QDS(7.2.6.3)=0x"+Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(),2,1))+" val=");
                         strbuff.append(Calculate.convertNormSignedFP2NumberLE(io.getObjData(),0)+" *** "+((ProtocolUtils.getIntLE(io.getObjData(),0,2)&0x7FF0)>>4)+" ***\r\n");
-                        
-                        
+
+
                     }
                     catch(IOException e) {
                         e.printStackTrace();
@@ -203,10 +208,10 @@ public class IEC870ASDU {
                 }
             }
         }
-        
+
         return strbuff.toString();
     }
-    
+
     private void buildInformationObjects(byte[] data) throws IEC870ConnectionException {
         informationObjects = null;
         IEC870InformationObject io=null;
@@ -233,9 +238,9 @@ public class IEC870ASDU {
             }
         }
     } // private void buildInformationObjects(byte[] data)
-    
+
     private void buildData() throws IEC870ConnectionException {
-        
+
         Iterator it = informationObjects.iterator();
         length=0;
         while(it.hasNext()) {
@@ -249,7 +254,7 @@ public class IEC870ASDU {
         data[3] = (byte)originatorAddress;
         data[4] = (byte)(commonAddressOfASDU&0xFF);
         data[5] = (byte)((commonAddressOfASDU>>8)&0xFF);
-        
+
         int offset=DUI_LENGTH;
         it = informationObjects.iterator();
         while(it.hasNext()) {
@@ -262,5 +267,5 @@ public class IEC870ASDU {
             }
         }
     }
-    
+
 } // public class IEC870ASDU

@@ -10,30 +10,28 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.util.*;
-
 /**
  *
  * @author koen
  */
 public class CommandIdentification {
-    
+
     private String command;
     private String[] arguments;
     private boolean useProtocol;
     private boolean useBuffer;
     private boolean response;
-    
-    
+
+
     /** Creates a new instance of CommandIdentification */
     public CommandIdentification(String command) {
         this(command,false,false,null);
     }
-    
+
     public CommandIdentification(String command,boolean useProtocol,boolean useBuffer) {
         this(command,useProtocol,useBuffer,null);
     }
-    
+
     public CommandIdentification(String command,boolean useProtocol,boolean useBuffer,String[] arguments) {
         this.setUseProtocol(useProtocol);
         this.setCommand(command);
@@ -41,15 +39,15 @@ public class CommandIdentification {
         arguments=null;
         response=true;
     }
-    
+
     public boolean isLogOff() {
-        return "LO".compareTo(command)==0;   
+        return "LO".compareTo(command)==0;
     }
-    
+
     public String toString() {
         return command;
     }
-    
+
     public String getCommand() {
         return command;
     }
@@ -89,6 +87,6 @@ public class CommandIdentification {
     public void setResponse(boolean response) {
         this.response = response;
     }
-    
-    
+
+
 }

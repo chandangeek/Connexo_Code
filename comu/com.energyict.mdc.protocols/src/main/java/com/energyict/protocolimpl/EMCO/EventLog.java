@@ -1,11 +1,17 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.EMCO.frame.RegisterRequestFrame;
 import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -16,7 +22,7 @@ import java.util.*;
 public class EventLog  {
 
     private FP93 meterProtocol;
-    private HashMap<String, String> faultFlags = new HashMap<String, String>();
+    private HashMap<String, String> faultFlags = new HashMap<>();
 
 
     public EventLog(FP93 meterProtocol) {

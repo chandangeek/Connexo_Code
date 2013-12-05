@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,7 +35,7 @@ public class GenericDlmsClassAttribute implements DLMSClassAttributes {
      * @return the attribute number as int
      */
     public int getAttributeNumber() {
-        return this.attributeNumber;  
+        return this.attributeNumber;
     }
 
     /**
@@ -53,7 +53,7 @@ public class GenericDlmsClassAttribute implements DLMSClassAttributes {
      * @return the DLMS ClassID
      */
     public DLMSClassId getDlmsClassId() {
-        return this.dlmsClassId;  
+        return this.dlmsClassId;
     }
 
     /**
@@ -62,6 +62,6 @@ public class GenericDlmsClassAttribute implements DLMSClassAttributes {
      * @return the short name as int
      */
     public int getShortName() {
-        return this.shortName;  
+        return this.shortName;
     }
 }

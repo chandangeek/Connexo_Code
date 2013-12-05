@@ -10,17 +10,15 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-
 /**
  *
  * @author Koen
  */
 public class SaveConfiguration extends AbstractProcedure {
-    
+
     /** Creates a new instance of SaveConfiguration */
     public SaveConfiguration(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(2));
     }
-    
+
 }

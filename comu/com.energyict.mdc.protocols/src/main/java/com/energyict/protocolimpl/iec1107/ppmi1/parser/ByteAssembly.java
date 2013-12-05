@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
+import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
+
 import java.util.EmptyStackException;
 import java.util.Stack;
-
-import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
 /**
  * This Assembly is used to parse an incoming byte stream. The ByteAssembly
  * offers extra functionality during debugging. It contains the read-index, and
  * with that it can display the progress of the parsing.
- * 
+ *
  * @author fbo
  */
 public class ByteAssembly {
@@ -46,7 +46,7 @@ public class ByteAssembly {
 	/**returns the object identified as this assembly's "target". Clients can
 	 * set and retrieve a target, which can be a convenient supplement as a
 	 * place to work, in addition to the assembly's stack.
-	 * 
+	 *
 	 * @return the target of this assembly
 	 */
 	public Object getTarget() {
@@ -55,14 +55,14 @@ public class ByteAssembly {
 
 	/**sets the target for this assembly. Targets must implement
 	 * <code>clone()</code> as a public method.
-	 * 
+	 *
 	 * @param target a publicly cloneable object */
 	public void setTarget(Object target) {
 		this.target = target;
 	}
 
 	/**removes the object at the top of this assembly's stack and returns it.
-	 * 
+	 *
 	 * @return the object at the top of this assembly's stack
 	 * @exception EmptyStackException if this stack is empty */
 	public Object pop() {
@@ -70,7 +70,7 @@ public class ByteAssembly {
 	}
 
 	/**pushes an object onto the top of this assembly's stack.
-	 * 
+	 *
 	 * @param object the object to be pushed */
 	public void push(Object o) {
 		stack.push(o);

@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
-import java.io.IOException;
-
-import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalData;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
+
+import java.io.IOException;
 
 /**
  * @author fbo

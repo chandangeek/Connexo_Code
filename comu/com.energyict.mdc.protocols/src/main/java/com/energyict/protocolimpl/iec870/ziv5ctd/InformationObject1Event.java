@@ -7,22 +7,22 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 
 /** @author fbo */
 
 public class InformationObject1Event extends InformationObject {
-    
+
     /** Single-point address */
     private int spa;
     /** Single-point qualifier */
     private int spq;
     private int spi;
-    
+
     private Date date;
-    
+
     /** Creates a new instance of InformationObject1 */
     public InformationObject1Event( int spa, int spq, int spi, Date date ) {
         this.spa = spa;
@@ -30,7 +30,7 @@ public class InformationObject1Event extends InformationObject {
         this.spi = spi;
         this.date = date;
     }
-    
+
     public void setSpa(int spa) {
         this.spa = spa;
     }
@@ -49,7 +49,7 @@ public class InformationObject1Event extends InformationObject {
 
     MeterEvent toMeterEvent( ){
         String d = null;
-        
+
         if(spa == 1 && spq == 1) {
             d = "starting, restart of system (with loss of the data)";
             return new MeterEvent( getDate(), MeterEvent.POWERUP, d );
@@ -75,10 +75,10 @@ public class InformationObject1Event extends InformationObject {
             d= "desincronizacion manufacturer documentation spa=7, spq=2";
             return new MeterEvent( getDate(), MeterEvent.OTHER, d );
         }
-        if(spa==15 && spq==0) { 
+        if(spa==15 && spq==0) {
             d="configuration change";
             return new MeterEvent( getDate(), MeterEvent.CONFIGURATIONCHANGE, d );
-        }            
+        }
         if(spa==16 && spq==0) {
             d="change of the private key";
             return new MeterEvent( getDate(), MeterEvent.CONFIGURATIONCHANGE, d );
@@ -114,11 +114,11 @@ public class InformationObject1Event extends InformationObject {
         if(spa==15 && spq==23) {
             d="configuration change contract 3";
             return new MeterEvent( getDate(), MeterEvent.CONFIGURATIONCHANGE, d );
-        }        
+        }
         if(spa==7 && spq==21) {
             d="billing period reset for contract 1";
             return new MeterEvent( getDate(), MeterEvent.BILLING_ACTION, d );
-        }        
+        }
         if(spa==7 && spq==22) {
             d="biling period reset for contract 2";
             return new MeterEvent( getDate(), MeterEvent.BILLING_ACTION, d );
@@ -179,15 +179,15 @@ public class InformationObject1Event extends InformationObject {
             d="Phase failure, phase 3";
             return new MeterEvent( getDate(), MeterEvent.PHASE_FAILURE, d );
         }
-        
+
         return null;
     }
-    
+
     public String toString(){
         if( toMeterEvent() != null )
             return toMeterEvent().toString() + " " + getDate();
-        else 
+        else
             return "unknown event spa" + spa + " , spq " + spq + " ,spi " + spi;
     }
-    
+
 }

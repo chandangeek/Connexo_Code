@@ -10,28 +10,28 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class DemandRegistersBasePage extends AbstractBasePage {
-    
+
     private DemandRegister wattsDemand;
     private DemandRegister laggingVARsDemand;
     private DemandRegister voltAmpsVA;
-    
+
     /** Creates a new instance of DemandRegistersBasePage */
     public DemandRegistersBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,18 +41,18 @@ public class DemandRegistersBasePage extends AbstractBasePage {
         strBuff.append("   wattsDemand="+getWattsDemand()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x28DD,142*3);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        
+
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);        
-        
+            tz = ProtocolUtils.getWinterTimeZone(tz);
+
         setWattsDemand(new DemandRegister(data, offset, tz)); offset+=DemandRegister.size();
         setLaggingVARsDemand(new DemandRegister(data, offset, tz)); offset+=DemandRegister.size();
         setVoltAmpsVA(new DemandRegister(data, offset, tz)); offset+=DemandRegister.size();
@@ -81,6 +81,6 @@ public class DemandRegistersBasePage extends AbstractBasePage {
     public void setVoltAmpsVA(DemandRegister voltAmpsVA) {
         this.voltAmpsVA = voltAmpsVA;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

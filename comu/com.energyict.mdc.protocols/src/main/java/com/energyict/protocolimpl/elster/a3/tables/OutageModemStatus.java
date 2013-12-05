@@ -10,18 +10,19 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
-public class OutageModemStatus extends AbstractTable { 
+public class OutageModemStatus extends AbstractTable {
     /*
     Memory storage: Virtual table (stored in outage modem)
     Total table size: (bytes) 34 (stored in outage modem)
@@ -33,30 +34,30 @@ public class OutageModemStatus extends AbstractTable {
     request for MT-89 is received.
     */
 
-    private String acctId; // 14 byte This is written by the meter when the outage modem is initialized. The meter uses the LS 14 bytes of CUSTOMER_ID in ST-6. 
-    private String mtrSn; // 5 bytes This is written by the meter when the outage modem is initialized. The meter uses the LS 5 bytes of DEVICE_ID in ST-6. 
-    private Date outageTime; // 3 bytes The time of the outage occurrence. hh,mm,ss 
-    // SPARE      4       
-    private int modemStatusFlags; // 1 byte Outage modem status flags 
-                          // b0 1 = Modem carrier present 
-                          // b1 1 = Telephone line off-hook condition 
-                          // b2 1 = Telephone line intrusion detected 
-                          // b3 1 = Modem battery voltage low 
-                          // b4 1 = Class 28 (MT-88) checksum error 
-                          // b5 1 = Self Test error 
-                          // b6-7 0 (unused ) 
-    private long sspec3; // 5 bytes      
-                 // bytes 1-3: SSPEC 
-                 // byte 4:      Group 
-                 // byte 5:      Revision Number 
-    private int modemManufacturYear; // 1 bytes Year outage modem was manufactured 
-    private int modemManufacturWeek; // 1 bytes Week in Year outage modem was manufactured 
-    
+    private String acctId; // 14 byte This is written by the meter when the outage modem is initialized. The meter uses the LS 14 bytes of CUSTOMER_ID in ST-6.
+    private String mtrSn; // 5 bytes This is written by the meter when the outage modem is initialized. The meter uses the LS 5 bytes of DEVICE_ID in ST-6.
+    private Date outageTime; // 3 bytes The time of the outage occurrence. hh,mm,ss
+    // SPARE      4
+    private int modemStatusFlags; // 1 byte Outage modem status flags
+                          // b0 1 = Modem carrier present
+                          // b1 1 = Telephone line off-hook condition
+                          // b2 1 = Telephone line intrusion detected
+                          // b3 1 = Modem battery voltage low
+                          // b4 1 = Class 28 (MT-88) checksum error
+                          // b5 1 = Self Test error
+                          // b6-7 0 (unused )
+    private long sspec3; // 5 bytes
+                 // bytes 1-3: SSPEC
+                 // byte 4:      Group
+                 // byte 5:      Revision Number
+    private int modemManufacturYear; // 1 bytes Year outage modem was manufactured
+    private int modemManufacturWeek; // 1 bytes Week in Year outage modem was manufactured
+
     /** Creates a new instance of OutageModemStatus */
     public OutageModemStatus(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(89,true));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -69,26 +70,26 @@ public class OutageModemStatus extends AbstractTable {
         strBuff.append("   outageTime="+getOutageTime()+"\n");
         strBuff.append("   sspec3="+getSspec3()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
 //     public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new OutageModemStatus(null)));
-//     } 
-    
+//     }
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int timeFormat = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getTimeFormat();
-        
+
         int offset = 0;
         setAcctId(new String(ProtocolUtils.getSubArray2(tableData,offset, 14))); offset+=14;
         setMtrSn(new String(ProtocolUtils.getSubArray2(tableData,offset, 5))); offset+=5;
         setOutageTime(C12ParseUtils.getDateFromTime(tableData, offset, timeFormat, getTableFactory().getC12ProtocolLink().getTimeZone(), dataOrder)); offset+=3;
         setModemStatusFlags(C12ParseUtils.getInt(tableData,offset++));
         setSspec3(C12ParseUtils.getLong(tableData, offset, 5, dataOrder)); offset+=5;
-        setModemManufacturYear(C12ParseUtils.getInt(tableData,offset++));      
-        setModemManufacturWeek(C12ParseUtils.getInt(tableData,offset++));      
-    } 
-    
+        setModemManufacturYear(C12ParseUtils.getInt(tableData,offset++));
+        setModemManufacturWeek(C12ParseUtils.getInt(tableData,offset++));
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
@@ -148,6 +149,6 @@ public class OutageModemStatus extends AbstractTable {
     public void setModemManufacturWeek(int modemManufacturWeek) {
         this.modemManufacturWeek = modemManufacturWeek;
     }
-    
+
 
 }

@@ -1,17 +1,15 @@
 package com.energyict.protocols.mdc.channels.inbound;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -31,11 +29,11 @@ public class EIWebConnectionType implements ConnectionType {
     public static final String MAC_ADDRESS_PROPERTY_NAME = "macAddress";
 
     private PropertySpec ipAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(IP_ADDRESS_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(IP_ADDRESS_PROPERTY_NAME);
     }
 
     private PropertySpec macAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(MAC_ADDRESS_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MAC_ADDRESS_PROPERTY_NAME);
     }
 
     protected TypedProperties getAllProperties() {
@@ -70,7 +68,7 @@ public class EIWebConnectionType implements ConnectionType {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
         throw new UnsupportedOperationException("Calling connect is not allowed on an EIWebConnectionType");
     }
 
@@ -91,27 +89,17 @@ public class EIWebConnectionType implements ConnectionType {
     }
 
     @Override
-    public boolean isRequiredProperty(String name) {
-        return false;
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-09-10 15:38:19 +0200 (Tue, 10 Sep 2013) $";
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void copyProperties (TypedProperties properties) {
         this.properties = TypedProperties.copyOf(properties);
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs () {
         return Arrays.asList(this.ipAddressPropertySpec(), this.macAddressPropertySpec());
     }
 

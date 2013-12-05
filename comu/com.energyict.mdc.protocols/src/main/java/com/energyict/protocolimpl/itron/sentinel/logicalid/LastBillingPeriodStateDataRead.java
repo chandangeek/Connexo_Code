@@ -10,19 +10,17 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class LastBillingPeriodStateDataRead extends AbstractDataRead {
-    
+
     // All FW versions
     private int lastBillingPeriodDemandResetCount; // UINT16
     private int lastBillingPeriodNonFatalErrors; // UINT8 (see Appendix B)
@@ -40,10 +38,10 @@ public class LastBillingPeriodStateDataRead extends AbstractDataRead {
     private int lastBillingPeriodTimesProgrammedCount; // UINT8
     private int lastBillingPeriodEarlyPowerFailCount; // UINT16
 
-    // Only 3 <= fw  
+    // Only 3 <= fw
     private int lastBillingPeriodNonFatalErrors2; // UINT8 (see Appendix B)
 
-    // Only 5 <= fw  
+    // Only 5 <= fw
     private int lastBillingPeriodDiag6Count; // UINT8
 
     // All FW versions
@@ -54,7 +52,7 @@ public class LastBillingPeriodStateDataRead extends AbstractDataRead {
     public LastBillingPeriodStateDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -79,15 +77,15 @@ public class LastBillingPeriodStateDataRead extends AbstractDataRead {
         strBuff.append("   seasonInUseAtTheEndOfTheLastBillingPeriod="+getSeasonInUseAtTheEndOfTheLastBillingPeriod()+"\n");
         strBuff.append("   timeDateAtEndOfLastBillingPeriod="+getTimeDateAtEndOfLastBillingPeriod()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
-        
+
         int offset=0;
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         float firmware = getDataReadFactory().getConstantsDataRead().getFirmwareVersionRevision();
-        
-        
+
+
         setLastBillingPeriodDemandResetCount(C12ParseUtils.getInt(data,offset, 2, dataOrder));
         offset+=2;
         setLastBillingPeriodNonFatalErrors(C12ParseUtils.getInt(data,offset++));
@@ -108,25 +106,25 @@ public class LastBillingPeriodStateDataRead extends AbstractDataRead {
 
         if (firmware >= 3)
             setLastBillingPeriodNonFatalErrors2(C12ParseUtils.getInt(data,offset++));
-        
+
         if (firmware >= 5)
             setLastBillingPeriodDiag6Count(C12ParseUtils.getInt(data,offset++));
 
         // All FW versions
         setTimeDateAtEndOfLastBillingPeriod(Utils.parseTimeStamp(C12ParseUtils.getLong(data,offset,4, dataOrder), getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getTimeZone()));
         offset+=4;
-        
+
         setSeasonInUseAtTheEndOfTheLastBillingPeriod(C12ParseUtils.getInt(data,offset++));
-        
-        
+
+
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         float firmware = getDataReadFactory().getConstantsDataRead().getFirmwareVersionRevision();
-        
+
         long[] lids=null;
-        
+
         if (firmware < 3) {
            lids = new long[]{LogicalIDFactory.findLogicalId("LAST_BP_DEMAND_RESET_COUNT").getId(),
                              LogicalIDFactory.findLogicalId("LAST_BP_ALL_STATE_DATA").getId(),
@@ -145,10 +143,10 @@ public class LastBillingPeriodStateDataRead extends AbstractDataRead {
                              LogicalIDFactory.findLogicalId("LAST_BP_TIME_DATE").getId(),
                              LogicalIDFactory.findLogicalId("LAST_BP_SEASON").getId()};
         }
-        
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x04, lids));    
-        
+
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x04, lids));
+
     } // protected void prepareBuild() throws IOException
 
     public int getLastBillingPeriodDemandResetCount() {
@@ -302,5 +300,5 @@ public class LastBillingPeriodStateDataRead extends AbstractDataRead {
     public void setSeasonInUseAtTheEndOfTheLastBillingPeriod(int seasonInUseAtTheEndOfTheLastBillingPeriod) {
         this.seasonInUseAtTheEndOfTheLastBillingPeriod = seasonInUseAtTheEndOfTheLastBillingPeriod;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

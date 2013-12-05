@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * @author jme

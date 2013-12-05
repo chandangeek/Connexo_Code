@@ -8,7 +8,9 @@ package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
 import com.energyict.cbo.NotFoundException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -21,10 +23,10 @@ public class IEC870CIField {
         typeids.add(new IEC870CIField(0x52,"selection of slaves"));
         typeids.add(new IEC870CIField(0x72,"slave to master: 12 bytes header followed by variable format data"));
     }
-    
+
     int id;
     String description;
-    
+
     /** Creates a new instance of CIFieldIdentification */
     public IEC870CIField(int id, String description) {
         this.id=id;
@@ -37,7 +39,7 @@ public class IEC870CIField {
         return id;
     }
     public static IEC870CIField getCIField(int id) {
-        
+
         // // reserved type identification ranges
         if ((id>=114)&&(id<=119)) id=114;
         if ((id>=107)&&(id<=109)) id=107;
@@ -45,7 +47,7 @@ public class IEC870CIField {
         if ((id>=52)&&(id<=69)) id=52;
         if ((id>=41)&&(id<=44)) id=41;
         if ((id>=22)&&(id<=29)) id=22;
-        
+
         Iterator it = typeids.iterator();
         while(it.hasNext()) {
             IEC870CIField tid = (IEC870CIField)it.next();
@@ -53,5 +55,5 @@ public class IEC870CIField {
         }
         throw new NotFoundException("IEC870CIField, id "+id+" not found");
     }
-    
+
 }

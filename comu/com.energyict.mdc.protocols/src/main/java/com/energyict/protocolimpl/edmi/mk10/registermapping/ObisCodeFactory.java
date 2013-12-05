@@ -10,21 +10,21 @@
 
 package com.energyict.protocolimpl.edmi.mk10.registermapping;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.edmi.mk10.MK10;
+import com.energyict.protocolimpl.edmi.mk10.command.ReadCommand;
+import com.energyict.protocolimpl.edmi.mk10.core.TOUChannelTypeParser;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.edmi.mk10.MK10;
-import com.energyict.protocolimpl.edmi.mk10.command.ReadCommand;
-import com.energyict.protocolimpl.edmi.mk10.core.TOUChannelTypeParser;
 
 /**
  *

@@ -1,10 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.optical.serialio;
 
 import com.energyict.mdc.channels.serial.OpticalDriver;
+import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 
 /**
- * Provides an implementation of a {@link com.energyict.mdc.tasks.ConnectionType} interface for optical
+ * Provides an implementation of a {@link ConnectionType} interface for optical
  * communication using the SerialIO libraries
  * <p/>
  * Copyrights EnergyICT
@@ -13,5 +14,4 @@ import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConn
  * @see SioSerialConnectionType
  */
 public class SioOpticalConnectionType extends SioSerialConnectionType implements OpticalDriver {
-
 }

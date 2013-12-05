@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.ge.kv.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ElectricalServiceStatus extends AbstractTable {
-    
+
     private int meterBase;
     private int maxClassAmps;
     private int elementVolts;
@@ -28,13 +29,13 @@ public class ElectricalServiceStatus extends AbstractTable {
     private int serviceInUse;
     private int dspCaseInUse;
     private int elementVoltsInUse;
-    
-    
+
+
     /** Creates a new instance of ElectricalServiceStatus */
     public ElectricalServiceStatus(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(87,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ElectricalServiceStatus: meterBase="+getMeterBase()+
@@ -44,12 +45,12 @@ public class ElectricalServiceStatus extends AbstractTable {
                        ", serviceInUse="+getServiceInUse()+
                        ", dspCaseInUse="+getDspCaseInUse()+
                        ", elementVoltsInUse="+getElementVoltsInUse()+"\n");
-                
-                        
+
+
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException {   
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         setMeterBase(C12ParseUtils.getInt(tableData,offset++));
@@ -118,5 +119,5 @@ public class ElectricalServiceStatus extends AbstractTable {
     public void setElementVoltsInUse(int elementVoltsInUse) {
         this.elementVoltsInUse = elementVoltsInUse;
     }
-    
+
 }

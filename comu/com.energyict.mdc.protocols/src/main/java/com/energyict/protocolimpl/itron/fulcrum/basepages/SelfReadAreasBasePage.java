@@ -10,29 +10,30 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.itron.protocol.*;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.itron.protocol.Utils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadAreasBasePage extends AbstractBasePage {
-    
+
     private int selfReadSet;
     private Date timeStamp;
     private int reason;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public SelfReadAreasBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,24 +42,24 @@ public class SelfReadAreasBasePage extends AbstractBasePage {
         strBuff.append("   selfReadSet="+getSelfReadSet()+"\n");
         strBuff.append("   timeStamp="+getTimeStamp()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x34AD+getSelfReadSet()*414,6);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        
+
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getFulcrum().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);        
-        
+            tz = ProtocolUtils.getWinterTimeZone(tz);
+
         setTimeStamp(Utils.buildDate(data, offset, tz));
         offset+=Utils.buildDateSize();
         setReason(ProtocolUtils.getInt(data,offset,1));
-        
-        
+
+
     }
 
     public int getSelfReadSet() {
@@ -84,5 +85,5 @@ public class SelfReadAreasBasePage extends AbstractBasePage {
     public void setReason(int reason) {
         this.reason = reason;
     }
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

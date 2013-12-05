@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  *
  * @author koen
  */
 public class ObisCodeDescriptor {
-    
+
     private String description;
 
     private int cField;
@@ -29,7 +29,7 @@ public class ObisCodeDescriptor {
 	private int eField = 0;
 
     /**
-     * Creates a new instance of ObisCodeDescriptor 
+     * Creates a new instance of ObisCodeDescriptor
      */
     public ObisCodeDescriptor(int bField, int cField, String description) {
     this.setBField(bField);
@@ -64,7 +64,7 @@ public class ObisCodeDescriptor {
     public void setCurrentDField(int dField) {
         this.dField = dField;
     }
-    
+
 	public int getCurrentDField() {
 		return dField;
 	}
@@ -72,10 +72,10 @@ public class ObisCodeDescriptor {
 	public void setCurrentEField(int eField) {
         this.eField  = eField;
     }
-    
+
 	public int getCurrentEField() {
 		return eField;
 	}
 
-    
+
 }

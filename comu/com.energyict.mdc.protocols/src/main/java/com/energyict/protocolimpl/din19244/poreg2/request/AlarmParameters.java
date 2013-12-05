@@ -1,12 +1,17 @@
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
-import com.energyict.protocolimpl.din19244.poreg2.core.*;
+import com.energyict.protocolimpl.din19244.poreg2.core.ASDU;
+import com.energyict.protocolimpl.din19244.poreg2.core.DataType;
+import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
+import com.energyict.protocolimpl.din19244.poreg2.core.Response;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.AbstractRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Class to write the alarm configuration.
@@ -58,7 +63,7 @@ public class AlarmParameters extends AbstractRegister {
         byte[] request = new byte[19];
         byte[] years = ProtocolTools.getBytesFromInt(timeStamp.get(Calendar.YEAR), 2);
         int offset = 0;
-        
+
         request[offset++] = (byte) DataType.Word.getId();
         request[offset++] = (byte) years[1];
         request[offset++] = (byte) years[0];

@@ -10,39 +10,38 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class RegisterMultiplierBasePage extends AbstractBasePage {
-    
+
     private BigDecimal multiplier;
-    
+
     /** Creates a new instance of RegisterMultiplierBasePage */
     public RegisterMultiplierBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("RegisterMultiplierBasePage:\n");
         strBuff.append("   multiplier="+getMultiplier()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2814,0x4);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         setMultiplier(new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,0,4))));
     }
@@ -55,5 +54,5 @@ public class RegisterMultiplierBasePage extends AbstractBasePage {
         this.multiplier = multiplier;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

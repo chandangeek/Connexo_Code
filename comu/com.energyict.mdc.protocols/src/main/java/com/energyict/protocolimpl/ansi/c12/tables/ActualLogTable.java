@@ -10,35 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ActualLogTable extends AbstractTable {
-    
+
     private Log log;
-    
+
     /** Creates a new instance of ActualLogTable */
     public ActualLogTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(71));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ActualLogTable: log="+getLog()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         setLog(new Log(tableData,0,getTableFactory()));
-    }         
+    }
 
     public Log getLog() {
         return log;

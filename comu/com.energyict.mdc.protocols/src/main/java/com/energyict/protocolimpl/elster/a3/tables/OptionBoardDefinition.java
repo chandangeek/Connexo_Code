@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -24,13 +24,13 @@ import com.energyict.protocol.*;
  */
 public class OptionBoardDefinition {
 
-    private String optionBoardType; // 2 bytes ASCII per the above list. If an XMB is present, the meter sets these fields using information read from the XMB. 
-    private int optionBoardVersionSSPEC; // 3 bytes SSPEC, Group, and Revision Number of Option Board 1. For example, the information for the XMB is: 0x000224 00 02 
+    private String optionBoardType; // 2 bytes ASCII per the above list. If an XMB is present, the meter sets these fields using information read from the XMB.
+    private int optionBoardVersionSSPEC; // 3 bytes SSPEC, Group, and Revision Number of Option Board 1. For example, the information for the XMB is: 0x000224 00 02
     private int optionBoardVersionGroup; // 1 byte
     private int optionBoardVersionRevisionNr; // 1 byte
-    
+
 //    public OptionBoardDefinition(){
-//        
+//
 //    }
     static Map map = new HashMap();
     static {
@@ -46,10 +46,10 @@ public class OptionBoardDefinition {
         map.put("11","No Comm board with relays");
         map.put("12","XMB, SSPEC = 000224 00 02");
         map.put("13","Modem interface adapter board");
-        map.put("14","Pulse input board");    
+        map.put("14","Pulse input board");
     }
-    
-    
+
+
     /** Creates a new instance of SourceDefinitionEntry */
     public OptionBoardDefinition(byte[] tableData,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
@@ -59,16 +59,16 @@ public class OptionBoardDefinition {
         setOptionBoardVersionGroup(C12ParseUtils.getInt(tableData,16)); offset++;
         setOptionBoardVersionRevisionNr(C12ParseUtils.getInt(tableData,17)); offset++;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("OptionBoardDefinition:\n");
-        if (getOptionBoardType()==null) 
+        if (getOptionBoardType()==null)
             strBuff.append("   Option board not present");
         else {
             String type = (String)map.get(getOptionBoardType());
-            
+
             strBuff.append("   optionBoardType="+type+"\n");
             strBuff.append("   optionBoardVersionGroup="+getOptionBoardVersionGroup()+"\n");
             strBuff.append("   optionBoardVersionRevisionNr="+getOptionBoardVersionRevisionNr()+"\n");
@@ -76,20 +76,20 @@ public class OptionBoardDefinition {
         }
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
 //        ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
 //        ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
 //        ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
 //        ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
-        
-        return 7;
-    }       
 
-    
+        return 7;
+    }
+
+
 //     public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new OptionBoardDefinition()));
-//     }    
+//     }
 
     public String getOptionBoardType() {
         return optionBoardType;

@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
+import java.io.IOException;
+
 /**
- * 
+ *
  * @author Koen
  */
 public class QuantityIdentificationDataRead extends AbstractDataRead {

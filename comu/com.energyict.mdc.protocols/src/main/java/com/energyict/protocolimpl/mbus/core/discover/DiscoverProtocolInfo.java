@@ -10,18 +10,22 @@
 
 package com.energyict.protocolimpl.mbus.core.discover;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author kvds
  */
 public class DiscoverProtocolInfo {
-    
+
     // all string values case insensitive
-    
+
     static List list=new ArrayList();
-    
+
     static {
         list.add(new DiscoverProtocolInfo(1,"KAM",0x0C,"com.energyict.protocolimpl.mbus.generic.Generic","PNP MBus Kamstrup Multical 41","Multical 41"));
         list.add(new DiscoverProtocolInfo(1,"KAM",2,"com.energyict.protocolimpl.mbus.generic.Generic","PNP MBus Kamstrup 382","382"));
@@ -29,14 +33,14 @@ public class DiscoverProtocolInfo {
         list.add(new DiscoverProtocolInfo(3,"LUG",4,"com.energyict.protocolimpl.mbus.generic.Generic","PNP MBus Siemens PT500","PT500"));
         //list.add(new DiscoverProtocolInfo(0,"@@@",0,"com.energyict.protocolimpl.mbus.generic.Generic","PNP MBus Generic"));
     }
-    
+
     private int version;
     private String manufacturer;
     private String protocolName;
     private String deviceType;
     private int medium;
     private String shortDeviceType;
-    
+
     /** Creates a new instance of DiscoverProtocolInfo */
     private DiscoverProtocolInfo(int version,String manufacturer,int medium, String protocolName,String deviceType,String shortDeviceType) {
         this.setVersion(version);
@@ -46,17 +50,17 @@ public class DiscoverProtocolInfo {
         this.setMedium(medium);
         this.setShortDeviceType(shortDeviceType);
     }
-    
+
     static public DiscoverProtocolInfo getUnknown() {
         return new DiscoverProtocolInfo(0,"UNKNOWN",0,"com.energyict.protocolimpl.mbus.generic.Generic","PNP MBus Generic","Generic");
     }
-    
+
     public String toString() {
         return deviceType+", "+protocolName;
     }
-    
 
-    
+
+
     static public List getSupportedDevicesList() {
         return list;
     }
@@ -77,7 +81,7 @@ public class DiscoverProtocolInfo {
     public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
     }
-    
+
     public static void main(String[] args) {
         Map map = new HashMap();
         Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
@@ -121,5 +125,5 @@ public class DiscoverProtocolInfo {
     public void setShortDeviceType(String shortDeviceType) {
         this.shortDeviceType = shortDeviceType;
     }
-    
+
 }

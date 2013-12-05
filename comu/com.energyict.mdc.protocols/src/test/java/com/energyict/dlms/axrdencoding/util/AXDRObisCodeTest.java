@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * @author jme
@@ -24,7 +24,7 @@ public class AXDRObisCodeTest {
 	private static final OctetString OCTET 		= OctetString.fromString(OBISCODE.toString());
 
 	/**
-	 * Test method for {@link com.energyict.dlms.axrdencoding.util.AXDRObisCode#encode(com.energyict.obis.ObisCode)}.
+	 * Test method for {@link com.energyict.dlms.axrdencoding.util.AXDRObisCode#encode(ObisCode)}.
 	 */
 	@Test
 	public final void testEncode() {

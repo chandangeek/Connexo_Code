@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.shadow.protocol.task.MessagesTaskShadow;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;

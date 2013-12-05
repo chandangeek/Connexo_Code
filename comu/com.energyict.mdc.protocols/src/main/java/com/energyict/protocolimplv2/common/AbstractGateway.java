@@ -1,15 +1,26 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.LogBookReader;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.*;
-import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.Date;
@@ -38,13 +49,13 @@ public abstract class AbstractGateway implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getRequiredProperties");
+    public List<PropertySpec> getPropertySpecs () {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getPropertySpecs");
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getOptionalProperties");
+    public PropertySpec getPropertySpec (String name) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getPropertySpec");
     }
 
     @Override
@@ -168,7 +179,8 @@ public abstract class AbstractGateway implements DeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void copyProperties(TypedProperties properties) {
         throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addProperties");
     }
+
 }

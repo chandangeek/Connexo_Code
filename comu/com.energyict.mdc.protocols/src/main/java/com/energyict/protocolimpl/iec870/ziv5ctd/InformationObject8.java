@@ -7,19 +7,19 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import java.util.Date;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
+import java.util.Date;
 
 /** @author fbo */
 
 public class InformationObject8 extends InformationObject {
-    
+
     private Date date;
-    
+
     private Quantity quanitity1;
     private int status1;
     private Quantity quanitity2;
@@ -32,14 +32,14 @@ public class InformationObject8 extends InformationObject {
     private int status5;
     private Quantity quanitity6;
     private int status6;
-    
+
     /** Creates a new instance of InformationObject8 */
     InformationObject8() { }
-    
+
     ChannelInfo toChannelInfo( ){
         return null;
     }
-    
+
     IntervalData toIntervalData( ){
         IntervalData id = new IntervalData(date);
         id.addValue( quanitity1, status1, toEistatus(status1));
@@ -50,10 +50,10 @@ public class InformationObject8 extends InformationObject {
         id.addValue( quanitity6, status6, toEistatus(status6));
         return id;
     }
-    
+
     int toEistatus( int ziv ){
         int result = 0;
-        if( (ziv & 0x40) > 0 ) 
+        if( (ziv & 0x40) > 0 )
             result |= IntervalStateBits.SHORTLONG;
         if( (ziv & 0x20) > 0 )
             result |= IntervalStateBits.OVERFLOW;
@@ -171,5 +171,5 @@ public class InformationObject8 extends InformationObject {
     void setStatus6(int status6) {
         this.status6 = status6;
     }
-    
+
 }

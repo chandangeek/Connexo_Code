@@ -1,16 +1,24 @@
 package com.energyict.protocolimpl.dlms.prime.events;
 
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.ApolloEvents;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSMeterEventMapper;
 import com.energyict.protocolimpl.dlms.DefaultDLMSMeterEventMapper;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -24,7 +32,7 @@ public class PrimeBasicEventLog {
     private final DLMSMeterEventMapper eventMapper;
     private final DlmsSession session;
     private final String name;
-    
+
     /** The event group. */
     private final int eventGroup;
 
@@ -71,26 +79,26 @@ public class PrimeBasicEventLog {
     private final class BasicEvent extends Structure {
 
         private final TimeZone timeZone;
-        
+
         private final List<AbstractDataType> capturedObjects = new ArrayList<AbstractDataType>();
-        
+
         private final int eventCode;
-        
+
         private final Date eventTime;
 
         public BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
             super(eventStructure.getBEREncodedByteArray(), 0, 0);
-            
+
             OctetString eventDateString = getDataType(0).getOctetString();
             AXDRDateTime timeStamp = new AXDRDateTime(eventDateString.getBEREncodedByteArray(), 0, timeZone);
 
             this.eventTime = timeStamp.getValue().getTime();
             this.eventCode = getDataType(1).intValue();
-            
+
             this.timeZone = timeZone;
-            
+
         	int index = 2;
-        	
+
         	while (index < this.nrOfDataTypes()) {
         		this.capturedObjects.add(this.getDataType(index));
         		index++;
@@ -111,13 +119,13 @@ public class PrimeBasicEventLog {
     }
 
     private static class AS300EventLogMapper extends DefaultDLMSMeterEventMapper {
-    	
+
     	/** The group for the power contracts. */
     	private static final int POWER_CONTRACT_GROUP = 1;
-    	
+
     	/** The switch control group. */
     	private static final int SWITCH_CONTROL_GROUP = 2;
-    	
+
     	/** The code for the contract power changed. */
     	private static final int CONTRACT_POWER_CHANGED = 96;
 
@@ -133,11 +141,11 @@ public class PrimeBasicEventLog {
 
         protected String getEventMessage(int meterEventCode) {
         	final StringBuilder builder = new StringBuilder(ApolloEvents.find(meterEventCode, eventGroup).getDescription());
-        	
+
         	if (this.eventGroup == POWER_CONTRACT_GROUP && meterEventCode == CONTRACT_POWER_CHANGED) {
-        		
+
         	}
-        	
+
             return builder.toString();
         }
 

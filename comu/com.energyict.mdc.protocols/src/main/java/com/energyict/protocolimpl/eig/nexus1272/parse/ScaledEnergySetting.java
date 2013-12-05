@@ -1,18 +1,18 @@
 package com.energyict.protocolimpl.eig.nexus1272.parse;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.eig.nexus1272.NexusProtocolConnection;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 public class ScaledEnergySetting {
 
-	
+
 	private int numDecimalPlaces;
 	private Unit unit;
 	private int numDigits;
@@ -20,7 +20,7 @@ public class ScaledEnergySetting {
 	private int point;
 	private OutputStream outputStream;
 	private NexusProtocolConnection connection;
-	
+
 	public ScaledEnergySetting(LinePoint lp, OutputStream os ,NexusProtocolConnection npc) throws IOException {
 		outputStream = os;
 		connection = npc;
@@ -28,12 +28,12 @@ public class ScaledEnergySetting {
 		this.point = lp.getPoint();
 		load();
 	}
-	
+
 	private void load() throws IOException {
 		Command getSES;
 		byte[] resp;
 		int unitCode;
-		
+
 		switch (line) {
 		case 563:
 			switch(point) {
@@ -42,7 +42,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x01});//Q34 VARh/ Q14 Wh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -70,7 +70,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x04});//Q23 Wh/ Q2 VAh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -125,7 +125,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x01});//Q34 VARh/ Q14 Wh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -154,7 +154,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, 0x00});//Q1234 VAh/ Q12 VARh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 //				System.out.println("1 ***************** " + ProtocolUtils.byte2int(resp[0]));
 //				System.out.println("1 ***************** " + ProtocolUtils.byte2int(resp[1]));
 //				System.out.println(ParseUtils.buildBinaryRepresentation(ProtocolUtils.byte2int(resp[0]), 8));
@@ -164,7 +164,7 @@ public class ScaledEnergySetting {
 //				System.out.println(ProtocolUtils.byte2int((byte) (resp[0]&0x07)));
 //				System.out.println(ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03))));
 //				System.out.println(ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07))));
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -189,7 +189,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x01});//Q34 VARh/ Q14 Wh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -208,7 +208,7 @@ public class ScaledEnergySetting {
 				}
 				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
 				break;
-			
+
 			default:
 				throw new IOException("Could not load scaled energy settings for line " + line + " and point " + point);
 			}
@@ -221,7 +221,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x01});//Q34 VARh/ Q14 Wh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -246,7 +246,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x04});//Q23 Wh/ Q2 VAh
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -277,7 +277,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x14});//Pulse Accumulation, Input 1/ Pulse Accumulation Input 2
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -292,7 +292,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x14});//Pulse Accumulation, Input 1/ Pulse Accumulation Input 2
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -307,7 +307,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x15});//Pulse Accumulation, Input 3/ Pulse Accumulation Input 4
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -322,7 +322,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x15});//Pulse Accumulation, Input 3/ Pulse Accumulation Input 4
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -337,7 +337,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x16});//Pulse Accumulation, Input 5/ Pulse Accumulation Input 6
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -352,7 +352,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x16});//Pulse Accumulation, Input 5/ Pulse Accumulation Input 6
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -367,7 +367,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x17});//Pulse Accumulation, Input 7/ Pulse Accumulation Input 8
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
 				switch (unitCode) {
@@ -382,7 +382,7 @@ public class ScaledEnergySetting {
 				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x17});//Pulse Accumulation, Input 7/ Pulse Accumulation Input 7
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
-				
+
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
 				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
 				switch (unitCode) {
@@ -398,9 +398,9 @@ public class ScaledEnergySetting {
 		default:
 			throw new IOException("Could not load scaled energy settings for line " + line + " and point " + point);
 		}
-			
+
 	}
-	
+
 	public int getNumDecimalPlaces() {
 		return numDecimalPlaces;
 	}
@@ -410,7 +410,7 @@ public class ScaledEnergySetting {
 	public int getNumDigits() {
 		return numDigits;
 	}
-	
+
 	public String toString() {
 		return "Line " + line + " point " + point + ":\t numDecimals " + numDecimalPlaces + " unit " + unit + " numDigits " + numDigits;
 	}

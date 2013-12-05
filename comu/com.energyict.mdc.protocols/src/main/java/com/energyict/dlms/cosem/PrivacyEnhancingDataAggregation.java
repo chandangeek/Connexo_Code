@@ -1,15 +1,20 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.attributes.PrivacyEnhancingDataAggregationAttributes;
 import com.energyict.dlms.cosem.methods.PrivacyEnhancingDataAggregationMethods;
+import com.energyict.mdc.common.Quantity;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT

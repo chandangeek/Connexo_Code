@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
@@ -22,13 +20,13 @@ import com.energyict.protocolimpl.ansi.c12.*;
  */
 // temperature
 public class GasTemp {
-    
+
     static private final int SIZE=3; // 3 x NiFormat
-    
+
     private Number gasTempZero;
     private Number gasTempFullscale;
     private Number baseTemperature;
-    
+
     /** Creates a new instance of GasTemp */
     public GasTemp(byte[] data,int offset, int niFormat, int dataOrder) throws IOException {
         setGasTempZero(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
@@ -37,11 +35,11 @@ public class GasTemp {
         offset += C12ParseUtils.getNonIntegerSize(niFormat);
         setBaseTemperature(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
     }
-    
+
     static public int getSize(int niFormat) throws IOException {
         return SIZE*C12ParseUtils.getNonIntegerSize(niFormat);
     }
-    
+
     public Number getGasTempZero() {
         return gasTempZero;
     }
@@ -65,5 +63,5 @@ public class GasTemp {
     public void setBaseTemperature(Number baseTemperature) {
         this.baseTemperature = baseTemperature;
     }
-    
+
 }

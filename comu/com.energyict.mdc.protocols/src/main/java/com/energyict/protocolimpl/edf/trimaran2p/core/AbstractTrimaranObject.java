@@ -1,20 +1,20 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.ReadRequest;
+
+import java.io.IOException;
 
 /**
  * @author gna
  *
  */
 abstract public class AbstractTrimaranObject {
-	
+
 	private TrimaranObjectFactory trimaranObjectFactory;
-	
+
     abstract protected byte[] prepareBuild() throws IOException;
     abstract protected void parse(byte[] data) throws IOException;
     abstract protected int getVariableName();
@@ -25,11 +25,11 @@ abstract public class AbstractTrimaranObject {
 	public AbstractTrimaranObject(TrimaranObjectFactory trimaranObjectFactory) {
 		this.trimaranObjectFactory = trimaranObjectFactory;
 	}
-	
+
 	public void write() throws IOException{
 		getTrimaranObjectFactory().getTrimaran().getDLMSPDUFactory().getWriteRequest(getVariableName(), prepareBuild());
 	}
-	
+
 	public void read() throws IOException{
 		ReadRequest rr = getTrimaranObjectFactory().getTrimaran().getDLMSPDUFactory().getReadRequest(getVariableName());
 		parse(rr.getReadResponse().getReadResponseData());

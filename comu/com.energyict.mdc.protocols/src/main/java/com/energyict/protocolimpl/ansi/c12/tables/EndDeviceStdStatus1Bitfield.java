@@ -9,19 +9,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EndDeviceStdStatus1Bitfield {
-    
+
     private boolean unprogrammedFlag;
     private boolean configurationErrorFlag;
     private boolean selfCheckErrorFlag;
@@ -34,7 +31,7 @@ public class EndDeviceStdStatus1Bitfield {
     private boolean lowLossPotentialFlag;
     private boolean demandOverflowFlag;
     private boolean powerFailureFlag;
-    
+
     /** Creates a new instance of EndDeviceStdStatus1Bitfield */
     public EndDeviceStdStatus1Bitfield(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -54,11 +51,11 @@ public class EndDeviceStdStatus1Bitfield {
         setLowBatteryFlag((temp & 0x100) == 0x100);
         setLowLossPotentialFlag((temp & 0x200) == 0x200);
         setDemandOverflowFlag((temp & 0x400) == 0x400);
-        setPowerFailureFlag((temp & 0x800) == 0x800);        
-        
-        
+        setPowerFailureFlag((temp & 0x800) == 0x800);
+
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -77,11 +74,11 @@ public class EndDeviceStdStatus1Bitfield {
         strBuff.append("   unprogrammedFlag="+isUnprogrammedFlag()+"\n");
         return strBuff.toString();
     }
-  
-    
+
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 2;
-    }      
+    }
 
     public boolean isUnprogrammedFlag() {
         return unprogrammedFlag;

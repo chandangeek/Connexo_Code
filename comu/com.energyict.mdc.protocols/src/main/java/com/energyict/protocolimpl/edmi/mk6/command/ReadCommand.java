@@ -10,78 +10,78 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.IOException;
-
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk6.core.RegisterTypeParser;
 import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;
+
+import java.io.IOException;
 
 /**
  *
  * @author koen
  */
 public class ReadCommand extends AbstractCommand {
-    
+
     private int registerId;
     private byte[] data;
     private AbstractRegisterType register;
     private Unit unit;
-    
+
     /** Creates a new instance of ReadCommand */
     public ReadCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ReadCommand: ");
         strBuff.append("registerId=0x"+Integer.toHexString(getRegisterId())+", ");
         strBuff.append("data="+ProtocolUtils.outputHexString(getData())+", ");
-        
+
         strBuff.append("register="+getRegister()+", ");
         strBuff.append("unit="+getUnit());
         return strBuff.toString();
-    }    
-    
+    }
+
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ReadCommand(null)));
-//    } 
-    
+//    }
+
     // Following the EDMI protocoldescription,R and M command should behave the same. Means all accepting 4 bytes as command.
     // However, only the M command seems to behave like that
     // Also, the EZiView software uses the M command
     private final char COMMAND='M'; // 'R'
-    
+
     protected byte[] prepareBuild() {
-       
-       if (COMMAND=='M') { 
+
+       if (COMMAND=='M') {
            byte[] data = new byte[5];
            data[0] = 'M';
            data[1] = (byte)((getRegisterId()>>24)&0xFF);
            data[2] = (byte)((getRegisterId()>>16)&0xFF);
            data[3] = (byte)((getRegisterId()>>8)&0xFF);
            data[4] = (byte)((getRegisterId())&0xFF);
-           return data;       
+           return data;
        }
        else {
            byte[] data = new byte[3];
            data[0] = 'R';
            data[1] = (byte)((getRegisterId()>>8)&0xFF);
            data[2] = (byte)((getRegisterId())&0xFF);
-           return data;         
+           return data;
        }
     }
 
     protected void parse(byte[] rawData) throws IOException {
-        
+
         if (COMMAND != (char)rawData[0]) {
 			throw new CommandResponseException("ReadCommand, request command "+COMMAND+" != response command "+(char)rawData[0]);
 		}
-        
-        if (COMMAND=='M') { 
+
+        if (COMMAND=='M') {
             int tempRegisterId = ProtocolUtils.getInt(rawData,1,4);
             if (tempRegisterId != getRegisterId()) {
 				throw new CommandResponseException("ReadCommand, request regnum "+getRegisterId()+" != response regnum "+tempRegisterId);
@@ -97,16 +97,16 @@ public class ReadCommand extends AbstractCommand {
             setRegisterId(tempRegisterId);
             setData(ProtocolUtils.getSubArray(rawData,3, rawData.length-1));
         }
-        
-        
+
+
         InformationCommand ic = getCommandFactory().getInformationCommand(getRegisterId());
         RegisterTypeParser rtp = new RegisterTypeParser(getCommandFactory().getMk6().getTimeZone());
         register = rtp.parse2External(ic.getDataType(), getData());
         RegisterUnitParser rup = new RegisterUnitParser();
         setUnit(rup.parse(ic.getMeasurementUnit()));
-        
+
     }
-    
+
     public int getRegisterId() {
         return registerId;
     }
@@ -139,5 +139,5 @@ public class ReadCommand extends AbstractCommand {
         this.unit = unit;
     }
 
-    
+
 }

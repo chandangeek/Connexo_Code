@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -16,24 +16,24 @@ import java.math.BigDecimal;
  *
  */
 public class DureesPnonGarantie extends AbstractTrimaranObject{
-	
+
 	private int variableName;
-	
+
 	private Quantity[] puissancesGaranties = {null, null};	// valeurs des puissances produites garanties minimale et maximale en kW
 	private DateType dateProg;								// dernière date de programmation de PGmin ou PGmax
 	private Quantity[] DnG = {null,null,null,null,null,null,null,null,null,null,null,null};
 					// durée en minute de puissance active produite non garantie par mois
 
 	/**
-	 * 
+	 *
 	 */
 	public DureesPnonGarantie(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
-		
+
 		strBuff.append("*** Durees P non Garantie: ***\n");
 		strBuff.append("	- PuissancesGaranties Max: " + getPuissancesGaranties(0) + "\n");
 		strBuff.append("	- PuissancesGaranties Min: " + getPuissancesGaranties(1) + "\n");
@@ -50,7 +50,7 @@ public class DureesPnonGarantie extends AbstractTrimaranObject{
 		strBuff.append("	- DnG previous: " + getDnG(9) + "\n");
 		strBuff.append("	- DnG previous: " + getDnG(10) + "\n");
 		strBuff.append("	- DnG previous: " + getDnG(11) + "\n");
-		
+
 		return strBuff.toString();
 	}
 
@@ -68,12 +68,12 @@ public class DureesPnonGarantie extends AbstractTrimaranObject{
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
-		
+
 		setPuissancesGaranties(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getInteger(0)), Unit.get("kW")), 0);
 		setPuissancesGaranties(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset++).getInteger(1)), Unit.get("kW")), 1);
-		
+
 		setDateProg(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
-		
+
 		for(int i = 0; i < 11; i++){	// the doc says this structure has 12 elements ... but it doesn't say that it has to be 12 ...
 			if(dc.getRoot().getStructure(offset).isLong(i)){
 				setDnG(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("min")), i);

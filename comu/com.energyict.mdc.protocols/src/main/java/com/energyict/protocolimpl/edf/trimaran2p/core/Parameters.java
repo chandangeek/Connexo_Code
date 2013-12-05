@@ -1,14 +1,16 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 
 
@@ -17,11 +19,11 @@ import java.math.BigDecimal;
  *
  */
 public class Parameters extends AbstractTrimaranObject {
-	
-	
+
+
 	private DateType debutPeriode_48; 	// Date de dernière écriture de Paramètre
 	private DateType dernierHoroDate; 	// Date en cours au moment de la lecture
-	
+
 	private int TC;						// rapport de transformation de puissance, de 1 à 3000
 	private int TT;						// rapport de transformation de puissance, de 1 à 6000
 	private int KJ;						// valeur de coefficient de pertes joules, multiplié par 1000
@@ -32,13 +34,13 @@ public class Parameters extends AbstractTrimaranObject {
 	private int kep;					// Facteur d'échelle des puissances en puissance de 10
 
 	private int tcc;					// période d'intégration Tc pour le suivi de la courbe de charge en multiples de 1mn et selon un sous-multiple de 60
-	
+
 	private boolean ccReact;			// enregistrement des quatre puissances réactives dans la courbe de charge
-	
+
 	private int variableName;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public Parameters(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
@@ -50,17 +52,17 @@ public class Parameters extends AbstractTrimaranObject {
 	public static void main(String[] args) {
 		try{
 			Parameters par = new Parameters(null);
-			
+
 	        File file = new File("c://TEST_FILES/2P_Parameters.bin");
 	        FileInputStream fis = new FileInputStream(file);
 	        byte[] data=new byte[(int)file.length()];
 	        fis.read(data);
-	        fis.close();   
-	        
+	        fis.close();
+
 	        par.parse(data);
-	        
+
 	        System.out.println(par);
-	        
+
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -71,21 +73,21 @@ public class Parameters extends AbstractTrimaranObject {
 	}
 
 	protected void parse(byte[] data) throws IOException {
-//		
+//
 //   	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/089807000857Parameters.bin");
 //    	FileOutputStream fos = new FileOutputStream(file);
 //    	fos.write(data);
 //    	fos.close();
-		
+
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, null);
-		
+
 		setDebutPeriode_48(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		getTrimaranObjectFactory().getTrimaran().setRoundTripStart(System.currentTimeMillis());
-		
+
 		setTC(dc.getRoot().getInteger(offset++));
 		setTT(dc.getRoot().getInteger(offset++));
 		setKJ(dc.getRoot().getInteger(offset++));
@@ -270,7 +272,7 @@ public class Parameters extends AbstractTrimaranObject {
 	public void setTCourbeCharge(int courbeCharge) {
 		tcc = courbeCharge;
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("*** Parameters: ***\n");

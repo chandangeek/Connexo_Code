@@ -10,22 +10,23 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Koen
  */
 public class ParserFactory {
-    
+
     Map parsers=new HashMap();
-    
+
     /** Creates a new instance of ParserFactory */
     public ParserFactory() {
     }
-    
-    
+
+
     public void addBigDecimalParser(Parser parser) {
         parsers.put("BigDecimal",parser);
     }
@@ -35,12 +36,12 @@ public class ParserFactory {
     public void addParser(String key,Parser parser) {
         parsers.put(key,parser);
     }
-    
+
     public Parser get(String key) throws IOException {
         Parser parser = (Parser)parsers.get(key);
         if (parser != null)
             return parser;
         throw new IOException("ParserFactory, parser "+key+" does not exist!");
     }
-    
+
 } // public class ParserFactory

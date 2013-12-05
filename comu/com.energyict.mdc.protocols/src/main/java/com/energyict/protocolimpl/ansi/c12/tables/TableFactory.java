@@ -10,9 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
 
 /**
  *
@@ -20,9 +18,9 @@ import com.energyict.protocolimpl.ansi.c12.*;
  */
 abstract public class TableFactory {
     abstract public C12ProtocolLink getC12ProtocolLink();
-    
+
     public TableFactory() {
     }
-    
-    
+
+
 }

@@ -1,7 +1,8 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -10,10 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Models a GPRS {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for the ACE4000 protocol
+ * Models a GPRS {@link DeviceProtocolDialect} for the ACE4000 protocol
  *
- * @author: khe
- * @since: 16/10/12 (113:25)
+ * @author khe
+ * @since 16/10/12 (113:25)
  */
 public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
@@ -32,11 +33,16 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs () {
+        return Arrays.asList(this.timeoutPropertySpec(), this.retriesPropertySpec());
     }
 
     @Override
@@ -51,14 +57,4 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
         }
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<PropertySpec>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(this.timeoutPropertySpec(),
-                this.retriesPropertySpec());
-    }
 }

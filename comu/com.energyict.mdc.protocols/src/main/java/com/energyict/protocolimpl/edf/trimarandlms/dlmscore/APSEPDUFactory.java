@@ -10,21 +10,21 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class APSEPDUFactory {
-    
+
     private ProtocolLink protocolLink;
     private APSEParameters aPSEParameters;
     /**
-     * Creates a new instance of APSEPDUFactory 
+     * Creates a new instance of APSEPDUFactory
      */
     public APSEPDUFactory(ProtocolLink protocolLink,APSEParameters aPSEParameters) {
         this.setProtocolLink(protocolLink);
@@ -36,7 +36,7 @@ public class APSEPDUFactory {
         authenticationReqAPSE.invoke();
         return authenticationReqAPSE;
     }
-    
+
     public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
@@ -54,5 +54,5 @@ public class APSEPDUFactory {
     }
 
 
-    
+
 }

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.cm10;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,12 +9,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.energyict.protocol.ProtocolUtils;
-
 public class PowerFailDetailsTable {
-	
+
 	private CM10 cm10Protocol;
-	
+
 	private byte[] timPf;
 	private byte[] timPr;
 	private byte[] dialStructure;
@@ -21,14 +21,14 @@ public class PowerFailDetailsTable {
 	private byte[] lpfCnt;
 	private List recentPf = new ArrayList();
 	private List longestPf = new ArrayList();
-	
-	
+
+
 	public PowerFailDetailsTable(CM10 cm10Protocol) {
 		this.cm10Protocol = cm10Protocol;
 	}
-	
 
-	
+
+
 
 	public void parse(byte[] data) throws IOException {
 		cm10Protocol.getLogger().info("length events: " + data.length);
@@ -38,29 +38,29 @@ public class PowerFailDetailsTable {
 		hrOut =ProtocolUtils.getSubArray(data, 156, 157);
 		secOut =ProtocolUtils.getSubArray(data, 158, 159);
 		lpfCnt =ProtocolUtils.getSubArray(data, 160, 161);
-		
+
         Calendar now = ProtocolUtils.getCalendar(cm10Protocol.getTimeZone());
         now.setTime(cm10Protocol.getTime());
-		
+
 		int offset = 162;
 		for (int i = 0; i < 12; i++) {
 			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
 			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5), now);
-			if (entry.isValid()) 
+			if (entry.isValid())
 				recentPf.add(entry);
 			offset = offset + 6;
 		}
-		
+
 		offset = 234;
 		for (int i = 0; i < 3; i++) {
 			PowerFailEntry entry = new PowerFailEntry(cm10Protocol);
 			entry.parse(ProtocolUtils.getSubArray(data, offset, offset + 5), now);
-			if (entry.isValid()) 
+			if (entry.isValid())
 				longestPf.add(entry);
 			offset = offset + 6;
 		}
 	}
-	
+
 	public String toString() {
 		StringBuffer buf = new StringBuffer("");
 		buf.append("timPf = " + ProtocolUtils.outputHexString(timPf)).append("\n");
@@ -69,14 +69,14 @@ public class PowerFailDetailsTable {
 		buf.append("hrOut = " + ProtocolUtils.outputHexString(hrOut)).append("\n");
 		buf.append("secOut = " + ProtocolUtils.outputHexString(secOut)).append("\n");
 		buf.append("lpfCnt = " + ProtocolUtils.outputHexString(lpfCnt)).append("\n\n");
-		
+
 		buf.append("most recent power failures:\n");
 		for (int i = 0; i < recentPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) recentPf.get(i);
 			buf.append(i).append(": ").append(entry.toString()).append("\n");
-			
+
 		}
-		
+
 		buf.append("longest power failures:\n");
 		for (int i = 0; i < longestPf.size(); i++) {
 			PowerFailEntry entry = (PowerFailEntry) longestPf.get(i);
@@ -85,7 +85,7 @@ public class PowerFailDetailsTable {
 
 		return buf.toString();
 	}
-	
+
 	public boolean isPowerUp(Date endOfInterval) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(endOfInterval);
@@ -103,7 +103,7 @@ public class PowerFailDetailsTable {
 		}
 		return false;
 	}
-	
+
 	public boolean isPowerDown(Date endOfInterval) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(endOfInterval);
@@ -121,7 +121,7 @@ public class PowerFailDetailsTable {
 		}
 		return false;
 	}
-	
+
 	public List getEvents() {
 		List events = new ArrayList();
 		int size = recentPf.size();
@@ -139,7 +139,7 @@ public class PowerFailDetailsTable {
 		Collections.sort(events);
 		return events;
 	}
-	
+
 	protected boolean contains(List events, PowerFailEntry entry) {
 		int size = events.size();
 		for (int i = 0; i < size; i++) {
@@ -149,7 +149,7 @@ public class PowerFailDetailsTable {
 		}
 		return false;
 	}
-	
-	
+
+
 
 }

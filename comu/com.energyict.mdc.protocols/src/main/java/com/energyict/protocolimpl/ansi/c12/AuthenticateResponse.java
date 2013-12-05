@@ -9,8 +9,8 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12;
-import java.io.*;
-import com.energyict.protocol.*;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -18,15 +18,15 @@ import com.energyict.protocol.*;
 public class AuthenticateResponse extends AbstractResponse {
 
     private boolean authenticated=false;
-    
+
     private int securityLevel;
     private byte[] doubleEncryptedTicket;
-    
+
     /** Creates a new instance of SecurityResponse */
     public AuthenticateResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         setAuthenticated(true);

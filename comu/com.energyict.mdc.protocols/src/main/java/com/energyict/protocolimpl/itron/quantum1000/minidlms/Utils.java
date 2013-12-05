@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -21,43 +22,43 @@ import java.util.TimeZone;
  * @author Koen
  */
 public class Utils {
-    
+
     /** Creates a new instance of Utils */
     public Utils() {
     }
-    
+
     static int getDateTimeExtendedSize() {
         return 8;
     }
 
-    
+
     static Date getDateFromTOUDate(byte[] data,int offset, TimeZone timeZone) throws IOException {
         return getCalendarFromTOUDate(data, offset, timeZone).getTime();
     }
-    
+
     static Calendar getCalendarFromTOUDate(byte[] data,int offset, TimeZone timeZone) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
-        
+
         int touDate = ProtocolUtils.getInt(data,offset,2); // temp = (year-1990)x31x12 + (monthx31) + (date-1)
         int years = touDate/(31*12);
         int months = (touDate%(31*12)) / 31;
         int date = ((touDate%(31*12)) % 31) + 1;
-        
+
         cal.set(Calendar.YEAR,1990+years);
         cal.set(Calendar.MONTH,months);
         cal.set(Calendar.DATE,date);
-        
+
         return cal;
     }
-    
+
     static int getTOUDateSize() {
         return 2;
     }
-    
+
     static Date getDateFromDateTimeExtended(byte[] data,int offset, TimeZone timeZone) throws IOException {
         return getCalendarFromDateTimeExtended(data, offset, timeZone).getTime();
     }
-    
+
     static Calendar getCalendarFromDateTimeExtended(byte[] data,int offset, TimeZone timeZone) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.set(Calendar.MONTH,ProtocolUtils.getInt(data,offset++, 1)-1);
@@ -69,8 +70,8 @@ public class Utils {
         cal.set(Calendar.MILLISECOND,ProtocolUtils.getInt(data,offset, 2));
         return cal;
     }
-    
-    
+
+
     static public byte[] getDateTimeExtendedFromDate(Date date, TimeZone timeZone) {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.setTime(date);
@@ -85,11 +86,11 @@ public class Utils {
         data[7] = (byte)cal.get(Calendar.MILLISECOND);
         return data;
     }
-    
+
     static int getDateTimeSize() {
         return 6;
     }
-    
+
     static Date getDateFromDateTime(byte[] data,int offset, TimeZone timeZone) throws IOException {
         return getCalendarFromDateTime(data, offset, timeZone).getTime();
     }
@@ -104,7 +105,7 @@ public class Utils {
         cal.set(Calendar.SECOND,ProtocolUtils.getInt(data,offset++, 1));
         return cal;
     }
-    
+
     static Date getDateFromDateTimeEventLogEntry(byte[] data,int offset, TimeZone timeZone) throws IOException {
         return getCalendarFromDateTimeEventLogEntry(data, offset, timeZone).getTime();
     }
@@ -120,11 +121,11 @@ public class Utils {
         cal.set(Calendar.SECOND,ProtocolUtils.getInt(data,offset++, 1));
         return cal;
     }
-    
+
     static int getTimeSize() {
         return 3;
     }
-    
+
     static Date getDateFromTime(byte[] data,int offset, TimeZone timeZone) throws IOException {
         return getCalendarFromTime(data, offset, timeZone).getTime();
     }
@@ -136,5 +137,5 @@ public class Utils {
         cal.set(Calendar.SECOND,ProtocolUtils.getInt(data,offset++, 1));
         return cal;
     }
-    
+
 }

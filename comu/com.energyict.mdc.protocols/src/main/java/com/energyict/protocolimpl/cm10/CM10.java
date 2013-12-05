@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.cm10;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -31,12 +31,12 @@ public class CM10 extends AbstractProtocol {
     private CommandFactory commandFactory=null;
     private ObisCodeMapper obisCodeMapper = new ObisCodeMapper(this);
     private RegisterFactory registerFactory;
-    
+
     private StatusTable statusTable;
     private FullPersonalityTable fullPersonalityTable;
     private CurrentDialReadingsTable currentDialReadingsTable;
     private PowerFailDetailsTable powerFailDetailsTable;
-    
+
     private int outstationID;
     private int delayAfterConnect;
 
@@ -45,36 +45,36 @@ public class CM10 extends AbstractProtocol {
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getCM10Profile().getProfileData(from, to, includeEvents);
     }
-    
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
     	Calendar cal=Calendar.getInstance(getTimeZone());
 		return getProfileData(lastReading, cal.getTime(), includeEvents);
     }
-    
+
     public int getProfileInterval() throws IOException {
 		return 60 * getFullPersonalityTable().getIntervalInMinutes();
     }
-    
+
     public int getOutstationId() {
     	return this.outstationID;
     }
-    
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
-    } 
-    
+    }
+
     public int getNumberOfChannels() throws IOException {
         return getStatusTable().getNumberOfChannels();
     }
-    
+
     protected void validateSerialNumber() throws IOException {
 
     }
-    
+
 	protected void doConnect() throws IOException {
 		ProtocolUtils.delayProtocol(delayAfterConnect);
 	}
@@ -100,7 +100,7 @@ public class CM10 extends AbstractProtocol {
 		list.add(IS_C10_METER);
 		return list;
 	}
-	
+
 	public PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {
 		if (powerFailDetailsTable == null) {
 			getLogger().info("read power fail details");
@@ -110,7 +110,7 @@ public class CM10 extends AbstractProtocol {
 		}
 		return powerFailDetailsTable;
 	}
-	
+
 	public CurrentDialReadingsTable getCurrentDialReadingsTable() throws IOException {
 		if (currentDialReadingsTable == null) {
 			getLogger().info("read current dial readings");
@@ -120,7 +120,7 @@ public class CM10 extends AbstractProtocol {
 		}
 		return currentDialReadingsTable;
 	}
-	
+
 	public FullPersonalityTable getFullPersonalityTable() throws IOException {
 		if (fullPersonalityTable == null) {
 			getLogger().info("read full personality table");
@@ -140,7 +140,7 @@ public class CM10 extends AbstractProtocol {
 		}
 		return statusTable;
 	}
-	
+
 	public TimeTable getTimeTable() throws IOException {
 		getLogger().info("read meter time");
 		Response response = commandFactory.getReadTimeCommand().invoke();
@@ -148,14 +148,14 @@ public class CM10 extends AbstractProtocol {
 		timeTable.parse(response.getData());
 		return timeTable;
 	}
-	
+
 	protected void doDisConnect() throws IOException {
 	}
 
 	protected List doGetOptionalKeys() {
 		return new ArrayList();
 	}
-	
+
 	public RegisterFactory getRegisterFactory() throws IOException {
         if (registerFactory == null) {
             registerFactory = new RegisterFactory(this);

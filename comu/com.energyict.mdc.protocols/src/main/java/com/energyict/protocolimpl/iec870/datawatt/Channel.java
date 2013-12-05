@@ -6,41 +6,40 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.StringTokenizer;
 /**
  *
  * @author  Koen
  */
 public class Channel {
 
-    static int[] addressTypes = {0x4000,0x2000,0x2400,0x0000};    
+    static int[] addressTypes = {0x4000,0x2000,0x2400,0x0000};
     static int TIMESTAMPMASK=0x0800;
-  
+
     static public final int COUNTERINPUTCHANNEL=1;
     static public final int ANALOGINPUTCHANNEL=2;
     static public final int ANALOGOUTPUTCHANNEL=3;
     static public final int DIGITALINPUTCHANNEL=4;
-    
+
     int channelId;
     int channelType;
     int cumul;
-    
-    
+
+
     public boolean isCounterInput() {
-        return getChannelType() == COUNTERINPUTCHANNEL;    
+        return getChannelType() == COUNTERINPUTCHANNEL;
     }
     public boolean isAnalogInput() {
-        return getChannelType() == ANALOGINPUTCHANNEL;    
+        return getChannelType() == ANALOGINPUTCHANNEL;
     }
     public boolean isAnalogOutput() {
-        return getChannelType() == ANALOGOUTPUTCHANNEL;    
+        return getChannelType() == ANALOGOUTPUTCHANNEL;
     }
     public boolean isDigitalInput() {
-        return getChannelType() == DIGITALINPUTCHANNEL;    
+        return getChannelType() == DIGITALINPUTCHANNEL;
     }
-    
+
     public Channel(int channelId, int channelType, int cumul) {
         this.channelId=channelId;
         this.channelType=channelType;
@@ -50,16 +49,16 @@ public class Channel {
     public void setCumulative(int cumul) {
         this.cumul = cumul;
     }
-    
+
     public boolean isCumulative() {
         return (cumul>0);
-    }   
-    
+    }
+
     public int getChannelId() {
         return channelId;
     }
     public int getChannelType() {
-        return channelType; 
+        return channelType;
     }
 
     public boolean isEqual(int channelId, int channelType) {
@@ -70,14 +69,14 @@ public class Channel {
         if ((channel.getChannelId() == getChannelId()) && (channel.getChannelType() == getChannelType())) return true;
         else return false;
     }
-    
+
     static public int toChannelType(int addressType) throws IOException {
         for (int i=0;i<addressTypes.length;i++) {
            if ((addressType & (TIMESTAMPMASK ^ 0xFFFF))==addressTypes[i]) return i+1;
         }
         throw new IOException("Channel, toChannelType, invalid addressType 0x"+Integer.toHexString(addressType));
     }
-    
+
     static public Channel parseChannel(String strChannel) throws IOException {
             StringTokenizer st2 = new StringTokenizer(strChannel,".");
             if ((st2.countTokens() != 3) && (st2.countTokens() != 2))
@@ -103,5 +102,5 @@ public class Channel {
             }
             return new Channel(channelId, channelType, cumul);
     }
-    
+
 } // public class Channel

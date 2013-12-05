@@ -1,5 +1,16 @@
 package com.energyict.protocolimpl.kenda.medo;
 
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,27 +18,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class MedoCommunicationsFactory{
 	/**
  	 * ---------------------------------------------------------------------------------<p>
 	 * Medo CommunicationsFactory<p>
 	 * <p>
-	 * Starts with the attributes and constructors.  After the constructors all methods dealing with 
-	 * serialization can be found: building the headers, generating and checking the checksum, packing 
+	 * Starts with the attributes and constructors.  After the constructors all methods dealing with
+	 * serialization can be found: building the headers, generating and checking the checksum, packing
 	 * and unpacking the data blocks.  After the processing methods general purpose communication
 	 * methods and dedicated methods (trim RTC and data download).  Under the communication methods the
 	 * backbone of these methods can be found to send and receive data.  They throw timeout exceptions
@@ -41,11 +40,11 @@ public class MedoCommunicationsFactory{
 	 *  Version: 1.0 <p>
 	 *  First edit date: 1/07/2008 PST<p>
 	 *  Last edit date: 13/08/2008  PST<p>
-	 *  Comments: Beta ready for testing<p> 
+	 *  Comments: Beta ready for testing<p>
 	 *  Released for testing: 13/08/2008<p>
 	 *  <p>
 	 *  Revisions<p>
-	 *  ----------------<p> 
+	 *  ----------------<p>
 	 *  Author: <p>
 	 *  Version:<p>
 	 *  First edit date: <p>
@@ -63,7 +62,7 @@ public class MedoCommunicationsFactory{
 	private final byte   destinationCodeExt;// Defines peripheral equipment of final destination
 	private byte   unit;					// DIP routing ???
 	private byte   port;					// DIP routing ???
-	
+
 	private static final byte   fullPersTableRead          	=0x01;	  // ram initialised, table defines modes
 	private static final byte   fullPersTableWrite         	=0x11;    // ... page 6/16 medo communications protocol
 	private static final byte   partPersTableRead    	  	=0x02;
@@ -94,7 +93,7 @@ public class MedoCommunicationsFactory{
 	// first three bits are to be set in BuildIdent method (later)
 	// byte: 8 bit, word 16 bit signed integer, long 32 bit signed integer
 	private TimeZone timezone;
-	
+
 	public MedoCommunicationsFactory(InputStream inputStream, OutputStream outputStream){// blank constructor for testing purposes only
 		byte[] blank={0,0};
 		ident=0;				// see ident format listed below
@@ -108,11 +107,11 @@ public class MedoCommunicationsFactory{
 		this.outputStream=outputStream;
 	}
 	public MedoCommunicationsFactory(  // real constructor, sets header correct.
-			byte[] sourceCode, 
-			byte sourceCodeExt, 
-			byte[] destinationCode, 
+			byte[] sourceCode,
+			byte sourceCodeExt,
+			byte[] destinationCode,
 			byte destinationCodeExt,
-			InputStream inputStream, 
+			InputStream inputStream,
 			OutputStream outputStream){
 		ident=0;
 		this.sourceCode=sourceCode;
@@ -124,15 +123,15 @@ public class MedoCommunicationsFactory{
 		this.inputStream=inputStream;
 		this.outputStream=outputStream;
 	}
-	
+
 	/*
 	 * START
-	 * 1)GENERAL 
+	 * 1)GENERAL
 	 * work classes, build the framework to transmit the 245 data segments (header, checksum,...)
 	 */
 	public byte buildIdent(boolean ack, boolean first, boolean last, byte command){
 		// Ack bit, first block bit, last block bit, R/W, 4 bit operation select (last five bits are set by command)
-		if(ack)   {command=(byte) (command | 0x80);}else{command=(byte) (command & 0x7F);} // set or reset ack (ack packet is embedded in the command structure and sent to confirm receive)	
+		if(ack)   {command=(byte) (command | 0x80);}else{command=(byte) (command & 0x7F);} // set or reset ack (ack packet is embedded in the command structure and sent to confirm receive)
 		if(first) {command=(byte) (command | 0x40);}else{command=(byte) (command & 0xBF);} // set or reset F
 		if(last)  {command=(byte) (command | 0x20);}else{command=(byte) (command & 0xDF);} // set or reset L
 		return command;
@@ -153,7 +152,7 @@ public class MedoCommunicationsFactory{
 		header[9]=port;
 		return header;
 	}
-	
+
 	// checksum calculation, last step of serialization
 	public byte[] addCheckSum(byte[] total){
 		int checkSum=0;
@@ -168,12 +167,12 @@ public class MedoCommunicationsFactory{
 		}
 		return totalcheck;
 	}
-	
+
 	// verify checksum, to be used by unit tests and data reception
 	private boolean verifyCheckSum(byte[] dataToBeVerified){
 		int checkSum=0;
 		byte checkSumFinal;
-		
+
 		for (int i=0; i<(dataToBeVerified.length-1); i++){
 			checkSum=checkSum+(int) dataToBeVerified[i];
 		}
@@ -182,13 +181,13 @@ public class MedoCommunicationsFactory{
 			return true; // checksum is ok
 		}else return false; // checksum is not ok => reject
 	}
-	
+
 	// blocks received are to be merged in one byte array block
 	public byte[] blockMerging(byte[][] block){
 		int totalLength=0;
 		byte [] b;
 		byte[] header;
-		
+
 		for (int i=0; i<block.length; i++){
 			totalLength+=(block[i].length-11); // minus the header and checksum
 		}
@@ -212,7 +211,7 @@ public class MedoCommunicationsFactory{
 		b=addCheckSum(b);
 		return b;
 	}
-	
+
 	// press block array in the right frame sizes (10+245+1)=(header+data+checksum)
 	// the block array should contain a header, because the header contains the ident
 	public byte[][] blockProcessing(byte[] block){
@@ -225,7 +224,7 @@ public class MedoCommunicationsFactory{
 		byte[] blockSection;      // frame and header
 		byte[] finalBlockSection; // header frame checksum
 		int mod;
-		
+
 						// calculate number of blocks
 		numOfBlocks=(int) Math.ceil(((double) (block.length-10))/245); // minus 10 to remove the checksum and the header
 						// generate blockProck 2D matrix
@@ -237,7 +236,7 @@ public class MedoCommunicationsFactory{
 							// start building ident bits
 			ident=block[0];
 			if((ident & 0x80) == 0x80){
-				ack=true; 
+				ack=true;
 			}
 							// 	adapt first ident using BuildIdent
 			ident=buildIdent(ack, true, false, (byte) (ident & 0x1F)); // global ident adapted
@@ -245,12 +244,12 @@ public class MedoCommunicationsFactory{
 			blockSection = new byte[255];
 			for(int i=0; i<255;i++){
 				if(i<10)  {blockSection[i]=header[i];}     // add header
-				if(i>=10) {blockSection[i]=block[i];}	   // add data			
+				if(i>=10) {blockSection[i]=block[i];}	   // add data
 			}
 			finalBlockSection=addCheckSum(blockSection);   // checksum added to block
 			blockProc[0]=finalBlockSection;				   // add frame segment to matrix
 							// first block serialized
-			
+
 							//adapt ident for center frames
 			if(numOfBlocks>2){
 				ident=buildIdent(ack, false, false, (byte) (ident & 0x1F)); // change ident (introduce F and L bits)
@@ -259,7 +258,7 @@ public class MedoCommunicationsFactory{
 				for (int i=1; i<(numOfBlocks-1); i++){
 					for(int ii=0; ii<255;ii++){
 						if(i<10)  {blockSection[i]=header[i];}     // add header
-						if(i>=10) {blockSection[i]=block[i];}	   // add data			
+						if(i>=10) {blockSection[i]=block[i];}	   // add data
 					}
 					finalBlockSection=addCheckSum(blockSection); // checksum added to block
 					blockProc[i]=finalBlockSection;
@@ -272,21 +271,21 @@ public class MedoCommunicationsFactory{
 			blockSection = new byte[mod+10]; // data + header
 			for(int i=0; i<mod;i++){
 				if(i<10)  {blockSection[i]=header[i];}     // add header
-				if(i>=10) {blockSection[i]=block[i];}	   // add data			
+				if(i>=10) {blockSection[i]=block[i];}	   // add data
 			}
 			finalBlockSection=addCheckSum(blockSection); // checksum added to block
 			blockProc[numOfBlocks-1]=finalBlockSection; // final block added to array
 		}
-		return blockProc; 
+		return blockProc;
 	}
 	/*
-	 * END 
+	 * END
 	 * 1)GENERAL chapter, pg 4 to 6, description of how the communication frames
 	 *  should look like
 	*/
-	
+
 	/*
-	 * START data transmission 
+	 * START data transmission
 	 */
 	public Parsers transmitData(byte command, Parsers p) throws IOException{
 		byte[] bs=new byte[0];
@@ -298,7 +297,7 @@ public class MedoCommunicationsFactory{
 		while(!ack && pog>0){
 			pog--;
 			if(p==null){ 	// request of data from the meter (11 byte command)
-				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing		
+				bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
 			}else{ 			// writing data to the meter
 				bs=p.parseToByteArray();
 			}
@@ -309,13 +308,13 @@ public class MedoCommunicationsFactory{
 			br=receiveData((byte) (bs[0]& 0x1F));
 							// send ack
 			if((br[br.length-1][0]&0x20)==0x20){
-				ack=true;			
+				ack=true;
 			}
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
-			sendData(bs);			
+			sendData(bs);
 		}
 		if(!ack){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
@@ -361,9 +360,9 @@ public class MedoCommunicationsFactory{
 		Calendar stop=Calendar.getInstance(timezone);
 		start.setTime(d1);
 		stop.setTime(d2);
-		MedoRequestReadMeterDemands mrrd;		
+		MedoRequestReadMeterDemands mrrd;
 
-		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime); 
+		mrrd = new MedoRequestReadMeterDemands(start,stop,intervaltime);
 		// 	ready to send
 		data=mrrd.parseToByteArray();
 		for(int i=0; i<bs2.length; i++){
@@ -378,7 +377,7 @@ public class MedoCommunicationsFactory{
 			// receive ack
 			br=receiveData((byte) (bs[0]& 0x1F));
 			if((br[br.length-1][0]&0x20)==0x20){
-				ack=true;			
+				ack=true;
 			}
 			// deal with the data, cut header and checksum
 			for(int ii=0; ii<br.length; ii++){
@@ -389,7 +388,7 @@ public class MedoCommunicationsFactory{
 			for(int ii=0; ii<br.length; ii++){
 				byte[] bt= br[ii];
 				for(int i=10; i<bt.length-1;i++){
-					byteData[poscount++]=bt[i];					
+					byteData[poscount++]=bt[i];
 				}
 			}
 			// parse the data
@@ -403,7 +402,7 @@ public class MedoCommunicationsFactory{
 			}
 			// send back ack
 			bs=buildHeader(buildIdent(ack, true,true,command), 11);	// checksum added in blockprocessing
-			sendData(bs);									
+			sendData(bs);
 		}
 		if(!ack){
 			throw new IOException("Data transmission did not succeed, thrown by communicationsFactory->transmitData");
@@ -414,17 +413,17 @@ public class MedoCommunicationsFactory{
 	 * commands to get profile data, contains also flagging
 	 */
 	public short[][] getTotalDemands(Date start, Date stop, int intervaltime) throws IOException{
-		
+
 		return requestMeterDemands((byte) 0x08,start,stop,intervaltime);
-		
+
 	}
 	public int[] retrieveLastProfileData(int intervaltime) throws IOException{
 		MedoReadDialReadings mrdr;
 		mrdr=(MedoReadDialReadings) transmitData(readdialReadingCurrent, null);
 		return mrdr.getCnt();
 	}
-	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{ 
-		ProfileData pd = new ProfileData();		
+	public ProfileData retrieveProfileData(Date start, Date stop, int intervaltime, boolean addevents) throws IOException{
+		ProfileData pd = new ProfileData();
 		IntervalData id = new IntervalData();		// current interval data
 		MeterEvent meterEvent;
 		ArrayList meterEventList = new ArrayList();
@@ -433,7 +432,7 @@ public class MedoCommunicationsFactory{
 		boolean flag=false, powdownflag=false, prevIntervalPowdownflag=false, lastdata=false;
 		long millis=0;
 		int ids=0;
-		// set timezone and calendar object		
+		// set timezone and calendar object
 		Calendar cal1 = Calendar.getInstance(timezone);
 		//Calendar cal2 = Calendar.getInstance(timezone);
 		cal1.setTime(start);
@@ -462,40 +461,40 @@ public class MedoCommunicationsFactory{
 		cal1.setTime(start);
         ParseUtils.roundDown2nearestInterval(cal1,intervaltime);
         // get meter data
-		
+
         Calendar start1=Calendar.getInstance(timezone);
 		Calendar stop1=Calendar.getInstance(timezone);
 		Calendar strt=Calendar.getInstance(timezone);
 		Calendar stp=Calendar.getInstance(timezone);
-		
+
         stop1.set(strt.get(Calendar.YEAR), 11, 31, 23, 59, 59);
 		stop1.set(Calendar.MILLISECOND,999);
 		start1.set(stp.get(Calendar.YEAR),0,1,0,0,0);
 		start1.set(Calendar.MILLISECOND,0);
-        
+
 		if(strt.get(Calendar.YEAR)==stp.get(Calendar.YEAR)){
         	 s=requestMeterDemands((byte) 0x07,cal1.getTime(),stop,intervaltime);
         }else{ // december-january
         	int counter=0;
         	short[][] s1=requestMeterDemands((byte) 0x07,cal1.getTime(),stop1.getTime(),intervaltime);
         	short[][] s2=requestMeterDemands((byte) 0x07,start1.getTime(),stop,intervaltime);
-        	
+
         	s=new short[s1.length+s2.length][];
-        	
+
         	for(int i=0; i<s1.length; i++){
         		s[counter]=s1[i];
         		counter++;
         	}
         	for(int i=0; i<s2.length; i++){
         		s[counter]=s2[i];
-        		counter++;   
+        		counter++;
         	}
-        	
+
         }
 		// build channel map in profile data
 		for(int i=0; i<s[0].length;i++ ){
-			if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){	
-				pd.addChannel(new ChannelInfo(ids, "medo channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));			
+			if(channelMap.isProtocolChannelEnabled(i) && meterChannelMap.isProtocolChannelEnabled(i)){
+				pd.addChannel(new ChannelInfo(ids, "medo channel "+(i+1), Unit.get(BaseUnit.UNITLESS),0,ids, BigDecimal.valueOf(channelMultipliers[i])));
 				ids++; // will run parallel with i but is needed in case of a channelmap
 			}
 		}
@@ -541,9 +540,9 @@ public class MedoCommunicationsFactory{
 							meterEventList.add(meterEvent);
 							prevIntervalPowdownflag=true;
 						}else{
-							id.addEiStatus(IntervalStateBits.MISSING);							
+							id.addEiStatus(IntervalStateBits.MISSING);
 						}
-					}					
+					}
 				}else{
 					// boundary condition
 					if(prevIntervalPowdownflag && !flag){ // previous interval was power down and no negative value has been detected (boundary condition)
@@ -555,11 +554,11 @@ public class MedoCommunicationsFactory{
 					}
 				}
 				// add value to profile data
-				if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){	
+				if(channelMap.isProtocolChannelEnabled(ii) && meterChannelMap.isProtocolChannelEnabled(ii)){
 					id.addValue(new Integer(s[i][ii])); // add data to the interval
 				}
 			}
-			pd.addInterval(id);        		
+			pd.addInterval(id);
 			millis=cal1.getTimeInMillis()+1000*intervaltime; // increment for next interval
 			cal1.setTimeInMillis(millis);
 		}
@@ -578,7 +577,7 @@ public class MedoCommunicationsFactory{
 	 */
 
 	/*
-	 * Input readers 
+	 * Input readers
 	 */
 	private byte[][] receiveData(byte ident) throws IOException {
 		int i=0,counter,length;
@@ -592,7 +591,7 @@ public class MedoCommunicationsFactory{
 			// time out check
 		while(go){
 			interFrameTimeout = System.currentTimeMillis() + this.timeOut;
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {	        	
+	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			counter=0;
@@ -621,7 +620,7 @@ public class MedoCommunicationsFactory{
 		for(int ii=0; ii<recdat.size(); ii++){
 			String str= (String) recdat.get(ii);
 			data[i++]=Parsers.parseCArraytoBArray(str.toCharArray());
-		}		
+		}
 		return data;
 	}
 
@@ -638,7 +637,7 @@ public class MedoCommunicationsFactory{
 	/*
 	 * END Data transmission
 	 */
-		
+
 	/*
 	 * The following method buildCommand takes in a byte array and if needed a parser object
 	 * when the parser object is a null, the byte array is considered a command to write to the meter
@@ -733,13 +732,13 @@ public class MedoCommunicationsFactory{
 				return p;
 			}else{
 			// here comes the reply...
-				if(p instanceof MedoFullPersonalityTable){	
+				if(p instanceof MedoFullPersonalityTable){
 					p=new MedoFullPersonalityTable(rawdata, timezone);
-//				}else if(p instanceof MedoExtendedPersonalityTable){	
+//				}else if(p instanceof MedoExtendedPersonalityTable){
 //					p=new MedoExtendedPersonalityTable(rawdata);
 				}else if(p instanceof MedoCLK){
 					MedoCLK c=new MedoCLK(rawdata,timezone);
-					p = c;						
+					p = c;
 				}else if(p instanceof MedoFirmwareVersion){
 					p=new MedoFirmwareVersion(rawdata);
 				}else if(p instanceof MedoStatus){
@@ -757,7 +756,7 @@ public class MedoCommunicationsFactory{
 			}
 		}else{
 			return null;
-		}	
+		}
 	}
 	public byte getIdent() {
 		return ident;
@@ -781,10 +780,10 @@ public class MedoCommunicationsFactory{
 		channelMultipliers=new int[numChan];
 		for(int i=0; i<numChan; i++){
 			channelMultipliers[i]=(int) Math.pow(10,(long) (-1*dialexp[i])); //(int) Math.pow(10,(long) dialexp[i])*dialmlt[i];  // CHANGE HERE THE MULTIPLIERS
-		}		
+		}
 	}
 	public void setChannelMap(ProtocolChannelMap channelMap) {
-		this.channelMap=channelMap;		
+		this.channelMap=channelMap;
 	}
 	public void setTimeZone(TimeZone timezone) {
 		this.timezone=timezone;

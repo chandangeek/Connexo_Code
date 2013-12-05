@@ -5,7 +5,11 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
 import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.AbstractRadioCommand;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -13,9 +17,9 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     static final int PARAM_UPDATE_ERROR = 0xFF;
     private static final int RESPONSE_ACK_NEW_READMODE = 0x98;        //Old read mode response: 0x90, indicates the presence of the working mode bytes in the response.
     private static final int RESPONSE_ACK_NEW_WRITEMODE = 0x99;       //Old write mode response: 0x91, indicates the presence of the working mode bytes in the response.
-    private static final int REQUEST_NEW_WRITEMODE = 0x19;            //Old write mode request: 0x11  
+    private static final int REQUEST_NEW_WRITEMODE = 0x19;            //Old write mode request: 0x11
 
-    enum ParameterId { 
+    enum ParameterId {
 
         OperationMode(0x01, 1, "Operation mode"),
         NumberOfStoredValues(0x0B, 2, "Number of stored index records"),
@@ -35,7 +39,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         TimeBetweenEachRetry(0x1A, 1, "Time between each alarm transmission retry"),
         BatteryLifeDurationCounter(0xA2, 2, "Battery life duration counter"),
 
-        
+
         AlarmConfig(0x22, 1, "Alarm configuration byte"),
         NumberOfRepeaters(0xB0, 1, "Number of repeaters"),
         RepeaterAddress1(0xB1, 6, "Repeater address 1"),

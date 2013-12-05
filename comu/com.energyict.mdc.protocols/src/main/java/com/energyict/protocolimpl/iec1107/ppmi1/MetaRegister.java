@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import java.math.BigDecimal;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
+
+import java.math.BigDecimal;
 
 /**
  * This class represents a register with it's meta information.
- * 
+ *
  * @author fbo
  */
 public class MetaRegister {

@@ -3,13 +3,15 @@ package com.energyict.protocolimpl.dlms.as220.powerquality;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.

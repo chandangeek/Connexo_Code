@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import java.io.ByteArrayInputStream;
@@ -1354,7 +1354,7 @@ public final class ProtocolTools {
     }
 
     /**
-     * Get the root cause of a {@link com.energyict.cbo.NestedIOException}
+     * Get the root cause of a {@link NestedIOException}
      *
      * @param e the NestedIOException, for which the root cause should be extracted
      * @return the {@link Throwable}, which is the root cause

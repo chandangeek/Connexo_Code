@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -40,12 +40,7 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(getSlaveOneSerialNumber());
         optionalProperties.add(getSlaveTwoSerialNumber());
@@ -53,10 +48,10 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     private PropertySpec<String> getSlaveOneSerialNumber() {
-        return PropertySpecFactory.stringPropertySpec(slaveOneSerialNumberPropertyName);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(slaveOneSerialNumberPropertyName);
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return PropertySpecFactory.stringPropertySpec(slaveTwoSerialNumberPropertyName);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(slaveTwoSerialNumberPropertyName);
     }
 }

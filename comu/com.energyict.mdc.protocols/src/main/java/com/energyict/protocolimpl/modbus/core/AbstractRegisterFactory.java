@@ -10,31 +10,32 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractRegisterFactory {
-    
+
     abstract protected void init();
-    
+
     List registers = new ArrayList();
-    
+
     private Modbus modBus;
     private FunctionCodeFactory functionCodeFactory;
     private boolean zeroBased;
-    
+
     ParserFactory parserFactory=null;
-    
+
     protected void initParsers() {
         // default parsers
         getParserFactory().addBigDecimalParser(new Parser() {
@@ -47,12 +48,12 @@ abstract public class AbstractRegisterFactory {
             }
         });
     } //private void initParsers()
-    
+
     protected List getRegisters() {
         return registers;
     }
     /**
-     * Creates a new instance of AbstractRegisterFactory 
+     * Creates a new instance of AbstractRegisterFactory
      */
     public AbstractRegisterFactory(Modbus modBus) {
         this.setModBus(modBus);
@@ -60,7 +61,7 @@ abstract public class AbstractRegisterFactory {
         initParsers();
         init();
     }
-        
+
     public AbstractRegister findRegister(String name) throws IOException {
         Iterator it = registers.iterator();
         while(it.hasNext()) {
@@ -68,11 +69,11 @@ abstract public class AbstractRegisterFactory {
             if (register.getName().compareTo(name)==0) {
                 register.setRegisterFactory(this);
                 return register;
-            }             
+            }
         }
         throw new NoSuchRegisterException("Register reg name "+name+" is not supported!");
     }
-    
+
     public AbstractRegister findRegister(int reg) throws IOException {
         Iterator it = registers.iterator();
         while(it.hasNext()) {
@@ -80,24 +81,24 @@ abstract public class AbstractRegisterFactory {
             if (register.getReg()==reg) {
                 register.setRegisterFactory(this);
                 return register;
-            }             
+            }
         }
         throw new NoSuchRegisterException("Register reg id "+reg+" is not supported!");
     }
-    
+
     public AbstractRegister findRegister(ObisCode obc) throws IOException {
         ObisCode obisCode = new ObisCode(obc.getA(),obc.getB(),obc.getC(),obc.getD(),obc.getE(),Math.abs(obc.getF()));
         Iterator it = registers.iterator();
         while(it.hasNext()) {
             AbstractRegister register = (AbstractRegister)it.next();
-            
+
             if ((register.getObisCode()!=null) && (register.getObisCode().equals(obisCode))) {
                 register.setRegisterFactory(this);
                 return register;
-            }             
+            }
         }
         throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
+
     } // public HoldingRegister findRegister(ObisCode obc) throws IOException
 
     public Modbus getModBus() {
@@ -123,10 +124,10 @@ abstract public class AbstractRegisterFactory {
     public void setZeroBased(boolean zeroBased) {
         this.zeroBased = zeroBased;
     }
-    
+
     public ParserFactory getParserFactory() {
         if (parserFactory == null)
             parserFactory = new ParserFactory();
         return parserFactory;
-    }            
+    }
 }

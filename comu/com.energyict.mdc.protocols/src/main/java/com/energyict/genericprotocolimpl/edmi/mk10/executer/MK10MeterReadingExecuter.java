@@ -1,9 +1,12 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.AmrJournalEntry;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -11,7 +14,7 @@ import java.util.Iterator;
 public class MK10MeterReadingExecuter {
 
 	private static final int DEBUG = 0;
-	
+
 	private MK10ProtocolExecuter executer 	= null;
 
 	/*
@@ -21,7 +24,7 @@ public class MK10MeterReadingExecuter {
     public MK10MeterReadingExecuter(MK10ProtocolExecuter mk10ProtocolExecuter) {
 		this.executer = mk10ProtocolExecuter;
 	}
-	
+
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -29,7 +32,7 @@ public class MK10MeterReadingExecuter {
 	public MK10ProtocolExecuter getExecuter() {
 		return executer;
 	}
-	
+
 	/*
 	 * Public methods
 	 */

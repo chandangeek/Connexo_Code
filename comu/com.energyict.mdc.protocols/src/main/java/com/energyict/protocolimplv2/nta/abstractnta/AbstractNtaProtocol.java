@@ -1,16 +1,27 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.tasks.support.*;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.LogBookReader;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
@@ -23,8 +34,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author: sva
- * @since: 31/10/12 (10:32)
+ * @author sva
+ * @since 31/10/12 (10:32)
  */
 public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implements MasterMeter, SimpleMeter {  //ToDo: implement the WakeUpProtocolSupport interface?
 
@@ -234,6 +245,16 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
             this.dsmr23Properties = new Dsmr23Properties();
         }
         return this.dsmr23Properties;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec (String name) {
+        for (PropertySpec propertySpec : this.getPropertySpecs()) {
+            if (name.equals(propertySpec.getName())) {
+                return propertySpec;
+            }
+        }
+        return null;
     }
 
     @Override

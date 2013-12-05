@@ -10,22 +10,26 @@
 
 package com.energyict.protocolimpl.modbus.core.discover;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author kvds
  */
 public class DiscoverProtocolInfo {
-    
+
     // all string values case insensitive
-    
+
     final int DISCOVERMETHOD_SLAVEID=0; // slave id string
     final int DISCOVERMETHOD_METERID=1; // ';' separated --> vendorname;productcode
     final int DISCOVERMETHOD_HOLDINGREGISTER=2;  // detectionstring = ';' separated all possible integer register value
-    
+
     static List list=new ArrayList();
-    
+
     static {
         list.add(new DiscoverProtocolInfo(0,"veris format","com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.EictVeris","PNP Veris format EnergyICT"));
         list.add(new DiscoverProtocolInfo(0,"veris h8036","com.energyict.protocolimpl.modbus.veris.hawkeye.Hawkeye","PNP Veris Hawkeye h8036"));
@@ -38,26 +42,26 @@ public class DiscoverProtocolInfo {
         list.add(new DiscoverProtocolInfo(1,"Merlin Gerin;PM750","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP Merlin Gerin PM750"));
         list.add(new DiscoverProtocolInfo(0,"PM750 Power Meter","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP Merlin Gerin PM750"));
         list.add(new DiscoverProtocolInfo(0,"PM750","com.energyict.protocolimpl.modbus.squared.pm750.PM750","PNP SquareD PM750"));
-        
+
         // product id register
         list.add(new DiscoverProtocolInfo(2,"0x8","com.energyict.protocolimpl.modbus.cutlerhammer.iq200.IQ200","PNP Cutler Hammer IQ200"));
-        list.add(new DiscoverProtocolInfo(2,"0x80000","com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230","PNP Cutler Hammer IQ230"));  
-        
-        // slot info of the meter 000000 000001 0000ff 010000 010001 0100ff ff0000 ff0001 ff00ff       
+        list.add(new DiscoverProtocolInfo(2,"0x80000","com.energyict.protocolimpl.modbus.cutlerhammer.iq230.IQ230","PNP Cutler Hammer IQ230"));
+
+        // slot info of the meter 000000 000001 0000ff 010000 010001 0100ff ff0000 ff0001 ff00ff
         //list.add(new DiscoverProtocolInfo(2,"0;1;255;65536;65537;65791;16711680;16711681;16711935","com.energyict.protocolimpl.modbus.socomec.a20.A20","PNP Socomec Diris A20"));
         list.add(new DiscoverProtocolInfo(2,"141","com.energyict.protocolimpl.modbus.socomec.a20.A20","PNP Socomec Diris A20"));
         list.add(new DiscoverProtocolInfo(2,"142","com.energyict.protocolimpl.modbus.socomec.a40.A40","PNP Socomec Diris A40"));
         list.add(new DiscoverProtocolInfo(2,"73","com.energyict.protocolimpl.modbus.ge.pqm2.PQM2","PNP GE PQM2"));
-        
+
         list.add(new DiscoverProtocolInfo(1,"Schneider Electric;TRV00210","com.energyict.protocolimpl.modbus.schneider.compactnsx.CompactNSX","PNP Schneider CompactNSX"));
-        
+
     }
-    
+
     private int discoverMethod;
     private String detectionString;
     private String protocolName;
     private String deviceType;
-    
+
     /** Creates a new instance of DiscoverProtocolInfo */
     private DiscoverProtocolInfo(int discoverMethod,String detectionString,String protocolName,String deviceType) {
         this.discoverMethod=discoverMethod;
@@ -65,27 +69,27 @@ public class DiscoverProtocolInfo {
         this.protocolName=protocolName;
         this.deviceType=deviceType;
     }
-    
+
     public String toString() {
         return deviceType+", "+protocolName;
     }
-    
+
     public String[] getMeterId() {
-       return getDetectionString().split(";");     
+       return getDetectionString().split(";");
     }
-    
+
     public boolean isDiscoverMethodHoldingRegister() {
         return getDiscoverMethod()==DISCOVERMETHOD_HOLDINGREGISTER;
     }
-    
+
     public boolean isDiscoverMethodSlaveId() {
         return getDiscoverMethod()==DISCOVERMETHOD_SLAVEID;
     }
-    
+
     public boolean isDiscoverMethodMeterId() {
         return getDiscoverMethod()==DISCOVERMETHOD_METERID;
     }
-    
+
     static public List getSupportedDevicesList() {
         return list;
     }
@@ -121,7 +125,7 @@ public class DiscoverProtocolInfo {
     public void setDeviceType(String deviceType) {
         this.deviceType = deviceType;
     }
-    
+
     public static void main(String[] args) {
         Map map = new HashMap();
         Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
@@ -133,5 +137,5 @@ public class DiscoverProtocolInfo {
             }
         }
     }
-    
+
 }

@@ -6,14 +6,25 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.mdc.common.Quantity;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+import static com.energyict.dlms.DLMSCOSEMGlobals.CLOCK_OBJECT_LN;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_CAPTURE_TIME;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_CURRENT_AVERAGE_VALUE;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_LAST_AVERAGE_VALUE;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_NUMBER_OF_PERIODS;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_PERIOD;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_SCALER_UNIT;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_START_TIME_CURRENT;
+import static com.energyict.dlms.DLMSCOSEMGlobals.DEMAND_REGISTER_STATUS;
 
 
 /**
@@ -147,7 +158,7 @@ public class DemandRegister extends AbstractCosemObject implements CosemObject {
         return numberOfPeriods;
     }
 
-    public com.energyict.cbo.Quantity getQuantityValue() throws IOException {
+    public Quantity getQuantityValue() throws IOException {
         return new Quantity(new BigDecimal(getValue()),getScalerUnit().getEisUnit());
     }
 

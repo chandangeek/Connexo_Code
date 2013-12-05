@@ -3,7 +3,11 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.List;

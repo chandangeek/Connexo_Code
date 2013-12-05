@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 /**
  *
  * @author  Koen
@@ -17,10 +17,10 @@ public class LoadProfileEntry {
     private static final int STATUS_TIMESET=1;
     private static final int STATUS_OTHER_ERROR=2;
     private static final int STATUS_POWER_FAILURE=4;
-    
+
     Quantity quantity=null;
     int status=0;
-    
+
     /** Creates a new instance of LoadProfileEntry */
     public LoadProfileEntry() {
         this(null,-1);
@@ -29,19 +29,19 @@ public class LoadProfileEntry {
         this.quantity=quantity;
         this.status=status;
     }
-    
+
     public boolean isMissing() {
-        return (quantity==null) && (status==-1); 
+        return (quantity==null) && (status==-1);
     }
-    
+
     /**
      * Getter for property quantity.
      * @return Value of property quantity.
      */
-    public com.energyict.cbo.Quantity getQuantity() {
+    public Quantity getQuantity() {
         return quantity;
     }
-     
+
     /**
      * Getter for property status.
      * @return Value of property status.
@@ -49,26 +49,26 @@ public class LoadProfileEntry {
     public int getStatus() {
         return status;
     }
-    
+
     public String toString() {
         return "status="+getStatus()+", quantity="+getQuantity();
     }
-    
+
     public int getEiStatus() {
         switch(getStatus()) {
-            
+
             case STATUS_NORMAL:
                return 0;
-                
+
             case STATUS_OTHER_ERROR:
                return IntervalStateBits.OTHER;
-               
+
             case STATUS_POWER_FAILURE:
                return IntervalStateBits.POWERDOWN|IntervalStateBits.POWERUP;
-               
+
             case STATUS_TIMESET:
                return IntervalStateBits.SHORTLONG;
-               
+
             default:
                return IntervalStateBits.OTHER;
         }

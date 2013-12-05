@@ -6,8 +6,7 @@
 
 package com.energyict.protocolimpl.meteridentification;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 /**
  *
@@ -20,8 +19,8 @@ abstract public class AbstractManufacturer {
     abstract public String[] getMeterSerialNumberRegisters() throws IOException;
     abstract public String getMeterDescription() throws IOException;
     abstract public String getManufacturer() throws IOException;
-    
-    
+
+
     public String toString() {
         try {
            return "AbstractManufacturer, "+getMeterProtocolClass()+", "+getMeterDescription()+", "+getManufacturer();
@@ -30,7 +29,7 @@ abstract public class AbstractManufacturer {
             return e.toString();
         }
     }
-    
+
     /**
      * Getter for property signOnString.
      * @return Value of property signOnString.
@@ -38,7 +37,7 @@ abstract public class AbstractManufacturer {
     public java.lang.String getSignOnString() {
         return signOnString;
     }
-    
+
     /**
      * Setter for property signOnString.
      * @param signOnString New value of property signOnString.
@@ -46,7 +45,7 @@ abstract public class AbstractManufacturer {
     public void setSignOnString(java.lang.String signOnString) {
         this.signOnString = signOnString;
     }
-    
+
     /** Creates a new instance of AbstractManufacturer */
     public AbstractManufacturer() {
     }
@@ -54,5 +53,5 @@ abstract public class AbstractManufacturer {
     public String getResourceName() throws IOException {
         return null;
     }
-    
+
 }

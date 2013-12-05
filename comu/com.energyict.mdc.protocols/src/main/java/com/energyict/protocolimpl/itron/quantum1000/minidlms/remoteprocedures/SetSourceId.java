@@ -10,31 +10,31 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 public class SetSourceId extends AbstractViewRpc {
-    
+
     private long sourceId;
-            
+
     /**
-     * Creates a new instance of SetSourceId 
+     * Creates a new instance of SetSourceId
      */
     public SetSourceId(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
-    
+
+
     protected int getSubfunction() {
         return getVRPC_SET_SOURCE_ID();
     }
-    
+
     protected byte[] getSubfunctionParameters() {
         byte[] data = new byte[2];
-        
+
         data[0] = (byte)(sourceId>>8);
         data[1] = (byte)(sourceId);
 

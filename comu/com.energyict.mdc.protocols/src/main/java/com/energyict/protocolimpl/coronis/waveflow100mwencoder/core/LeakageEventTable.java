@@ -6,7 +6,9 @@ import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescriptio
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Date;
 
 public class LeakageEventTable extends AbstractRadioCommand {

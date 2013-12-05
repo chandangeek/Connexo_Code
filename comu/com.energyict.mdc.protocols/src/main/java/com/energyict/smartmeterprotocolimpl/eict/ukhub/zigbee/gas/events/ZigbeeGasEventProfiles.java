@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
@@ -53,7 +53,7 @@ public class ZigbeeGasEventProfiles {
         meterEvents.addAll(((logbookSelectorBitMask &  0x100) == 0x100) ? getMirrorUpdatesEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         meterEvents.addAll(((logbookSelectorBitMask &  0x200) == 0x200) ? getManufacturerEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
-        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;
     }
 

@@ -1,25 +1,25 @@
 package com.energyict.protocolimpl.eig.nexus1272.parse;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.energyict.protocol.ProtocolUtils;
-
 public class NexusDataParser {
 
 	protected ByteArrayInputStream bais;
-	
+
 	public NexusDataParser (byte[] in) {
 		bais = new ByteArrayInputStream(in);
 	}
-	
+
 	public boolean isEmpty() {
 		return bais.available() <= 0;
 	}
-	
+
 	public String parseF2() {
 		String ret = "";
 		for (int i=0; i<4; i++) {
@@ -27,9 +27,9 @@ public class NexusDataParser {
 		}
 		return ret.trim();
 	}
-	
+
 	public Date parseF3() throws IOException {
-		
+
 		int century = ProtocolUtils.getVal(bais);
 		int year = ProtocolUtils.getVal(bais);
 		int month = ProtocolUtils.getVal(bais);
@@ -51,7 +51,7 @@ public class NexusDataParser {
 
 		return cal.getTime();
 	}
-	
+
 	public BigDecimal parseF7() {
 		byte[] b = new byte[4];
 		bais.read(b, 0, 4);
@@ -59,10 +59,10 @@ public class NexusDataParser {
 		BigDecimal bd = new BigDecimal(i).divide(new BigDecimal(65536));
 		return bd;
 	}
-	
+
 	public BigDecimal parseF8() throws IOException {
 		int val = (int) ProtocolUtils.getLong(bais, 2);
-		if (val < 1000) 
+		if (val < 1000)
 			return new BigDecimal(val).divide(new BigDecimal(1000));
 		else if (val < 2000)
 			return new BigDecimal(2).subtract(new BigDecimal(val).divide(new BigDecimal(1000)));
@@ -70,46 +70,46 @@ public class NexusDataParser {
 			return new BigDecimal(val).divide(new BigDecimal(1000)).add(new BigDecimal(-2));
 		else if (val < 4000)
 			return new BigDecimal(4).subtract(new BigDecimal(val).divide(new BigDecimal(1000)));
-		else 
+		else
 			throw new IOException("Illegal value for average power factor, must be less than 4000, got " + val);
 	}
-	
+
 	public BigDecimal parseF9() throws IOException {
 		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100));
 	}
-	
+
 	public BigDecimal parseF10() throws IOException {
 		return new BigDecimal(ProtocolUtils.getShort(bais)).divide(new BigDecimal(100));
 	}
-	
+
 	public long parseF18() throws IOException {
 		return ProtocolUtils.getLong(bais, 4);
 	}
-	
+
 	public long parseF20() throws IOException {
 		return ProtocolUtils.getLong(bais, 8);
 	}
-	
+
 	public int parseF43() {
 		return 0;
 	}
-	
+
 	public int parseF51() throws IOException {
 		return ProtocolUtils.getShort(bais);
 	}
-	
+
 	public int parseF58() {
 		return 0;
 	}
-	
+
 	public BigDecimal parseF64() throws IOException {
 		return new BigDecimal(ProtocolUtils.getLong(bais, 4));
 	}
-	
+
 	public int parseFourByteInt() throws IOException {
 		return (int) ProtocolUtils.getLong(bais, 4);
 	}
-	
+
 	public String parseSN() throws IOException {
 
 		String ret = "";
@@ -127,5 +127,5 @@ public class NexusDataParser {
 		}
 		return b;
 	}
-	
+
 }

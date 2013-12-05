@@ -6,12 +6,14 @@
 
 package com.energyict.protocolimpl.dlms.actarissl7000;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -20,22 +22,22 @@ import java.util.Date;
  * @author  Koen
  */
 public class ObisCodeMapper {
-    
+
     CosemObjectFactory cof;
     RegisterProfileMapper registerProfileMapper=null;
-    
-    
+
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(CosemObjectFactory cof) {
         this.cof=cof;
         registerProfileMapper = new RegisterProfileMapper(cof);
-        
+
     }
-    
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) {
+
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) {
 			return new RegisterInfo(obisCode.getDescription());
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
     	RegisterValue regValue;
     	try {
@@ -46,15 +48,15 @@ public class ObisCodeMapper {
 
 		if ((regValue.getEventTime() != null) && (regValue.getEventTime().getTime() <= 0))
         	throw new NoSuchRegisterException("Value with obiscode: "+obisCode+" contains a uninitialized eventDate: " + regValue.getEventTime());
-		
+
 		return regValue;
     }
-    
+
     private Object doGetRegister(ObisCode obisCode) throws IOException {
-        
+
         RegisterValue registerValue=null;
         int billingPoint=-1;
-        
+
         // obis F code
         if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
             billingPoint = obisCode.getF();
@@ -63,35 +65,35 @@ public class ObisCodeMapper {
         else if (obisCode.getF() == 255)
             billingPoint = -1;
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-        
-        // ********************************************************************************* 
+
+        // *********************************************************************************
         // General purpose ObisRegisters & abstract general service
         if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) { // billing counter
-            registerValue = new RegisterValue(obisCode,new Quantity(new Integer(cof.getStoredValues().getBillingPointCounter()),Unit.get(""))); 
+            registerValue = new RegisterValue(obisCode,new Quantity(new Integer(cof.getStoredValues().getBillingPointCounter()),Unit.get("")));
             return registerValue;
         } // billing counter
         else if ((obisCode.toString().indexOf("1.1.0.1.2.") != -1) || (obisCode.toString().indexOf("1.0.0.1.2.") != -1)) { // billing point timestamp
             if ((billingPoint >= 0) && (billingPoint < 99)) {
                registerValue = new RegisterValue(obisCode,
-                                                 cof.getStoredValues().getBillingPointTimeDate(billingPoint)); 
+                                                 cof.getStoredValues().getBillingPointTimeDate(billingPoint));
                return registerValue;
             }
             else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         } // // billing point timestamp
-      
+
         // *********************************************************************************
         // Abstract ObisRegisters
         try {
             CosemObject cosemObject = cof.getCosemObject(obisCode);
-            
+
             if (cosemObject==null)
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
+                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 
             Date captureTime = null;
             Date billingDate = null;
             String text = null;
             Quantity quantityValue = null;
-            
+
             try {captureTime = cosemObject.getCaptureTime();} catch (Exception e) {}
 			try {billingDate = cosemObject.getBillingDate();} catch (Exception e) {}
 			try {quantityValue = cosemObject.getQuantityValue();} catch (Exception e) {}
@@ -102,12 +104,12 @@ public class ObisCodeMapper {
 					billingDate, new Date(), 0, text
 			);
 
-			return registerValue;      
+			return registerValue;
         } catch (NoSuchRegisterException e) {
             // Absorb the exception and continue.
             // This indicates the register should be mapped to a registerProfile.
         }
-        
+
         // *********************************************************************************
         // Electricity related ObisRegisters mapped to a registerProfile
         if ((obisCode.getA() == 1) && (obisCode.getB() == 1)) {
@@ -115,15 +117,15 @@ public class ObisCodeMapper {
             if (obisCode.getF() != 255) {
                 ObisCode profileObisCode = registerProfileMapper.getMDProfileObisCode(obisCode);
                 if (profileObisCode==null)
-                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
+                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
                 cosemObject = cof.getStoredValues().getHistoricalValue(profileObisCode);
             }
             else cosemObject = registerProfileMapper.getRegister(obisCode);
-            
+
             if (cosemObject==null)
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!"); 
-            
-            
+                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+
+
             Date captureTime = cosemObject.getCaptureTime();
             Date billingDate = cosemObject.getBillingDate();
             registerValue = new RegisterValue(obisCode,
@@ -136,14 +138,14 @@ public class ObisCodeMapper {
                                               cosemObject.getText());
             return registerValue;
         }
-        
-        throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");  
-/*        
+
+        throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
+/*
         // obis C code
         if ((obisCode.getC() == 1) || (obisCode.getC() == 2) || (obisCode.getC() == 5) ||
             (obisCode.getC() == 6) || (obisCode.getC() == 7) || (obisCode.getC() == 8)) {
             // *************************************************************************************************************
-            // C U M U L A T I V E  M A X I M U M  D E M A N D (OBIC D field 'Cumulative maximum 1' DLMS UA 1000-1 ed.5 page 87/101) 
+            // C U M U L A T I V E  M A X I M U M  D E M A N D (OBIC D field 'Cumulative maximum 1' DLMS UA 1000-1 ed.5 page 87/101)
             if ((obisCode.getD() == ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND) && (obisCode.getB() == 1)) {
                 CosemObject cosemObject = cof.getCosemObject(obisCode);
                 registerValue = new RegisterValue(obisCode,
@@ -153,7 +155,7 @@ public class ObisCodeMapper {
                 return registerValue;
             }
             // *************************************************************************************************************
-            // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101) 
+            // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101)
             else if ((obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) && (obisCode.getB() == 1)) {
                 CosemObject cosemObject = cof.getCosemObject(obisCode);
                 registerValue = new RegisterValue(obisCode,
@@ -163,7 +165,7 @@ public class ObisCodeMapper {
                 return registerValue;
             }
             // *************************************************************************************************************
-            // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101) 
+            // R I S I N G  D E M A N D (OBIC D field 'Current average 1' DLMS UA 1000-1 ed.5 page 87/101)
             else if ((obisCode.getD() == ObisCode.CODE_D_RISING_DEMAND) && (obisCode.getB() == 1)) {
                 CosemObject cosemObject = cof.getCosemObject(obisCode);
                 registerValue = new RegisterValue(obisCode,
@@ -173,7 +175,7 @@ public class ObisCodeMapper {
                 return registerValue;
             }
             // *************************************************************************************************************
-            // M A X I M U M  D E M A N D (OBIC D field 'Maximum 1' DLMS UA 1000-1 ed.5 page 87/101) 
+            // M A X I M U M  D E M A N D (OBIC D field 'Maximum 1' DLMS UA 1000-1 ed.5 page 87/101)
             else if ((obisCode.getD() == ObisCode.CODE_D_MAXIMUM_DEMAND) && (obisCode.getB() == 1)) {
                 CosemObject cosemObject = cof.getCosemObject(obisCode);
                 registerValue = new RegisterValue(obisCode,
@@ -183,8 +185,8 @@ public class ObisCodeMapper {
                 return registerValue;
             }
             // *************************************************************************************************************
-            // T O T A L & R A T E (OBIC D field 'Time integral 1' DLMS UA 1000-1 ed.5 page 87/101) 
-            else if (obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) {// time integral 1 TOTAL & RATE 
+            // T O T A L & R A T E (OBIC D field 'Time integral 1' DLMS UA 1000-1 ed.5 page 87/101)
+            else if (obisCode.getD() == ObisCode.CODE_D_TIME_INTEGRAL) {// time integral 1 TOTAL & RATE
                 CosemObject cosemObject = cof.getCosemObject(obisCode);
                 registerValue = new RegisterValue(obisCode,
                                                  cosemObject.getQuantityValue(),
@@ -195,7 +197,7 @@ public class ObisCodeMapper {
             else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
         }
         else throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-  */      
-        
-    }     
+  */
+
+    }
 }

@@ -10,30 +10,29 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MultiTariffRateScheduleGeneralParameters extends AbstractDataDefinition {
-    
-    
+
+
     private int scheduleId; // UNSIGNED16,
     private boolean delaySeasonChangeUntilDemandReset; // BOOLEAN,
     private boolean delayChangesUntilEOI; // BOOLEAN,
     //reserved OctetString(28)
-    
+
     /**
      * Creates a new instance of MultiTariffRateScheduleGeneralParameters
      */
     public MultiTariffRateScheduleGeneralParameters(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -43,11 +42,11 @@ public class MultiTariffRateScheduleGeneralParameters extends AbstractDataDefini
         strBuff.append("   scheduleId="+getScheduleId()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 131; // DLMS_TOU_RATE_SCHEDULE_GENERAL_PARAMETERS
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setScheduleId(ProtocolUtils.getInt(data,offset,2)); // UNSIGNED16,

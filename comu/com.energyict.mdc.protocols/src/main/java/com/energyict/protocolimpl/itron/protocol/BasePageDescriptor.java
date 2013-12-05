@@ -10,20 +10,17 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.protocolimpl.itron.datastar.basepages.*;
-import java.io.*;
-
 /**
  *
  * @author Koen
  */
 public class BasePageDescriptor {
-    
+
     private int baseAddress;
     private int length;
     private byte[] data;
-    
-    
+
+
     /** Creates a new instance of BasePageDescriptor */
     public BasePageDescriptor(int baseAddress,int length) {
         this.setBaseAddress(baseAddress);
@@ -39,7 +36,7 @@ public class BasePageDescriptor {
     }
 
 
-    
+
     public int getLength() {
         return length;
     }
@@ -55,5 +52,5 @@ public class BasePageDescriptor {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
 }

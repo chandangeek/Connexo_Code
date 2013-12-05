@@ -10,28 +10,28 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class VerifyCommand extends AbstractCommand {
-    
+
     private int startAnswerHour;
     private int stopAnswerHour;
     private int softwareVersion;
     private int year;
     private int answerDay;
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public VerifyCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,8 +42,8 @@ public class VerifyCommand extends AbstractCommand {
         strBuff.append("   stopAnswerHour="+getStopAnswerHour()+"\n");
         strBuff.append("   year="+getYear()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setStartAnswerHour(ProtocolUtils.BCD2hex(data[offset++]));
@@ -52,9 +52,9 @@ public class VerifyCommand extends AbstractCommand {
         offset+=2;
         setYear(ProtocolUtils.BCD2hex(data[offset++]));
         setAnswerDay(ProtocolUtils.BCD2hex(data[offset++]));
-        
+
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('V');
     }
@@ -99,5 +99,5 @@ public class VerifyCommand extends AbstractCommand {
         this.answerDay = answerDay;
     }
 
-    
+
 }

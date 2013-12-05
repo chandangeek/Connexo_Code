@@ -1,13 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import java.io.IOException;
 
 public class FirmwareXMLHandler extends DefaultHandler {
 
@@ -16,33 +15,33 @@ public class FirmwareXMLHandler extends DefaultHandler {
 	ABBA230DataIdentityFactory abba230DataIdentityFactory;
 	int pageNumber;
 	int pageChecksum;
-	
+
 	public FirmwareXMLHandler(ABBA230DataIdentityFactory abba230DataIdentityFactory) {
 		this.abba230DataIdentityFactory=abba230DataIdentityFactory;
 	}
 
 	public void startDocument() throws SAXException {
-		
+
 		if (DEBUG>=1){
 			System.out.println("start document");
 		}
 	}
 
 	public void endDocument() throws SAXException {
-		
+
 		if (DEBUG>=1) {
 			System.out.println("end document");
 		}
 	}
-	
-	private static final int AUTHENTICATE_REARM_FIRMWARE=60000; 
-	
+
+	private static final int AUTHENTICATE_REARM_FIRMWARE=60000;
+
 	private int readChecksum(int page) throws IOException {
     	ABBA230DataIdentity di = new ABBA230DataIdentity("004", 2, 64, false, abba230DataIdentityFactory);
     	byte[] data = di.read(false,2,page);
     	return ProtocolUtils.getInt(data,0,2);
     }
-	
+
 	public void endElement(String uri,String localName,String qName) throws SAXException {
 		if (abba230DataIdentityFactory!=null) {
 			if (qName.compareTo("Page") == 0) {
@@ -69,12 +68,12 @@ public class FirmwareXMLHandler extends DefaultHandler {
 					}
 					throw new SAXException(e);
 				}
-					
+
 			}
 		}
 	}
-	
-	
+
+
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		if (DEBUG>=1) {
 			System.out.print(qName+" --> ");
@@ -87,29 +86,29 @@ public class FirmwareXMLHandler extends DefaultHandler {
 		}
 		if (abba230DataIdentityFactory!=null) {
 			if (qName.compareTo("Page") == 0) {
-				
+
 				pageNumber = Integer.parseInt(attributes.getValue(0));
-				
+
 				if (attributes.getLength()==2) {
 					pageChecksum = Integer.parseInt(attributes.getValue(1),16);
 				} else {
 					pageChecksum = -1;
 				}
-				
+
 				if (DEBUG>=1) {
 					System.out.println("pageNumber="+pageNumber+", pageChecksum=0x"+Integer.toHexString(pageChecksum));
 				}
 			} // Page tag
 			else if (qName.compareTo("Write") == 0) {
-				if ((attributes.getLength()==3) && 
+				if ((attributes.getLength()==3) &&
 					(attributes.getQName(0).compareTo("id")==0) &&
 					(attributes.getQName(1).compareTo("packet")==0) &&
 					(attributes.getQName(2).compareTo("data")==0)) {
-					
+
 					int retry=0;
 					while(true) {
 						try {
-							
+
 				            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
 				                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM_FIRMWARE; // arm again...
 				    			if (DEBUG>=1) {
@@ -120,8 +119,8 @@ public class FirmwareXMLHandler extends DefaultHandler {
 								} catch (IOException e1) {
 									throw new SAXException(e1);
 								}
-				            }		
-				            
+				            }
+
 							abba230DataIdentityFactory.setDataIdentityHex2(attributes.getValue(0), Integer.parseInt(attributes.getValue(1),16), attributes.getValue(2));
 							break;
 						}
@@ -162,5 +161,5 @@ public class FirmwareXMLHandler extends DefaultHandler {
 			System.out.println();
 		}
 	}
-	
+
 }

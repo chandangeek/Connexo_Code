@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
@@ -29,25 +30,25 @@ public class MeterProgramConstants2 extends AbstractTable {
     private long userDefField1; // 6 bytes
     private long userDefField2; // 6 bytes
     private long userDefField3; // 6 bytes
-    
+
     private int powerFailRecognitionTime; // 2 bytes
     private int loadProfileOutageDuration; // 2 bytes
     private long demandResetTimeout; // 4 bytes
     // reserved 4 bytes
 
-    
+
     /** Creates a new instance of MeterProgramConstants2 */
     public MeterProgramConstants2(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(67,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("MeterProgramConstants2: energyWraptestConst="+getEnergyWraptestConst()+", demandWraptestConst="+getDemandWraptestConst()+", curTransRatio="+getCurTransRatio()+", potTransRatio="+getPotTransRatio()+", programId="+getProgramId()+", userDefField1="+getUserDefField1()+", userDefField2="+getUserDefField2()+", userDefField3="+getUserDefField3()+", powerFailRecognitionTime="+getPowerFailRecognitionTime()+", loadProfileOutageDuration="+getLoadProfileOutageDuration()+", demandResetTimeout="+getDemandResetTimeout()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException {   
+
+    protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset=0;
         setEnergyWraptestConst(C12ParseUtils.getLong(tableData,offset,6,dataOrder));
@@ -72,9 +73,9 @@ public class MeterProgramConstants2 extends AbstractTable {
         offset+=2;
         setDemandResetTimeout(C12ParseUtils.getLong(tableData,offset,4,dataOrder));
         offset+=4;
-        
+
         // from firmware version v5.1 and greater another 2 bytes added to that table
-        
+
     }
 
     public long getEnergyWraptestConst() {

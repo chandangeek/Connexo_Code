@@ -1,16 +1,21 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateURLAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
 
 /**
  * Provides a summary of all <i>Firmware</i> related messages
@@ -21,25 +26,25 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(
-            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName)),
+            RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(
-            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(plcTypeFirmwareUpdateAttributeName)),
-    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
+            RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(plcTypeFirmwareUpdateAttributeName)),
+    UPGRADE_FIRMWARE_ACTIVATE(RequiredPropertySpecFactory.newInstance().datePropertySpec(firmwareUpdateActivationDateAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(
-            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName),
-            PropertySpecFactory.stringPropertySpec(firmwareUpdateVersionNumberAttributeName)),
-    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName)),
+            RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            RequiredPropertySpecFactory.newInstance().datePropertySpec(firmwareUpdateActivationDateAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            RequiredPropertySpecFactory.newInstance().datePropertySpec(firmwareUpdateActivationDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(firmwareUpdateVersionNumberAttributeName)),
+    UPGRADE_FIRMWARE_URL(RequiredPropertySpecFactory.newInstance().stringPropertySpec(firmwareUpdateURLAttributeName)),
     UPGRADE_FIRMWARE_URL_AND_ACTIVATE(
-            PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName),
-            PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),;
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(firmwareUpdateURLAttributeName),
+            RequiredPropertySpecFactory.newInstance().datePropertySpec(firmwareUpdateActivationDateAttributeName)),;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 

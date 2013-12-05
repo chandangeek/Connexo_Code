@@ -3,7 +3,9 @@ package com.energyict.genericprotocolimpl.nta.messagehandling;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +32,7 @@ public class MeterMessages extends GenericMessaging {
 		MessageCategorySpec catAuthEncrypt = getAuthEncryptCategory();
 		MessageCategorySpec catConnectivity = getConnectivityCategory();
         MessageCategorySpec catResetParameters = getResetParametersCategory();
-		
+
 		// MessageCategorySpec catWakeUp = getWakeupCategory();
 		// MessageCategorySpec catGPRSModemSetup = getGPRSModemSetupCategory();
 
@@ -45,7 +47,7 @@ public class MeterMessages extends GenericMessaging {
 		categories.add(catTestMessage);
 		categories.add(catGlobalDisc);
 		categories.add(catConnectivity);
-		
+
 		// These two are bound into one (catConnectivity) from 04/08/09
 		// categories.add(catGPRSModemSetup);
 		// categories.add(catWakeUp);

@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,44 +19,44 @@ import java.util.List;
  */
 public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetActiveChannel(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetActiveChannelAttributeName)),
-    SetReactiveChannel(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetReactiveChannelAttributeName)),
-    SetTimeBase(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeBaseAttributeName)),
-    SetPOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOutAttributeName)),
-    SetPIn(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPInAttributeName)),
-    SetDeadTime(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDeadTimeAttributeName)),
-    SetAutomatic(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAutomaticAttributeName)),
-    SetCyclic(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCyclicAttributeName)),
-    SetInvert(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInvertAttributeName)),
-    SetAdaptSetpoint(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAdaptSetpointAttributeName)),
-    SetInstantAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInstantAnalogOutAttributeName)),
-    SetPredictedAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPredictedAnalogOutAttributeName)),
-    SetpointAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetpointAnalogOutAttributeName)),
-    SetDifferenceAnalogOut(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDifferenceAnalogOutAttributeName)),
-    SetTariff(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffAttributeName)),
-    SetResetLoads(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetResetLoadsAttributeName)),
+    SetActiveChannel(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetActiveChannelAttributeName)),
+    SetReactiveChannel(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetReactiveChannelAttributeName)),
+    SetTimeBase(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTimeBaseAttributeName)),
+    SetPOut(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPOutAttributeName)),
+    SetPIn(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPInAttributeName)),
+    SetDeadTime(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDeadTimeAttributeName)),
+    SetAutomatic(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetAutomaticAttributeName)),
+    SetCyclic(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetCyclicAttributeName)),
+    SetInvert(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetInvertAttributeName)),
+    SetAdaptSetpoint(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetAdaptSetpointAttributeName)),
+    SetInstantAnalogOut(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetInstantAnalogOutAttributeName)),
+    SetPredictedAnalogOut(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPredictedAnalogOutAttributeName)),
+    SetpointAnalogOut(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetpointAnalogOutAttributeName)),
+    SetDifferenceAnalogOut(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDifferenceAnalogOutAttributeName)),
+    SetTariff(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTariffAttributeName)),
+    SetResetLoads(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id), RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetResetLoadsAttributeName)),
     SetSetpoint(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tariff),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.CurrentValueAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.NewValueAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.tariff),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.CurrentValueAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.NewValueAttributeName)),
     SetSwitchTime(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.year),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minute),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.second)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.day),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.month),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.year),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.hour),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.minute),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.second)),
     SetLoad(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.id),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.loadIdAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.MaxOffAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DelayAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ManualAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.StatusAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.PeakShaverIPAddressAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.PeakShaveChnNbrAttributeName));
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.id),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.loadIdAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.MaxOffAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.DelayAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.ManualAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.StatusAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.PeakShaverIPAddressAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.PeakShaveChnNbrAttributeName));
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.PEAK_SHAVER_CONFIGURATION;
 

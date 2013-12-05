@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.messaging.examples;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 import java.math.BigDecimal;
 import java.util.Date;

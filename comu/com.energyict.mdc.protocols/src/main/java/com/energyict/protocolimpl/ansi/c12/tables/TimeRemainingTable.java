@@ -10,40 +10,38 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TimeRemainingTable extends AbstractTable {
-    
+
     private int summTierTimeRemain=-1;
     private int demandTierTimeRemain=-1;
     private int tierTimeRemain=-1;
     private int selfReadDaysRemain;
-    
+
     /** Creates a new instance of TimeRemainingTable */
     public TimeRemainingTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(56));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("TimeRemainingTable: summTierTimeRemain="+getSummTierTimeRemain()+", demandTierTimeRemain="+getDemandTierTimeRemain()+", tierTimeRemain="+getTierTimeRemain()+", selfReadDaysRemain="+getSelfReadDaysRemain()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         int offset=0;
         if (atatt.getTimeTOU().isSeparateSumDemandsFlag()) {
             setSummTierTimeRemain(C12ParseUtils.getInt(tableData,offset, 2,dataOrder));
@@ -55,10 +53,10 @@ public class TimeRemainingTable extends AbstractTable {
             setTierTimeRemain(C12ParseUtils.getInt(tableData,offset, 2,dataOrder));
             offset+=2;
         }
-        
+
         setSelfReadDaysRemain(C12ParseUtils.getInt(tableData,offset));
-        
-    }         
+
+    }
 
     public int getSummTierTimeRemain() {
         return summTierTimeRemain;

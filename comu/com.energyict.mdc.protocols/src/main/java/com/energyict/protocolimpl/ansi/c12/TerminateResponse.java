@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -20,12 +19,12 @@ import com.energyict.protocol.*;
 public class TerminateResponse extends AbstractResponse {
 
     private boolean terminate=false;
-    
+
     /** Creates a new instance of TerminateResponse */
     public TerminateResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         setTerminate(true);

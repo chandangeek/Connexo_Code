@@ -2,10 +2,12 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class AlarmStatus {
-	
+
 	/**
 	 * The alarm status is 3 bytes. Only 3 first bits of the second byte are used to notify power up/down and link fault with meter.
 	 */
@@ -15,7 +17,7 @@ public class AlarmStatus {
 	boolean powerDown;
 	boolean powerUp;
 	boolean linkFaultWithMeter;
-	
+
 
 	AlarmStatus(byte[] data,AbstractDLMS abstractDLMS) throws IOException {
 		DataInputStream dais = null;
@@ -37,13 +39,13 @@ public class AlarmStatus {
 					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}					
+		}
 	}
-	
+
 	static int size() {
 		return 3;
-	}	
-	
+	}
+
 	final boolean isPowerDown() {
 		return powerDown;
 	}
@@ -56,5 +58,5 @@ public class AlarmStatus {
 
 	final boolean isLinkFaultWithMeter() {
 		return linkFaultWithMeter;
-	}	
+	}
 }

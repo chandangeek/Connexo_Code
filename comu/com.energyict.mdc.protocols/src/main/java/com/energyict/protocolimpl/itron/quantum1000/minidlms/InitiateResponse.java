@@ -10,26 +10,27 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class InitiateResponse extends AbstractCommandResponse {
-    
+
    private int negotiatedVersion; // 0x03 from trace file
    private int negotiatedConformance; // 0x000f from trace file
    private int negoiatedMaxPDUSize; // 0x01A4 from trace file
    private int vaaName; // 0x0000 from trace file
    private int qualityOfService; // 0x00 from trace file
-   
-    
+
+
     /** Creates a new instance of WriteReply */
     public InitiateResponse() {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,16 +42,16 @@ public class InitiateResponse extends AbstractCommandResponse {
         strBuff.append("   qualityOfService="+getQualityOfService()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] rawData) throws IOException {
         int offset = 0;
         offset++; // skip read response
         setNegotiatedVersion((int)rawData[offset++]&0xFF);
         setNegotiatedConformance(ProtocolUtils.getInt(rawData,offset,2));
         offset+=2;
-        setNegoiatedMaxPDUSize(ProtocolUtils.getInt(rawData,offset,2)); 
+        setNegoiatedMaxPDUSize(ProtocolUtils.getInt(rawData,offset,2));
         offset+=2;
-        setVaaName(ProtocolUtils.getInt(rawData,offset,2)); 
+        setVaaName(ProtocolUtils.getInt(rawData,offset,2));
         offset+=2;
         setQualityOfService((int)rawData[offset++]&0xFF);
     }

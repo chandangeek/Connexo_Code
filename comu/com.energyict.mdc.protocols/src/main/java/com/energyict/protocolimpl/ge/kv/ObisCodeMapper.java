@@ -10,38 +10,36 @@
 
 package com.energyict.protocolimpl.ge.kv;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.ObisUtils;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeMapper {
-    
+
     GEKV gekv;
-    
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(GEKV gekv) {
         this.gekv=gekv;
     }
-    
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         return (RegisterValue)doGetRegister(obisCode, true);
     }
-    
+
     private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException {
         if (read) {
             try {
@@ -50,7 +48,7 @@ public class ObisCodeMapper {
             catch(ResponseIOException e) {
                 if (e.getReason()==AbstractResponse.IAR) // table does not exist!
                    throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! ("+e.toString()+")");
-                else 
+                else
                    throw e;
             }
         }

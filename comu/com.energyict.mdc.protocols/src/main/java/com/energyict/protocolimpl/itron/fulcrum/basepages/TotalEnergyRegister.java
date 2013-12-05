@@ -10,19 +10,20 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class TotalEnergyRegister {
-    
+
     private BigDecimal totalValue;
     private BigDecimal[] valueRates;
-    
+
     /** Creates a new instance of EnergyRegister */
     public TotalEnergyRegister(byte[] data, int offset) throws IOException {
         totalValue = new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
@@ -31,9 +32,9 @@ public class TotalEnergyRegister {
         for (int i=0;i<RegisterFactory.MAX_NR_OF_RATES;i++) {
             valueRates[i] = new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));offset+=4;
         }
-    } // public TotalEnergyRegister(byte[] data, int offset) throws IOException 
-    
-    
+    } // public TotalEnergyRegister(byte[] data, int offset) throws IOException
+
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -44,11 +45,11 @@ public class TotalEnergyRegister {
         }
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 5*4; // * extra unused 2*4 bytes
     }
-    
+
     public BigDecimal getTotalValue() {
         return totalValue;
     }
@@ -64,5 +65,5 @@ public class TotalEnergyRegister {
     private void setValueRates(BigDecimal[] valueRates) {
         this.valueRates = valueRates;
     }
-    
+
 }

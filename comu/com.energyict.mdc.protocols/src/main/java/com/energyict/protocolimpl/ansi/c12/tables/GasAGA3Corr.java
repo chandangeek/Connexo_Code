@@ -10,26 +10,24 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GasAGA3Corr {
-    
-    
+
+
     private Number auxCorrFactor;
     private Number gasAGA3CorrFactor;
     private PipeOrifDia pipeOrifDia;
     private int tapUpDn;
     private GasPress gasPressParm;
     private GasTemp gasTempParm;
-            
+
     /** Creates a new instance of GasAGA3Corr */
     public GasAGA3Corr(byte[] data,int offset,int niFormat,int dataOrder) throws IOException {
         setAuxCorrFactor(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
@@ -47,8 +45,8 @@ public class GasAGA3Corr {
 
     static public int getSize(int niFormat) throws IOException {
         return C12ParseUtils.getNonIntegerSize(niFormat)*2+1+PipeOrifDia.getSize(niFormat)+GasPress.getSize(niFormat)+GasTemp.getSize(niFormat);
-    }    
-    
+    }
+
     public Number getAuxCorrFactor() {
         return auxCorrFactor;
     }
@@ -96,5 +94,5 @@ public class GasAGA3Corr {
     public void setGasTempParm(GasTemp gasTempParm) {
         this.gasTempParm = gasTempParm;
     }
-    
+
 }

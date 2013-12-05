@@ -10,27 +10,28 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class UploadCommand extends AbstractCommand{
-    
+
     private int firstAddress;
     private int lastAddress;
     private byte[] data;
-    
+
     /** Creates a new instance of UploadCommand */
     public UploadCommand(SchlumbergerProtocol schlumbergerProtocol) {
         super(schlumbergerProtocol);
     }
-    
-    
+
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,8 +42,8 @@ public class UploadCommand extends AbstractCommand{
         strBuff.append("   firstAddress=0x"+Integer.toHexString(getFirstAddress())+"\n");
         strBuff.append("   lastAddress=0x"+Integer.toHexString(getLastAddress())+"\n");
         return strBuff.toString();
-    }        
-        
+    }
+
     protected Command preparebuild() throws IOException {
         Command command = new Command('U');
         byte[] frame = new byte[6];
@@ -52,7 +53,7 @@ public class UploadCommand extends AbstractCommand{
         command.setData(frame);
         return command;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setData(ProtocolUtils.getSubArray2(data,0, data.length-2));
@@ -83,5 +84,5 @@ public class UploadCommand extends AbstractCommand{
     }
 
 
-        
+
 }

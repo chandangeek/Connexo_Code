@@ -1,11 +1,13 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class that generates a list of meter events based on the information in the application status

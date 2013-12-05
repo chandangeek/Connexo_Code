@@ -2,16 +2,16 @@
 package com.energyict.protocolimpl.ametek;
 //com.energyict.protocolimpl.ametek.Jem10
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  *
  * @author cju
- * 
+ *
  */
 public class Jem10 extends Jem implements MessageProtocol  {
 
@@ -37,10 +37,10 @@ public class Jem10 extends Jem implements MessageProtocol  {
 	public Jem10() {
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {        
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 
-		//getLogger().info("call overrided method getProfileData("+from+","+includeEvents+")");  
-		//getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");  
+		//getLogger().info("call overrided method getProfileData("+from+","+includeEvents+")");
+		//getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");
 
 		pd = new ProfileData();
 
@@ -100,13 +100,13 @@ public class Jem10 extends Jem implements MessageProtocol  {
 //						{
 //							ba[i-loc] = (((Integer)inList.get(i+2)).byteValue());
 //
-//							if(((Integer)inList.get(i)).byteValue()==0x10 && 
+//							if(((Integer)inList.get(i)).byteValue()==0x10 &&
 //									((Integer)inList.get(i+1)).byteValue()==0x02)
 //								in10 = true;
 //							else if(in10 && ((Integer)inList.get(i+1)).byteValue()!=0x10 &&
-//									(((Integer)inList.get(i+2)).byteValue()==0x10 && 
+//									(((Integer)inList.get(i+2)).byteValue()==0x10 &&
 //											((Integer)inList.get(i+3)).byteValue()==0x17 ||
-//											((Integer)inList.get(i+2)).byteValue()==0x10 && 
+//											((Integer)inList.get(i+2)).byteValue()==0x10 &&
 //											((Integer)inList.get(i+3)).byteValue()==0x03)
 //							)
 //								in10=false;
@@ -145,16 +145,16 @@ public class Jem10 extends Jem implements MessageProtocol  {
 //
 //		InputStream dataInStream = new ByteArrayInputStream(dataOutStream.toByteArray());
 		ByteArrayInputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
-		
+
 //		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//		
+//
 //		while (bais.available()>0)
 //		{
 //			baos.write(bais.read());
 //		}
 //		for (int i=0; i<100; i++){
 //			pd = new ProfileData();
-//			ByteArrayInputStream tempbais = new ByteArrayInputStream(baos.toByteArray()); 
+//			ByteArrayInputStream tempbais = new ByteArrayInputStream(baos.toByteArray());
 		processHeader(bais);
 		processInterval(bais, calFrom, calTo);
 //		}
@@ -182,7 +182,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		Date startTime = cal.getTime();
 		ArrayList dataList = new ArrayList();
 		Date lastDate=null;
-		List partialVals = new ArrayList(); 
+		List partialVals = new ArrayList();
 
 		ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
 
@@ -203,28 +203,28 @@ public class Jem10 extends Jem implements MessageProtocol  {
 					readMore = true;
 
 				if((val & intervalIndicator) == intervalIndicator) {
-					val = val ^ intervalIndicator;				
+					val = val ^ intervalIndicator;
 				}
 				BigDecimal bd;
 				if (partialVals.size()>0)
 					bd = (BigDecimal)partialVals.remove(0);
 				else
 					bd = new BigDecimal(0);
-				values.add(bd.add(new BigDecimal(val)));				
+				values.add(bd.add(new BigDecimal(val)));
 			}
 
 			if(eventVal>0) {
 				partialVals = new ArrayList(values);
 				try {
 					startTime = getShortDateFormatter().parse(convertHexToString(byteStream, 5, true));
-					
+
 					if (noDate){
 						//on the first event set the time
 						noDate = false;
 						cal.setTime(startTime);
 						ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
 					}
-					
+
 					Date endTime = null;
 					if(byteStream.available()>0 && !( (((val = convertHexToLong(byteStream, len))& intervalIndicator) == intervalIndicator) //)){
 							|| (((val)& eventIndicator) == eventIndicator))) {
@@ -235,7 +235,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 						endTime = getShortDateFormatter().parse(s);
 						val = convertHexToLong(byteStream, len);
 					}
-					
+
 					if ((eventVal & powerOutEvent) == powerOutEvent) { //powerOutage
 						eventVal=0;
 						if(endTime.before(cal.getTime())){
@@ -268,12 +268,12 @@ public class Jem10 extends Jem implements MessageProtocol  {
 				catch(Exception e) {
 					new IOException(e.getMessage());
 				}
-				
+
 				eventVal = 0;
 			}
 			else if (byteStream.available()>0)
 				val = convertHexToLong(byteStream, len);
-			
+
 			if(noDate){
 				dataList.add(values);
 				partialVals = new ArrayList();
@@ -346,7 +346,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 			ObisCode ob = new ObisCode(1, registerNumber, obisCValue, 0, 0, 0);
 
-			
+
 			int type = 0;
 
 			if((bt & 0x80) == 0x80)
@@ -355,7 +355,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 			switch(type)
 			{
 			case 0:
-				float f = val;		    	
+				float f = val;
 				if((bt & 4) == 4 || (bt & 1) == 1)
 					f *= .1;
 				else if((bt & 8) == 8 || (bt & 2) == 2)
@@ -372,9 +372,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 				break;
 			}
 
-			
+
 			if(rv!=null)
-				registerValues.put(ob.toString(), rv);			
+				registerValues.put(ob.toString(), rv);
 		}
 
 	}
@@ -391,12 +391,12 @@ public class Jem10 extends Jem implements MessageProtocol  {
 			instr += zeropad + Integer.toHexString(inval & 0xff);
 		}
 
-		return instr; 	
+		return instr;
 	}
 
 	/*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
-	 *******************************************************************************************/   
+     R e g i s t e r P r o t o c o l  i n t e r f a c e
+	 *******************************************************************************************/
 	protected void retrieveRegisters() throws IOException
 	{
 		registerValues = new HashMap();
@@ -404,7 +404,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		int dateRangeCmd = 0xff;
 //		if(to!=null)
 //		dateRangeCmd = 0xff;
-		
+
 		//FREEZE REGISTERS BEFORE READ
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x4C,0x01,0x10,0x02,0x10,0x03};
 		byte[] check = connection.getCheck(send, send.length);
@@ -426,7 +426,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 		bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		processRegisters(bais, REGULAR);
-		
+
 		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x07,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
 		check = connection.getCheck(send, send.length);
 
@@ -553,7 +553,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		int hh = cal.get(Calendar.HOUR_OF_DAY);
 		int mn = cal.get(Calendar.MINUTE);
 		int ss = cal.get(Calendar.SECOND);
-		int w = cal.get(Calendar.DAY_OF_WEEK); 
+		int w = cal.get(Calendar.DAY_OF_WEEK);
 
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x54,0x05,0x10,0x02,
 				(byte)(yy/10), (byte)(yy%10),

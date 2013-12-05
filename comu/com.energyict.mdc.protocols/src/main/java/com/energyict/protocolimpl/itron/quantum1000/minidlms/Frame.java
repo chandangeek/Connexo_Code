@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author Koen
  */
 public class Frame {
-    
+
     private int sourceAddress;
     private int destinationAddress;
     private int packetType;
@@ -25,23 +25,23 @@ public class Frame {
     private int sendSequence;
     private int receivedSequence;
     private boolean lastFrame;
-    
+
     public String toString() {
         return "SA=0x"+Integer.toHexString(sourceAddress)+", DA=0x"+Integer.toHexString(destinationAddress)+", PacketType="+Integer.toHexString(packetType)+", PN(s)="+sendSequence+", PN(r)="+receivedSequence+", P="+lastFrame;
     }
-    
+
     /** Creates a new instance of Frame */
     public Frame(byte[] data) {
         setSourceAddress((int)data[0]&0xff);
         setDestinationAddress((int)data[1]&0xff);
         setPacketType((int)data[2]&0xff);
-        
+
         if (data.length > 3) {
             setData(ProtocolUtils.getSubArray2(data,3, data.length-5));
         }
         setSendSequence(-1);
         setReceivedSequence(-1);
-        
+
         if ((getPacketType()&0x80) == 0) {
             // I-frame
             setSendSequence((((int) getPacketType() & 0xff) & 0x70) >> 4);
@@ -66,7 +66,7 @@ public class Frame {
             setReceivedSequence((((int) getPacketType() & 0xff) & 0x07) >> 0);
             setPacketType(MiniDLMSConnection.getPACKET_TYPE_REJ());
         }
-        
+
     }
 
     public boolean isPacketSABM() {
@@ -87,8 +87,8 @@ public class Frame {
     public boolean isPacketREJ() {
         return (getPacketType() == MiniDLMSConnection.getPACKET_TYPE_REJ());
     }
-    
-    
+
+
     public int getSourceAddress() {
         return sourceAddress;
     }
@@ -147,8 +147,8 @@ public class Frame {
         if (temp++ >=7) temp=0;
         return temp;
     }
-    
-    
+
+
     public boolean isLastFrame() {
         return lastFrame;
     }
@@ -156,5 +156,5 @@ public class Frame {
     private void setLastFrame(boolean lastFrame) {
         this.lastFrame = lastFrame;
     }
-    
+
 }

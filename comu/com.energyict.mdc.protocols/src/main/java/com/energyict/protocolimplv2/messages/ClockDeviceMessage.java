@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 
 import java.util.Arrays;
@@ -21,40 +23,40 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meter
  */
 public enum ClockDeviceMessage implements DeviceMessageSpec {
 
-    SET_TIME(PropertySpecFactory.datePropertySpec(meterTimeAttributeName)),
-    SET_TIMEZONE(PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
+    SET_TIME(RequiredPropertySpecFactory.newInstance().datePropertySpec(meterTimeAttributeName)),
+    SET_TIMEZONE(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
 
-    EnableOrDisableDST(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
+    EnableOrDisableDST(RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
     SetEndOfDST(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.month),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.hour)),
     SetStartOfDST(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.month),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.hour)),
     SetStartOfDSTWithoutHour(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.month),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
     SetEndOfDSTWithoutHour(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.month),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
     SetDSTAlgorithm(
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.dstStartAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions()),
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.dstEndAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions())
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.dstStartAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions()),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.dstEndAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions())
     ),
 
     //EIWeb messages
-    SetDST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
-    SetTimezone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
-    SetTimeAdjustment(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
-    SetNTPServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
-    SetRefreshClockEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
-    SetNTPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName));
+    SetDST(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
+    SetTimezone(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
+    SetTimeAdjustment(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
+    SetNTPServer(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
+    SetRefreshClockEvery(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
+    SetNTPOptions(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName));
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 

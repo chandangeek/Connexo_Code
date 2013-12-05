@@ -6,24 +6,25 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.dlms.*;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
  */
 public class Logbook {
-    
+
     private static final int DEBUG = 5;
-    
+
     TimeZone timeZone;
-    
+
     private static final int EVENT_STATUS_FATAL_ERROR=0x0001; // X
     private static final int EVENT_STATUS_DEVICE_CLOCK_RESERVE=0x0002;
     private static final int EVENT_STATUS_VALUE_CORRUPT=0x0004;
@@ -47,38 +48,38 @@ public class Logbook {
     private static final int EVENT_STATUS_L3_POWER_RETURNED=0x8006; // X
     private static final int EVENT_STATUS_METER_COVER_OPENED=0x8010; // X
     private static final int EVENT_STATUS_TERMINAL_COVER_OPENED=0x8011; // X
-    
+
     /** Creates a new instance of Logbook */
     public Logbook(TimeZone timeZone) {
         this.timeZone=timeZone;
     }
-    
-    
-    
+
+
+
     public List getMeterEvents(DataContainer dc) {
         List meterEvents = new ArrayList(); // of type MeterEvent
         int size = dc.getRoot().getNrOfElements();
         Date eventTimeStamp = null;
         for (int i = 0; i<=(size-1); i++) {
-        	
+
 //        	int eventId = dc.getRoot().getStructure(i).getInteger(1);
         	int eventId = (int) dc.getRoot().getStructure(i).getValue(1);
 //        	int eventId = (byte)dc.getRoot().getStructure(i).getValue(1);
-        	
+
         	if ( isOctetString(dc.getRoot().getStructure(i)) )
                 eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
-                
+
             buildMeterEvent(meterEvents,eventTimeStamp,eventId);
             if (DEBUG >= 1) System.out.println("KV_DEBUG> eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
-        	
-        	
+
+
 
         }
         return meterEvents;
     }
-    
+
     private boolean isOctetString(DataStructure structure) {
-    	
+
     	if ( structure.getElement(0) instanceof com.energyict.dlms.OctetString )
     		return true;
     	else if ( structure.getElement(0) instanceof java.lang.Integer )
@@ -90,11 +91,11 @@ public class Logbook {
 
 
 	private void buildMeterEvent(List meterEvents, Date eventTimeStamp, int eventId) {
-		
+
 		int aloneEventId = eventId + 0x10000;
-        
+
         if( ( eventId & 0x8000 ) == 0 ) {
-            
+
             /* These events can be combined */
             if ((eventId & EVENT_STATUS_FATAL_ERROR)==EVENT_STATUS_FATAL_ERROR)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.FATAL_ERROR,"Device disturbance"));
@@ -126,9 +127,9 @@ public class Logbook {
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.CLEAR_DATA,"Event status event log cleared"));
             if ((eventId & EVENT_STATUS_LOADPROFILE_CLEARED)==EVENT_STATUS_LOADPROFILE_CLEARED)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.CLEAR_DATA,"Event status load profile cleared"));
-        
+
         } else {
-            
+
             /* These events occur alone */
             if (aloneEventId == EVENT_STATUS_L1_POWER_FAILURE)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.PHASE_FAILURE,"Event status L1 phase failure"));
@@ -146,10 +147,10 @@ public class Logbook {
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status meter cover opened"));
             if (aloneEventId == EVENT_STATUS_TERMINAL_COVER_OPENED)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.OTHER,"Event status terminal cover opened"));
-        
+
         }
-        
+
     } // private void buildMeterEvent(List meterEvents, Date eventTimeStamp, int eventId)
-    
-    
+
+
 } // public class Logbook

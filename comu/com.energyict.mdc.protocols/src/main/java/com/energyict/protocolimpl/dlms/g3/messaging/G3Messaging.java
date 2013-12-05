@@ -1,23 +1,53 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
-import com.energyict.mdc.common.ApplicationException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.dlms.g3.*;
+import com.energyict.protocolimpl.dlms.g3.G3Clock;
+import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
-import com.energyict.protocolimpl.dlms.g3.messaging.messages.*;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.ContactorMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.ForceSyncClockMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.LoadProfileMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.LogObjectListMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.LogbookMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.SecurityConfigurationMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.SixLoWPanMessages;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WriteClockMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WriteConsumerProducerModeMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcG3TimeoutMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcPskMessage;
+import com.energyict.protocolimpl.dlms.g3.messaging.messages.WriteProfileIntervalMessage;
 import com.energyict.protocolimpl.dlms.idis.IDISMessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
+import com.energyict.protocolimpl.messaging.RtuMessageHandler;
 import com.energyict.protocolimpl.messaging.messages.FirmwareUpdateMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -25,7 +55,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -381,105 +415,105 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult closeContactor(final ContactorMessages.CloseContactorMessage message) throws IOException {
+    public final MessageResult closeContactor(final ContactorMessages.CloseContactorMessage message) throws IOException {
         final DisconnectControl disconnectControl = new DisconnectControl(this.session);
         disconnectControl.close();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult armContactor(final ContactorMessages.ArmContactorMessage message) throws IOException {
+    public final MessageResult armContactor(final ContactorMessages.ArmContactorMessage message) throws IOException {
         final DisconnectControl disconnectControl = new DisconnectControl(this.session);
         disconnectControl.arm();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult openContactor(final ContactorMessages.OpenContactorMessage message) throws IOException {
+    public final MessageResult openContactor(final ContactorMessages.OpenContactorMessage message) throws IOException {
         final DisconnectControl disconnectControl = new DisconnectControl(this.session);
         disconnectControl.open();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetMainLogbook(final LogbookMessages.ResetMainLogbookMessage message) throws IOException {
+    public final MessageResult resetMainLogbook(final LogbookMessages.ResetMainLogbookMessage message) throws IOException {
         getLogger().info("Received [ResetMainLogbookMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3Events.MAIN_LOG).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetCoverLogbook(final LogbookMessages.ResetCoverLogbookMessage message) throws IOException {
+    public final MessageResult resetCoverLogbook(final LogbookMessages.ResetCoverLogbookMessage message) throws IOException {
         getLogger().info("Received [ResetCoverLogbookMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3Events.COVER_LOG).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetBreakerLogbook(final LogbookMessages.ResetBreakerLogbookMessage message) throws IOException {
+    public final MessageResult resetBreakerLogbook(final LogbookMessages.ResetBreakerLogbookMessage message) throws IOException {
         getLogger().info("Received [ResetBreakerLogbookMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3Events.BREAKER_LOG).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetCommunicationLogbook(final LogbookMessages.ResetCommunicationLogbookMessage message) throws IOException {
+    public final MessageResult resetCommunicationLogbook(final LogbookMessages.ResetCommunicationLogbookMessage message) throws IOException {
         getLogger().info("Received [ResetCommunicationLogbookMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3Events.COMMUNICATION_LOG).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetVoltageCutLogbook(final LogbookMessages.ResetVoltageCutLogbookMessage message) throws IOException {
+    public final MessageResult resetVoltageCutLogbook(final LogbookMessages.ResetVoltageCutLogbookMessage message) throws IOException {
         getLogger().info("Received [ResetVoltageCutLogbookMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3Events.VOLTAGE_CUT_LOG).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetLqiLogbook(final LogbookMessages.ResetLqiLogbookMessage message) throws IOException {
+    public final MessageResult resetLqiLogbook(final LogbookMessages.ResetLqiLogbookMessage message) throws IOException {
         getLogger().info("Received [ResetLqiLogbookMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3Events.LQI_EVENT_LOG).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetActiveImportLP(final LoadProfileMessages.ResetActiveImportLPMessage message) throws IOException {
+    public final MessageResult resetActiveImportLP(final LoadProfileMessages.ResetActiveImportLPMessage message) throws IOException {
         getLogger().info("Received [ResetActiveImportLPMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3ProfileType.IMPORT_ACTIVE_POWER_PROFILE.getObisCode()).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetActiveExportLP(final LoadProfileMessages.ResetActiveExportLPMessage message) throws IOException {
+    public final MessageResult resetActiveExportLP(final LoadProfileMessages.ResetActiveExportLPMessage message) throws IOException {
         getLogger().info("Received [ResetActiveExportLPMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3ProfileType.EXPORT_ACTIVE_POWER_PROFILE.getObisCode()).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetDailyLP(final LoadProfileMessages.ResetDailyProfileMessage message) throws IOException {
+    public final MessageResult resetDailyLP(final LoadProfileMessages.ResetDailyProfileMessage message) throws IOException {
         getLogger().info("Received [ResetDailyProfileMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3ProfileType.DAILY_PROFILE.getObisCode()).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetMonthlyLP(final LoadProfileMessages.ResetMonthlyProfileMessage message) throws IOException {
+    public final MessageResult resetMonthlyLP(final LoadProfileMessages.ResetMonthlyProfileMessage message) throws IOException {
         getLogger().info("Received [ResetMonthlyProfileMessage]. Resetting.");
         session.getCosemObjectFactory().getProfileGeneric(G3ProfileType.MONTHLY_PROFILE.getObisCode()).reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult resetPlcMacCounters(final PlcOfdmMacSetupMessages.ResetPlcOfdmMacCountersMessage message) throws IOException {
+    public final MessageResult resetPlcMacCounters(final PlcOfdmMacSetupMessages.ResetPlcOfdmMacCountersMessage message) throws IOException {
         getLogger().info("Received [ResetPlcOfdmMacCountersMessage]. Resetting.");
         this.session.getCosemObjectFactory().getPLCOFDMType2PHYAndMACCounters().reset();
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeMaxAgeTime(SixLoWPanMessages.SetMaxAgeTimeMessage message) throws IOException {
+    public final MessageResult writeMaxAgeTime(SixLoWPanMessages.SetMaxAgeTimeMessage message) throws IOException {
         getLogger().info("Received [SetMaxAgeTimeMessage]. Writing new value of [" + message.getMaxAgeTime() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeMaxAgeTime(message.getMaxAgeTime());
@@ -487,7 +521,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult changeHLSSecret(SecurityConfigurationMessages.ChangeHLSSecretMessage message) throws IOException {
+    public final MessageResult changeHLSSecret(SecurityConfigurationMessages.ChangeHLSSecretMessage message) throws IOException {
         getLogger().info("Received [ChangeHLSSecretMessage]. Writing new value of [" + message.getHLSSecret() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(message.getHLSSecret()));
@@ -495,7 +529,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult changeLLSSecret(SecurityConfigurationMessages.ChangeLLSSecretMessage message) throws IOException {
+    public final MessageResult changeLLSSecret(SecurityConfigurationMessages.ChangeLLSSecretMessage message) throws IOException {
         getLogger().info("Received [ChangeLLSSecretMessage]. Writing new value of [" + message.getLLSSecret() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getAssociationLN().writeSecret(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(message.getLLSSecret(), "")));
@@ -503,7 +537,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult changeEncryptionKey(SecurityConfigurationMessages.ChangeEncryptionKeyMessage message) throws IOException {
+    public final MessageResult changeEncryptionKey(SecurityConfigurationMessages.ChangeEncryptionKeyMessage message) throws IOException {
         String wrappedEncryptionKeyString = session.getProperties().getSecurityProvider().getNEWGlobalKeys()[1];
         String oldGlobalKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
         byte[] wrappedEncryptionKey = ProtocolTools.getBytesFromHexString(wrappedEncryptionKeyString, "");
@@ -532,7 +566,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult changeAuthenticationKey(SecurityConfigurationMessages.ChangeAuthenticationKeyMessage message) throws IOException {
+    public final MessageResult changeAuthenticationKey(SecurityConfigurationMessages.ChangeAuthenticationKeyMessage message) throws IOException {
         String wrappedAuthenticationKeyString = session.getProperties().getSecurityProvider().getNEWAuthenticationKeys()[1];
         byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(wrappedAuthenticationKeyString, "");
         getLogger().info("Received [ChangeAuthenticationKeyMessage], wrapped key is '" + wrappedAuthenticationKeyString + "'");
@@ -551,14 +585,14 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult activateSecurityLevel(SecurityConfigurationMessages.ActivateSecurityLevelMessage message) throws IOException {
+    public final MessageResult activateSecurityLevel(SecurityConfigurationMessages.ActivateSecurityLevelMessage message) throws IOException {
         getLogger().info("Received [ActivateSecurityLevelMessage]. Writing new value of [" + message.getSecurityLevel() + "].");
         getSecuritySetup().activateSecurity(new TypeEnum(message.getSecurityLevel()));
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult changeAuthenticationLevel(SecurityConfigurationMessages.ChangeAuthenticationLevelMessage message) throws IOException {
+    public final MessageResult changeAuthenticationLevel(SecurityConfigurationMessages.ChangeAuthenticationLevelMessage message) throws IOException {
         int newAuthLevel = message.getAuthenticationLevel();
         getLogger().info("Received [ChangeAuthenticationLevelMessage]. Writing new value of [" + newAuthLevel + "].");
         if (newAuthLevel < 3 || newAuthLevel > 5) {
@@ -583,7 +617,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeBroadcastLogTableEntryTTL(SixLoWPanMessages.SetBroadcastLogTableEntryTTLMessage message) throws IOException {
+    public final MessageResult writeBroadcastLogTableEntryTTL(SixLoWPanMessages.SetBroadcastLogTableEntryTTLMessage message) throws IOException {
         getLogger().info("Received [SetBroadcastLogTableEntryTTLMessage]. Writing new value of [" + message.getBroadcastLogTableEntryTTL() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeBroadcastLogTableTTL(message.getBroadcastLogTableEntryTTL());
@@ -591,7 +625,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeDiscoveryAttemptsSpeed(SixLoWPanMessages.SetDiscoveryAttemptsSpeedMessage message) throws IOException {
+    public final MessageResult writeDiscoveryAttemptsSpeed(SixLoWPanMessages.SetDiscoveryAttemptsSpeedMessage message) throws IOException {
         getLogger().info("Received [SetDiscoveryAttemptsSpeedMessage]. Writing new value of [" + message.getDiscoveryAttemptsSpeed() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeDiscoveryAttemptsSpeed(message.getDiscoveryAttemptsSpeed());
@@ -599,7 +633,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeToneMask(SixLoWPanMessages.SetToneMaskMessage message) throws IOException {
+    public final MessageResult writeToneMask(SixLoWPanMessages.SetToneMaskMessage message) throws IOException {
         getLogger().info("Received [SetToneMaskMessage]. Writing new value of [" + message.getToneMask() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeToneMask(message.getToneMask());
@@ -607,7 +641,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeActiveScanDuration(SixLoWPanMessages.SetActiveScanDurationMessage message) throws IOException {
+    public final MessageResult writeActiveScanDuration(SixLoWPanMessages.SetActiveScanDurationMessage message) throws IOException {
         getLogger().info("Received [SetActiveScanDurationMessage]. Writing new value of [" + message.getActiveScanDuration() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeActiveScanDuration(message.getActiveScanDuration());
@@ -615,7 +649,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeMaxPanConflictCount(SixLoWPanMessages.SetMaxPanConflictCountMessage message) throws IOException {
+    public final MessageResult writeMaxPanConflictCount(SixLoWPanMessages.SetMaxPanConflictCountMessage message) throws IOException {
         getLogger().info("Received [SetMaxPanConflictCountMessage]. Writing new value of [" + message.getMaxPanConflictCount() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeMaxPanConflictCount(message.getMaxPanConflictCount());
@@ -623,7 +657,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writePanConflictWaitTime(SixLoWPanMessages.SetPanConflictWaitTimeMessage message) throws IOException {
+    public final MessageResult writePanConflictWaitTime(SixLoWPanMessages.SetPanConflictWaitTimeMessage message) throws IOException {
         getLogger().info("Received [SetPanConflictWaitTimeMessage]. Writing new value of [" + message.getPanConflictWaitTime() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writePanConflictWaitTime(message.getPanConflictWaitTime());
@@ -631,7 +665,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeWeakLQIValue(SixLoWPanMessages.SetWeakLQIValueMessage message) throws IOException {
+    public final MessageResult writeWeakLQIValue(SixLoWPanMessages.SetWeakLQIValueMessage message) throws IOException {
         getLogger().info("Received [SetWeakLQIValueMessage]. Writing new value of [" + message.getWeakLQIValue() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeWeakLqiValue(message.getWeakLQIValue());
@@ -639,7 +673,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeMaxHops(SixLoWPanMessages.SetMaxHopsMessage message) throws IOException {
+    public final MessageResult writeMaxHops(SixLoWPanMessages.SetMaxHopsMessage message) throws IOException {
         getLogger().info("Received [SetMaxHopsMessage]. Writing new value of [" + message.getMaxHops() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getSixLowPanAdaptationLayerSetup().writeMaxHops(message.getMaxHops());
@@ -647,7 +681,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writePanId(PlcOfdmMacSetupMessages.SetPanIdMessage message) throws IOException {
+    public final MessageResult writePanId(PlcOfdmMacSetupMessages.SetPanIdMessage message) throws IOException {
         getLogger().info("Received [SetPanIdMessage]. Writing new value of [" + message.getPanId() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getPLCOFDMType2MACSetup().writePanID(message.getPanId());
@@ -655,7 +689,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeMaxOrphanTimer(PlcOfdmMacSetupMessages.SetMaxOrphanTimerMessage message) throws IOException {
+    public final MessageResult writeMaxOrphanTimer(PlcOfdmMacSetupMessages.SetMaxOrphanTimerMessage message) throws IOException {
         getLogger().info("Received [SetMaxOrphanTimerMessage]. Writing new value of [" + message.getMaxOrphanTimer() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
         cof.getPLCOFDMType2MACSetup().writeMaxOrphanTimer(message.getMaxOrphanTimer());
@@ -668,7 +702,7 @@ public class G3Messaging extends AnnotatedMessaging {
      * @throws java.io.IOException
      */
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult forceClockSync(final ForceSyncClockMessage message) throws IOException {
+    public final MessageResult forceClockSync(final ForceSyncClockMessage message) throws IOException {
         getLogger().info("Forcing clock sync to system time [" + new Date() + "] ...");
         new G3Clock(this.session).setTime();
         getLogger().info("Clock successfully synced to system time.");
@@ -676,7 +710,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult forceClockSync(final WriteClockMessage message) throws IOException {
+    public final MessageResult forceClockSync(final WriteClockMessage message) throws IOException {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         formatter.setTimeZone(session.getTimeZone());
@@ -700,7 +734,7 @@ public class G3Messaging extends AnnotatedMessaging {
      * @throws java.io.IOException mostly timeout errors
      */
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeProfileInterval(final WriteProfileIntervalMessage message) throws IOException {
+    public final MessageResult writeProfileInterval(final WriteProfileIntervalMessage message) throws IOException {
         int intervalInSeconds = message.getIntervalInSeconds();
         ObisCode obisCode = properties.getProfileType().getObisCode();
         getLogger().info("Setting profile interval of LP '" + obisCode + "'to " + intervalInSeconds);
@@ -709,7 +743,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writePlcG3Timeout(final WritePlcG3TimeoutMessage message) throws IOException {
+    public final MessageResult writePlcG3Timeout(final WritePlcG3TimeoutMessage message) throws IOException {
         int timeout = message.getTimeout();
         getLogger().info("Setting PLC G3 timeout to " + timeout + " minutes.");
         session.getCosemObjectFactory().getData(PLC_G3_TIMEOUT_OBISCODE).setValueAttr(new Unsigned16(timeout));
@@ -717,7 +751,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writeConsumerProducerMode(final WriteConsumerProducerModeMessage message) throws IOException {
+    public final MessageResult writeConsumerProducerMode(final WriteConsumerProducerModeMessage message) throws IOException {
         int mode = message.getMode();
         getLogger().info("Setting mode to " + (mode == 0 ? "consumer (0)" : "consumer/producer (1)"));
         session.getCosemObjectFactory().getData(PRODUCER_CONSUMER_MODE_OBISCODE).setValueAttr(new TypeEnum(mode));
@@ -725,7 +759,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult writePlcPSK(final WritePlcPskMessage message) throws IOException {
+    public final MessageResult writePlcPSK(final WritePlcPskMessage message) throws IOException {
         final byte[] psk = message.getPSK();
         getLogger().info("Writing new PSK [" + ProtocolTools.getHexStringFromBytes(psk, "") + "] to meter.");
         session.getCosemObjectFactory().getG3PlcSetPSK().setKey(psk);
@@ -738,7 +772,7 @@ public class G3Messaging extends AnnotatedMessaging {
      * @throws java.io.IOException
      */
     @RtuMessageHandler
-    public final com.energyict.protocol.MessageResult logObjectList(final LogObjectListMessage message) throws IOException {
+    public final MessageResult logObjectList(final LogObjectListMessage message) throws IOException {
         getLogger().info("Reading complete object list ...");
         final AssociationLN associationLN = this.session.getCosemObjectFactory().getAssociationLN();
         final UniversalObject[] buffer = associationLN.getBuffer();

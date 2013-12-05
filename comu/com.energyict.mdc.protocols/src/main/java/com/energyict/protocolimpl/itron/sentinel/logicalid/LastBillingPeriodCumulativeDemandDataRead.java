@@ -10,27 +10,25 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class LastBillingPeriodCumulativeDemandDataRead extends AbstractDataRead {
-    
+
     private RegisterData[] registerCumulativeTotalDatas;
     private RegisterData[][] registerCumulativeRateDatas;
-    
+
     /** Creates a new instance of CurrentCumulativeDemandDataRead */
     public LastBillingPeriodCumulativeDemandDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -44,36 +42,36 @@ public class LastBillingPeriodCumulativeDemandDataRead extends AbstractDataRead 
             }
         }
         return strBuff.toString();
-    } 
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
-       
+
         int offset=0;
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setRegisterCumulativeTotalDatas(new RegisterData[getDataReadFactory().getCapabilitiesDataRead().getNumberOfCumulativeDemands()]);
         for (int i=0;i<getRegisterCumulativeTotalDatas().length;i++) {
             RegisterData rd = new RegisterData(LogicalIDFactory.findLogicalId(getDataReadFactory().getQuantityIdentificationDataRead().getCumDemandLids()[i]),
-                                               new BigDecimal(Double.longBitsToDouble(C12ParseUtils.getLong(data, offset, 8, dataOrder)))); 
+                                               new BigDecimal(Double.longBitsToDouble(C12ParseUtils.getLong(data, offset, 8, dataOrder))));
             getRegisterCumulativeTotalDatas()[i]=rd;
             offset+=8;
         }
-        
+
         setRegisterCumulativeRateDatas(new RegisterData[getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates()][getDataReadFactory().getCapabilitiesDataRead().getNumberOfCumulativeDemands()]);
         for (int rate=0;rate<getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates();rate++) {
-            //registerRateDatas[rate] = new RegisterData[getDataReadFactory().getCapabilitiesDataRead().getNumberOfEnergies()];    
+            //registerRateDatas[rate] = new RegisterData[getDataReadFactory().getCapabilitiesDataRead().getNumberOfEnergies()];
             for (int i=0;i<getRegisterCumulativeRateDatas()[rate].length;i++) {
                 RegisterData rd = new RegisterData(LogicalIDFactory.findLogicalId(getDataReadFactory().getQuantityIdentificationDataRead().getCumDemandLids()[i]),
-                                                   new BigDecimal(Double.longBitsToDouble(C12ParseUtils.getLong(data, offset, 8, dataOrder))), 
-                                                   rate); 
+                                                   new BigDecimal(Double.longBitsToDouble(C12ParseUtils.getLong(data, offset, 8, dataOrder))),
+                                                   rate);
                 getRegisterCumulativeRateDatas()[rate][i]=rd;
                 offset+=8;
             }
-        }        
+        }
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         long[] lids = new long[]{LogicalIDFactory.findLogicalId("LAST_BP_ALL_SEC_CUMS_TOTAL").getId(),
                                  LogicalIDFactory.findLogicalId("LAST_BP_ALL_SEC_CUMS_RATE_A").getId(),
                                  LogicalIDFactory.findLogicalId("LAST_BP_ALL_SEC_CUMS_RATE_B").getId(),
@@ -82,9 +80,9 @@ public class LastBillingPeriodCumulativeDemandDataRead extends AbstractDataRead 
                                  LogicalIDFactory.findLogicalId("LAST_BP_ALL_SEC_CUMS_RATE_E").getId(),
                                  LogicalIDFactory.findLogicalId("LAST_BP_ALL_SEC_CUMS_RATE_F").getId(),
                                  LogicalIDFactory.findLogicalId("LAST_BP_ALL_SEC_CUMS_RATE_G").getId()};
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates()+1, lids));    
-        
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, getDataReadFactory().getCapabilitiesDataRead().getNumberOfTOURates()+1, lids));
+
     } // protected void prepareBuild() throws IOException
 
     public RegisterData[] getRegisterCumulativeTotalDatas() {
@@ -102,5 +100,5 @@ public class LastBillingPeriodCumulativeDemandDataRead extends AbstractDataRead 
     public void setRegisterCumulativeRateDatas(RegisterData[][] registerCumulativeRateDatas) {
         this.registerCumulativeRateDatas = registerCumulativeRateDatas;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

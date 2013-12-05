@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class FirmwareVersionCommand extends AbstractCommand {
-    
-    
-    
+
+
+
     private String productFamily; // bit 7..4 2=DX, 3=RX bit 3..0 major firmware version
     private String firmwareVersion;  // minor firmware version (BCD)
     private float numericFirmwareVersion;
@@ -29,15 +30,15 @@ public class FirmwareVersionCommand extends AbstractCommand {
     public FirmwareVersionCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public boolean isRX() {
         return ("3".compareTo(getProductFamily())==0);
     }
     public boolean isDX() {
         return ("2".compareTo(getProductFamily())==0);
     }
-    
-    
+
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -47,15 +48,15 @@ public class FirmwareVersionCommand extends AbstractCommand {
         strBuff.append("   numericFirmwareVersion="+getNumericFirmwareVersion()+"\n");
         strBuff.append("   productFamily="+getProductFamily()+"\n");
         return strBuff.toString();
-    }  
-        
+    }
+
     protected byte[] prepareBuild() {
         return new byte[]{8,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int len = data.length;
-        
+
         if (len==2) {
             setProductFamily(""+(data[0]>>4));
             setFirmwareVersion(""+(data[0]&0x0F)+"."+ProtocolUtils.BCD2hex(data[1]));

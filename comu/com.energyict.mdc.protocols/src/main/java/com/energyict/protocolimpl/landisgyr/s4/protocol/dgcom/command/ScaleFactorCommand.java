@@ -10,11 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 
 /**
@@ -22,14 +18,14 @@ import com.energyict.protocolimpl.base.*;
  * @author Koen
  */
 public class ScaleFactorCommand extends AbstractCommand {
-    
+
     private int scaleFactor;
-    
+
     /** Creates a new instance of TemplateCommand */
     public ScaleFactorCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -37,15 +33,15 @@ public class ScaleFactorCommand extends AbstractCommand {
         strBuff.append("   scaleFactor="+getScaleFactor()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         return new byte[]{(byte)0x8A,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setScaleFactor(((int)data[0]&0xFF)+1);
-                
+
     }
 
     public int getScaleFactor() {

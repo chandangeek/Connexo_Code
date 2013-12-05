@@ -6,17 +6,16 @@
 
 package com.energyict.protocolimpl.meteridentification;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class GEC extends AbstractManufacturer {
-/*    
+/*
 /GEC5090100100400@000<CR><LF>
 
 GEC   Manufacturers id (We were GEC, then ABB now Elster, but the original
@@ -26,7 +25,7 @@ one has been kept for continuity)
 010   Product Range (010 - A1700, 001 - PPM)
 010   Device No. The Device No is used for the firmware issue.
 04    Issue No.
-*/    
+*/
     /** Creates a new instance of GEC */
     public GEC() {
     }
@@ -34,8 +33,8 @@ one has been kept for continuity)
     public String getManufacturer() throws IOException {
         return "Elster";
     }
-    
-    
+
+
     private String getMasterUnit() {
         byte[] sub = getSignOnString().getBytes();
         return new String(ProtocolUtils.getSubArray(sub,5,6));
@@ -44,28 +43,28 @@ one has been kept for continuity)
         byte[] sub = getSignOnString().getBytes();
         return new String(ProtocolUtils.getSubArray(sub,7,9));
     }
-    
+
     public String getMeterProtocolClass() throws IOException {
         if ((getMasterUnit().compareTo("09") == 0) && (getProductRange().compareTo("010") == 0))
            return "com.energyict.protocolimpl.iec1107.abba1700.ABBA1700";
-        
+
         throw new IOException("Unknown metertype for signonstring "+getSignOnString());
     }
-    
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         if ((getMasterUnit().compareTo("09") == 0) && (getProductRange().compareTo("010") == 0))
            return null;
-        
+
         throw new IOException("Unknown metertype for signonstring "+getSignOnString());
     }
-    
+
     public String getMeterDescription() throws IOException {
         if ((getMasterUnit().compareTo("09") == 0) && (getProductRange().compareTo("010") == 0))
            return "IEC1107 FLAG Elster A1700";
-        
-        
+
+
         throw new IOException("Unknown metertype for signonstring "+getSignOnString());
-        
+
     }
-    
+
 }

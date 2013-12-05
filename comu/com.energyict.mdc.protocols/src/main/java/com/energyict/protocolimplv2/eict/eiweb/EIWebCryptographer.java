@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cpo.TypedProperties;
-import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class EIWebCryptographer implements ServerCryptographer {
     }
 
     @Override
-    public MD5Seed buildMD5Seed (DeviceIdentifier deviceIdentifier, String source) {
+    public MD5Seed buildMD5Seed (CanFindDevice deviceIdentifier, String source) {
         this.usageCount++;
         TypedProperties connectionTypeProperties = this.inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, this.comPort);
         if (connectionTypeProperties == null) {

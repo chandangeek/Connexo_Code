@@ -10,29 +10,24 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfileStatusTable extends AbstractTable {
-    
+
     private LoadProfileSetStatus loadProfileSet1Status;
     private LoadProfileSetStatus loadProfileSet2Status;
     private LoadProfileSetStatus loadProfileSet3Status;
     private LoadProfileSetStatus loadProfileSet4Status;
-    
+
     /** Creates a new instance of LoadProfileStatusTable */
     public LoadProfileStatusTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(63));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("LoadProfileStatusTable: \n");
@@ -42,13 +37,13 @@ public class LoadProfileStatusTable extends AbstractTable {
         strBuff.append("    loadProfileSet4Status="+getLoadProfileSet4Status()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         //ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         //ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int offset=0;
-        
+
         if ((cfgt.getStdTablesUsed()[8]&0x01) == 0x01) {
             setLoadProfileSet1Status(new LoadProfileSetStatus(tableData,offset,getTableFactory()));
             offset += LoadProfileSetStatus.getSize(getTableFactory());
@@ -65,8 +60,8 @@ public class LoadProfileStatusTable extends AbstractTable {
             setLoadProfileSet4Status(new LoadProfileSetStatus(tableData,offset,getTableFactory()));
             offset += LoadProfileSetStatus.getSize(getTableFactory());
         }
-        
-    }         
+
+    }
 
     public LoadProfileSetStatus getLoadProfileSet1Status() {
         return loadProfileSet1Status;

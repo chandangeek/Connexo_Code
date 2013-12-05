@@ -6,23 +6,23 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
+
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class TimeDateMD extends MeterReadingsBlockImpl {
-    
+
 	private int regId;
 	private int regIdEnergyIndex;
 	private int regIdRegisterNumber;
 	private Date currentTime;
 	private Date billingTime;
-    
+
     /** Creates a new instance of TimeDateMD
      * @param data data to construct object
      */
@@ -36,8 +36,8 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
                ", REGISTER_NUMBER="+getRegIdRegisterNumber()+
                "), CURRENT_TIME="+(getCurrentTime()==null?"N/A":getCurrentTime().toString())+
                ", BILLING_TIME="+(getBillingTime()==null?"N/A":getBillingTime().toString());
-    }   
-    
+    }
+
     protected void parse() throws java.io.IOException {
         setRegId(ProtocolUtils.byte2int(getData()[1]));
         setRegIdEnergyIndex(getRegId()>>5);
@@ -53,16 +53,16 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
 			setBillingTime(null);
 		} else {
 			setBillingTime(PactUtils.getCalendar(val,5,getTimeZone()).getTime());
-		} 
+		}
     }
-    
+
     /** Getter for property regId.
      * @return Value of property regId.
      */
     public int getRegId() {
         return regId;
     }
-    
+
     /** Setter for property regId.
      * @param regId New value of property regId.
      *
@@ -70,7 +70,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public void setRegId(int regId) {
         this.regId = regId;
     }
-    
+
     /** Getter for property regIdEnergyIndex.
      * @return Value of property regIdEnergyIndex.
      *
@@ -78,7 +78,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public int getRegIdEnergyIndex() {
         return regIdEnergyIndex;
     }
-    
+
     /** Setter for property regIdEnergyIndex.
      * @param regIdEnergyIndex New value of property regIdEnergyIndex.
      *
@@ -86,7 +86,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public void setRegIdEnergyIndex(int regIdEnergyIndex) {
         this.regIdEnergyIndex = regIdEnergyIndex;
     }
-    
+
     /** Getter for property regIdRegisterNumber.
      * @return Value of property regIdRegisterNumber.
      *
@@ -94,7 +94,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public int getRegIdRegisterNumber() {
         return regIdRegisterNumber;
     }
-    
+
     /** Setter for property regIdRegisterNumber.
      * @param regIdRegisterNumber New value of property regIdRegisterNumber.
      *
@@ -102,7 +102,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public void setRegIdRegisterNumber(int regIdRegisterNumber) {
         this.regIdRegisterNumber = regIdRegisterNumber;
     }
-    
+
     /** Getter for property currentTime.
      * @return Value of property currentTime.
      *
@@ -110,14 +110,14 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public Date getCurrentTime() {
         return currentTime;
     }
-    
+
     /** Setter for property currentTime.
      * @param currentTime New value of property currentTime.
      */
     public void setCurrentTime(Date currentTime) {
         this.currentTime = currentTime;
     }
-    
+
     /** Getter for property billingTime.
      * @return Value of property billingTime.
      *
@@ -125,7 +125,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public Date getBillingTime() {
         return billingTime;
     }
-    
+
     /** Setter for property billingTime.
      * @param billingTime New value of property billingTime.
      *
@@ -133,5 +133,5 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
     public void setBillingTime(Date billingTime) {
         this.billingTime = billingTime;
     }
-    
+
 }

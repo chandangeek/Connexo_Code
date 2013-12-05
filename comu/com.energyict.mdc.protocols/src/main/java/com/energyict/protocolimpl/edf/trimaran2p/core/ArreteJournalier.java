@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -16,25 +16,25 @@ import java.math.BigDecimal;
  *
  */
 public class ArreteJournalier extends AbstractTrimaranObject{
-	
+
 	private int variableName;
-	
+
 	private DateType dernierHoroDate;	// date en cours au moment de la lecture
 	private Quantity[] ixJour 		= {null, null,		// Index courants des Energies EacpJ, EacnJ en kWh,
 										null, null,		// Erc1J, Erc3J, Erc2J, Erc4J en kvarh
-										null, null};	
+										null, null};
 	private Quantity[] ixJourmoins1 = {null, null,		// Index courants des Energies EacpJ-1, EacnJ-1 en kWh,
 										null, null,		// Erc1J-1, Erc3J-1, Erc2J-1, Erc4J-1 en kvarh
-										null, null};	
+										null, null};
 	private Quantity[] ixJourmoins2 = {null, null,		// Index courants des Energies EacpJ-2, EacnJ-2 en kWh,
 										null, null,		// Erc1J-2, Erc3J-2, Erc2J-2, Erc4J-2 en kvarh
-										null, null};	
+										null, null};
 	private Quantity[] ixJourmoins3 = {null, null,		// Index courants des Energies EacpJ-3, EacnJ-3 en kWh,
 										null, null,		// Erc1J-3, Erc3J-3, Erc2J-3, Erc4J-3 en kvarh
-										null, null};	
+										null, null};
 
 	/**
-	 * 
+	 *
 	 */
 	public ArreteJournalier(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
@@ -55,7 +55,7 @@ public class ArreteJournalier extends AbstractTrimaranObject{
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
-		
+
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		for(int i = 0; i <= 5; i++){
 			if (i < 2){
@@ -170,41 +170,41 @@ public class ArreteJournalier extends AbstractTrimaranObject{
 	public void setVariableName(int variableName) {
 		this.variableName = variableName;
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
-		
+
 		strBuff.append("*** ArretJournalier: ***\n");
 		strBuff.append("	- DateFinPeriode: " + getDernierHoroDate());
-		
+
 		strBuff.append("	- IxJour EacpJ: " + getIxJour(0));strBuff.append("\n");
 		strBuff.append("	- IxJour EacnJ: " + getIxJour(1));strBuff.append("\n");
 		strBuff.append("	- IxJour Erc1J: " + getIxJour(2));strBuff.append("\n");
 		strBuff.append("	- IxJour Erc3J: " + getIxJour(3));strBuff.append("\n");
 		strBuff.append("	- IxJour Erc2J: " + getIxJour(4));strBuff.append("\n");
 		strBuff.append("	- IxJour Erc4J: " + getIxJour(5));strBuff.append("\n");
-		
+
 		strBuff.append("	- IxJourmoins1 EacpJ-1: " + getIxJourmoins1(0));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins1 EacnJ-1: " + getIxJourmoins1(1));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins1 Erc1J-1: " + getIxJourmoins1(2));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins1 Erc3J-1: " + getIxJourmoins1(3));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins1 Erc2J-1: " + getIxJourmoins1(4));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins1 Erc4J-1: " + getIxJourmoins1(5));strBuff.append("\n");
-		
+
 		strBuff.append("	- IxJourmoins2 EacpJ-2: " + getIxJourmoins2(0));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins2 EacnJ-2: " + getIxJourmoins2(1));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins2 Erc1J-2: " + getIxJourmoins2(2));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins2 Erc3J-2: " + getIxJourmoins2(3));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins2 Erc2J-2: " + getIxJourmoins2(4));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins2 Erc4J-2: " + getIxJourmoins2(5));strBuff.append("\n");
-		
+
 		strBuff.append("	- IxJourmoins3 EacpJ-3: " + getIxJourmoins3(0));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins3 EacnJ-3: " + getIxJourmoins3(1));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins3 Erc1J-3: " + getIxJourmoins3(2));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins3 Erc3J-3: " + getIxJourmoins3(3));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins3 Erc2J-3: " + getIxJourmoins3(4));strBuff.append("\n");
 		strBuff.append("	- IxJourmoins3 Erc4J-3: " + getIxJourmoins3(5));strBuff.append("\n");
-		
+
 		return strBuff.toString();
 	}
 

@@ -10,22 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SetApplied {
-    
+
     private int setFlagsBitfield; // 8 bit
     private Number ratioF1;
     private Number ratioP1;
-    
+
     /** Creates a new instance of SetApplied */
     public SetApplied(byte[] data,int offset, int niFormat, int dataFormat) throws IOException {
         setSetFlagsBitfield(C12ParseUtils.getInt(data,offset));
@@ -38,15 +36,15 @@ public class SetApplied {
     public String toString() {
         return "SetApplied: setFlagsBitfield=0x"+Integer.toHexString(getSetFlagsBitfield())+", ratioF1="+getRatioF1()+", ratioP1="+getRatioP1();
     }
-    
+
     public boolean isSetAppliedBit() {
         return (setFlagsBitfield & 0x01) == 0x01;
     }
-    
+
     static public int getSize(int niFormat) throws IOException {
         return C12ParseUtils.getNonIntegerSize(niFormat)*2+1;
     }
-    
+
     public int getSetFlagsBitfield() {
         return setFlagsBitfield;
     }
@@ -70,5 +68,5 @@ public class SetApplied {
     public void setRatioP1(Number ratioP1) {
         this.ratioP1 = ratioP1;
     }
-    
+
 }

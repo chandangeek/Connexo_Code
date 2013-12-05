@@ -1,15 +1,28 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS.a1800;
 
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.coronis.waveflowDLMS.*;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.A1800;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.AS1253;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.BatchObisCodeReader;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.TransparantObjectAccessFactory;
+import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class ProfileDataReader {
 
@@ -156,12 +169,12 @@ public class ProfileDataReader {
             for (AbstractDataType arrayElement : array.getAllDataTypes()) {
                 DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), a1800.getTimeZone());
                 Date date = dateTime.getValue().getTime();
-/*			
-            Example: 
+/*
+            Example:
 			OctetString=$07$DB$01$03$00$10$0E$39$00$00$00$00
 			  Unsigned16=10    sequence nr
 			  Unsigned16=0     user id
-			  Unsigned16=2060  event nr		 	
+			  Unsigned16=2060  event nr
 */
                 int meterEventCode2MeterEvents = arrayElement.getStructure().getDataType(3).intValue();
                 meterEvents.add(meterEventCode2MeterEvent(date, meterEventCode2MeterEvents));

@@ -10,70 +10,72 @@
 
 package com.energyict.protocolimpl.transdata.markv.core;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocol.HalfDuplexEnabler;  
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-
-import com.energyict.protocolimpl.transdata.markv.core.connection.*;
-import com.energyict.protocolimpl.transdata.markv.core.commands.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.transdata.markv.MarkV;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  *
  * @author Koen
  */
 public class MarkVProfile {
-    
+
     MarkV markV;
-    
-    
+
+
     /** Creates a new instance of MarkVProfile */
     public MarkVProfile(MarkV markV) {
         this.markV=markV;
     }
-    
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         ProfileData profileData=null;
         int nrOfDays = ParseUtils.getNrOfDays(lastReading,new Date(),markV.getTimeZone());
         int nrOfIntervalsParDay = ((24*3600) / markV.getProfileInterval());
-        
+
         ProtocolChannelMap pcm = markV.getCommandFactory().getDCCommand().getProtocolChannelMap();
-        
+
         int nrOfRecords = nrOfDays * nrOfIntervalsParDay * pcm.getNrOfUsedProtocolChannels();
-        
+
         Calendar cal = checkIfTimeValid();
-        
-        
+
+
         List intervals = markV.getCommandFactory().getRCCommand(nrOfRecords).getIntervals();
         profileData = new ProfileData();
-        
+
         profileData.setChannelInfos(getChannelInfos());
         int eiStatus=0,protocolStatus=0;
         boolean intervalTimeCorrection=false;
         Iterator it = intervals.iterator();
         while(it.hasNext()) {
             int[] channelValues = (int[])it.next();
-            eiStatus=protocolStatus=0; // KV_TO_DO 
+            eiStatus=protocolStatus=0; // KV_TO_DO
             IntervalData intervalData = new IntervalData(((Calendar)cal.clone()).getTime(),eiStatus,protocolStatus);
             for(int channel=0;channel<channelValues.length;channel++) {
                 if (markV.getCommandFactory().getISCommand().isRecordingType2()) {
                     protocolStatus=(channelValues[channel]&0xE000)>>12;
-                    eiStatus=intervalTimeCorrection?mapIntervalStatus(protocolStatus)|IntervalStateBits.SHORTLONG:mapIntervalStatus(protocolStatus);
+                    eiStatus=intervalTimeCorrection?mapIntervalStatus(protocolStatus)| IntervalStateBits.SHORTLONG:mapIntervalStatus(protocolStatus);
                     channelValues[channel] &= 0x1FFF;
                 }
                 intervalData.addValue(new Integer(channelValues[channel]), protocolStatus, eiStatus);
             }
-            
-            // all interval tuime correction marked intervals are informative 
+
+            // all interval tuime correction marked intervals are informative
             // see communications manual for the MarkV meter at page 6
-            if (protocolStatus != INTERVAL_TIME_CORRECTION) { 
+            if (protocolStatus != INTERVAL_TIME_CORRECTION) {
                 intervalTimeCorrection=false;
                 profileData.addInterval(intervalData);
                 cal.add(Calendar.SECOND,(-1)*markV.getProfileInterval());
@@ -85,16 +87,16 @@ public class MarkVProfile {
             profileData.setMeterEvents(getMeterEvents());
             profileData.applyEvents(markV.getProfileInterval()/60);
         }
-        
+
         profileData.sort();
-        
+
         return profileData;
     }
-    
+
     private List getMeterEvents() throws IOException {
         return markV.getCommandFactory().getRVCommand(256).getMeterEvents();
     }
-    
+
     static private final int END_OF_INTERVAL_WITH_POWEROUTAGE = 0x6;
     static private final int ENTIRE_INTERVAL_POWERDOWN = 0x8;
     static private final int END_OF_INTERVAL_DURING_DEMAND_DEFERRAL = 0xA;
@@ -129,8 +131,8 @@ public class MarkVProfile {
         }
         return 0;
     }
-    
-    
+
+
     private List getChannelInfos() throws IOException {
         // KV_TO_DO
         ProtocolChannelMap pcm = markV.getCommandFactory().getDCCommand().getProtocolChannelMap();
@@ -143,14 +145,14 @@ public class MarkVProfile {
                     // KV_TO_DO
                 }
                 else {
-                    // KV_TO_DO obiscode aanpassen volgens energy or demand... 
-                    channelInfos.add(new ChannelInfo(count++,"1."+(channel+1)+".82.8.0.255",Unit.get(""))); //,channel+1));    
+                    // KV_TO_DO obiscode aanpassen volgens energy or demand...
+                    channelInfos.add(new ChannelInfo(count++,"1."+(channel+1)+".82.8.0.255", Unit.get(""))); //,channel+1));
                 }
             }
         }
         return channelInfos;
     }
-    
+
     private Calendar checkIfTimeValid() throws IOException {
         Date date=null;
         long offset2IntervalBoundary=0;
@@ -169,14 +171,14 @@ public class MarkVProfile {
             }
             else break;
         } // while(true)
-        
+
         Calendar cal = ProtocolUtils.getCleanCalendar(markV.getTimeZone());
         cal.setTime(date);
         cal.add(Calendar.SECOND,(-1)*(int)offset2IntervalBoundary);
         return cal;
-        
+
     } // private Calendar checkIfTimeValid()
-    
+
     static public void main(String[] args) {
         try {
             MarkVProfile mp = new MarkVProfile(null);

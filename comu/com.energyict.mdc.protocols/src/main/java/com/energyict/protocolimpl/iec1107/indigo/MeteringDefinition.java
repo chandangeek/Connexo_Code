@@ -6,22 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.cbo.Unit;
+
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class MeteringDefinition extends AbstractLogicalAddress {
-    
+
     private static final int MAX_CHANNELS=12;
-    
+
     // partially implemented
-    
+
     Unit[] units={Unit.get("Wh"),
                  Unit.get("Wh"),
                  Unit.get("varh"),
@@ -38,7 +37,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
                  Unit.get(""),
                  Unit.get(""),
                  Unit.get("")};
-                 
+
     int channelUnits; // bit 0: kWh import
                       // bit 1: kWh export
                       // bit 2: kvarh import
@@ -56,16 +55,16 @@ public class MeteringDefinition extends AbstractLogicalAddress {
                       // bit14: reserved
                       // bit15: reserved
     int apparentQuadrantDefinition; // bit 0..3: Q1..4
-    int nrOfBillingPeriodsStored; 
+    int nrOfBillingPeriodsStored;
     int nrOfIntervalRecordingChannels;
     int redThreshold;
     int redUnits;
-    
+
     /** Creates a new instance of MeteringDefinition */
     public MeteringDefinition(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
     }
-    
+
     public String toString() {
         return "MeterDefinition: channelUnits=0x"+Integer.toHexString(getChannelUnits())+
                ", apparentQuadrantDefinition=0x"+Integer.toHexString(getApparentQuadrantDefinition())+
@@ -73,9 +72,9 @@ public class MeteringDefinition extends AbstractLogicalAddress {
                ", nrOfIntervalRecordingChannels="+getNrOfIntervalRecordingChannels()+
                ", redThreshold="+getRedThreshold()+
                ", redUnits="+getRedUnits();
-               
+
     }
-    
+
     public void parse(byte[] data, java.util.TimeZone timeZone) throws IOException {
         // First 6 bytes absorbed
         setChannelUnits(ProtocolUtils.getInt(data,6,2));
@@ -85,11 +84,11 @@ public class MeteringDefinition extends AbstractLogicalAddress {
         setRedThreshold(ProtocolUtils.getInt(data,11,1));
         setRedUnits(ProtocolUtils.getInt(data,12,1));
     }
-    
+
     public boolean isChannelUnitsStatusFlagsChannel() {
         return (getChannelUnits() & 0x800) == 0x800;
     }
-    
+
     public int getChannelId(int index) {
         int channelCount=0;
         for (int i=0;i<MAX_CHANNELS;i++) {
@@ -102,7 +101,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
         }
         return -1;
     }
-    
+
     public Unit getChannelUnit(int index) {
         return units[index];
     }
@@ -113,8 +112,8 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public int getChannelUnits() {
         return channelUnits;
     }
-    
-    
+
+
     /**
      * Setter for property channelUnits.
      * @param channelUnits New value of property channelUnits.
@@ -122,7 +121,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public void setChannelUnits(int channelUnits) {
         this.channelUnits = channelUnits;
     }
-    
+
     /**
      * Getter for property apparentQuadrantDefinition.
      * @return Value of property apparentQuadrantDefinition.
@@ -130,7 +129,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public int getApparentQuadrantDefinition() {
         return apparentQuadrantDefinition;
     }
-    
+
     /**
      * Setter for property apparentQuadrantDefinition.
      * @param apparentQuadrantDefinition New value of property apparentQuadrantDefinition.
@@ -138,7 +137,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public void setApparentQuadrantDefinition(int apparentQuadrantDefinition) {
         this.apparentQuadrantDefinition = apparentQuadrantDefinition;
     }
-    
+
     /**
      * Getter for property nrOfBillingPeriodsStored.
      * @return Value of property nrOfBillingPeriodsStored.
@@ -146,7 +145,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public int getNrOfBillingPeriodsStored() {
         return nrOfBillingPeriodsStored;
     }
-    
+
     /**
      * Setter for property nrOfBillingPeriodsStored.
      * @param nrOfBillingPeriodsStored New value of property nrOfBillingPeriodsStored.
@@ -154,7 +153,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public void setNrOfBillingPeriodsStored(int nrOfBillingPeriodsStored) {
         this.nrOfBillingPeriodsStored = nrOfBillingPeriodsStored;
     }
-    
+
     /**
      * Getter for property nrOfIntervalRecordingChannels.
      * @return Value of property nrOfIntervalRecordingChannels.
@@ -162,7 +161,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public int getNrOfIntervalRecordingChannels() {
         return nrOfIntervalRecordingChannels;
     }
-    
+
     /**
      * Setter for property nrOfIntervalRecordingChannels.
      * @param nrOfIntervalRecordingChannels New value of property nrOfIntervalRecordingChannels.
@@ -170,7 +169,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public void setNrOfIntervalRecordingChannels(int nrOfIntervalRecordingChannels) {
         this.nrOfIntervalRecordingChannels = nrOfIntervalRecordingChannels;
     }
-    
+
     /**
      * Getter for property redThreshold.
      * @return Value of property redThreshold.
@@ -178,7 +177,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public int getRedThreshold() {
         return redThreshold;
     }
-    
+
     /**
      * Setter for property redThreshold.
      * @param redThreshold New value of property redThreshold.
@@ -186,7 +185,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public void setRedThreshold(int redThreshold) {
         this.redThreshold = redThreshold;
     }
-    
+
     /**
      * Getter for property redUnits.
      * @return Value of property redUnits.
@@ -194,7 +193,7 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public int getRedUnits() {
         return redUnits;
     }
-    
+
     /**
      * Setter for property redUnits.
      * @param redUnits New value of property redUnits.
@@ -202,5 +201,5 @@ public class MeteringDefinition extends AbstractLogicalAddress {
     public void setRedUnits(int redUnits) {
         this.redUnits = redUnits;
     }
-    
+
 }

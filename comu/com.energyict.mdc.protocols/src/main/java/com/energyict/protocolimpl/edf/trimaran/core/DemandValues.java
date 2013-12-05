@@ -10,14 +10,16 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class DemandValues {
-    
+
     private List intervals;
     private Calendar cal;
     private int tariff;
@@ -28,7 +30,7 @@ public class DemandValues {
         this.setCal(cal);
         this.setTariff(tariff);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DemandValues:\n");
@@ -39,7 +41,7 @@ public class DemandValues {
         }
         return strBuff.toString();
     }
-    
+
     public void addValue(Interval interval) {
         getIntervals().add(interval);
     }

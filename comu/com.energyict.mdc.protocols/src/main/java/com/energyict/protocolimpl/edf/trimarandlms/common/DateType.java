@@ -10,9 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 /**
@@ -20,12 +23,12 @@ import java.util.*;
  * @author Koen
  */
 public class DateType {
-    
+
     private Calendar calendar;
     private byte[] data;
-    
+
     /** Creates a new instance of DateType */
-    
+
     public DateType(Date date, TimeZone timeZone) {
         setCalendar(ProtocolUtils.getCleanCalendar(timeZone));
         getCalendar().setTime(date);
@@ -43,14 +46,14 @@ public class DateType {
         getData()[2] = (byte)(temp>>16);
         getData()[3] = (byte)(temp>>8);
         getData()[4] = (byte)(temp);
-        
+
         // skip the 100-ths of seconds
     }
-    
+
     public String toString() {
         return "DateType= "+calendar.getTime()+"\n";
     }
-    
+
     static public byte[] getDataFromLong(long lData) {
         byte[] data = new byte[5];
         data[0] = (byte)(lData>>32);
@@ -58,16 +61,16 @@ public class DateType {
         data[2] = (byte)(lData>>16);
         data[3] = (byte)(lData>>8);
         data[4] = (byte)(lData);
-        return data;        
+        return data;
     }
-    
+
     public DateType(long lData, TimeZone timeZone) throws IOException {
         this(getDataFromLong(lData),0, timeZone);
     }
     public DateType(byte[] data, int offset, TimeZone timeZone) throws IOException {
-        
-//System.out.println(ProtocolUtils.outputHexString(data));        
-        
+
+//System.out.println(ProtocolUtils.outputHexString(data));
+
        setCalendar(ProtocolUtils.getCleanCalendar(timeZone));
        int temp = ProtocolUtils.getInt(data,offset, 2);
        temp >>=9;
@@ -80,9 +83,9 @@ public class DateType {
        temp = ProtocolUtils.getInt(data,offset, 2);
        temp &= 0x001F;
        getCalendar().set(Calendar.DAY_OF_MONTH,temp);
-       
+
        offset+=2;
-       
+
        temp = ProtocolUtils.getInt(data,offset, 3);
        temp >>=19;
        temp&=0x00001F;
@@ -95,11 +98,11 @@ public class DateType {
        temp >>=7;
        temp&=0x00003F;
        getCalendar().set(Calendar.SECOND,temp);
-       
+
        // skip the 100-ths of seconds
     }
-   
-    
+
+
     public Calendar getCalendar() {
         return calendar;
     }
@@ -115,5 +118,5 @@ public class DateType {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
 }

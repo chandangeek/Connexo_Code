@@ -10,26 +10,27 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import java.io.*;
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractRemoteProcedure {
-    
+
     abstract public int getFunctionName();
     abstract public byte[] getParameters();
-    
+
     private RemoteProcedureCallFactory remoteProcedureCallFactory;
-    
+
     /** Creates a new instance of AbstractRemoteProcedure */
     public AbstractRemoteProcedure(RemoteProcedureCallFactory remoteProcedureCallFactory) {
-        this.setRemoteProcedureCallFactory(remoteProcedureCallFactory);   
+        this.setRemoteProcedureCallFactory(remoteProcedureCallFactory);
     }
-    
-    public void invoke() throws IOException { 
+
+    public void invoke() throws IOException {
         getRemoteProcedureCallFactory().getProtocolLink().getDataDefinitionFactory().setRemoteProcedureCall(this);
     }
 
@@ -40,5 +41,5 @@ abstract public class AbstractRemoteProcedure {
     public void setRemoteProcedureCallFactory(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         this.remoteProcedureCallFactory = remoteProcedureCallFactory;
     }
-    
+
 }

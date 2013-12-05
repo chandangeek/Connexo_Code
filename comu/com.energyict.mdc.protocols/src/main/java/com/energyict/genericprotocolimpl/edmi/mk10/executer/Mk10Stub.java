@@ -1,17 +1,17 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.edmi.mk10.MK10;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 /**
  * Stub MK10Protocol used for testing

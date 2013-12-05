@@ -3,26 +3,23 @@
  *
  * Created on 8 december 2006, 15:26
  *
- * To change this template, choose Tools | Options and locate the template under 
+ * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose
  * Open. You can then make changes to the template in the Source Editor.
  */
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DemandRegisterConfiguration extends AbstractDataDefinition {
-    
+
     private DemandRegister[] demandRegisters=null;
-    
+
     /** Creates a new instance of GeneralDiagnosticInfo */
     public DemandRegisterConfiguration(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
@@ -37,20 +34,20 @@ public class DemandRegisterConfiguration extends AbstractDataDefinition {
         }
         return strBuff.toString();
     }
-        
+
     public DemandRegister findDemandRegister(QuantityId qid, int demandType) throws IOException {
-    
+
         for (int register=0;register<demandRegisters.length;register++) {
             if ((demandRegisters[register].getQuantityId().getId() == qid.getId()) || (demandRegisters[register].getDemandType()==demandType))
                 return demandRegisters[register];
         }
         throw new IOException("DemandRegisterConfiguration, findDemandRegister, invalid quantity id "+qid+" and/or demand type "+demandType);
-    }    
-    
+    }
+
     protected int getVariableName() {
         return 0x0020; // 32 // DLMS_DEMAND_REGISTER_CONFIG
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         MeterSetup meterSetup = getDataDefinitionFactory().getMeterSetup();
@@ -60,7 +57,7 @@ public class DemandRegisterConfiguration extends AbstractDataDefinition {
             getDemandRegisters()[i] = new DemandRegister(data,offset,meterSetup);
             offset += DemandRegister.size();
         }
-        
+
     } // protected void parse(byte[] data) throws IOException
 
     public DemandRegister[] getDemandRegisters() {

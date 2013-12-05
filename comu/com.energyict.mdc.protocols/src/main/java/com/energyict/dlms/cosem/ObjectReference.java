@@ -1,9 +1,9 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
- * 
+ *
  * @author Koen
  */
 public class ObjectReference {
@@ -19,7 +19,7 @@ public class ObjectReference {
 
 	/**
 	 * Creates a new instance of ObjectReference
-	 * 
+	 *
 	 * @param ln
 	 */
 	public ObjectReference(byte[] ln) {
@@ -28,7 +28,7 @@ public class ObjectReference {
 
 	/**
 	 * Creates a new instance of ObjectReference
-	 * 
+	 *
 	 * @param ln
 	 * @param classId
 	 */
@@ -40,7 +40,7 @@ public class ObjectReference {
 
 	/**
 	 * Creates a new instance of ObjectReference
-	 * 
+	 *
 	 * @param sn
 	 */
 	public ObjectReference(int sn) {
@@ -50,7 +50,7 @@ public class ObjectReference {
 
 	/**
 	 * Check if the long name is an abstract LN
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isAbstract() {
@@ -59,7 +59,7 @@ public class ObjectReference {
 
 	/**
 	 * Check if short name referencing is used
-	 * 
+	 *
 	 * @return true if short name referencing is used.
 	 */
 	public boolean isSNReference() {
@@ -68,7 +68,7 @@ public class ObjectReference {
 
 	/**
 	 * Check if long name referencing is used
-	 * 
+	 *
 	 * @return true if long name referencing is used.
 	 */
 	public boolean isLNReference() {
@@ -77,7 +77,7 @@ public class ObjectReference {
 
 	/**
 	 * Getter for property ln.
-	 * 
+	 *
 	 * @return Value of property ln.
 	 */
 	public byte[] getLn() {
@@ -86,7 +86,7 @@ public class ObjectReference {
 
 	/**
 	 * Getter for property sn.
-	 * 
+	 *
 	 * @return Value of property sn.
 	 */
 	public int getSn() {
@@ -95,7 +95,7 @@ public class ObjectReference {
 
 	/**
 	 * Getter for property classId.
-	 * 
+	 *
 	 * @return Value of property classId.
 	 */
 	public int getClassId() {

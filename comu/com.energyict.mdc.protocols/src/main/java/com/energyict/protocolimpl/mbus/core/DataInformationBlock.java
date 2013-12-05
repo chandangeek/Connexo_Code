@@ -13,7 +13,9 @@ package com.energyict.protocolimpl.mbus.core;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -21,10 +23,10 @@ import java.util.*;
  * @author kvds
  */
 public class DataInformationBlock {
-    
+
     private DataInformationfield dataInformationfield;
     private List dataInformationfieldExtensions;
-    
+
     /** Creates a new instance of DataInformationBlock */
     public DataInformationBlock(byte[] data, int offset, TimeZone timeZone) throws IOException {
         setDataInformationfield(new DataInformationfield(ProtocolUtils.getInt(data,offset++,1)));
@@ -38,12 +40,12 @@ public class DataInformationBlock {
             }
         }
     }
-    
-    
+
+
     // use dif's storage bit and all subsequent dife's if any to construct the storagenumber...
     public long getStorageNumber() {
         long storageNumber=0;
-        if (dataInformationfield.isLsbStorageNumber()) 
+        if (dataInformationfield.isLsbStorageNumber())
             storageNumber |= 1;
         for (int i=0;i<dataInformationfieldExtensions.size();i++) {
             DataInformationfieldExtension dife = (DataInformationfieldExtension)dataInformationfieldExtensions.get(i);
@@ -53,7 +55,7 @@ public class DataInformationBlock {
         }
         return storageNumber;
     }
-    
+
     // use all subsequent dife's if any to construct the tariff number...
     public int getTariffNumber() {
         int tariffNumber=0;
@@ -65,7 +67,7 @@ public class DataInformationBlock {
         }
         return tariffNumber;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -74,7 +76,7 @@ public class DataInformationBlock {
         strBuff.append("   dataInformationfieldExtensions="+getDataInformationfieldExtensions()+"\n");
         return strBuff.toString();
     }
-    
+
     public int size() {
         return 1+getDataInformationfieldExtensions().size();
     }
@@ -94,9 +96,9 @@ public class DataInformationBlock {
     public void setDataInformationfieldExtensions(List dataInformationfieldExtensions) {
         this.dataInformationfieldExtensions = dataInformationfieldExtensions;
     }
- 
+
     public static void main(String[] args) {
-        
+
         try {
         byte[] data = new byte[]{(byte)0x85,(byte)0x91,(byte)0x11,(byte)0x08,(byte)0x2c,(byte)0x1e,(byte)0x30,(byte)0x53};
         DataInformationBlock o = new DataInformationBlock(data,0, TimeZone.getTimeZone("ECT"));
@@ -107,5 +109,5 @@ public class DataInformationBlock {
             e.printStackTrace();
         }
     }
-    
+
 }

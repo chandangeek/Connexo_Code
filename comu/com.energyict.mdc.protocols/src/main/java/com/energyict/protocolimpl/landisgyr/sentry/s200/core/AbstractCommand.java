@@ -10,20 +10,21 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractCommand {
-    
+
     private CommandFactory commandFactory;
-    
+
     abstract protected void parse(byte[] data) throws IOException;
-     
+
     abstract protected CommandDescriptor getCommandDescriptor();
-    
+
     /** Creates a new instance of AbstractCommand */
     public AbstractCommand(CommandFactory commandFactory) {
         this.setCommandFactory(commandFactory);
@@ -36,20 +37,20 @@ abstract public class AbstractCommand {
     public void setCommandFactory(CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
     }
-    
+
     protected byte[] prepareData() throws IOException {
         return new byte[6];
     }
-    
+
     public void build() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write(prepareData());
         baos.write(getCommandFactory().getS200().getInfoTypePassword().getBytes());
         ResponseData responseData = getCommandFactory().getS200().getS200Connection().sendCommand(getCommandDescriptor().getCommand(), baos.toByteArray());
         if (responseData!=null) {
-            
+
             if (responseData.getStatus().isError()) {
-    
+
                 StringBuffer strBuff = new StringBuffer();
                 if (responseData.getStatus().isCommandFormatError())
                     strBuff.append("command format error, ");
@@ -67,15 +68,15 @@ abstract public class AbstractCommand {
                     strBuff.append("ram failure, ");
                 if (responseData.getStatus().isRomFailure())
                     strBuff.append("rom failure, ");
-                
-        
+
+
                 throw new IOException("AbstractCommand, "+getCommandDescriptor()+", "+strBuff.toString());
             }
-            
+
             parse(responseData.getData());
         }
-        
-        
+
+
     }
-    
+
 }

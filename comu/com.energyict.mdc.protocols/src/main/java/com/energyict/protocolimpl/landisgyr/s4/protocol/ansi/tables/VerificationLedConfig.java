@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class VerificationLedConfig {
-    
+
     private int verificationLEDCntrl; // : UINT8;
     private String verificationLEDDisplay; // : ARRAY[6] OF CHAR;
 
@@ -31,7 +31,7 @@ public class VerificationLedConfig {
         setVerificationLEDDisplay(new String(ProtocolUtils.getSubArray2(data, offset, 6)));
         offset+=6;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,8 +39,8 @@ public class VerificationLedConfig {
         strBuff.append("   verificationLEDCntrl="+getVerificationLEDCntrl()+"\n");
         strBuff.append("   verificationLEDDisplay="+getVerificationLEDDisplay()+"\n");
         return strBuff.toString();
-    }       
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 7;
@@ -61,5 +61,5 @@ public class VerificationLedConfig {
     private void setVerificationLEDDisplay(String verificationLEDDisplay) {
         this.verificationLEDDisplay = verificationLEDDisplay;
     }
-    
+
 }

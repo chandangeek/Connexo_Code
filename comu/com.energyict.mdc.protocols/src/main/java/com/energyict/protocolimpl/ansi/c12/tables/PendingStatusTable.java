@@ -10,29 +10,28 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author Koen
  */
 public class PendingStatusTable extends AbstractTable {
-    
+
     private byte[] standardPending;
     private byte[] manufacturerPending;
     private Date lastActivationTimeDate;
     private int nrOfPendingActivations;
     private EntryActivation[] entryActivation;
-    
+
     /** Creates a new instance of PendingStatusTable */
     public PendingStatusTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(4));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("PendingStatusTable: \n");
@@ -43,7 +42,7 @@ public class PendingStatusTable extends AbstractTable {
         }
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset=0;
@@ -54,11 +53,11 @@ public class PendingStatusTable extends AbstractTable {
         setManufacturerPending(new byte[ct.getDimMfgTablesUsed()]);
         setManufacturerPending(ProtocolUtils.getSubArray2(tableData, offset, getManufacturerPending().length));
         offset+=getManufacturerPending().length;
-        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0) 
+        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0)
             setLastActivationTimeDate(C12ParseUtils.getDateFromSTimeAndAdjustForTimeZone(tableData, offset, ct.getTimeFormat(), getTableFactory().getC12ProtocolLink().getTimeZone(),dataOrder));
         else
             setLastActivationTimeDate(C12ParseUtils.getDateFromSTime(tableData, offset, ct.getTimeFormat(), getTableFactory().getC12ProtocolLink().getTimeZone(),dataOrder));
-            
+
         offset+=C12ParseUtils.getSTimeSize(ct.getTimeFormat());
         setNrOfPendingActivations(C12ParseUtils.getInt(tableData,offset));
         offset++;
@@ -68,7 +67,7 @@ public class PendingStatusTable extends AbstractTable {
             offset+=EntryActivation.SIZE;
             getEntryActivation()[i] = new EntryActivation(subTableData,dataOrder);
         }
-        
+
     }
 
     public byte[] getStandardPending() {
@@ -110,5 +109,5 @@ public class PendingStatusTable extends AbstractTable {
     public void setEntryActivation(EntryActivation[] entryActivation) {
         this.entryActivation = entryActivation;
     }
-    
+
 }

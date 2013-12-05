@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a20;
 
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -24,16 +24,16 @@ public class MultiplierFactory {
                                        // however, the doc of the A20 does not support the register altough we read a stable value... 141 for a A20 meter
 
     A20 a20;
-    
+
     static public final int CT=0;
     static public final int VSHIFT=1;
-    
+
     /** Creates a new instance of MultiplierFactory */
     public MultiplierFactory(A20 a20) {
         this.a20=a20;
         ct=null;
     }
-   
+
     public BigDecimal getMultiplier(int address) throws IOException {
         if (address == CT)
             return getCt();
@@ -42,9 +42,9 @@ public class MultiplierFactory {
         else
             return BigDecimal.valueOf(1);
     }
-    
+
     private BigDecimal getCt() throws IOException {
-        
+
         if (ct==null) {
             BigDecimal ctPrim = a20.getRegisterFactory().findRegister("ctPrim").quantityValue().getAmount();
             BigDecimal ctSec = a20.getRegisterFactory().findRegister("ctSec").quantityValue().getAmount();

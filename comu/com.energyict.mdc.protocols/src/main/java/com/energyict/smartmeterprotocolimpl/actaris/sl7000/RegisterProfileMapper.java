@@ -1,13 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.Register;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 
 import java.io.IOException;
 import java.util.Date;
@@ -87,7 +87,7 @@ public class RegisterProfileMapper {
      * @return the profileGenerics index
      *         -1 if the register is not captured in any of the profiles.
      */
-    public int getProfileGenericForRegister(com.energyict.protocol.Register register) throws IOException {
+    public int getProfileGenericForRegister(Register register) throws IOException {
         int i = 0;
         for (ProfileGeneric each : getProfileGenerics()) {
             if (getChannelIndexForRegister(each, register.getObisCode()) != -1) {

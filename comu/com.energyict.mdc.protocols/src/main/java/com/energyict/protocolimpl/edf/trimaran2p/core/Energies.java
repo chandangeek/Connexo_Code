@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -17,9 +17,9 @@ import java.util.TimeZone;
  *
  */
 public class Energies{
-	
+
 	private int variableName;
-	
+
 	private DateType debutPeriode;	// Date de mise en service
 	private DateType dernierHoroDate;	// Date courante au moment de la lecture de la variable
 	private Quantity[] ixNRJact = {null, null};			// seq of 2 - index des Energies Eabp, Eabn exprimés en MWh
@@ -31,8 +31,8 @@ public class Energies{
 
 
 	public Energies(TrimaranDataContainer dc, TimeZone timeZone, int variableName) throws IOException {
-		
-		
+
+
 //    	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/Energies184.bin");
 //    	FileOutputStream fos = new FileOutputStream(file);
@@ -40,7 +40,7 @@ public class Energies{
 //    	oos.writeObject(dc);
 //    	oos.close();
 //    	fos.close();
-		
+
 		setVariableName(variableName);
 		int offset = 0;
 		setDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timeZone));
@@ -58,29 +58,29 @@ public class Energies{
 		setNRJcap_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset).getInteger(0)), Unit.get("kvarh")), 0);
 		setNRJcap_Reste(new Quantity(new BigDecimal(""+dc.getRoot().getStructure(offset++).getInteger(1)), Unit.get("kvarh")), 1);
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
-		
+
 		strBuff.append("*** Energies " + getVariableName() + ": ***\n");
 		strBuff.append("	- DateDebutPeriode: " + getDebutPeriode());
 		strBuff.append("	- DateDernierHoroDate: " + getDernierHoroDate());
-		
+
 		strBuff.append("	- IxNRJact - Eabp: " + getIxNRJact(0));strBuff.append("\n");
 		strBuff.append("	- IxNRJact - Eabn: " + getIxNRJact(1));strBuff.append("\n");
 		strBuff.append("	- NRJact_Reste - Eabp: " + getNRJact_Reste(0));strBuff.append("\n");
 		strBuff.append("	- NRJact_Reste - Eabn: " + getNRJact_Reste(1));strBuff.append("\n");
-		
+
 		strBuff.append("	- IxNRJind - Q+ Erb1: " + getIxNRJind(0));strBuff.append("\n");
 		strBuff.append("	- IxNRJind - Q- Erb3: " + getIxNRJind(1));strBuff.append("\n");
 		strBuff.append("	- NRJind_Reste - Q+ Erb1: " + getNRJind_Reste(0));strBuff.append("\n");
 		strBuff.append("	- NRJind_Reste - Q- Erb3: " + getNRJind_Reste(1));strBuff.append("\n");
-		
+
 		strBuff.append("	- IxNRJcap - Q+ Erb2: " + getIxNRJcap(0));strBuff.append("\n");
 		strBuff.append("	- IxNRJcap - Q- Erb4: " + getIxNRJcap(1));strBuff.append("\n");
 		strBuff.append("	- NRJcap_Reste - Q+ Erb2: " + getNRJcap_Reste(0));strBuff.append("\n");
 		strBuff.append("	- NRJcap_Reste - Q- Erb4: " + getNRJcap_Reste(1));strBuff.append("\n");
-		
+
 		return strBuff.toString();
 	}
 

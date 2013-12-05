@@ -5,11 +5,15 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * Implements the transparent access to a DLMS object. See page 13 of the Waveflow AC 150mW DLMS Version 1 Applicative Specification.
- * There are 3 subclasses implementing the set, get and action method invocation.  
+ * There are 3 subclasses implementing the set, get and action method invocation.
  * @author kvds
  */
 abstract class AbstractTransparentObjectAccess {

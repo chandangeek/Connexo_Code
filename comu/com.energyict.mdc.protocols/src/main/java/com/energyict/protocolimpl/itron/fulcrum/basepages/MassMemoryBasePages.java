@@ -10,19 +10,18 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryBasePages extends AbstractBasePage {
-    
+
     final int MAX_NR_OF_CHANNELS=8;
     private MassMemoryProgramTable[] massMemoryProgramTable;
     private int massMemoryRecordLength; // 2 bytes
@@ -37,14 +36,14 @@ public class MassMemoryBasePages extends AbstractBasePage {
     // reserved 1 byte
     private int recordingIntervalLength; // 1 byte in minutes
     private int massMemoryOutageLength; // 1 byte
-    
-    
-    
+
+
+
     /** Creates a new instance of MassMemoryBasePages */
     public MassMemoryBasePages(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -65,11 +64,11 @@ public class MassMemoryBasePages extends AbstractBasePage {
         return strBuff.toString();
     }
 
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x32C9,0x3361-0x32C9);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setMassMemoryProgramTable(new MassMemoryProgramTable[MAX_NR_OF_CHANNELS]);
@@ -77,7 +76,7 @@ public class MassMemoryBasePages extends AbstractBasePage {
             getMassMemoryProgramTable()[i] = new MassMemoryProgramTable(data,offset);
             offset+=MassMemoryProgramTable.size();
         }
-        
+
         setMassMemoryRecordLength(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;
         setLogicalMassMemoryStartAddress(ProtocolUtils.getInt(data,offset, 3));
@@ -191,6 +190,6 @@ public class MassMemoryBasePages extends AbstractBasePage {
     public void setMassMemoryOutageLength(int massMemoryOutageLength) {
         this.massMemoryOutageLength = massMemoryOutageLength;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

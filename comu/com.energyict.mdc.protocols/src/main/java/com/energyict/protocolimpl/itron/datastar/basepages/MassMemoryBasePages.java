@@ -10,39 +10,36 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.datastar.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class MassMemoryBasePages extends AbstractBasePage {
-    
-    
-    
+
+
+
     private int endOfIntervalDataOffset;
     private int firstRamLocation;
-    
+
     private int lastRamLocation;
     private int startOffsetOfCurrentRecord;
     private int currentIntervalNr;
-    
-    
+
+
     //Date lastInterrogateTimestamp;
     //Date auxInput1ClosureTimestamp;
     //Date auxInput2ClosureTimestamp;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public MassMemoryBasePages(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -55,15 +52,15 @@ public class MassMemoryBasePages extends AbstractBasePage {
         strBuff.append("   getMassMemoryStartOffset()=0x"+Integer.toHexString(getMassMemoryStartOffset())+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x70,39);
     }
-    
+
     public int getMassMemoryStartOffset() {
         return 0x100;
     }
-    
+
     public int getMassMemoryRecordLength() throws IOException {
         int nrOfChannels = ((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().getNrOfChannels();
         if (nrOfChannels == 1) return 125-18;
@@ -71,14 +68,14 @@ public class MassMemoryBasePages extends AbstractBasePage {
         if (nrOfChannels == 4) return 395;
         throw new IOException("MassMemoryBasePages, getMassMemoryRecordLength, invalid nr of channels "+nrOfChannels);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setEndOfIntervalDataOffset(ProtocolUtils.getInt(data,offset, 3)-getBasePagesFactory().getMemStartAddress());
         offset+=3;
-        
+
         offset+=9; // reserved
-        
+
         setFirstRamLocation(ProtocolUtils.getInt(data,offset, 3));
         offset+=3;
         setLastRamLocation(ProtocolUtils.getInt(data,offset, 3));
@@ -131,7 +128,7 @@ public class MassMemoryBasePages extends AbstractBasePage {
     public void setEndOfIntervalDataOffset(int endOfIntervalDataOffset) {
         this.endOfIntervalDataOffset = endOfIntervalDataOffset;
     }
-    
-    
-    
+
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

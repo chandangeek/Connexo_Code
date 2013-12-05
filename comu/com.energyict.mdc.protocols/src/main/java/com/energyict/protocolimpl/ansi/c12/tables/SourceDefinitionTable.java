@@ -10,18 +10,15 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class SourceDefinitionTable extends AbstractTable {
-    
+
     private int[] sourceLinks;
     private boolean[] uomEntryFlag; // the next uom entry table 12  is accociated with this source
     private boolean[] demandControlFlag; // demand control table 13 is accociated with this source
@@ -30,12 +27,12 @@ public class SourceDefinitionTable extends AbstractTable {
     private boolean[] pulseEngineeringFlag; // true: source is in engineering units, false: source is in pulse units
     private boolean[] constantToBeApplied; // false: the entry in the constants table 15 if present, has been applied to the source
                                  // true: the entry in the constants table 15 if present, has not been applied to the source
-    
+
     /** Creates a new instance of SourceDefinitionTable */
     public SourceDefinitionTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(16));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("SourceDefinitionTable: \n");
@@ -50,10 +47,10 @@ public class SourceDefinitionTable extends AbstractTable {
         }
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int nrOfEntries = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesSources();
-        setSourceLinks(new int[nrOfEntries]);    
+        setSourceLinks(new int[nrOfEntries]);
         setUomEntryFlag(new boolean[nrOfEntries]);
         setDemandControlFlag(new boolean[nrOfEntries]);
         setDataControlFlag(new boolean[nrOfEntries]);
@@ -66,8 +63,8 @@ public class SourceDefinitionTable extends AbstractTable {
             getUomEntryFlag()[i] = (getSourceLinks()[i] & 0x01) == 0x01;
             getDemandControlFlag()[i] = (getSourceLinks()[i] & 0x02) == 0x02;
             getDataControlFlag()[i] = (getSourceLinks()[i] & 0x04) == 0x04;
-            getConstantsFlag()[i] = (getSourceLinks()[i] & 0x08) == 0x08;     
-            getPulseEngineeringFlag()[i] = (getSourceLinks()[i] & 0x10) == 0x10;        
+            getConstantsFlag()[i] = (getSourceLinks()[i] & 0x08) == 0x08;
+            getPulseEngineeringFlag()[i] = (getSourceLinks()[i] & 0x10) == 0x10;
             getConstantToBeApplied()[i] = (getSourceLinks()[i] & 0x20) == 0x20;
             offset++;
         }
@@ -128,5 +125,5 @@ public class SourceDefinitionTable extends AbstractTable {
     public void setConstantToBeApplied(boolean[] constantToBeApplied) {
         this.constantToBeApplied = constantToBeApplied;
     }
-    
+
 }

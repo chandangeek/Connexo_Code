@@ -10,20 +10,21 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ServiceBitfield {
-    
+
     private int phaseAVoltage; // : UINT(0..3);
     private boolean rotationFlag; // : BOOL(4);
     private int nominalVoltageCode; // : UINT(5..6);
     private boolean serviceConfigBit; // : BOOL(7);
-    
+
     /** Creates a new instance of RecordTemplate */
     public ServiceBitfield(byte[] data, int offset, ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -32,7 +33,7 @@ public class ServiceBitfield {
         setNominalVoltageCode((data[offset] >> 5) & 0x03);
         setServiceConfigBit(((data[offset] >> 7) & 0x01) == 0x01);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,8 +43,8 @@ public class ServiceBitfield {
         strBuff.append("   rotationFlag="+isRotationFlag()+"\n");
         strBuff.append("   serviceConfigBit="+isServiceConfigBit()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 1;
@@ -80,5 +81,5 @@ public class ServiceBitfield {
     public void setServiceConfigBit(boolean serviceConfigBit) {
         this.serviceConfigBit = serviceConfigBit;
     }
-    
+
 }

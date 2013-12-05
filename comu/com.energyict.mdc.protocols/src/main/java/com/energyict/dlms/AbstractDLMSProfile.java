@@ -1,10 +1,10 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 
 import java.io.IOException;
 

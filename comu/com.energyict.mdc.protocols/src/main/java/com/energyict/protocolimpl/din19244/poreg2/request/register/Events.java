@@ -1,12 +1,17 @@
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
-import com.energyict.protocolimpl.din19244.poreg2.core.*;
+import com.energyict.protocolimpl.din19244.poreg2.core.DinTimeParser;
+import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
+import com.energyict.protocolimpl.din19244.poreg2.core.RegisterDataParser;
+import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class to read out the events table.

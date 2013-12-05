@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -35,25 +35,25 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     DISABLE_WEBSERVER,
     ENABLE_WEBSERVER,
     RESTORE_FACTORY_SETTINGS,
-    SetFTIONReboot(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONReboot)),
-    SetFTIONInitialize(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONInitialize)),
-    SetFTIONMailLog(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailLog)),
-    SetFTIONSaveConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONSaveConfig)),
-    SetFTIONUpgrade(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONUpgrade)),
-    SetFTIONClearMem(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONClearMem)),
-    SetFTIONMailConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailConfig)),
-    SetFTIONModemReset(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONModemReset)),
+    SetFTIONReboot(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONReboot)),
+    SetFTIONInitialize(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONInitialize)),
+    SetFTIONMailLog(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONMailLog)),
+    SetFTIONSaveConfig(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONSaveConfig)),
+    SetFTIONUpgrade(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONUpgrade)),
+    SetFTIONClearMem(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONClearMem)),
+    SetFTIONMailConfig(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONMailConfig)),
+    SetFTIONModemReset(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.FTIONModemReset)),
     SetChangeAdminPassword(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminOld),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminNew)
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.AdminOld),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.AdminNew)
     ),
-    SetOutputOn(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOn)),
-    SetOutputOff(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOff)),
-    SetOutputToggle(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputToggle)),
-    SetOutputPulse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputPulse)),
+    SetOutputOn(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.OutputOn)),
+    SetOutputOff(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.OutputOff)),
+    SetOutputToggle(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.OutputToggle)),
+    SetOutputPulse(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.OutputPulse)),
     SetAnalogOut(
-            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getPossibleValues()),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AnalogOutValue)
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getPossibleValues()),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.AnalogOutValue)
     );
 
     private static BigDecimal[] getPossibleValues() {

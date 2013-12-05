@@ -10,39 +10,37 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author Koen
  */
 public class MeterKhBasePage extends AbstractBasePage {
-    
+
     private BigDecimal kh;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public MeterKhBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("MeterKhBasePage:\n");
         strBuff.append("   kh="+getKh()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x21C1,3);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setKh(ParseUtils.convertBCDFixedPoint(data,offset,3,8));
@@ -56,5 +54,5 @@ public class MeterKhBasePage extends AbstractBasePage {
         this.kh = kh;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

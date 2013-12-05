@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.webrtu.common.csvhandling;
 
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 public class TestObject {
 
@@ -19,17 +19,17 @@ public class TestObject {
 	private static final int RESULT = 11;
 	private static final int EXPECTED = 12;
 	private static final int STARTTIME = 13;
-	
+
 	public static final int GET = 0;
 	public static final int SET = 1;
 	public static final int ACTION = 2;
 	private static final int MESSAGE = 3;
 	public static final int WAIT = 4;
 	private static final int EMPTY = 5;
-	
+
 	private String[] testRow;
 	private boolean validData = false;
-	
+
 	public TestObject(String subString) {
 		if(ParseUtils.countEqualSignsInString(subString, ";") >= 1){
 			this.testRow = subString.split(";");
@@ -39,19 +39,19 @@ public class TestObject {
 			this.testRow = new String[]{subString};
 		}
 	}
-	
+
 	private boolean validData(){
 		return validData;
 	}
-	
+
 	private void setValidData(){
 		this.validData = true;
 	}
-	
+
 	public int size(){
 		return this.testRow.length;
 	}
-	
+
 	public int getType(){
 		if(this.testRow[TYPE].equalsIgnoreCase("Get")){
 			return GET;
@@ -71,9 +71,9 @@ public class TestObject {
 //			throw new ApplicationException("Type " + this.testRow[TYPE] + " is not a valid type, please review your csv file for errors.");
 			return EMPTY;
 		}
-			
+
 	}
-	
+
 	public String getData(){
 		if(validData()){
 			return returnData();
@@ -97,7 +97,7 @@ public class TestObject {
 			return returnData();
 		}
 	}
-	
+
 	private String returnData(){
 		if(this.testRow[DATA].indexOf("0x") != -1){
 			return this.testRow[DATA].substring(this.testRow[DATA].indexOf("0x")+2);
@@ -105,7 +105,7 @@ public class TestObject {
 			return this.testRow[DATA];
 		}
 	}
-	
+
 	private byte[] trimByteArray(byte[] byteArray){
 		int last = byteArray.length-1;
 		while((last >= 0) && (byteArray[last] == 0)){
@@ -115,10 +115,10 @@ public class TestObject {
 		System.arraycopy(byteArray, 0, b, 0, last+1);
 		return b;
 	}
-	
+
 	public ObisCode getObisCode(){
 		StringBuffer strBuff = new StringBuffer();
-		strBuff.append(this.testRow[A]); strBuff.append("."); 
+		strBuff.append(this.testRow[A]); strBuff.append(".");
 		strBuff.append(this.testRow[B]); strBuff.append(".");
 		strBuff.append(this.testRow[C]); strBuff.append(".");
 		strBuff.append(this.testRow[D]); strBuff.append(".");
@@ -126,11 +126,11 @@ public class TestObject {
 		strBuff.append(this.testRow[F]);
 		return ObisCode.fromString(strBuff.toString());
 	}
-	
+
 	public int getClassId(){
 		return Integer.parseInt(this.testRow[CLASSID]);
 	}
-	
+
 	public int getAttribute(){
 		return Integer.parseInt(this.testRow[ATTRIBUTE]);
 	}
@@ -138,7 +138,7 @@ public class TestObject {
 	public String getStringAttribute(){
 		return this.testRow[ATTRIBUTE];
 	}
-	
+
 	public int getMethod(){
 		return Integer.parseInt(this.testRow[METHOD]);
 	}
@@ -160,7 +160,7 @@ public class TestObject {
 		}
 		return (this.testRow[j] == null)?"":this.testRow[j];
 	}
-	
+
 	public String getExpected() {
 		if(this.testRow.length <= STARTTIME){
 			String[] temp = this.testRow;
@@ -169,7 +169,7 @@ public class TestObject {
 		}
 		return this.testRow[EXPECTED];
 	}
-	
+
 	public void setTime(long l) {
 		if(this.testRow.length <= STARTTIME){
 			String[] temp = this.testRow;

@@ -10,28 +10,25 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
+import com.energyict.protocolimpl.base.FirmwareVersion;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ConstantsTable extends AbstractTable {
-    
+
     private AbstractConstants[] constants;
-    
+
     /** Creates a new instance of ConstantsTable */
     public ConstantsTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(15));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ConstantsTable: \n");
@@ -40,7 +37,7 @@ public class ConstantsTable extends AbstractTable {
         }
         return strBuff.toString();
     }
-    
+
     protected void prepareBuild() throws IOException {
         // override to provide extra functionality...
         int niFormat1 = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getNonIntFormat1();
@@ -81,13 +78,13 @@ public class ConstantsTable extends AbstractTable {
             default:
                 throw new IOException("ConstantsTable, parse, invalid constants selector "+constantsSelector+", cannot continue!");
         } // switch(constantsSelector)
-        
-        
+
+
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,size);
         setPartialReadInfo(partialReadInfo);
     }
-    
-    
+
+
     protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         int niFormat1 = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getNonIntFormat1();
@@ -100,29 +97,29 @@ public class ConstantsTable extends AbstractTable {
             if (fw.equal(fw2CheckAgainst) || fw.before(fw2CheckAgainst))
                 niFormat1 = C12ParseUtils.FORMAT_INT64;
         }
-        
+
         int niFormat2 = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getNonIntFormat2();
         ActualSourcesLimitingTable aslt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable();
         setConstants(new AbstractConstants[aslt.getMaxNrOfEntriesConstants()]);
         int constantsSelector = aslt.getConstantsSelector();
         for (int i=0;i<getConstants().length;i++) {
-            
+
             switch(constantsSelector) {
                 case AbstractConstants.CONSTANTS_GAS_AGA3: {
                     getConstants()[i] = new GasConstantsAGA3(tableData, offset, niFormat2, dataOrder);
                     offset+=GasConstantsAGA3.getSize(niFormat2);
                 } break; // AbstractConstants.CONSTANTS_GAS_AGA3
-                
+
                 case AbstractConstants.CONSTANTS_GAS_AGA7: {
                     getConstants()[i] = new GasConstantsAGA7(tableData, offset, niFormat2, dataOrder);
                     offset+=GasConstantsAGA7.getSize(niFormat2);
                 } break; // AbstractConstants.CONSTANTS_GAS_AGA7
-                
+
                 case AbstractConstants.CONSTANTS_ELECTRIC: {
                     getConstants()[i] = new ElectricConstants(tableData, offset, niFormat1, aslt, dataOrder);
                     offset+=ElectricConstants.getSize(niFormat1, aslt);
                 } break; // AbstractConstants.CONSTANTS_ELECTRIC
-                
+
                 case 3: {
                     if (getTableFactory().getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) {
                         getConstants()[i] = new ElectricConstants(tableData, offset, niFormat1, aslt, dataOrder);
@@ -131,7 +128,7 @@ public class ConstantsTable extends AbstractTable {
                     else
                         throw new IOException("ConstantsTable, parse, invalid constants selector "+constantsSelector+", cannot continue!");
                 } break; //
-                
+
                 default:
                     throw new IOException("ConstantsTable, parse, invalid constants selector "+constantsSelector+", cannot continue!");
             } // switch(constantsSelector)

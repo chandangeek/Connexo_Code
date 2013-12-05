@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 
 import java.util.Iterator;
 import java.util.TreeMap;

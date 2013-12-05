@@ -7,7 +7,9 @@
 package com.energyict.protocolimpl.iec1107.zmd;
 
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
@@ -21,28 +23,28 @@ import java.io.IOException;
  * KV 04052004 Initial version
  */
 class Registry extends AbstractVDEWRegistry {
-    
+
     /** Creates a new instance of KamstrupRegister */
     public Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink) {
         // Use ChannelMap to determine which VHI tu access... First entry in the ChannelMap is the
         // OBIS B value.
         super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getProtocolChannelMap().getProtocolChannel(0).getRegister()));
     }
-    
+
     public void validateData(String exceptionId) throws IOException {
 
         if( exceptionId.indexOf("ER") == -1 ) return;
 
         String msg = "Error received " + exceptionId;
-            
-        if (getMeterExceptionInfo() != null) {    
+
+        if (getMeterExceptionInfo() != null) {
             msg += ": " + getMeterExceptionInfo().getExceptionInfo(exceptionId);
-        } 
-        
+        }
+
         throw new FlagIEC1107ConnectionException(msg);
-        
+
     }
-    
+
     // KV TO_DO change OBIS B value to control channel id
     protected void initRegisters() {
         String obisB = Integer.toString(getRegisterSet());
@@ -57,5 +59,5 @@ class Registry extends AbstractVDEWRegistry {
         registers.put("TimeDate2", new VDEWRegister("C003",VDEWRegisterDataParse.VDEW_DATE_TIME,0, -1,null,VDEWRegister.WRITEABLE,VDEWRegister.NOT_CACHED,FlagIEC1107Connection.READ5,FlagIEC1107Connection.WRITE2));
         registers.put("SerialNumber", new VDEWRegister("0.0.0",VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED));
     }
-    
+
 }

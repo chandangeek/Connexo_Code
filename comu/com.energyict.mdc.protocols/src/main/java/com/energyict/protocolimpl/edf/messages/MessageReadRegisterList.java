@@ -1,14 +1,18 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MessageReadRegisterList extends MessageContent {
 
 	protected final static String ELEMENTNAME = "onDemandReadRegisterList";
 	protected final static String OBISCODEELEMENTNAME = "obisCode";
-	
+
 	private List obisCodes = new ArrayList();
 
 	public MessageReadRegisterList() {
@@ -35,7 +39,7 @@ public class MessageReadRegisterList extends MessageContent {
 	public void setObisCode(List obisCodes) {
 		this.obisCodes = obisCodes;
 	}
-	
+
 	public void addObisCode(String obisCode) {
 		obisCodes.add(obisCode);
 	}
@@ -47,7 +51,7 @@ public class MessageReadRegisterList extends MessageContent {
 			String obisCode = (String) it.next();
 			Element obisCodeNode = document.createElement(OBISCODEELEMENTNAME);
 			obisCodeNode.appendChild(document.createTextNode(obisCode));
-			root.appendChild(obisCodeNode);			
+			root.appendChild(obisCodeNode);
 		}
 		return root;
 	}

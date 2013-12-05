@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
 
 
 /**
@@ -23,11 +21,11 @@ import com.energyict.protocolimpl.base.*;
  * @author Koen
  */
 public class LoadProfileMetricSelectionRXCommand extends AbstractCommand {
-    
+
     Unit[] units = new Unit[]{Unit.get("kWh"), // import 0
                               Unit.get("kWh"), // export 1
                               Unit.get("kvarh"), // rms not valid in FW V2.12 or greater 2
-                              Unit.get("kVAh"), // rms 3 
+                              Unit.get("kVAh"), // rms 3
                               Unit.get("kvarh"), // kQh 4
                               null, // index 5 does not exist! 5
                               Unit.get("kvarh"), // lagging 6
@@ -51,14 +49,14 @@ public class LoadProfileMetricSelectionRXCommand extends AbstractCommand {
                               Unit.get("V"), // FW V3.00 Swell C 24
                               Unit.get("V"), // FW V3.00 Sag V any phase 25
                               Unit.get("V")}; // FW V3.00 Swell V any phase 26
-    
+
     private int[] channelMetrics;
-    
+
     /** Creates a new instance of TemplateCommand */
     public LoadProfileMetricSelectionRXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -68,24 +66,24 @@ public class LoadProfileMetricSelectionRXCommand extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
+
     public boolean isEnergy(int channelIndex) {
         return (((getChannelMetrics()[channelIndex]>=0) && (getChannelMetrics()[channelIndex]<=4)) ||
                 ((getChannelMetrics()[channelIndex]>=6) && (getChannelMetrics()[channelIndex]<=7)) ||
                 ((getChannelMetrics()[channelIndex]>=17) && (getChannelMetrics()[channelIndex]<=18)));
     }
-    
+
     public Unit getUnit(int channelIndex) {
         return units[getChannelMetrics()[channelIndex]];
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isRX())
             return new byte[]{(byte)0xA6,0,0,0,0,0,0,0,0};
         else
             throw new IOException("LoadProfileMetricSelectionRXCommand, only for RX meters!");
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setChannelMetrics(new int[getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getNrOfActiveChannels()]);

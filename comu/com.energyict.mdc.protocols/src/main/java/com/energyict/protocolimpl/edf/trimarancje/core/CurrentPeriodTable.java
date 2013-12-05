@@ -1,7 +1,11 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimarancje.core;
+
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,34 +14,30 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
-
 /**
  * @author gna
  *
  */
 public class CurrentPeriodTable extends AbstractTable{
-	
+
 	private int DEBUG = 0;
-	
+
 	private Date timeStamp;
-	
+
 	private int zoneA = 0;
 	private int zoneB = 1;
 	private int zoneC = 2;
 	private int zoneD = 3;
-	
+
 	private int pointeMobile = 0;
 	private int pointe = 1;
 	private int pleinesdHiver = 2;
 	private int creusesdHiver = 3;
 	private int pleinesdEte = 4;
 	private int creusesdEte = 5;
-	
+
 	private int tarif;
-	
+
 	private long activeEnergy[] = new long[6]; 			//kWh
 	private int durationExceedingPower[] = new int[4]; 	//minutes
 	private int exceedingPower[] = new int[4]; 			//daVA(tenths of VA)
@@ -46,7 +46,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	private int coefficient[] = new int[4];				//%
 
 	private int tarifVersionNextPeriod;
-	
+
 	public CurrentPeriodTable(DataFactory dataFactory) {
 		super(dataFactory);
 	}
@@ -54,9 +54,9 @@ public class CurrentPeriodTable extends AbstractTable{
 	protected int getCode() {
 		return 2;
 	}
-	
+
 	public String toString(){
-		
+
 		 StringBuffer strBuff = new StringBuffer();
 		 strBuff.append("CurrentPeriodTable:\n");
 		 strBuff.append("TimeStamp: " + getTimeStamp() +  "\n");
@@ -67,47 +67,47 @@ public class CurrentPeriodTable extends AbstractTable{
 		 strBuff.append("A+ HCH:" + getActiveEnergy(creusesdHiver) + "\n");
 		 strBuff.append("A+ HPE: " + getActiveEnergy(pleinesdEte) + "\n");
 		 strBuff.append("A+ HCE: " + getActiveEnergy(creusesdEte) + "\n");
-		 
+
 		 strBuff.append("Duration exceeding zoneA " + getDurationExceedingPower(zoneA) + "\n");
 		 strBuff.append("Duration exceeding zoneB " + getDurationExceedingPower(zoneB) + "\n");
 		 strBuff.append("Duration exceeding zoneC " + getDurationExceedingPower(zoneC) + "\n");
 		 strBuff.append("Duration exceeding zondD " + getDurationExceedingPower(zoneD) + "\n");
-		 
+
 		 strBuff.append("Max demand zoneA " + getMaxDemand(zoneA) + "\n");
 		 strBuff.append("Max demand zoneB " + getMaxDemand(zoneB) + "\n");
 		 strBuff.append("Max demand zoneC " + getMaxDemand(zoneC) + "\n");
 		 strBuff.append("Max demand zoneD " + getMaxDemand(zoneD) + "\n");
-		 
+
 		 strBuff.append("Exceeding power zoneA " + getExceedingPower(zoneA) + "\n");
 		 strBuff.append("Exceeding power zoneB " + getExceedingPower(zoneB) + "\n");
 		 strBuff.append("Exceeding power zoneC " + getExceedingPower(zoneC) + "\n");
 		 strBuff.append("Exceeding power zoneD " + getExceedingPower(zoneD) + "\n");
-		 
+
 		 strBuff.append("Coefficient zoneA " + getCoefficient(zoneA) + "\n");
 		 strBuff.append("Coefficient zoneB " + getCoefficient(zoneB) + "\n");
 		 strBuff.append("Coefficient zoneC " + getCoefficient(zoneC) + "\n");
 		 strBuff.append("Coefficient zoneD " + getCoefficient(zoneD) + "\n");
-		 
+
 		 strBuff.append("Get tarifVersion next period: " + getTarifVersionNextPeriod() + "\n");
-		 
+
 		 strBuff.append("Duration zoneA " + getTarifDuration(zoneA) + "\n");
 		 strBuff.append("Duration zoneB " + getTarifDuration(zoneB) + "\n");
 		 strBuff.append("Duration zoneC " + getTarifDuration(zoneC) + "\n");
 		 strBuff.append("Duration zoneD " + getTarifDuration(zoneD) + "\n");
-		 
+
 		 return strBuff.toString();
 	}
 
 	protected void parse(byte[] data) throws IOException {
 //      System.out.println("KV_DEBUG> write to file");
-		
+
 //		File file = new File("c://TEST_FILES/CurrentPeriodTable_" + counter++ + ".bin");
 //		FileOutputStream fos = new FileOutputStream(file);
 //		fos.write(data);
 //		fos.close();
-		
+
 		if((data[0]!=-1)&&(data[1]!=-1)&&(data[2]!=-1)&&(data[3]!=-1)&&(data[4]!=-1)){
-			
+
 			int offset = 0;
 			Calendar cal = Calendar.getInstance();
 			int jour = ProtocolUtils.BCD2hex(data[offset++]);
@@ -157,29 +157,29 @@ public class CurrentPeriodTable extends AbstractTable{
 				offset += 2;
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		try{
 			CurrentPeriodTable cpt = new CurrentPeriodTable(null);
-			
+
 	        File file = new File("c://TEST_FILES/CurrentPeriodTable.bin");
 	        FileInputStream fis = new FileInputStream(file);
 	        byte[] data=new byte[(int)file.length()];
 	        fis.read(data);
-	        fis.close(); 
+	        fis.close();
 	        cpt.parse(data);
 	        System.out.println(cpt.toString());
-		} 
+		}
 		catch(IOException e){
 			e.printStackTrace();
 		}
 	}
-	
+
 	public int getTarif() {
 		return tarif;
 	}
@@ -210,7 +210,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	public long getActiveEnergy(int t) {
 		return activeEnergy[t];
 	}
-	
+
 	public Quantity getActiveQuantity(int t){
 		return new Quantity(BigDecimal.valueOf(getActiveEnergy(t)),Unit.get("kWh"));
 	}
@@ -228,7 +228,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	public int getDurationExceedingPower(int t) {
 		return durationExceedingPower[t];
 	}
-	
+
 	public Quantity getDurationExceedingPowerQuantity(int t){
 		return new Quantity(BigDecimal.valueOf(getDurationExceedingPower(t)), Unit.get("min"));
 	}
@@ -246,7 +246,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	public int getExceedingPower(int t) {
 		return exceedingPower[t];
 	}
-	
+
 	public Quantity getExceedingPowerQuantity(int t){
 		return new Quantity(BigDecimal.valueOf((long)(getExceedingPower(t)*10)), Unit.get("VA"));
 	}
@@ -264,7 +264,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	public int getMaxDemand(int t) {
 		return maxDemand[t];
 	}
-	
+
 	public Quantity getMaxDemandQuantity(int t){
 		return new Quantity(BigDecimal.valueOf((long)(getMaxDemand(t)*10)),Unit.get("VA"));
 	}
@@ -282,7 +282,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	public int getTarifDuration(int t) {
 		return tarifDuration[t];
 	}
-	
+
 	public Quantity getTarifDurationQuantity(int t){
 		return new Quantity(BigDecimal.valueOf(getTarifDuration(t)), Unit.get("h"));
 	}
@@ -300,7 +300,7 @@ public class CurrentPeriodTable extends AbstractTable{
 	public int getCoefficient(int t) {
 		return coefficient[t];
 	}
-	
+
 	public Quantity getCoefficientQuantity(int t){
 		return new Quantity(BigDecimal.valueOf(getCoefficient(t)),Unit.get("%"));
 	}

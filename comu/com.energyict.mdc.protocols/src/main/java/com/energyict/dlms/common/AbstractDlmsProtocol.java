@@ -1,21 +1,21 @@
 package com.energyict.dlms.common;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
@@ -32,8 +32,8 @@ import java.util.logging.Logger;
 /**
  * Abstract implementation of a DLMS DeviceProtocol.
  *
- * @author: sva
- * @since: 30/10/12 (10:13)
+ * @author sva
+ * @since 30/10/12 (10:13)
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler {
 
@@ -254,7 +254,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public void copyProperties(TypedProperties properties) {
         getProtocolProperties().addProperties(properties); // this will add the properties to the existing properties
     }
 

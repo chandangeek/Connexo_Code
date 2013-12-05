@@ -10,31 +10,29 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Event {
-    
-    
+
+
     static public final int SIZE=6;
-    private int statusBitfield; // 1 byte 
+    private int statusBitfield; // 1 byte
     private byte[] eventStorage = new byte[5]; // 5 bytes
-    
-    
+
+
     /** Creates a new instance of Event */
     public Event(byte[] data) throws IOException {
         statusBitfield = C12ParseUtils.getInt(data,0);
         eventStorage= ProtocolUtils.getSubArray2(data,1, eventStorage.length);
     }
-    
+
     public String toString() {
         return "Event: statusBitfield="+getStatusBitfield()+", eventStorage="+ProtocolUtils.getResponseData(getEventStorage());
     }
@@ -54,5 +52,5 @@ public class Event {
     public void setEventStorage(byte[] eventStorage) {
         this.eventStorage = eventStorage;
     }
-    
+
 }

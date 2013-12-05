@@ -10,28 +10,30 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class DateCommand extends AbstractCommand {
-    
+
     private Date date;
-    
+
     /** Creates a new instance of TemplateCommand */
     public DateCommand(CommandFactory commandFactory) {
         super(commandFactory);
         date=null;
     }
-    
+
     public static void main(String[] args) {
         System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new TemplateCommand(null)));
-    } 
-    
+    }
+
     protected byte[] prepareBuild() {
         if (getDate()==null)
            return new byte[]{(byte)0x02,0,0,0,0,0,0,0,0};
@@ -47,9 +49,9 @@ public class DateCommand extends AbstractCommand {
             setResponseData(false);
             return data;
         }
-            
+
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS4s().getTimeZone());
         // data[0] weekday

@@ -10,34 +10,34 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class PhysicalAbortException extends IOException {
-    
+
     private int errorNr;
-    
+
     public String toString() {
         return "PhysicalAbortException: "+getErrorNr();
     }
-    
+
     public PhysicalAbortException(String str, int errorNr) {
         super(str);
         setErrorNr(errorNr);
     } // public PhysicalAbortException(String str)
-    
+
     public PhysicalAbortException(int errorNr) {
         super();
         setErrorNr(errorNr);
     } // public DatalinkAbortException(String str)
-    
+
     public int getErrorNr() {
         return errorNr;
     }
-    
+
     public void setErrorNr(int errorNr) {
         this.errorNr = errorNr;
     }

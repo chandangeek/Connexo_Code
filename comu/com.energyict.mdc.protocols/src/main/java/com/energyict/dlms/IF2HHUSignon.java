@@ -1,9 +1,9 @@
 package com.energyict.dlms;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 
 import java.io.IOException;
@@ -103,7 +103,7 @@ public class IF2HHUSignon implements HHUSignOn {
     /**
      * Not implemented
      *
-     * @throws com.energyict.cbo.NestedIOException   Never thrown
+     * @throws NestedIOException   Never thrown
      * @throws com.energyict.dialer.connection.ConnectionException Never thrown
      */
     public void sendBreak() throws NestedIOException, ConnectionException {

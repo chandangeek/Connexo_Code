@@ -10,15 +10,17 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
-import java.io.*;
-import java.util.*;
-import java.math.*;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -26,18 +28,18 @@ import com.energyict.cbo.*;
  * @author koen
  */
 public class Class17LoadProfileData extends AbstractClass {
-    
-    
+
+
     ClassIdentification classIdentification = new ClassIdentification(17,0,false);
     private int nrOfDays;
-    
+
     List intervalDatas;
-    
+
     /** Creates a new instance of Class17LoadProfileData */
     public Class17LoadProfileData(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         Iterator it = intervalDatas.iterator();
@@ -47,22 +49,22 @@ public class Class17LoadProfileData extends AbstractClass {
         }
         return strBuff.toString();
     }
-    
-    
-    
+
+
+
     protected void parse(byte[] data) throws IOException {
         // end-of-data flag validation
         int end = ProtocolUtils.getInt(data, data.length-8,2) & 0x3FFF;
         if (end != 0x3FFF)
             throw new IOException("Class17LoadProfileData, parse(), no 0x3FFF end-of-data flag found");
-        
+
         // get last interval ending timestamp
         Date lastIntervalEnding = ClassParseUtils.getDate6(data, data.length-6, getClassFactory().getAlpha().getTimeZone());
-        
+
         // prepare intervalcalendar
         Calendar intervalCalendar = ProtocolUtils.getCleanCalendar(getClassFactory().getAlpha().getTimeZone());
         intervalCalendar.setTime(lastIntervalEnding);
-        
+
         intervalDatas= new ArrayList(); // of type IntervalData
         int nrOfChannels = getClassFactory().getClass14LoadProfileConfiguration().getNrOfChannels();
         // from las record to first retrieved
@@ -70,7 +72,7 @@ public class Class17LoadProfileData extends AbstractClass {
             // for each channel
             IntervalData intervalData = new IntervalData(((Calendar)intervalCalendar.clone()).getTime());
             for (int channel=0;channel<=nrOfChannels;channel++) {
-                
+
                 // KV_TO_DO  what to do with channelstatus, how to translate into eistatus and is it 2 bits or 1 bit ???
                 int channelStatus; // bit 16 = parity, bit 15 = outage (Call to Mike thorpe on 12102005)
                 int eiChannelStatus=0;
@@ -85,12 +87,12 @@ public class Class17LoadProfileData extends AbstractClass {
             intervalDatas.add(intervalData);
         }
     }
-    
-    
-    
+
+
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }    
+        return classIdentification;
+    }
 
     public int getNrOfDays() {
         return nrOfDays;
@@ -106,5 +108,5 @@ public class Class17LoadProfileData extends AbstractClass {
         return intervalDatas;
     }
 
-    
+
 }

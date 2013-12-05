@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.energyict.protocol.ProtocolUtils;
-
 /**
- * 
+ *
  * @author Koen
  */
 public class Utils {

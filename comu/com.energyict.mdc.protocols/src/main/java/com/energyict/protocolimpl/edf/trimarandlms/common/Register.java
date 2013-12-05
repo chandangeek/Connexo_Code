@@ -10,24 +10,24 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
+import com.energyict.mdc.common.ObisCode;
+
 import java.io.IOException;
 import java.io.Serializable;
-
-import com.energyict.obis.ObisCode;
 
 /**
  * FIXME: Run the tests again with the serialVersionUID so you can rebuild the registers correctly with the fixed ID
  * @author Koen
  */
 public class Register implements Serializable{
-    
+
 	private static final long serialVersionUID = -4426044576073453175L;
-	
+
 	private VariableName variableName;
     private int index;
     private String description;
     private ObisCode obisCode;
-    
+
     /** Creates a new instance of Register */
     public Register(VariableName variableName, int index, int obisEField) throws IOException {
         setIndex(index);

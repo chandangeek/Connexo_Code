@@ -10,27 +10,27 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DLMSPDUFactory {
-    
+
     private ProtocolLink protocolLink;
-    
+
     StatusResponse statusResponse = null;
-    
+
     /** Creates a new instance of DLMSPDUFactory */
     public DLMSPDUFactory(ProtocolLink protocolLink) {
         this.setProtocolLink(protocolLink);
     }
 
-    
-    
+
+
     public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
@@ -38,7 +38,7 @@ public class DLMSPDUFactory {
     public void setProtocolLink(ProtocolLink protocolLink) {
         this.protocolLink = protocolLink;
     }
-    
+
     public StatusResponse getStatusResponse() throws IOException {
         if (statusResponse == null) {
             StatusRequest obj = new StatusRequest(this);
@@ -47,25 +47,25 @@ public class DLMSPDUFactory {
             statusResponse = obj.getStatusResponse();
         }
         return statusResponse;
-    }   
-    
+    }
+
     public InitiateRequest getInitiateRequest() throws IOException {
         InitiateRequest initiateRequest = new InitiateRequest(this);
         initiateRequest.invoke();
         return initiateRequest;
-    }   
-    
+    }
+
     public ReadRequest getReadRequest(int variableName) throws IOException {
         ReadRequest readRequest = new ReadRequest(this);
         readRequest.setVariableName(variableName);
         readRequest.invoke();
         return readRequest;
-    }   
+    }
     public WriteRequest getWriteRequest(int variableName, byte[] data) throws IOException {
         WriteRequest writeRequest = new WriteRequest(this);
         writeRequest.setVariableName(variableName);
         writeRequest.setData(data);
         writeRequest.invoke();
         return writeRequest;
-    }   
+    }
 }

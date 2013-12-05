@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolUtils;
 
 public class LoadProfileCompactArray {
 

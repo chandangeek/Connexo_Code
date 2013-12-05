@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 
 /**
  * Contains logical information about an {@link com.energyict.mdw.amr.Register}

@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.core;
 
-import java.util.Date;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.util.Date;
 
 public class MeterInfo {
 
@@ -13,7 +13,7 @@ public class MeterInfo {
 	private Date time				= null;
 	private Date readTime			= null;
 	private byte[] rawData			= null;
-	
+
 	/*
 	 * Constructors
 	 */
@@ -25,7 +25,7 @@ public class MeterInfo {
 		this.rawData = rawData;
 		this.readTime = new Date();
 	}
-	
+
 	public MeterInfo(String serialNumber, Date time, String version) {
 		this.serialNumber = serialNumber;
 		this.time = time;
@@ -46,7 +46,7 @@ public class MeterInfo {
 		strBuff.append("\n");
 		return strBuff.toString();
 	}
-	
+
 	public void printInfo() {
 		System.out.println(this.toString());
 	}
@@ -70,7 +70,7 @@ public class MeterInfo {
 	public byte[] getRawData() {
 		return rawData;
 	}
-	
+
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
 	}

@@ -11,20 +11,18 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class RDate {
-    
+
     private int month;
-    
+
     // month=1..13
     // month = 14
     private int weekday=-1;
@@ -32,15 +30,15 @@ public class RDate {
     // month=1..13
     private int offset=-1;
     private int day=-1;
-    
+
     // month = 15
     private int period=-1;
     private int delta=-1;
-    
+
     /** Creates a new instance of RDate */
     public RDate(byte[] data,int off,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         int temp = C12ParseUtils.getInt(data,off, 2,dataOrder);
         setMonth(temp & 0x000F);
         if ((getMonth()>=1) && (getMonth()<=13)) {
@@ -50,7 +48,7 @@ public class RDate {
         }
         else if (getMonth() == 14) {
             setWeekday((temp >> 8) & 0x0007);
-            
+
         }
         else if (getMonth() == 14) {
             setPeriod((temp >> 4) & 0x003F);
@@ -61,12 +59,12 @@ public class RDate {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("RDate: month="+getMonth()+", weekday="+getWeekday()+", offset="+getOffset()+", day="+getDay()+", period="+getPeriod()+", delta="+getDelta()+"\n");
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 2;
-    }          
+    }
 
     public int getMonth() {
         return month;

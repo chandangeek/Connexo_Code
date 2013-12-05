@@ -1,16 +1,16 @@
 
 package com.energyict.protocolimpl.ametek;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  *
  * @author cju
- * 
+ *
  */
 public class JemStar extends Jem implements MessageProtocol  {
 
@@ -37,10 +37,10 @@ public class JemStar extends Jem implements MessageProtocol  {
 	}
 
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {        
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
 
-		//getLogger().info("call overrided method getProfileData("+from+","+includeEvents+")");  
-		//getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");  
+		//getLogger().info("call overrided method getProfileData("+from+","+includeEvents+")");
+		//getLogger().info("--> here we read the profiledata from the meter and construct a profiledata object");
 
 		pd = new ProfileData();
 
@@ -99,7 +99,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		long startTime = cal.getTimeInMillis();
 		ArrayList dataList = new ArrayList();
 		Date lastDate = null;
-		List partialVals = new ArrayList(); 
+		List partialVals = new ArrayList();
 
 		ParseUtils.roundDown2nearestInterval(cal,getProfileInterval());
 		while(byteStream.available()>0)
@@ -129,7 +129,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 				isEvent = false;
 				long eventCode = convertHexToLongLE(byteStream, len);
 				startTime = convertHexToLongLE(byteStream, 4);
-				
+
 				if (noDate){
 					//on the first event set the time
 					startTime *= 1000l;
@@ -138,7 +138,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 					cal.setTimeInMillis(startTime);
 					ParseUtils.roundUp2nearestInterval(cal, getProfileInterval());
 				}
-				
+
 				long endTime = convertHexToLongLE(byteStream, 4);
                 endTime *= 1000l;
                 endTime -= getTimeZone().getOffset(endTime);
@@ -146,7 +146,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 				//endTime not used
 				//byteStream.skip(4);//used to be eaten in endTime
                 if (((eventCode & powerOutEvent) == powerOutEvent) || ((eventCode & testModeEvent) == testModeEvent)) //powerOutage
-				{			
+				{
 					if(endTime < cal.getTimeInMillis()){
 						//Power up power down happens inside the interval
 						eiStatus = IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP;
@@ -233,7 +233,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 			{
 				long val = convertHexToLongLE(byteStream, 4);
 
-				float f = -1;		    	
+				float f = -1;
 				Date tstamp = null;
 				RegisterValue rv = null;
 
@@ -284,7 +284,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 					rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()));
 				}
 				if(rv!=null)
-					registerValues.put(ob.toString(), rv);			
+					registerValues.put(ob.toString(), rv);
 			}
 
 		}
@@ -374,7 +374,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 	}
 
 	/*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
+     R e g i s t e r P r o t o c o l  i n t e r f a c e
 	 *******************************************************************************************/
 
 	protected void retrieveRegisters() throws IOException
@@ -384,7 +384,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		int dateRangeCmd = 0xff;
 //		if(to!=null)
 //		dateRangeCmd = 0xff;
-		
+
 		//FREEZE REGISTERS BEFORE READ
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x4C,0x01,0x10,0x02,0x10,0x03};
 		byte[] check = connection.getCheck(send, send.length);
@@ -397,7 +397,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 			getLogger().warning("Failed to freeze regiser");
 		else
 			getLogger().info("Registers frozen successfully");
-		
+
 		//READ REGULAR REGISTERS
 		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x02,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
 		check = connection.getCheck(send, send.length);
@@ -408,7 +408,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 
 		dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		processRegisters(dataInStream, REGULAR);
-		
+
 		//READ ALTERNATE REGISTERS
 		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x03,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
 		check = connection.getCheck(send, send.length);
@@ -462,7 +462,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		outputStream.write(check);
 
 		String instr = "";
-		
+
 		ByteArrayInputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		for (int i = 0; i<12; i++)
 			instr += Integer.toHexString(bais.read());
@@ -489,7 +489,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		int hh = cal.get(Calendar.HOUR_OF_DAY);
 		int mn = cal.get(Calendar.MINUTE);
 		int ss = cal.get(Calendar.SECOND);
-		int w = cal.get(Calendar.DAY_OF_WEEK); 
+		int w = cal.get(Calendar.DAY_OF_WEEK);
 
 		byte[] send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x54,0x05,0x10,0x02,
 				(byte)(yy/10), (byte)(yy%10),
@@ -501,13 +501,13 @@ public class JemStar extends Jem implements MessageProtocol  {
 				(byte)(w), 0x10,0x03};
 
 		byte[] check = connection.getCheck(send, send.length);
-		
+
 		getLogger().info("Setting time to " + cal.getTime());
 		outputStream.write(ack);
 		outputStream.write(send);
 		outputStream.write(check);
 
-		
+
 		ByteArrayInputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		int inval=0;
 

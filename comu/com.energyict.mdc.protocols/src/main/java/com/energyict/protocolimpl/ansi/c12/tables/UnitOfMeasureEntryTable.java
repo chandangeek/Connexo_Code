@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class UnitOfMeasureEntryTable extends AbstractTable {
-    
+
     private UOMEntryBitField[] uomEntryBitField;
-    
+
     /** Creates a new instance of UnitOfMeasureEntryTable */
     public UnitOfMeasureEntryTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(12));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("UnitOfMeasureEntryTable: \n");
@@ -37,25 +34,25 @@ public class UnitOfMeasureEntryTable extends AbstractTable {
             strBuff.append("uomEntryBitField["+i+"]="+getUomEntryBitField()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareBuild() throws IOException {
-        int size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() * UOMEntryBitField.getSize(); 
+        int size = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry() * UOMEntryBitField.getSize();
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,size);
         setPartialReadInfo(partialReadInfo);
     }
-    
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         setUomEntryBitField(new UOMEntryBitField[getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable().getMaxNrOfEntriesUOMEntry()]);
         for (int i=0;i<getUomEntryBitField().length;i++) {
             getUomEntryBitField()[i] = new UOMEntryBitField(tableData, offset, getTableFactory());
             offset+=UOMEntryBitField.getSize();
         }
-           
-        
-        
-    }         
+
+
+
+    }
 
     public UOMEntryBitField[] getUomEntryBitField() {
         return uomEntryBitField;

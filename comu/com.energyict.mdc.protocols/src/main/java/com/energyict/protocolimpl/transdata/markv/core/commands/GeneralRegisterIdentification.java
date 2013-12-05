@@ -10,18 +10,15 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author koen
  */
 public class GeneralRegisterIdentification {
-    
+
     // data ID for the first 4 channels
     private static final int[][] GENERAL_REGISTER_DATAID = {{5,13,21,29},
                                                             {6,14,22,30},
@@ -32,7 +29,7 @@ public class GeneralRegisterIdentification {
                                                             {11,19,27,35},
                                                             {9,17,25,33},
                                                             {363,364,365,366}};
-            
+
     static List list = new ArrayList();
     static {
         // General register data ids
@@ -46,7 +43,7 @@ public class GeneralRegisterIdentification {
             list.add(new RegisterDataId(RegisterDataId.COINCIDENT_DEMAND,RegisterDataId.INT,GENERAL_REGISTER_DATAID[6][channel],channel+1, 0,0, "General register, "+RegisterDataId.PHENOMENONS[6]+" for channel "+(channel+1)));
             list.add(new RegisterDataId(RegisterDataId.CUMULATIVE_DEMAND,RegisterDataId.LONG,GENERAL_REGISTER_DATAID[7][channel],channel+1, 0,0, "General register, "+RegisterDataId.PHENOMENONS[7]+" for channel "+(channel+1)));
             list.add(new RegisterDataId(RegisterDataId.RECORDER_VALID_READING,RegisterDataId.LONG,GENERAL_REGISTER_DATAID[8][channel],channel+1, 0,0, "General register, "+RegisterDataId.PHENOMENONS[8]+" for channel "+(channel+1)));
-            
+
             list.add(new RegisterDataId(RegisterDataId.TOTAL_USAGE,RegisterDataId.LONG,(-1)*GENERAL_REGISTER_DATAID[0][channel],channel+5, 0,0, "General register, "+RegisterDataId.PHENOMENONS[0]+" for channel "+(channel+1)));
             list.add(new RegisterDataId(RegisterDataId.CURRENT_DEMAND,RegisterDataId.INT,(-1)*GENERAL_REGISTER_DATAID[1][channel],channel+5, 0,0, "General register, "+RegisterDataId.PHENOMENONS[1]+" for channel "+(channel+1)));
             list.add(new RegisterDataId(RegisterDataId.PEAK_DEMAND,RegisterDataId.INT,(-1)*GENERAL_REGISTER_DATAID[2][channel],channel+5, 0,0, "General register, "+RegisterDataId.PHENOMENONS[2]+" for channel "+(channel+1)));
@@ -57,13 +54,13 @@ public class GeneralRegisterIdentification {
             list.add(new RegisterDataId(RegisterDataId.CUMULATIVE_DEMAND,RegisterDataId.LONG,(-1)*GENERAL_REGISTER_DATAID[7][channel],channel+5, 0,0, "General register, "+RegisterDataId.PHENOMENONS[7]+" for channel "+(channel+1)));
             list.add(new RegisterDataId(RegisterDataId.RECORDER_VALID_READING,RegisterDataId.LONG,(-1)*GENERAL_REGISTER_DATAID[8][channel],channel+5, 0,0, "General register, "+RegisterDataId.PHENOMENONS[8]+" for channel "+(channel+1)));
         }
-        
+
     }
-                                                            
+
     /** Creates a new instance of SelfReadRegisterIdentification */
     private GeneralRegisterIdentification() {
     }
-    
+
     static public List getRegisterDataIds() {
         return list;
     }

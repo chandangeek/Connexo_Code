@@ -10,24 +10,20 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author koen
  */
 public class Class15TimeAdjustHistory extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(15,56,false);
-           
-    
+
+
     private Date TDPRIL; // 6 bytes time/date prior to latest time adjust
     private Date TDAFTL; // 6 bytes time/date after latest time adjust
     private int APARTP; // 2 bytes chan A partial count prior to time adj
@@ -40,17 +36,17 @@ public class Class15TimeAdjustHistory extends AbstractClass {
     private int DPARTA; // 2 bytes chan D partial count after time adj
     // spares 16 bytes set to zero
     private Date TDPRI2;  // 6 bytes time/date prior to previous time adj
-    private Date TDAFT2;  // 6 bytes time/date after previous time adj    
-            
+    private Date TDAFT2;  // 6 bytes time/date after previous time adj
+
     /** Creates a new instance of Class15EventLogConfiguration */
     public Class15TimeAdjustHistory(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     public String toString() {
         return "Class15TimeAdjustHistory: TDPRIL="+getTDPRIL()+", TDAFTL="+getTDAFTL()+", APARTP="+getAPARTP()+", APARTA="+getAPARTA()+", BPARTP="+getBPARTP()+", BPARTA="+getBPARTA()+", CPARTP="+getCPARTP()+", CPARTA="+getCPARTA()+", DPARTP="+getDPARTP()+", DPARTA="+getDPARTA()+", TDPRI2="+getTDPRI2()+", TDAFT2="+getTDAFT2();
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         setTDPRIL(ClassParseUtils.getDate6(data, 0, getClassFactory().getAlpha().getTimeZone()));
         setTDAFTL(ClassParseUtils.getDate6(data, 6, getClassFactory().getAlpha().getTimeZone()));
@@ -65,14 +61,14 @@ public class Class15TimeAdjustHistory extends AbstractClass {
         // spare 16 bytes
         setTDPRI2(ClassParseUtils.getDate6(data, 44, getClassFactory().getAlpha().getTimeZone()));
         setTDAFT2(ClassParseUtils.getDate6(data, 50, getClassFactory().getAlpha().getTimeZone()));
-        
+
     }
-    
-    
-    
+
+
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
-    }    
+        return classIdentification;
+    }
 
     public Date getTDPRIL() {
         return TDPRIL;

@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220.plc.statistics;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author jme

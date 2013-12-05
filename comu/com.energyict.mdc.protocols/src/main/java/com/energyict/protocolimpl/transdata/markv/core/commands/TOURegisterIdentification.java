@@ -10,16 +10,14 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author Koen
  */
 public class TOURegisterIdentification {
-    
+
     private static final int[][] TOU_REGISTER_DATAID = {{105,201,109,205,113,209,117,213},
                                                         {129,225,133,229,137,233,141,237},
                                                         {153,249,157,253,161,257,165,261},
@@ -44,19 +42,19 @@ public class TOURegisterIdentification {
                                                         {379,383,387,391,395,399,403,407},
                                                         {380,384,388,392,396,400,404,408},
                                                         {381,385,389,393,397,401,405,409}};
-    
-    
+
+
     static List list = new ArrayList();
     static {
-        
+
         int[] touAll = {5,347, 13,348, 21,349, 29,350};
-        // TOTAL USAGE ALL        
+        // TOTAL USAGE ALL
         for(int channel=0;channel<4;channel++) {
             for(int billing=0;billing<2;billing++) {
                 list.add(new RegisterDataId(RegisterDataId.TOTAL_USAGE,RegisterDataId.LONG,touAll[channel*2+billing],channel+1, 0, billing, "TOU register, "+RegisterDataId.PHENOMENONS[RegisterDataId.TOTAL_USAGE]+" for channel "+(channel+1)+(billing==0?"":", last billing ")));
             }
         }
-        
+
         // General register data ids
         for(int channel=0;channel<4;channel++) {
             for(int rate=0;rate<4;rate++) {
@@ -71,13 +69,13 @@ public class TOURegisterIdentification {
             }
         }
     }
-    
+
     /** Creates a new instance of TOURegisterIdentification */
     private TOURegisterIdentification() {
     }
-    
+
     static public List getRegisterDataIds() {
         return list;
     }
-    
+
 }

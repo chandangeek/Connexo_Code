@@ -10,13 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 
 
 /**
@@ -24,11 +19,11 @@ import com.energyict.protocol.*;
  * @author koen
  */
 public class BillingDataRegister {
-    
+
     String description;
     ObisCode obisCode;
     RegisterValue registerValue;
-    
+
     /** Creates a new instance of BillingDataRegister */
     public BillingDataRegister(ObisCode obisCode,String description,RegisterValue registerValue) {
         this.obisCode=obisCode;
@@ -47,5 +42,5 @@ public class BillingDataRegister {
     public RegisterValue getRegisterValue() {
         return registerValue;
     }
-    
+
 }

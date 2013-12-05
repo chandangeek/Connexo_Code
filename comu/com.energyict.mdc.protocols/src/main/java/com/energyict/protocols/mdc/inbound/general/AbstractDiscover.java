@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.device.data.CollectedData;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -83,21 +83,26 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        this.typedProperties = properties;
+    public void copyProperties(TypedProperties properties) {
+        this.typedProperties = TypedProperties.copyOf(properties);
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_KEY));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY));
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_KEY));
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_KEY));
         return propertySpecs;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec (String name) {
+        for (PropertySpec propertySpec : this.getPropertySpecs()) {
+            if (name.equals(propertySpec)) {
+                return propertySpec;
+            }
+        }
+        return null;
     }
 
     public int getTimeOutProperty() {

@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -14,9 +12,11 @@ import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.Register;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.attributes.DSMR4_MbusClientAttributes;

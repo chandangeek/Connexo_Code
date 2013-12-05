@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -1,15 +1,13 @@
 package com.energyict.protocols.mdc.channels.ip;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -19,25 +17,14 @@ import java.util.Set;
  */
 public class InboundIpConnectionType extends ConnectionTypeImpl {
 
+    @Override
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        // No properties
+    }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
         return null;
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return false;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
     }
 
     @Override
@@ -56,7 +43,7 @@ public class InboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
         return new VoidComChannel();
     }
 
@@ -64,4 +51,5 @@ public class InboundIpConnectionType extends ConnectionTypeImpl {
     public String getVersion() {
         return "$Date: 2013-06-10 17:15:01 +0200 (Mon, 10 Jun 2013) $";
     }
+
 }

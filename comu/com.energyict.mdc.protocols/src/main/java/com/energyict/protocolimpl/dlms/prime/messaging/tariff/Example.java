@@ -1,8 +1,13 @@
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
 
-import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.*;
+import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.ActiveCalendars;
+import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;
+import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.S23;
 
-import javax.xml.bind.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.FileNotFoundException;
 
 /**

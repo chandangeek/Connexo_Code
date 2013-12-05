@@ -1,19 +1,19 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+
 import java.io.IOException;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-
 public class CumulativeRegister extends Register {
-    
+
     private Quantity importRegister;
     private Quantity exportRegister;
-    
+
     public CumulativeRegister(A140 a140, String id, int length, int sets, int options ) {
         super(a140, id, length, sets, options );
     }
-    
+
     public Quantity getExportRegister() throws IOException {
         read();
         return exportRegister;

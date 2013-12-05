@@ -10,12 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
@@ -24,13 +20,17 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.Parser;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+
 /**
  *
  * @author Koen
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-	
-	final static String slotInfo 		= "slotInfo";	
+
+	final static String slotInfo 		= "slotInfo";
 	final static String productCode 	= "productCode";
 	final static String profileInterval	= "profileInterval";
 	final static String channelInfos	= "channelInfos";
@@ -38,17 +38,17 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	final static String rePointer		= "reactiveEnergyPointer";
 	final static String dtLastUpdate	= "dateTimeLastProfileUpdate";
 	final static String currentDateTime = "currentDateTime";
-	
-	
+
+
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
     }
-    
+
     protected void init() {
         // options
         setZeroBased(false); // this means that reg2read = reg-1
-        
+
         // registers
         getRegisters().add(new HoldingRegister(1835,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("decimal10000")); 	// active Energy+
         getRegisters().add(new HoldingRegister(1837,2,ObisCode.fromString("1.1.36.8.0.255"),Unit.get("kvarh")).setParser("decimal10000")); 	// reactive Energy+
@@ -78,16 +78,16 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1793,1,ObisCode.fromString("1.1.51.7.0.255")).setParser("current"));							// Current ph2
         getRegisters().add(new HoldingRegister(1794,1,ObisCode.fromString("1.1.71.7.0.255")).setParser("current"));							// Current ph3
         getRegisters().add(new HoldingRegister(1822,1,ObisCode.fromString("1.1.1.4.0.255"))); // A40										// Average Active Power
-        //getRegisters().add(new HoldingRegister(1104,1,ObisCode.fromString("1.1.1.3.0.255")));						
+        //getRegisters().add(new HoldingRegister(1104,1,ObisCode.fromString("1.1.1.3.0.255")));
         getRegisters().add(new HoldingRegister(1830,1,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW")).setParser("power"));				// Max. Demand Active Power
-        
+
         getRegisters().add(new HoldingRegister(257,1,productCode));
-        
+
         getRegisters().add(new HoldingRegister(513,1,"ctSec"));
         getRegisters().add(new HoldingRegister(514,1,"ctPrim"));
-        
+
         getRegisters().add(new HoldingRegister(3072, 6, currentDateTime));
-        
+
         // LoadProfile related registers
         getRegisters().add(new HoldingRegister(258,4,slotInfo));
         getRegisters().add(new HoldingRegister(580,1,profileInterval));
@@ -95,8 +95,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(12288, 1, aePointer));
         getRegisters().add(new HoldingRegister(12289, 1, rePointer));
         getRegisters().add(new HoldingRegister(12290, 3, dtLastUpdate));
-        
-        
+
+
         // mMINT modbus <-> INCOM interface  does allow reading the registerconfiguration registers for the word order by using address 247 or 248.
         // we use a custom property to change the order because this reading of interface configuration registers is not possible within the framework.
         //getRegisters().add(new HoldingRegister(2002,1,"fpwordorder").setParser("fixedpoint"));
@@ -122,7 +122,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return BigDecimal.valueOf(val);
             }
         });
-        
+
         getParserFactory().addParser("power",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
                 long val=0;
@@ -130,7 +130,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                     val += (values[i]<<(i*16));
                 }
                 val = ParseUtils.signExtend(val, values.length*16);
-                
+
                 BigDecimal bd = new BigDecimal(val);
                 bd = bd.multiply(getModBus().getRegisterMultiplier(MultiplierFactory.CT));
                 bd = bd.movePointLeft(3);
@@ -160,7 +160,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return bd;
             }
         });
-        
+
         getParserFactory().addDateParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) {
                 Calendar cal = ProtocolUtils.getCleanCalendar(getModBus().getTimeZone());
@@ -191,7 +191,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += (values[i]<<((values.length-1-i)*16));
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('I')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('I'));
             }
         });
         getParserFactory().addParser("scale V",new Parser() {
@@ -200,7 +200,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 for (int i=0;i<values.length;i++) {
                     val += (values[i]<<((values.length-1-i)*16));
                 }
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('V')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('V'));
             }
         });
         getParserFactory().addParser("scale W",new Parser() {
@@ -210,7 +210,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                     val += (values[i]<<((values.length-1-i)*16));
                 }
                 val = ParseUtils.signExtend(val,16*values.length);
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('W')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('W'));
             }
         });
         getParserFactory().addParser("scale E",new Parser() {
@@ -220,10 +220,10 @@ public class RegisterFactory extends AbstractRegisterFactory {
                     val += (values[i]<<((values.length-1-i)*16));
                 }
                 val = ParseUtils.signExtend(val,16*values.length);
-                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('E')); 
+                return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('E'));
             }
         });
-        
+
     } //private void initParsers()
-    
+
 } // public class RegisterFactory extends AbstractRegisterFactory

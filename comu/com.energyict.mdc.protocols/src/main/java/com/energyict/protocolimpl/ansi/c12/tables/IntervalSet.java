@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;
@@ -20,15 +20,15 @@ import java.io.IOException;
  * @author Koen
  */
 public class IntervalSet {
-    
+
     private int[] extendedIntervalStatus; // 8 bit
-    
+
     // COMMON nibble status flag bits
     // bit 0 DST active during or at start of interval
     // bit 1 powerfail within interval
     // bit 2 clock reset forward during interval
     // bit 3 clock reset backwards during interval
-    
+
     // channel nibble status value 0..15
     // bit 0 no status flag
     // bit 1 overflow
@@ -37,31 +37,31 @@ public class IntervalSet {
     // bit 4 skipped interval due to protocolcommon state
     // bit 5 interval contains test mode data
     // bit 6..15 undefined
-    
+
     private IntervalFormat[] intervalData;
-    
+
     private boolean valid;
-            
+
     /** Creates a new instance of IntervalSet */
     public IntervalSet(byte[] data,int offset,TableFactory tableFactory, int set, boolean valid) throws IOException {
         setValid(valid);
-        ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();        
+        ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
         if (alpt.getLoadProfileSet().isExtendedIntStatusFlag()) {
             setExtendedIntervalStatus(new int[(alpt.getLoadProfileSet().getNrOfChannelsSet()[set]/2)+1]);
             for (int i=0;i<getExtendedIntervalStatus().length;i++) {
                 getExtendedIntervalStatus()[i] = C12ParseUtils.getInt(data,offset++);
             }
         }
-        
+
         setIntervalData(new IntervalFormat[alpt.getLoadProfileSet().getNrOfChannelsSet()[set]]);
         for (int i=0;i<getIntervalData().length;i++) {
             getIntervalData()[i] = new IntervalFormat(data, offset, tableFactory, set);
             offset+=IntervalFormat.getSize(tableFactory, set);
         }
-        
-        
+
+
     }
-    
+
     public int getCommonStatus() {
         return extendedIntervalStatus==null?0:(extendedIntervalStatus[0]>>4)&0x0F;
     }
@@ -73,11 +73,11 @@ public class IntervalSet {
         else
             return extendedIntervalStatus==null?0:extendedIntervalStatus[index]&0x0F;
     }
-    
+
     public boolean isDSTActive() {
         return ((getCommonStatus() & 0x01)==0x01);
     }
-    
+
     public boolean isClockResetBackwards() {
         return ((getCommonStatus() & 0x08)==0x08);
     }
@@ -87,16 +87,16 @@ public class IntervalSet {
     public boolean isPowerFailWithintheInterval() {
         return ((getCommonStatus() & 0x02)==0x02);
     }
-    
+
     public boolean isPartialDueToCommonState() {
         for (int channelId=0;channelId<intervalData.length;channelId++)
             if (getChannelStatus(channelId) != 2)
                 return false;
-        
+
         return true;
     }
-            
-    
+
+
     public int getCommon2EIStatus() {
         int eiStatus=0;
         // powerfail within interval
@@ -110,7 +110,7 @@ public class IntervalSet {
             eiStatus |= (IntervalStateBits.SHORTLONG);
         return eiStatus;
     }
-    
+
     public int getCommon2EIStatus(boolean powerStateOn) {
     	//powerStateOn => true, power is on, false, power is off
         int eiStatus=0;
@@ -131,7 +131,7 @@ public class IntervalSet {
             eiStatus |= (IntervalStateBits.SHORTLONG);
         return eiStatus;
     }
-    
+
     public int getchannel2EIStatus(int channelId) {
         switch(getChannelStatus(channelId)) {
             case 0: // no status
@@ -146,21 +146,21 @@ public class IntervalSet {
                 return IntervalStateBits.MISSING;
             case 5: // interval contains test mode data
                 return IntervalStateBits.OTHER;
-            default:    
+            default:
                 return IntervalStateBits.OTHER;
-        } 
+        }
     }
-    
-    
+
+
     public boolean isValid() {
         return valid;
     }
-    
-    
+
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("IntervalSet: ("+valid+") \n");
-        
+
         if (getExtendedIntervalStatus()!=null) {
             for (int i=0;i<getExtendedIntervalStatus().length;i++) {
                 strBuff.append("    extendedIntervalStatus["+i+"]=0x"+Integer.toHexString(extendedIntervalStatus[i])+"\n");
@@ -170,18 +170,18 @@ public class IntervalSet {
             strBuff.append("    intervalData["+i+"]="+intervalData[i]+"\n");
         }
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory, int set) throws IOException {
         ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
-        int size=0;        
+        int size=0;
         if (alpt.getLoadProfileSet().isExtendedIntStatusFlag()) {
             size+=(alpt.getLoadProfileSet().getNrOfChannelsSet()[set]/2)+1;
         }
         size+=(alpt.getLoadProfileSet().getNrOfChannelsSet()[set]*IntervalFormat.getSize(tableFactory,set));
         return size;
-    }      
+    }
 
     public int[] getExtendedIntervalStatus() {
         return extendedIntervalStatus;

@@ -10,29 +10,26 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.base.ToStringBuilder;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class UtilityInformationTable extends AbstractTable {
-    
+
     private String ownerName; // 20 bytes
     private String utilityDivision; // 20 bytes
-    
+
     private String servicePointId; // 10 bytes BCD or 20 bytes Char
     private String elecAddr; // 10 bytes BCD or 20 bytes Char
     private String deviceId; // 10 bytes BCD or 20 bytes Char
     private String utilSerNr; // 10 bytes BCD or 20 bytes Char
     private String customerId; // 10 bytes BCD or 20 bytes Char
-    
+
     private byte[] coordinate1; // 10 bytes of UINT8
     private byte[] coordinate2; // 10 bytes of UINT8
     private byte[] coordinate3; // 10 bytes of UINT8
@@ -45,15 +42,15 @@ public class UtilityInformationTable extends AbstractTable {
     private int ex2SwRevisionNumber; // 1 byte UINT8
     private String programmerName; // 10 bytes
     private String miscId; // 30 bytes
-    
-    
+
+
     /** Creates a new instance of TableTemplate */
     public UtilityInformationTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(6));
     }
-    
 
-    
+
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -78,17 +75,17 @@ public class UtilityInformationTable extends AbstractTable {
         strBuff.append("   tariffId="+getTariffId()+"\n");
         strBuff.append("   utilityDivision="+getUtilityDivision()+"\n");
         return strBuff.toString();
-    }    
-    
-    protected void parse(byte[] tableData) throws IOException { 
+    }
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualLogTable alt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
-        
+
         int offset=0;
-        
-        
+
+
         setOwnerName(new String(ProtocolUtils.getSubArray2(tableData, offset, 20))); offset+=20;
         setUtilityDivision(new String(ProtocolUtils.getSubArray2(tableData, offset, 20))); offset+=20;
         if (cfgt.getIdForm() == 1) {
@@ -105,12 +102,12 @@ public class UtilityInformationTable extends AbstractTable {
             setUtilSerNr(new String(ProtocolUtils.getSubArray2(tableData, offset, 20))); offset+=20;
             setCustomerId(new String(ProtocolUtils.getSubArray2(tableData, offset, 20))); offset+=20;
         }
-        
-        setCoordinate1(new byte[10]); 
+
+        setCoordinate1(new byte[10]);
         setCoordinate1(ProtocolUtils.getSubArray2(tableData, offset, 10)); offset+=10;
-        setCoordinate2(new byte[10]); 
+        setCoordinate2(new byte[10]);
         setCoordinate2(ProtocolUtils.getSubArray2(tableData, offset, 10)); offset+=10;
-        setCoordinate3(new byte[10]); 
+        setCoordinate3(new byte[10]);
         setCoordinate3(ProtocolUtils.getSubArray2(tableData, offset, 10)); offset+=10;
         setTariffId(new String(ProtocolUtils.getSubArray2(tableData, offset, 8))); offset+=8;
         setEx1SwVendor(new String(ProtocolUtils.getSubArray2(tableData, offset, 4))); offset+=4;
@@ -121,7 +118,7 @@ public class UtilityInformationTable extends AbstractTable {
         int ex2SwRevisionNumber = C12ParseUtils.getInt(tableData,offset++);
         String programmerName = new String(ProtocolUtils.getSubArray2(tableData, offset, 10)); offset+=10;
         String miscId = new String(ProtocolUtils.getSubArray2(tableData, offset, 30)); offset+=30;
-    }         
+    }
 
     public String getOwnerName() {
         return ownerName;

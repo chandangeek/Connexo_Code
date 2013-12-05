@@ -8,16 +8,18 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @author  Koen
@@ -47,33 +49,33 @@ public class ABBA1700RegisterFactory {
 
     public static final int MAX_CMD_REGS=8;
     public static final int MAX_MD_REGS=24;
-    
+
     // 32 TOU registers
     //static public final int MAX_TARIFF_REGS=32;
     //static public final int EXTRA_OFFSET=124;
-    
+
     // 16 TOU registers
     //static public final int MAX_TARIFF_REGS=16;
     //static public final int EXTRA_OFFSET=0;
-    
-    
-    private Map registers = new HashMap();    
+
+
+    private Map registers = new HashMap();
     private ProtocolLink protocolLink = null;
     private MeterExceptionInfo meterExceptionInfo = null; // KV 19012004
     private ABBA1700DataIdentityFactory abba1700DataItendityFactory=null;
-    
+
     ABBA1700MeterType meterType;
 
     protected ABBA1700DataIdentityFactory getABBA1700DataIdentityFactory() {
-      return abba1700DataItendityFactory;   
+      return abba1700DataItendityFactory;
     }
-    
+
     protected ProtocolLink getProtocolLink() {
-       return protocolLink; 
+       return protocolLink;
     }
-    
+
     protected Map getRegisters() {
-       return registers;    
+       return registers;
     }
 
     // length = -1, not used
@@ -157,7 +159,7 @@ public class ABBA1700RegisterFactory {
         registers.put(PowerDownCounterKey2, new ABBA1700Register("695", ABBA1700RegisterData.ABBA_POWER_DOWN_COUNTER2, 0, 22, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
         registers.put(BatterySupportStatusKey, new ABBA1700Register("546", ABBA1700RegisterData.ABBA_BATTERY_STATUS, 0, 12, null, ABBA1700Register.NOT_WRITEABLE, ABBA1700Register.NOT_CACHED));
     }
-    
+
     private void initLocals() {
         Iterator iterator = registers.values().iterator();
         while(iterator.hasNext()) {
@@ -165,7 +167,7 @@ public class ABBA1700RegisterFactory {
             reg.setABBA1700RegisterFactory(this);
         }
     }
-     
+
     /**
      * Creates a new instance of ABBA1700RegisterFactory
      */
@@ -176,9 +178,9 @@ public class ABBA1700RegisterFactory {
         abba1700DataItendityFactory = new ABBA1700DataIdentityFactory(protocolLink,meterExceptionInfo,meterType);
         initRegisters();
         initLocals();
-        
+
     }
-    
+
     public void setRegister(String name,String value) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
@@ -208,7 +210,7 @@ public class ABBA1700RegisterFactory {
            throw new IOException("ABBA1700, setRegister, "+e.getMessage());
         }
     }
-    
+
     public void invokeRegister(String name) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
@@ -227,7 +229,7 @@ public class ABBA1700RegisterFactory {
     public ABBA1700Register getABBA1700Register(String name) throws IOException {
         return findRegister(name);
     }
-    
+
     public Object getRegister(String name) throws IOException {
         return getRegister(name,-1);
     }
@@ -258,7 +260,7 @@ public class ABBA1700RegisterFactory {
                    }
                    catch(ClassCastException e) {
                        // absorb
-                   }               
+                   }
                    return obj;
                }
                else {
@@ -273,12 +275,12 @@ public class ABBA1700RegisterFactory {
            throw new IOException("ABBA1700, getRegister, "+e.getMessage());
         }
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
-    
+
     public byte[] getRegisterRawData(String name,int dataLength) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
@@ -288,7 +290,7 @@ public class ABBA1700RegisterFactory {
            throw new IOException("ABBA1700, getRegisterRawData, "+e.getMessage());
         }
     }
-    
+
     public byte[] getRegisterRawDataStream(String name, int nrOfBlocks) throws IOException {
         try {
            ABBA1700Register register = findRegister(name);
@@ -298,7 +300,7 @@ public class ABBA1700RegisterFactory {
            throw new IOException("ABBA1700, getRegisterRawDataStream, "+e.getMessage());
         }
     }
-    
+
     // search the map for the register info
     private ABBA1700Register findRegister(String name) throws IOException {
        ABBA1700Register register = (ABBA1700Register)registers.get(name);
@@ -321,6 +323,6 @@ public class ABBA1700RegisterFactory {
     public MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
-    
- 
+
+
 }

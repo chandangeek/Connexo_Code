@@ -10,12 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ActualSourcesLimitingTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -30,17 +31,17 @@ public class ServiceTypeTable extends AbstractTable {
     private ServiceTypeEntry[] serviceTypeEntries;
     private ExpectedServiceType expectedServiceTypeIndex;
     private CalConstants calConstants;
-      
+
     /** Creates a new instance of TableTemplate */
     public ServiceTypeTable(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(2,true));
     }
-    
-    
+
+
     public BigDecimal getCurrentMultiplier() throws IOException {
         return CurrentClass.findCurrentClass(getTypeDescription().getClassType()).getMultiplier().multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -56,7 +57,7 @@ public class ServiceTypeTable extends AbstractTable {
         strBuff.append("   typeDescription="+getTypeDescription()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         ConfigurationTable cfgt = getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualSourcesLimitingTable aslt = getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable();
@@ -82,15 +83,15 @@ public class ServiceTypeTable extends AbstractTable {
             for (int i=0;i<getServiceTypeEntries().length;i++) {
                 getServiceTypeEntries()[i] = new ServiceTypeEntry(data, offset, getManufacturerTableFactory());
                 offset+=ServiceTypeEntry.getSize(getManufacturerTableFactory());
-            }            
+            }
         }
 
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
-    
+
 //    protected void prepareBuild() throws IOException {
 //        // override to provide extra functionality...
 //        PartialReadInfo partialReadInfo = new PartialReadInfo(0,84);
@@ -152,6 +153,6 @@ public class ServiceTypeTable extends AbstractTable {
     public void setCalConstants(CalConstants calConstants) {
         this.calConstants = calConstants;
     }
-        
+
 
 }

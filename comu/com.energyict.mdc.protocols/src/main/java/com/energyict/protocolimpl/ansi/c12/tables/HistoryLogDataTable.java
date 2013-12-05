@@ -10,35 +10,32 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class HistoryLogDataTable extends AbstractTable {
-    
+
     private HistoryLog historyLog;
     private boolean header;
     private int historyEntryNrOffset;
     private int nrOfHistoryEntriesToRequest;
-        
+
     /** Creates a new instance of HistoryLogDataTable */
     public HistoryLogDataTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(74));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("HistoryLogDataTable: historyLog="+getHistoryLog()+"\n");
         return strBuff.toString();
     }
-    
+
     public void prepareGetHistoryEntries(int historyEntryNrOffset, int nrOfHistoryEntriesToRequest) throws IOException {
         this.historyEntryNrOffset = historyEntryNrOffset;
         this.nrOfHistoryEntriesToRequest = nrOfHistoryEntriesToRequest;
@@ -47,13 +44,13 @@ public class HistoryLogDataTable extends AbstractTable {
         setHeader(false);
         setPartialReadInfo(partialReadInfo);
     }
-    
+
     public void prepareGetHeader() throws IOException {
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,11);
         setHeader(true);
         setPartialReadInfo(partialReadInfo);
     }
-    
+
     public void prepareGetHistoryEntryHeader(int historyEntryNr) throws IOException {
         this.historyEntryNrOffset = historyEntryNr;
         this.setNrOfHistoryEntriesToRequest(1);
@@ -62,10 +59,10 @@ public class HistoryLogDataTable extends AbstractTable {
         setHeader(false);
         setPartialReadInfo(partialReadInfo);
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
-        setHistoryLog(new HistoryLog(tableData,0, tableFactory, header));        
-    }         
+
+    protected void parse(byte[] tableData) throws IOException {
+        setHistoryLog(new HistoryLog(tableData,0, tableFactory, header));
+    }
 
     public HistoryLog getHistoryLog() {
         return historyLog;

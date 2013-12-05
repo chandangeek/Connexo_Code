@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
@@ -23,90 +23,90 @@ import java.util.List;
  */
 public enum SecurityMessage implements DeviceMessageSpec {
 
-    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(
+    ACTIVATE_DLMS_ENCRYPTION(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(
             DeviceMessageConstants.encryptionLevelAttributeName,
             DlmsEncryptionLevelMessageValues.getNames())),
     CHANGE_DLMS_AUTHENTICATION_LEVEL(
-            PropertySpecFactory.stringPropertySpecWithValues(
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
     CHANGE_ENCRYPTION_KEY,
     CHANGE_CLIENT_PASSWORDS(
-            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName, 8),
-            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newManagementClientPasswordAttributeName, 8),
-            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newFirmwareClientPasswordAttributeName, 8)
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.newManagementClientPasswordAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.newFirmwareClientPasswordAttributeName)
     ),
-    WRITE_PSK(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
+    WRITE_PSK(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(RequiredPropertySpecFactory.newInstance().passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
     CHANGE_AUTHENTICATION_KEY,
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(RequiredPropertySpecFactory.newInstance().passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
     CHANGE_PASSWORD,
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
+    CHANGE_PASSWORD_WITH_NEW_PASSWORD(RequiredPropertySpecFactory.newInstance().passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
     CHANGE_LLS_SECRET,
-    CHANGE_LLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    CHANGE_LLS_SECRET_HEX(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
     CHANGE_HLS_SECRET,
-    CHANGE_HLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    CHANGE_HLS_SECRET_HEX(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.keyTActivationStatusAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName)),
-    CHANGE_EXECUTION_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
-    CHANGE_TEMPORARY_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
+            RequiredPropertySpecFactory.newInstance().notNullableBooleanPropertySpec(DeviceMessageConstants.keyTActivationStatusAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName)),
+    CHANGE_EXECUTION_KEY(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
+    CHANGE_TEMPORARY_KEY(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
     BREAK_OR_RESTORE_SEALS(
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.eventLogResetSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.statusChangeSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.downloadProgramSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName)),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.eventLogResetSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.statusChangeSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.downloadProgramSealAttributeName),
+            RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName)),
     TEMPORARY_BREAK_SEALS(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.statusChangeSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName, new BigDecimal(0)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0))),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.statusChangeSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName, new BigDecimal(0)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0))),
     GENERATE_NEW_PUBLIC_KEY,
-    GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
-    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceListAttributeName)),
+    GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
+    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.deviceListAttributeName)),
     DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(
-            PropertySpecFactory.stringPropertySpecWithValues(
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
     DISABLE_DLMS_AUTHENTICATION_LEVEL_P1(
-            PropertySpecFactory.stringPropertySpecWithValues(
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
     ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(
-            PropertySpecFactory.stringPropertySpecWithValues(
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
     ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(
-            PropertySpecFactory.stringPropertySpecWithValues(
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
     ),
     CHANGE_HLS_SECRET_USING_SERVICE_KEY(
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
     CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY(
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
     CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY(
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;

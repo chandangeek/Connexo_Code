@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 
 /**
@@ -22,22 +22,22 @@ import com.energyict.protocol.ProtocolUtils;
  * @author koen
  */
 public class DateTimeBuilder {
-    
+
     /** Creates a new instance of DateTimeBuilder */
     public DateTimeBuilder() {
     }
-    
+
     public static Date getDateFromSecondsSince1996(TimeZone timeZone, int secondsSince1996) {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.set(Calendar.YEAR,1996);
         cal.add(Calendar.SECOND,secondsSince1996);
         return cal.getTime();
-    }  
-    
+    }
+
     public static Date getDateFromDDMMYYHHMMSS(TimeZone timeZone, byte[] data) {
         return getDateFromDDMMYYHHMMSS(timeZone,data,0);
     }
-    
+
     public static Date getDateFromDDMMYYHHMMSS(TimeZone timeZone, byte[] data, int offset) {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.set(Calendar.DAY_OF_MONTH,data[offset]);
@@ -47,12 +47,12 @@ public class DateTimeBuilder {
         cal.set(Calendar.MINUTE,data[offset+4]);
         cal.set(Calendar.SECOND,data[offset+5]);
         return cal.getTime();
-    }  
-    
-    public static int getDateFromDDMMYYHHMMSSSize() {
-       return 6;    
     }
-    
+
+    public static int getDateFromDDMMYYHHMMSSSize() {
+       return 6;
+    }
+
     public static byte[] getDDMMYYHHMMSSDataFromDate(Date date,TimeZone timeZone) {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.setTime(date);
@@ -65,20 +65,20 @@ public class DateTimeBuilder {
         data[5]=(byte)cal.get(Calendar.SECOND);
         return data;
     }
-            
+
     public static Date getDateFromHHMMSS(TimeZone timeZone, byte[] data) {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.set(Calendar.HOUR_OF_DAY,data[0]);
         cal.set(Calendar.MINUTE,data[1]);
         cal.set(Calendar.SECOND,data[2]);
         return cal.getTime();
-    }  
-    
+    }
+
     public static Date getDateFromDDMMYY(TimeZone timeZone, byte[] data) {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         cal.set(Calendar.DAY_OF_MONTH,data[0]);
         cal.set(Calendar.MONTH,data[1]-1);
         cal.set(Calendar.YEAR,data[2]<50?data[2]+2000:data[2]+1900);
         return cal.getTime();
-    }  
+    }
 }

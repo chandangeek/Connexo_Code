@@ -1,16 +1,16 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedRegisterList;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.protocols.mdc.inbound.general.frames.parsing.RegisterInfo;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.device.data.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocols.mdc.inbound.general.frames.parsing.RegisterInfo;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,7 +37,7 @@ public class RegisterFrame extends AbstractInboundFrame {
 
     @Override
     public void doParse() {
-        List<RegisterValue> registers = new ArrayList<RegisterValue>();
+        List<RegisterValue> registers = new ArrayList<>();
         this.parseParameters(registers);
         for (RegisterValue register : registers) {
             getCollectedRegisterList().addCollectedRegister(this.processRegister(register));
@@ -98,7 +98,7 @@ public class RegisterFrame extends AbstractInboundFrame {
         return this.collectedRegisterList;
     }
 
-    private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode){
+    private CanFindRegister getRegisterIdentifier(ObisCode registerObisCode){
         return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifier());
     }
 

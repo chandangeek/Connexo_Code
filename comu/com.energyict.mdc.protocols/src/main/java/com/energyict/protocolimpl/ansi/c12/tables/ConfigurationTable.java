@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ConfigurationTable extends AbstractTable {
-    
+
     // format control 1
     private int dataOrder;
     private int charFormat;
@@ -52,16 +52,16 @@ public class ConfigurationTable extends AbstractTable {
     private byte[] mfgProcUsed;
     private byte[] stdTablesWrite;
     private byte[] mfgTablesWrite;
-    
-    
+
+
     /** Creates a new instance of ConfigurationTable */
     public ConfigurationTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(0));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
-        
+
         strBuff.append("ConfigurationTable:\n");
         strBuff.append("    format control 1: ");
         strBuff.append("dataOrder="+getDataOrder()+", ");
@@ -89,16 +89,16 @@ public class ConfigurationTable extends AbstractTable {
         strBuff.append("dimMfgProcUsed="+getDimMfgProcUsed()+", ");
         strBuff.append("dimMfgStatusUsed="+getDimMfgStatusUsed()+", ");
         strBuff.append("nrPending="+getNrPending()+"\n");
-        strBuff.append("    stdTablesUsed="+ProtocolUtils.getResponseData(getStdTablesUsed())+", "+listBitsUsed(getStdTablesUsed())+"\n"); 
-        strBuff.append("    mfgTablesUsed="+ProtocolUtils.getResponseData(getMfgTablesUsed())+", "+listBitsUsed(getMfgTablesUsed())+"\n"); 
-        strBuff.append("    stdProcUsed="+ProtocolUtils.getResponseData(getStdProcUsed())+", "+listBitsUsed(getStdProcUsed())+"\n"); 
-        strBuff.append("    mfgProcUsed="+ProtocolUtils.getResponseData(getMfgProcUsed())+", "+listBitsUsed(getMfgProcUsed())+"\n"); 
-        strBuff.append("    stdTablesWrite="+ProtocolUtils.getResponseData(getStdTablesWrite())+", "+listBitsUsed(getStdTablesWrite())+"\n"); 
-        strBuff.append("    mfgTablesWrite="+ProtocolUtils.getResponseData(getMfgTablesWrite())+", "+listBitsUsed(getMfgTablesWrite())+"\n"); 
+        strBuff.append("    stdTablesUsed="+ProtocolUtils.getResponseData(getStdTablesUsed())+", "+listBitsUsed(getStdTablesUsed())+"\n");
+        strBuff.append("    mfgTablesUsed="+ProtocolUtils.getResponseData(getMfgTablesUsed())+", "+listBitsUsed(getMfgTablesUsed())+"\n");
+        strBuff.append("    stdProcUsed="+ProtocolUtils.getResponseData(getStdProcUsed())+", "+listBitsUsed(getStdProcUsed())+"\n");
+        strBuff.append("    mfgProcUsed="+ProtocolUtils.getResponseData(getMfgProcUsed())+", "+listBitsUsed(getMfgProcUsed())+"\n");
+        strBuff.append("    stdTablesWrite="+ProtocolUtils.getResponseData(getStdTablesWrite())+", "+listBitsUsed(getStdTablesWrite())+"\n");
+        strBuff.append("    mfgTablesWrite="+ProtocolUtils.getResponseData(getMfgTablesWrite())+", "+listBitsUsed(getMfgTablesWrite())+"\n");
         return strBuff.toString();
     }
-    
-    
+
+
     private String listBitsUsed(byte[] data) {
         StringBuffer strBuff = new StringBuffer();
         for (int i=0;i<data.length*8;i++) {
@@ -107,7 +107,7 @@ public class ConfigurationTable extends AbstractTable {
         }
         return strBuff.toString();
     }
-    
+
     public boolean isStdTableUsed(int tableId) {
         byte[] data = getStdTablesUsed();
         for (int i=0;i<data.length*8;i++) {
@@ -117,7 +117,7 @@ public class ConfigurationTable extends AbstractTable {
         }
         return false;
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int temp;
         // format control 1
@@ -133,7 +133,7 @@ public class ConfigurationTable extends AbstractTable {
         setIntFormat((temp&0xC0)>>6);
         // format control 3
         temp = C12ParseUtils.getInt(tableData,2);
-        setNonIntFormat1(temp&0x0F); 
+        setNonIntFormat1(temp&0x0F);
         setNonIntFormat2((temp&0xF0)>>4);
         // general config
         setManufacturer(new String(ProtocolUtils.getSubArray2(tableData,3, 4)));
@@ -161,7 +161,7 @@ public class ConfigurationTable extends AbstractTable {
         setStdTablesWrite(ProtocolUtils.getSubArray2(tableData, offset, getDimStdTablesUsed()));
         offset+=getDimStdTablesUsed();
         setMfgTablesWrite(ProtocolUtils.getSubArray2(tableData, offset, getDimMfgTablesUsed()));
-        
+
     }
 
     public int getDataOrder() {

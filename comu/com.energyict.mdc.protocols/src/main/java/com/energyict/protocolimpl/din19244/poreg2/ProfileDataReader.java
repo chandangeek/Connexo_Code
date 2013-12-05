@@ -1,15 +1,24 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
 import com.energyict.protocolimpl.din19244.poreg2.request.ProfileDataEntry;
-import com.energyict.protocolimpl.din19244.poreg2.request.register.*;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileDescription;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileInfo;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileParameters;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT

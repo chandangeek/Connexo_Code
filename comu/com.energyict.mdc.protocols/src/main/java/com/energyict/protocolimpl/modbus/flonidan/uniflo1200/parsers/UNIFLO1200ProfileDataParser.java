@@ -1,14 +1,10 @@
 /**
  * UNIFLO1200ProfileDataParser.java
- * 
+ *
  * Created on 22-dec-2008, 16:07:03 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Parser;
@@ -17,6 +13,10 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author jme
@@ -28,12 +28,12 @@ public class UNIFLO1200ProfileDataParser {
 	private UNIFLO1200ProfileData profileData;
 	private Date timeValue;
 	private Number[] channelNumbers;
-	
-	
+
+
 	/*
 	 * Constructors
 	 */
-	
+
 	public UNIFLO1200ProfileDataParser(UNIFLO1200ProfileData profileData) {
 		this.profileData = profileData;
 	}
@@ -49,15 +49,15 @@ public class UNIFLO1200ProfileDataParser {
 	private UNIFLO1200ProfileInfo getProfileInfo() {
 		return getProfileData().getLoadProfile().getProfileInfo();
 	}
-	
+
 	private int getNumberOfChannels() {
 		return getProfileData().getLoadProfile().getNumberOfChannels();
 	}
-	
+
 	private Parser getParser(UNIFLO1200HoldingRegister reg) throws IOException {
 		return this.getParser(reg.getParser());
 	}
-	
+
 	private Parser getParser(String parserName) throws IOException {
 		return getRegisterFactory().getParserFactory().get(parserName);
 	}
@@ -65,11 +65,11 @@ public class UNIFLO1200ProfileDataParser {
 	private UNIFLO1200RegisterFactory getRegisterFactory() {
 		return (UNIFLO1200RegisterFactory) getUniflo1200().getRegisterFactory();
 	}
-	
+
 	private UNIFLO1200 getUniflo1200() {
 		return getProfileData().getLoadProfile().getUniflo1200();
 	}
-	
+
 	private int[] parseByteArray2IntArray(byte[] rawData) {
 		int[] returnValue = new int[(rawData.length / 2)];
 		for (int i = 0; i < returnValue.length; i++) {
@@ -78,14 +78,14 @@ public class UNIFLO1200ProfileDataParser {
 		}
 		return returnValue;
 	}
-	
+
     private static int[] getSubArray(int[] data,int offset, int length) {
     	int[] subArray = new int[length];
         for (int i=0;i<subArray.length;i++) {
-           subArray[i] = data[i+offset]; 
+           subArray[i] = data[i+offset];
         }
         return subArray;
-    }    
+    }
 
     private String printIntArray(int[] intArray) {
 		String returnValue = "";
@@ -94,24 +94,24 @@ public class UNIFLO1200ProfileDataParser {
 		}
     	return returnValue;
     }
-	
+
 	/*
 	 * Public methods
 	 */
 
 	public void parseData(byte[] rawData) throws IOException {
 		List registers = getProfileInfo().getChannelRegisters();
-		int[] intData = parseByteArray2IntArray(rawData);		
+		int[] intData = parseByteArray2IntArray(rawData);
 		int noc = getNumberOfChannels();
-		
+
 		if (DEBUG >= 1) {
 			System.out.println("RawData = " + ProtocolUtils.outputHexString(rawData));
 			System.out.println("IntData = " + printIntArray(intData));
 		}
-		
+
 		this.channelNumbers = new Number[noc];
 		this.timeValue = (Date) getParser(UNIFLO1200Parsers.PARSER_TIME).val(intData, null);
-	
+
 		for (int i = 0; i < noc; i++) {
 			UNIFLO1200HoldingRegister reg = (UNIFLO1200HoldingRegister) registers.get(i);
 			registers.get(i);
@@ -123,7 +123,7 @@ public class UNIFLO1200ProfileDataParser {
 			}
 		}
 	}
-	
+
 	/*
 	 * Public getters and setters
 	 */
@@ -131,9 +131,9 @@ public class UNIFLO1200ProfileDataParser {
 	public Date getTime() {
 		return this.timeValue;
 	}
-	
+
 	public Number getNumber(int channelIndex) {
 		return channelNumbers[channelIndex] ;
 	}
-	
+
 }

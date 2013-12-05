@@ -10,21 +10,22 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class VoltageCode {
-    
+
     private int id;
     private int volt;
     private BigDecimal multiplier;
-            
-    
+
+
     static List voltageCodes = new ArrayList();
     static {
         voltageCodes.add(new VoltageCode(1, 120, new BigDecimal("0.00833")));
@@ -32,16 +33,16 @@ public class VoltageCode {
         voltageCodes.add(new VoltageCode(4, 277, new BigDecimal("0.01923")));
         voltageCodes.add(new VoltageCode(8, 480, new BigDecimal("0.03333")));
     }
-    
+
     static public VoltageCode findVoltageCode(int id) throws IOException {
         for (int i=0;i<voltageCodes.size();i++) {
             VoltageCode vc = (VoltageCode)voltageCodes.get(i);
-            if (vc.getId()==id) 
+            if (vc.getId()==id)
                 return vc;
         }
         throw new IOException("VoltageCode, unknown voltagecode "+id);
     }
-    
+
     /** Creates a new instance of VoltageCode */
     private VoltageCode(int id, int volt, BigDecimal multiplier) {
         this.setId(id);
@@ -72,5 +73,5 @@ public class VoltageCode {
     public void setMultiplier(BigDecimal multiplier) {
         this.multiplier = multiplier;
     }
-    
+
 }

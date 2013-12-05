@@ -3,15 +3,15 @@
  */
 package com.energyict.protocolimpl.dlms.as220.plc;
 
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.dlms.as220.plc.statistics.PLCStatistics;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.dlms.as220.AS220;
-import com.energyict.protocolimpl.dlms.as220.plc.statistics.PLCStatistics;
 
 /**
  * @author jme

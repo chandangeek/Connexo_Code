@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.dlms.g3.registers.mapping;
 
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -26,15 +28,15 @@ public abstract class RegisterMapping {
     }
 
     /**
-     * Check if a given {@link com.energyict.obis.ObisCode} is readable by this register mapping.
+     * Check if a given {@link ObisCode} is readable by this register mapping.
      *
-     * @param obisCode The {@link com.energyict.obis.ObisCode} to validate
-     * @return True if the value with the given {@link com.energyict.obis.ObisCode} if mappable in this mapping
+     * @param obisCode The {@link ObisCode} to validate
+     * @return True if the value with the given {@link ObisCode} if mappable in this mapping
      */
     public abstract boolean canRead(final ObisCode obisCode);
 
     /**
-     * Fetch the requested value from the meter and return it as a {@link com.energyict.protocol.RegisterValue}
+     * Fetch the requested value from the meter and return it as a {@link com.energyict.mdc.protocol.device.data.RegisterValue}
      * If this method is called, the obisCode is guaranteed readable by this mapper,
      * so no extra validation of the obisCode is required in the implementation.
      *
@@ -45,10 +47,10 @@ public abstract class RegisterMapping {
     protected abstract RegisterValue doReadRegister(final ObisCode obisCode) throws IOException;
 
     /**
-     * Try to read the value with the given {@link com.energyict.obis.ObisCode} and return the result as a {@link com.energyict.protocol.RegisterValue}
+     * Try to read the value with the given {@link ObisCode} and return the result as a {@link com.energyict.mdc.protocol.device.data.RegisterValue}
      *
-     * @param obisCode The {@link com.energyict.obis.ObisCode} to fetch
-     * @return The {@link com.energyict.protocol.RegisterValue}
+     * @param obisCode The {@link ObisCode} to fetch
+     * @return The {@link com.energyict.mdc.protocol.device.data.RegisterValue}
      * @throws java.io.IOException
      */
     public RegisterValue readRegister(final ObisCode obisCode) throws IOException {

@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.cm10;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 
-import com.energyict.protocol.ProtocolUtils;
-
 public class TimeTable {
-	
+
 	private CM10 cm10Protocol;
     private Date time;
-	
+
 	public TimeTable(CM10 cm10Protocol) {
 		this.cm10Protocol = cm10Protocol;
 	}
-	
-	
+
+
 	public void parse(byte[] data) {
 		Calendar c = ProtocolUtils.getCalendar(cm10Protocol.getTimeZone());
 		int sec = data[0];
@@ -33,7 +33,7 @@ public class TimeTable {
         c.set(Calendar.MILLISECOND, 0);
         this.time = c.getTime();
 	}
-	
+
 	public Date getTime() {
 		return time;
 	}

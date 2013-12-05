@@ -6,11 +6,6 @@
 
 package com.energyict.protocolimpl.customerconfig;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.obis.ObisCode;
-
 
 /**
  *
@@ -19,7 +14,7 @@ import com.energyict.obis.ObisCode;
 public class Register {
     String name;
     int id;
-    
+
     /** Creates a new instance of RegisterMapping */
     public Register(String name, int id) {
         this.name=name;
@@ -33,7 +28,7 @@ public class Register {
     public java.lang.String getName() {
         return name;
     }
-    
+
     /**
      * Getter for property id.
      * @return Value of property id.

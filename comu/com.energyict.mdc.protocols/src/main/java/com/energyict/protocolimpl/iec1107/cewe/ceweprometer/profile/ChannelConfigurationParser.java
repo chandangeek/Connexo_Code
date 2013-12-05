@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

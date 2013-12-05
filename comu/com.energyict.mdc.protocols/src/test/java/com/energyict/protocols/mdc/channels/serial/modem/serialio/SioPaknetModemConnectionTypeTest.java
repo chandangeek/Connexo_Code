@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
@@ -8,32 +7,38 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AbstractPaknetModemProperties;
 import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link com.energyict.protocols.mdc.channels.serial.modem.serialio.SioPaknetModemConnectionType} component
@@ -82,7 +87,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         return new TimeoutSerialComChannel(serialPort, sleepTime);
     }
 
-    private List<ConnectionTaskProperty> getProperProperties() {
+    private List<ConnectionProperty> getProperProperties() {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.COMMAND_TIMEOUT);
@@ -102,8 +107,17 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.PHONE_NUMBER_PROPERTY_NAME);
         phoneNumber.setValue(PHONE_NUMBER);
 
-        return Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries, atModemInitStrings,
-                delayAfterConnect, connectTimeOut, dialPrefix, dtrToggleDelay, phoneNumber);
+        List<ConnectionProperty> connectionProperties = new ArrayList<>();
+        connectionProperties.add(delayBeforeSendProperty);
+        connectionProperties.add(atCommandTimeout);
+        connectionProperties.add(atCommandTries);
+        connectionProperties.add(atModemInitStrings);
+        connectionProperties.add(delayAfterConnect);
+        connectionProperties.add(connectTimeOut);
+        connectionProperties.add(dialPrefix);
+        connectionProperties.add(dtrToggleDelay);
+        connectionProperties.add(phoneNumber);
+        return connectionProperties;
     }
 
     private ComPort getProperlyMockedComPort(TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
@@ -126,7 +140,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newPaknetModemComponent(any(AbstractPaknetModemProperties.class))).thenReturn(modemComponent);
         SioPaknetModemConnectionType modemConnectionType = spy(new SioPaknetModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).disconnectModemBeforeNewSession(comChannel);
     }
@@ -143,7 +157,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         SioPaknetModemConnectionType modemConnectionType = new SioPaknetModemConnectionType();
 
         try {
-            modemConnectionType.connect(comPort, getProperProperties());
+            modemConnectionType.connect(getProperProperties());
         } catch (ModemException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-215")) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
@@ -164,7 +178,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newPaknetModemComponent(any(AbstractPaknetModemProperties.class))).thenReturn(modemComponent);
         SioPaknetModemConnectionType modemConnectionType = spy(new SioPaknetModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);
     }
@@ -182,7 +196,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         SioPaknetModemConnectionType modemConnectionType = new SioPaknetModemConnectionType();
 
         try {
-            modemConnectionType.connect(comPort, getProperProperties());
+            modemConnectionType.connect(getProperProperties());
         } catch (ModemException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
                 fail("Should have gotten exception indicating that the modem could not send the initialization parameters, but was " + e.getMessage());
@@ -203,7 +217,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newPaknetModemComponent(any(AbstractPaknetModemProperties.class))).thenReturn(modemComponent);
         SioPaknetModemConnectionType modemConnectionType = spy(new SioPaknetModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).sendParameters(comChannel);
     }
@@ -223,7 +237,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         commandTries.setValue(new BigDecimal(3));
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DTR_TOGGLE_DELAY);
         dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
-        List<ConnectionTaskProperty> properties = Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, commandTimeout, commandTries, dtrToggleDelay);
+        List<ConnectionProperty> properties = Arrays.<ConnectionProperty>asList(delayBeforeSendProperty, commandTimeout, commandTries, dtrToggleDelay);
 
         PaknetModemComponent modemComponent = spy(new PaknetModemComponent(new TypedPaknetModemProperties(properties)));
         when(this.serialComponentFactory.newPaknetModemComponent(any(AbstractPaknetModemProperties.class))).thenReturn(modemComponent);
@@ -231,7 +245,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
 
         final int numberOfTries = 3;
         try {
-            modemConnectionType.connect(comPort, properties);
+            modemConnectionType.connect(properties);
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-215")) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
@@ -254,7 +268,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         SioPaknetModemConnectionType modemConnectionType = spy(new SioPaknetModemConnectionType());
 
         try {
-            modemConnectionType.connect(comPort, getProperProperties());
+            modemConnectionType.connect(getProperProperties());
         } catch (ModemException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-213")) {
                 fail("Should have gotten exception indicating that a timeout occurred during the dial, but was " + e.getMessage());
@@ -280,7 +294,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newPaknetModemComponent(any(AbstractPaknetModemProperties.class))).thenReturn(modemComponent);
         SioPaknetModemConnectionType modemConnectionType = spy(new SioPaknetModemConnectionType());
 
-        modemConnectionType.connect(comPort, getProperProperties());
+        modemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);

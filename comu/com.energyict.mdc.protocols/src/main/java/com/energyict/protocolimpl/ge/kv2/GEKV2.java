@@ -16,15 +16,15 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
@@ -60,7 +60,7 @@ KV|04012007|reengineered protocol to allow Eiserver 7 new channel properties
  * @endchanges
  */
 public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
-    
+
     private C12Layer2 c12Layer2;
     private PSEMServiceFactory psemServiceFactory;
     private StandardTableFactory standardTableFactory;
@@ -70,24 +70,24 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
     KV2 kv2=new KV2();
     GEKV2LoadProfile gekv2LoadProfile;
     private ObisCodeInfoFactory obisCodeInfoFactory=null;
-    
+
     String c12User;
     int c12UserId;
     private int useSnapshotProcedure;
-    
+
     /** Creates a new instance of GEKV */
     public GEKV2() {
     }
-    
-    
+
+
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getProfileData(lastReading,new Date(),includeEvents);
     }
-    
+
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         return gekv2LoadProfile.getProfileData(from,to,includeEvents);
     }
-    
+
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
 /*
         Properties properties = new Properties();
@@ -101,10 +101,10 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         String serialNumber =  getRegister("SerialNumber");
         disconnect();
         return serialNumber;
-*/        
+*/
         throw new IOException("Not implemented!");
     }
-    
+
     protected void validateSerialNumber() throws IOException {
          boolean check = true;
         if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
@@ -112,32 +112,32 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
-    
+
     public AbstractManufacturer getManufacturer() {
         return kv2;
     }
-    
-    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters. 
+
+    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
     public void enableHHUSignOn(SerialCommunicationChannel commChannel,boolean datareadout) throws ConnectionException {
         this.commChannel=commChannel;
     }
-    
+
     protected void doConnect() throws IOException {
-        // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters. 
+        // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
         if (commChannel!=null) {
-            
+
             commChannel.setParams(9600,
                                   SerialCommunicationChannel.DATABITS_8,
                                   SerialCommunicationChannel.PARITY_NONE,
                                   SerialCommunicationChannel.STOPBITS_1);
-            if (getDtrBehaviour() == 0)            
+            if (getDtrBehaviour() == 0)
                 commChannel.setDTR(false);
-            else if (getDtrBehaviour() == 1)            
+            else if (getDtrBehaviour() == 1)
                 commChannel.setDTR(true);
         }
         getPSEMServiceFactory().logOn(c12UserId,c12User,getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
-        
+
         // only for the KV2c meter... Because the KV2c meter continues collecting data during a communication session...
         if (getUseSnapshotProcedure() == 1) {
             try {
@@ -147,22 +147,22 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
             catch(ResponseIOException e) {
                 if (e.getReason()==AbstractResponse.ONP) // operation not possible
                    getLogger().info("Snapshot procedure not possible, KV2 meter or KV meter!");
-                if (e.getReason()==AbstractResponse.SNAPSHOT_ERROR) { 
+                if (e.getReason()==AbstractResponse.SNAPSHOT_ERROR) {
                    getLogger().info("It appears that some KV2 meters are not happy with the use of the snapshot command. therefor, set the 'UseSnapshotProcedure' custom property to 0!");
                    throw e;
                 }
-                else { 
+                else {
                    throw e;
                 }
-            }        
+            }
         }
     }
-    
+
     protected void doDisConnect() throws IOException {
-        getPSEMServiceFactory().logOff();        
-    }    
-    
-    
+        getPSEMServiceFactory().logOff();
+    }
+
+
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","10").trim()));
         setInfoTypeNodeAddress(properties.getProperty(MeterProtocol.NODEID,"64"));
@@ -170,17 +170,17 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         c12UserId = Integer.parseInt(properties.getProperty("C12UserId","0").trim());
         setUseSnapshotProcedure(Integer.parseInt(properties.getProperty("UseSnapshotProcedure","1").trim()));
     }
-    
+
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
-        
+
         result.add("C12User");
         result.add("C12UserId");
         result.add("UseSnapshotProcedure");
-        
+
         return result;
     }
-    
+
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController);
         c12Layer2.initStates();
@@ -189,15 +189,15 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         manufacturerTableFactory = new ManufacturerTableFactory(this);
         standardProcedureFactory = new StandardProcedureFactory(this);
         manufacturerProcedureFactory = new ManufacturerProcedureFactory(this);
-        
+
         gekv2LoadProfile = new GEKV2LoadProfile(this);
         return c12Layer2;
     }
-    
+
     public void setTime() throws IOException {
         getStandardProcedureFactory().setDateTime();
-    }    
-    
+    }
+
     public Date getTime() throws IOException {
         try {
             return getStandardTableFactory().getTime();
@@ -205,7 +205,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         catch(ResponseIOException e) {
             if (e.getReason()==AbstractResponse.IAR) // table does not exist!
                getLogger().warning("No clock table available, use system clock. Probably a demand only meter!");
-            else { 
+            else {
                throw e;
              //   getLogger().warning(e.toString());
             }
@@ -214,9 +214,9 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
             getLogger().warning(e.toString());
         }
         return new Date();
-        
+
     }
-    
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
@@ -228,7 +228,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         catch(ResponseIOException e) {
             if (e.getReason()==AbstractResponse.IAR) // table does not exist!
                getLogger().warning("No profile channels available. Probably a demand only meter!");
-            else 
+            else
                throw e;
         }
         return 0;
@@ -238,46 +238,46 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
     public String getProtocolDescription() {
         return "General Electric KV2 ANSI C12";
     }
-    
+
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
                "Hardware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getHwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getHwRevision();
-    }    
-    
+    }
+
     /*
-     * Override this method if the subclass wants to set a specific register 
+     * Override this method if the subclass wants to set a specific register
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
-        
+
     }
-    
+
     /*
-     * Override this method if the subclass wants to get a specific register 
+     * Override this method if the subclass wants to get a specific register
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
-        throw new UnsupportedException(); 
+        throw new UnsupportedException();
     }
-    
-    
-    
+
+
+
     /*******************************************************************************************
-     R e g i s t e r P r o t o c o l  i n t e r f a c e 
+     R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         ObisCodeMapper ocm = new ObisCodeMapper(this);
         return ocm.getRegisterValue(obisCode);
     }
-    
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
-    }    
-    
+    }
+
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
         StringBuffer strBuff = new StringBuffer();
@@ -290,7 +290,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
                 if (skip<=3) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
                 if (skip<=4) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualSourcesLimitingTable());}
                 if (skip<=5) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getUnitOfMeasureEntryTable());}
-                
+
                 if (skip<=6) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDemandControlTable());}
                 if (skip<=7) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataControlTable());}
                 if (skip<=8) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConstantsTable());}
@@ -327,26 +327,26 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
                 break;
             }
             catch(IOException e) {
-//e.printStackTrace();       // KV_DEBUG          
+//e.printStackTrace();       // KV_DEBUG
                 strBuff.append("Table not supported! "+e.toString()+"\n");
             }
         }
-        
-        
-        
+
+
+
         return strBuff.toString();
     }
-    
-    
+
+
     /****************************************************************************************************************
      * Implementing C12ProtocolLink interface
-     ****************************************************************************************************************/    
-    
+     ****************************************************************************************************************/
+
     public C12Layer2 getC12Layer2() {
         return c12Layer2;
     }
-    
-    
+
+
     public int getProfileInterval() throws UnsupportedException, IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
@@ -358,16 +358,16 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
         catch(ResponseIOException e) {
             if (e.getReason()==AbstractResponse.IAR) // table does not exist!
                getLogger().warning("No profileinterval available. Probably a demand only meter!");
-            else 
+            else
                throw e;
         }
         return getInfoTypeProfileInterval();
     }
-    
+
     public TimeZone gettimeZone() {
         return super.getTimeZone();
     }
-    
+
     static public void main(String[] args) {
         try {
             // ********************** Dialer **********************
@@ -379,7 +379,7 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
                                                              SerialCommunicationChannel.PARITY_NONE,
                                                              SerialCommunicationChannel.STOPBITS_1);
             dialer.connect();
-            
+
             // ********************** Properties **********************
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "900");
@@ -388,26 +388,26 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
             properties.setProperty(MeterProtocol.PASSWORD,"A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6A6");
             properties.setProperty("ChannelMap","1,1");
             //properties.setProperty("HalfDuplex", "10");
-            
+
             // ********************** EictRtuModbus **********************
             GEKV2 gekv2 = new GEKV2();
             if (DialerMarker.hasOpticalMarker(dialer))
                 ((HHUEnabler)gekv2).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            
+
             gekv2.setHalfDuplexController(dialer.getHalfDuplexController());
             gekv2.setProperties(properties);
             gekv2.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             gekv2.connect();
-            
-            
+
+
 //            System.out.println(gekv2.getStandardTableFactory().getManufacturerIdentificationTable());
 //            System.out.println(gekv2.getStandardTableFactory().getConfigurationTable());
 //            System.out.println(gekv2.getStandardTableFactory().getEndDeviceModeAndStatusTable());
 //            System.out.println(gekv2.getManufacturerTableFactory().getGEDeviceTable());
 //            System.out.println(gekv2.getStandardTableFactory().getDeviceIdentificationTable());
-//            
+//
 //            System.out.println(gekv2.getStandardTableFactory().getClockTable());
-            
+
             //byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
             //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
             //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
@@ -427,13 +427,13 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
             catch(IOException e) {
                 System.out.println("Table not supported! "+e.toString());
             }
-            
+
 //            System.out.println(gekv2.getManufacturerTableFactory().getMeterProgramConstants2());
 //            System.out.println(gekv2.getManufacturerTableFactory().getDisplayConfigurationTable());
 //            System.out.println(gekv2.getManufacturerTableFactory().getScaleFactorTable());
 //            System.out.println(gekv2.getManufacturerTableFactory().getElectricalServiceConfiguration());
 //            System.out.println(gekv2.getManufacturerTableFactory().getElectricalServiceStatus());
-//            
+//
 //            System.out.println(gekv2.getStandardTableFactory().getActualSourcesLimitingTable());
 //            System.out.println(gekv2.getStandardTableFactory().getDemandControlTable());
 //            System.out.println(gekv2.getStandardTableFactory().getDataControlTable());
@@ -450,26 +450,26 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 //            System.out.println(gekv2.getStandardTableFactory().getActualTimeAndTOUTable());
 //            System.out.println(gekv2.getStandardTableFactory().getTimeOffsetTable());
 //            System.out.println(gekv2.getStandardTableFactory().getCalendarTable());
-            
+
             // set time
             //gekv2.setTime();
-            
+
 //            System.out.println(gekv2.getStandardTableFactory().getClockStateTable());
 //            System.out.println(gekv2.getStandardTableFactory().getActualLoadProfileTable());
 //            System.out.println(gekv2.getStandardTableFactory().getLoadProfileControlTable());
 //            System.out.println(gekv2.getStandardTableFactory().getLoadProfileStatusTable());
 
-            
+
 //            byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
             //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
             //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
 //            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
 //            gekv2.getPSEMServiceFactory().secure(password);
-            
-            
-//System.out.println("KV_DEBUG> program manufacturer specific table");        
-//gekv2.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});           
-//gekv2.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});          
+
+
+//System.out.println("KV_DEBUG> program manufacturer specific table");
+//gekv2.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
+//gekv2.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
 //gekv2.getManufacturerTableFactory().getMeterProgramConstants1().transfer();
 
 
@@ -477,26 +477,26 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 //            Calendar cal = Calendar.getInstance();
 //            cal.add(Calendar.DAY_OF_MONTH,-4);
 //            System.out.println(gekv2.getProfileData(cal.getTime(),true));
-            
+
             System.out.println(gekv2.getFirmwareVersion());
-            
-            
+
+
             gekv2.disconnect();
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-        
+
     }
 
     public PSEMServiceFactory getPSEMServiceFactory() {
         return psemServiceFactory;
     }
-    
+
     public ManufacturerTableFactory getManufacturerTableFactory() {
         return manufacturerTableFactory;
     }
-    
+
     public StandardTableFactory getStandardTableFactory() {
         return standardTableFactory;
     }

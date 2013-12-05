@@ -10,21 +10,22 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.*;
-import java.io.*;
+import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.ResponseData;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractCommand {
-    
+
     private CommandFactory commandFactory;
     private boolean responseData;
     int size;
     abstract protected byte[] prepareBuild() throws IOException;
     abstract protected void parse(byte[] data) throws IOException;
-    
+
     /** Creates a new instance of AbstractCommand */
     public AbstractCommand(CommandFactory commandFactory) {
         this.setCommandFactory(commandFactory);
@@ -34,7 +35,7 @@ abstract public class AbstractCommand {
 
     public void invoke() throws IOException {
         byte[] data = prepareBuild();
-        
+
         if (!(this instanceof UnlockCommand)) {
             if (getCommandFactory().getS4().getInfoTypeSecurityLevel()>0) {
                 getCommandFactory().unlock(getCommandFactory().getS4().getInfoTypePassword());
@@ -46,7 +47,7 @@ abstract public class AbstractCommand {
                 }
             }
         }
-        
+
         ResponseData rd = getCommandFactory().getS4().getDgcomConnection().sendCommand(data, isResponseData(),size);
         if (isResponseData())
             parse(rd.getData());
@@ -55,7 +56,7 @@ abstract public class AbstractCommand {
     public CommandFactory getCommandFactory() {
         return commandFactory;
     }
-    
+
     private void setCommandFactory(CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
     }
@@ -67,7 +68,7 @@ abstract public class AbstractCommand {
     public void setResponseData(boolean responseData) {
         this.responseData = responseData;
     }
-    
+
     public int getSize() {
         return size;
     }

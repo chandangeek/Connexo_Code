@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import java.util.HashMap;
-
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+
+import java.util.HashMap;
 
 /**
  * Contains a map linking the id's of the meter units to Unit Objects.

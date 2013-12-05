@@ -6,7 +6,11 @@ import com.energyict.protocolimpl.coronis.waveflow.core.ParameterType;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -230,7 +234,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 throw new WaveFlowException("Invalid response tag [" + WaveflowProtocolUtils.toHexString(commandIdAck) + "]");
             } else {
                 if (!getWaveFlow().isV1()) {
-                    workingMode = dais.readShort();     //Only V2 modules send the workingmode in the response.                    
+                    workingMode = dais.readShort();     //Only V2 modules send the workingmode in the response.
                     operationMode = workingMode & 0xFF;
                     getWaveFlow().getParameterFactory().setExtendedOperationMode((workingMode >> 8) & 0xFF);
                     getWaveFlow().getParameterFactory().setOperatingMode(operationMode);
@@ -305,7 +309,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 throw new WaveFlowException("Invalid response tag [" + WaveflowProtocolUtils.toHexString(commandIdAck) + "]");
             } else {
                 if (!getWaveFlow().isV1()) {
-                    workingMode = dais.readShort(); //The working mode is only received from V2 modules.                    
+                    workingMode = dais.readShort(); //The working mode is only received from V2 modules.
                     operationMode = workingMode & 0xFF;
                     getWaveFlow().getParameterFactory().setExtendedOperationMode((workingMode >> 8) & 0xFF);
                     getWaveFlow().getParameterFactory().setOperatingMode(operationMode);

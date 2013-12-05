@@ -6,25 +6,25 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
-
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class HistoricalData extends AbstractLogicalAddress {
 
-    final Unit[] units={Unit.get("kW"),Unit.get("kW"),Unit.get("kvar"),Unit.get("kVA")}; 
-    
+    final Unit[] units={Unit.get("kW"),Unit.get("kW"),Unit.get("kvar"),Unit.get("kVA")};
+
     static final int[] OBIS_C_MAPPING_MD_CMD={1,2,129,9};
-    
+
     Date billingDate; // in GMT
-    int ctvtUnits; // 
+    int ctvtUnits; //
     int ctvtFraction;
     int normalDisplayFormat;
     int engineeringDisplayFormat;
@@ -36,44 +36,44 @@ public class HistoricalData extends AbstractLogicalAddress {
     String vtPrimary;
     String vtSecondary;
     int[] demandUnits = new int[DemandRegisters.NR_OF_MAXIMUM_DEMANDS];
-    
+
     /** Creates a new instance of HistoricalData */
     public HistoricalData(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
     }
-    
+
     private boolean isNONE(String str) {
         return (str.indexOf("NONE")!=-1);
     }
-    
+
     public boolean isCTMeter() {
         return ((isNONE(vtPrimary) ||
                  isNONE(vtSecondary)) &&
               (!(isNONE(ctPrimary) ||
                  isNONE(ctSecondary))));
     }
-    
-    
-    
+
+
+
     public boolean isCTVTMeter() {
         return ((!(isNONE(vtPrimary) ||
                  isNONE(vtSecondary))) &&
               (!(isNONE(ctPrimary) ||
                  isNONE(ctSecondary))));
     }
-    
+
     public boolean isWholeCurrentMeter() {
         return !isCTVTMeter() && !isCTMeter();
     }
-    
+
     private int getCTRatio() {
-        return Integer.parseInt(getCtPrimary())/Integer.parseInt(getCtSecondary()); 
+        return Integer.parseInt(getCtPrimary())/Integer.parseInt(getCtSecondary());
     }
-    
+
     private int getVTRatio() {
-        return Integer.parseInt(getVtPrimary())/Integer.parseInt(getVtSecondary()); 
+        return Integer.parseInt(getVtPrimary())/Integer.parseInt(getVtSecondary());
     }
-    
+
     public int getMultiplier() {
         if (isCTMeter())
            return getCTRatio();
@@ -81,10 +81,10 @@ public class HistoricalData extends AbstractLogicalAddress {
            return getCTRatio()*getVTRatio();
         else if (isWholeCurrentMeter())
             return 1;
-        
+
         else return 1;
     }
-    
+
     public String toString() {
        StringBuffer strBuff = new StringBuffer();
        strBuff.append("HistoricalData: ");
@@ -107,7 +107,7 @@ public class HistoricalData extends AbstractLogicalAddress {
        strBuff.append(", wholeCurrent="+isWholeCurrentMeter()+", ct="+isCTMeter()+", ctvt="+isCTVTMeter());
        return strBuff.toString();
     }
-    
+
     public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setTimeInMillis(ProtocolUtils.getLong(data,0,4)*1000);
@@ -127,7 +127,7 @@ public class HistoricalData extends AbstractLogicalAddress {
             getDemandUnits()[i] = ProtocolUtils.getInt(data,29+i,1);
         }
     }
-    
+
     /**
      * Getter for property billingDate.
      * @return Value of property billingDate.
@@ -138,7 +138,7 @@ public class HistoricalData extends AbstractLogicalAddress {
         //else
             return billingDate;
     }
-    
+
     /**
      * Setter for property billingDate.
      * @param billingDate New value of property billingDate.
@@ -146,7 +146,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setBillingDate(java.util.Date billingDate) {
         this.billingDate = billingDate;
     }
-    
+
     /**
      * Getter for property ctvtUnits.
      * @return Value of property ctvtUnits.
@@ -154,7 +154,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getCtvtUnits() {
         return ctvtUnits;
     }
-    
+
     /**
      * Setter for property ctvtUnits.
      * @param ctvtUnits New value of property ctvtUnits.
@@ -162,7 +162,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setCtvtUnits(int ctvtUnits) {
         this.ctvtUnits = ctvtUnits;
     }
-    
+
     /**
      * Getter for property ctvtFraction.
      * @return Value of property ctvtFraction.
@@ -170,7 +170,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getCtvtFraction() {
         return ctvtFraction;
     }
-    
+
     /**
      * Setter for property ctvtFraction.
      * @param ctvtFraction New value of property ctvtFraction.
@@ -178,7 +178,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setCtvtFraction(int ctvtFraction) {
         this.ctvtFraction = ctvtFraction;
     }
-    
+
     /**
      * Getter for property normalDisplayFormat.
      * @return Value of property normalDisplayFormat.
@@ -186,7 +186,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getNormalDisplayFormat() {
         return normalDisplayFormat;
     }
-    
+
     /**
      * Setter for property normalDisplayFormat.
      * @param normalDisplayFormat New value of property normalDisplayFormat.
@@ -194,7 +194,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setNormalDisplayFormat(int normalDisplayFormat) {
         this.normalDisplayFormat = normalDisplayFormat;
     }
-    
+
     /**
      * Getter for property engineeringDisplayFormat.
      * @return Value of property engineeringDisplayFormat.
@@ -202,7 +202,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getEngineeringDisplayFormat() {
         return engineeringDisplayFormat;
     }
-    
+
     /**
      * Setter for property engineeringDisplayFormat.
      * @param engineeringDisplayFormat New value of property engineeringDisplayFormat.
@@ -210,7 +210,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setEngineeringDisplayFormat(int engineeringDisplayFormat) {
         this.engineeringDisplayFormat = engineeringDisplayFormat;
     }
-    
+
     /**
      * Getter for property registerSignificantFigure.
      * @return Value of property registerSignificantFigure.
@@ -218,7 +218,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getRegisterSignificantFigure() {
         return registerSignificantFigure;
     }
-    
+
     /**
      * Setter for property registerSignificantFigure.
      * @param registerSignificantFigure New value of property registerSignificantFigure.
@@ -234,7 +234,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setRegisterSignificantFigure(int registerSignificantFigure) {
         this.registerSignificantFigure = registerSignificantFigure;
     }
-    
+
     /**
      * Getter for property ctPrimaryAnnunciator.
      * @return Value of property ctPrimaryAnnunciator.
@@ -242,7 +242,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getCtPrimaryAnnunciator() {
         return ctPrimaryAnnunciator;
     }
-    
+
     /**
      * Setter for property ctPrimaryAnnunciator.
      * @param ctPrimaryAnnunciator New value of property ctPrimaryAnnunciator.
@@ -250,7 +250,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setCtPrimaryAnnunciator(int ctPrimaryAnnunciator) {
         this.ctPrimaryAnnunciator = ctPrimaryAnnunciator;
     }
-    
+
     /**
      * Getter for property vtPrimaryAnnunciator.
      * @return Value of property vtPrimaryAnnunciator.
@@ -258,7 +258,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getVtPrimaryAnnunciator() {
         return vtPrimaryAnnunciator;
     }
-    
+
     /**
      * Setter for property vtPrimaryAnnunciator.
      * @param vtPrimaryAnnunciator New value of property vtPrimaryAnnunciator.
@@ -266,7 +266,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setVtPrimaryAnnunciator(int vtPrimaryAnnunciator) {
         this.vtPrimaryAnnunciator = vtPrimaryAnnunciator;
     }
-    
+
     /**
      * Getter for property ctPrimary.
      * @return Value of property ctPrimary.
@@ -274,7 +274,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public String getCtPrimary() {
         return ctPrimary;
     }
-    
+
     /**
      * Setter for property ctPrimary.
      * @param ctPrimary New value of property ctPrimary.
@@ -282,7 +282,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setCtPrimary(String ctPrimary) {
         this.ctPrimary = ctPrimary;
     }
-    
+
     /**
      * Getter for property ctSecondary.
      * @return Value of property ctSecondary.
@@ -290,7 +290,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public String getCtSecondary() {
         return ctSecondary;
     }
-    
+
     /**
      * Setter for property ctSecondary.
      * @param ctSecondary New value of property ctSecondary.
@@ -298,7 +298,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setCtSecondary(String ctSecondary) {
         this.ctSecondary = ctSecondary;
     }
-    
+
     /**
      * Getter for property vtPrimary.
      * @return Value of property vtPrimary.
@@ -306,7 +306,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public String getVtPrimary() {
         return vtPrimary;
     }
-    
+
     /**
      * Setter for property vtPrimary.
      * @param vtPrimary New value of property vtPrimary.
@@ -314,7 +314,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setVtPrimary(String vtPrimary) {
         this.vtPrimary = vtPrimary;
     }
-    
+
     /**
      * Getter for property vtSecondary.
      * @return Value of property vtSecondary.
@@ -322,7 +322,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public String getVtSecondary() {
         return vtSecondary;
     }
-    
+
     /**
      * Setter for property vtSecondary.
      * @param vtSecondary New value of property vtSecondary.
@@ -330,7 +330,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setVtSecondary(String vtSecondary) {
         this.vtSecondary = vtSecondary;
     }
-    
+
     /**
      * Getter for property demandUnits.
      * @return Value of property demandUnits.
@@ -338,7 +338,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int[] getDemandUnits() {
         return this.demandUnits;
     }
-    
+
     /**
      * Getter for property demandUnits.
      * @return Value of property demandUnits.
@@ -347,7 +347,7 @@ public class HistoricalData extends AbstractLogicalAddress {
         if (demandUnits[i] > 3) return 255;
         else return OBIS_C_MAPPING_MD_CMD[demandUnits[i]];
     }
-    
+
     /**
      * Setter for property demandUnits.
      * @param demandUnits New value of property demandUnits.
@@ -355,7 +355,7 @@ public class HistoricalData extends AbstractLogicalAddress {
     public void setDemandUnits(int[] demandUnits) {
         this.demandUnits = demandUnits;
     }
-    
+
     /**
      * Getter for property demandUnits.
      * @return Value of property demandUnits.
@@ -368,9 +368,9 @@ public class HistoricalData extends AbstractLogicalAddress {
         else
             return units[getDemandUnits()[mdIndex]];
     }
-    
-    
-    
+
+
+
     /**
      * Getter for property scaler.
      * @return Value of property scaler.
@@ -378,5 +378,5 @@ public class HistoricalData extends AbstractLogicalAddress {
     public int getScaler() {
         return (5-getRegisterSignificantFigure());
     }
-    
+
 }

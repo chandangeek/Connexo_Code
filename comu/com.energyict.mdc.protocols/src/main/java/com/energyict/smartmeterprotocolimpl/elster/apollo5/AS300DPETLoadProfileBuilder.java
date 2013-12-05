@@ -1,14 +1,23 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.LogicalName;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
-import com.energyict.smartmeterprotocolimpl.elster.apollo.*;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
+import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -31,7 +40,7 @@ public class AS300DPETLoadProfileBuilder extends AS300LoadProfileBuilder {
      * @throws java.io.IOException
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {

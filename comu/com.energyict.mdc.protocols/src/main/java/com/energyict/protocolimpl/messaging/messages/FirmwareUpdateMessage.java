@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.messaging.messages;
 
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 /**
  * Copyrights EnergyICT

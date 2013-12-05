@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,22 +18,22 @@ import java.util.List;
 public enum MailConfigurationDeviceMessage implements DeviceMessageSpec {
 
     // Read Mail (POP3) Parameters
-    SetPOPUsername(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPUsernameAttributeName)),
-    SetPOPPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPPasswordAttributeName)),
-    SetPOPHost(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPHostAttributeName)),
-    SetPOPReadMailEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOPReadMailEveryAttributeName)),
-    SetPOP3Options(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPOP3OptionsAttributeName)),
+    SetPOPUsername(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPOPUsernameAttributeName)),
+    SetPOPPassword(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPOPPasswordAttributeName)),
+    SetPOPHost(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPOPHostAttributeName)),
+    SetPOPReadMailEvery(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPOPReadMailEveryAttributeName)),
+    SetPOP3Options(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPOP3OptionsAttributeName)),
 
     // Send Mail (SMTP) Parameters
-    SetSMTPFrom(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPFromAttributeName)),
-    SetSMTPTo(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPToAttributeName)),
-    SetSMTPConfigurationTo(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPConfigurationToAttributeName)),
-    SetSMTPServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPServerAttributeName)),
-    SetSMTPDomain(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDomainAttributeName)),
-    SetSMTPSendMailEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPSendMailEveryAttributeName)),
-    SetSMTPCurrentInterval(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName)),
-    SetSMTPDatabaseID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPDatabaseIDAttributeName)),
-    SetSMTPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSMTPOptionsAttributeName));
+    SetSMTPFrom(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPFromAttributeName)),
+    SetSMTPTo(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPToAttributeName)),
+    SetSMTPConfigurationTo(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPConfigurationToAttributeName)),
+    SetSMTPServer(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPServerAttributeName)),
+    SetSMTPDomain(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPDomainAttributeName)),
+    SetSMTPSendMailEvery(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPSendMailEveryAttributeName)),
+    SetSMTPCurrentInterval(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPCurrentIntervalAttributeName)),
+    SetSMTPDatabaseID(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPDatabaseIDAttributeName)),
+    SetSMTPOptions(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSMTPOptionsAttributeName));
 
     private static final DeviceMessageCategory mailConfigurationCategory = DeviceMessageCategories.MAIL_CONFIGURATION;
 

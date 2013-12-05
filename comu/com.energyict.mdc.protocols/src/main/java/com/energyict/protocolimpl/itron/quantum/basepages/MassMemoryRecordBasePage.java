@@ -10,36 +10,37 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryRecordBasePage extends AbstractBasePage {
-    
-    
-    
+
+
+
     private int recordNr=-1;
     private int address=-1;
-    
+
     private long status;
     private Calendar calendar;
     private BigDecimal[] registerValues;
     private IntervalRecord[] intervalRecords;
-    
+
     /** Creates a new instance of MassMemoryRecordBasePage */
     public MassMemoryRecordBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -56,7 +57,7 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
         strBuff.append("   status="+getStatus()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         if (getRecordNr() != -1)
             return new BasePageDescriptor(((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getLogicalMassMemoryStartOffset()+
@@ -66,9 +67,9 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
             return new BasePageDescriptor(getAddress(),
                     ((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength());
         throw new IOException("MassMemoryRecordBasePage, preparebuild(), no address descriptor...");
-        
+
     } // protected BasePageDescriptor preparebuild() throws IOException
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getProtocolLink().getTimeZone();
@@ -81,74 +82,74 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
         Calendar now = ProtocolUtils.getCalendar(tz);
         ParseUtils.adjustYear(now, getCalendar());
         offset+=3;
-        
+
         setStatus(ProtocolUtils.getLong(data,offset, 8));
         offset+=8;
-        
+
         setRegisterValues(new BigDecimal[((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getNumberOfChannels()]);
         for (int i=0;i<((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getNumberOfChannels();i++) {
             getRegisterValues()[i] = new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset+2,4)));
             offset+=6;
         }
-        
-        
+
+
         int nibbleOffset = offset*2;
-        
+
         setIntervalRecords(new IntervalRecord[60]);
         for (int i=0;i<60;i++) {
             getIntervalRecords()[i] = new IntervalRecord(data,nibbleOffset,((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getNumberOfChannels());
             nibbleOffset+=IntervalRecord.size(((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getNumberOfChannels());
         }
-        
+
     }
-    
+
     public long getStatus() {
         return status;
     }
-    
+
     public void setStatus(long status) {
         this.status = status;
     }
-    
+
     public Calendar getCalendar() {
         return calendar;
     }
-    
+
     public void setCalendar(Calendar calendar) {
         this.calendar = calendar;
     }
-    
+
     public BigDecimal[] getRegisterValues() {
         return registerValues;
     }
-    
+
     public void setRegisterValues(BigDecimal[] registerValues) {
         this.registerValues = registerValues;
     }
-    
+
     public IntervalRecord[] getIntervalRecords() {
         return intervalRecords;
     }
-    
+
     public void setIntervalRecords(IntervalRecord[] intervalRecords) {
         this.intervalRecords = intervalRecords;
     }
-    
+
     public int getRecordNr() {
         return recordNr;
     }
-    
+
     public void setRecordNr(int recordNr) {
         this.recordNr = recordNr;
     }
-    
+
     public int getAddress() {
         return address;
     }
-    
+
     public void setAddress(int address) {
         this.address = address;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

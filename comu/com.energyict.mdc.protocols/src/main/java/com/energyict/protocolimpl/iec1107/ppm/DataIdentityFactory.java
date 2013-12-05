@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
 /** @author fbo */
 

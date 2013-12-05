@@ -10,19 +10,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DimensionRegisterTable extends AbstractTable {
-    
+
     private int registerFunction1Bitfield;
     private int registerFunction2Bitfield;
     private int nrOfSelfReads;
@@ -33,13 +30,13 @@ public class DimensionRegisterTable extends AbstractTable {
     private int nrOfTiers;
     private int nrOfPresentDemands;
     private int nrOfPresentValues;
-    
-    
+
+
     /** Creates a new instance of DimensionRegisterTable */
     public DimensionRegisterTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(20));
     }
-    
+
     public String toString() {
         return "DimensionRegisterTable: registerFunction1Bitfield=0x"+Integer.toHexString(getRegisterFunction1Bitfield())+
                ", registerFunction2Bitfield=0x"+Integer.toHexString(getRegisterFunction2Bitfield())+
@@ -51,10 +48,10 @@ public class DimensionRegisterTable extends AbstractTable {
                ", nrOfTiers="+getNrOfTiers()+
                ", nrOfPresentDemands="+getNrOfPresentDemands()+
                ", nrOfPresentValues="+getNrOfPresentValues()+"\n";
-                
+
     }
-    
-    protected void parse(byte[] tableData) throws IOException {    
+
+    protected void parse(byte[] tableData) throws IOException {
         registerFunction1Bitfield=C12ParseUtils.getInt(tableData,0);
         registerFunction2Bitfield=C12ParseUtils.getInt(tableData,1);
         nrOfSelfReads=C12ParseUtils.getInt(tableData,2);
@@ -146,5 +143,5 @@ public class DimensionRegisterTable extends AbstractTable {
     public void setNrOfPresentValues(int nrOfPresentValues) {
         this.nrOfPresentValues = nrOfPresentValues;
     }
-        
+
 }

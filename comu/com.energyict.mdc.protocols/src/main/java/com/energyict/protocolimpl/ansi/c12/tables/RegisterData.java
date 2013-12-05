@@ -10,22 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class RegisterData {
-    
+
     private int nrDemandResets;
     private DataBlock totDatablock;
     private DataBlock[] tierDataBlocks;
-    
+
     /** Creates a new instance of RegisterData */
     public RegisterData(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -47,14 +45,14 @@ public class RegisterData {
 //            else
             getTierDataBlocks()[i] = new DataBlock(data,offset, tableFactory);
             offset+=DataBlock.getSize(tableFactory);
-        }    
+        }
     }
-    
-    
+
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("RegisterData: \n");
-        
+
         strBuff.append("    nrDemandResets="+getNrDemandResets()+"\n");
         strBuff.append("    totDatablock="+getTotDatablock()+"\n");
         for(int i=0;i<getTierDataBlocks().length;i++) {
@@ -63,12 +61,12 @@ public class RegisterData {
 
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         int size=0;
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
-        
+
         if (art.isDemandResetControlFlag())
             size+=1;
         size+=DataBlock.getSize(tableFactory);

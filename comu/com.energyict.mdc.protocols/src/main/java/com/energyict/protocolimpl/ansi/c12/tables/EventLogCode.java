@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 /**
  *
  * @author Koen
  */
 public class EventLogCode {
-    
+
     private int code;
     private String event;
     private String argument;
     private int eiCode;
-    
+
     /** Creates a new instance of EventLogCode */
     public EventLogCode(int code, String event, String argument) {
         this(code, event,argument,MeterEvent.OTHER);
@@ -65,5 +65,5 @@ public class EventLogCode {
     public void setEiCode(int eiCode) {
         this.eiCode = eiCode;
     }
-    
+
 }

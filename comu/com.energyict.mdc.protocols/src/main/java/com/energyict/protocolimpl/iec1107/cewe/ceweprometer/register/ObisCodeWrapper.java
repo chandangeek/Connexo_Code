@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * The ObisCodeMapper works with a Map that links the available obis

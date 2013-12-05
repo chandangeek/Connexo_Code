@@ -1,17 +1,21 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.connection;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
-import com.energyict.protocolimpl.modbus.core.connection.*;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

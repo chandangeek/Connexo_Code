@@ -10,22 +10,24 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class PeakValue {
-    
+
     private float value; //FLOAT,                           D=6, E=128..137 PEAK MAX & MIN
     private Date timeOfOccurrence; // EXTENDED_DATE_TIME,
     private float coin1Value; // FLOAT,                     D=133, E=128..137 PEAK MAX & MIN
     private float coin2Value; // FLOAT,                     D=134, E=128..137 PEAK MAX & MIN
     private float coin3Value; // FLOAT,                     D=135, E=128..137 PEAK MAX & MIN
-    
+
     /**
      * Creates a new instance of PeakValue
      */
@@ -40,9 +42,9 @@ public class PeakValue {
         offset+=4;
         setCoin3Value(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
         offset+=4;
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -54,7 +56,7 @@ public class PeakValue {
         strBuff.append("   value="+getValue()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 24;
     }
@@ -98,7 +100,7 @@ public class PeakValue {
     public void setCoin3Value(float coin3Value) {
         this.coin3Value = coin3Value;
     }
-    
-    
-    
+
+
+
 }

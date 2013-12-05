@@ -1,17 +1,17 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -36,7 +36,7 @@ import java.util.Properties;
  *
  */
 public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
-	
+
 	private APSEPDUFactory aPSEFactory;
 	private APSEParameters aPSEParameters;
 	private DLMSPDUFactory dLMSPDUFactory;
@@ -44,24 +44,24 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	private Trimaran2PProfile trimaran2PProfile;
 	private TrimaranObjectFactory trimaranObjectFactory;
 	private RegisterFactory registerFactory = null;
-	
+
     private int sourceTransportAddress;
     private int destinationTransportAddress;
     private int delayAfterConnect;
     private int t1Timeout;
-    
+
     private long roundTripStart;
-    
+
     private String meterVersion;
 
 	/**
-	 * 
+	 *
 	 */
 	public Trimaran2P() {
 	}
-	
+
 	public static void main(String arg[]){
-		
+
 	}
 
 	protected void doConnect() throws IOException {
@@ -76,23 +76,23 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 
 	protected void doDisConnect() throws IOException {
-		
+
 	}
-	
+
 	public ProfileData getProfileData(Date lastReading, Date to, boolean includeEvents) throws IOException{
 		return getTrimaran2PProfile().getProfileData(lastReading, to);
 	}
-	
+
 	protected void validateSerialNumber() throws IOException{
 		if((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber()) == 0)) {
 			return;
 		}
-		
+
 		String serialNumber = getDLMSPDUFactory().getStatusResponse().getSerialNumber();
 		if(serialNumber.compareTo(getInfoTypeSerialNumber()) == 0) {
 			return;
 		}
-		
+
 		throw new IOException("SerialNumber mismatch! Meter serialNumber = "+serialNumber+", configured serialNumber = "+getInfoTypeSerialNumber());
 	}
 
@@ -109,7 +109,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	}
 
 	public ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
-		
+
 		setAPSEFactory(new APSEPDUFactory(this, getAPSEParameters()));
 		setDLMSPDUFactory(new DLMSPDUFactory(this));
 		setTrimaranObjectFactory(new TrimaranObjectFactory(this));
@@ -122,7 +122,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	private Connection62056 getTrimaran2PConnection() {
 		return getConnection62056();
 	}
-	
+
 	public void setTrimaran2PConnection(Connection62056 connection62056){
 		setConnection62056(connection62056);
 	}
@@ -147,20 +147,20 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 		setT1Timeout(Integer.parseInt(properties.getProperty("T1Timeout","5000").trim()));
 		setSourceTransportAddress(Integer.parseInt(properties.getProperty("STSAP","0").trim()));
 		setDestinationTransportAddress(Integer.parseInt(properties.getProperty("DTSAP","2").trim()));
-		
+
 		setAPSEParameters(new APSEParameters());
 		getAPSEParameters().setClientType(Integer.parseInt(properties.getProperty("ClientType","40967").trim()));
 		getAPSEParameters().setCallingPhysicalAddress(properties.getProperty("CallingPhysicalAddress","30"));
 		getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getProperty("ProposedAppCtxName","0").trim()));
-		
+
 		setInfoTypePassword(properties.getProperty(MeterProtocol.PASSWORD,"0000000000000000"));
-		
+
         if(Integer.parseInt(properties.getProperty("DelayAfterConnect", "0")) == 1) {
 			delayAfterConnect = 6000;
 		} else {
 			delayAfterConnect = Integer.parseInt(properties.getProperty("DelayAfterConnect", "0").trim());
 		}
-        
+
         try {
 			getAPSEParameters().setKey(ProtocolUtils.convert2ascii(getInfoTypePassword().getBytes()));
 		} catch (IOException e) {
@@ -168,7 +168,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 			throw new InvalidPropertyException(e.toString());
 		}
 	}
-	
+
 	public int getNumberOfChannels() throws IOException{
 		if(getTrimaranObjectFactory().readParameters().isCcReact()) {
 			return 6;
@@ -176,7 +176,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 			return 2;
 		}
 	}
-	
+
 	public int getProfileInterval() throws IOException{
 		return getTrimaranObjectFactory().readParameters().getTCourbeCharge() * 60;
 	}
@@ -206,10 +206,10 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	public void setTime() throws IOException {
 		throw new UnsupportedException("Setting time in Trimaran meter is not supported.");
 	}
-	
+
 	protected String getRegistersInfo(int extendedLogging) throws IOException{
 		StringBuffer strBuff = new StringBuffer();
-		
+
 		strBuff.append(getTrimaranObjectFactory().readParameters());
 		strBuff.append(getTrimaranObjectFactory().readParametersMoins1());
 		strBuff.append(getTrimaranObjectFactory().readAccessPartiel());
@@ -225,30 +225,30 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 			strBuff.append(getTrimaranObjectFactory().readPMaxMois());				// not with TEC
 //			strBuff.append(getTrimaranObjectFactory().readDureesPnonGarantie());	// not with TEC
 		}
-		
+
 		return strBuff.toString();
 	}
-	
+
     /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e 
-     * @throws IOException 
+    R e g i s t e r P r o t o c o l  i n t e r f a c e
+     * @throws IOException
     *******************************************************************************************/
 	public RegisterValue readRegister(ObisCode obisCode) throws IOException{
 		ObisCodeMapper ocm = new ObisCodeMapper(this);
 		return ocm.getRegisterValue(obisCode);
 	}
-	
+
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
-    } 
-	
+    }
+
 	public RegisterFactory getRegisterFactory() throws IOException{
 		if(registerFactory == null) {
 			setRegisterFactory(new RegisterFactory(this));
 		}
 		return registerFactory;
 	}
-	
+
 	public void setRegisterFactory(RegisterFactory registerFactory){
 		this.registerFactory = registerFactory;
 	}
@@ -370,7 +370,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	public void setRoundTripStart(long roundTripStart) {
 		this.roundTripStart = roundTripStart;
 	}
-	
+
 	protected String getMeterVersion() {
 		return meterVersion;
 	}
@@ -378,7 +378,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 	public void setMeterVersion(String meterVersion) {
 		this.meterVersion = meterVersion;
 	}
-	
+
 	public boolean isTECMeter(){
 		if(getMeterVersion().equalsIgnoreCase("TEC")) {
 			return true;
@@ -386,7 +386,7 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 			return false;
 		}
 	}
-	
+
 	public boolean isTEPMeter(){
 		if(getMeterVersion().equalsIgnoreCase("TEP")) {
 			return true;

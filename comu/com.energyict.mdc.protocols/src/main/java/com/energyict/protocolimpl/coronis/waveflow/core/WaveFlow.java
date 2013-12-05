@@ -1,11 +1,28 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.BubbleUp;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.wavecell.WaveCellConnect;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFactory;
@@ -13,10 +30,17 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.RadioCommandFactory;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
-abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp, IncomingAlarmFrameParser {
+public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp, IncomingAlarmFrameParser {
 
     private static final String PROP_SCALE_A = "ScaleA";
     private static final String PROP_SCALE_B = "ScaleB";
@@ -35,9 +59,9 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     public static final String LEGACY_WAVECELL_CONNECTION = "1";
     public static final String CONNECTION_PROPERTY = "Connection";
 
-    abstract protected void doTheInit() throws IOException;
+    protected abstract void doTheInit() throws IOException;
 
-    abstract protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException;
+    protected abstract ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws IOException;
 
     private boolean multiFrame;         //Custom property enabling multiframe mode. This mode is not available when using repeaters to reach the waveflow module.
     protected boolean verifyProfileInterval = true;
@@ -252,7 +276,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         connectionMode = Integer.parseInt(properties.getProperty(CONNECTION_PROPERTY, MUC_WAVECELL_CONNECTION).trim());
         String nodeIdString = properties.getProperty(MeterProtocol.ADDRESS, "-1");
         try {
-            waveFlowId = Integer.parseInt(nodeIdString.trim().length() == 0 ? "-1" : nodeIdString.trim());   //DeviceId
+            waveFlowId = Integer.parseInt(nodeIdString.trim().isEmpty() ? "-1" : nodeIdString.trim());   //DeviceId
         } catch (NumberFormatException e) {
             waveFlowId = -1;
         }
@@ -312,7 +336,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "N/A";         //Omit for battery saving purposes.
     }
 
@@ -362,7 +386,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
      * NOTE: when requesting the DAILY profile data, the meter's interval is set to 1 HOUR (special case),
      * so verifyProfileInterval needs to be set to false in order to prevent an interval mismatch.
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (isVerifyProfileInterval()) {
             return getParameterFactory().getProfileIntervalInSeconds();
         } else {
@@ -387,7 +411,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         }
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         try {
             return getTheProfileData(from, to, includeEvents);
         } catch (WaveFlowException e) {
@@ -406,7 +430,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     @Override
     protected List doGetOptionalKeys() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         result.add("EnableMultiFrameMode");
         result.add("verifyProfileInterval");
         result.add("InitialRFCommand");

@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author Koen
  */
 public class Response {
-    
+
     private byte[] data;
-    
+
     /** Creates a new instance of Response */
     public Response(byte[] data) {
         this.setData(data);
@@ -27,8 +27,8 @@ public class Response {
 
     public String toString() {
         return ProtocolUtils.outputHexString(data);
-    }  
-    
+    }
+
     public byte[] getData() {
         return data;
     }
@@ -36,6 +36,6 @@ public class Response {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
-    
+
+
 }

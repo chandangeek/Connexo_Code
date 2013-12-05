@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.FraudDetectionLog;
 
 import java.util.Date;

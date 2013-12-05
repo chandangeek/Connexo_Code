@@ -2,9 +2,11 @@ package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author jme
@@ -53,7 +55,7 @@ public class DLMSAttribute{
 	}
 
     /**
-     * 
+     *
      * @param dlmsAttribute
      * @return
      */

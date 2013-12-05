@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.ge.kv2.procedures;
 
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;
 
 /**
  *
  * @author Koen
  */
 public class SnapShotData extends AbstractProcedure {
-    
+
     /** Creates a new instance of SnapShotData */
     public SnapShotData(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(84,true));

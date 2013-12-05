@@ -6,14 +6,19 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.VisibleString;
 
 import java.io.IOException;
 import java.util.Date;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+import static com.energyict.dlms.DLMSCOSEMGlobals.CLOCK_OBJECT_LN;
+import static com.energyict.dlms.DLMSCOSEMGlobals.EXTENDED_REGISTER_CAPTURE_TIME;
+import static com.energyict.dlms.DLMSCOSEMGlobals.EXTENDED_REGISTER_STATUS;
 
 /**
  *

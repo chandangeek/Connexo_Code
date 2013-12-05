@@ -6,14 +6,14 @@
 
 package com.energyict.protocolimpl.pact.core.survey;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+
 import java.io.IOException;
 import java.util.Date;
 
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.pact.core.common.ChannelMap;
-
 /**
- * 
+ *
  * @author Koen
  */
 public interface LoadSurveyInterpreter {

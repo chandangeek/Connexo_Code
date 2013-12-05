@@ -10,33 +10,32 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author koen
  */
 public class ResponseFrame {
-    
+
     private byte[] data;
     private int type;
     private int nSEQRx;
 
-    
+
     /** Creates a new instance of ResponseFrame */
     public ResponseFrame(byte[] data, int type, int nSEQRx) {
         this.setData(data);
         this.setType(type);
         this.setNSEQRx(nSEQRx);
     }
-   
+
     public String toString() {
         return "ResponseFrame binary: "+ProtocolUtils.outputHexString(getData())+"\n"+"ResponseFrame ascii: "+new String(getData()+", type="+type+", nSEQRx="+nSEQRx);
     }
-    
- 
-    
+
+
+
     public byte[] getData() {
         return data;
     }

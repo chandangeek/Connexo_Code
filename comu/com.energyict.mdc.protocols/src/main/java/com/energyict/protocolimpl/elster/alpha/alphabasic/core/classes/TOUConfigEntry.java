@@ -10,9 +10,7 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
@@ -24,7 +22,7 @@ public class TOUConfigEntry {
     private int obisCodeCField;
     private Unit unit;
     private String description;
-    
+
     /** Creates a new instance of TOUConfigEntry */
     public TOUConfigEntry(int toucfg, int meterType, int obisCodeCField, Unit unit, String description) {
         this.toucfg=toucfg;
@@ -73,5 +71,5 @@ public class TOUConfigEntry {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
 }

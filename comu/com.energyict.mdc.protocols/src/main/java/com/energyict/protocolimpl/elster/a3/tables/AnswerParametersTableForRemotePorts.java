@@ -10,34 +10,33 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class AnswerParametersTableForRemotePorts extends AbstractTable { 
-    /*	
+public class AnswerParametersTableForRemotePorts extends AbstractTable {
+    /*
     Memory storage EEPROM
     Total table size (bytes) 12
     Read access 1
-    Write access 3    
-    */    
-    
+    Write access 3
+    */
+
     private int nrOfRings; // 1 byte Number of rings to wait before answering calls received when inside an answer window. The meter will only answer calls inside answer windows.
     private int nrOfRingsOutside; // 1 byte The number of rings to wait before answering a call received when outside an answer window. The meter will ignore this field and not answer calls outside the answer window.
     private Window[] windows; // 2 windows
-    
+
     /** Creates a new instance of AnswerParametersTableForRemotePorts */
     public AnswerParametersTableForRemotePorts(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(95,true));
     }
- 
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -47,11 +46,11 @@ public class AnswerParametersTableForRemotePorts extends AbstractTable {
         for (int i=0;i<getWindows().length;i++)
             strBuff.append("   windows["+i+"]="+getWindows()[i]+"\n");
         return strBuff.toString();
-    }    
+    }
 //     public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new AnswerParametersTableForRemotePorts(null)));
-//     } 
-    
+//     }
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;
@@ -62,8 +61,8 @@ public class AnswerParametersTableForRemotePorts extends AbstractTable {
             getWindows()[i] = new Window(tableData, offset, getTableFactory());
             offset+=Window.getSize(getTableFactory());
         }
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }

@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class WavenisStackConfigRFResponseTimeout extends AbstractEscapeCommand {
 
@@ -10,7 +12,7 @@ public class WavenisStackConfigRFResponseTimeout extends AbstractEscapeCommand {
 	}
 
 	int timeout;
-	
+
 	@Override
     EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAVENIS_CONFIG_RF_TIMEOUT;
@@ -18,13 +20,13 @@ public class WavenisStackConfigRFResponseTimeout extends AbstractEscapeCommand {
 
 	@Override
 	void parse(byte[] data) throws IOException {
-		
+
 	}
 
 	@Override
 	byte[] prepare() throws IOException {
 		ByteArrayOutputStream baos = null;
-		try {	
+		try {
 			baos = new ByteArrayOutputStream();
 			DataOutputStream daos = new DataOutputStream(baos);
 			daos.writeInt(timeout);
@@ -39,8 +41,8 @@ public class WavenisStackConfigRFResponseTimeout extends AbstractEscapeCommand {
 					getProtocolStackLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}	
+		}
 	}
-	
-	
+
+
 }

@@ -10,30 +10,28 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class RecordTemplate {
-    
+
     /** Creates a new instance of RecordTemplate */
     public RecordTemplate(byte[] data, int offset) throws IOException {
 
     }
-    
+
     public RecordTemplate() {
     }
     public static void main(String[] args) {
         System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new RecordTemplate()));
-    }         
-    
+    }
+
 
     static public int size() {
         return 0;
     }
-    
+
 }

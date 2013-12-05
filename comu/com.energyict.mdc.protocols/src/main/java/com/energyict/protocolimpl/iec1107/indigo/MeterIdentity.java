@@ -6,20 +6,19 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class MeterIdentity extends AbstractLogicalAddress {
-    
+
     // ****************************************************
     String meterId; // 12 bytes
-    
+
     // ****************************************************
     // Meter Codification
     char meterType; // P=polyphase
@@ -38,17 +37,17 @@ public class MeterIdentity extends AbstractLogicalAddress {
     char batteryPower; // B=batt fitted, S=super caps fitted
     char termScrewAccessCover; //0=not fitted, 1=fitted
     char termCover; // A=standard, B=extended
-    
+
     // ****************************************************
     int formatting;
     // ****************************************************
     String softwareVersionNumber;
-    
+
     /** Creates a new instance of MeterIdentity */
     public MeterIdentity(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
     }
-    
+
     public String toString() {
         return "MeterIdentification: "+getMeterId()+", "+getMeterType()+", "+getModelType()+", "+getModelStatus()+", "+
                getConfiguration()+", "+getNrOfInputs()+", "+getNrOfOutputs()+", "+getCustomerId()+", "+
@@ -56,7 +55,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
                getBatteryPower()+", "+getTermScrewAccessCover()+", "+getTermCover()+", "+
                getFormatting()+", "+getSoftwareVersionNumber();
      }
-    
+
     public void parse(byte[] data, java.util.TimeZone timeZone) throws IOException {
         setMeterId(new String(ProtocolUtils.getSubArray2(data, 0, 12)));
         setMeterType((char)ProtocolUtils.getSubArray2(data, 12, 1)[0]);
@@ -76,7 +75,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
         setFormatting((int)ProtocolUtils.getSubArray2(data, 27, 1)[0]);
         setSoftwareVersionNumber(Integer.toHexString(ProtocolUtils.getInt(data, 28, 1))+"."+Integer.toHexString(ProtocolUtils.getInt(data, 29, 1)));
     }
-    
+
     /**
      * Getter for property meterId.
      * @return Value of property meterId.
@@ -84,7 +83,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public java.lang.String getMeterId() {
         return meterId;
     }
-    
+
     /**
      * Setter for property meterId.
      * @param meterId New value of property meterId.
@@ -92,7 +91,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setMeterId(java.lang.String meterId) {
         this.meterId = meterId;
     }
-    
+
     /**
      * Getter for property meterType.
      * @return Value of property meterType.
@@ -100,7 +99,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getMeterType() {
         return meterType;
     }
-    
+
     /**
      * Setter for property meterType.
      * @param meterType New value of property meterType.
@@ -108,7 +107,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setMeterType(char meterType) {
         this.meterType = meterType;
     }
-    
+
     /**
      * Getter for property modelType.
      * @return Value of property modelType.
@@ -116,7 +115,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getModelType() {
         return modelType;
     }
-    
+
     /**
      * Setter for property modelType.
      * @param modelType New value of property modelType.
@@ -124,7 +123,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setModelType(char modelType) {
         this.modelType = modelType;
     }
-    
+
     /**
      * Getter for property modelStatus.
      * @return Value of property modelStatus.
@@ -132,7 +131,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getModelStatus() {
         return modelStatus;
     }
-    
+
     /**
      * Setter for property modelStatus.
      * @param modelStatus New value of property modelStatus.
@@ -140,7 +139,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setModelStatus(char modelStatus) {
         this.modelStatus = modelStatus;
     }
-    
+
     /**
      * Getter for property configuration.
      * @return Value of property configuration.
@@ -148,7 +147,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getConfiguration() {
         return configuration;
     }
-    
+
     /**
      * Setter for property configuration.
      * @param configuration New value of property configuration.
@@ -156,7 +155,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setConfiguration(char configuration) {
         this.configuration = configuration;
     }
-    
+
     /**
      * Getter for property nrOfInputs.
      * @return Value of property nrOfInputs.
@@ -164,7 +163,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public int getNrOfInputs() {
         return nrOfInputs;
     }
-    
+
     /**
      * Setter for property nrOfInputs.
      * @param nrOfInputs New value of property nrOfInputs.
@@ -172,7 +171,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setNrOfInputs(int nrOfInputs) {
         this.nrOfInputs = nrOfInputs;
     }
-    
+
     /**
      * Getter for property nrOfOutputs.
      * @return Value of property nrOfOutputs.
@@ -180,7 +179,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public int getNrOfOutputs() {
         return nrOfOutputs;
     }
-    
+
     /**
      * Setter for property nrOfOutputs.
      * @param nrOfOutputs New value of property nrOfOutputs.
@@ -188,7 +187,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setNrOfOutputs(int nrOfOutputs) {
         this.nrOfOutputs = nrOfOutputs;
     }
-    
+
     /**
      * Getter for property customerId.
      * @return Value of property customerId.
@@ -196,7 +195,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public java.lang.String getCustomerId() {
         return customerId;
     }
-    
+
     /**
      * Setter for property customerId.
      * @param customerId New value of property customerId.
@@ -204,7 +203,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setCustomerId(java.lang.String customerId) {
         this.customerId = customerId;
     }
-    
+
     /**
      * Getter for property rangeDetails.
      * @return Value of property rangeDetails.
@@ -212,7 +211,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getRangeDetails() {
         return rangeDetails;
     }
-    
+
     /**
      * Setter for property rangeDetails.
      * @param rangeDetails New value of property rangeDetails.
@@ -220,7 +219,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setRangeDetails(char rangeDetails) {
         this.rangeDetails = rangeDetails;
     }
-    
+
     /**
      * Getter for property certAndSeals.
      * @return Value of property certAndSeals.
@@ -228,7 +227,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getCertAndSeals() {
         return certAndSeals;
     }
-    
+
     /**
      * Setter for property certAndSeals.
      * @param certAndSeals New value of property certAndSeals.
@@ -236,7 +235,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setCertAndSeals(char certAndSeals) {
         this.certAndSeals = certAndSeals;
     }
-    
+
     /**
      * Getter for property memory.
      * @return Value of property memory.
@@ -244,7 +243,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getMemory() {
         return memory;
     }
-    
+
     /**
      * Setter for property memory.
      * @param memory New value of property memory.
@@ -252,7 +251,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setMemory(char memory) {
         this.memory = memory;
     }
-    
+
     /**
      * Getter for property rs232Port.
      * @return Value of property rs232Port.
@@ -260,7 +259,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getRs232Port() {
         return rs232Port;
     }
-    
+
     /**
      * Setter for property rs232Port.
      * @param rs232Port New value of property rs232Port.
@@ -268,7 +267,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setRs232Port(char rs232Port) {
         this.rs232Port = rs232Port;
     }
-    
+
     /**
      * Getter for property batteryPower.
      * @return Value of property batteryPower.
@@ -276,7 +275,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getBatteryPower() {
         return batteryPower;
     }
-    
+
     /**
      * Setter for property batteryPower.
      * @param batteryPower New value of property batteryPower.
@@ -284,7 +283,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setBatteryPower(char batteryPower) {
         this.batteryPower = batteryPower;
     }
-    
+
     /**
      * Getter for property termScrewAccessCover.
      * @return Value of property termScrewAccessCover.
@@ -292,7 +291,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getTermScrewAccessCover() {
         return termScrewAccessCover;
     }
-    
+
     /**
      * Setter for property termScrewAccessCover.
      * @param termScrewAccessCover New value of property termScrewAccessCover.
@@ -300,7 +299,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setTermScrewAccessCover(char termScrewAccessCover) {
         this.termScrewAccessCover = termScrewAccessCover;
     }
-    
+
     /**
      * Getter for property termCover.
      * @return Value of property termCover.
@@ -308,7 +307,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public char getTermCover() {
         return termCover;
     }
-    
+
     /**
      * Setter for property termCover.
      * @param termCover New value of property termCover.
@@ -316,7 +315,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setTermCover(char termCover) {
         this.termCover = termCover;
     }
-    
+
     /**
      * Getter for property formatting.
      * @return Value of property formatting.
@@ -324,7 +323,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public int getFormatting() {
         return formatting;
     }
-    
+
     /**
      * Setter for property formatting.
      * @param formatting New value of property formatting.
@@ -332,10 +331,10 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setFormatting(int formatting) {
         this.formatting = formatting;
     }
-    
- 
 
-    
+
+
+
     /**
      * Setter for property softwareVersionNumber.
      * @param softwareVersionNumber New value of property softwareVersionNumber.
@@ -343,7 +342,7 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public void setSoftwareVersionNumber(java.lang.String softwareVersionNumber) {
         this.softwareVersionNumber = softwareVersionNumber;
     }
-    
+
     /**
      * Getter for property softwareVersionNumber.
      * @return Value of property softwareVersionNumber.
@@ -351,5 +350,5 @@ public class MeterIdentity extends AbstractLogicalAddress {
     public java.lang.String getSoftwareVersionNumber() {
         return softwareVersionNumber;
     }
-    
+
 }

@@ -10,38 +10,36 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class FirmwareRevisionBasePage extends AbstractBasePage {
-    
+
     private int firmwareRevision;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public FirmwareRevisionBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("FirmwareRevisionBasePage:\n");
         strBuff.append("   firmwareRevision="+getFirmwareRevision()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x0,1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setFirmwareRevision((int)data[0] & 0xFF);
@@ -55,5 +53,5 @@ public class FirmwareRevisionBasePage extends AbstractBasePage {
         this.firmwareRevision = firmwareRevision;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

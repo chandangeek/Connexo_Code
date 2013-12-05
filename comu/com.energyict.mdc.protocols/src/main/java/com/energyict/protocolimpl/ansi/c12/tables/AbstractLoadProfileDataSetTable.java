@@ -10,56 +10,53 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractLoadProfileDataSetTable extends AbstractTable {
-    
+
     abstract protected LoadProfileSetStatus getLoadProfileSetStatusCached() throws IOException;
-    
+
     private LoadProfileDataSet loadProfileDataSet;
     private int nrOfBlocksToRequest;
     private int blockNrOffset;
     private boolean headerOnly;
     private int intervalsets;
-            
+
     /** Creates a new instance of AbstractLoadProfileDataSetTable */
     public AbstractLoadProfileDataSetTable(StandardTableFactory tableFactory,int set) {
         super(tableFactory,new TableIdentification(set));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("AbstractLoadProfileDataSetTable: \n");
-        strBuff.append("    loadProfileDataSet="+getLoadProfileDataSet()+"\n"); 
+        strBuff.append("    loadProfileDataSet="+getLoadProfileDataSet()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         //ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualLoadProfileTable alpt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
-        
+
         int nrOfIntervalsInBlock;
         if (getBlockNrOffset() == getLoadProfileSetStatusCached().getLastBlockElement())
             nrOfIntervalsInBlock = getLoadProfileSetStatusCached().getNrOfValidIntervals();
         else
-            nrOfIntervalsInBlock = alpt.getLoadProfileSet().getNrOfBlockIntervalsSet()[getTableIdentification().getTableId()-64];     
-        
+            nrOfIntervalsInBlock = alpt.getLoadProfileSet().getNrOfBlockIntervalsSet()[getTableIdentification().getTableId()-64];
+
         if (getIntervalsets() != -1)
            setLoadProfileDataSet(new LoadProfileDataSet(tableData, 0, getTableFactory(), getTableIdentification().getTableId()-64, getNrOfBlocksToRequest(), getIntervalsets(),nrOfIntervalsInBlock));
         else
            setLoadProfileDataSet(new LoadProfileDataSet(tableData, 0, getTableFactory(), getTableIdentification().getTableId()-64, getNrOfBlocksToRequest(), isHeaderOnly(),nrOfIntervalsInBlock));
-    }         
+    }
 
     public LoadProfileDataSet getLoadProfileDataSet() {
         return loadProfileDataSet;
@@ -76,29 +73,29 @@ abstract public class AbstractLoadProfileDataSetTable extends AbstractTable {
     public void setNrOfBlocksToRequest(int nrOfBlocksToRequest) {
         this.nrOfBlocksToRequest = nrOfBlocksToRequest;
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         ActualLoadProfileTable alpt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
-        
+
         int blockSize = LoadProfileBlockData.getSize(getTableFactory(), getTableIdentification().getTableId()-64, false);
         int blockSizeRest = blockSize;
-        
+
         if (getIntervalsets() != -1)
             blockSizeRest = LoadProfileBlockData.getSize(getTableFactory(), getTableIdentification().getTableId()-64, getIntervalsets());
-        
+
         int headerSize = LoadProfileBlockData.getSize(getTableFactory(), getTableIdentification().getTableId()-64, true);
-        
+
         if (getNrOfBlocksToRequest() == -1) {
             setHeaderOnly(false);
             setNrOfBlocksToRequest(0);
             return;
         }
-        else if (getNrOfBlocksToRequest() == 0) 
+        else if (getNrOfBlocksToRequest() == 0)
             setHeaderOnly(true);
         else
             setHeaderOnly(false);
-        
+
         if (getLoadProfileSetStatusCached().getIntervalOrder()==1) { // descending order
             PartialReadInfo partialReadInfo = new PartialReadInfo(blockSize*getBlockNrOffset(),isHeaderOnly()?headerSize:blockSizeRest*getNrOfBlocksToRequest());
             setPartialReadInfo(partialReadInfo);
@@ -114,22 +111,22 @@ abstract public class AbstractLoadProfileDataSetTable extends AbstractTable {
 
                 // block
                 //   end date
-                //   simple status for each interval  
+                //   simple status for each interval
                 //   intervalset 0
                 //   intervalset 1
                 //   intervalset ...
                 //   intervalset N-1
-                
+
                 int intervalSetSize = IntervalSet.getSize(getTableFactory(), getTableIdentification().getTableId()-64);
                 int nrOfIntervalsInBlock;
                 if (getBlockNrOffset() == getLoadProfileSetStatusCached().getLastBlockElement())
                     nrOfIntervalsInBlock = getLoadProfileSetStatusCached().getNrOfValidIntervals();
                 else
                     nrOfIntervalsInBlock = alpt.getLoadProfileSet().getNrOfBlockIntervalsSet()[getTableIdentification().getTableId()-64];
-                
+
                 int skipIntervalSetsSize = (nrOfIntervalsInBlock - getIntervalsets())*intervalSetSize;
                 // fill in also PartialReadInfo2 because we need to retrieve non contiguous blocks of data from the same table!
-//System.out.println("SKIP OVER "+skipIntervalSetsSize+" bytes");                
+//System.out.println("SKIP OVER "+skipIntervalSetsSize+" bytes");
                 partialReadInfo = new PartialReadInfo(blockSize*getBlockNrOffset()+headerSize+skipIntervalSetsSize,intervalSetSize*getIntervalsets());
                 setPartialReadInfo2(partialReadInfo);
             }

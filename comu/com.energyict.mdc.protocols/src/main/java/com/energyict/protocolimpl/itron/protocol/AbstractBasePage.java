@@ -10,31 +10,29 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.protocolimpl.iec1107.ppm.parser.ByteAssembly;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import com.energyict.protocolimpl.itron.fulcrum.basepages.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractBasePage {
-    
+
     private AbstractBasePageFactory basePagesFactory;
-    
+
     abstract protected BasePageDescriptor preparebuild() throws IOException;
     abstract protected void parse(byte[] data) throws IOException;
-    
+
     /** Creates a new instance of AbstractBasePage */
     public AbstractBasePage(AbstractBasePageFactory basePagesFactory) {
         this.setBasePagesFactory(basePagesFactory);
     }
-    
+
     public void invoke() throws IOException {
         BasePageDescriptor basePageDescriptor = preparebuild();
         if (basePageDescriptor.getData()==null) { // upload from meter
-                    
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int count=0;
             int length=basePageDescriptor.getLength();
@@ -47,7 +45,7 @@ abstract public class AbstractBasePage {
                 count+=size;
                 length-=size;
             } // while(count < basePageDescriptor.getLength())
-            
+
             byte[] data = baos.toByteArray();
             if (data != null) {
                 parse(data);
@@ -59,11 +57,11 @@ abstract public class AbstractBasePage {
             getBasePagesFactory().getProtocolLink().getCommandFactory().downloadCommand(startAddress,endAddress, basePageDescriptor.getData());
         }
     }
-    
+
     public AbstractBasePageFactory getBasePagesFactory() {
         return basePagesFactory;
     }
-    
+
     public void setBasePagesFactory(AbstractBasePageFactory basePagesFactory) {
         this.basePagesFactory = basePagesFactory;
     }

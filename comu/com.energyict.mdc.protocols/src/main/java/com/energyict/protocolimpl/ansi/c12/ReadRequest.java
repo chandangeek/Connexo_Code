@@ -10,30 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
-public class ReadRequest extends AbstractRequest { 
-    
+public class ReadRequest extends AbstractRequest {
+
     RequestData requestData=new RequestData();
-    
-    
+
+
     /** Creates a new instance of ReadRequest */
     public ReadRequest(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
           response = new ReadResponse(getPSEMServiceFactory());
           response.build(responseData);
     }
-    
+
     protected RequestData getRequestData() {
         return requestData;
     }
-    
+
     // default read
     public void partialReadDefault() throws IOException {
         requestData.setCode(PARTIAL_READ_DEFAULT);
@@ -80,9 +80,9 @@ public class ReadRequest extends AbstractRequest {
             data[3] = (byte)(offset>>8);
             data[4] = (byte)(offset);
         }
-        
+
         requestData.setData(data);
     }
-    
-    
+
+
 }

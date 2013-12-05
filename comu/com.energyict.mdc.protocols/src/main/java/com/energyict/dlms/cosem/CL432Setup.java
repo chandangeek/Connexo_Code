@@ -5,7 +5,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.CL432SetupAttributes;
 import com.energyict.dlms.cosem.methods.CL432SetupMethods;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
 public class CL432Setup extends AbstractCosemObject {
 
     /**
-     * The default {@link com.energyict.obis.ObisCode} used in most case for this CL432Setup cosem object
+     * The default {@link ObisCode} used in most case for this CL432Setup cosem object
      */
     public static final ObisCode DEFAULT_OBIS = ObisCode.fromString("0.0.28.0.0.255");
 
@@ -43,9 +43,9 @@ public class CL432Setup extends AbstractCosemObject {
     }
 
     /**
-     * The default {@link com.energyict.obis.ObisCode} used in most case for this CL432Setup cosem object
+     * The default {@link ObisCode} used in most case for this CL432Setup cosem object
      *
-     * @return The default {@link com.energyict.obis.ObisCode}
+     * @return The default {@link ObisCode}
      * @see CL432Setup#DEFAULT_OBIS
      */
     public static ObisCode getDefaultObis() {

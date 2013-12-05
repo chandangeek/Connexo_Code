@@ -10,20 +10,20 @@
 
 package com.energyict.protocolimpl.ge.kv;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeInfo {
-    
+
     private ObisCode obisCode;
     private String description;
     private Unit unit;
     int registerIndex;
-    
+
     /** Creates a new instance of ObisCodeInfo */
     public ObisCodeInfo(ObisCode obisCode,String description,Unit unit,int registerIndex) {
         this.obisCode=obisCode;
@@ -47,7 +47,7 @@ public class ObisCodeInfo {
     public Unit getUnit() {
         return unit;
     }
-    
+
     public boolean isCurrent() {
         return getObisCode().getF()==ObisCodeInfoFactory.CURRENT;
     }
@@ -69,11 +69,11 @@ public class ObisCodeInfo {
     public int getTierIndex() {
         return getObisCode().getE()-1;
     }
-    
+
     public int getOccurance() {
         return getObisCode().getB()-1;
     }
-    
+
     public boolean isTimeIntegral() {
         return getObisCode().getD() == ObisCode.CODE_D_TIME_INTEGRAL;
     }

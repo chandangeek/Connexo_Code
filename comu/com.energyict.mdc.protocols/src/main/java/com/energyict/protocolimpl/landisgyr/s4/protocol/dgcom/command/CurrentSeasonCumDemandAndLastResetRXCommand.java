@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -22,23 +22,23 @@ import com.energyict.protocolimpl.base.*;
  * @author Koen
  */
 public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand {
-    
+
     public final int NR_OF_RATES = 5;
-    
+
     private int totalNrOfDemandResets; // Demand reset data->counters->reset counter
     private int numberOfOpticalDemandResets; // Demand reset data->counters->optical reset counter
     private Date timeStampOfLastDemandReset; // Demand reset data->last demand reset->time and date
-    
+
     private long[] cumKWDemandInPulsesRates = new long[NR_OF_RATES]; // TOU Data -> cumulative Demand
     private long totalKWHInPulsesAtLastDemandReset; // Demand reset data->last demand reset->total kWh
     private int maxKWInPulsesAtLastDemandReset; // Demand reset data->last demand reset->max kW
     private Date timeStampOfMaxKWAtLastDemandReset; // Demand reset data->last demand reset->time & date of max kw
-    
+
     private long[] cumKMDemandInPulsesRates = new long[NR_OF_RATES];
     private long totalKMHInPulsesAtLastDemandReset;
     private int maxKMInPulsesAtLastDemandReset; // Maximum demand?
     private Date timeStampOfMaxKMAtLastDemandReset; // Maximum demand?
-    
+
     private int averagePowerFactorAtLastDemandReset;
     private Date timeStampOfWorstPowerFactorAtLastDemandReset;
     private int kWAtWorstPowerFactorInPulsesAtLastDemandReset;
@@ -46,12 +46,12 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
     private Date timeStampOfWorstPowerFactorSinceLastDemandReset;
     private int kWAtWorstPowerFactorSinceLastDemandReset;
     private int worstPowerFactorSinceLastDemandReset;
-    
+
     /** Creates a new instance of TemplateCommand */
     public CurrentSeasonCumDemandAndLastResetRXCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -77,18 +77,18 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
         strBuff.append("   worstPowerFactorAtLastDemandReset="+getWorstPowerFactorAtLastDemandReset()+"\n");
         strBuff.append("   worstPowerFactorSinceLastDemandReset="+getWorstPowerFactorSinceLastDemandReset()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     protected byte[] prepareBuild() throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isRX())
             return new byte[]{(byte)0xAA,0,0,0,0,0,0,0,0};
         else
             throw new IOException("CurrentSeasonCumDemandAndLastResetCommand, only for RX meters!");
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        
+
         for (int i=0;i<NR_OF_RATES;i++) {
             getCumKWDemandInPulsesRates()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);
             offset+=6;
@@ -97,10 +97,10 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
         setNumberOfOpticalDemandResets((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
         setTimeStampOfLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
         setTotalKWHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
-    
+
         setTimeStampOfMaxKWAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
         setMaxKWInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
-    
+
         for (int i=0;i<NR_OF_RATES;i++) {
             getCumKMDemandInPulsesRates()[i] = ParseUtils.getBCD2LongLE(data, offset, 6);
             offset+=6;
@@ -115,7 +115,7 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
         setWorstPowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
         setTimeStampOfWorstPowerFactorSinceLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()));offset+=6;
         setKWAtWorstPowerFactorSinceLastDemandReset(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
-        setWorstPowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;        
+        setWorstPowerFactorSinceLastDemandReset((int)ParseUtils.getBCD2LongLE(data,offset,2));offset+=2;
     }
 
     public long[] getCumKWDemandInPulsesRates() {

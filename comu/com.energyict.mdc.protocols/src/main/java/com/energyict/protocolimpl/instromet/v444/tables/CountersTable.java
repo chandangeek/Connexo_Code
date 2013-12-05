@@ -1,22 +1,22 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+
 
 public class CountersTable extends AbstractTable {
-	
+
 	private BigDecimal uncorrectedVolume;
 	private BigDecimal correctedVolume;
-	
+
 	public CountersTable(TableFactory tableFactory) {
 		super(tableFactory);
 	}
-	
+
 	protected void parse(byte[] data) throws IOException {
 		//System.out.println("parse counters");
 		//System.out.println(ProtocolUtils.outputHexString(data));
@@ -30,34 +30,34 @@ public class CountersTable extends AbstractTable {
 				Float.intBitsToFloat(correctedRemainder)));
 		;
 	}
-	
+
 	public int getTableType() {
 		return 8;
 	}
-	
+
 	public BigDecimal getCorrectedVolume() {
 		return this.correctedVolume;
 	}
-	
+
 	public BigDecimal getUnCorrectedVolume() {
 		return this.uncorrectedVolume;
 	}
-	
+
 	protected void prepareBuild() throws IOException {
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.switchToCounters().invoke();
 		if (response == null)
 			throw new IOException("CountersTable table switch: No answer from corrector");
 		parseStatus(response);
     	readHeaders();
 	}
-	
+
 	protected void doBuild() throws IOException {
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.readCountersCommand().invoke();
 		parseStatus(response);
 	    parseWrite(response);

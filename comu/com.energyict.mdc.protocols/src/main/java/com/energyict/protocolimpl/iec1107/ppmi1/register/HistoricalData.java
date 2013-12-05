@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.register;
 
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.protocolimpl.iec1107.ppmi1.MetaRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
+
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author fbo

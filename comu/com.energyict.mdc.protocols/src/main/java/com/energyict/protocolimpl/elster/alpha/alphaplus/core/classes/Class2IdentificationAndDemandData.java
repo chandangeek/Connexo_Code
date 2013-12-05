@@ -10,32 +10,28 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Class2IdentificationAndDemandData extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(2,64,true);
-    
-    
+
+
     static public final int IMPORT = 1;
     static public final int EXPORT = 0;
-    
-    
+
+
     long UMTRSN;
     String ACCTID;
     // pad 14 bytes
-    int KWOVRL; 
+    int KWOVRL;
     int KWTHRSA;
     int KWTHRSB;
     int KWTHRSC;
@@ -44,18 +40,18 @@ public class Class2IdentificationAndDemandData extends AbstractClass {
     int EMETFLG;
     int EATRVAL;
     int[] EBLKCF=new int[2];
-        
-    
+
+
     public String toString() {
         return "Class2IdentificationAndDemandData: UMTRSN="+UMTRSN+", ACCTID="+ACCTID+", KWOVRL="+KWOVRL+", KWTHRSA="+KWTHRSA+", KWTHRSB="+KWTHRSB+", KWTHRSC="+KWTHRSC+", KWTHRSD="+KWTHRSD+", E2KYZDV="+E2KYZDV+
                 ", EMETFLG=0x"+Integer.toHexString(EMETFLG)+", EATRVAL="+EATRVAL+", EBLKCF1=0x"+Integer.toHexString(EBLKCF[0])+", EBLKCF2=0x"+Integer.toHexString(EBLKCF[1])+", isSingleRate="+isSingleRate();
     }
-    
+
     /** Creates a new instance of class1IdentificationAndDemandData */
     public Class2IdentificationAndDemandData(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         UMTRSN = ParseUtils.getBCD2Long(data,0, 5);
         ACCTID = new String(ProtocolUtils.getSubArray2(data, 5,14));
@@ -71,11 +67,11 @@ public class Class2IdentificationAndDemandData extends AbstractClass {
         EBLKCF[1] = ProtocolUtils.getInt(data,53,1);
         //block1DemandOverloadValue = new Quantity
     }
-    
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
+        return classIdentification;
     }
-    
+
     public long getUMTRSN() {
         return UMTRSN;
     }
@@ -123,26 +119,26 @@ public class Class2IdentificationAndDemandData extends AbstractClass {
     public int getEBLKCF2() {
         return EBLKCF[1];
     }
-    
+
     public int getEBLKCF(int block) {
         return EBLKCF[block];
     }
 
-    
+
     /*
-     *  @result boolean single or 4 rate meter 
+     *  @result boolean single or 4 rate meter
      */
     public boolean isSingleRate() {
         return (getEMETFLG() & 0x0400) == 0x0400;
     }
-    
+
     /*
      *  @result int zero based single rate rate
      */
     public int getSingleRate() {
         return (getEMETFLG() >> 6) & 0x0003;
     }
-    
+
     /*
      *  @result 1 = import, 0 = export
      */
@@ -153,11 +149,11 @@ public class Class2IdentificationAndDemandData extends AbstractClass {
             return 1;
         else throw new IOException("CLASS2, getDirection(), delivered AND receved are both active? (EBLKCF1=0x"+Integer.toHexString(getEBLKCF1())+" EBLKCF2=0x"+Integer.toHexString(getEBLKCF2()));
     }
-    
+
     public int getQuadrantInfo(int block) throws IOException {
         return (getEBLKCF(block) & 0x0F);
     }
-    
+
     public boolean isVAImport(int block) throws IOException {
         return getQuadrantInfo(block)==0x9;
     }
@@ -194,6 +190,6 @@ public class Class2IdentificationAndDemandData extends AbstractClass {
     public boolean isNoQuadrants(int block) throws IOException {
         return getQuadrantInfo(block)==0x0;
     }
-    
-    
+
+
 }

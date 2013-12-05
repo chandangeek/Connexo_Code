@@ -6,12 +6,12 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ObisUtils;
 import com.energyict.protocolimpl.emon.ez7.core.command.GenericValue;
 
@@ -50,7 +50,7 @@ public class ObisCodeMapper {
         int billingPoint=-1;
         Unit unit = null;
 
-        // ********************************************************************************* 
+        // *********************************************************************************
         // Manufacturer specific
         if (ObisUtils.isManufacturerSpecific(obisCode)) {
             if (read) {
@@ -73,7 +73,7 @@ public class ObisCodeMapper {
                 }
             }
             else return new RegisterInfo("manufacturer specific ObisCode");
-        } // if (ObisUtils.isManufacturerSpecific(obisCode)) 
+        } // if (ObisUtils.isManufacturerSpecific(obisCode))
         // obis F code
         else if (obisCode.getF() != 255)
             throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported! No billing points supported!");

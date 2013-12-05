@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
-
-
-import com.energyict.protocolimpl.base.*;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
  */
 public class DataSelectionTable extends AbstractTable {
-    
+
     private int[] summationSelects;
     private int[] demandSelects;
     private int[] minOrMaxFlags;
     private int[] coincidentSelects;
     private int[] coinDemandAssocs;
-    
+
     /** Creates a new instance of DataSelectionTable */
     public DataSelectionTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(22));
@@ -50,14 +47,14 @@ public class DataSelectionTable extends AbstractTable {
             strBuff.append("    coinDemandAssocs["+i+"]="+getCoinDemandAssocs()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     public Unit getUnit() {
         return null;
     }
-    
-    protected void parse(byte[] tableData) throws IOException {   
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
-        
+
         setSummationSelects(new int[art.getNrOfSummations()]);
         setDemandSelects(new int[art.getNrOfDemands()]);
         setMinOrMaxFlags(new int[(art.getNrOfDemands()+7)/8]);
@@ -115,5 +112,5 @@ public class DataSelectionTable extends AbstractTable {
     public void setCoinDemandAssocs(int[] coinDemandAssocs) {
         this.coinDemandAssocs = coinDemandAssocs;
     }
-        
+
 }

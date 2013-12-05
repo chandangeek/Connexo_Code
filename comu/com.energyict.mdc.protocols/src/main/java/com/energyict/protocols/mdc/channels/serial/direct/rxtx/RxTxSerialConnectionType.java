@@ -1,21 +1,21 @@
 package com.energyict.protocols.mdc.channels.serial.direct.rxtx;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.dynamicattributes.StringFactory;
-import com.energyict.protocols.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.impl.StringFactory;
+import com.energyict.protocols.mdc.channels.serial.AbstractSerialConnectionType;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for Serial communication.
+ * Provides an implementation for the {@link ConnectionType} interface for Serial communication.
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/08/12
@@ -24,26 +24,24 @@ import java.util.List;
 public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
-    public boolean isRequiredProperty(String name) {
-        return SerialPortConfiguration.NR_OF_STOP_BITS_NAME.equals(name) || SerialPortConfiguration.PARITY_NAME.equals(name)
-                || SerialPortConfiguration.BAUDRATE_NAME.equals(name) || SerialPortConfiguration.NR_OF_DATA_BITS_NAME.equals(name);
-    }
-
-    @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
+        for (ConnectionProperty property : properties) {
             this.setProperty(property.getName(), property.getValue());
         }
-        SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(comPort.getName(), getBaudRateValue(), getNrOfDataBitsValue(),
-                getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());
-
+        SerialPortConfiguration serialPortConfiguration =
+                new SerialPortConfiguration(
+                        this.getComPortNameValue(),
+                        getBaudRateValue(),
+                        getNrOfDataBitsValue(),
+                        getNrOfStopBitsValue(),
+                        getParityValue(),
+                        getFlowControlValue());
         if (getPortOpenTimeOutValue() != null) {
             serialPortConfiguration.setSerialPortOpenTimeOut(getPortOpenTimeOutValue());
         }
         if (getPortReadTimeOutValue() != null) {
             serialPortConfiguration.setSerialPortReadTimeOut(getPortReadTimeOutValue());
         }
-
         return newRxTxSerialConnection(serialPortConfiguration);
     }
 
@@ -53,20 +51,23 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(4);
-        propertySpecs.add(this.baudRatePropertySpec());
-        propertySpecs.add(this.nrOfStopBitsPropertySpec());
-        propertySpecs.add(this.parityPropertySpec());
-        propertySpecs.add(this.nrOfDataBitsPropertySpec());
-        return propertySpecs;
+    protected PropertySpec<BigDecimal> baudRatePropertySpec () {
+        return this.baudRatePropertySpec(true);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(1);
-        propertySpecs.add(this.flowControlPropertySpec());
-        return propertySpecs;
+    protected PropertySpec<String> parityPropertySpec () {
+        return this.parityPropertySpec(true);
+    }
+
+    @Override
+    protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec () {
+        return this.nrOfStopBitsPropertySpec(true);
+    }
+
+    @Override
+    protected PropertySpec<BigDecimal> nrOfDataBitsPropertySpec () {
+        return this.nrOfDataBitsPropertySpec(true);
     }
 
     /**

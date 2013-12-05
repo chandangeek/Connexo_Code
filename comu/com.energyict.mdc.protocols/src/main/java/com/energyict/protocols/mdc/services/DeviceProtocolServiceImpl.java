@@ -1,13 +1,13 @@
 package com.energyict.protocols.mdc.services;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.comserver.adapters.meterprotocol.MeterProtocolAdapter;
 import com.energyict.comserver.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.Pluggable;
 import com.energyict.mdc.services.DeviceProtocolService;
-import com.energyict.mdw.core.Pluggable;
-import com.energyict.mdw.core.PluggableClass;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.SmartMeterProtocol;
 import org.osgi.service.component.annotations.Component;
@@ -21,7 +21,7 @@ import org.osgi.service.component.annotations.Component;
 public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl implements DeviceProtocolService {
 
     @Override
-    public DeviceProtocol createDeviceProtocolFor(PluggableClass pluggableClass) {
+    public DeviceProtocol createDeviceProtocolFor(DeviceProtocolPluggableClass pluggableClass) {
         try {
             Pluggable pluggable = (Pluggable) (Class.forName(pluggableClass.getJavaClassName())).newInstance();
             return checkForProtocolWrappers(pluggable);
@@ -41,7 +41,8 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
             throw CodingException.genericReflectionError(e, javaClassName);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw CodingException.genericReflectionError(e, javaClassName);
-        }    }
+        }
+    }
 
     /**
      * Check if the given {@link Pluggable} needs a Protocol adapter to create a {@link DeviceProtocol}

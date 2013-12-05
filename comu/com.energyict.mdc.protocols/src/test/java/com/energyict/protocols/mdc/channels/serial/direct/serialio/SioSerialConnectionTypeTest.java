@@ -1,14 +1,17 @@
 package com.energyict.protocols.mdc.channels.serial.direct.serialio;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import org.junit.Test;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
+import org.junit.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**
@@ -18,39 +21,36 @@ import static org.junit.Assert.assertTrue;
  * Date: 24/08/12
  * Time: 13:17
  */
-public class SioSerialConnectionTypeTest {
+public class SioSerialConnectionTypeTest extends ConnectionTypePropertiesTest {
 
     @Test
     public void allowSimultaneousConnectionsTest() {
-        SioSerialConnectionType sioSerialConnectionType = new SioSerialConnectionType();
+        SioSerialConnectionType sioSerialConnectionType = newConnectionType();
 
         assertFalse(sioSerialConnectionType.allowsSimultaneousConnections());
     }
 
-    @Test
-    public void getRequiredKeysTest() {
-        SioSerialConnectionType serialConnectionType = new SioSerialConnectionType();
-
-        // asserts
-        assertThat(serialConnectionType.getRequiredProperties()).isNotEmpty();
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.PARITY_NAME));
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.BAUDRATE_NAME));
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME));
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+    protected SioSerialConnectionType newConnectionType () {
+        return new SioSerialConnectionType();
     }
 
-    @Test
-    public void getOptionalPropertiesTest(){
-        SioSerialConnectionType serialConnectionType = new SioSerialConnectionType();
+    @Override
+    protected Set<String> requiredPropertyNames () {
+        return new HashSet<>(Arrays.asList(
+                SerialPortConfiguration.PARITY_NAME,
+                SerialPortConfiguration.BAUDRATE_NAME,
+                SerialPortConfiguration.NR_OF_STOP_BITS_NAME,
+                SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+    }
 
-        // asserts
-        assertThat(serialConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+    @Override
+    protected Set<String> optionalPropertyNames () {
+        return new HashSet<>(Arrays.asList(SerialPortConfiguration.FLOW_CONTROL_NAME));
     }
 
     @Test
     public void getPossibleValuesInCorrectOrderTest() {
-        SioSerialConnectionType serialConnectionType = new SioSerialConnectionType();
+        SioSerialConnectionType serialConnectionType = newConnectionType();
 
         PropertySpec baudrate = serialConnectionType.getPropertySpec(SerialPortConfiguration.BAUDRATE_NAME);
 

@@ -10,63 +10,63 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.ConfirmedRespAPSE;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class WriteResponse extends ConfirmedRespAPSE {
-    
+
     final int DEBUG=0;
-    
+
     final int SUCCESS = 0;
     final int DATA_ACCESS_ERROR = 1;
-    
+
     //private byte[] WriteResponseData;
-    
+
     /** Creates a new instance of WriteResponse */
     public WriteResponse(DLMSPDUFactory dLMSPDUFactory) {
         super(dLMSPDUFactory.getProtocolLink().getAPSEFactory());
     }
-    
-    
+
+
     protected byte[] preparebuildPDU() throws IOException {
-        
+
         return null;
     }
-    
+
     final int DLMSPDU_WRITE_RESPONSE=0x0D;
-    
+
     protected void parsePDU(byte[] data) throws IOException {
         int offset=0;
         if (DEBUG>=1){
         	System.out.println("KV_DEBUG> "+ProtocolUtils.outputHexString(data));
         }
-        
+
         int length = ProtocolUtils.getInt(data,offset++,1);
         if ((length & 0x80) == 0x80) {
 			offset++;
 		}
-        
+
         int tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag != DLMSPDU_WRITE_RESPONSE) {
 			throw new IOException("WriteResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
 		}
-        
+
         offset++; // skip sequence count
         tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag==DATA_ACCESS_ERROR) {
             int error = ProtocolUtils.getInt(data,offset++,1);
             throw new IOException ("WriteResponse, parsePDU, DataAccessError: "+DataAccessError.getDescription(error));
         }
-        
-//        setWriteResponseData(ProtocolUtils.getSubArray(data,offset)); 
-        
-        
+
+//        setWriteResponseData(ProtocolUtils.getSubArray(data,offset));
+
+
     }
 
 //    public byte[] getWriteResponseData() {
@@ -80,5 +80,5 @@ public class WriteResponse extends ConfirmedRespAPSE {
 
 
 
-    
+
 }

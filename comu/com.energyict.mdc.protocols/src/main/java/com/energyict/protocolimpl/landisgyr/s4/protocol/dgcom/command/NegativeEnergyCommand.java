@@ -10,24 +10,24 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class NegativeEnergyCommand extends AbstractCommand {
-    
+
     private long negativeEnergyInPulses;
     private long leadingkvarhInPulses; // for RX 3.00 and higher
-    
+
     /** Creates a new instance of TemplateCommand */
     public NegativeEnergyCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -36,18 +36,18 @@ public class NegativeEnergyCommand extends AbstractCommand {
         strBuff.append("   negativeEnergyInPulses="+getNegativeEnergyInPulses()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if ((getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00))
             return new byte[]{(byte)0xC9,0,0,0,0,0,0,0,0};
-        else    
+        else
             return new byte[]{(byte)0x53,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
-        
+
         setNegativeEnergyInPulses(ParseUtils.getBCD2LongLE(data,0, 6));
-        
+
         if ((getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00))
             setLeadingkvarhInPulses(ParseUtils.getBCD2LongLE(data,6, 6));
     }

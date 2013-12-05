@@ -6,27 +6,28 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.NotFoundException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author  Koen
  * implementation of the DataWatt IEC address mapping table, default table-0
- * 
+ *
  */
 public class AddressMap {
-    
+
     public static final int MAX_ADDRESS=0x03FF;
-    
+
     public static final List addresses = new ArrayList();
     static {
-        
+
         /*
-         *  Following the doc from Datawatt, these addresses are without timetag! 
-         *  But after implementation of the protocol, it seems like these addresses represent values with timetag!  
+         *  Following the doc from Datawatt, these addresses are without timetag!
+         *  But after implementation of the protocol, it seems like these addresses represent values with timetag!
          */
         addresses.add(new AddressMap(0x0801,0x0BFF, "Melding with time tag",0x02));
         addresses.add(new AddressMap(0x0C01,0x0FFF, "Commando with time tag",0x02));
@@ -39,10 +40,10 @@ public class AddressMap {
         addresses.add(new AddressMap(0x4801,0x48FF, "Tellerstand with time tag",0x10));
         addresses.add(new AddressMap(0x6801,0x6BFF, "Double point with time tag",0x04));
         addresses.add(new AddressMap(0x6C01,0x6FFF, "Double comm. with time tag",0x04));
-        
+
         /*
-         *  Following the doc from Datawatt, these addresses are with timetag! 
-         *  But after implementation of the protocol, it seems like these addresses represent values without timetag!  
+         *  Following the doc from Datawatt, these addresses are with timetag!
+         *  But after implementation of the protocol, it seems like these addresses represent values without timetag!
          */
         addresses.add(new AddressMap(0x0001,0x03FF, "Melding without time tag",0x01));
         addresses.add(new AddressMap(0x0401,0x07FF, "Commando without time tag",0x01));
@@ -62,7 +63,7 @@ public class AddressMap {
         addresses.add(new AddressMap(0x3601,0x36FF, "Setp.Float command",0x32));
         addresses.add(new AddressMap(0x7401,0x77FF, "Double comm. command",0x2E));
     }
-    
+
     int from,to,id;
     String type;
     /** Creates a new instance of AddressMap */

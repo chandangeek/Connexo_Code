@@ -8,7 +8,19 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.protocol.BulkRegisterProtocol;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.DialinScheduleProtocol;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MultipleLoadProfileSupport;
+import com.energyict.protocol.ProtocolInstantiator;
+import com.energyict.protocol.SerialNumber;
+import com.energyict.protocol.SmartMeterProtocol;
 
 import java.io.IOException;
 import java.util.ArrayList;

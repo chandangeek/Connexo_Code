@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TypeDescription {
-    
+
     private int classType; // : UINT(0..4);
     //Reserved : FILL(5);
     private boolean twoAndHalfElementFlag; // : BOOL(6);
@@ -31,7 +32,7 @@ public class TypeDescription {
         setTwoAndHalfElementFlag(((data[offset]>>6)&0x01) == 0x01);
         setTwoElementFlag(((data[offset]>>7)&0x01) == 0x01);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -40,8 +41,8 @@ public class TypeDescription {
         strBuff.append("   twoAndHalfElementFlag="+isTwoAndHalfElementFlag()+"\n");
         strBuff.append("   twoElementFlag="+isTwoElementFlag()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 1;
@@ -70,5 +71,5 @@ public class TypeDescription {
     public void setTwoElementFlag(boolean twoElementFlag) {
         this.twoElementFlag = twoElementFlag;
     }
-    
+
 }

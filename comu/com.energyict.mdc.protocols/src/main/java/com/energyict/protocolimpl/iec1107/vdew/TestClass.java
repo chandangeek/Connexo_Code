@@ -10,24 +10,25 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class TestClass {
-    
+
     /** Creates a new instance of TestClass */
     public TestClass() {
     }
-    
+
     private void start() {
         Calendar cal = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("ECT"));
-        
+
 //        cal.set(Calendar.YEAR,2005);
 //        cal.set(Calendar.MONTH,10-1);
 //        cal.set(Calendar.DAY_OF_MONTH,30);
@@ -35,10 +36,10 @@ public class TestClass {
 //        cal.set(Calendar.MINUTE,59);
 //        cal.set(Calendar.SECOND,59);
 //        System.out.println(cal.getTime());
-//        
+//
 //        cal.add(Calendar.SECOND,1);
 //        System.out.println(cal.getTime());
-//        
+//
 //        cal.set(Calendar.YEAR,2005);
 //        cal.set(Calendar.MONTH,10-1);
 //        cal.set(Calendar.DAY_OF_MONTH,30);
@@ -54,20 +55,20 @@ public class TestClass {
 //        cal.set(Calendar.MINUTE,30);
 //        cal.set(Calendar.SECOND,0);
 //        System.out.println(cal.getTime());
-        
+
 //        cal.set(Calendar.YEAR,2005);
 //        cal.set(Calendar.MONTH,10-1);
 //        cal.set(Calendar.DAY_OF_MONTH,30);
 //        cal.set(Calendar.HOUR_OF_DAY,1);
 //        cal.set(Calendar.MINUTE,0);
 //        cal.set(Calendar.SECOND,0);
-//        
+//
 //        for (int i=0;i<20;i++) {
 //            System.out.println(TimeZone.getTimeZone("ECT").inDaylightTime(cal.getTime())+", "+cal.getTime()+", "+TimeZone.getTimeZone("ECT").inDaylightTime(cal.getTime())+", "+inDSTGreyZone(cal.getTime(),TimeZone.getTimeZone("ECT")));
 //            cal.add(Calendar.MINUTE,15);
 //        }
-        
-        
+
+
         cal = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("ECT"));
         cal.set(Calendar.YEAR,2005);
         cal.set(Calendar.MONTH,10-1);
@@ -76,19 +77,19 @@ public class TestClass {
         cal.set(Calendar.MINUTE,0);
         cal.set(Calendar.SECOND,0);
         System.out.println(cal.getTime());
-        
+
         System.out.println(TimeZone.getTimeZone("ECT").inDaylightTime(new Date()));
         System.out.println(TimeZone.getTimeZone("ECT").getDSTSavings()/60000);
-        
+
         cal.add(Calendar.MILLISECOND,-1*TimeZone.getTimeZone("ECT").getDSTSavings());
         System.out.println(cal.getTime());
-        
+
         cal.add(Calendar.MILLISECOND,-1*TimeZone.getTimeZone("ECT").getDSTSavings());
         System.out.println(cal.getTime());
-        
+
     }
-    
-    
+
+
     protected boolean inDSTGreyZone(Date date, TimeZone timeZone) {
         Date testdate;
         if (timeZone.inDaylightTime(date)) {
@@ -101,12 +102,12 @@ public class TestClass {
         else
             testdate = new Date(date.getTime()-3600000);
 
-        if (timeZone.inDaylightTime(testdate))  
+        if (timeZone.inDaylightTime(testdate))
             return true;
         else
             return false;
     }
-    
+
     protected Date validateLastReading(Date lastReading, TimeZone timeZone) {
         boolean isDST = timeZone.inDaylightTime(lastReading);
         Date testdate;
@@ -120,12 +121,12 @@ public class TestClass {
         else
             testdate = new Date(lastReading.getTime()-3600000);
 
-        if (timeZone.inDaylightTime(testdate)) 
+        if (timeZone.inDaylightTime(testdate))
             return new Date(testdate.getTime()-3600000);
         else
             return lastReading;
-    }        
-    
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -133,8 +134,8 @@ public class TestClass {
         // TODO code application logic here
         TestClass tc = new TestClass();
         tc.start();
-        
-        
+
+
     }
-    
+
 }

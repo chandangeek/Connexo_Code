@@ -6,10 +6,13 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 import com.energyict.protocol.InvalidPropertyException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Koen
@@ -160,7 +163,7 @@ public class ProtocolChannelMap {
      * Get the number of protocolchannels in the channelList
      * This method returns the same as getProtocolChannels().size()
      * When the protocolChannels are not initialized, it will return 0.
-     * 
+     *
      * @return
      */
     public int getNrOfProtocolChannels() {
@@ -168,7 +171,7 @@ public class ProtocolChannelMap {
     }
 
     /**
-     * 
+     *
      * @return
      */
     public int getNrOfUsedProtocolChannels() {
@@ -196,7 +199,7 @@ public class ProtocolChannelMap {
 
     /**
      * Check if a given register is captured as a channel
-     * 
+     *
      * @param register
      * @return
      */
@@ -212,7 +215,7 @@ public class ProtocolChannelMap {
 
     /**
      * Internal parser for the channelConfig
-     *  
+     *
      * @param channelConfig
      * @throws InvalidPropertyException
      */
@@ -299,7 +302,7 @@ public class ProtocolChannelMap {
 //            System.out.println(protocolChannelMap.getProtocolChannel(1).getValue(3));
 //            System.out.println("nrOfValues="+protocolChannelMap.getProtocolChannel(1).getNrOfValues());
 //            System.out.println("*****");
-//            
+//
 //            System.out.println(protocolChannelMap.isProtocolChannelEnabled(2));
 //            System.out.println("nrOfValues="+protocolChannelMap.getProtocolChannel(2).getNrOfValues());
 //            System.out.println(protocolChannelMap.isProtocolChannelEnabled(3));
@@ -345,7 +348,7 @@ public class ProtocolChannelMap {
 //            System.out.println(protocolChannelMap.isProtocolChannelZero(0));
 //            System.out.println("***************************************************************");
 //            System.out.println(protocolChannelMap.channelExists("0"));
-//            
+//
 //            protocolChannelMap = new ProtocolChannelMap("1 4 2 0");
 //            System.out.println(protocolChannelMap.getChannelRegisterMap());
 //            System.out.println(protocolChannelMap.getNrOfProtocolChannels());

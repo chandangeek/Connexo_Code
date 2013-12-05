@@ -2,7 +2,12 @@ package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
-import com.energyict.protocolimpl.coronis.waveflow.core.parameter.*;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.DataLoggingDayOfWeek;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.DataLoggingMinuteOfMeasurement;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.DataLoggingTimeOfMeasurement;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.NumberOfLoggedRecords;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.SamplingActivationType;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.SamplingPeriod;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

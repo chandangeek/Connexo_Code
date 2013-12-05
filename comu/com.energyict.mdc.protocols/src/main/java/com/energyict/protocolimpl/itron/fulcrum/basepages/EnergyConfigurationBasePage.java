@@ -10,38 +10,36 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EnergyConfigurationBasePage extends AbstractBasePage {
-    
+
     private int energyconfiguration;
-    
+
     /** Creates a new instance of EnergyConfigurationBasePage */
     public EnergyConfigurationBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EnergyConfigurationBasePage:\n");
         strBuff.append("   energyconfiguration="+getEnergyconfiguration()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2812,1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         setEnergyconfiguration((int)data[0]&0xFF);
     }
@@ -54,5 +52,5 @@ public class EnergyConfigurationBasePage extends AbstractBasePage {
         this.energyconfiguration = energyconfiguration;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

@@ -10,22 +10,21 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocolimpl.edf.core.*;
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractSPDU {
-    
+
     abstract protected byte[] prepareBuild() throws IOException;
     abstract protected void parse(byte[] data) throws IOException;
-    
+
     private int length;
-    
+
     private SPDUFactory sPDUFactory;
-    
+
     public static final int SPDU_XID=0x0F;
     public static final int SPDU_EOS=0x01;
     public static final int SPDU_ENQ=0x09;
@@ -33,8 +32,8 @@ abstract public class AbstractSPDU {
     public static final int SPDU_DAT=0x0C;
     public static final int SPDU_EOD=0x03;
     public static final int SPDU_WTM=0x0A;
-    
-    
+
+
     /** Creates a new instance of AabstractSPDU */
     public AbstractSPDU(SPDUFactory sPDUFactory) {
         this.sPDUFactory=sPDUFactory;
@@ -46,8 +45,8 @@ abstract public class AbstractSPDU {
         byte[] rd = getSPDUFactory().getTrimeran().getTrimeranConnection().sendCommand(data, getLength());
         if (rd!=null)
             parse(rd);
-    }    
-    
+    }
+
     public SPDUFactory getSPDUFactory() {
         return sPDUFactory;
     }
@@ -63,6 +62,6 @@ abstract public class AbstractSPDU {
     public void setLength(int length) {
         this.length = length;
     }
-    
+
 
 }

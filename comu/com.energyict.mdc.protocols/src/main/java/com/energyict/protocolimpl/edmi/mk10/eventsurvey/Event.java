@@ -1,25 +1,25 @@
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 public class Event {
 
 	private static final int FLASH_BACKUP_BAD = 0x0001;
 	private static final int ENERGY_ACCUMULATION_RESTORED = 0x0004;
 	private static final int CONTROL_DATA_RESTORED = 0x0008;
-	
+
 	private static final int PORT_MASK = 0x0030;
 	private static final int PORT_OPTICAL = 0x0000;
 	private static final int PORT_MODEM = 0x0010;
 	private static final int PORT_RESERVED = 0x0020;
-	
+
 	private static final int USER_NUMBER_MASK = 0x000F;
 	private static final int CHANGED_SETUP_MASK = 0x0003;
 	private static final int TIME_CHANGE_MASK = 0x000F;
-	
+
 	private static final int EFA_CONDITION_LATCHED = 0x0000;
 	private static final int EFA_CONDITION_LATCH_CLEARED = 0x0040;
 	private static final int EFA_CONDITION_BECAME_ACTIVE = 0x0080;
@@ -29,20 +29,20 @@ public class Event {
 	private static final int RUNTIME_STATISTICS_OFF_TIME = 1;
 	private static final int RUNTIME_STATISTICS_NUMBER_OF_POWERUPS = 2;
 	private static final int RUNTIME_STATISTICS_RESERVED = 3;
-	
+
 	public static final int SYSTEM = 0;
 	public static final int SETUP = 1;
 	public static final int BILLING = 2;
 	public static final int TRIG = 3;
 	public static final int DIAG = 4;
 	public static final String[] LOGNAMES = {"SYSTEM", "SETUP", "BILLING", "TRIG", "DIAG", "UNKNOWN"};
-	
+
 	private int eventCode;
 	private Date eventDate;
 	private int eventLogNr;
 	private String eventLogName;
 	private String eventDescription;
-	
+
 	public Event(Date date, int code, int lognr) throws IOException {
 		if (lognr>4 || lognr<0) lognr = 5;
 		this.eventLogNr = lognr;
@@ -51,7 +51,7 @@ public class Event {
 		this.eventCode = code;
 		this.eventDescription = this.eventLogName + " - " + getDescriptionFromCode(this.eventCode);
 	}
-	
+
 	public String toString() {
 		return this.eventDate.toString() + " " + getEventDescription();
 	}
@@ -82,7 +82,7 @@ public class Event {
 		if ((eventtype & PORT_MASK) >= PORT_RESERVED) return " (Port: RESERVED)";
 		return " (Port: INVALID)";
 	}
-	
+
 	private static String getTimeChangeReason(int eventtype) {
 		if ((eventtype & TIME_CHANGE_MASK) == 0) return "from command on port.";
 		if ((eventtype & TIME_CHANGE_MASK) == 1) return "from pulsing input.";
@@ -90,7 +90,7 @@ public class Event {
 		if ((eventtype & TIME_CHANGE_MASK) == 0x0F) return "to this time.";
 		return "from RESERVED.";
 	}
-	
+
 	public static String getDescriptionFromCode(int eventtype) throws IOException {
 		String eventDescription = "";
 
@@ -120,7 +120,7 @@ public class Event {
 		}
 		if ((eventtype & 0xFFC0) == 0x2000) return "User" + (eventtype & USER_NUMBER_MASK) + " logged on." + getPortString(eventtype);
 		if ((eventtype & 0xFFCC) == 0x2040) return "User changed setup" + ((eventtype & CHANGED_SETUP_MASK) + 1) + "." + getPortString(eventtype);
-		
+
 		if ((eventtype & 0xFFCF) == 0x2080) return "User acces denied. Bad password." + getPortString(eventtype);
 		if ((eventtype & 0xFFCF) == 0x2081) return "User logged off. X command received." + getPortString(eventtype);
 		if ((eventtype & 0xFFCF) == 0x2082) return "User logged off. Inactivity timeout." + getPortString(eventtype);
@@ -130,7 +130,7 @@ public class Event {
 		if ((eventtype & 0xFFCF) == 0x2086) return "User logged off. Logoff via register write for firmware update." + getPortString(eventtype);
 
 		if ((eventtype & 0xFFC0) == 0x20C0) return "System time changed " + getTimeChangeReason(eventtype) + getPortString(eventtype);
-		
+
 		if ((eventtype & 0xFF00) == 0x3000) {
 			eventDescription = "";
 			switch (eventtype & 0x00C0) {
@@ -138,7 +138,7 @@ public class Event {
 				case EFA_CONDITION_LATCH_CLEARED: eventDescription = " (LATCH CLEARED)"; break;
 				case EFA_CONDITION_BECAME_ACTIVE: eventDescription = " (BECAME ACTIVE)"; break;
 				case EFA_CONDITION_BECAME_INACTIVE: eventDescription = " (BECAME INACTIVE)"; break;
-			} 
+			}
 
 			switch (eventtype & 0x003F) {
 				case 0: return "EFA: User defined/magnetic tamper." + eventDescription;
@@ -158,16 +158,16 @@ public class Event {
 				case 14: return "EFA: Asymetric power." + eventDescription;
 				case 15: return "EFA: Reference failure." + eventDescription;
 				case 63: return "EFA: All latched flags were cleared" + eventDescription;
-			} 
+			}
 		}
-		
+
 		if ((eventtype & 0xFF00) == 0x4000) return "The meter firmware changed to revision 0x" + ProtocolUtils.buildStringHex(eventtype & 0x00FF, 2);
 		if (eventtype == 0x4100) return "The meter bootloader was upgraded.";
 
 		if (eventtype == 0x5000) return "Automatic billing reset occured.";
 		if (eventtype == 0x5001) return "Manual billing reset occured from the billing reset button.";
 		if ((eventtype & 0xFFCF) == 0x5080) return "Manual billing reset occured." + getPortString(eventtype);
-		
+
 		if ((eventtype & 0xF800) == 0x6800) return "Voltage surge change start.";
 		if ((eventtype & 0xF800) == 0x6000) return "Voltage sag change start.";
 		if ((eventtype & 0xF000) == 0x7000) return "Voltage change end. The eventtime is the duration of the voltage change instead of date/time time !!!";
@@ -216,7 +216,7 @@ public class Event {
 		if (eventtype == 0xB302) return "Stack corrupted when power up (Normal operation, as datahub has no battery)";
 
 		return "Unknown event: 0x" + ProtocolUtils.buildStringHex(eventtype, 4) + " !!!";
-		
+
 	}
-	
+
 }

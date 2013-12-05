@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.utils.communicationdump;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.text.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**

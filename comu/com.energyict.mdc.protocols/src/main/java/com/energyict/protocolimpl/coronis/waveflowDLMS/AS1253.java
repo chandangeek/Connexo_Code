@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.as1253.ProfileDataReader;
 
 import java.io.IOException;

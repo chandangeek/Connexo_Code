@@ -6,31 +6,27 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.math.BigDecimal;
-import java.io.IOException;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen
  */
 public class InstantaneousValue {
-    
+
     Quantity quantity;
-    
-    
+
+
     /** Creates a new instance of InstantaneousValue */
     public InstantaneousValue(byte[] data) throws IOException {
         parse(data);
     }
-    
+
     private void parse(byte[] data) throws IOException {
         //data = ProtocolUtils.convert2ascii(data);
         if (((int)data[0]&0xFF) == 0xFF)
@@ -44,23 +40,23 @@ public class InstantaneousValue {
         BigDecimal bd = BigDecimal.valueOf(sign * ParseUtils.getBCD2Long(data,0,6),scale);
         setQuantity(new Quantity(bd,Unit.get("")));
     }
-    
+
     /**
      * Getter for property quantity.
      * @return Value of property quantity.
      */
-    public com.energyict.cbo.Quantity getQuantity() {
+    public Quantity getQuantity() {
         return quantity;
     }
-    
+
     /**
      * Setter for property quantity.
      * @param quantity New value of property quantity.
      */
-    public void setQuantity(com.energyict.cbo.Quantity quantity) {
+    public void setQuantity(Quantity quantity) {
         this.quantity = quantity;
     }
-    
+
     static public void main(String[] args) {
         try {
             {
@@ -79,5 +75,5 @@ public class InstantaneousValue {
             e.printStackTrace();
         }
     }
-    
+
 }

@@ -10,28 +10,25 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class HistoryLog {
-    
+
     private ListStatusBitfield historyFlags;
-    
+
     private int nrOfValidentries; // 2 bytes
     private int lastEntryElement; // 2 bytes
     private long lastEntrySeqNr; // 4 bytes
     private int nrOfUnreadEntries; // 2 bytes
     private HistoryEntry[] entries;
-    
-    
+
+
     /** Creates a new instance of HistoryLog */
     public HistoryLog(byte[] data,int offset,TableFactory tableFactory, boolean header) throws IOException {
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
@@ -47,7 +44,7 @@ public class HistoryLog {
         offset+=4;
         int nrOfUnreadEntries = C12ParseUtils.getInt(data,offset,2,dataOrder);
         offset+=2;
-        
+
         if (!header) { // if only requesting header, do not
             if (getNrOfValidentries() > 0) {
                 setEntries(new HistoryEntry[alt.getLog().getNrOfHistoryEntries()]);
@@ -57,7 +54,7 @@ public class HistoryLog {
                 }
             }
         }
-        
+
     }
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
@@ -65,19 +62,19 @@ public class HistoryLog {
         if (entries!=null) {
             strBuff.append("   entries=\n");
             for (int i=0;i<getEntries().length;i++) {
-                strBuff.append(getEntries()[i]+"\n");   
+                strBuff.append(getEntries()[i]+"\n");
             }
         }
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         int size=11;
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
         size += alt.getLog().getNrOfHistoryEntries()*HistoryEntry.getSize(tableFactory);
         return size;
-    }      
+    }
 
 
     public int getNrOfValidentries() {

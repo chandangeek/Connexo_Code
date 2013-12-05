@@ -10,26 +10,26 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.util.*;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class MandatoryDeviceIdentification {
-    
+
     private String vendorName;
     private String productCode;
     private String majorMinorRevision;
-    
+
     /** Creates a new instance of MandatoryDeviceIdentification */
     public MandatoryDeviceIdentification(List deviceObjects) {
         setVendorName(((DeviceObject)deviceObjects.get(0)).getStr());
         setProductCode(((DeviceObject)deviceObjects.get(1)).getStr());
         setMajorMinorRevision(((DeviceObject)deviceObjects.get(2)).getStr());
-        
+
     }
-    
+
     public String toString() {
         return "vendorName="+getVendorName()+", productCode="+getProductCode()+", majorMinorRevision="+getMajorMinorRevision()+"\n";
     }

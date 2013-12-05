@@ -4,10 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import com.energyict.protocolimpl.utils.MessagingTools;
 import org.junit.Test;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
 
 /**
  * @author jme
@@ -16,7 +15,7 @@ import com.energyict.protocol.MessageEntry;
 public class MessagingToolsTest {
 
 	/**
-	 * Test method for {@link com.energyict.protocolimpl.utils.MessagingTools#getContentOfAttribute(com.energyict.protocol.MessageEntry, java.lang.String)}.
+	 * Test method for {@link com.energyict.protocolimpl.utils.MessagingTools#getContentOfAttribute(MessageEntry, java.lang.String)}.
 	 */
 	@Test
 	public final void testGetContentOfAttribute() {

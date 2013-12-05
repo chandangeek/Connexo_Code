@@ -1,8 +1,21 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.ProtocolException;
 
 import java.util.HashMap;
@@ -62,7 +75,7 @@ public class AS300ObjectFactory {
     /**
      * Getter for a requested {@link com.energyict.dlms.cosem.Data} object
      *
-     * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
+     * @param obisCode the {@link ObisCode} of the object
      * @return the requested {@link com.energyict.dlms.cosem.Data} object
      */
     public Data getData(ObisCode obisCode) {
@@ -76,7 +89,7 @@ public class AS300ObjectFactory {
     /**
      * Getter for the requested {@link com.energyict.dlms.cosem.Register} object
      *
-     * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
+     * @param obisCode the {@link ObisCode} of the object
      * @return the requested {@link com.energyict.dlms.cosem.Register} object
      */
     public Register getRegister(ObisCode obisCode) {
@@ -90,7 +103,7 @@ public class AS300ObjectFactory {
     /**
      * Getter for the requested {@link com.energyict.dlms.cosem.DemandRegister} object
      *
-     * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
+     * @param obisCode the {@link ObisCode} of the object
      * @return the requested {@link com.energyict.dlms.cosem.DemandRegister} object
      */
     public DemandRegister getDemandRegister(ObisCode obisCode) {
@@ -104,7 +117,7 @@ public class AS300ObjectFactory {
     /**
      * Getter for the requested {@link com.energyict.dlms.cosem.ExtendedRegister} object
      *
-     * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
+     * @param obisCode the {@link ObisCode} of the object
      * @return the requested {@link com.energyict.dlms.cosem.ExtendedRegister} object
      */
     public ExtendedRegister getExtendedRegister(ObisCode obisCode) {
@@ -132,7 +145,7 @@ public class AS300ObjectFactory {
     /**
      * Getter for a generic {@link com.energyict.dlms.cosem.CosemObject}
      *
-     * @param obisCode the {@link com.energyict.obis.ObisCode} of the object
+     * @param obisCode the {@link ObisCode} of the object
      * @param classId  the classId of the object (currently 1, 3, 4 and 5 are supported)
      * @return the requested {@link com.energyict.dlms.cosem.CosemObject}
      * @throws com.energyict.protocol.ProtocolException if a non-implemented object is requested

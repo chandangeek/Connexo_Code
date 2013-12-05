@@ -1,23 +1,23 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.protocols.mdc.protocoltasks.Dsmr23DeviceProtocolDialect;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocols.mdc.protocoltasks.Dsmr23DeviceProtocolDialect;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -120,19 +120,14 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> optionalSpecs = new ArrayList<>();
         optionalSpecs.add(forcedToReadCachePropertySpec());
         return optionalSpecs;
     }
 
     private PropertySpec forcedToReadCachePropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(PROP_FORCEDTOREADCACHE);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(PROP_FORCEDTOREADCACHE);
     }
 
     private boolean isForcedToReadCache() {

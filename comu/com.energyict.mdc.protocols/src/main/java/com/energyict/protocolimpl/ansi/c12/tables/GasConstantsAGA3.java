@@ -10,26 +10,21 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GasConstantsAGA3 extends AbstractConstants {
-    
+
     private GasDP gasDPParm;
     private GasDPShutoff gasDPShutoff;
     private GasPress gasPress;
     private GasAGA3Corr gasAGA3Corr;
     private GasEnergy gasEnergy;
-    
-    
+
+
     /** Creates a new instance of GasConstantsAGA3 */
     public GasConstantsAGA3(byte[] data,int offset, int niFormat, int dataOrder) throws IOException {
         setGasDPParm(new GasDP(data,offset,niFormat,dataOrder));
@@ -46,11 +41,11 @@ public class GasConstantsAGA3 extends AbstractConstants {
     static public int getSize(int niFormat) throws IOException {
         return GasDP.getSize(niFormat)+GasDPShutoff.getSize(niFormat)+GasPress.getSize(niFormat)+GasAGA3Corr.getSize(niFormat)+GasEnergy.getSize(niFormat);
     }
-    
+
     protected int getConstantsType() {
         return CONSTANTS_GAS_AGA3;
     }
-    
+
     public GasDP getGasDPParm() {
         return gasDPParm;
     }
@@ -90,5 +85,5 @@ public class GasConstantsAGA3 extends AbstractConstants {
     public void setGasEnergy(GasEnergy gasEnergy) {
         this.gasEnergy = gasEnergy;
     }
-    
+
 }

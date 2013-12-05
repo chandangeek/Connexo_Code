@@ -10,35 +10,37 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 
 /**
  *
  * @author koen
  */
 public class DCCommand extends AbstractCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("DC");
 
     private ProtocolChannelMap protocolChannelMap;
-    
+
     /** Creates a new instance of DCCommand */
     public DCCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         return "protocolChannelMap: "+protocolChannelMap;
     }
-    
+
     protected void parse(String strData) throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         String temp = br.readLine();
         setProtocolChannelMap(new ProtocolChannelMap(temp,true));
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }
@@ -50,5 +52,5 @@ public class DCCommand extends AbstractCommand {
     public void setProtocolChannelMap(ProtocolChannelMap protocolChannelMap) {
         this.protocolChannelMap = protocolChannelMap;
     }
-    
+
 }

@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,15 +10,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.TimeZone;
 
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
-
 /** @author fbo */
 
 public class HistoricalEventRegister {
-    
+
     private static final int HISTORY_SIZE = 3;
-    
+
     private int reverseRunCount;
     private int phaseFailureCount;
     private int powerFailCount;
@@ -28,25 +28,25 @@ public class HistoricalEventRegister {
     private int mainCoverCount;
     private int internalBatteryCount;
     private int externalBatteryCount;
-    
+
     private ArrayList events = new ArrayList();
     private TimeZone timeZone;
-    
+
     /** Creates a new instance of HistoricalEventRegister */
     public HistoricalEventRegister(byte[] data, TimeZone timeZone) throws IOException {
         this.timeZone=timeZone;
         parse(data);
     }
-    
+
     public Collection getEvents(){
         return events;
     }
-    
+
     private void parse(byte[] data) throws IOException {
-        
+
         long shift;
         Date date;
-        reverseRunCount = ProtocolUtils.getIntLE(data, 0, 2); 
+        reverseRunCount = ProtocolUtils.getIntLE(data, 0, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 2 + (i*4);
             shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL;
@@ -56,7 +56,7 @@ public class HistoricalEventRegister {
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
             events.add( new MeterEvent(date, MeterEvent.OTHER, "Reverse Running") );
         }
-        
+
         phaseFailureCount = ProtocolUtils.getIntLE(data, 14, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 16 + (i*4);
@@ -78,7 +78,7 @@ public class HistoricalEventRegister {
 			}
             events.add( new MeterEvent(date, MeterEvent.PHASE_FAILURE, dscr ) );
         }
-        
+
         powerFailCount = ProtocolUtils.getIntLE(data, 31, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 33 + (i*4);
@@ -105,7 +105,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, dscr);
             events.add(me);
         }
-        
+
         ctRatioCount = ProtocolUtils.getIntLE(data, 98, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 102 + (i*4);
@@ -117,7 +117,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, "Configuration change");
             events.add(me);
         }
-        
+
         billingCount = ProtocolUtils.getIntLE(data, 151, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 153 + (i*4);
@@ -132,7 +132,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.BILLING_ACTION, dscr);
             events.add(me);
         }
-        
+
         transientResetCount = ProtocolUtils.getIntLE(data, 168, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 170 + (i*4);
@@ -144,7 +144,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.CLEAR_DATA, "Transient reset");
             events.add(me);
         }
-        
+
         meterErrorCount = ProtocolUtils.getIntLE(data, 182, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 184 + (i*4);
@@ -156,7 +156,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.FATAL_ERROR, "Meter error");
             events.add(me);
         }
-        
+
         terminalCoverCount = ProtocolUtils.getIntLE(data, 196, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 198 + (i*4);
@@ -180,7 +180,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Main Cover Cumulative Event Count");
             events.add(me);
         }
-        
+
         internalBatteryCount = ProtocolUtils.getIntLE(data, 224, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset = 226 + (i*4);
@@ -192,7 +192,7 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "Internal Battery");
             events.add(me);
         }
-        
+
         externalBatteryCount = ProtocolUtils.getIntLE(data, 238, 2);
         for( int i = 0; i < HISTORY_SIZE; i ++ ) {
             int offset =240 + (i*4);
@@ -204,11 +204,11 @@ public class HistoricalEventRegister {
             MeterEvent me = new MeterEvent(date, MeterEvent.OTHER, "External Battery");
             events.add(me);
         }
-        
+
     }
-    
+
     public String toString() {
-        
+
         StringBuffer rslt = new StringBuffer()
         .append( "HistoricalEventRegister[ \n" )
         .append( " reverseRunCount=" + reverseRunCount + "\n" )
@@ -223,9 +223,9 @@ public class HistoricalEventRegister {
         .append( " mainCoverCount=" + mainCoverCount + "\n" )
         .append( " internalBatteryCount=" + internalBatteryCount + "\n" )
         .append( " externalBatteryCount=" + externalBatteryCount + "\n" );
-        
+
         rslt.append( "\n" );
-        
+
         Iterator i = events.iterator();
         while( i.hasNext() ) {
             MeterEvent me = (MeterEvent)i.next();
@@ -234,11 +234,11 @@ public class HistoricalEventRegister {
                     + me.getMessage() + "] ";
             rslt.append( " " + msg + "\n" );
         }
-        
+
         rslt.append( "]\n" ).toString();
-        
+
         return rslt.toString();
     }
-    
-    
+
+
 }

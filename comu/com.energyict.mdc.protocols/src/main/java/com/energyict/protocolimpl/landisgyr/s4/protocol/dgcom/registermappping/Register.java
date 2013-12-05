@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.registermappping;
 
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 
 /**
  *
  * @author Koen
  */
 public class Register {
-    
+
     private RegisterValue registerValue;
     private String description;
-    
+
     /** Creates a new instance of Register */
     public Register(RegisterValue registerValue) {
         this(registerValue,"");
@@ -31,9 +31,9 @@ public class Register {
     }
 
     public String toString() {
-        return getRegisterValue()+", "+getDescription();    
+        return getRegisterValue()+", "+getDescription();
     }
-    
+
     public RegisterValue getRegisterValue() {
         return registerValue;
     }
@@ -49,7 +49,7 @@ public class Register {
     private void setDescription(String description) {
         this.description = description;
     }
-    
-       
-    
+
+
+
 }

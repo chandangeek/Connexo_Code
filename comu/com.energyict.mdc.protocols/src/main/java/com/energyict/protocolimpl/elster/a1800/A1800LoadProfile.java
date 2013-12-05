@@ -1,17 +1,16 @@
 package com.energyict.protocolimpl.elster.a1800;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
 import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
 import com.energyict.protocolimpl.ansi.c12.tables.HistoryLog;
 import com.energyict.protocolimpl.elster.a3.AlphaA3LoadProfile;
-import com.energyict.protocolimpl.elster.a1800.EventLogMfgCodeFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class A1800LoadProfile extends AlphaA3LoadProfile {
 
@@ -31,22 +30,22 @@ public class A1800LoadProfile extends AlphaA3LoadProfile {
         int protocolCode = eventEntry.getEventCode().getProcedureNr() | (eventEntry.getEventCode().isStdVsMfgFlag()?0x8000:0);
         return new MeterEvent(eventEntry.getEventTime(),eiCode,protocolCode,text);
     }
-	
+
 	@Override
 	protected void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException {
-	       List<MeterEvent> meterHistorys = new ArrayList<MeterEvent>(); 
+	       List<MeterEvent> meterHistorys = new ArrayList<MeterEvent>();
 	       int validHistoryCount=0;
 	       boolean futurelogcheck=true;
 	       boolean leaveLoop=false;
-	       
+
 	       while(!leaveLoop) {
-	           
+
 	           HistoryLog historyLog = a1800.getStandardTableFactory().getHistoryLogDataTable().getHistoryLog();
 	           if (historyLog.getEntries() == null) break;
 	           int nrOfValidEntries = historyLog.getNrOfValidentries();
-	                   
+
 	           if (futurelogcheck) {
-	               
+
 	               HistoryEntry[] historyEntries = historyLog.getEntries();
 	               for (int i=0;i<historyEntries.length;i++) {
 	                   if ((validHistoryCount++ >=(nrOfValidEntries-1)) || (historyEntries[i].getHistoryTime().before(to))) {
@@ -55,7 +54,7 @@ public class A1800LoadProfile extends AlphaA3LoadProfile {
 	                   }
 	               }
 	           }
-	           
+
 	           if (!futurelogcheck) {
 	               HistoryEntry[] historyEntries = historyLog.getEntries();
 	               for (int i=0;i<historyEntries.length;i++) {
@@ -66,15 +65,15 @@ public class A1800LoadProfile extends AlphaA3LoadProfile {
 	                   System.out.println(historyEntries[i]);
 	                   meterHistorys.add(createMeterEvent(historyEntries[i]));
 	               }
-	               
+
 	           }
-	           
+
 	       } // while(true)
 	       profileData.getMeterEvents().addAll(meterHistorys);
 //	       profileData.setMeterEvents(meterHistorys);
-	       
+
 	    } // private void buildHistoryLog(ProfileData profileData, Date lastReading, Date to) throws IOException
-	
+
 	private MeterEvent createMeterEvent(HistoryEntry historyEntry) {
       EventLogMfgCodeFactory eventFact = new EventLogMfgCodeFactory();
       int eiCode = eventFact.getEICode(historyEntry.getHistoryCode().getProcedureNr(),historyEntry.getHistoryCode().isStdVsMfgFlag());

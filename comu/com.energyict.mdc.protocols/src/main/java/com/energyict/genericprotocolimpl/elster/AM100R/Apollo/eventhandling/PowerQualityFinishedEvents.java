@@ -1,12 +1,11 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.TimeZone;
 
 /**
- * Contains all events related to voltage variations, e.g. changes of voltage under or over a threshold of Vn for finished events 
+ * Contains all events related to voltage variations, e.g. changes of voltage under or over a threshold of Vn for finished events
  * <br/>
  * Copyrights EnergyICT<br/>
  * Date: 6-dec-2010<br/>

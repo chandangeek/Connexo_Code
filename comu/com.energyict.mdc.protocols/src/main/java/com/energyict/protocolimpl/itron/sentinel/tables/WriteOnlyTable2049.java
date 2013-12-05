@@ -10,47 +10,46 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import com.energyict.protocolimpl.itron.sentinel.logicalid.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.DataReadDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class WriteOnlyTable2049 extends AbstractTable { 
+public class WriteOnlyTable2049 extends AbstractTable {
 
 
-    
+
     private DataReadDescriptor dataReadDescriptor;
-    
+
     /** Creates a new instance of WriteOnlyTable2049 */
     public WriteOnlyTable2049(ManufacturerTableFactory manufacturerTableFactory) {
         //super(manufacturerTableFactory,new TableIdentification(1,true)); // alternative way of declaration
         super(manufacturerTableFactory,new TableIdentification(2049));
     }
- 
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("WriteOnlyTable2049:\n");
         strBuff.append("   dataReadDescriptor="+getDataReadDescriptor()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     protected void parse(byte[] tableData) throws IOException {
         int offset = 0;
 
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
-    
+
 //    protected void prepareBuild() throws IOException {
 //        // override to provide extra functionality...
 //        PartialReadInfo partialReadInfo = new PartialReadInfo(0,84);
@@ -74,8 +73,8 @@ public class WriteOnlyTable2049 extends AbstractTable {
             System.arraycopy(lid, 0, tableData, 2+i*4, 4);
         }
         setTableData(tableData);
-        
-    } // protected void prepareTransfer() throws IOException 
+
+    } // protected void prepareTransfer() throws IOException
 
     public DataReadDescriptor getDataReadDescriptor() {
         return dataReadDescriptor;
@@ -86,6 +85,6 @@ public class WriteOnlyTable2049 extends AbstractTable {
     }
 
 
-    
+
 
 }

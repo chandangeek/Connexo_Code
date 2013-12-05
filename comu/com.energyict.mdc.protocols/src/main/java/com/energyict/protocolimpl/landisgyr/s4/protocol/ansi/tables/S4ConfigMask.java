@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class S4ConfigMask {
-    
+
     private boolean aXLRegisterConfiguration; // AXL_REGISTER_CONFIGURATION : BOOL(0);
     private boolean aXRegisterConfiguration; // AX_REGISTER_CONFIGURATION : BOOL(1);
     private boolean singlePhaseServiceExpected; // SINGLE_PHASE_SERVICE_EXPECTED : BOOL(2);
@@ -40,7 +41,7 @@ public class S4ConfigMask {
         setRAM128KPresent((((temp>>6)&0x01)==0x01));
         setRAM512KPresent((((temp>>7)&0x01)==0x01));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -53,8 +54,8 @@ public class S4ConfigMask {
         strBuff.append("   singlePhaseServiceExpected="+isSinglePhaseServiceExpected()+"\n");
         strBuff.append("   tlcCapable="+isTlcCapable()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 1;
@@ -115,5 +116,5 @@ public class S4ConfigMask {
     public void setRAM512KPresent(boolean rAM512KPresent) {
         this.rAM512KPresent = rAM512KPresent;
     }
-    
+
 }

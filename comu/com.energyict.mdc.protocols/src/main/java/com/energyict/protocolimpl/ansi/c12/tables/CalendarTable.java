@@ -10,55 +10,54 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class CalendarTable extends AbstractTable {
-    
+
     private Date anchorDate;
     private NonRecurringDate[] nonRecurringDates;
     private RecurringDate[] recurringDates;
     private TierSwitch[] tierSwitch;
     private int[][] dailyScheduleIdMatrix;
-    
-    
+
+
     /** Creates a new instance of CalendarTable */
     public CalendarTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(54));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("CalendarTable: \n");
         strBuff.append("    anchorDate="+getAnchorDate()+"\n");
-        for (int i=0;i<getNonRecurringDates().length;i++) 
+        for (int i=0;i<getNonRecurringDates().length;i++)
             strBuff.append("    nonRecurringDates["+i+"]="+getNonRecurringDates()[i]+"\n");
-        for (int i=0;i<getRecurringDates().length;i++) 
+        for (int i=0;i<getRecurringDates().length;i++)
             strBuff.append("    recurringDates["+i+"]="+getRecurringDates()[i]+"\n");
-        for (int i=0;i<getTierSwitch().length;i++) 
+        for (int i=0;i<getTierSwitch().length;i++)
             strBuff.append("    tierSwitch["+i+"]="+getTierSwitch()[i]+"\n");
         for (int i=0;i<getDailyScheduleIdMatrix().length;i++) {
             for (int t=0;t<getDailyScheduleIdMatrix()[i].length;t++) {
                 strBuff.append("    dailyScheduleIdMatrix["+i+"]["+t+"]="+getDailyScheduleIdMatrix()[i][t]+"\n");
             }
         }
-        
+
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int offset=0;
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         if (atatt.getTimeTOU().isAnchorDateFlag()) {
             setAnchorDate(C12ParseUtils.getDateFromDate(tableData, offset, tableFactory.getC12ProtocolLink().getTimeZone(),dataOrder));
             offset+=C12ParseUtils.getDateSize();
@@ -82,10 +81,10 @@ public class CalendarTable extends AbstractTable {
         for (int i=0;i<getDailyScheduleIdMatrix().length;i++) {
             for (int t=0;t<getDailyScheduleIdMatrix()[i].length;t++) {
                 getDailyScheduleIdMatrix()[i][t]=C12ParseUtils.getInt(tableData,offset);
-                offset++;        
+                offset++;
             }
         }
-    }         
+    }
 
     public Date getAnchorDate() {
         return anchorDate;

@@ -10,46 +10,44 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class EventEntry {
-    
+
     private Date eventTime;
     private int eventNumber; // 2 bytes
     private int eventSeqNumber; // 2 bytes
     private int userId; // 2 bytes;
     private TableIDBBitfield eventCode;
     private int[] eventArgument;
-    
+
     /** Creates a new instance of EventEntry */
     public EventEntry(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
-        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0) 
+
+        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0)
             setEventTime(C12ParseUtils.getDateFromLTimeAndAdjustForTimeZone(data, offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(), dataOrder));
         else
             setEventTime(C12ParseUtils.getDateFromLTime(data, offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(), dataOrder));
-            
+
         offset += C12ParseUtils.getLTimeSize(cfgt.getTimeFormat());
-        
+
         if (data.length > C12ParseUtils.getLTimeSize(cfgt.getTimeFormat())) {
             if (alt.getLog().isEventNumberFlag()) {
                 setEventNumber(C12ParseUtils.getInt(data,offset, 2, dataOrder));
                 offset += 2;
             }
 
-            if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) {        
+            if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) {
                 // absorb, no sequence nr
             }
             else {
@@ -66,8 +64,8 @@ public class EventEntry {
                 getEventArgument()[i] = C12ParseUtils.getInt(data,offset++);
             }
         }
-        
-        
+
+
     }
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
@@ -79,12 +77,12 @@ public class EventEntry {
         for (int i=0;i<getEventArgument().length;i++) {
             strBuff.append("eventArgument["+i+"]="+eventArgument[i]+"\n");
         }
-                       
-                       
+
+
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         int size=0;
         ActualLogTable alt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
@@ -92,8 +90,8 @@ public class EventEntry {
         size += C12ParseUtils.getLTimeSize(cfgt.getTimeFormat());
         if (alt.getLog().isEventNumberFlag()) {
             size += 2;
-        }    
-        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) {        
+        }
+        if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) {
             // absorb, no sequence nr
         }
         else {
@@ -103,7 +101,7 @@ public class EventEntry {
         size += TableIDBBitfield.getSize();
         size += alt.getLog().getEventDataLength();
         return size;
-    }      
+    }
 
     public Date getEventTime() {
         return eventTime;

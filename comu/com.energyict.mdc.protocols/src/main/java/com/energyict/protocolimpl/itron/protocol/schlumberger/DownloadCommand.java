@@ -10,31 +10,31 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DownloadCommand extends AbstractCommand{
-    
+
     private int firstAddress;
     private int lastAddress;
     private byte[] data;
-    
+
     /** Creates a new instance of DownloadCommand */
     public DownloadCommand(SchlumbergerProtocol schlumbergerProtocol) {
         super(schlumbergerProtocol);
     }
-    
+
     protected Command preparebuild() throws IOException {
-        
-        
+
+
         if (getData()==null) {
-//System.out.println("Phase 1");            
+//System.out.println("Phase 1");
             Command command = new Command('D');
             byte[] data = new byte[6];
             System.arraycopy(ParseUtils.getArray(getFirstAddress(),3), 0, data, 0, 3);
@@ -43,7 +43,7 @@ public class DownloadCommand extends AbstractCommand{
             return command;
         }
         else {
-//System.out.println("Phase 2");            
+//System.out.println("Phase 2");
             Command command = new Command((char)0x00);
             byte[] data = new byte[getData().length];
             System.arraycopy(getData(), 0, data, 0, getData().length);
@@ -51,10 +51,10 @@ public class DownloadCommand extends AbstractCommand{
             return command;
         }
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
- 
+
     }
 
     public int getFirstAddress() {
@@ -82,5 +82,5 @@ public class DownloadCommand extends AbstractCommand{
     }
 
 
-        
+
 }

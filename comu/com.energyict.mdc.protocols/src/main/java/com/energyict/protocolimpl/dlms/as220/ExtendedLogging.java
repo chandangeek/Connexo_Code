@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * @author jme

@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  *
  */
 public class ParametersPlus1 extends AbstractTrimaranObject{
-	
+
 	private int KJ_plus1;					// valeur de coefficient de pertes joules, multiplié par 1000
 	private int KPr_plus1;					// valeur de coefficient utilisé pour le calcul de réactive positive en kvarh ramenés au primaire, multiplié par 1000, entre -500 et 500
 	private Quantity KF_plus1;				// valeur du paramètre pertes Fer, exprimé en W
@@ -24,13 +24,13 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 	private int kep_plus1;					// Facteur d'échelle des puissances en puissance de 10
 
 	private int tcc_plus1;					// période d'intégration Tc pour le suivi de la courbe de charge en multiples de 1mn et selon un sous-multiple de 60
-	
+
 	private boolean ccReact_plus1;			// enregistrement des quatre puissances réactives dans la courbe de charge
-	
+
 	private int variableName_plus1;
 
 	/**
-	 * 
+	 *
 	 */
 	public ParametersPlus1(TrimaranObjectFactory trimaranObjectFacotry) {
 		super(trimaranObjectFacotry);
@@ -187,7 +187,7 @@ public class ParametersPlus1 extends AbstractTrimaranObject{
 	public void setVariableName_plus1(int variableName_plus1) {
 		this.variableName_plus1 = variableName_plus1;
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("*** ParametersPlus1: ***\n");

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.register;
 
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 
 /**

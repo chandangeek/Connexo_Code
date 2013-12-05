@@ -10,19 +10,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ActualRegisterTable extends AbstractTable {
-    
+
     private int registerFunction1Bitfield;
     private boolean seasonInfoFieldFlag;
     private boolean dateTimeFieldFlag;
@@ -31,15 +28,15 @@ public class ActualRegisterTable extends AbstractTable {
     private boolean cumulativeDemandFlag;
     private boolean continueCumulativeDemandFlag;
     private boolean timeRemainingFlag;
-    
+
     private int registerFunction2Bitfield;
     private boolean selfReadInhibitOverflowFlag;
     private boolean selfReadSeqNrFlag;
     private boolean dailySelfReadFlag;
     private boolean weeklySelfReadFlag;
     private int selfReadDemandReset;
-    
-    
+
+
     private int nrOfSelfReads;
     private int nrOfSummations;
     private int nrOfDemands;
@@ -48,13 +45,13 @@ public class ActualRegisterTable extends AbstractTable {
     private int nrOfTiers;
     private int nrOfPresentDemands;
     private int nrOfPresentValues;
-    
-    
+
+
     /** Creates a new instance of ActualRegisterTable */
     public ActualRegisterTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(21));
     }
-    
+
     public String toString() {
         return "ActualRegisterTable: registerFunction1Bitfield=0x"+Integer.toHexString(getRegisterFunction1Bitfield())+
                ", registerFunction2Bitfield=0x"+Integer.toHexString(getRegisterFunction2Bitfield())+
@@ -66,10 +63,10 @@ public class ActualRegisterTable extends AbstractTable {
                ", nrOfTiers="+getNrOfTiers()+
                ", nrOfPresentDemands="+getNrOfPresentDemands()+
                ", nrOfPresentValues="+getNrOfPresentValues()+"\n";
-                
+
     }
-    
-    protected void parse(byte[] tableData) throws IOException {  
+
+    protected void parse(byte[] tableData) throws IOException {
         registerFunction1Bitfield=C12ParseUtils.getInt(tableData,0);
         setSeasonInfoFieldFlag((registerFunction1Bitfield&0x01) == 0x01);
         setDateTimeFieldFlag((registerFunction1Bitfield&0x02) == 0x02);
@@ -269,5 +266,5 @@ public class ActualRegisterTable extends AbstractTable {
     public void setSelfReadDemandReset(int selfReadDemandReset) {
         this.selfReadDemandReset = selfReadDemandReset;
     }
-        
+
 }

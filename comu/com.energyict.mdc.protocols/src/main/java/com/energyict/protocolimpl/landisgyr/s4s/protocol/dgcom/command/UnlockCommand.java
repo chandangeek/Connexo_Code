@@ -10,30 +10,29 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class UnlockCommand extends AbstractCommand {
-    
-    private String password;  
-    
+
+    private String password;
+
     /** Creates a new instance of TemplateCommand */
     public UnlockCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("UnlockCommand:\n");
         strBuff.append("   password="+getPassword()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     protected byte[] prepareBuild() {
         byte[] data=null;
         data = new byte[]{(byte)0xFF,0,0,0,0,0,0,0,0};
@@ -44,7 +43,7 @@ public class UnlockCommand extends AbstractCommand {
         setResponseData(false);
         return data;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
     }
 

@@ -10,27 +10,29 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class TimeAndDateOfProgramBasePage extends AbstractBasePage {
-    
+
     private Calendar calendar;
     private Date date;
-    
+
     /** Creates a new instance of TimeAndDateOfProgramBasePage */
     public TimeAndDateOfProgramBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -38,29 +40,29 @@ public class TimeAndDateOfProgramBasePage extends AbstractBasePage {
         strBuff.append("   calendar="+getCalendar()+"\n");
         strBuff.append("   date="+getDate()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x3483,0x5);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
-        
+
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getFulcrum().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);                
-        
-        Calendar calendar = ProtocolUtils.getCleanCalendar(tz); 
+            tz = ProtocolUtils.getWinterTimeZone(tz);
+
+        Calendar calendar = ProtocolUtils.getCleanCalendar(tz);
         calendar.set(Calendar.MINUTE,data[0]);
         calendar.set(Calendar.HOUR_OF_DAY,data[1]);
         calendar.set(Calendar.DAY_OF_MONTH,data[2]);
         calendar.set(Calendar.MONTH,data[3]-1);
         int year = data[4]>50?data[4]+1900:data[4]+2000;
         calendar.set(Calendar.YEAR,year);
-        
+
         setDate(calendar.getTime());
-        
-        
+
+
     } // protected void parse(byte[] data) throws IOException
 
     public Calendar getCalendar() {
@@ -79,5 +81,5 @@ public class TimeAndDateOfProgramBasePage extends AbstractBasePage {
         this.date = date;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

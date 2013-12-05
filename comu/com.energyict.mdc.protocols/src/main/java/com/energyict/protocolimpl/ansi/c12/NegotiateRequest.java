@@ -10,30 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class NegotiateRequest extends AbstractRequest { 
-    
+public class NegotiateRequest extends AbstractRequest {
+
     RequestData requestData=new RequestData();
-    
+
     /** Creates a new instance of NegotiateRequest */
     public NegotiateRequest(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
           response = new NegotiateResponse(getPSEMServiceFactory());
           response.build(responseData);
     }
-    
+
     protected RequestData getRequestData() {
         return requestData;
     }
-    
+
     public void negotiate(int packetSize,int nrOfPackets,int baudrateIndex) {
         if (baudrateIndex==0) {
             requestData.setCode(NEGOTIATE);
@@ -45,5 +45,5 @@ public class NegotiateRequest extends AbstractRequest {
             requestData.setData(new byte[]{(byte)(packetSize>>8),(byte)packetSize,(byte)nrOfPackets,(byte)baudrateIndex});
         }
     }
-    
+
 }

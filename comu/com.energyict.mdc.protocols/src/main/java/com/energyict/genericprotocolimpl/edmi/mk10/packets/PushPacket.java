@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.packets;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.base.CRCGenerator;
+
+import java.io.IOException;
 
 public abstract class PushPacket {
 

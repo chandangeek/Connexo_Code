@@ -10,19 +10,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EventLogDataTable extends AbstractTable {
-    
+
     private EventLog eventLog;
     private int nrOfEventEntriesToRequest;
     private int eventEntryNrOffset;
@@ -32,17 +29,17 @@ public class EventLogDataTable extends AbstractTable {
     public EventLogDataTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(76));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EventLogDataTable: eventLog="+getEventLog()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareBuild() throws IOException {
         // override to provide extra functionality...
     }
-    
+
     public void prepareGetEventEntryHeader(int eventEntryNr) throws IOException {
         this.eventEntryNrOffset = eventEntryNr;
         this.nrOfEventEntriesToRequest = 1;
@@ -51,7 +48,7 @@ public class EventLogDataTable extends AbstractTable {
         setHeader(false);
         setPartialReadInfo(partialReadInfo);
     }
-    
+
     public void prepareGetEventEntries(int eventEntryNrOffset, int nrOfEventEntriesToRequest) throws IOException {
         this.eventEntryNrOffset = eventEntryNrOffset;
         this.nrOfEventEntriesToRequest = nrOfEventEntriesToRequest;
@@ -60,16 +57,16 @@ public class EventLogDataTable extends AbstractTable {
         setHeader(false);
         setPartialReadInfo(partialReadInfo);
     }
-    
+
     public void prepareGetHeader() throws IOException {
         PartialReadInfo partialReadInfo = new PartialReadInfo(0,11);
         setHeader(true);
         setPartialReadInfo(partialReadInfo);
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         setEventLog(new EventLog(tableData, 0, getTableFactory(), getNrOfEventEntriesToRequest(), isHeader()));
-    }         
+    }
 
     public EventLog getEventLog() {
         return eventLog;

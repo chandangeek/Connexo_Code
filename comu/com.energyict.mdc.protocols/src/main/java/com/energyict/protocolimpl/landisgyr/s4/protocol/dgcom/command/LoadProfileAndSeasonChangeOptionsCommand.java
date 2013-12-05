@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -24,9 +24,9 @@ import com.energyict.protocolimpl.base.*;
  * @author Koen
  */
 public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
-    
+
 	final int DEBUG=0;
-	
+
     private int settings; // bit0 demand rest control
                   // bit1 15 minutes profile interval
                   // bit2 30 minutes profile interval
@@ -34,20 +34,20 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
                   // bit5 5 minutes profile interval
                   // bit6 1 minutes profile interval
                   // bit7 season change control
-    
+
     private int nrOfActiveChannels=1; // nr of active channels DX register always 1 channel
-    
+
     private int intervalLengthAlternative; // BCD in minues
-    
+
     private int nrOfAvailableIntervals; // nr of available intervals
-    
+
     private int voltageSagThreshold;
-    
+
     private int voltageSwellThreshold;
-    
+
      /*
       * @return memorySize to read in bytes
-      */       
+      */
     public int getLoadProfileMemorySize(Date from) throws IOException {
         Date to = new Date();
         long seconds2read = (to.getTime() - from.getTime())/1000;
@@ -59,20 +59,20 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
         long nrOfIntervals = seconds2read/getProfileInterval() + 1;
         return (int)((nrOfIntervals*getNrOfActiveChannels()*2));
     }
-    
+
     public Unit getLoadProfileChannelUnit(int channelIndex) throws IOException {
         return getCommandFactory().getLoadProfileMetricSelectionRXCommand().getUnit(channelIndex);
     }
-    
+
     public BigDecimal getLoadProfileChannelMultiplier(int channelIndex) throws IOException {
         return getCommandFactory().getKFactorCommand().getBdKFactor().movePointLeft(3); // divide by 1000
     }
-    
+
     /** Creates a new instance of TemplateCommand */
     public LoadProfileAndSeasonChangeOptionsCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -91,7 +91,7 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
+
     /*
      * @return profile interval in seconds
      */
@@ -102,24 +102,24 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
         if ((getSettings() & 0x04) == 0x04) temp = 1800;
         if ((getSettings() & 0x20) == 0x20) temp = 300;
         if ((getSettings() & 0x40) == 0x40) temp = 60;
-        
+
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
             if (getIntervalLengthAlternative() != 0)
                 temp = getIntervalLengthAlternative()*60;
         }
-        
+
         if (temp==0)
             throw new IOException("LoadProfileAndSeasonChangeOptionsCommand, getProfileInterval, error getting profile interval length (=0)!");
         return temp;
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00))
             return new byte[]{(byte)0xC3,0,0,0,0,0,0,0,0};
         else
             return new byte[]{(byte)0x04,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setSettings(ProtocolUtils.getIntLE(data,offset++,1));
@@ -127,14 +127,14 @@ public class LoadProfileAndSeasonChangeOptionsCommand extends AbstractCommand {
 
             setNrOfActiveChannels(ProtocolUtils.getIntLE(data,offset++,1));
             setIntervalLengthAlternative((int)ParseUtils.getBCD2LongLE(data, offset++, 1));
-            setNrOfAvailableIntervals(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;      
-                    
+            setNrOfAvailableIntervals(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+
             if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00) {
                 setVoltageSagThreshold(ProtocolUtils.getIntLE(data,offset++,1));
                 setVoltageSwellThreshold(ProtocolUtils.getIntLE(data,offset++,1));
             }
         }
-            
+
     }
 
     public int getSettings() {

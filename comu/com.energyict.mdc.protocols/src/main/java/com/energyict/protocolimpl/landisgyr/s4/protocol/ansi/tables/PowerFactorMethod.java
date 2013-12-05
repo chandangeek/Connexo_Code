@@ -10,20 +10,21 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class PowerFactorMethod {
-    
+
     private boolean kVAhTDPowerFactorFlag; // : BOOL(0);
     private boolean kVARhTDPowerFactorFlag; // : BOOL(1);
     private boolean kVAhRMSPowerFactorFlag; // : BOOL(2);
     // FILLER : FILL(3..7);
-    
+
     /** Creates a new instance of RecordTemplate */
     public PowerFactorMethod(byte[] data, int offset, ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
@@ -32,7 +33,7 @@ public class PowerFactorMethod {
         setKVARhTDPowerFactorFlag(((temp & 0x02)>>1) == 0x01);
         setKVAhRMSPowerFactorFlag(((temp & 0x04)>>2) == 0x01);
     }
-    
+
 
     public String toString() {
         // Generated code by ToStringBuilder
@@ -42,8 +43,8 @@ public class PowerFactorMethod {
         strBuff.append("   KVAhRMSPowerFactorFlag="+isKVAhRMSPowerFactorFlag()+"\n");
         strBuff.append("   KVAhTDPowerFactorFlag="+isKVAhTDPowerFactorFlag()+"\n");
         return strBuff.toString();
-    }    
-    
+    }
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 1;
@@ -72,5 +73,5 @@ public class PowerFactorMethod {
     private void setKVAhRMSPowerFactorFlag(boolean kVAhRMSPowerFactorFlag) {
         this.kVAhRMSPowerFactorFlag = kVAhRMSPowerFactorFlag;
     }
-    
+
 }

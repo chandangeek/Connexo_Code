@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.cpo.*;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,23 +23,18 @@ public class ACE4000Properties {
     public TypedProperties properties;
 
     public ACE4000Properties() {
-        this(new TypedProperties());
+        this(TypedProperties.empty());
     }
 
     public ACE4000Properties(TypedProperties properties) {
         this.properties = properties;
     }
 
-    public List<PropertySpec> getOptionalKeys() {
-        List<PropertySpec> optional = new ArrayList<PropertySpec>();
-        optional.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT));
-        optional.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES));
+    public List<PropertySpec> getPropertySpecs () {
+        List<PropertySpec> optional = new ArrayList<>();
+        optional.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT));
+        optional.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES));
         return optional;
-    }
-
-    public List<PropertySpec> getRequiredKeys() {
-        List<PropertySpec> required = new ArrayList<PropertySpec>();
-        return required;
     }
 
     public int getTimeout() {

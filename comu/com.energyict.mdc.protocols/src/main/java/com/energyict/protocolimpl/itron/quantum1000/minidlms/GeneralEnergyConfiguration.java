@@ -3,32 +3,31 @@
  *
  * Created on 8 december 2006, 15:26
  *
- * To change this template, choose Tools | Options and locate the template under 
+ * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose
  * Open. You can then make changes to the template in the Source Editor.
  */
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class GeneralEnergyConfiguration extends AbstractDataDefinition {
-    
+
     private BigDecimal energyRollOver; // 8 bytes
     private int testModeOption; // 1 byte
     private int numberOfTOUSummaries; // 1 byte
     private int numberofRatesPerTOUSummaries; // 1 byte
-    
+
     /**
-     * Creates a new instance of GeneralEnergyConfiguration 
+     * Creates a new instance of GeneralEnergyConfiguration
      */
     public GeneralEnergyConfiguration(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
@@ -44,21 +43,21 @@ public class GeneralEnergyConfiguration extends AbstractDataDefinition {
         strBuff.append("   testModeOption="+getTestModeOption()+"\n");
         return strBuff.toString();
     }
-        
+
     protected int getVariableName() {
         return 34; // DLMS_GENERAL_ENERGY_CONFIG
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        
+
         setEnergyRollOver(new BigDecimal(Double.longBitsToDouble(ProtocolUtils.getLong(data,offset))));
         offset+=8;
         setTestModeOption(ProtocolUtils.getInt(data,offset++,1));
         setNumberOfTOUSummaries(ProtocolUtils.getInt(data,offset++,1));
         setNumberofRatesPerTOUSummaries(ProtocolUtils.getInt(data,offset++,1));
-        
-        
+
+
     }
 
     public BigDecimal getEnergyRollOver() {
@@ -92,5 +91,5 @@ public class GeneralEnergyConfiguration extends AbstractDataDefinition {
     public void setNumberofRatesPerTOUSummaries(int numberofRatesPerTOUSummaries) {
         this.numberofRatesPerTOUSummaries = numberofRatesPerTOUSummaries;
     }
-    
+
 }

@@ -10,19 +10,17 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EnergyRegistersBasePage extends AbstractBasePage {
-    
+
     private EnergyRegister wattHour;
     private EnergyRegister varHourLagging;
     private EnergyRegister vAHour;
@@ -30,13 +28,13 @@ public class EnergyRegistersBasePage extends AbstractBasePage {
     private EnergyRegister varHourLeadingOrTotal;
     private EnergyRegister voltsSquaredHour;
     private EnergyRegister ampHour;
-    
-    
+
+
     /** Creates a new instance of RealTimeBasePage */
     public EnergyRegistersBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -49,12 +47,12 @@ public class EnergyRegistersBasePage extends AbstractBasePage {
         strBuff.append("   voltsSquaredHour="+getVoltsSquaredHour()+"\n");
         strBuff.append("   wattHour="+getWattHour()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2819,28*7);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setWattHour(new EnergyRegister(data,offset)); offset+=EnergyRegister.size();
@@ -63,7 +61,7 @@ public class EnergyRegistersBasePage extends AbstractBasePage {
         setQHour(new EnergyRegister(data,offset)); offset+=EnergyRegister.size();
         setVarHourLeadingOrTotal(new EnergyRegister(data,offset)); offset+=EnergyRegister.size();
         setVoltsSquaredHour(new EnergyRegister(data,offset)); offset+=EnergyRegister.size();
-        setAmpHour(new EnergyRegister(data,offset)); offset+=EnergyRegister.size();       
+        setAmpHour(new EnergyRegister(data,offset)); offset+=EnergyRegister.size();
     }
 
     public EnergyRegister getWattHour() {
@@ -122,5 +120,5 @@ public class EnergyRegistersBasePage extends AbstractBasePage {
         this.ampHour = ampHour;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

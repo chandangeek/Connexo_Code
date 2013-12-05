@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk10.command;
 
-import java.io.IOException;
-import java.util.Date;
-
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *

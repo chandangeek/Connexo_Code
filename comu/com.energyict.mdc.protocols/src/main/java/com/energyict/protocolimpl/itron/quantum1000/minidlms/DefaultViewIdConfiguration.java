@@ -10,28 +10,27 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DefaultViewIdConfiguration extends AbstractDataDefinition {
-    
+
     private int opticalPortView;
     private int serial1PortView;
     private int serial2PortView;
-    
+
     /**
      * Creates a new instance of DefaultViewIdConfiguration
      */
     public DefaultViewIdConfiguration(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,11 +40,11 @@ public class DefaultViewIdConfiguration extends AbstractDataDefinition {
         strBuff.append("   serial2PortView="+getSerial2PortView()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 64;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setOpticalPortView(ProtocolUtils.getInt(data,offset,2));
@@ -54,7 +53,7 @@ public class DefaultViewIdConfiguration extends AbstractDataDefinition {
         offset+=2;
         setSerial2PortView(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
-        
+
     }
 
     public int getOpticalPortView() {

@@ -9,32 +9,32 @@
  */
 
 package com.energyict.protocolimpl.meteridentification;
-import java.io.*;
-import java.util.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class A3 extends AbstractManufacturer {
-    
+
     /** Creates a new instance of KV2 */
     public A3() {
     }
-    
+
     public String getManufacturer() throws IOException {
         return "Elster Metering";
     }
-    
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.elster.a3.AlphaA3";
     }
-    
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
     }
-    
+
     public String getMeterDescription() throws IOException {
         return "Elster Metering Alpha A3";
-    }    
+    }
 }

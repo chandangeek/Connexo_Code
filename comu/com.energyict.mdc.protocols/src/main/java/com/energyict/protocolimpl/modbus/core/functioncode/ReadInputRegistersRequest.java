@@ -10,37 +10,39 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ReadInputRegistersRequest extends AbstractRequest {
-    
+
     private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_READINPUTREGISTER);
-         
+
     private int[] registers;
-    
+
     /** Creates a new instance of ReadInputRegistersRequest */
     public ReadInputRegistersRequest(FunctionCodeFactory functionCodeFactory) {
         super(functionCodeFactory);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ReadInputRegistersRequest:\n");
         for (int i=0;i<getRegisters().length;i++) {
             strBuff.append("register"+i+"=0x"+Integer.toHexString(getRegisters()[i])+" ");
         }
-        return strBuff.toString(); 
+        return strBuff.toString();
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         if (((responseData.getData().length-1)%2) != 0)
-            throw new ModbusException("ReadInputRegistersRequest, parse, length error",ModbusException.PARSE_LENGTH_ERROR); 
+            throw new ModbusException("ReadInputRegistersRequest, parse, length error",ModbusException.PARSE_LENGTH_ERROR);
         else {
             int nrOfRegisters = (responseData.getData().length-1) / 2;
             setRegisters(new int[nrOfRegisters]);

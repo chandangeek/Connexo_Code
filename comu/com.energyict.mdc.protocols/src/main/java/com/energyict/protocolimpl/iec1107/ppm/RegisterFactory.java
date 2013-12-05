@@ -1,14 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
-
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppm.parser.RegisterInformationParser;
 import com.energyict.protocolimpl.iec1107.ppm.register.HistoricalData;
@@ -18,6 +13,11 @@ import com.energyict.protocolimpl.iec1107.ppm.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppm.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppm.register.RegisterInformation;
 import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * There is 1 register per actual "Meter Register".

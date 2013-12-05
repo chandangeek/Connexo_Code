@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880.events;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 
@@ -160,7 +160,7 @@ public enum MT880MeterEvent {
     }
 
     public MeterEvent toMeterEvent(Date eventDate, final int logbookId, final int eventNumber) {
-        return new com.energyict.protocol.MeterEvent(eventDate, getEiserverCode(), getDeviceCode(), getDescription(), logbookId, eventNumber);
+        return new MeterEvent(eventDate, getEiserverCode(), getDeviceCode(), getDescription(), logbookId, eventNumber);
     }
 
     public static MT880MeterEvent getMeterEventForDeviceCode(int deviceCode) {

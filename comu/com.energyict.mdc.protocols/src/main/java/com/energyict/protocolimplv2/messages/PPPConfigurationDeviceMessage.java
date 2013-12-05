@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,17 +17,17 @@ import java.util.List;
  */
 public enum PPPConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetISP1Phone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1PhoneAttributeName)),
-    SetISP1Username(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1UsernameAttributeName)),
-    SetISP1Password(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1PasswordAttributeName)),
-    SetISP1Tries(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP1TriesAttributeName)),
-    SetISP2Phone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2PhoneAttributeName)),
-    SetISP2Username(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2UsernameAttributeName)),
-    SetISP2Password(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2PasswordAttributeName)),
-    SetISP2Tries(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetISP2TriesAttributeName)),
-    SetPPPIdleTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPIdleTimeoutAttributeName)),
-    SetPPPRetryInterval(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPRetryIntervalAttributeName)),
-    SetPPPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName));
+    SetISP1Phone(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP1PhoneAttributeName)),
+    SetISP1Username(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP1UsernameAttributeName)),
+    SetISP1Password(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP1PasswordAttributeName)),
+    SetISP1Tries(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP1TriesAttributeName)),
+    SetISP2Phone(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP2PhoneAttributeName)),
+    SetISP2Username(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP2UsernameAttributeName)),
+    SetISP2Password(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP2PasswordAttributeName)),
+    SetISP2Tries(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetISP2TriesAttributeName)),
+    SetPPPIdleTimeout(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPPPIdleTimeoutAttributeName)),
+    SetPPPRetryInterval(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPPPRetryIntervalAttributeName)),
+    SetPPPOptions(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetPPPOptionsAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PPP_PARAMETERS;
 
@@ -71,7 +73,8 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpec {
     }
 
     @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
+    public
+    DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
     }
 }

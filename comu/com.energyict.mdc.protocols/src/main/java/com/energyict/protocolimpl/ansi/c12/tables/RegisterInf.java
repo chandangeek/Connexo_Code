@@ -10,48 +10,47 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class RegisterInf {
-    
+
     private Date endDateTime;
     private int season; // 8 bit
-    
+
     /** Creates a new instance of RegisterInfo */
     public RegisterInf(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         if (art.isDateTimeFieldFlag()) {
-            if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0) 
+            if (tableFactory.getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.itron.sentinel.Sentinel")==0)
                 setEndDateTime(C12ParseUtils.getDateFromSTimeAndAdjustForTimeZone(data,offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(),dataOrder));
             else
                 setEndDateTime(C12ParseUtils.getDateFromSTime(data,offset, cfgt.getTimeFormat(), tableFactory.getC12ProtocolLink().getTimeZone(),dataOrder));
             offset+=C12ParseUtils.getSTimeSize(cfgt.getTimeFormat());
         }
-        
+
         if (art.isSeasonInfoFieldFlag()) {
             setSeason(C12ParseUtils.getInt(data,offset));
             offset++;
         }
     }
-    
+
     public String toString() {
        StringBuffer strBuff = new StringBuffer();
        strBuff.append("RegisterInfo: endDateTime="+getEndDateTime()+", season="+getSeason()+"\n");
-       
+
        return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         int size=0;
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -78,5 +77,5 @@ public class RegisterInf {
     public void setSeason(int season) {
         this.season = season;
     }
-    
+
 }

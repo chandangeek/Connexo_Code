@@ -3,9 +3,12 @@ package com.energyict.protocolimpl.dlms.as220.objects;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AbstractCosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.attributeobjects.Repeater;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 

@@ -10,18 +10,17 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class RemoteConfigurationConfiguration extends AbstractTable { 
+public class RemoteConfigurationConfiguration extends AbstractTable {
 
     /*
     Memory storage EEPROM
@@ -40,12 +39,12 @@ public class RemoteConfigurationConfiguration extends AbstractTable {
     private int opticalPortConfigurationTurnAroundDelay; // 1 byte The minimum time between the last byte of a received packet and the ACK character (0x06) sent by the meter. Resolution is msec. 0 = no turn-around delay imposed other than C12.18 requirement of 175 usec. The maximum allowed turn-around delay is 80 msec; if the field is set to a value greater than 80, the firmware sets the field to 80.
     private PortConfiguration[] portConfigurations;
 
-    
+
     /** Creates a new instance of RemoteConfigurationConfiguration */
     public RemoteConfigurationConfiguration(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(90,true));
     }
- 
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -55,18 +54,18 @@ public class RemoteConfigurationConfiguration extends AbstractTable {
             strBuff.append("   portConfigurations["+i+"]="+getPortConfigurations()[i]+"\n");
         return strBuff.toString();
     }
-    
-    
-    
+
+
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;
-        setOpticalPortConfigurationTurnAroundDelay(C12ParseUtils.getInt(tableData,offset++)); 
+        setOpticalPortConfigurationTurnAroundDelay(C12ParseUtils.getInt(tableData,offset++));
         setPortConfigurations(new PortConfiguration[2]);
         for (int i=0;i<getPortConfigurations().length;i++)
             getPortConfigurations()[i] = new PortConfiguration(tableData, offset, getTableFactory()); offset+=PortConfiguration.getSize(getTableFactory());
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }

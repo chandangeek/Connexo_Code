@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.edf.trimarancje.Trimaran;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DataFactory {
-    
+
     private Trimaran trimaran;
-    
+
     MonthInfoTable currentMonthInfoTable = null;
     MonthInfoTable previousMonthInfoTable = null;
     MeterStatusTable meterStatusTable = null;
     ContractsTable contractsTable = null;
     CurrentPeriodTable currentPeriodTable = null;
     PreviousPeriodTable previousPeriodTable = null;
-    
+
     /** Creates a new instance of DataFactory */
     public DataFactory(Trimaran trimaran) {
         this.trimaran=trimaran;
@@ -42,7 +42,7 @@ public class DataFactory {
 		}
 		return contractsTable;
 	}
-	
+
 	public PreviousPeriodTable getPreviousPeriodTable() throws IOException{
 		if(previousPeriodTable == null){
 			previousPeriodTable = new PreviousPeriodTable(this);
@@ -51,7 +51,7 @@ public class DataFactory {
 		}
 		return previousPeriodTable;
 	}
-	
+
 	public CurrentPeriodTable getCurrentPeriodTable() throws IOException {
 		if(currentPeriodTable == null){
 			currentPeriodTable = new CurrentPeriodTable(this);
@@ -60,7 +60,7 @@ public class DataFactory {
 		}
 		return currentPeriodTable;
 	}
-    
+
     public MeterStatusTable getMeterStatusTable() throws IOException {
         if (meterStatusTable==null) {
             meterStatusTable = new MeterStatusTable(this);
@@ -69,7 +69,7 @@ public class DataFactory {
         }
         return meterStatusTable;
     }
-    
+
     public MonthInfoTable getCurrentMonthInfoTable() throws IOException {
         if (currentMonthInfoTable==null) {
             currentMonthInfoTable = new MonthInfoTable(this);
@@ -79,7 +79,7 @@ public class DataFactory {
         }
         return currentMonthInfoTable;
     }
-    
+
     public MonthInfoTable getPreviousMonthInfoTable() throws IOException {
         if (previousMonthInfoTable==null) {
             previousMonthInfoTable = new MonthInfoTable(this);
@@ -102,7 +102,7 @@ public class DataFactory {
         dd.invoke();
         return dd;
     }
-    
+
     public Trimaran getTrimaran() {
         return trimaran;
     }

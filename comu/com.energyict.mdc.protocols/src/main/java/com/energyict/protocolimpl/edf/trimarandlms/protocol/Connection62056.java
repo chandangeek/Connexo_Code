@@ -10,18 +10,19 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 /**
  *
  * @author Koen
@@ -29,10 +30,10 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
  * GNA|22012009| Added a safetyTimeout to use in the transportLayer. If communication fails, then the communication time can be customized
  */
 public class Connection62056 extends Connection  implements ProtocolConnection {
-    
+
     private static final int DEBUG=0;
-    
-    
+
+
     InputStream inputStream;
     OutputStream outputStream;
     int timeout;
@@ -50,14 +51,14 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     int sourceTransportAddress;
     int destinationTransportAddress;
     int delayAfterConnect;
-    
+
     // protocollayers
     private Physical6205641 physical6205641;
     private Datalink6205641 datalink6205641;
     private Transport6205651 transport6205651;
     private LayerManager layerManager;
-    
-    /** Creates a new instance of TrimeranConnection 
+
+    /** Creates a new instance of TrimeranConnection
      * @param delayAfterConnect */
     public Connection62056(InputStream inputStream,
             OutputStream outputStream,
@@ -82,10 +83,10 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
         this.sourceTransportAddress=sourceTransportAddress;
         this.destinationTransportAddress=destinationTransportAddress;
         this.delayAfterConnect = delayAfterConnect;
-        
+
     } // EZ7Connection(...)
-    
-    
+
+
     public Connection62056(InputStream inputStream,
 			OutputStream outputStream, int timeoutProperty,
 			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
@@ -109,24 +110,24 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
         setLayerManager(new LayerManager(this));
         getLayerManager().init(sourceTransportAddress,destinationTransportAddress);
     }
-    
+
     public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
     	delayAndFlush(delayAfterConnect);
         this.nodeId=nodeId;
         return null;
     }
-    
-    public byte[] dataReadout(String strID, String nodeId) throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;
     }
-    
-    public void disconnectMAC() throws com.energyict.cbo.NestedIOException, ProtocolConnectionException {
+
+    public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
     }
-    
+
     public HHUSignOn getHhuSignOn() {
         return null;
     }
-    
+
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
     }
 
@@ -154,15 +155,15 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     private void setT1Timeout(int t1Timeout) {
         this.t1Timeout = t1Timeout;
     }
-    
+
     public byte getTIMEOUT_ERROR() {
         return super.TIMEOUT_ERROR;
     }
     public byte getPROTOCOL_ERROR() {
         return super.PROTOCOL_ERROR;
     }
-    
-    
+
+
     public void sendData(byte[] data) throws IOException {
         if (DEBUG>=1){
         	System.out.println("KV_DEBUG> sendData, "+ProtocolUtils.outputHexString(data)+", "+System.currentTimeMillis());
@@ -171,12 +172,12 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
         sendOut(data);
 //        getHalfDuplexController().setRTS(false);
     }
-    
+
     private final int WAIT_FOR_LENGTH=0;
     private final int WAIT_FOR_FRAME=1;
-    
+
     public byte[] receiveData() throws IOException {
-        
+
         long interFrameTimeout;
         int kar;
         int count=0;
@@ -186,19 +187,19 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
         int checksumRx=0;
         ByteArrayOutputStream frameArrayOutputStream = new ByteArrayOutputStream();
         int state = WAIT_FOR_LENGTH;
-        
+
         int type=0;
         interFrameTimeout = System.currentTimeMillis() + getT1Timeout();
-        
+
         frameArrayOutputStream.reset();
-        
+
         copyEchoBuffer();
         while(true) {
-            
+
             if ((kar = readIn()) != -1) {
- 
+
                 frameArrayOutputStream.write(kar);
-                
+
                 switch(state) {
                     case WAIT_FOR_LENGTH:
                         interFrameTimeout = System.currentTimeMillis() + getT1Timeout();
@@ -212,28 +213,28 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
                         } else {
 							frameArrayOutputStream.reset();
 						}
-                        
+
                         break; // WAIT_FOR_LENGTH
-                        
+
                     case WAIT_FOR_FRAME:
-                        if (len--<=1) { 
+                        if (len--<=1) {
                             if (DEBUG>=1) {
 								System.out.println("KV_DEBUG> Frame received... "+ProtocolUtils.outputHexString(frameArrayOutputStream.toByteArray())+", "+System.currentTimeMillis());
 							}
-                            return (frameArrayOutputStream.toByteArray()); 
+                            return (frameArrayOutputStream.toByteArray());
                         }
                         break; // WAIT_FOR_FRAME
-                        
+
                 } // switch(state)
-                
+
             } // if ((kar = readIn()) != -1)
 
             if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
-            
-        } // while(true)        
-        
+
+        } // while(true)
+
     } // public byte[] receiveData()
 
     public Transport6205651 getTransport6205651() {
@@ -255,5 +256,5 @@ public class Connection62056 extends Connection  implements ProtocolConnection {
     public int getSafetyTimeout(){
     	return this.safetyTimeout;
     }
-        
+
 }

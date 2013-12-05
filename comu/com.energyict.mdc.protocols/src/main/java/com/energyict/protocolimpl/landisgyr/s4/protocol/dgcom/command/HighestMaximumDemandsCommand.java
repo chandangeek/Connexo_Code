@@ -10,25 +10,26 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class HighestMaximumDemandsCommand extends AbstractCommand {
-    
+
     public final int NR_OF_MAX_DEMANDS=5;
-    
+
     // Energy & Demand
-    
+
     // DX, RX
     private Date[] maxDemandTimestamps = new Date[NR_OF_MAX_DEMANDS];
     private int[] maxDemands = new int[NR_OF_MAX_DEMANDS];
-    
+
     // RX
     private int[] maxDemandCoincidents = new int[NR_OF_MAX_DEMANDS]; // coincident max demand 1..5
     private Date maxkWTimestamp;
@@ -37,17 +38,17 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
     private Date maxkMTimestamp;
     private int maxkMInPulses;
     private int powerFactorAtMaxkM;
-    
+
     // RX FW >=3.00
     private Date[] nonBillingMetricMaxDemandTimestamps = new Date[NR_OF_MAX_DEMANDS];
     private int[] nonBillingMetricMaxDemands = new int[NR_OF_MAX_DEMANDS];
-    
-    
+
+
     /** Creates a new instance of TemplateCommand */
     public HighestMaximumDemandsCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
 
     private int getHighestIndex() {
         int index=0;
@@ -57,19 +58,19 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
         }
         return index;
     }
-    
+
     public int getHighestMaxKW() {
         return getMaxDemands()[getHighestIndex()];
     }
-    
+
     public Date getHighestMaxKWTimestamp() {
         return getMaxDemandTimestamps()[getHighestIndex()];
     }
-    
+
     public int getHighestCoincident() {
         return getMaxDemandCoincidents()[getHighestIndex()];
     }
-        
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -92,18 +93,18 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
         strBuff.append("   powerFactorAtMaxkW="+getPowerFactorAtMaxkW()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00))
             return new byte[]{(byte)0xC1,0,0,0,0,0,0,0,0};
         else
             return new byte[]{(byte)0x84,0,0,0,0,0,0,0,0};
-            
+
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        
+
         getMaxDemandTimestamps()[0] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); offset+=6;
         getMaxDemands()[0] = ProtocolUtils.getIntLE(data,offset, 2);offset+=2;
         for (int i=1;i<NR_OF_MAX_DEMANDS;i++) {
@@ -121,7 +122,7 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
             setMaxkMInPulses(ProtocolUtils.getIntLE(data,offset, 2));offset+=2;
             setPowerFactorAtMaxkM((int)ParseUtils.getBCD2LongLE(data,offset, 2));offset+=2;
         }
-        
+
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)) {
             for (int i=0;i<NR_OF_MAX_DEMANDS;i++) {
                 getNonBillingMetricMaxDemandTimestamps()[i] = Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone()); offset+=6;
@@ -129,60 +130,60 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
             }
         }
     }
-    
-    
+
+
     public int[] getMaxDemandCoincidents() {
         return maxDemandCoincidents;
     }
-    
+
     public void setMaxDemandCoincidents(int[] maxDemandCoincidents) {
         this.maxDemandCoincidents = maxDemandCoincidents;
     }
-    
+
     public Date getMaxkWTimestamp() {
         return maxkWTimestamp;
     }
-    
+
     public void setMaxkWTimestamp(Date maxkWTimestamp) {
         this.maxkWTimestamp = maxkWTimestamp;
     }
-    
+
     public int getMaxkWInPulses() {
         return maxkWInPulses;
     }
-    
+
     public void setMaxkWInPulses(int maxkWInPulses) {
         this.maxkWInPulses = maxkWInPulses;
     }
-    
+
     public int getPowerFactorAtMaxkW() {
         return powerFactorAtMaxkW;
     }
-    
+
     public void setPowerFactorAtMaxkW(int powerFactorAtMaxkW) {
         this.powerFactorAtMaxkW = powerFactorAtMaxkW;
     }
-    
+
     public Date getMaxkMTimestamp() {
         return maxkMTimestamp;
     }
-    
+
     public void setMaxkMTimestamp(Date maxkMTimestamp) {
         this.maxkMTimestamp = maxkMTimestamp;
     }
-    
+
     public int getMaxkMInPulses() {
         return maxkMInPulses;
     }
-    
+
     public void setMaxkMInPulses(int maxkMInPulses) {
         this.maxkMInPulses = maxkMInPulses;
     }
-    
+
     public int getPowerFactorAtMaxkM() {
         return powerFactorAtMaxkM;
     }
-    
+
     public void setPowerFactorAtMaxkM(int powerFactorAtMaxkM) {
         this.powerFactorAtMaxkM = powerFactorAtMaxkM;
     }
@@ -218,5 +219,5 @@ public class HighestMaximumDemandsCommand extends AbstractCommand {
     public void setNonBillingMetricMaxDemands(int[] nonBillingMetricMaxDemands) {
         this.nonBillingMetricMaxDemands = nonBillingMetricMaxDemands;
     }
-    
+
 }

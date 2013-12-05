@@ -3,7 +3,9 @@ package com.energyict.protocolimpl.coronis.wavetherm.core.parameter;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
@@ -125,7 +127,7 @@ public class ParameterFactory {
         startHourForPeriodicSteps.write();
     }
 
-    //Write start hour for weekly / monthly data logging                                                
+    //Write start hour for weekly / monthly data logging
 
     public void writeTimeOfMeasurement(int time) throws IOException {
         DataLoggingTimeOfMeasurement timeOfMeasurement = new DataLoggingTimeOfMeasurement(waveTherm);

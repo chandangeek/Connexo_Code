@@ -2,7 +2,7 @@ package com.energyict.dlms;
 
 
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 import java.io.Serializable;

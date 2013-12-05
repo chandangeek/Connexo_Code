@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -28,20 +30,20 @@ public class IdentificationResponse extends AbstractResponse {
 
     // referenced standard version number
     private int ver;
-    
+
     // referenced standard revision number
     private int rev;
 
     private List identificationFeatures=new ArrayList();
-    
+
     /** Creates a new instance of IdentificationResponse */
     public IdentificationResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
-        
+
         strBuff.append("IdentificationResponse:\n");
         strBuff.append("    std=0x"+Integer.toHexString(std)+", ver=0x"+Integer.toHexString(ver)+", rev0x"+Integer.toHexString(rev)+"\n");
         if (getIdentificationFeatures().size()>0) {
@@ -52,7 +54,7 @@ public class IdentificationResponse extends AbstractResponse {
         }
         return strBuff.toString();
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         byte[] data = responseData.getData();
@@ -76,8 +78,8 @@ public class IdentificationResponse extends AbstractResponse {
                 getIdentificationFeatures().add(idf);
             }
         }
-        
-                
+
+
     }
 
     public int getStd() {
@@ -117,5 +119,5 @@ public class IdentificationResponse extends AbstractResponse {
         else
             return (IdentificationFeature)identificationFeatures.get(index);
     }
-    
+
 }

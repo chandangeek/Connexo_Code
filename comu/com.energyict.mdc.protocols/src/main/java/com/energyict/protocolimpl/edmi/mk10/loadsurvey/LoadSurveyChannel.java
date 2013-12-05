@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import java.math.BigDecimal;
+import com.energyict.mdc.common.Unit;
 
-import com.energyict.cbo.Unit;
+import java.math.BigDecimal;
 
 
 /**

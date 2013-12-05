@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 /**
  *
  * @author Koen
  */
 public class EventId {
-    
+
     private int idLow;
     private int idHigh;
     private String description;
     private int meterEvent;
-            
+
     /** Creates a new instance of EventId */
     public EventId(int id) {
         this(id,null);
     }
     public EventId(int id,String description) {
-        this(id,description,MeterEvent.OTHER);
+        this(id,description, MeterEvent.OTHER);
     }
     public EventId(int id, String description, int meterEvent) {
         this(id, id, description, meterEvent);
@@ -44,9 +44,9 @@ public class EventId {
     }
 
     public String toString() {
-        return "Event: "+getIdLow()+".."+getIdHigh()+", "+getDescription()+", "+getMeterEvent();    
+        return "Event: "+getIdLow()+".."+getIdHigh()+", "+getDescription()+", "+getMeterEvent();
     }
-    
+
     public int getIdLow() {
         return idLow;
     }
@@ -80,5 +80,5 @@ public class EventId {
     }
 
 
-    
+
 }

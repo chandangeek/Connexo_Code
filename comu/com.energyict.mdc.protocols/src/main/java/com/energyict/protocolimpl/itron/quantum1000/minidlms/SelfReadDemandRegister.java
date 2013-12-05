@@ -10,19 +10,21 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadDemandRegister {
-    
+
     // for register type 0..2
     private QuantityId qid; // QUANTITY_ID // 2 bytes 2
-    private float cumulativeDemand; // FLOAT, 6                          D=2 
+    private float cumulativeDemand; // FLOAT, 6                          D=2
     private float contCumulativeDemand; // FLOAT, 10                     D=143 (OBISCODE_D_CONTINUOUS_CUMULATIVE_DEMAND)
     private float peakValue; // FLOAT, 14                                D=6
     private Date peakTime; // EXTENDED_DATE_TIME, 22
@@ -31,13 +33,13 @@ public class SelfReadDemandRegister {
     private QuantityId coincidentReg3Quantity; // QUANTITY_ID, 28        D=135 (OBISCODE_D_COINCIDENT)
     private float peakCoincidentReg1Value; // FLOAT, 32                  D=136 (OBISCODE_D_COINCIDENT)
     private float peakCoincidentReg2Value; // FLOAT, 36                  D=137 (OBISCODE_D_COINCIDENT)
-    private float peakCoincidentReg3Value; // FLOAT, 40                  D=138 (OBISCODE_D_COINCIDENT)  
+    private float peakCoincidentReg3Value; // FLOAT, 40                  D=138 (OBISCODE_D_COINCIDENT)
     private float valleyValue; // FLOAT, 44                              D=3
     private Date valleyTime; // EXTENDED_DATE_TIME, 52
-    private float valleyCoincidentReg1Value; // FLOAT, 56                D=139 (OBISCODE_D_COINCIDENT) 
-    private float valleyCoincidentReg2Value; // FLOAT, 60                D=140 (OBISCODE_D_COINCIDENT) 
-    private float valleyCoincidentReg3Value; // FLOAT, 64                D=141 (OBISCODE_D_COINCIDENT)     
-    
+    private float valleyCoincidentReg1Value; // FLOAT, 56                D=139 (OBISCODE_D_COINCIDENT)
+    private float valleyCoincidentReg2Value; // FLOAT, 60                D=140 (OBISCODE_D_COINCIDENT)
+    private float valleyCoincidentReg3Value; // FLOAT, 64                D=141 (OBISCODE_D_COINCIDENT)
+
     /**
      * Creates a new instance of SelfReadDemandRegister
      */
@@ -75,7 +77,7 @@ public class SelfReadDemandRegister {
         setValleyCoincidentReg3Value(Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
         offset+=4;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -98,7 +100,7 @@ public class SelfReadDemandRegister {
         strBuff.append("   valleyValue="+getValleyValue()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 64;
     }
@@ -230,7 +232,7 @@ public class SelfReadDemandRegister {
     public void setValleyCoincidentReg3Value(float valleyCoincidentReg3Value) {
         this.valleyCoincidentReg3Value = valleyCoincidentReg3Value;
     }
-    
-    
-    
+
+
+
 }

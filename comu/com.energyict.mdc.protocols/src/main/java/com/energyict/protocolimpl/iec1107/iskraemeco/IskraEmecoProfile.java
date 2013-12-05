@@ -6,13 +6,27 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.Channel;
+import com.energyict.protocolimpl.iec1107.ChannelMap;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWLogbook;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -22,36 +36,36 @@ import com.energyict.protocolimpl.iec1107.vdew.*;
  * KV 17022004 bugfix, logcodes hex
  */
 public class IskraEmecoProfile extends VDEWProfile {
-    
+
     private static final int DEBUG=0;
-    
+
     /** Creates a new instance of IskraEmecoProfile */
     public IskraEmecoProfile(MeterExceptionInfo meterExceptionInfo,ProtocolLink protocolLink, AbstractVDEWRegistry abstractVDEWRegistry) {
         super(meterExceptionInfo,protocolLink,abstractVDEWRegistry);
     }
-    
+
     public ProfileData getProfileData(Calendar fromCalendar, Calendar toCalendar, int nrOfChannels, int profileId, boolean includeEvents, boolean readCurrentDay) throws IOException {
         byte[] data = readRawData(fromCalendar, toCalendar, profileId);
         byte[] logbook = null;
         if (includeEvents) logbook = new VDEWLogbook(getMeterExceptionInfo(),getProtocolLink()).readRawLogbookData(fromCalendar, toCalendar, 98);
         return parse(logbook, data, nrOfChannels, readCurrentDay);
     }
-    
+
     private ProfileData parse(byte[] logbook, byte[] data, int nrOfChannels, boolean readCurrentDay) throws IOException {
         ProfileData profileData = buildProfileData(data,nrOfChannels);
         if (logbook != null) addLogbookEvents(logbook,profileData);
-        
+
         // remove current day
         if (!readCurrentDay) {
-            
+
             // today 00:00
             Calendar calLastInterval = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
             calLastInterval.set(Calendar.HOUR_OF_DAY,0);
             calLastInterval.set(Calendar.MINUTE,0);
             calLastInterval.set(Calendar.SECOND,0);
             calLastInterval.set(Calendar.MILLISECOND,0);
-            Date dateLastInterval = calLastInterval.getTime();  
-            
+            Date dateLastInterval = calLastInterval.getTime();
+
             List intervalDatas =  profileData.getIntervalDatas();
             Iterator it = intervalDatas.iterator();
             while(it.hasNext()) {
@@ -60,10 +74,10 @@ public class IskraEmecoProfile extends VDEWProfile {
                     it.remove();
             }
         } // if (readCurrentDay)
-        
+
         return profileData;
     }
-    
+
     protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '(') break;
@@ -72,7 +86,7 @@ public class IskraEmecoProfile extends VDEWProfile {
         }
         return i;
     }
-    
+
     protected int gotoNextCR(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '\r') break;
@@ -81,7 +95,7 @@ public class IskraEmecoProfile extends VDEWProfile {
         }
         return i;
     }
-    
+
     private Calendar parseDateTime(byte[] data,int iOffset) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.clear();
@@ -92,7 +106,7 @@ public class IskraEmecoProfile extends VDEWProfile {
         calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,8+iOffset));
         return calendar;
     }
-    
+
     private Calendar parseLogbookDateTime(byte[] data,int iOffset) throws IOException {
         int dst;
         dst = ProtocolUtils.hex2nibble(data[iOffset]);
@@ -105,7 +119,7 @@ public class IskraEmecoProfile extends VDEWProfile {
         calendar.set(calendar.SECOND,(int)ProtocolUtils.bcd2byte(data,11+iOffset));
         return calendar;
     }
-    
+
     private String parseFindString(byte[] data,int iOffset) {
         int start=0,stop=0,i=0;
         if (iOffset >= data.length) return null;
@@ -120,8 +134,8 @@ public class IskraEmecoProfile extends VDEWProfile {
         for (i=0;i<(stop-start-1);i++) strparse[i]=data[i+start+1+iOffset];
         return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
-    
-    
+
+
     //private static final int LOGGER_CLEARED = 0x4000;
     //private static final int LOGBOOK_CLEARED = 0x2000;
     //private static final int WATCHDOG = 0x0600;
@@ -136,34 +150,34 @@ public class IskraEmecoProfile extends VDEWProfile {
     private static final int DISTURBED_MEASURE = 0x04;
     private static final int RUNNING_RESERVE_EXHAUSTED = 0x02;
     private static final int FATAL_DEVICE_ERROR = 0x01;
-    
+
     private long mapLogCodes2MeterEvent(long lLogCode) {
         // Phase errors...
         if ((lLogCode >= 0x111) && (lLogCode<=0x303)) {
             return MeterEvent.METER_ALARM;
         }
-        
+
         if ((lLogCode >= 0x81) && (lLogCode<=0x83)) {
             return MeterEvent.METER_ALARM;
         }
-        
+
         if ((lLogCode >= 0x41) && (lLogCode<=0x43)) {
             return MeterEvent.METER_ALARM;
         }
-        
+
         switch((int)lLogCode) {
             //case PARAMETER_SETTING:
             //    return(MeterEvent.CONFIGURATIONCHANGE);
-                
+
             case DEVICE_CLOCK_SET:
                 return(MeterEvent.SETCLOCK);
-                
+
             //case WATCHDOG:
             //    return(MeterEvent.WATCHDOGRESET);
-                
+
             case FATAL_DEVICE_ERROR:
                 return(MeterEvent.FATAL_ERROR);
-            //case CPU_ERROR:    
+            //case CPU_ERROR:
             //    return(MeterEvent.HARDWARE_ERROR);
             case POWER_FAILURE:
                 return(MeterEvent.POWERDOWN);
@@ -172,7 +186,7 @@ public class IskraEmecoProfile extends VDEWProfile {
 
             //case LOGGER_CLEARED:
             //    return MeterEvent.CLEAR_DATA;
-                
+
             case DEVICE_RESET:
             //case LOGBOOK_CLEARED:
             case SEASONAL_SWITCHOVER:
@@ -180,40 +194,40 @@ public class IskraEmecoProfile extends VDEWProfile {
             case RUNNING_RESERVE_EXHAUSTED:
             default:
                 return MeterEvent.OTHER;
-                
+
         } // switch(lLogCode)
-        
+
     } // private void mapLogCodes2MeterEvent(long lLogCode)
-    
+
     private long mapStatus2IntervalStatus(long lLogCode) {
-                
+
         switch((int)lLogCode) {
             case DISTURBED_MEASURE:
                 return IntervalData.CORRUPTED;
 
             //case PARAMETER_SETTING:
             //    return IntervalData.CONFIGURATIONCHANGE;
-                
+
             case DEVICE_CLOCK_SET:
                 return IntervalData.SHORTLONG;
-                
+
             case POWER_FAILURE:
                 return IntervalData.POWERDOWN;
-                
+
             case POWER_RECOVERY:
                 return IntervalData.POWERUP;
-                
+
         } // switch(lLogCode)
-        
+
         return 0;
-        
+
     } // private void mapStatus2IntervalStatus(long lLogCode)
 
     private void verifyChannelMap(ChannelMap channelMap) throws IOException {
-        if (!getProtocolLink().getChannelMap().hasEqualRegisters(channelMap)) 
+        if (!getProtocolLink().getChannelMap().hasEqualRegisters(channelMap))
             throw new IOException("verifyChannelMap() profile channelmap registers ("+channelMap.getChannelRegisterMap()+") different from configuration channelmap registers ("+getProtocolLink().getChannelMap().getChannelRegisterMap()+")");
     }
-    
+
     ProfileData buildProfileData(byte[] responseData, int nrOfChannels) throws IOException {
         ProfileData profileData;
         Calendar calendar;
@@ -221,39 +235,39 @@ public class IskraEmecoProfile extends VDEWProfile {
         byte bNROfValues=0;
         byte bInterval=0;
         String response;
-        int channelMask=0;        
+        int channelMask=0;
         int t;
-        
-        
+
+
         if (DEBUG>=1)
             System.out.println(new String(responseData));
-        
-        
+
+
         // We suppose that the profile contains nr of channels!!
         try {
             calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
             profileData = new ProfileData();
             for (t=0;t<nrOfChannels;t++) {
-                ChannelInfo chi = new ChannelInfo(t,"iskraEmeco_channel_"+t,Unit.get(""));
+                ChannelInfo chi = new ChannelInfo(t,"iskraEmeco_channel_"+t, Unit.get(""));
                 Channel channel = getProtocolLink().getChannelMap().getChannel(t);
                 if (channel.isCumul()) {
                    chi.setCumulativeWrapValue(channel.getWrapAroundValue());
                 }
                 profileData.addChannel(chi);
             }
-            
+
             int i=0;
             while(true) {
                 if (responseData[i] == 'P') {
                     i+=4; // skip P.0x
                     i=gotoNextOpenBracket(responseData,i);
-                    
+
                     response = parseFindString(responseData,i);
 //                    if (response.compareTo("ER38") == 0)
 //                        throw new IOException("No entries in object list.");
 //                    else if (response.indexOf("ER") != -1)
 //                        throw new IOException("Error retrieving profile, "+response);
-                    
+
                     calendar = parseDateTime(responseData,i+1);
                     i=gotoNextOpenBracket(responseData,i+1);
                     status = Integer.parseInt(parseFindString(responseData,i),16);
@@ -264,20 +278,20 @@ public class IskraEmecoProfile extends VDEWProfile {
                     bNROfValues = ProtocolUtils.bcd2nibble(responseData,i+1);
                     if (bNROfValues > nrOfChannels)
                         throw new IOException("buildProfileData() error, mismatch between nrOfChannels and profile columns! Adjust the ChannelMap!");
-                    
+
                     List channels=new ArrayList();
                     for (t=0;t<bNROfValues;t++) {
                         i=gotoNextOpenBracket(responseData,i+1);
                         // add channel to list
                         channels.add(new Channel(parseFindString(responseData,i)));
-                        
+
                         i=gotoNextOpenBracket(responseData,i+1);
                         // set channel unit
                         ((ChannelInfo)profileData.getChannel(t)).setUnit(Unit.get(parseFindString(responseData,i)));
                     }
-                    
+
                     verifyChannelMap(new ChannelMap(channels));
-                    
+
                     i= gotoNextCR(responseData,i+1);
                 }
                 else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
@@ -303,10 +317,10 @@ public class IskraEmecoProfile extends VDEWProfile {
         catch(IOException e) {
             throw new IOException("buildProfileData> "+e.getMessage());
         }
-        
+
         return profileData;
     } // ProfileData buildProfileData(byte[] responseData) throws IOException
-    
+
     private int parseStatus2IntervalStatus(int status) {
         int t,eiStatus=0;
         status &= (SEASONAL_SWITCHOVER^0xFFFF);
@@ -317,7 +331,7 @@ public class IskraEmecoProfile extends VDEWProfile {
         }
         return eiStatus;
     }
-    
+
     private void addLogbookEvents(byte[] logBook, ProfileData profileData) throws IOException {
         Calendar calendar;
         int status=0;
@@ -341,5 +355,5 @@ public class IskraEmecoProfile extends VDEWProfile {
             throw new IOException("addLogbookEvents> "+e.getMessage());
         }
     }
-    
+
 } // IskraEmecoProfile

@@ -1,34 +1,34 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.LogBookReader;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.ResultType;
+import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
@@ -38,6 +38,7 @@ import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.SetTime;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -182,7 +183,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        addProperties(dialectProperties);    //Does a set, not an add
+        this.copyProperties(dialectProperties);    //Does a set, not an add
     }
 
     @Override
@@ -272,10 +273,10 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         LogBookReader logBookReader = logBooks.get(0);
         if (isMaster(logBookReader.getMeterSerialNumber())) {
             ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this);
-            return readMeterEventsRequest.request(logBookReader.getLogBookIdentifier());
+            return readMeterEventsRequest.request((CanFindLogBook) logBookReader.getLogBookIdentifier());
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
-            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook((CanFindLogBook) logBookReader.getLogBookIdentifier());
             deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem("MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;

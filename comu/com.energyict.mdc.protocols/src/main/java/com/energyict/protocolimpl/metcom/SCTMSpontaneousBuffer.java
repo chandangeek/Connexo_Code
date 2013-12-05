@@ -6,14 +6,21 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocolimpl.siemens7ED62.SCTMEvent;
+import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -27,14 +34,14 @@ public class SCTMSpontaneousBuffer {
 //        this.siemensSCTMConnection=siemensSCTMConnection;
 //        this.timeZone=timeZone;
 //    }
-    
+
     public SCTMSpontaneousBuffer(Metcom metcom) {
         this.metcom=metcom;
         this.siemensSCTMConnection=metcom.getSCTMConnection();
         this.timeZone=metcom.getTimeZone();
     }
-    
-    
+
+
     protected void getEvents(Calendar calendarFrom,Calendar calendarTo,ProfileData profileData) throws IOException {
        SCTMTimeData from = new SCTMTimeData(calendarFrom);
        SCTMTimeData to = new SCTMTimeData(calendarTo);
@@ -51,16 +58,16 @@ public class SCTMSpontaneousBuffer {
         try {
            List sctmEvents = new ArrayList();
            byte[] received;
-           
+
            while(true) {
                received = siemensSCTMConnection.sendRequest(command, data);
                if (received == null) break;
                SCTMEvent sctmEvent = new SCTMEvent(received);
                sctmEvents.add(sctmEvent);
-               command = SiemensSCTM.NEXT; 
+               command = SiemensSCTM.NEXT;
                data = SiemensSCTM.SPONTANEOUSBUFFERS;
-           }  
-           
+           }
+
            return sctmEvents;
         }
         catch(SiemensSCTMException e) {
@@ -90,7 +97,7 @@ public class SCTMSpontaneousBuffer {
     private static final String STATUSALARMXX = "0B/"; // format 0B/XX (with XX the input)
     private static final String CONFIGURATIONCHANGE= "0F/"; // inserted myself to have a wildcard to configchange events
     private static final String PARAMETERNEW = "0F/01";
-    
+
     // FBC
     private static final String MOD1_SYSREM_RESTART = "01/31";
     private static final String MOD1_COLD_START = "01/32";
@@ -121,24 +128,24 @@ public class SCTMSpontaneousBuffer {
     private static final String PULSE_ALARMXX = "09/"; // XX pulse
     private static final String OVERFLOW_OUTPUTXX = "0C/";
     private static final String NUMERIC_OVERFLOWXX = "OE/";
-    
+
     // FCL
     private static final String INPUTALARM100 = "100"; // method isFCLInputAlarm() used
     // range of 16
     private static final String INPUTALARM115 = "115"; // method isFCLInputAlarm() used
-    
-    private static final String BATTERYALARM = "130";    
-    private static final String RAMERROR = "131";    
-    private static final String EPROMERROR = "132";    
-    private static final String ESYNALARM = "170";    
- 
-    
+
+    private static final String BATTERYALARM = "130";
+    private static final String RAMERROR = "131";
+    private static final String EPROMERROR = "132";
+    private static final String ESYNALARM = "170";
+
+
     // FAF10, FAF20
     private static final String FAF_SYSTEM_RESTART = "#100";
     private static final String FAF_COLDSTART = "#101";
     private static final String FAF_PARAMETER_FAULT = "#102";
     private static final String FAF_PROGRAM_FAULT = "#103";
-    private static final String FAF_DATA_FAULT = "#104";   
+    private static final String FAF_DATA_FAULT = "#104";
     private static final String FAF_DATA_CLEARED = "#105";
     private static final String FAF_BATTERY_FAULT = "#106";
     private static final String FAF_NUMERIC_OVERFLOW ="#107";
@@ -154,19 +161,19 @@ public class SCTMSpontaneousBuffer {
     private static final String CARD_BUFFER02_OVERFLOW = "#126";
     private static final String CARD_BUFFER51_OVERFLOW = "#127";
     private static final String CARD_BATTERY_FAULT = "#128";
-    
+
     private static final String PULSE_ALARM_E00 = "#130"; // method isFAFInputPulseAlarm() used
     // range 24
     private static final String PULSE_ALARM_E23 = "#153"; // method isFAFInputPulseAlarm() used
-    
-    private static final String OUTPUT_STORE_A0_OVERFLOW = "#170";    
-    private static final String OUTPUT_STORE_A1_OVERFLOW = "#171";    
-    private static final String OUTPUT_STORE_A2_OVERFLOW = "#172";    
-    private static final String OUTPUT_STORE_A3_OVERFLOW = "#173";    
-    private static final String OUTPUT_STORE_A4_OVERFLOW = "#174";    
-    private static final String OUTPUT_STORE_A5_OVERFLOW = "#175";    
-    private static final String OUTPUT_STORE_A6_OVERFLOW = "#176";    
-    private static final String OUTPUT_STORE_A7_OVERFLOW = "#177";    
+
+    private static final String OUTPUT_STORE_A0_OVERFLOW = "#170";
+    private static final String OUTPUT_STORE_A1_OVERFLOW = "#171";
+    private static final String OUTPUT_STORE_A2_OVERFLOW = "#172";
+    private static final String OUTPUT_STORE_A3_OVERFLOW = "#173";
+    private static final String OUTPUT_STORE_A4_OVERFLOW = "#174";
+    private static final String OUTPUT_STORE_A5_OVERFLOW = "#175";
+    private static final String OUTPUT_STORE_A6_OVERFLOW = "#176";
+    private static final String OUTPUT_STORE_A7_OVERFLOW = "#177";
     private static final String PRINTER_OUT_OF_PAPER = "#186";
     private static final String PRINTER_FAULT = "#187";
     private static final String COM_MODULE_FAULT = "#192";
@@ -179,7 +186,7 @@ public class SCTMSpontaneousBuffer {
     private static final String STATUS_ALARM_ES05 = "#167";
     private static final String STATUS_ALARM_ES06 = "#168";
     private static final String STATUS_ALARM_ES07 = "#169";
-    
+
     // FAG
     private static final String SYSTEM_RESTART_INPUT_MODULE_M1 = "01/41";
     private static final String COLD_START_INPUT_MODULE_M1 = "01/42";
@@ -216,37 +223,37 @@ public class SCTMSpontaneousBuffer {
     private static final String PP4_DATA_DELETED_COM_BUFFER1 = "06/04";
     private static final String PP5_DATA_DELETED_COM_BUFFER1 = "06/05";
     private static final String PP6_DATA_DELETED_COM_BUFFER1 = "06/06";
-    
+
     private static final String PP3_DATA_DELETED_COM_BUFFER2 = "06/43";
     private static final String PP4_DATA_DELETED_COM_BUFFER2 = "06/44";
     private static final String PP5_DATA_DELETED_COM_BUFFER2 = "06/45";
     private static final String PP6_DATA_DELETED_COM_BUFFER2 = "06/46";
-    
+
     private static final String PP1_DATA_DELETED_COM_BUFFER3 = "06/51";
     private static final String PP2_DATA_DELETED_COM_BUFFER3 = "06/52";
     private static final String PP3_DATA_DELETED_COM_BUFFER3 = "06/53";
     private static final String PP4_DATA_DELETED_COM_BUFFER3 = "06/54";
     private static final String PP5_DATA_DELETED_COM_BUFFER3 = "06/55";
     private static final String PP6_DATA_DELETED_COM_BUFFER3 = "06/56";
-    
+
     private static final String PP1_DATA_DELETED_COM_BUFFER4 = "06/61";
     private static final String PP2_DATA_DELETED_COM_BUFFER4 = "06/62";
     private static final String PP3_DATA_DELETED_COM_BUFFER4 = "06/63";
     private static final String PP4_DATA_DELETED_COM_BUFFER4 = "06/64";
     private static final String PP5_DATA_DELETED_COM_BUFFER4 = "06/65";
     private static final String PP6_DATA_DELETED_COM_BUFFER4 = "06/66";
-    
+
     private static final String BAD_RECEPTION = "07/01";
     private static final String SYSTEM_TIME_EX_CLOCK_DEV_TO_HIGH = "07/06";
     private static final String SYSTEM_TIME_HW_CLOCK_DEV_TO_HIGH = "07/07";
     private static final String NO_RECEPTION = "07/08";
-    
+
     private static final String DATA_LOSS_DATACARD = "08/16";
     //private static final String FAULT_IN_INPUT_MODULE_M1 = "08/41";
     private static final String NO_CONNECTION_TO_INPUT_MODULE_M1 = "08/42";
     private static final String CONNECTOR_CARD_M1A_WRONG = "08/43";
     private static final String CONNECTOR_CARD_M1B_WRONG = "08/44";
-    
+
     private static final String FAULT_IN_INPUT_MODULE_M2 = "08/51";
     private static final String NO_CONNECTION_TO_INPUT_MODULE_M2 = "08/52";
     private static final String CONNECTOR_CARD_M2A_WRONG = "08/53";
@@ -256,31 +263,31 @@ public class SCTMSpontaneousBuffer {
     private static final String NO_CONNECTION_TO_INPUT_MODULE_M3 = "08/62";
     private static final String CONNECTOR_CARD_M3A_WRONG = "08/63";
     private static final String CONNECTOR_CARD_M3B_WRONG = "08/64";
-    
+
     private static final String FAULT_IN_INPUT_MODULE_M4 = "08/71";
     private static final String NO_CONNECTION_TO_INPUT_MODULE_M4 = "08/72";
     private static final String CONNECTOR_CARD_M4A_WRONG = "08/73";
     private static final String CONNECTOR_CARD_M4B_WRONG = "08/74";
-    
+
     private static final String MAIN_CHECK_COMPARXX = "0D/";
-    
+
     private static final String PARAMETER_CHANGE_INPUT_MODULE_M1 = "0F/41";
     private static final String PARAMETER_CHANGE_INPUT_MODULE_M2 = "0F/51";
     private static final String PARAMETER_CHANGE_INPUT_MODULE_M3 = "0F/61";
     private static final String PARAMETER_CHANGE_INPUT_MODULE_M4 = "0F/71";
-    
+
     private static final String MV_BUFFER_FAULTXX = "14/";
     private static final String METER_EXCHANGEXX = "15/";
-    
+
     private static final String STATUS_MESSAGE_RESTART = "01/00";
-    private static final String STATUS_MESSAGE_POWER_FAILURE = "03/00";   
+    private static final String STATUS_MESSAGE_POWER_FAILURE = "03/00";
     private static final String STATUS_MESSAGE_TIMESHIFT = "07/00";
     private static final String STATUS_MESSAGE_METERING_VALUE_DIFF = "0D/00";
     private static final String STATUS_MESSAGE_PARAMETER_CHANGE = "0F/00";
     private static final String STATUS_MESSAGE_MANUAL_INPUT = "11/00";
     private static final String STATUS_MESSAGE_WARNING = "12/00";
     private static final String STATUS_MESSAGE_ERROR = "13/00";
-    
+
     private boolean isFCLInputAlarm(String str) {
         for (int i = 100; i < 115; i++) {
             String inputAlarm = String.valueOf(i);
@@ -289,7 +296,7 @@ public class SCTMSpontaneousBuffer {
         }
         return false;
     }
-    
+
     private boolean isFAFInputPulseAlarm(String str) {
         for (int i = 130; i <= 153; i++) {
             String inputAlarm = "#"+String.valueOf(i);
@@ -298,39 +305,39 @@ public class SCTMSpontaneousBuffer {
         }
         return false;
     }
-    
+
     private void addToProfile(List sctmEvents,ProfileData profileData) {
-        
+
         Iterator iterator = sctmEvents.iterator();
         while(iterator.hasNext()) {
            SCTMEvent sctmEvent = (SCTMEvent)iterator.next();
-           
+
            switch(sctmEvent.getType()) {
                case 0xA1: {
                     MeterEvent meterEvent=null;
                     String message = sctmEvent.getSubAddress()+", "+sctmEvent.getAdat()+" -> "+sctmEvent.getEdat();
-    
+
                     // interprete the metcom3 MTTT3A events as in document of Siemens MTT3A
                     if ((sctmEvent.getAdat().indexOf(SYSTEM_RESTART)>=0) || (sctmEvent.getEdat().indexOf(SYSTEM_RESTART)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.OTHER,sctmEvent.getType(),message));
-                    
+
                     else if ((sctmEvent.getAdat().indexOf(COLDSTART)>=0) || (sctmEvent.getEdat().indexOf(COLDSTART)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERUP,sctmEvent.getType(),message));
-                    
+
                     else if ((sctmEvent.getAdat().indexOf(PROGRAMFAULT)>=0) || (sctmEvent.getEdat().indexOf(PROGRAMFAULT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.PROGRAM_FLOW_ERROR,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(PARAMETERFAULT)>=0) || (sctmEvent.getEdat().indexOf(PARAMETERFAULT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.CONFIGURATIONCHANGE,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(DATAFAULT)>=0) || (sctmEvent.getEdat().indexOf(DATAFAULT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.RAM_MEMORY_ERROR,sctmEvent.getType(),message));
-    
-                    
-                    
+
+
+
                     else if (sctmEvent.getAdat().indexOf(POWERFAILURE)>=0)
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERUP,sctmEvent.getType(),message+" (POWERUP)"));
                     else if (sctmEvent.getEdat().indexOf(POWERFAILURE)>=0)
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERDOWN,sctmEvent.getType(),message+" (POWERDOWN)"));
-                    
+
 
                     else if ((sctmEvent.getAdat().indexOf(OVERFLOWDATA)>=0) || (sctmEvent.getEdat().indexOf(OVERFLOWDATA)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.REGISTER_OVERFLOW,sctmEvent.getType(),message));
@@ -347,7 +354,7 @@ public class SCTMSpontaneousBuffer {
 
                     else if ((sctmEvent.getAdat().indexOf(SETTIME)>=0) || (sctmEvent.getEdat().indexOf(SETTIME)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.SETCLOCK,sctmEvent.getType(),message+" (SETCLOCK)"));
-                    
+
                     else if ((sctmEvent.getAdat().indexOf(TASKTABLEERROR)>=0) || (sctmEvent.getEdat().indexOf(TASKTABLEERROR)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.OTHER,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(TARIFFTABLEERROR)>=0) || (sctmEvent.getEdat().indexOf(TARIFFTABLEERROR)>=0))
@@ -362,7 +369,7 @@ public class SCTMSpontaneousBuffer {
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.METER_ALARM,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(STATUSALARMXX)>=0) || (sctmEvent.getEdat().indexOf(STATUSALARMXX)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.METER_ALARM,sctmEvent.getType(),message));
-                    
+
                     // FBC
                     else if ((sctmEvent.getAdat().indexOf(MOD1_PROGRAMFAULT)>=0) || (sctmEvent.getEdat().indexOf(MOD1_PROGRAMFAULT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.PROGRAM_FLOW_ERROR,sctmEvent.getType(),message));
@@ -400,7 +407,7 @@ public class SCTMSpontaneousBuffer {
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.REGISTER_OVERFLOW,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(NUMERIC_OVERFLOWXX)>=0) || (sctmEvent.getEdat().indexOf(NUMERIC_OVERFLOWXX)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.REGISTER_OVERFLOW,sctmEvent.getType(),message));
-                    
+
                     // FCL
                     else if (isFCLInputAlarm(sctmEvent.getAdat()) || isFCLInputAlarm(sctmEvent.getEdat()))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.METER_ALARM,sctmEvent.getType(),message));
@@ -412,8 +419,8 @@ public class SCTMSpontaneousBuffer {
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.RAM_MEMORY_ERROR,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(EPROMERROR)>=0) || (sctmEvent.getEdat().indexOf(EPROMERROR)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.ROM_MEMORY_ERROR,sctmEvent.getType(),message));
-                    
-                    
+
+
                     // FAF
                     else if ((sctmEvent.getAdat().indexOf(FAF_COLDSTART)>=0) || (sctmEvent.getEdat().indexOf(FAF_COLDSTART)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERUP,sctmEvent.getType(),message));
@@ -443,10 +450,10 @@ public class SCTMSpontaneousBuffer {
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.RAM_MEMORY_ERROR,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(CARD_BATTERY_FAULT)>=0) || (sctmEvent.getEdat().indexOf(CARD_BATTERY_FAULT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.HARDWARE_ERROR,sctmEvent.getType(),message));
-                    
+
                     else if ((isFAFInputPulseAlarm(sctmEvent.getAdat())) || (isFAFInputPulseAlarm(sctmEvent.getEdat())))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.METER_ALARM,sctmEvent.getType(),message));
-                    
+
                     else if ((sctmEvent.getAdat().indexOf(PRINTER_FAULT)>=0) || (sctmEvent.getEdat().indexOf(PRINTER_FAULT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.HARDWARE_ERROR,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(COM_MODULE_FAULT)>=0) || (sctmEvent.getEdat().indexOf(COM_MODULE_FAULT)>=0))
@@ -469,8 +476,8 @@ public class SCTMSpontaneousBuffer {
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.METER_ALARM,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(STATUS_ALARM_ES07)>=0) || (sctmEvent.getEdat().indexOf(STATUS_ALARM_ES07)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.METER_ALARM,sctmEvent.getType(),message));
-                    
-                  
+
+
                     // FAG
                     else if ((sctmEvent.getAdat().indexOf(PROGRAMFAULT_INPUT_MODULE_M1)>=0) || (sctmEvent.getEdat().indexOf(PROGRAMFAULT_INPUT_MODULE_M1)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.PROGRAM_FLOW_ERROR,sctmEvent.getType(),message));
@@ -514,37 +521,37 @@ public class SCTMSpontaneousBuffer {
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERUP|MeterEvent.POWERDOWN,sctmEvent.getType(),message));
                     else if ((sctmEvent.getAdat().indexOf(STATUS_MESSAGE_TIMESHIFT)>=0) || (sctmEvent.getEdat().indexOf(STATUS_MESSAGE_TIMESHIFT)>=0))
                         meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.SETCLOCK,sctmEvent.getType(),message));
-                    
+
                     else meterEvent = (new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.OTHER,sctmEvent.getType(),message));
-                    
-                    
+
+
                     // 05300 means clear alarm...
                     if (meterEvent != null) {
                         if (sctmEvent.getSubAddress().compareTo("05300") == 0)  {
-//System.out.println("05300 received") ;                              
+//System.out.println("05300 received") ;
                             meterEvent = new MeterEvent(meterEvent.getTime(),meterEvent.OTHER,meterEvent.getProtocolCode(),message);
                         }
                         profileData.addEvent(meterEvent);
                     }
-                    
+
                } break;
-               
+
                case 0xA2: {
                     String message = sctmEvent.getSubAddress()+", "+sctmEvent.getAdat()+" -> "+sctmEvent.getEdat();
                     profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.OTHER,sctmEvent.getType(),message));
                } break;
-                    
+
                case 0xC1:
                case 0xC2: {
                     String message = sctmEvent.getSubAddress()+", "+sctmEvent.getAdat()+" -> "+sctmEvent.getEdat();
                     profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.CONFIGURATIONCHANGE,sctmEvent.getType(),message));
                } break;
-                                   
+
                case 0xA3:
                     profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.POWERDOWN,sctmEvent.getType()));
                     profileData.addEvent(new MeterEvent(sctmEvent.getTo().getDate(timeZone),MeterEvent.POWERUP,sctmEvent.getType()));
                     break;
-               
+
                case 0xD1:
                case 0xD2:
                case 0xD3:
@@ -552,17 +559,17 @@ public class SCTMSpontaneousBuffer {
                     profileData.addEvent(new MeterEvent(sctmEvent.getFrom().getDate(timeZone),MeterEvent.SETCLOCK_BEFORE,sctmEvent.getType()));
                     profileData.addEvent(new MeterEvent(sctmEvent.getTo().getDate(timeZone),MeterEvent.SETCLOCK_AFTER,sctmEvent.getType()));
                     break;
-              
+
                default:
                     profileData.addEvent(new MeterEvent(new Date(),MeterEvent.OTHER,sctmEvent.getType()));
                     break;
-                    
+
            } // switch(sctmEvent.type)
         }
     } // private void addToProfile(List sctmEvents,ProfileData profileData)
 
         // FCL
 
-    
+
 }
 

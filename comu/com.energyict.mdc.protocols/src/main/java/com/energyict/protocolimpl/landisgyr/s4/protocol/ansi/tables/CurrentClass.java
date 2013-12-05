@@ -10,20 +10,21 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class CurrentClass {
-    
+
     private int id;
     private String classDescription;
-    private BigDecimal multiplier;    
-    
+    private BigDecimal multiplier;
+
     static List currentClasses = new ArrayList();
     static {
         currentClasses.add(new CurrentClass(1,"20 (S4)",new BigDecimal("0.00133")));
@@ -36,7 +37,7 @@ public class CurrentClass {
         currentClasses.add(new CurrentClass(8,"480 (Altimus Ax)",new BigDecimal("1")));
         currentClasses.add(new CurrentClass(9,"Reserved 9",new BigDecimal("1")));
         currentClasses.add(new CurrentClass(11,"Reserved 11",new BigDecimal("1")));
-        
+
     }
 
     static public CurrentClass findCurrentClass(int id) throws IOException {
@@ -47,7 +48,7 @@ public class CurrentClass {
         }
         throw new IOException("CurrentClass, invalid currentclass id "+id);
     }
-    
+
     /** Creates a new instance of CurrentClass */
     private CurrentClass(int id, String classDescription, BigDecimal multiplier) {
         this.setId(id);
@@ -78,5 +79,5 @@ public class CurrentClass {
     public void setMultiplier(BigDecimal multiplier) {
         this.multiplier = multiplier;
     }
-    
+
 }

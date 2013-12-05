@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.coronis.wavetalk.core.AbstractCommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavetalk.core.AbstractWaveTalk;
 import com.energyict.protocolimpl.coronis.wavetalk.core.CommonObisCodeMapper;
@@ -17,28 +17,28 @@ import java.util.Properties;
 
 public class WaveTalk extends AbstractWaveTalk {
 
-	
+
 	/**
 	 * specific obis code mapper
 	 */
-	private ObisCodeMapper obisCodeMapper;	
+	private ObisCodeMapper obisCodeMapper;
 
-	
+
 	/**
 	 * the common ohis code mapper for the WaveTalk
 	 */
 	private CommonObisCodeMapper commonObisCodeMapper=null;
-	
+
 	/**
 	 * The parameter factory interface
 	 */
 	private ParameterFactory parameterFactory=null;
-	
-	
+
+
 	@Override
 	protected void doTheConnect() throws IOException {
 
-		
+
 	}
 
 	@Override
@@ -46,8 +46,8 @@ public class WaveTalk extends AbstractWaveTalk {
 		obisCodeMapper = new ObisCodeMapper(this);
 		commonObisCodeMapper = new CommonObisCodeMapper(this);
 		parameterFactory = new ParameterFactoryImpl(this);
-	}	
-	
+	}
+
 	@Override
 	protected void doTheDisConnect() throws IOException {
 
@@ -57,12 +57,12 @@ public class WaveTalk extends AbstractWaveTalk {
 	protected void doTheValidateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	return obisCodeMapper.getRegisterValue(obisCode);
-    }	 
+    }
 
     /**
      * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.

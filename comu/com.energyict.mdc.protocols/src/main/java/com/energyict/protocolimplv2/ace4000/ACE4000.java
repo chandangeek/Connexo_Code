@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
@@ -48,7 +48,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         return ace4000Connection;
     }
 
-    public DeviceIdentifier getDeviceIdentifier() {
+    public CanFindDevice getDeviceIdentifier() {
         return new DeviceIdentifierBySerialNumber(serialNumber);
     }
 
@@ -73,17 +73,21 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         return properties;
     }
 
-
-    public void addProperties(TypedProperties properties) {
+    public void copyProperties(TypedProperties properties) {
         this.properties = new ACE4000Properties(properties);
     }
 
-    public List<PropertySpec> getRequiredProperties() {
-        return getProperties().getRequiredKeys();
+    public List<PropertySpec> getPropertySpecs () {
+        return getProperties().getPropertySpecs();
     }
 
-    public List<PropertySpec> getOptionalProperties() {
-        return getProperties().getOptionalKeys();
+    public PropertySpec getPropertySpec (String name) {
+        for (PropertySpec propertySpec : this.getPropertySpecs()) {
+            if (name.equals(propertySpec.getName())) {
+                return propertySpec;
+            }
+        }
+        return null;
     }
 
     //Gather all collected registers from the ObjectFactory

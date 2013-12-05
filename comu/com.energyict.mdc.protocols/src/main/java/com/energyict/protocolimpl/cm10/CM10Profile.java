@@ -1,21 +1,25 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class CM10Profile {
-	
+
 	private CM10 cm10Protocol;
-	
+
 	public CM10Profile(CM10 cm10Protocol) {
         this.cm10Protocol=cm10Protocol;
     }
-	
+
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		//cm10Protocol.getLogger().info("from: " + from);
 		from = roundDown2nearestInterval(from);
@@ -45,7 +49,7 @@ public class CM10Profile {
 		addChannelData(profileData, stPeriod, noHHours, from);
         return profileData;
 	}
-	
+
 	protected void addEvents(ProfileData profileData) throws IOException {
 		PowerFailDetailsTable powerFailDetailsTable = cm10Protocol.getPowerFailDetailsTable();
 		List powerEvents = powerFailDetailsTable.getEvents();
@@ -64,7 +68,7 @@ public class CM10Profile {
 		}
 	}
 
-	
+
 	protected Date roundDown2nearestInterval(Date from) throws IOException {
 		Calendar cal = Calendar.getInstance(cm10Protocol.getTimeZone());
 		cal.setTime(from);
@@ -73,7 +77,7 @@ public class CM10Profile {
             cal.add(Calendar.SECOND,(-1)*rest);
         return cal.getTime();
     }
-	
+
 	protected Date getDateOfMostHistoricDemandValue() throws IOException {
 		StatusTable statusTable = cm10Protocol.getStatusTable();
 		int mostHistoricDemandCount = statusTable.getMostHistoricDemandCount();
@@ -93,14 +97,14 @@ public class CM10Profile {
 		else
 			return cal.getTime();
 	}
-	
-	
-	
-	//Demands: This is the fundamental data required by DCs. 
-	//Each demand value stored in the outstation is simply a count of pulses 
-	//received on that channel over a demand period. To derive actual energy you 
-	//multiply by the UPP factor - as you rightly say. This factor, although stored 
-	//in a CM-32 is not readable using CM10 protocol. It has been normal for the DC 
+
+
+
+	//Demands: This is the fundamental data required by DCs.
+	//Each demand value stored in the outstation is simply a count of pulses
+	//received on that channel over a demand period. To derive actual energy you
+	//multiply by the UPP factor - as you rightly say. This factor, although stored
+	//in a CM-32 is not readable using CM10 protocol. It has been normal for the DC
 	//system to maintain a data base of mulipliers for each channel, for each outstation.
 
 	protected void addChannelInfos(ProfileData profileData) throws IOException {
@@ -108,14 +112,14 @@ public class CM10Profile {
 		FullPersonalityTable fullPersonalityTable = cm10Protocol.getFullPersonalityTable();
 		int[] multipliers = fullPersonalityTable.getMultipliers();
 		for (int i = 0; i < numberOfChannels; i++) {
-			ChannelInfo channelInfo = 
+			ChannelInfo channelInfo =
 				new ChannelInfo(
 						i, "CM10_"+(i+1), Unit.get(BaseUnit.UNITLESS), 0, i, new BigDecimal(1)); // multipliers[i]
-			profileData.addChannel(channelInfo);			
+			profileData.addChannel(channelInfo);
 		}
 	}
-	
-	//split up the request so we can acknowledge each block the meter sends to prevent 
+
+	//split up the request so we can acknowledge each block the meter sends to prevent
 	//the meter sending for a long time before the need to acknowledge
 	protected void addChannelData(ProfileData profileData, int stPeriod, int noHHours, Date from) throws IOException {
 		//cm10Protocol.getLogger().info("stPeriod: " + stPeriod);
@@ -140,25 +144,24 @@ public class CM10Profile {
 				myNoHHours = numberOfHHoursToRequestPerBlock;
 			else
 				myNoHHours = noHHLeft;
-			
+
 			//cm10Protocol.getLogger().info("getting profiledata: myStPeriod =  " + myStPeriod + ", myNoHHours = " + myNoHHours);
-			Response response = 
+			Response response =
 				commandFactory.getReadMeterDemandsCommand(myStPeriod, myNoHHours).invoke();
 			data.add(response.getData());
-			
+
 			myStPeriod = myStPeriod + myNoHHours;
 			noHHoursRequested = noHHoursRequested + myNoHHours;
 			noHHLeft = noHHours - noHHoursRequested;
 		}
-		
-		
+
+
 		MeterDemandsTable meterDemandsTable = new MeterDemandsTable(cm10Protocol);
 		meterDemandsTable.parse(data.getBytes(), profileData, from);
 		//cm10Protocol.getLogger().info(meterDemandsTable.toString());
-		
-		
+
+
 
 	}
-	
+
 }
-	

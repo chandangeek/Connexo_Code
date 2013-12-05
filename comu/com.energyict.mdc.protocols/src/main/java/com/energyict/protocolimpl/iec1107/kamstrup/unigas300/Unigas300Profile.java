@@ -6,21 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -31,7 +31,7 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
  * JME	28052009 Fixed bug in profile parser: Last 3 channels are hex status channels and no decimal values.
  */
 public class Unigas300Profile extends VDEWProfile {
-    
+
     private static final int STATUS_WORD_STATED = 0x8000;
     private static final int LOGGER_CLEARED = 0x4000;
     private static final int LOGBOOK_CLEARED = 0x2000;
@@ -50,7 +50,7 @@ public class Unigas300Profile extends VDEWProfile {
     private static final int FATAL_DEVICE_ERROR = 0x01;
 
     private static final int NUMBER_OF_STATUS_CHANNELS = 3;
-    
+
 	private static final int DEBUG = 0;
 
     private static final String[] statusstr={"FATAL_DEVICE_ERROR",
@@ -69,30 +69,30 @@ public class Unigas300Profile extends VDEWProfile {
                                       "END_WRONG_OPERATION",
                                       "WRONG_OPERATION",
                                       "PARAMETER_SETTING"};
-	
+
     private static final Unit[] KAMSTRUP_PROTILEDATAUNITS = {
     	Unit.get("m3"),	Unit.get("m3"), Unit.get("m3"),
     	Unit.get("m3"),	Unit.get("m3"),	Unit.get("m3"),
     	Unit.get(BaseUnit.DEGREE_CELSIUS, -2), Unit.get("mbar"),
     	Unit.get(""), Unit.get(""), Unit.get("")
     };
-    
+
     /** Creates a new instance of Unigas300Profile */
     public Unigas300Profile(ProtocolLink protocolLink,AbstractVDEWRegistry abstractVDEWRegistry) {
         super(null,protocolLink,abstractVDEWRegistry);
     }
 
     public ProfileData getProfileData(Calendar fromCalendar, Calendar toCalendar, int nrOfChannels, int profileId) throws IOException {
-        byte[] data = readRawData(fromCalendar, toCalendar, profileId); 
+        byte[] data = readRawData(fromCalendar, toCalendar, profileId);
         return parse(data, nrOfChannels);
     }
-    
+
     private ProfileData parse(byte[] data, int nrOfChannels) throws IOException {
        ProfileData profileData = buildProfileData(data,nrOfChannels);
        profileData.applyEvents(getProtocolLink().getProfileInterval()/60);
-       return profileData;  
+       return profileData;
     }
-    
+
     protected int gotoNextOpenBracket(byte[] responseData,int i) {
         while(true) {
             if (responseData[i] == '(') {
@@ -105,7 +105,7 @@ public class Unigas300Profile extends VDEWProfile {
         }
         return i;
     }
-    
+
     protected int gotoNextCR(byte[] responseData,int i) {
         while(true)
         {
@@ -119,7 +119,7 @@ public class Unigas300Profile extends VDEWProfile {
         }
         return i;
     }
-    
+
     private Calendar parseDateTime(byte[] data,int iOffset) throws IOException {
        int dst;
        dst = ProtocolUtils.hex2nibble(data[iOffset]);
@@ -130,7 +130,7 @@ public class Unigas300Profile extends VDEWProfile {
        calendar.set(calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,7+iOffset));
        calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,9+iOffset));
        // KV 25032004
-       int seconds = (int)ProtocolUtils.bcd2byte(data,11+iOffset);       
+       int seconds = (int)ProtocolUtils.bcd2byte(data,11+iOffset);
        if (seconds != 0) {
 		getProtocolLink().getLogger().severe ("Unigas300Profile, parseDateTime, seconds != 0 ("+seconds+")");
 	}
@@ -138,7 +138,7 @@ public class Unigas300Profile extends VDEWProfile {
        calendar.set(calendar.MILLISECOND,0);
        return calendar;
     }
-    
+
     private String parseFindString(byte[] data,int iOffset) {
        int start=0,stop=0,i=0;
        if (iOffset >= data.length) {
@@ -159,7 +159,7 @@ public class Unigas300Profile extends VDEWProfile {
 	}
        return new String(strparse);
     } // private String parseFindString(byte[] data,int iOffset)
-    
+
     ProfileData buildProfileData(byte[] responseData,int nrOfChannels) throws IOException {
         if (DEBUG >= 1) {
 			System.out.println("\nresponseData = \n\n" + new String(responseData) + "\n");
@@ -172,13 +172,13 @@ public class Unigas300Profile extends VDEWProfile {
         int status=0;
         byte bNROfValues=0;
         byte bInterval=0;
-        
+
         int t;
-        
+
         // We suppose that the profile contains nr of channels!!
         try {
             calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
-            profileData = new ProfileData();        
+            profileData = new ProfileData();
             for (t=0;t<nrOfChannels;t++) {
                ChannelInfo chi = new ChannelInfo(t,"kamstrup_channel_"+t,KAMSTRUP_PROTILEDATAUNITS[t]);
                if (DEBUG >= 1) {
@@ -195,11 +195,11 @@ public class Unigas300Profile extends VDEWProfile {
                 if (responseData[i] == 'P') {
                    i+=4; // skip P.01
                    i=gotoNextOpenBracket(responseData,i);
-                   
+
                    if (parseFindString(responseData,i).compareTo("ERROR") == 0) {
 					throw new IOException("No entries in object list.");
 				}
-                       
+
                    calendar = parseDateTime(responseData,i+1);
                    i=gotoNextOpenBracket(responseData,i+1);
                    status = Integer.parseInt(parseFindString(responseData,i),16);
@@ -208,12 +208,12 @@ public class Unigas300Profile extends VDEWProfile {
 					System.out.println("Status = " + status);
 				}
                    for (t=0;t<16;t++) {
-                      long statPart = status & (0x01<<t); 
+                      long statPart = status & (0x01<<t);
                 	   if (statPart != 0) {
                            profileData.addEvent(createMeterEvent((int) statPart, calendar));
                       }
                    }
-                   
+
                    i=gotoNextOpenBracket(responseData,i+1);
                    bInterval = (byte)Integer.parseInt(parseFindString(responseData,i));
                    if (DEBUG >= 1) {
@@ -231,14 +231,14 @@ public class Unigas300Profile extends VDEWProfile {
                       i=gotoNextOpenBracket(responseData,i+1);
                       i=gotoNextOpenBracket(responseData,i+1);
                    }
-                   
+
                    i= gotoNextCR(responseData,i+1);
                 }
                 else if ((responseData[i] == '\r') || (responseData[i] == '\n')) {
-                    i+=1; // skip 
+                    i+=1; // skip
                 }
                 else {
-                   // Fill profileData         
+                   // Fill profileData
                   IntervalData intervalData = new IntervalData(new Date(((Calendar)calendar.clone()).getTime().getTime()));
                   for (t=0;t<bNROfValues;t++) {
                       i=gotoNextOpenBracket(responseData,i);
@@ -280,11 +280,11 @@ public class Unigas300Profile extends VDEWProfile {
 		final int CONV_ER_END	= 0x00400;
 		final int LOGBOOKS_ERASED = 0x02000;
 		final int LOGGERS_ERASED = 0x04000;
-		
+
 		Date eventDate = new Date(((Calendar)calendar.clone()).getTime().getTime());
 		String message = null;
 		int eiCode = 0;
-		
+
 		switch (status) {
 		case FATAL_ERROR:
 			message = "Fatal error";
@@ -339,10 +339,10 @@ public class Unigas300Profile extends VDEWProfile {
 			eiCode = MeterEvent.OTHER;
 			break;
 		}
-		
-		
+
+
 		return new MeterEvent(eventDate, eiCode, status, message);
 	}
-    
-    
+
+
 } // Unigas300Profile

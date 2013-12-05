@@ -11,14 +11,14 @@
 package com.energyict.protocolimpl.edmi.mk6;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -61,7 +61,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	private boolean logOffDisabled = true;
 	private TimeZone timeZone;
 	private boolean useOldProfileFromDate;
-	
+
 	/** Creates a new instance of MK6 */
 	public MK6() {
 	}
@@ -172,7 +172,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 	 */
 	public TimeZone getTimeZone() {
 		if(this.timeZone == null){
-			this.timeZone = ProtocolUtils.getWinterTimeZone(super.getTimeZone()); 
+			this.timeZone = ProtocolUtils.getWinterTimeZone(super.getTimeZone());
 		}
 		return this.timeZone;
 	}
@@ -226,7 +226,7 @@ public class MK6 extends AbstractProtocol implements Serializable{
 
 	/**
 	 * Protected setter for the MK6Connection
-	 * 
+	 *
 	 * @param connection - MK6Connection
 	 */
 	protected void setMK6Connection(MK6Connection connection){

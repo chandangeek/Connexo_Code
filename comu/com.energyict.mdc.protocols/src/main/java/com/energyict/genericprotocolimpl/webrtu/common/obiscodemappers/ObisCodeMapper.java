@@ -1,28 +1,31 @@
 package com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 
+ *
  * @author gna
  * Changes:
  * GNA |03062009| Added abstract registers (activity Calendar, Active Firmware)
  */
 public class ObisCodeMapper {
-	
+
 	private boolean debug = false;
 	private static final String[] possibleConnectStates = {"Disconnected","Connected","Ready for Reconnection"};
 
@@ -45,7 +48,7 @@ public class ObisCodeMapper {
 		if(debug){
 			System.out.println(obisCode);
 		}
-		
+
 		// Abstract Registers
         if(ACTIVITY_CALENDAR.equals(obisCode)){	// Activity Calendar
         	rv = new RegisterValue(obisCode,
@@ -118,14 +121,14 @@ public class ObisCodeMapper {
             Quantity quantity = new Quantity(register.getValue(), Unit.getUndefined());
 			return new RegisterValue(obisCode, quantity, null, null, null, new Date(), 0, register.getValue() + " dBm");
         }
-		
+
     	//Electricity related ObisRegisters
-    	if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() == 128)) && (obisCode.getC() >=1) && (obisCode.getC() <= 2) 
+    	if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() == 128)) && (obisCode.getC() >=1) && (obisCode.getC() <= 2)
 			&& (obisCode.getD() == 8) && (obisCode.getE() >=0) && (obisCode.getE() <=4) && (obisCode.getF() == 255)){
 			Register register = cof.getRegister(obisCode);
 			return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
     	}
-    	
+
     	//Instantaneous, average values (voltage/current/power)
     	if((obisCode.getA() == 1) && (obisCode.getB() == 0) && (obisCode.getE() == 0) && (obisCode.getF() == 255)){
     		if(obisCode.getD() == 7) { // instantaneous values
@@ -140,7 +143,7 @@ public class ObisCodeMapper {
                         (obisCode.getC() == 4)  ||  // inst. ReAct. Power export Total
                         (obisCode.getC() == 3)  ||  // inst. ReAct. Power import Total
                         (obisCode.getC() == 2)  ||  // inst. Act. Power export Total
-                        (obisCode.getC() == 1)){    // inst. Act. Power import Total   
+                        (obisCode.getC() == 1)){    // inst. Act. Power import Total
     				co = cof.getCosemObject(obisCode);
     			}
     		} else if(obisCode.getD() == 24) {
@@ -150,15 +153,15 @@ public class ObisCodeMapper {
     				co = cof.getCosemObject(obisCode);
     			}
     		}
-    		
+
     		if(co != null){
     			return new RegisterValue(obisCode, ParseUtils.cosemObjectToQuantity(co));
     		}
     	}
-    	
+
     	// Power Qualities (voltage sags and swells)
     	if((obisCode.getA() == 1) && (obisCode.getB() == 0) && (obisCode.getE() == 0) && (obisCode.getF() == 255)){
-       		if(((obisCode.getC() == 12)	||			
+       		if(((obisCode.getC() == 12)	||
        				(obisCode.getC() == 32) ||
        				(obisCode.getC() == 52) ||
        				(obisCode.getC() == 72)) &&
@@ -167,18 +170,18 @@ public class ObisCodeMapper {
        						(obisCode.getD() == 32) ||
        						(obisCode.getD() == 35) ||
        						(obisCode.getD() == 44) ||
-       						(obisCode.getD() == 36))){		
+       						(obisCode.getD() == 36))){
        			co = cof.getCosemObject(obisCode);
        			return new RegisterValue(obisCode, ParseUtils.cosemObjectToQuantity(co));
        		}
     	}
-    	
+
     	throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
 	}
 
 	/**
 	 * Convert the received value to a readeable text
-	 * 
+	 *
 	 * @param value
 	 * 		- the value from the alarm register
 	 * @return UserFriendly text saying which Mbus decryption failed

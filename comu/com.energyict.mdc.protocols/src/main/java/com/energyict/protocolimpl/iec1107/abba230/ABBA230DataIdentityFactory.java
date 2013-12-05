@@ -5,20 +5,22 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** @author fbo */
 
 public class ABBA230DataIdentityFactory {
-    
+
     private final int dbg = 1;
-    
+
     private Map rawRegisters = new TreeMap();
     private MeterExceptionInfo meterExceptionInfo=null;
     private ProtocolLink protocolLink;
-    
+
     /** Create new DataIdentityFactory
      *
      * @param protocolLink
@@ -28,7 +30,7 @@ public class ABBA230DataIdentityFactory {
         this.protocolLink = protocolLink;
         this.meterExceptionInfo = meterExceptionInfo;
         initRegisters();
-        
+
         if( dbg > 0 ) {
             Logger l = protocolLink.getLogger();
             if( dbg > 1 && l.isLoggable( Level.INFO ) ){
@@ -36,17 +38,17 @@ public class ABBA230DataIdentityFactory {
             }
         }
     }
-    
+
     /** @return protocolLink */
     ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     /** @return meterExceptionInfo */
     MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
-    
+
     /** Read DataIdentity the IEC1107 way
      * @param dataID
      * @param cached
@@ -65,7 +67,7 @@ public class ABBA230DataIdentityFactory {
             throw new IOException(msg);
         }
     }
-    
+
     /** Read DataIdentity in streaming mode
      * @param dataID
      * @param cached
@@ -85,7 +87,7 @@ public class ABBA230DataIdentityFactory {
             throw new IOException("ABBA230DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
         }
     }
-    
+
     /** Write dataIdentity
      * @param dataID
      * @param value
@@ -99,7 +101,7 @@ public class ABBA230DataIdentityFactory {
             throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
         }
     }
-    
+
     void setDataIdentity(String dataID, int packet, String value) throws IOException {
         try {
             ABBA230DataIdentity rawRegister = new ABBA230DataIdentity(dataID,this);
@@ -121,14 +123,14 @@ public class ABBA230DataIdentityFactory {
         rawRegister.writeRawRegisterHex(packet,value);
     }
 
-    
+
     private void initRegisters() {
-        
+
         add("099", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
 
         add("411", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("412", 1,ABBA230DataIdentity.NOT_STREAMEABLE);
-        
+
         add("798", 16,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("795", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
         add("861", 7,ABBA230DataIdentity.NOT_STREAMEABLE);
@@ -140,12 +142,12 @@ public class ABBA230DataIdentityFactory {
 
 //        //Historical events
 //        add("544", 5,  280,ABBA230DataIdentity.STREAMEABLE);
-//        // Historical events 
+//        // Historical events
 //        add("545", 280,5,ABBA230DataIdentity.STREAMEABLE);
 
         // Meter current system status
         add("724", 13,ABBA230DataIdentity.NOT_STREAMEABLE);
-        
+
         // (C)MD register sources
         add("668", 8,ABBA230DataIdentity.NOT_STREAMEABLE);
         // Customer defined register 1,2 & 3 configuration
@@ -172,7 +174,7 @@ public class ABBA230DataIdentityFactory {
         add("878", 3,ABBA230DataIdentity.NOT_STREAMEABLE);
         // Load Profile Daylight Savings Configuration
         add("778", 1, ABBA230DataIdentity.NOT_STREAMEABLE );
-        
+
         // INSTRUMENTATION PROFILE CONFIG
         // Instrumentation profile read data
         add("555", 0, ABBA230DataIdentity.STREAMEABLE);
@@ -199,7 +201,7 @@ public class ABBA230DataIdentityFactory {
         add("695", 83,ABBA230DataIdentity.STREAMEABLE); // PowerFailEventLog
         add("696", 43,ABBA230DataIdentity.STREAMEABLE); // TransientEventLog
         add("699", 53,ABBA230DataIdentity.STREAMEABLE); // EndOfBillingEventLog
-        
+
         add("422", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenOpticalLog
         add("423", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenModuleLog
         add("424", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorOpenLoadMonitorLowEventLog
@@ -214,21 +216,21 @@ public class ABBA230DataIdentityFactory {
         add("433", 53,ABBA230DataIdentity.STREAMEABLE); // ContactorCloseButtonEventLog
         add("655", 1,ABBA230DataIdentity.NOT_STREAMEABLE); // EndOfBillingPeriod
 
-        
+
         add("701", 53,ABBA230DataIdentity.STREAMEABLE); // MeterErrorEventLog
         add("705", 43,ABBA230DataIdentity.STREAMEABLE); // BatteryVoltageLowEventLog
         add("998", 12,2,ABBA230DataIdentity.STREAMEABLE); // BatteryVoltageLowEventLog
     }
-    
+
     private void add(String id, int length, boolean streamable ){
         add( id, length, 1, streamable );
     }
-    
+
     private void add(String id, int length, int sets, boolean streamable ){
         ABBA230DataIdentity di = new ABBA230DataIdentity(id, length, sets, streamable, this );
         rawRegisters.put( id, di );
     }
-    
+
     private ABBA230DataIdentity findRawRegister(String dataID) throws IOException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null) {
@@ -236,7 +238,7 @@ public class ABBA230DataIdentityFactory {
 		}
         return rawRegister;
     }
-    
+
     private ABBA230DataIdentity setRawRegister(String dataID) throws IOException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null) {
@@ -244,16 +246,16 @@ public class ABBA230DataIdentityFactory {
 		}
         return rawRegister;
     }
-    
+
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "ABBA230DataIdentityFactory [\n" );
-        
+
         Iterator i = rawRegisters.values().iterator();
         while(i.hasNext()){
             ABBA230DataIdentity dataIdentity = (ABBA230DataIdentity)i.next();
             rslt.append( " " + dataIdentity.toString() + "\n" );
-            
+
             if( dbg > 1 ) {
                 try {
                     rslt.append( " " + DataType.toHexaString( dataIdentity.read(false, dataIdentity.getLength(), 0) ) );

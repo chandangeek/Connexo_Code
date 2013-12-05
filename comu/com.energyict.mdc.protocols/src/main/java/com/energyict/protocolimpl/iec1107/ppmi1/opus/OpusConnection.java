@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
+import com.energyict.protocolimpl.iec1107.ppmi1.PPMIOException;
+import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,17 +14,10 @@ import java.io.OutputStream;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
-import com.energyict.protocolimpl.iec1107.ppmi1.PPMIOException;
-import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
-
 /**
  * For information regarding Opus protocol, read manufacturer documentation:
  * Protocol for communication between an instation and outstation.
- * 
+ *
  * @author fbo
  */
 public class OpusConnection extends Connection {
@@ -38,7 +38,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * Just a constructor, move along
-	 * 
+	 *
 	 * @param inputStream
 	 * @param outputStream
 	 * @param ppm
@@ -178,7 +178,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at ETX
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -188,7 +188,7 @@ public class OpusConnection extends Connection {
 
 	/**
 	 * low level receive function, stops at endCtrlChar
-	 * 
+	 *
 	 * @param endCtrlChar
 	 * @return
 	 * @throws IOException
@@ -223,7 +223,7 @@ public class OpusConnection extends Connection {
 	/**
 	 * low level receive function, receives single CtrlChar
 	 * This can be <ACK>, <NAK>, <EOT>, <SOH>
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */

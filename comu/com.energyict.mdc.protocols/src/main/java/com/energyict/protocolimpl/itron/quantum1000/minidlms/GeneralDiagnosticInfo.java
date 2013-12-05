@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class GeneralDiagnosticInfo extends AbstractDataDefinition {
-    
+
     private int voltageStatus; // Unsigned8,
     private int numberOfTestModeEntries; // Unsigned16,
     private int numberOfOutages; // Unsigned16,
@@ -76,12 +76,12 @@ public class GeneralDiagnosticInfo extends AbstractDataDefinition {
     private String DLMSlastWriteError; // ARRAY[30] of OCTET_STRING
     private String DLMSlastReadError; // ARRAY[30] of OCTET_STRING
     private int lossCompensationLevel; // UNSIGNED8,
-    
+
     /** Creates a new instance of GeneralDiagnosticInfo */
     public GeneralDiagnosticInfo(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -145,11 +145,11 @@ public class GeneralDiagnosticInfo extends AbstractDataDefinition {
         strBuff.append("   voltageStatus="+getVoltageStatus()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 0x0036; //54;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setVoltageStatus(ProtocolUtils.getInt(data,offset++, 1));
@@ -190,7 +190,7 @@ public class GeneralDiagnosticInfo extends AbstractDataDefinition {
             getSessionInfos()[i] = new SessionInfo(data,offset);
             offset+=SessionInfo.size();
         }
-        
+
         setNumberOfProgrammedMassMem(ProtocolUtils.getInt(data,offset++, 1));
         setNumberOfCompleteInitializations(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;
@@ -666,7 +666,7 @@ public class GeneralDiagnosticInfo extends AbstractDataDefinition {
 
     public String getDLMSlastWriteError() {
         return DLMSlastWriteError;
-    } 
+    }
 
     public void setDLMSlastWriteError(String DLMSlastWriteError) {
         this.DLMSlastWriteError = DLMSlastWriteError;

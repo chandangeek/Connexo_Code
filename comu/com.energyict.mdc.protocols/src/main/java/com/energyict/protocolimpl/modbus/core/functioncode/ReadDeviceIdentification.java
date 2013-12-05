@@ -9,11 +9,14 @@
  */
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
+
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author Koen
@@ -21,9 +24,9 @@ import com.energyict.protocol.ProtocolUtils;
 public class ReadDeviceIdentification extends AbstractRequest {
 
     private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_READDEVICEID);
-    
+
     private static final int MEI_CODE_MODUS=14;
-    
+
     int conformityLevel;
     boolean moreFollows;
     int nextObjectId;
@@ -31,12 +34,12 @@ public class ReadDeviceIdentification extends AbstractRequest {
     private List deviceObjects=null;
     int readDeviceId;
     int meiType;
-    
+
     /** Creates a new instance of ReadDeviceIdentification */
     public ReadDeviceIdentification(FunctionCodeFactory functionCodeFactory) {
         super(functionCodeFactory);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ReadDeviceIdentification:\n");
@@ -44,15 +47,15 @@ public class ReadDeviceIdentification extends AbstractRequest {
         for (int i=0;i<nrOfObjects;i++) {
             strBuff.append("deviceObject"+i+"="+getDeviceObjects().get(i));
         }
-        
-        
-        return strBuff.toString(); 
+
+
+        return strBuff.toString();
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         int offset=0;
         byte[] data = responseData.getData();
-        
+
         meiType = ProtocolUtils.getInt(data,offset++,1);
         if (meiType != 14) // mei type 14 is the device identification
             throw new IOException("ReadDeviceIdentification, parse, invalid meiType "+meiType);
@@ -84,7 +87,7 @@ public class ReadDeviceIdentification extends AbstractRequest {
 
     public RequestData getRequestData() {
         return requestData;
-    }    
+    }
 
     public List getDeviceObjects() {
         return deviceObjects;

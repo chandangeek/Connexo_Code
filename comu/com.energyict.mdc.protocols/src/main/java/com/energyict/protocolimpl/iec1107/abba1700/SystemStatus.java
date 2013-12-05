@@ -5,22 +5,18 @@
  */
 
 package com.energyict.protocolimpl.iec1107.abba1700;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.math.BigDecimal;
-import java.io.IOException;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
  */
 public class SystemStatus {
-    
+
     long value;
-    
+
     String[] flags = new String[]{
                 "Backup register set corrupt",
                 "Normal register backup used",
@@ -54,25 +50,25 @@ public class SystemStatus {
                 "Meter comms write event",
                 "Time synchronisation",
                 "Meter transient reset"};
-                
-                
-    
+
+
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("getValue()="+Long.toHexString(getValue())+"\n");
         for (int i=0;i<32;i++) {
            if (((getValue()&0xFFFFFF07L) & (0x01<<i))==(0x01<<i)) {
-              strBuff.append(flags[31-i]+"\n"); 
+              strBuff.append(flags[31-i]+"\n");
            }
         }
-        return strBuff.toString(); 
+        return strBuff.toString();
     }
-    
+
     /** Creates a new instance of SystemStatus */
     public SystemStatus(byte[] data) throws IOException {
-       setValue(ProtocolUtils.getIntLE(data,0,4)); 
+       setValue(ProtocolUtils.getIntLE(data,0,4));
     }
-    
+
     /**
      * Getter for property value.
      * @return Value of property value.
@@ -80,7 +76,7 @@ public class SystemStatus {
     public long getValue() {
         return value;
     }
-    
+
     /**
      * Setter for property value.
      * @param value New value of property value.
@@ -88,5 +84,5 @@ public class SystemStatus {
     public void setValue(long value) {
         this.value = value;
     }
-    
+
 }

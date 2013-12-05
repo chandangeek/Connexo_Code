@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.LogBookReader;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.util.List;
 
 /**
- * @author: sva
- * @since: 13/11/12 (9:28)
+ * @author sva
+ * @since 13/11/12 (9:28)
  */
 public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 

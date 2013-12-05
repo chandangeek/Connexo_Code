@@ -10,13 +10,15 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 /**
  *
  * @author koen
  */
 public class IDCommand extends AbstractCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("ID");
 
     private String idCode1;
@@ -24,19 +26,19 @@ public class IDCommand extends AbstractCommand {
     private String idCode2;
 
     private String serialNr;
-    
+
     /** Creates a new instance of IDCommand */
     public IDCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     protected void parse(String strData) throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         setIdCode1(br.readLine());
         setIdCode2(br.readLine());
         setSerialNr(br.readLine().trim());
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }
@@ -64,5 +66,5 @@ public class IDCommand extends AbstractCommand {
     public void setSerialNr(String serialNr) {
         this.serialNr = serialNr;
     }
-    
+
 } // public class IDCommand extends AbstractCommand

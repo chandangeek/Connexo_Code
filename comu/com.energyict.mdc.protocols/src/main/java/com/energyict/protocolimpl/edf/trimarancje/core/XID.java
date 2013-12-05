@@ -10,26 +10,26 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class XID extends AbstractSPDU {
-    
+
     private int slavePassword;
-    
+
     /** Creates a new instance of XID */
     public XID(SPDUFactory sPDUFactory) {
         super(sPDUFactory);
     }
-    
-    
+
+
     protected byte[] prepareBuild() throws IOException {
-        byte[] data = new byte[5]; 
+        byte[] data = new byte[5];
         data[0] = SPDU_XID;
         data[1] = 0; // master ID = 0
         data[2] = 0; // master ID = 0
@@ -37,13 +37,13 @@ public class XID extends AbstractSPDU {
         data[4] = (byte)(getSlavePassword()>>8);
         return data;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int pa = ProtocolUtils.getIntLE(data,2,2);
         if (pa != slavePassword){
             throw new IOException("Password verification failed! config="+slavePassword+", meter="+pa);
         }
-        
+
    }
 
     public int getSlavePassword() {
@@ -53,5 +53,5 @@ public class XID extends AbstractSPDU {
     public void setSlavePassword(int slavePassword) {
         this.slavePassword = slavePassword;
     }
-    
+
 } // public class XID extends AabstractSPDU

@@ -7,11 +7,16 @@
 
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,7 +35,7 @@ public class ObisCodeMapper_bak2 {
         this.cof=cof;
     }
 
-    static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
+    public static RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
     }
 

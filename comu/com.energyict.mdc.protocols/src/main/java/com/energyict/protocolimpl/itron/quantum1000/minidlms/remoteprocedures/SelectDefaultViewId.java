@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 public class SelectDefaultViewId extends AbstractViewRpc {
-    
-            
+
+
     /** Creates a new instance of SelectDefaultViewId */
     public SelectDefaultViewId(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
-    
+
+
     protected int getSubfunction() {
         return getVRPC_SELECT_DEFAULT_VIEW_ID();
     }
-    
+
     protected byte[] getSubfunctionParameters() {
         return null;
     }

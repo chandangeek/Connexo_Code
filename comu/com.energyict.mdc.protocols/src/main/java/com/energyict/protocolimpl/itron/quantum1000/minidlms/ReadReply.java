@@ -10,23 +10,23 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author Koen
  */
 public class ReadReply extends AbstractCommandResponse {
-    
+
     private int variableAccessSpec; // 8 bit
     private int dataTag; // 8 bit
     private int dataType; // 8 bit
     private byte[] data;
-    
+
     /** Creates a new instance of ReadReply */
     public ReadReply() {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -37,18 +37,18 @@ public class ReadReply extends AbstractCommandResponse {
         strBuff.append("   variableAccessSpec="+getVariableAccessSpec()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] rawData) {
         int offset=0;
         offset++; // skip read response
-        
+
         // READ REPLY
         setVariableAccessSpec((int)rawData[offset++] & 0xff);
         setDataTag((int)rawData[offset++] & 0xff);
         setDataType((int)rawData[offset++] & 0xff);
         if (rawData.length>4)
             setData(ProtocolUtils.getSubArray2(rawData, offset, rawData.length - offset));
-        
+
 //System.out.print("KV_DEBUG> read->parse "+ProtocolUtils.outputHexString(getData()));System.out.println();
 
     }
@@ -84,5 +84,5 @@ public class ReadReply extends AbstractCommandResponse {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
 }

@@ -10,18 +10,15 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author Koen
  */
 public class InstantaneousQuantitiesRegisterIdentification {
-    
-    
+
+
     static List list = new ArrayList();
     static {
         list.add(new RegisterDataId(RegisterDataId.POWER_FACTOR3,RegisterDataId.INT,71,1, 0, 0, "Instantaneous value register power factor all phases"));
@@ -34,11 +31,11 @@ public class InstantaneousQuantitiesRegisterIdentification {
         list.add(new RegisterDataId(RegisterDataId.WATT3,RegisterDataId.INT,512,1, 0, 0, "Instantaneous value register WATT all phases"));
         list.add(new RegisterDataId(RegisterDataId.VAR3,RegisterDataId.INT,516,1, 0, 0, "Instantaneous value register var all phases"));
     }
-    
+
     /** Creates a new instance of InstantaneousQuantitiesRegisterIdentification */
     private InstantaneousQuantitiesRegisterIdentification() {
     }
-    
+
     static public List getRegisterDataIds() {
         return list;
     }

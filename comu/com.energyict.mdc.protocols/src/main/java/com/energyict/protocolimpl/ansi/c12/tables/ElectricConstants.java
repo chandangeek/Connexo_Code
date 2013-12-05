@@ -10,24 +10,21 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ElectricConstants extends AbstractConstants {
-    
+
     private Number multiplier;
     private Number offset;
     private SetApplied set1Constants;
     private SetApplied set2Constants;
-    
+
     /** Creates a new instance of ElectricConstants */
     public ElectricConstants(byte[] data,int offs, int niFormat,ActualSourcesLimitingTable aslt, int dataFormat) throws IOException {
         setMultiplier(C12ParseUtils.getNumberFromNonInteger(data, offs, niFormat, dataFormat));
@@ -41,11 +38,11 @@ public class ElectricConstants extends AbstractConstants {
         if (aslt.isSet2Present())
            set2Constants = new SetApplied(data,offs, niFormat, dataFormat);
     }
-    
+
     static public int getSize(int niFormat,ActualSourcesLimitingTable aslt) throws IOException {
         return C12ParseUtils.getNonIntegerSize(niFormat)*2+(aslt.isSet1Present()?SetApplied.getSize(niFormat):0)+(aslt.isSet2Present()?SetApplied.getSize(niFormat):0);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ElectricConstants: \n");
@@ -54,7 +51,7 @@ public class ElectricConstants extends AbstractConstants {
         strBuff.append("    set2Constants="+getSet2Constants()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getConstantsType() {
         return CONSTANTS_ELECTRIC;
     }
@@ -90,5 +87,5 @@ public class ElectricConstants extends AbstractConstants {
     public void setSet2Constants(SetApplied set2Constants) {
         this.set2Constants = set2Constants;
     }
-    
+
 }

@@ -1,20 +1,20 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
-* Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for the CTR protocol
+* Models a {@link DeviceProtocolDialect} for the CTR protocol
 *
-* @author: sva
-* @since: 16/10/12 (113:25)
+* @author sva
+* @since 16/10/12 (113:25)
 */
 public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
@@ -40,62 +40,59 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
     }
 
     private PropertySpec addressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ADDRESS_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(ADDRESS_PROPERTY_NAME);
     }
 
     private PropertySpec sendEndOfSessionPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME);
     }
 
     private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME);
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        if (TIMEOUT_PROPERTY_NAME.equals(name)) {
-            return this.timeoutPropertySpec();
-        } else if (RETRIES_PROPERTY_NAME.equals(name)) {
-            return this.retriesPropertySpec();
-        } else if (DELAY_AFTER_ERROR_PROPERTY_NAME.equals(name)) {
-            return this.delayAfterErrorPropertySpec();
-        } else if (FORCED_DELAY_PROPERTY_NAME.equals(name)) {
-            return this.forcedDelayPropertySpec();
-        } else if (ADDRESS_PROPERTY_NAME.equals(name)) {
-            return this.addressPropertySpec();
-        } else if (SEND_END_OF_SESSION_PROPERTY_NAME.equals(name)) {
-            return this.sendEndOfSessionPropertySpec();
-        } else if (MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME.equals(name)) {
-            return this.maxAllowedInvalidProfileResponsesPropertySpec();
-        } else {
-            return null;
+        switch (name) {
+            case TIMEOUT_PROPERTY_NAME:
+                return this.timeoutPropertySpec();
+            case RETRIES_PROPERTY_NAME:
+                return this.retriesPropertySpec();
+            case DELAY_AFTER_ERROR_PROPERTY_NAME:
+                return this.delayAfterErrorPropertySpec();
+            case FORCED_DELAY_PROPERTY_NAME:
+                return this.forcedDelayPropertySpec();
+            case ADDRESS_PROPERTY_NAME:
+                return this.addressPropertySpec();
+            case SEND_END_OF_SESSION_PROPERTY_NAME:
+                return this.sendEndOfSessionPropertySpec();
+            case MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME:
+                return this.maxAllowedInvalidProfileResponsesPropertySpec();
+            default:
+                return null;
         }
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(this.timeoutPropertySpec(),
+    public List<PropertySpec> getPropertySpecs () {
+        return Arrays.asList(
+                this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),
                 this.delayAfterErrorPropertySpec(),
                 this.forcedDelayPropertySpec(),

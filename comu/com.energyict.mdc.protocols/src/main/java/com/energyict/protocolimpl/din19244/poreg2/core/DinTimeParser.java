@@ -4,7 +4,10 @@ import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Class to convert epochs / timestamps into byte arrays and vice versa.
@@ -31,7 +34,7 @@ public class DinTimeParser {
         localTime.set(Calendar.MINUTE, eventDate.get(Calendar.MINUTE));
         localTime.set(Calendar.SECOND, eventDate.get(Calendar.SECOND));
         localTime.set(Calendar.MILLISECOND, 0);
-        
+
         if (poreg.getRegisterFactory().isDST(localTime.getTime())) {
             localTime.add(Calendar.HOUR_OF_DAY, 1);
         }

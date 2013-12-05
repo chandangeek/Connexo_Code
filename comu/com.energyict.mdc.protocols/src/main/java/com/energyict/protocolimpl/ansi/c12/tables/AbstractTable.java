@@ -10,43 +10,45 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.PartialReadInfo;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 abstract public class AbstractTable {
-    
+
     abstract protected void parse(byte[] data) throws IOException;
-    
+
     TableFactory tableFactory;
     private TableIdentification tableIdentification;
     private byte[] tableData;
     private PartialReadInfo partialReadInfo=null;
     private PartialReadInfo partialReadInfo2=null;
     private boolean forceFullRead;
-    
+
     /** Creates a new instance of AbstractTable */
     public AbstractTable(TableFactory tableFactory,TableIdentification tableIdentification) {
         this.tableFactory=tableFactory;
         this.tableIdentification=tableIdentification;
         setForceFullRead(false);
     }
-    
+
     protected TableFactory getTableFactory() {
         return tableFactory;
     }
-    
+
 
     protected TableIdentification getTableIdentification() {
         return tableIdentification;
     }
-    
+
     protected void prepareBuild() throws IOException {
         // override to provide extra functionality...
     }
-    
+
     public void build() throws IOException {
         prepareBuild();
         if ((isForceFullRead()) || (getPartialReadInfo() == null))
@@ -56,7 +58,7 @@ abstract public class AbstractTable {
             int offset=getPartialReadInfo().getOffset();
             int count=getPartialReadInfo().getCount();
             while(count>0) {
-                byte[] responseData = getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().partialReadOffset(getTableIdentification().getTableId(), offset, count);   
+                byte[] responseData = getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().partialReadOffset(getTableIdentification().getTableId(), offset, count);
                 count-=responseData.length;
                 offset+=responseData.length;
                 baos.write(responseData);
@@ -67,22 +69,22 @@ abstract public class AbstractTable {
                 offset=getPartialReadInfo2().getOffset();
                 count=getPartialReadInfo2().getCount();
                 while(count>0) {
-                    byte[] responseData = getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().partialReadOffset(getTableIdentification().getTableId(), offset, count);   
+                    byte[] responseData = getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().partialReadOffset(getTableIdentification().getTableId(), offset, count);
                     count-=responseData.length;
                     offset+=responseData.length;
                     baos.write(responseData);
                 }
             }
-            
+
             parse(baos.toByteArray());
         }
     }
-    
+
     protected void prepareTransfer() throws IOException {
         // override to provide extra functionality...
         setTableData(null);
     }
-    
+
     public void transfer()  throws IOException {
         prepareTransfer();
         getTableFactory().getC12ProtocolLink().getPSEMServiceFactory().fullWrite(getTableIdentification().getTableId(), tableData);
@@ -119,5 +121,5 @@ abstract public class AbstractTable {
     public void setPartialReadInfo2(PartialReadInfo partialReadInfo2) {
         this.partialReadInfo2 = partialReadInfo2;
     }
-    
+
 }

@@ -10,29 +10,27 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class OperatingSetUpBasePage extends AbstractBasePage {
-    
+
     private boolean dstEnabled;
     private int nrOfChannels;
     private int profileInterval; // in minutes
-    
-    
+
+
     /** Creates a new instance of OperatingSetUpBasePage */
     public OperatingSetUpBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,20 +40,20 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
         strBuff.append("   dstEnabled="+isDstEnabled()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x6e, 1);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         setDstEnabled((((int)data[0]&0xff) & 0x02)==0x02);
-        
+
         int temp = (((int)data[0]&0xff) >> 2) & 0x03;
         if (temp == 0) setNrOfChannels(0);
         if (temp == 1) setNrOfChannels(4);
         if (temp == 2) setNrOfChannels(2);
         if (temp == 3) setNrOfChannels(1);
-        
+
         temp = (((int)data[0]&0xff) >> 4) & 0x07;
         if (temp == 0) setProfileInterval(60);
         if (temp == 1) setProfileInterval(30);
@@ -90,8 +88,8 @@ public class OperatingSetUpBasePage extends AbstractBasePage {
     public void setProfileInterval(int profileInterval) {
         this.profileInterval = profileInterval;
     }
-    
 
-    
-    
+
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

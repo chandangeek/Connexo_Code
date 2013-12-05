@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -24,26 +24,26 @@ import com.energyict.protocol.ProtocolUtils;
  * GNA |22012009| Made the safety timer customizable
  */
 public class Transport6205651 {
-    
+
     final int DEBUG=0;
-    
+
     Connection62056 connection;
     private long TIMEOUT=300000; // safety timer
-    
-    
+
+
     // states
     final int STOPPED=0;
     final int IDLE=1;
     final int MSGT=2;
     String[] states=new String[]{"STOPPED","IDLE","MSGT"};
-    
+
     // events
     final int TR_REQUEST=0;
     final int TR_ABORT=1;
     final int DL_INDICATE=2;
     final int DL_ABORT=3;
     String[] events=new String[]{"TR_REQUEST","TR_ABORT","DL_INDICATE","DL_ABORT"};
-    
+
     int state;
     private boolean priority;
     private int stsap;
@@ -53,21 +53,21 @@ public class Transport6205651 {
     private int maxPacketSize;
     private boolean strong;
     private DSDU dsduReceived;
-    
+
     ByteArrayOutputStream baos;
     ByteArrayInputStream bais;
-    
-    
+
+
     /** Creates a new instance of Transport6205651 */
     public Transport6205651(Connection62056 connection) {
         this.connection=connection;
         this.TIMEOUT = this.connection.getSafetyTimeout();
     }
-    
+
     public void initTransport() {
         state=STOPPED;
     }
-    
+
     // from above, the applicationlayer
     public void request(boolean priority, int stsap, int dtsap, TSDU tsdu) throws IOException {
         tsduReceived = null;
@@ -88,19 +88,19 @@ public class Transport6205651 {
         }
         return tsduReceived;
     }
-    
-    
+
+
     public void abort(boolean strong) throws IOException {
         setStrong(strong);
         stateMachine(TR_ABORT);
     }
-    
+
     // from below, the datalinklayer
     public void indicate(DSDU dsduReceived) throws IOException {
         setDsduReceived(dsduReceived);
         stateMachine(DL_INDICATE);
     }
-    
+
     public void stateMachine(int event) throws IOException {
         long safetyTimeout = System.currentTimeMillis() + TIMEOUT;
         String errorDescription="";
@@ -112,11 +112,11 @@ public class Transport6205651 {
                         init();
                         state = IDLE;
                     } break; // STOPPED
-                    
+
                     case IDLE: {
-                        
+
                         switch(event) {
-                            
+
                             case TR_REQUEST: {
                                 bais = new ByteArrayInputStream(getTsdu().getData());
                                 state=MSGT;
@@ -124,9 +124,9 @@ public class Transport6205651 {
                                 // If no bufferPool size available, throw new TransportAbortException ET_2F and abort the Datalink
                                 // Not implemented. See 62056-51 page 17 for  more info
                                 // return to STOPPED state
-                                
+
                             } break; // TR_REQUEST
-                            
+
                             case DL_INDICATE: {
                                 if (getDsduReceived() == null) {
                                     //return;
@@ -135,7 +135,7 @@ public class Transport6205651 {
 									}
                                     throw new ConnectionException("Transport6205641, stateMachine, no response from meter!",connection.getPROTOCOL_ERROR());
                                 }
-                                
+
                                 if (getDsduReceived().checkSgt() && !getDsduReceived().lastSgt()) {
                                     if (DEBUG>=1) {
 										System.out.println("KV_DEBUG> Transport6205651, end false segment "+ProtocolUtils.outputHexString(getDsduReceived().getSegmentData()));
@@ -148,44 +148,44 @@ public class Transport6205651 {
                                     if (DEBUG>=1){
                                     	System.out.println("KV_DEBUG> Transport6205651, end true segment "+ProtocolUtils.outputHexString(getDsduReceived().getSegmentData()));
                                     }
-                                    
+
                                     baos.write(getDsduReceived().getSegmentData());
                                     tsduReceived = new TSDU();
                                     tsduReceived.setData(baos.toByteArray());
                                     baos.reset();
-                                    
+
 //                                    if (tsduReceived.getData().length > 1000) {
 //                                        System.out.println("GOTCHA!");
 //                                    }
-                                    
+
                                     return; // tsduReceived;
                                 }
                                 else if (!getDsduReceived().checkSgt()) {
-                                    connection.getDatalink6205641().abort(true);                                    
+                                    connection.getDatalink6205641().abort(true);
                                     state = STOPPED;
                                     throw new TransportAbortException("Transport6205651, stateMachine, ET-1F eror (TPDU incorrect. The only possible cause of this error is a TPDU type different from DT+)", 1);
                                 }
-                                
+
                                 // If no bufferPool size available, throw new TransportAbortException ET_2F and abort the Datalink
                                 // Not implemented. See 62056-51 page 17 for  more info
                                 // return to STOPPED state
-                                
+
                             } break; // DL_INDICATE
-                            
+
                             case TR_ABORT: {
-                                connection.getDatalink6205641().abort(true);                                    
+                                connection.getDatalink6205641().abort(true);
                                 state = STOPPED;
-                                
+
                             } break; // TR_ABORT
-                            
+
                             case DL_ABORT: {
                                 throw new TransportAbortException("Transport6205651, stateMachine, Datalink abort eror, "+errorDescription, errorNr, true);
                             } // DL_ABORT
-                            
+
                         } // switch(event) {
-                        
+
                     } break; // IDLE
-                    
+
                     case MSGT: {
                         if (bais.available() > getMaxPacketSize()) {
                             DSDU dsdu = new DSDU();
@@ -203,9 +203,9 @@ public class Transport6205651 {
                             state = IDLE;
                             return;
                         }
-                        
+
                     } break; // MSGT
-                    
+
                 } // switch(state)
             }
             catch(DatalinkAbortException e) {
@@ -213,14 +213,14 @@ public class Transport6205651 {
                 errorDescription = e.toString();
                 errorNr = e.getErrorNr();
             }
-            
+
             if (((long) (System.currentTimeMillis() - safetyTimeout)) > 0) {
                 throw new ConnectionException("Transport6205641, stateMachine, Safety timeout",connection.getTIMEOUT_ERROR());
             } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)
-            
-        } // while(true)       
+
+        } // while(true)
     } // public TSDU stateMachine(int event) throws IOException {
-    
+
     private void init(){
         setMaxPacketSize(connection.getDatalink6205641().getMAX_DSDU_SIZE()-2);
         baos = new ByteArrayOutputStream();

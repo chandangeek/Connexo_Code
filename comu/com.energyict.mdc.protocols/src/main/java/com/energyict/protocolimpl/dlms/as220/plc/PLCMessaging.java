@@ -10,9 +10,9 @@ import com.energyict.dlms.cosem.attributeobjects.Repeater;
 import com.energyict.dlms.cosem.attributes.SFSKIec61334LLCSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKSyncTimeoutsAttribute;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
@@ -303,7 +303,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		}
 
         resetNewNotSynchronized();
-        
+
 	}
 
 	/**
@@ -391,7 +391,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
 		}
 
         resetNewNotSynchronized();
-        
+
 	}
 
     /**
@@ -458,7 +458,7 @@ public class PLCMessaging extends AbstractSubMessageProtocol {
     /**
      * Allows a client system to 'reset' the server system. The submitted value corresponds to a client MAC address.
      * The writing is refused if the value does not correspond to a valid client MAC address or the predefined NO-BODY address.
-     * 
+     *
      * @throws IOException
      */
     private void resetNewNotSynchronized() throws IOException {

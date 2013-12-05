@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author Koen
  */
 public class ResponseFrame {
-    
+
     private int modeOfOperation; // high nibble of frame index 1
     private boolean ack;
     private boolean dataDump;
@@ -27,23 +27,23 @@ public class ResponseFrame {
     private int frameNr;
     private byte[] data;
     private boolean lastBlock;
-    
+
     /** Creates a new instance of ResponseFrame */
     public ResponseFrame(byte[] frame) {
        parse(frame);
     }
-    
+
     // =0x"+Integer.toHexString(
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ResponseFrame:\n");
         strBuff.append("   ack="+isAck()+"\n");
-        strBuff.append("   data[]="); 
+        strBuff.append("   data[]=");
         for (int i=0;i<getData().length;i++) {
             strBuff.append(Integer.toHexString(getData()[i])+" ");
         }
-        strBuff.append("\n"); 
+        strBuff.append("\n");
         strBuff.append("   dataDump="+isDataDump()+"\n");
         strBuff.append("   frameNr="+getFrameNr()+"\n");
         strBuff.append("   lastBlock="+isLastBlock()+"\n");
@@ -54,20 +54,20 @@ public class ResponseFrame {
         }
         return strBuff.toString();
     }
-    
+
     private void parse(byte[] frame) {
         int offset=0;
         setAck(frame[offset] == Connection.ACK);
         setDataDump(frame[offset++] == 0x0C);
-        
+
         setModeOfOperation((((int)frame[offset]&0xFF)>>4)&0x0F);
-        
+
         unitId = ProtocolUtils.getSubArray2(frame, offset, 4);
         offset+=4;
-        
+
         status = new StatusByte((int)frame[offset++]&0xFF);
         setFrameNr((int)frame[offset++]&0xFF);
-        
+
         if (isDataDump()) {
             data = ProtocolUtils.getSubArray2(frame, offset, 256);
             offset+=256;
@@ -76,11 +76,11 @@ public class ResponseFrame {
             data = ProtocolUtils.getSubArray2(frame, offset, 6);
             offset+=6;
         }
-        
+
         offset+=2;
         if (isDataDump())
             setLastBlock(((int)frame[offset]&0xFF) == 0x04);
-        
+
     } // private void parse(byte[] frame)
 
     public boolean isAck() {
@@ -132,14 +132,14 @@ public class ResponseFrame {
     public void setDataDump(boolean dataDump) {
         this.dataDump = dataDump;
     }
-    
+
     public boolean isLastBlock() {
         return lastBlock;
     }
 
     public void setLastBlock(boolean lastBlock) {
         this.lastBlock = lastBlock;
-    }    
+    }
 
     public int getModeOfOperation() {
         return modeOfOperation;

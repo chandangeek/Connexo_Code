@@ -1,20 +1,20 @@
 /**
  * UNIFLO1200ProfileDataParser.java
- * 
+ *
  * Created on 22-dec-2008, 16:07:03 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
 
-import java.io.IOException;
-import java.util.Date;
-
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events.UNIFLO1200EventData;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author jme
@@ -31,11 +31,11 @@ public class UNIFLO1200EventDataParser {
 	private String description;
 	private int eiserverEventCode;
 	private boolean timeChanged;
-	
+
 	/*
 	 * Constructors
 	 */
-	
+
 	public UNIFLO1200EventDataParser(UNIFLO1200EventData eventData) {
 		this.eventData = eventData;
 	}
@@ -45,7 +45,7 @@ public class UNIFLO1200EventDataParser {
 	 */
 
 	private String getLogTypeName(int logType) {
-		
+
 		switch (logType) {
 			case 0:  return "Tamper alarm";
 			case 1:  return "Eprom error";
@@ -147,11 +147,11 @@ public class UNIFLO1200EventDataParser {
 			default: return "Unknown alarm type: " + logType;
 
 		}
-		
+
 	}
-		
+
 	private int getEisCode(int logType, boolean state) {
-		
+
 		switch (logType) {
 			case 0:  return MeterEvent.OTHER; 									// Tamper alarm; //FIXME: Change event to TAMPER
 			case 1:  return MeterEvent.ROM_MEMORY_ERROR; 						// Eprom error;
@@ -160,11 +160,11 @@ public class UNIFLO1200EventDataParser {
 			case 4:  return MeterEvent.PROGRAM_FLOW_ERROR; 						// Pulse count error;
 			case 5:  return MeterEvent.HARDWARE_ERROR; 							// Pressure sensor error;
 			case 6:  return MeterEvent.OTHER; 									// Door alarm; //FIXME: Change event to DOOROPENED
-			
-			case 7:  															// Mains power error. 
-				if (state) return MeterEvent.POWERUP;							//    * State OFF  --> Power UP 
+
+			case 7:  															// Mains power error.
+				if (state) return MeterEvent.POWERUP;							//    * State OFF  --> Power UP
 					else return MeterEvent.POWERDOWN;							//    * State ON   --> Power DOWN
-			
+
 			case 8:  return MeterEvent.REGISTER_OVERFLOW;						// Temperature low limit;
 			case 9:  return MeterEvent.REGISTER_OVERFLOW;						// Temperature high limit;
 			case 10: return MeterEvent.REGISTER_OVERFLOW; 						// Pressure low limit;
@@ -256,7 +256,7 @@ public class UNIFLO1200EventDataParser {
 			default: return MeterEvent.OTHER; 									// Unknown alarm type:  + logType;
 
 		}
-		
+
 	}
 
 	private UNIFLO1200EventData getEventData() {
@@ -266,7 +266,7 @@ public class UNIFLO1200EventDataParser {
 	private UNIFLO1200ProfileInfo getProfileInfo() {
 		return getEventData().getLoadProfile().getProfileInfo();
 	}
-	
+
 	private Parser getParser(String parserName) throws IOException {
 		return getRegisterFactory().getParserFactory().get(parserName);
 	}
@@ -274,11 +274,11 @@ public class UNIFLO1200EventDataParser {
 	private UNIFLO1200RegisterFactory getRegisterFactory() {
 		return (UNIFLO1200RegisterFactory) getUniflo1200().getRegisterFactory();
 	}
-	
+
 	private UNIFLO1200 getUniflo1200() {
 		return getEventData().getLoadProfile().getUniflo1200();
 	}
-	
+
 	private int[] parseByteArray2IntArray(byte[] rawData) {
 		int[] returnValue = new int[rawData.length / 2];
 		for (int i = 0; i < returnValue.length; i++) {
@@ -287,7 +287,7 @@ public class UNIFLO1200EventDataParser {
 		}
 		return returnValue;
 	}
-	
+
 	/*
 	 * Public methods
 	 */
@@ -295,19 +295,19 @@ public class UNIFLO1200EventDataParser {
 	public void parseData(byte[] rawData) throws IOException {
 		//List registers = getProfileInfo().getChannelRegisters();
 		int[] intData = parseByteArray2IntArray(rawData);
-				
+
 		this.rawData = rawData;
 		this.time = (Date) getParser(UNIFLO1200Parsers.PARSER_TIME).val(intData, null);
 		this.logType = ((int)rawData[6]) & 0x000000FF;
 		this.status = (rawData[8] != 0);
-		
+
 		this.description = getLogTypeName(getLogType()) + " Alarm: " + ((getStatus() == true)?"ON":"OFF");
 		this.eiserverEventCode = getEisCode(getLogType(), getStatus());
-		
+
 		this.timeChanged = (getLogType() == 25);
-		
+
 	}
-	
+
 	/*
 	 * Public getters and setters
 	 */
@@ -323,7 +323,7 @@ public class UNIFLO1200EventDataParser {
 	public boolean getStatus() {
 		return status;
 	}
-	
+
 	public byte[] getRawData() {
 		return rawData;
 	}
@@ -339,5 +339,5 @@ public class UNIFLO1200EventDataParser {
 	public boolean isTimeChanged() {
 		return timeChanged;
 	}
-	
+
 }

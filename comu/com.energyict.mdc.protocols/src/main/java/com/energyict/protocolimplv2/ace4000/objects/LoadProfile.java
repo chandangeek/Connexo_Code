@@ -1,15 +1,22 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -96,7 +103,7 @@ public class LoadProfile extends AbstractActarisObject {
             offset += 4;
         }
 
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         List<IntervalValue> intervalValues;
 
         for (int i = 0; i < numberOfValues; i++) {
@@ -115,7 +122,7 @@ public class LoadProfile extends AbstractActarisObject {
             int tariffRate = getNumberFromB64(decoded, offset, 1);
             offset += 1;
 
-            intervalValues = new ArrayList<IntervalValue>(1);
+            intervalValues = new ArrayList<>(1);
             IntervalValue intervalValue = new IntervalValue(storedValue, alarmFlags, getEiStatus(alarmFlags) | flag);
             intervalValues.add(intervalValue);
             intervalDatas.add(new IntervalData(cal.getTime(), intervalValue.getEiStatus(), intervalValue.getProtocolStatus(), tariffRate, intervalValues));
@@ -199,7 +206,7 @@ public class LoadProfile extends AbstractActarisObject {
             numberOfValues = getNumberFromB64(decoded, offset, 1);
             offset += 1;
 
-            List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+            List<IntervalData> intervalDatas = new ArrayList<>();
             List<IntervalValue> intervalValues;
 
             for (int i = 0; i < numberOfValues; i++) {
@@ -216,7 +223,7 @@ public class LoadProfile extends AbstractActarisObject {
                 int tariffRate = getNumberFromB64(decoded, offset, 1);
                 offset += 1;
 
-                intervalValues = new ArrayList<IntervalValue>(3);
+                intervalValues = new ArrayList<>(3);
                 intervalValues.add(new IntervalValue(activeImport, alarmFlags, flag | getEiStatus(alarmFlags)));
                 intervalValues.add(new IntervalValue(activeExport, alarmFlags, flag | getEiStatus(alarmFlags)));
                 intervalValues.add(new IntervalValue(reactiveImport, alarmFlags, flag | getEiStatus(alarmFlags)));
@@ -250,7 +257,7 @@ public class LoadProfile extends AbstractActarisObject {
     private List<ChannelInfo> getSingleChannelInfo(int scale) {
         ChannelInfo ci = new ChannelInfo(0, "1.0.1.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
         ci.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
-        List<ChannelInfo> result = new ArrayList<ChannelInfo>(1);
+        List<ChannelInfo> result = new ArrayList<>(1);
         result.add(ci);
         return result;
     }
@@ -263,7 +270,7 @@ public class LoadProfile extends AbstractActarisObject {
         ChannelInfo ci3 = new ChannelInfo(2, "1.0.2.8.0.255", Unit.get(BaseUnit.WATTHOUR, scale));
         ci3.setCumulativeWrapValue(new BigDecimal(Integer.MAX_VALUE));
 
-        List<ChannelInfo> result = new ArrayList<ChannelInfo>(3);
+        List<ChannelInfo> result = new ArrayList<>(3);
         result.add(ci1);
         result.add(ci2);
         result.add(ci3);

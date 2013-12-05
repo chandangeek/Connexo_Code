@@ -10,30 +10,31 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DataDumpFactory {
-    
+
     final int DEBUG=0;
-    
+
     CommandFactory commandFactory;
     private DumpCommand dumpCommand;
-    
+
     /** Creates a new instance of DataDumpFactory */
     public DataDumpFactory(CommandFactory commandFactory) {
         this.commandFactory=commandFactory;
     }
-    
+
     public byte[] collectHistoryLogDataBlocks() throws IOException {
         setDumpCommand(commandFactory.getDumpCommand(1, 0xFF, true, false));
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+getDumpCommand());
         return doCollectDataBlocks();
     }
-    
+
     public byte[] collectLoadProfileDataBlocks(int nrOfBlocks) throws IOException {
         setDumpCommand(commandFactory.getDumpCommand(nrOfBlocks-1, 0xFF, false, false));
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+getDumpCommand());
@@ -52,18 +53,18 @@ public class DataDumpFactory {
             if (rf.isLastBlock()) {
                 // KV 29082006 blijkbaar production meters geen extra frame na laatste block ack. Meter at Randy's deed dat wel...
                 // Therefor, we catch the TIMEOUT reason here
-                
+
                 rf = commandFactory.getS200().getS200Connection().sendDataBlockAcknowledge(blockNr);
-                
+
                 if (rf==null) // in case of timeout
-                    return baos.toByteArray();  
-                
+                    return baos.toByteArray();
+
                 if (rf.isAck()) // in case frame response on last block ack
                     return baos.toByteArray();
             }
         }
     }
-    
+
     public DumpCommand getDumpCommand() {
         return dumpCommand;
     }
@@ -73,5 +74,5 @@ public class DataDumpFactory {
     }
 
 
-    
+
 }

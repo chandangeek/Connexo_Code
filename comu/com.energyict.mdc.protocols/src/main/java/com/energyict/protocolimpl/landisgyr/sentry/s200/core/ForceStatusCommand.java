@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ForceStatusCommand extends AbstractCommand {
-    
+
     private int programMalfunction;
     private int powerDown;
     private int badCRC;
@@ -26,13 +27,13 @@ public class ForceStatusCommand extends AbstractCommand {
     private int topPage;
     private int ioStatus;
     private int memorySize;
-    
-    
+
+
     /** Creates a new instance of ForceStatusCommand */
     public ForceStatusCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -45,8 +46,8 @@ public class ForceStatusCommand extends AbstractCommand {
         strBuff.append("   topPage=0x"+Integer.toHexString(getTopPage())+"\n");
         strBuff.append("   memorySize="+getMemorySize()+"\n");
         return strBuff.toString();
-    }          
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         programMalfunction = ProtocolUtils.getInt(data,offset++,1);
@@ -54,8 +55,8 @@ public class ForceStatusCommand extends AbstractCommand {
         badCRC = ProtocolUtils.getInt(data,offset++,1);
         badPassword = ProtocolUtils.getInt(data,offset++,1);
         topPage = ProtocolUtils.getInt(data,offset++,1);
-        ioStatus = ProtocolUtils.getInt(data,offset++,1);   
-        
+        ioStatus = ProtocolUtils.getInt(data,offset++,1);
+
         int revision = getCommandFactory().getVerifyCommand().getSoftwareVersion();
         if (revision == 3) {
             setMemorySize((topPage - 0x7F) * 0x100);
@@ -63,13 +64,13 @@ public class ForceStatusCommand extends AbstractCommand {
         else if (revision == 4) {
             setMemorySize((topPage - 0x3F) * 0x100);
         }
-        
+
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('F');
     }
-    
+
     protected byte[] prepareData() throws IOException {
         byte[] data = new byte[6];
         long unitId;
@@ -145,5 +146,5 @@ public class ForceStatusCommand extends AbstractCommand {
     private void setMemorySize(int memorySize) {
         this.memorySize = memorySize;
     }
-    
+
 }

@@ -1,10 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.BigDecimalFactory;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
@@ -15,6 +16,13 @@ import java.math.BigDecimal;
  * Time: 1:33 PM
  */
 public abstract class DlmsConnectionType extends ConnectionTypeImpl {
+
+    private static final BigDecimal DEFAULT_ADDRESSING_MODE = BigDecimal.valueOf(2);
+    private static final BigDecimal DEFAULT_SERVER_MAC_ADDRESS = BigDecimal.ONE;
+    private static final BigDecimal DEFAULT_SERVER_UPPER_MAC_ADDRESS = new BigDecimal(17);
+    private static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.ONE;
+    private static final BigDecimal DEFAULT_CONNECTION = BigDecimal.ONE;
+
     /**
      * The AddressingMode to use
      */
@@ -34,32 +42,65 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
         return actualConnectionType;
     }
 
-    PropertySpec getAddressingModePropertySpec() {
-        return PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
-                name(PROPERTY_NAME_ADDRESSING_MODE).
-                markExhaustive().
-                addValues(
-                        BigDecimal.valueOf(1),
-                        BigDecimal.valueOf(2),
-                        BigDecimal.valueOf(4)).
-                setDefaultValue(BigDecimal.valueOf(2)).
-                finish();
+    abstract PropertySpec getAddressingModePropertySpec();
+
+    final PropertySpec getAddressingModePropertySpec(boolean required) {
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        builder.
+            name(PROPERTY_NAME_ADDRESSING_MODE).
+            markExhaustive().
+            addValues(
+                    BigDecimal.ONE,
+                    DEFAULT_ADDRESSING_MODE,
+                    BigDecimal.valueOf(4)).
+            setDefaultValue(DEFAULT_ADDRESSING_MODE);
+        if (required) {
+            builder.markRequired();
+        }
+        return builder.finish();
     }
 
-    PropertySpec getServerMacAddress(){
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, new BigDecimal(1));
+    abstract PropertySpec getServerMacAddress();
+
+    final PropertySpec getServerMacAddress(boolean required){
+        if (required) {
+            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, DEFAULT_SERVER_MAC_ADDRESS);
+        }
+        else {
+            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, DEFAULT_SERVER_MAC_ADDRESS);
+        }
     }
 
-    PropertySpec getServerUpperMacAddress(){
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(17));
+    abstract PropertySpec getServerUpperMacAddress();
+
+    final PropertySpec getServerUpperMacAddress(boolean required){
+        if (required) {
+            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
+        }
+        else {
+            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
+        }
     }
 
-    PropertySpec getServerLowerMacAddress(){
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(1));
+    abstract PropertySpec getServerLowerMacAddress();
+
+    final PropertySpec getServerLowerMacAddress(boolean required) {
+        if (required) {
+            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        }
+        else {
+            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        }
     }
 
-    PropertySpec getConnectionPropertySpec(){
-        return PropertySpecFactory.bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, new BigDecimal(1));
+    abstract PropertySpec getConnectionPropertySpec();
+    final PropertySpec getConnectionPropertySpec(boolean required) {
+        if (required) {
+            return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, DEFAULT_CONNECTION);
+        }
+        else {
+            return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, DEFAULT_CONNECTION);
+        }
     }
+
 }

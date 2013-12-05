@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
-public class WriteRequest extends AbstractRequest { 
-    
+public class WriteRequest extends AbstractRequest {
+
     RequestData requestData=new RequestData();
-    
+
     /** Creates a new instance of WriteRequest */
     public WriteRequest(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
@@ -28,11 +28,11 @@ public class WriteRequest extends AbstractRequest {
           response = new WriteResponse(getPSEMServiceFactory());
           response.build(responseData);
     }
-    
+
     protected RequestData getRequestData() {
         return requestData;
     }
-    
+
     private byte[] assembleTableData(byte[] tableData) {
         byte[] assembledTableData = new byte[tableData.length+3];
         assembledTableData[0] = (byte)(tableData.length>>8);
@@ -42,7 +42,7 @@ public class WriteRequest extends AbstractRequest {
         assembledTableData[assembledTableData.length-1]=(byte)check;
         return assembledTableData;
     }
-    
+
     // full write
     public void fullWrite(int tableId, byte[] tableData) throws IOException {
         requestData.setCode(FULL_WRITE);
@@ -52,8 +52,8 @@ public class WriteRequest extends AbstractRequest {
         data[0] = (byte)(tableId>>8);
         data[1] = (byte)(tableId);
         requestData.setData(data);
-    }    
-    
+    }
+
     // partial write index
     public void partialWriteIndex(int tableId, int index, byte[] tableData) throws IOException {
         requestData.setCode(PARTIAL_WRITE_INDEX_1+index);
@@ -79,5 +79,5 @@ public class WriteRequest extends AbstractRequest {
         data[4] = (byte)(offset);
         requestData.setData(data);
     }
-    
+
 }

@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,38 +22,38 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     ACTIVATE_WAKEUP_MECHANISM,
     DEACTIVATE_SMS_WAKEUP,
     CHANGE_GPRS_USER_CREDENTIALS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
+            RequiredPropertySpecFactory.newInstance().passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
     CHANGE_GPRS_APN_CREDENTIALS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apnAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.apnAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
+            RequiredPropertySpecFactory.newInstance().passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
-    ADD_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
-    ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName)),
-    CHANGE_SMS_CENTER_NUMBER(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.smsCenterPhoneNumberAttributeName)),
-    CHANGE_DEVICE_PHONENUMBER(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.devicePhoneNumberAttributeName)),
+    ADD_PHONENUMBERS_TO_WHITE_LIST(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
+    ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName)),
+    CHANGE_SMS_CENTER_NUMBER(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.smsCenterPhoneNumberAttributeName)),
+    CHANGE_DEVICE_PHONENUMBER(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.devicePhoneNumberAttributeName)),
     CHANGE_GPRS_IP_ADDRESS_AND_PORT(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ipAddressAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.portNumberAttributeName)),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.ipAddressAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.portNumberAttributeName)),
     CHANGE_WAKEUP_FREQUENCY(
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")),
-    CHANGE_INACTIVITY_TIMEOUT(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.inactivityTimeoutAttributeName)),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")),
+    CHANGE_INACTIVITY_TIMEOUT(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.inactivityTimeoutAttributeName)),
 
     //EIWeb messages
-    SetProxyServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyServerAttributeName)),
-    SetProxyUsername(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyUsernameAttributeName)),
-    SetProxyPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyPasswordAttributeName)),
-    SetDHCP(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
-    SetDHCPTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPTimeoutAttributeName)),
-    SetIPAddress(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIPAddressAttributeName)),
-    SetSubnetMask(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubnetMaskAttributeName)),
-    SetGateway(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetGatewayAttributeName)),
-    SetNameServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameServerAttributeName)),
-    SetHttpPort(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName)),
+    SetProxyServer(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetProxyServerAttributeName)),
+    SetProxyUsername(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetProxyUsernameAttributeName)),
+    SetProxyPassword(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetProxyPasswordAttributeName)),
+    SetDHCP(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
+    SetDHCPTimeout(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDHCPTimeoutAttributeName)),
+    SetIPAddress(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetIPAddressAttributeName)),
+    SetSubnetMask(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetSubnetMaskAttributeName)),
+    SetGateway(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetGatewayAttributeName)),
+    SetNameServer(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetNameServerAttributeName)),
+    SetHttpPort(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName)),
     ConfigureKeepAliveSettings(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.NetworkConnectivityIntervalAttributeName)
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.NetworkConnectivityIntervalAttributeName)
     );
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;

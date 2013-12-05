@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.debug;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
-
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author jme

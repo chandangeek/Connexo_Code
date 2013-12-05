@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.base.FirmwareVersion;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ManufacturerIdentificationTable extends AbstractTable {
-    
+
     private String manufacturer;
     private String model;
     private int hwVersion;
@@ -29,16 +30,16 @@ public class ManufacturerIdentificationTable extends AbstractTable {
     private int fwRevision;
     private String manufacturerSerialNumber;
     FirmwareVersion firmwareVersion;
-    
+
     /** Creates a new instance of ManufacturerIdentificationTable */
     public ManufacturerIdentificationTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(1));
     }
-    
+
     public String toString() {
-       return "ManufacturerIdentificationTable: manufacturer="+getManufacturer()+", model="+getModel()+", hwVersion="+getHwVersion()+", fwVersion="+getFwVersion()+", hwRevision="+getHwRevision()+", fwRevision="+getFwRevision()+", manufacturerSerialNumber="+getManufacturerSerialNumber()+"\n";    
+       return "ManufacturerIdentificationTable: manufacturer="+getManufacturer()+", model="+getModel()+", hwVersion="+getHwVersion()+", fwVersion="+getFwVersion()+", hwRevision="+getHwRevision()+", fwRevision="+getFwRevision()+", manufacturerSerialNumber="+getManufacturerSerialNumber()+"\n";
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         setManufacturer((new String(ProtocolUtils.getSubArray2(tableData,0,4))).trim());
         setModel((new String(ProtocolUtils.getSubArray2(tableData,4,8))).trim());
@@ -46,20 +47,20 @@ public class ManufacturerIdentificationTable extends AbstractTable {
         setHwRevision(C12ParseUtils.getInt(tableData,13));
         setFwVersion(C12ParseUtils.getInt(tableData,14));
         setFwRevision(C12ParseUtils.getInt(tableData,15));
-        
+
         if (getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getIdForm()==1)
             setManufacturerSerialNumber((new String(ProtocolUtils.getSubArray2(tableData,16,8))).trim());
         else
             setManufacturerSerialNumber((new String(ProtocolUtils.getSubArray2(tableData,16,16))).trim());
-            
+
         firmwareVersion = new FirmwareVersion(Integer.toString(getFwVersion())+"."+Integer.toString(getFwRevision()));
     }
 
     public FirmwareVersion getFirmwareVersion() {
         return firmwareVersion;
     }
-    
-    
+
+
     public String getManufacturer() {
         return manufacturer;
     }

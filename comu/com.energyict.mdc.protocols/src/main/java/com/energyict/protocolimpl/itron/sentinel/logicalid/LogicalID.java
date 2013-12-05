@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 
 /**
- * 
+ *
  * @author Koen
  */
 public class LogicalID {

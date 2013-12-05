@@ -1,18 +1,22 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class EncoderInternalData extends InternalData {
 
 	static public final int ENCODER_INTERNAL_DATA_LENGTH = 58;
-	
+
 	/**
 	 * 10 characters identifying the meter.
 	 */
@@ -21,7 +25,7 @@ public class EncoderInternalData extends InternalData {
 	 * 8 digits giving the current meter reading
 	 */
 	private long currentIndex;
-	
+
 	/**
 	 * 2 digits (1 byte) holding the value of up to 8 status flags
 	 * bit0: cell log
@@ -29,35 +33,35 @@ public class EncoderInternalData extends InternalData {
 	 * bit2..7 reserved
 	 */
 	private int status;
-	
+
 	/**
-	 * 2 digits (1 byte) identifying the data packet version  
+	 * 2 digits (1 byte) identifying the data packet version
 	 */
 	private int version;
-	
+
 	/**
 	 * 8 digits identifying the totalizer serial
 	 */
 	private String totalizerSerial;
-	
+
 	/**
 	 * 8 digits identifying the transducer serial
 	 */
 	private String transducerSerial;
-	
+
 	/**
 	 * 2 digits (1 byte) giving the last 2 digits of the meterreading
 	 */
-	private int lastPart; 
-	
+	private int lastPart;
+
 	/**
 	 * 2 digits (1 byte) giving the unit
 	 * 1 cubic meters, 2 litres, 3 cubic feet, 5 imperial gallons, 6 us gallons
 	 */
 	private EncoderUnitType encoderUnitType;
-	
+
 	/**
-	 * 2 digits (1 byte) number of significant numbers of reading 
+	 * 2 digits (1 byte) number of significant numbers of reading
 	 */
 	private int decimalPosition;
 
@@ -65,12 +69,12 @@ public class EncoderInternalData extends InternalData {
 	 * 2 digits (1 byte) decimal counter of dry electrode events
 	 */
 	private int dryCount;
-	
+
 	/**
 	 * 2 digits (1 byte) decimal counter of leak events
 	 */
 	private int leakCount;
-	
+
 	/**
 	 * 2 digits (1 byte) decimal counter of tamper events
 	 */
@@ -85,7 +89,7 @@ public class EncoderInternalData extends InternalData {
 	 * raw string of the internal data
 	 */
 	private String encoderInternalData;
-	
+
 	final public String getEncoderInternalData() {
 		return encoderInternalData;
 	}
@@ -192,22 +196,22 @@ public class EncoderInternalData extends InternalData {
 		if (data.length != ENCODER_INTERNAL_DATA_LENGTH) {
 			throw new WaveFlow100mwEncoderException("Invalid encoder internal data length. Expected length ["+ENCODER_INTERNAL_DATA_LENGTH+"], received length ["+data.length+"]");
 		}
-		
+
 		encoderInternalData = new String(data);
-		
+
 		DataInputStream dais = null;
 		try {
 			byte[] temp;
 			char c;
 			int i;
-			
+
 			dais = new DataInputStream(new ByteArrayInputStream(data));
-			
+
 			c = (char)dais.readByte();
 			if (c != '*') {
-				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [*], read ["+c+"]"); 
+				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [*], read ["+c+"]");
 			}
-			
+
 			temp = new byte[10];
 			dais.read(temp);
 			userId = new String(temp);
@@ -215,57 +219,57 @@ public class EncoderInternalData extends InternalData {
 			temp = new byte[8];
 			dais.read(temp);
 			currentIndex = Long.parseLong(new String(temp));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			status = Integer.parseInt(new String(temp));
-			
+
 			i = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (i!= 0x0d) {
 				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [0x0D], read ["+WaveflowProtocolUtils.toHexString(i)+"]");
 			}
-			
+
 			c = (char)dais.readByte();
 			if (c != '&') {
-				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [&], read ["+c+"]"); 
+				throw new WaveFlow100mwEncoderException("Invalid encoder internal data. Expected [&], read ["+c+"]");
 			}
 
 			temp = new byte[2];
 			dais.read(temp);
 			version = Integer.parseInt(new String(temp));
-			
+
 			temp = new byte[8];
 			dais.read(temp);
 			totalizerSerial = new String(temp);
-			
+
 			temp = new byte[8];
 			dais.read(temp);
 			transducerSerial = new String(temp);
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			lastPart = Integer.parseInt(new String(temp));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			encoderUnitType = EncoderUnitType.fromId(Integer.parseInt(new String(temp)));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			decimalPosition = Integer.parseInt(new String(temp));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			dryCount = Integer.parseInt(new String(temp));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			leakCount = Integer.parseInt(new String(temp));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			tamperCount = Integer.parseInt(new String(temp));
-			
+
 			temp = new byte[2];
 			dais.read(temp);
 			noflowCount = Integer.parseInt(new String(temp));
@@ -287,7 +291,7 @@ public class EncoderInternalData extends InternalData {
 				int v = Integer.parseInt(new String(new byte[]{data[j],data[j+1]}),16);
 				calculatedChecksum+=v;
 			}
-			
+
 			if (receivedChecksum != (calculatedChecksum&0xff)) {
 				throw new WaveFlow100mwEncoderException("Invalid encoder internal data checksum. Calculated ["+WaveflowProtocolUtils.toHexString(calculatedChecksum)+"], read ["+WaveflowProtocolUtils.toHexString(receivedChecksum)+"]");
 			}
@@ -301,6 +305,6 @@ public class EncoderInternalData extends InternalData {
 					logger.severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
+		}
 	}
 }

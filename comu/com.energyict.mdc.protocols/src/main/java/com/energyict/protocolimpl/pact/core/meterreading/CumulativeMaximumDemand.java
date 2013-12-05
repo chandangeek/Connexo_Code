@@ -6,27 +6,27 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
-   
+
 	private int regId;
 	private int regIdEnergyIndex;
 	private int regIdRegisterNumber;
 	private int currentCMD;
 	private int billingCMD;
-    
+
     /** Creates a new instance of GeneralInformation */
     public CumulativeMaximumDemand(byte[] data) {
         super(data);
     }
-    
+
     public String print() {
         return "REG_ID=0x"+Integer.toHexString(getRegId())+
                " (ENERGY_INDEX="+getRegIdEnergyIndex()+
@@ -34,7 +34,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
                "), CURRENT_CMD="+getCurrentCMD()+
                ", BILLING_CMD="+getBillingCMD();
     }
-    
+
     protected void parse() throws IOException {
         setRegId(ProtocolUtils.byte2int(getData()[1]));
         setRegIdEnergyIndex(getRegId()>>5);
@@ -42,14 +42,14 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
         setCurrentCMD(ProtocolUtils.getIntLE(getData(),2,3));
         setBillingCMD(ProtocolUtils.getIntLE(getData(),5,3));
     }
-    
+
     /** Getter for property regId.
      * @return Value of property regId.
      *
      */
     public int getRegId() {
         return regId;
-    }    
+    }
 
     /** Setter for property regId.
      * @param regId New value of property regId.
@@ -57,8 +57,8 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
      */
     public void setRegId(int regId) {
         this.regId = regId;
-    }    
-    
+    }
+
     /** Getter for property currentCMD.
      * @return Value of property currentCMD.
      *
@@ -66,7 +66,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public int getCurrentCMD() {
         return currentCMD;
     }
-    
+
     /** Setter for property currentCMD.
      * @param currentCMD New value of property currentCMD.
      *
@@ -74,7 +74,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public void setCurrentCMD(int currentCMD) {
         this.currentCMD = currentCMD;
     }
-    
+
     /** Getter for property billingCMD.
      * @return Value of property billingCMD.
      *
@@ -82,7 +82,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public int getBillingCMD() {
         return billingCMD;
     }
-    
+
     /** Setter for property billingCMD.
      * @param billingCMD New value of property billingCMD.
      *
@@ -90,7 +90,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public void setBillingCMD(int billingCMD) {
         this.billingCMD = billingCMD;
     }
-    
+
     /** Getter for property regIdEnergyIndex.
      * @return Value of property regIdEnergyIndex.
      *
@@ -98,7 +98,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public int getRegIdEnergyIndex() {
         return regIdEnergyIndex;
     }
-    
+
     /** Setter for property regIdEnergyIndex.
      * @param regIdEnergyIndex New value of property regIdEnergyIndex.
      *
@@ -106,7 +106,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public void setRegIdEnergyIndex(int regIdEnergyIndex) {
         this.regIdEnergyIndex = regIdEnergyIndex;
     }
-    
+
     /** Getter for property regIdRegisterNumber.
      * @return Value of property regIdRegisterNumber.
      *
@@ -114,7 +114,7 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public int getRegIdRegisterNumber() {
         return regIdRegisterNumber;
     }
-    
+
     /** Setter for property regIdRegisterNumber.
      * @param regIdRegisterNumber New value of property regIdRegisterNumber.
      *
@@ -122,5 +122,5 @@ public class CumulativeMaximumDemand extends MeterReadingsBlockImpl {
     public void setRegIdRegisterNumber(int regIdRegisterNumber) {
         this.regIdRegisterNumber = regIdRegisterNumber;
     }
-    
+
 }

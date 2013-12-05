@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.sctm.enermete70x;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author  Koen
  * @beginchanges
 KV|30092004|Initial version
-KV|15022005|Changed RegisterConfig to allow B field obiscodes != 1 
+KV|15022005|Changed RegisterConfig to allow B field obiscodes != 1
 KV|15022005|bugfix  RegisterConfig
 KV|07032005|changes for setTime and use of 8 character SCTM ID
 KV|17032005|Minor bugfixes and improved registerreading
@@ -35,17 +35,17 @@ KV|23092005|Changed intervalstate bits behaviour (EDP)
 
 //com.energyict.protocolimpl.sctm.enermete70x.EnermetE70x
 public class EnermetE70x extends Metcom2 implements RegisterProtocol {
-    
+
 
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     GenericRegisters genericRegisters;
-    
+
     /** Creates a new instance of Metcom2 */
     public EnermetE70x() {
         genericRegisters = new GenericRegisters(this);
     }
- 
-    public List getOptionalKeys() { 
+
+    public List getOptionalKeys() {
         List result = new ArrayList();
         result.add("Timeout");
         result.add("Retries");
@@ -66,10 +66,10 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
 
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
-    }    
-    
+    }
+
     /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    R e g i s t e r P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         if (genericRegisters.isManufacturerSpecific(obisCode))
@@ -86,7 +86,7 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
             return ocm.getRegisterValue(obisCode);
         }
     }
-    
+
     public String getRegistersInfo(int extendedLogging) throws IOException {
         return regs.getRegisterInfo()+"\n"+genericRegisters.getRegisterInfo();
     }

@@ -10,21 +10,21 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadRegisterAddress {
-    
+
     private int registerAddress;
     private int registerLength;
     private boolean delayed;
     private int pcxSoftwareUseOnly;
-    
+
     /** Creates a new instance of RecordTemplate */
     public SelfReadRegisterAddress(byte[] data, int offset) throws IOException {
         setRegisterAddress(ProtocolUtils.getInt(data,offset,2));
@@ -36,7 +36,7 @@ public class SelfReadRegisterAddress {
         setPcxSoftwareUseOnly(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -47,8 +47,8 @@ public class SelfReadRegisterAddress {
         strBuff.append("   registerLength="+getRegisterLength()+"\n");
         return strBuff.toString();
     }
-    
-    
+
+
     static public int size() {
         return 5;
     }
@@ -84,5 +84,5 @@ public class SelfReadRegisterAddress {
     public void setPcxSoftwareUseOnly(int pcxSoftwareUseOnly) {
         this.pcxSoftwareUseOnly = pcxSoftwareUseOnly;
     }
-    
+
 }

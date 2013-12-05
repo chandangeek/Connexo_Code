@@ -10,21 +10,18 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfileSet {
-    
+
     private long loadProfileMemoryLength; // 32 bit
-    
+
     private int loadProfileFlagsBitfield; // 16 bit load profile list management capabilities
     private boolean loadProfileSet1InhibitOverflowFlag;
     private boolean loadProfileSet2InhibitOverflowFlag;
@@ -38,7 +35,7 @@ public class LoadProfileSet {
     private boolean scalarDivisorFlagSet4;
     private boolean extendedIntStatusFlag;
     private boolean simpleIntStatusFlag;
-    
+
     private int loadProfileFormatsBitfield; // 8 bit load profile format
     private boolean intervalUINT8FormatFlag;
     private boolean intervalUINT16FormatFlag;
@@ -48,27 +45,27 @@ public class LoadProfileSet {
     private boolean intervalINT32FormatFlag;
     private boolean intervalNI1FormatFlag;
     private boolean intervalNI2FormatFlag;
-    
-    
+
+
     static public final int MAX_NR_OF_LP_SETS=4;
     private int[] nrOfBlocksSet; // 16 bits max nr of data blocks that can be contained in load profile set
     private int[] nrOfBlockIntervalsSet; // 16 bits nr of intervals per data block that can be contained in load profile set
     private int[] nrOfChannelsSet; // 8 bit max nr of channels of load profile data that can be contained in load profile set
     private int[] profileIntervalSet; // 8 bit profileinterval in minutes for load profile set
-    
-            
+
+
     /** Creates a new instance of LoadProfileSet */
     public LoadProfileSet(byte[] data,int offset,TableFactory tableFactory) throws IOException {
        // ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
        // ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setLoadProfileMemoryLength(C12ParseUtils.getLong(data,offset,4, dataOrder));
         offset+=4;
         setLoadProfileFlagsBitfield(C12ParseUtils.getInt(data,offset,2, dataOrder));
         offset+=2;
-        
+
         setLoadProfileSet1InhibitOverflowFlag((getLoadProfileFlagsBitfield()&0x0001)==0x0001);
         setLoadProfileSet2InhibitOverflowFlag((getLoadProfileFlagsBitfield()&0x0002)==0x0002);
         setLoadProfileSet3InhibitOverflowFlag((getLoadProfileFlagsBitfield()&0x0004)==0x0004);
@@ -81,7 +78,7 @@ public class LoadProfileSet {
         setScalarDivisorFlagSet4((getLoadProfileFlagsBitfield()&0x0200)==0x0200);
         setExtendedIntStatusFlag((getLoadProfileFlagsBitfield()&0x0400)==0x0400);
         setSimpleIntStatusFlag((getLoadProfileFlagsBitfield()&0x0800)==0x0800);
-        
+
         setLoadProfileFormatsBitfield(C12ParseUtils.getInt(data,offset));
         offset++;
         setIntervalUINT8FormatFlag((getLoadProfileFormatsBitfield()&0x01)==0x01);
@@ -97,7 +94,7 @@ public class LoadProfileSet {
         setNrOfBlockIntervalsSet(new int[MAX_NR_OF_LP_SETS]);
         setNrOfChannelsSet(new int[MAX_NR_OF_LP_SETS]);
         setProfileIntervalSet(new int[MAX_NR_OF_LP_SETS]);
-        
+
         for (int i=0;i<MAX_NR_OF_LP_SETS;i++) {
             if ((cfgt.getStdTablesUsed()[8]&(0x01<<i))==(0x01<<i)) {
                 getNrOfBlocksSet()[i] = C12ParseUtils.getInt(data,offset,2, dataOrder);
@@ -107,22 +104,22 @@ public class LoadProfileSet {
                 getNrOfChannelsSet()[i] = C12ParseUtils.getInt(data,offset++);
                 getProfileIntervalSet()[i] = C12ParseUtils.getInt(data,offset++);
             }
-        } 
+        }
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("LoadProfileSet: \n");
-        strBuff.append("    loadProfileMemoryLength="+getLoadProfileMemoryLength()+", loadProfileFlagsBitfield=0x"+Integer.toHexString(getLoadProfileFlagsBitfield())+", loadProfileFormatsBitfield=0x"+getLoadProfileFormatsBitfield()+"\n"); 
+        strBuff.append("    loadProfileMemoryLength="+getLoadProfileMemoryLength()+", loadProfileFlagsBitfield=0x"+Integer.toHexString(getLoadProfileFlagsBitfield())+", loadProfileFormatsBitfield=0x"+getLoadProfileFormatsBitfield()+"\n");
         for (int i=0;i<MAX_NR_OF_LP_SETS;i++) {
             strBuff.append("nrOfBlocksSet["+i+"]="+getNrOfBlocksSet()[i]);
             strBuff.append(", nrOfBlockIntervalsSet["+i+"]="+getNrOfBlockIntervalsSet()[i]);
             strBuff.append(", nrOfChannelsSet["+i+"]="+getNrOfChannelsSet()[i]);
             strBuff.append(", profileIntervalSet["+i+"]="+getProfileIntervalSet()[i]+"\n");
-        } 
+        }
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int size=7;
@@ -130,9 +127,9 @@ public class LoadProfileSet {
             if ((cfgt.getStdTablesUsed()[8]&(0x01<<i))==(0x01<<i)) {
                 size+=6;
             }
-        } 
+        }
         return size;
-    }      
+    }
 
     public long getLoadProfileMemoryLength() {
         return loadProfileMemoryLength;

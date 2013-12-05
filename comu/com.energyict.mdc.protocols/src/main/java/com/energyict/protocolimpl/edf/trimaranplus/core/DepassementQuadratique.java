@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -23,14 +23,14 @@ import java.util.TimeZone;
  * @author Koen
  */
 public class DepassementQuadratique {
-    
+
     private int variableName;
     private DateType DateDebutPeriode;
-    private int CodeAF; 
-    private DateType DateFinPeriode; 
-    private Quantity[] valueDepassementQuadratique;     
+    private int CodeAF;
+    private DateType DateFinPeriode;
+    private Quantity[] valueDepassementQuadratique;
     private Quantity EnergiesDepassement; // volume van de unit
-    
+
     /** Creates a new instance of DepassementQuadratique */
     public DepassementQuadratique(TrimaranDataContainer dc, TimeZone timezone, int variableName) throws IOException {
         int offset = 0;
@@ -43,7 +43,7 @@ public class DepassementQuadratique {
             getValueDepassementQuadratique()[i] = new Quantity(BigDecimal.valueOf(dc.getRoot().getStructure(offset).getLong(i)),VariableNameFactory.getVariableName(variableName).getUnit());
         }
         offset++;
-        if (dc.getRoot().getNrOfElements() == 5){ 
+        if (dc.getRoot().getNrOfElements() == 5){
            setEnergiesDepassement(new Quantity(BigDecimal.valueOf(dc.getRoot().getLong(offset)), VariableNameFactory.getVariableName(variableName).getUnit().getVolumeUnit()));
         }
     }
@@ -67,8 +67,8 @@ public class DepassementQuadratique {
 			strBuff.append("   EnergiesDepassement="+getEnergiesDepassement()+"\n");
 		}
         return strBuff.toString();
-    }        
-    
+    }
+
     public DateType getDateDebutPeriode() {
         return DateDebutPeriode;
     }
@@ -116,5 +116,5 @@ public class DepassementQuadratique {
     public void setEnergiesDepassement(Quantity EnergiesDepassement) {
         this.EnergiesDepassement = EnergiesDepassement;
     }
-    
+
 }

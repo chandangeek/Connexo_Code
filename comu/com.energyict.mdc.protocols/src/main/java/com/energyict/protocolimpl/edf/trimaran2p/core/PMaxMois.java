@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -16,9 +16,9 @@ import java.math.BigDecimal;
  *
  */
 public class PMaxMois extends AbstractTrimaranObject{
-	
+
 	private int variableName;
-	
+
 	private int numMois;
 	private Quantity[] pApMax = {null,null,null,null,null};			// seq of 5 - les puissances actives produites max en kW du mois
 	private Quantity[] pAnMax = {null,null,null,null,null};			// seq of 5 - les puissances actives consommées max de kW du mois
@@ -30,66 +30,66 @@ public class PMaxMois extends AbstractTrimaranObject{
 	private DateType[] datesPRnMax = {null,null,null,null,null};	// seq of 5 - date des puissances réactives inductives ou capacitives consommées max en kvar
 
 	/**
-	 * 
+	 *
 	 */
 	public PMaxMois(TrimaranObjectFactory trimaranObjectFactory) {
 		super(trimaranObjectFactory);
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
-		
+
 		strBuff.append(" *** PMaxMois: ***" + "\n");
 		strBuff.append("	- Numbre mois: " + getNumMois() + "\n");
-		
+
 		strBuff.append("	- PApMax 1: " + getPApMax(0) + "\n");
 		strBuff.append("	- PApMax 2: " + getPApMax(1) + "\n");
 		strBuff.append("	- PApMax 3: " + getPApMax(2) + "\n");
 		strBuff.append("	- PApMax 4: " + getPApMax(3) + "\n");
 		strBuff.append("	- PApMax 5: " + getPApMax(4) + "\n");
-		
+
 		strBuff.append("	- PAnMax 1: " + getPAnMax(0) + "\n");
 		strBuff.append("	- PAnMax 2: " + getPAnMax(1) + "\n");
 		strBuff.append("	- PAnMax 3: " + getPAnMax(2) + "\n");
 		strBuff.append("	- PAnMax 4: " + getPAnMax(3) + "\n");
 		strBuff.append("	- PAnMax 5: " + getPAnMax(4) + "\n");
-		
+
 		strBuff.append("	- PRpMax 1: " + getPRpMax(0) + "\n");
 		strBuff.append("	- PRpMax 2: " + getPRpMax(1) + "\n");
 		strBuff.append("	- PRpMax 3: " + getPRpMax(2) + "\n");
 		strBuff.append("	- PRpMax 4: " + getPRpMax(3) + "\n");
 		strBuff.append("	- PRpMax 5: " + getPRpMax(4) + "\n");
-		
+
 		strBuff.append("	- PRnMax 1: " + getPRnMax(0) + "\n");
 		strBuff.append("	- PRnMax 2: " + getPRnMax(1) + "\n");
 		strBuff.append("	- PRnMax 3: " + getPRnMax(2) + "\n");
 		strBuff.append("	- PRnMax 4: " + getPRnMax(3) + "\n");
 		strBuff.append("	- PRnMax 5: " + getPRnMax(4) + "\n");
-		
+
 		strBuff.append(" 	- DatesPApMax 1: " + getDatesPApMax(0));
 		strBuff.append(" 	- DatesPApMax 2: " + getDatesPApMax(1));
 		strBuff.append(" 	- DatesPApMax 3: " + getDatesPApMax(2));
 		strBuff.append(" 	- DatesPApMax 4: " + getDatesPApMax(3));
 		strBuff.append(" 	- DatesPApMax 5: " + getDatesPApMax(4));
-		
+
 		strBuff.append(" 	- DatesPAnMax 1: " + getDatesPAnMax(0));
 		strBuff.append(" 	- DatesPAnMax 2: " + getDatesPAnMax(1));
 		strBuff.append(" 	- DatesPAnMax 3: " + getDatesPAnMax(2));
 		strBuff.append(" 	- DatesPAnMax 4: " + getDatesPAnMax(3));
 		strBuff.append(" 	- DatesPAnMax 5: " + getDatesPAnMax(4));
-		
+
 		strBuff.append(" 	- DatesPRpMax 1: " + getDatesPRpMax(0));
 		strBuff.append(" 	- DatesPRpMax 2: " + getDatesPRpMax(1));
 		strBuff.append(" 	- DatesPRpMax 3: " + getDatesPRpMax(2));
 		strBuff.append(" 	- DatesPRpMax 4: " + getDatesPRpMax(3));
 		strBuff.append(" 	- DatesPRpMax 5: " + getDatesPRpMax(4));
-		
+
 		strBuff.append(" 	- DatesPRnMax 1: " + getDatesPRnMax(0));
 		strBuff.append(" 	- DatesPRnMax 2: " + getDatesPRnMax(1));
 		strBuff.append(" 	- DatesPRnMax 3: " + getDatesPRnMax(2));
 		strBuff.append(" 	- DatesPRnMax 4: " + getDatesPRnMax(3));
 		strBuff.append(" 	- DatesPRnMax 5: " + getDatesPRnMax(4));
-		
+
 		return strBuff.toString();
 	}
 
@@ -105,17 +105,17 @@ public class PMaxMois extends AbstractTrimaranObject{
 	}
 
 	protected void parse(byte[] data) throws IOException {
-		
+
 //    	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/089807000857PMaxMois.bin");
 //    	FileOutputStream fos = new FileOutputStream(file);
 //    	fos.write(data);
-//    	fos.close(); 
-		
+//    	fos.close();
+
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
-		
+
 		setNumMois(dc.getRoot().getInteger(offset++));
 		for(int i = 0; i < 5; i++) {
 			setPApMax(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kW")), i);
@@ -133,7 +133,7 @@ public class PMaxMois extends AbstractTrimaranObject{
 			setPRnMax(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kW")), i);
 		}
 		offset++;
-		
+
 		for(int i = 0; i < 5; i++) {
 			setDatesPApMax(new DateType(dc.getRoot().getStructure(offset).getLong(i), getTrimaranObjectFactory().getTrimaran().getTimeZone()), i);
 		}

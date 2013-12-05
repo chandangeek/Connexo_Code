@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk10.command;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.edmi.mk10.core.ResponseData;
+
+import java.io.IOException;
 
 /**
  *

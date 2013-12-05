@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocolimpl.base.FirmwareVersion;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CeweDateFormats;
@@ -8,7 +11,10 @@ import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT

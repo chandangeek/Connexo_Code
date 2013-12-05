@@ -1,8 +1,12 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.protocol.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterReadingStorer;
 import com.energyict.mdw.core.Channel;
@@ -10,11 +14,7 @@ import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Phenomenon;
 import com.energyict.mdw.shadow.amr.RegisterReadingShadow;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.device.data.MeterData;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

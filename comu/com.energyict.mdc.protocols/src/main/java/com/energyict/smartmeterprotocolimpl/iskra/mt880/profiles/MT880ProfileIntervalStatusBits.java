@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880.profiles;
 
 
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 /**

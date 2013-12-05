@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,11 +22,11 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
     Commission,
     DecommissionAll,
     SetEncryptionKeys(
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)
     ),
     SetEncryptionKeysUsingCryptoserver(
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.defaultKeyAttributeName)
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.defaultKeyAttributeName)
     ),
     UseCorrectedValues(),
     UseUncorrectedValues();

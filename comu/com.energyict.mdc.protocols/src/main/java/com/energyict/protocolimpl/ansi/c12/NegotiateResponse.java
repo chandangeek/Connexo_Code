@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -21,20 +22,20 @@ public class NegotiateResponse extends AbstractResponse {
 
     private int packetSize;
     private int nrOfPackets;
-    
+
     private final String[] baudStr={"300","600","1200","2400","4800","9600","14400","19200","28800","57600"};
     private int baudRateIndex;
-    
-    
+
+
     /** Creates a new instance of NegotiateResponse */
     public NegotiateResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     public String toString() {
         return "NegotiateResponse: packetSize="+getPacketSize()+", nrOfPackets="+getNrOfPackets()+""+(getBaudRateIndex()==0?", Baudrate externally defined":(", baudRateIndex="+getBaudRateIndex()+" ("+baudStr[getBaudRateIndex()-1]+")\n"));
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         byte[] data = responseData.getData();

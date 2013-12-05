@@ -1,24 +1,24 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
-
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author gna
  *
  */
 public class TrimaranObjectFactory {
-	
+
 	private int DEBUG = 0;
-	
+
 	private Parameters parameters = null;
 	private ParametersPlus1 parametersPlus1 = null;
 	private ParametersMoins1 parametersMoins1 = null;
@@ -30,14 +30,14 @@ public class TrimaranObjectFactory {
 	private DureesPnonGarantie dureesPnonGarantie = null;
 	private PMaxMois pMaxMois = null;
 	private Trimaran2P trimaran;
-	
+
 	protected final int brute = 56;
 	protected final int nette = 64;
 	private final int jour = 120;
 	private final int mois = 128;
 
 	/**
-	 * 
+	 *
 	 */
 	public TrimaranObjectFactory(Trimaran2P trimaran2P) {
 		setTrimaran(trimaran2P);
@@ -62,11 +62,11 @@ public class TrimaranObjectFactory {
 	protected void setTrimaran(Trimaran2P trimaran) {
 		this.trimaran = trimaran;
 	}
-	
+
 	/**
 	 * @param
 	 * @return parameters
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public Parameters readParameters() throws IOException{
 		if(parameters == null){
@@ -76,7 +76,7 @@ public class TrimaranObjectFactory {
 		}
 		return parameters;
 	}
-	
+
 	public ParametersPlus1 readParametersPlus1() throws IOException{
 		if(parametersPlus1 == null){
 			parametersPlus1 = new ParametersPlus1(this);
@@ -85,7 +85,7 @@ public class TrimaranObjectFactory {
 		}
 		return parametersPlus1;
 	}
-	
+
 	public ParametersMoins1 readParametersMoins1() throws IOException{
 		if(parametersMoins1 == null){
 			parametersMoins1 = new ParametersMoins1(this);
@@ -94,7 +94,7 @@ public class TrimaranObjectFactory {
 		}
 		return parametersMoins1;
 	}
-	
+
 	public TempsFonctionnement readTempsFonctionnement() throws IOException{
 		if(tempsFonctionnement == null){
 			tempsFonctionnement = new TempsFonctionnement(this);
@@ -103,7 +103,7 @@ public class TrimaranObjectFactory {
 		}
 		return tempsFonctionnement;
 	}
-	
+
 	public ArreteJournalier readArreteJournalier() throws IOException{
 		if(arreteJournalier == null){
 			arreteJournalier = new ArreteJournalier(this);
@@ -112,7 +112,7 @@ public class TrimaranObjectFactory {
 		}
 		return arreteJournalier;
 	}
-	
+
 	public DureesPnonGarantie readDureesPnonGarantie() throws IOException{
 		if(dureesPnonGarantie == null){
 			dureesPnonGarantie = new DureesPnonGarantie(this);
@@ -121,7 +121,7 @@ public class TrimaranObjectFactory {
 		}
 		return dureesPnonGarantie;
 	}
-	
+
 	public PMaxMois readPMaxMois() throws IOException{
 		if(pMaxMois == null){
 			pMaxMois = new PMaxMois(this);
@@ -130,7 +130,7 @@ public class TrimaranObjectFactory {
 		}
 		return pMaxMois;
 	}
-	
+
 	public EnergieIndex readEnergieIndex() throws IOException{
 		if(energieIndex == null){
 			energieIndex = new EnergieIndex();
@@ -141,7 +141,7 @@ public class TrimaranObjectFactory {
 		}
 		return energieIndex;
 	}
-	
+
 	public ProgrammablesIndex readProgrammablesIndex() throws IOException{
 		if(programmablesIndex == null){
 			programmablesIndex = new ProgrammablesIndex();
@@ -150,7 +150,7 @@ public class TrimaranObjectFactory {
 		}
 		return programmablesIndex;
 	}
-	
+
 	private ProgrammablesIndexReader readProgrammablesIndexReader(int variableName) throws IOException {
 		ProgrammablesIndexReader pir = new ProgrammablesIndexReader(this);
 		pir.setVariableName(variableName);
@@ -164,7 +164,7 @@ public class TrimaranObjectFactory {
 		eir.read();
 		return eir;
 	}
-	
+
 	public ArreteProgrammables readArreteProgrammables() throws IOException{
 		if(arreteProgrammables == null){
 			arreteProgrammables = new ArreteProgrammables(this);
@@ -173,13 +173,13 @@ public class TrimaranObjectFactory {
 		}
 		return arreteProgrammables;
 	}
-	
+
     public CourbeCharge getCourbeCharge(Date from, Date to) throws IOException {
         CourbeCharge cc = new CourbeCharge(this);
         cc.collect(from, to);
         return cc;
     }
-	
+
     public AccessPartiel readAccessPartiel() throws IOException {
         AccessPartiel obj = new AccessPartiel(this);
         obj.read();
@@ -198,25 +198,25 @@ public class TrimaranObjectFactory {
 		}
         acp.write();
     }
-    
+
     protected CourbeChargePartielle1 getCourbeChargePartielle1() throws IOException {
         CourbeChargePartielle1 ccp1 = new CourbeChargePartielle1(this);
         ccp1.read();
         return ccp1;
     }
-    
+
     protected CourbeChargePartielle2 getCourbeChargePartielle2() throws IOException {
         CourbeChargePartielle2 ccp2 = new CourbeChargePartielle2(this);
         ccp2.read();
         return ccp2;
     }
-    
+
     protected CourbeChargePartielle getCourbeChargePartielle() throws IOException{
     	CourbeChargePartielle ccp = new CourbeChargePartielle(this);
     	ccp.read();
     	return ccp;
     }
-    
+
     protected void writeAccessPartiel(int nr) throws IOException {
         Calendar cal = ProtocolUtils.getCleanCalendar(getTrimaran().getTimeZone());
         cal.set(Calendar.YEAR,1992);
@@ -227,7 +227,7 @@ public class TrimaranObjectFactory {
         int M = num / 6000;
         num -= M * 6000;
         int S = num / 100;
-        int C = num % 100;        
+        int C = num % 100;
         cal.set(Calendar.MINUTE,M);
         cal.set(Calendar.SECOND,S);
         cal.set(Calendar.MILLISECOND,C*10);

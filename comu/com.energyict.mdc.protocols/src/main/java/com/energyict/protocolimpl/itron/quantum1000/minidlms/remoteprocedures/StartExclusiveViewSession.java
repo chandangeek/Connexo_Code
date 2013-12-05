@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 public class StartExclusiveViewSession extends AbstractViewRpc {
-    
+
 
     /** Creates a new instance of StartExclusiveViewSession */
     public StartExclusiveViewSession(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
-    
+
+
     protected int getSubfunction() {
         return getVRPC_START_EXCLUSIVE_SESSION();
     }
-    
+
     protected byte[] getSubfunctionParameters() {
         return null;
     }

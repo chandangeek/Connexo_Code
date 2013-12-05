@@ -10,23 +10,20 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GasEnergy {
-    
+
     static private final int SIZE=2; // 2 x NiFormat
     private Number gasEnergyZero;
     private Number gasEnergyFull;
-    
+
     /** Creates a new instance of GasEnergy */
     public GasEnergy(byte[] data,int offset,int niFormat, int dataOrder) throws IOException {
         setGasEnergyZero(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
@@ -37,7 +34,7 @@ public class GasEnergy {
     static public int getSize(int niFormat) throws IOException {
         return SIZE*C12ParseUtils.getNonIntegerSize(niFormat);
     }
-    
+
     public Number getGasEnergyZero() {
         return gasEnergyZero;
     }
@@ -53,5 +50,5 @@ public class GasEnergy {
     public void setGasEnergyFull(Number gasEnergyFull) {
         this.gasEnergyFull = gasEnergyFull;
     }
-    
+
 }

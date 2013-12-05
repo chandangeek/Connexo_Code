@@ -9,12 +9,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -26,12 +23,12 @@ public class OriginateParametersTable extends AbstractTable {
     private int dialDelay;
     private PhoneNumbersRecord phoneNumbersRecord;
     private WindowRecord[] windowRecords;
-    
+
     /** Creates a new instance of OriginateParametersTable */
     public OriginateParametersTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(93));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -45,7 +42,7 @@ public class OriginateParametersTable extends AbstractTable {
         return strBuff.toString();
     }
 
-    protected void parse(byte[] tableData) throws IOException { 
+    protected void parse(byte[] tableData) throws IOException {
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualTelephoneTable att = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTelephoneTable();
         int offset=0;
@@ -61,8 +58,8 @@ public class OriginateParametersTable extends AbstractTable {
             getWindowRecords()[i] = new WindowRecord(tableData,offset,getTableFactory());
             offset+=WindowRecord.getSize(getTableFactory());
         }
-        
-    }         
+
+    }
 
     public long getOriginateBitRate() {
         return originateBitRate;

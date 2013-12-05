@@ -1,50 +1,20 @@
 package com.energyict.protocols.mdc.channels;
 
-import com.energyict.cbo.*;
-import com.energyict.coordinates.SpatialCoordinates;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.ean.Ean13;
-import com.energyict.ean.Ean18;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
-import com.energyict.mdw.core.*;
-import com.energyict.obis.ObisCode;
 
-
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused") // Pluggable
 public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
-
-    private final static PropertySpec<BigDecimal> BIG_DECIMAL_PROPERTY_SPEC  = PropertySpecFactory.bigDecimalPropertySpec("BigDecimal");
-    private final static PropertySpec<Boolean> BOOLEAN_PROPERTY_SPEC = PropertySpecFactory.booleanPropertySpec("Boolean");
-    private final static PropertySpec<Date> DATE_TIME_PROPERTY_SPEC = PropertySpecFactory.dateTimePropertySpec("DateTime");
-    private final static PropertySpec<Date> DATE_PROPERTY_SPEC = PropertySpecFactory.datePropertySpec("MyDate");
-    private final static PropertySpec<Ean13> EAN_13_PROPERTY_SPEC = PropertySpecFactory.ean13PropertySpec("Ean13");
-    private final static PropertySpec<Ean18> EAN_18_PROPERTY_SPEC = PropertySpecFactory.ean18PropertySpec("Ean18");
-    private final static PropertySpec<String> ENCRYPTED_STRING_PROPERTY_SPEC = PropertySpecFactory.encryptedStringPropertySpec("EncryptedString");
-    private final static PropertySpec<HexString> HEX_STRING_PROPERTY_SPEC = PropertySpecFactory.hexStringPropertySpec("HexString");
-    private final static PropertySpec<String> LARGE_STRING_PROPERTY_SPEC = PropertySpecFactory.largeStringPropertySpec("LargeString");
-    private final static PropertySpec<ObisCode> OBIS_CODE_PROPERTY_SPEC = PropertySpecFactory.obisCodePropertySpec("ObisCode");
-    private final static PropertySpec<Password> PASSWORD_PROPERTY_SPEC = PropertySpecFactory.passwordPropertySpec("Password");
-    private final static PropertySpec<SpatialCoordinates> SPATIAL_COORDINATES_PROPERTY_SPEC = PropertySpecFactory.spatialCoordinatesPropertySpec("SpatialCoordinates");
-    private final static PropertySpec<String> STRING_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec("String");
-    private final static PropertySpec<TimeDuration> TIME_DURATION_PROPERTY_SPEC = PropertySpecFactory.timeDurationPropertySpec("TimeDuration");
-    private final static PropertySpec<TimeOfDay> TIME_OF_DAY_PROPERTY_SPEC = PropertySpecFactory.timeOfDayPropertySpec("TimeOfDay");
-    //references
-    private final static PropertySpec<Code> CODE_PROPERTY_SPEC = PropertySpecFactory.codeTableReferencePropertySpec("CodeTable");
-    private final static PropertySpec<LoadProfile> LOAD_PROFILE_PROPERTY_SPEC = PropertySpecFactory.loadProfilePropertySpec("LoadProfile");
-    private final static PropertySpec<LoadProfileType> LOAD_PROFILE_TYPE_PROPERTY_SPEC = PropertySpecFactory.loadProfileTypePropertySpecByList("LoadProfileType");
-    private final static PropertySpec<Lookup> LOOKUP_PROPERTY_SPEC = PropertySpecFactory.lookupPropertySpec("Lookup");
-    private final static PropertySpec<TimeZoneInUse> TIME_ZONE_IN_USE_PROPERTY_SPEC = PropertySpecFactory.timeZoneInUseReferencePropertySpec("TimeZoneInUse");
-    private final static PropertySpec<UserFile> USER_FILE_PROPERTY_SPEC = PropertySpecFactory.userFileReferencePropertySpec("UserFile");
 
     @Override
     public boolean allowsSimultaneousConnections() {
@@ -62,14 +32,14 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
         return new VoidComChannel();
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        if (name != null){
-            for (PropertySpec spec: getRequiredProperties()){
+        if (name != null) {
+            for (PropertySpec spec: getPropertySpecs()){
                 if (name.equals(spec.getName())){
                     return spec;
                 }
@@ -79,45 +49,34 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public boolean isRequiredProperty(String name) {
-        return true;
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-09-09 10:55:38 +0200 (Mon, 09 Sep 2013) $";
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> specs = new ArrayList<>();
-        specs.add(BIG_DECIMAL_PROPERTY_SPEC);
-        specs.add(BOOLEAN_PROPERTY_SPEC);
-        specs.add(DATE_TIME_PROPERTY_SPEC);
-        specs.add(DATE_PROPERTY_SPEC);
-        specs.add(EAN_13_PROPERTY_SPEC);
-        specs.add(EAN_18_PROPERTY_SPEC);
-        specs.add(ENCRYPTED_STRING_PROPERTY_SPEC);
-        specs.add(HEX_STRING_PROPERTY_SPEC);
-        specs.add(LARGE_STRING_PROPERTY_SPEC);
-        specs.add(OBIS_CODE_PROPERTY_SPEC);
-        specs.add(PASSWORD_PROPERTY_SPEC);
-        specs.add(SPATIAL_COORDINATES_PROPERTY_SPEC);
-        specs.add(STRING_PROPERTY_SPEC);
-        specs.add(TIME_DURATION_PROPERTY_SPEC);
-        specs.add(TIME_OF_DAY_PROPERTY_SPEC);
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec("BigDecimal"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().booleanPropertySpec("Boolean"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().dateTimePropertySpec("DateTime"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().dateTimePropertySpec("MyDate"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().ean13PropertySpec("Ean13"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().ean18PropertySpec("Ean18"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().encryptedStringPropertySpec("EncryptedString"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec("HexString"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().largeStringPropertySpec("LargeString"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().obisCodePropertySpec("ObisCode"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().passwordPropertySpec("Password"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().spatialCoordinatesPropertySpec("SpatialCoordinates"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().stringPropertySpec("String"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec("TimeDuration"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().timeOfDayPropertySpec("TimeOfDay"));
         //references
-        specs.add(CODE_PROPERTY_SPEC);
-        specs.add(LOAD_PROFILE_PROPERTY_SPEC);
-        specs.add(LOAD_PROFILE_TYPE_PROPERTY_SPEC);
-        specs.add(LOOKUP_PROPERTY_SPEC);
-        specs.add(TIME_ZONE_IN_USE_PROPERTY_SPEC);
-        specs.add(USER_FILE_PROPERTY_SPEC);
-        return specs;
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().codeTableReferencePropertySpec("CodeTable"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().loadProfilePropertySpec("LoadProfile"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().loadProfileTypePropertySpec("LoadProfileType"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().lookupPropertySpec("Lookup"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().timeZoneInUseReferencePropertySpec("TimeZoneInUse"));
+        propertySpecs.add(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec("UserFile"));
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
 }

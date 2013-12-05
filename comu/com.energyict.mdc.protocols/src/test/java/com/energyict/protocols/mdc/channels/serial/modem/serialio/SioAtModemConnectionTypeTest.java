@@ -1,12 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
-import com.energyict.comserver.monitor.EventAPIStatistics;
-import com.energyict.comserver.monitor.ManagementBeanFactory;
-import com.energyict.comserver.monitorimpl.ComServerMonitor;
-import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
-import com.energyict.comserver.scheduling.RunningComServer;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.*;
 import com.energyict.mdc.channels.serial.*;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
@@ -120,7 +114,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = new SioAtModemConnectionType();
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating the hang up of the modem failed, but was " + e.getMessage());
@@ -141,7 +135,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = new SioAtModemConnectionType();
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
@@ -162,7 +156,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties());
 
         verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
     }
@@ -178,7 +172,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties());
 
         verify(atModemComponent, times(1)).reStoreProfile(comChannel);
     }
@@ -195,7 +189,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-206")) {
                 fail("Should have gotten exception indicating that the modem could not restore his default profile, but was " + e.getMessage());
@@ -226,7 +220,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
 
         final int numberOfTries = 3;
         try {
-            atModemConnectionType.connect(comPort, properties);
+            atModemConnectionType.connect(properties);
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
@@ -248,7 +242,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties());
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
     }
@@ -266,7 +260,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
@@ -320,7 +314,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
 
-        atModemConnectionType.connect(comPort, properProperties);
+        atModemConnectionType.connect(properProperties);
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
         verify(atModemComponent, times(3)).writeSingleInitString(any(ComChannel.class), any(String.class));
@@ -338,7 +332,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
                 fail("Should have gotten exception indicating that the modem received a BUSY signal, but was " + e.getMessage());
@@ -363,7 +357,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-209")) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
@@ -388,7 +382,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-210")) {
                 fail("Should have gotten exception indicating that the modem received a NO ANSWER signal, but was " + e.getMessage());
@@ -414,7 +408,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-211")) {
                 fail("Should have gotten exception indicating that the modem received a NO CARRIER signal, but was " + e.getMessage());
@@ -439,7 +433,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-212")) {
                 fail("Should have gotten exception indicating that the modem received a NO DIALTONE signal, but was " + e.getMessage());
@@ -463,7 +457,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties());
 
         verify(atModemComponent, times(1)).dialModem(comChannel);
     }
@@ -480,7 +474,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
                 fail("Should have gotten exception indicating that the connect failed with a busy command, but was " + e.getMessage());
@@ -502,7 +496,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties());
 
         verify(atModemComponent, times(1)).dialModem(comChannel);
         verify(atModemComponent, never()).sendAddressSelector(comChannel);
@@ -525,7 +519,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         SioAtModemConnectionType atModemConnectionType = spy(new SioAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, properProperties);
+        atModemConnectionType.connect(properProperties);
 
         verify(atModemComponent, times(1)).dialModem(comChannel);
         verify(atModemComponent, times(1)).sendAddressSelector(comChannel);
@@ -585,7 +579,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         phoneNumber.setValue("0032999999");
         properProperties.add(phoneNumber);
 
-        ComChannel comChannel = atModemConnectionType.connect(comPort, properProperties);
+        ComChannel comChannel = atModemConnectionType.connect(properProperties);
         atModemConnectionType.disconnect(comChannel);
     }
 

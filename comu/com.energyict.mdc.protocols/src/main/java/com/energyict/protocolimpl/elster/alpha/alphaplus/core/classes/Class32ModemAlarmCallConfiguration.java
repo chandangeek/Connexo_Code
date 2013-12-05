@@ -10,17 +10,16 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Class32ModemAlarmCallConfiguration extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(32,46,true);
     private String dialString; // 36 bytes
     //RESERVED [4]
@@ -31,16 +30,16 @@ public class Class32ModemAlarmCallConfiguration extends AbstractClass {
     private int EVENMSK;
 
     private byte[] cacheData=null;
-    
+
     public String toString() {
-        return "Class32ModemAlarmCallConfiguration: dialString="+getDialString()+", timingWindowFrom="+getTimingWindowFrom()+", timingWindowTo="+getTimingWindowTo()+", SYSMSK="+getSYSMSK()+", WARNMSK="+getWARNMSK()+", EVENMSK="+getEVENMSK();                  
+        return "Class32ModemAlarmCallConfiguration: dialString="+getDialString()+", timingWindowFrom="+getTimingWindowFrom()+", timingWindowTo="+getTimingWindowTo()+", SYSMSK="+getSYSMSK()+", WARNMSK="+getWARNMSK()+", EVENMSK="+getEVENMSK();
     }
-    
+
     /** Creates a new instance of Class31ModemBillingCallConfiguration */
     public Class32ModemAlarmCallConfiguration(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         cacheData = ProtocolUtils.getSubArray2(data, 0, data.length-1);
         int offset = 0;
@@ -52,15 +51,15 @@ public class Class32ModemAlarmCallConfiguration extends AbstractClass {
         setSYSMSK(ProtocolUtils.getInt(data,offset++,1));
         setWARNMSK(ProtocolUtils.getInt(data,offset++,1));
         setEVENMSK(ProtocolUtils.getInt(data,offset++,1));
-        
+
     }
-    
+
     protected byte[] prepareWrite() throws IOException {
-        
+
         // 0..35 dialstring
         if (getDialString().compareTo("remove")==0) {
-            for (int i=0;i<35;i++) 
-                cacheData[i]=0;                
+            for (int i=0;i<35;i++)
+                cacheData[i]=0;
         }
         else {
             byte[] dialStringBytes = getDialString().getBytes();
@@ -68,17 +67,17 @@ public class Class32ModemAlarmCallConfiguration extends AbstractClass {
                 if (i<dialStringBytes.length)
                    cacheData[i] = dialStringBytes[i];
                 else
-                   cacheData[i]=0;                
+                   cacheData[i]=0;
             }
         }
-        
+
         cacheData[40] = ProtocolUtils.hex2BCD(getTimingWindowFrom());
         cacheData[41] = ProtocolUtils.hex2BCD(getTimingWindowTo());
         return cacheData;
-    }    
-    
+    }
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
+        return classIdentification;
     }
 
     public String getDialString() {
@@ -131,5 +130,5 @@ public class Class32ModemAlarmCallConfiguration extends AbstractClass {
 
 
 
-    
+
 }

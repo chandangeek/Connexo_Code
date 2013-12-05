@@ -10,19 +10,18 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup;
 
-import com.energyict.obis.*;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  *
  * @author Koen
  */
 public class RegisterMapping {
-    
+
     private String registerCode;
     private ObisCode obisCode;
     private String description;
-    
+
     /** Creates a new instance of RegisterMapping */
     public RegisterMapping(String description,String registerCode, ObisCode obisCode) {
         this.setDescription(description);
@@ -53,5 +52,5 @@ public class RegisterMapping {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
 }

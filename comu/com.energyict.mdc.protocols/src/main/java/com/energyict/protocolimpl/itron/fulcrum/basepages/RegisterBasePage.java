@@ -8,36 +8,37 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.itron.fulcrum.basepages; 
+package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class RegisterBasePage extends AbstractBasePage {
-    
+
     private Register register;
-    
+
     private BigDecimal value;
     private Date timestamp;
     private Quantity quantity;
-    
+
     private Date fromTimestamp;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public RegisterBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -49,29 +50,29 @@ public class RegisterBasePage extends AbstractBasePage {
         strBuff.append("   value="+getValue()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
-        
+
         return new BasePageDescriptor(getRegister().getAddress(),getRegister().getLength());
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        
+
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getFulcrum().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);          
-        
+            tz = ProtocolUtils.getWinterTimeZone(tz);
+
         setValue(getRegister().getValue(data).multiply(((BasePagesFactory)getBasePagesFactory()).getFulcrum().getAdjustRegisterMultiplier()));
-        
-        
+
+
         setTimestamp(getRegister().getTimestamp(data, tz));
-        setQuantity(new Quantity(getValue(), getRegister().getUnit()));       
-        
-        if (register.isSelfReadRegister()) { 
+        setQuantity(new Quantity(getValue(), getRegister().getUnit()));
+
+        if (register.isSelfReadRegister()) {
             fromTimestamp = ((BasePagesFactory)getBasePagesFactory()).getSelfReadAreasBasePage(register.getSelfReadSet()).getTimeStamp();
         }
-        
+
     }
 
     public Register getRegister() {
@@ -114,5 +115,5 @@ public class RegisterBasePage extends AbstractBasePage {
         this.fromTimestamp = fromTimestamp;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 
 import java.util.Iterator;
 

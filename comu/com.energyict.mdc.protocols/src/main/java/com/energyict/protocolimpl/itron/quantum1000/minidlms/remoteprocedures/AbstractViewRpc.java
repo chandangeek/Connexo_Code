@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures;
 
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractViewRpc extends AbstractRemoteProcedure {
-    
+
     abstract protected int getSubfunction();
     abstract protected byte[] getSubfunctionParameters();
-    
+
     private final int VRPC_SELECT_DEFAULT_VIEW_ID=0;
     private final int VRPC_SELECT_VIEW_ID=1;
     private final int VRPC_START_EXCLUSIVE_SESSION=2;
@@ -35,12 +35,12 @@ abstract public class AbstractViewRpc extends AbstractRemoteProcedure {
     private final int VRPC_SET_SOURCE_ID=11;
     private final int VRPC_SELECT_RECORD_GREATERTHANOREQUALTO_TIME=12;
     private final int VRPC_SET_RECSPERREAD=13;
-    
+
     /** Creates a new instance of FeatureId */
     public AbstractViewRpc(RemoteProcedureCallFactory remoteProcedureCallFactory) {
         super(remoteProcedureCallFactory);
     }
-    
+
     public byte[] getParameters() {
         byte[] subfunctionParameters = getSubfunctionParameters();
         byte[] parameters = new byte[2+(subfunctionParameters==null?0:subfunctionParameters.length)];
@@ -50,7 +50,7 @@ abstract public class AbstractViewRpc extends AbstractRemoteProcedure {
             System.arraycopy(subfunctionParameters, 0, parameters,2, subfunctionParameters.length);
         return parameters;
     }
-    
+
     public int getFunctionName() {
         return 20; // 85 RPC_VIEW_RPC
     }

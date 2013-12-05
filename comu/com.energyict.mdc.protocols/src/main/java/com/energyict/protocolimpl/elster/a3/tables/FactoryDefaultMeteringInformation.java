@@ -10,19 +10,18 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class FactoryDefaultMeteringInformation extends AbstractTable { 
-    
+public class FactoryDefaultMeteringInformation extends AbstractTable {
+
     /*
     Memory: storage EEPROM
     Total table size: (bytes) 15, Fixed
@@ -30,7 +29,7 @@ public class FactoryDefaultMeteringInformation extends AbstractTable {
     Write access: Restricted
     */
 
-    private int instrumentationScale; // 1 byte INT8. The scale factor for all instrumentation sources (50-254) in MT-17. This Factor (ISF)      will be set at the factory based on meter class: <= 20 A, instrumentation scale factor = -4       > 20 A, instrumentation scale factor = -3 
+    private int instrumentationScale; // 1 byte INT8. The scale factor for all instrumentation sources (50-254) in MT-17. This Factor (ISF)      will be set at the factory based on meter class: <= 20 A, instrumentation scale factor = -4       > 20 A, instrumentation scale factor = -3
     //RESERVED 14 bytes
 
 
@@ -38,7 +37,7 @@ public class FactoryDefaultMeteringInformation extends AbstractTable {
     public FactoryDefaultMeteringInformation(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(16,true));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -46,13 +45,13 @@ public class FactoryDefaultMeteringInformation extends AbstractTable {
         strBuff.append("   instrumentationScale="+getInstrumentationScale()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;
         setInstrumentationScale((int)C12ParseUtils.getExtendedLong(tableData,offset++,1, dataOrder));
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }

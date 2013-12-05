@@ -10,18 +10,21 @@
 
 package com.energyict.protocolimpl.elster.a3.procedures;
 
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class RemoteCallComplete extends AbstractProcedure {
-    
-    
-/*  
-    mask bits    
+
+
+/*
+    mask bits
     b0: outage call
     b1: restoration call
     b2: billing call
@@ -30,12 +33,12 @@ public class RemoteCallComplete extends AbstractProcedure {
     b5-7: Not defined. Invalid.
 */
     private int mask; // 1 byte
-    
+
     /** Creates a new instance of SnapShotData */
     public RemoteCallComplete(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(12,true));
     }
-    
+
     protected void prepare() throws IOException {
         setProcedureData(new byte[]{(byte)getMask()});
     }
@@ -47,5 +50,5 @@ public class RemoteCallComplete extends AbstractProcedure {
     public void setMask(int mask) {
         this.mask = mask;
     }
-    
+
 }

@@ -6,15 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
  */
 public class HistoricalDisplayScalings {
-    
+
     HistoricalDisplayScalingSet historicalDisplayScalingSet;
     ABBA1700MeterType meterType;
     /** Creates a new instance of HistoricalDisplayScalings */
@@ -22,16 +22,16 @@ public class HistoricalDisplayScalings {
         this.meterType=meterType;
         parse(data);
     }
-    
+
     public String toString() {
         return historicalDisplayScalingSet.toString();
     }
-    
+
     private void parse(byte[] data) throws IOException {
         int length = 22+meterType.getNrOfTariffRegisters()+8+meterType.getExtraOffsetHistoricDisplayScaling();
         historicalDisplayScalingSet = new HistoricalDisplayScalingSet(ProtocolUtils.getSubArray2(data,0,length),meterType);
     }
-    
+
     /**
      * Getter for property historicalDisplayScalingSets.
      * @return Value of property historicalDisplayScalingSets.

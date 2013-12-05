@@ -10,23 +10,21 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class Class0ComputationalConfiguration extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(0,40,true);
-    
-    BigDecimal UKH; 
+
+    BigDecimal UKH;
     int UPR;
     BigDecimal UKE;
     int INTNORM;
@@ -37,16 +35,16 @@ public class Class0ComputationalConfiguration extends AbstractClass {
     BigDecimal VTRATIO;
     BigDecimal CTRATIO;
     BigDecimal XFACTOR;
-        
+
     public String toString() {
         return "Class0ComputationalConfiguration: UKH="+UKH+", UPR="+UPR+", UKE="+UKE+", INTNORM="+INTNORM+", INTTEST="+INTTEST+", DPLOCE="+DPLOCE+", DPLOCD="+DPLOCD+", NUMSBI=0x"+Integer.toHexString(NUMSBI)+", VTRATIO="+VTRATIO+", CTRATIO="+CTRATIO+", XFACTOR="+XFACTOR;
     }
-    
+
     /** Creates a new instance of Class0ComputationalConfiguration */
     public Class0ComputationalConfiguration(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         UKH = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 0, 3),3);
         UPR = ProtocolUtils.getBCD2Int(data, 3, 1);
@@ -60,9 +58,9 @@ public class Class0ComputationalConfiguration extends AbstractClass {
         CTRATIO = BigDecimal.valueOf(ProtocolUtils.getBCD2Int(data, 17, 3),2);
         XFACTOR = BigDecimal.valueOf(ProtocolUtils.getBCD2Int(data, 20, 4));
     }
-    
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
+        return classIdentification;
     }
 
     public BigDecimal getUKH() {

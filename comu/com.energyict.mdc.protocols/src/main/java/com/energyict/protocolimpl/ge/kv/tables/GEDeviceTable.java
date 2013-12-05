@@ -10,18 +10,18 @@
 
 package com.energyict.protocolimpl.ge.kv.tables;
 
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
 
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GEDeviceTable extends AbstractTable {
-    
+
     private boolean touUpgrade;
     private boolean secondMeasureUpgrade;
     private boolean recordingUpgrade;
@@ -32,8 +32,8 @@ public class GEDeviceTable extends AbstractTable {
     static public final int TOU=2;
     static public final int INTERNAL=3;
     static public final int[] registerFunctions={INTERNAL,INTERNAL,INTERNAL,INTERNAL,DEMAND_ONLY,DEMAND_LP,TOU,INTERNAL};
-    
-    private int meterType; // 1=KV96 
+
+    private int meterType; // 1=KV96
     private int meterMode; // 0=demand, 1=demand/LP, 2 = tou
     private int registerFunction; // 0..7 see above
     private int installedOption1; // 0, 2 or 4
@@ -42,13 +42,13 @@ public class GEDeviceTable extends AbstractTable {
     private int installedOption4; // 0
     private int installedOption5; // 0
     private int installedOption6; // 0
-    
-    
+
+
     /** Creates a new instance of GEDeviceTable */
     public GEDeviceTable(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(0,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("GEDeviceTable: \n");
@@ -56,10 +56,10 @@ public class GEDeviceTable extends AbstractTable {
         strBuff.append("    meterType="+getMeterType()+", meterMode="+getMeterMode()+", registerFunction="+getRegisterFunction()+", installedOption1="+getInstalledOption1()+", installedOption2="+getInstalledOption2()+", installedOption3="+getInstalledOption3()+", installedOption4="+getInstalledOption4()+", installedOption5="+getInstalledOption5()+", installedOption6="+getInstalledOption6()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int temp = C12ParseUtils.getInt(tableData,0);
-        
+
         setTouUpgrade(((temp&0x01) == 0x01));
         setSecondMeasureUpgrade(((temp&0x02) == 0x02));
         setRecordingUpgrade(((temp&0x04) == 0x04));
@@ -73,10 +73,10 @@ public class GEDeviceTable extends AbstractTable {
         setInstalledOption4(C12ParseUtils.getInt(tableData,7));
         setInstalledOption5(C12ParseUtils.getInt(tableData,8));
         setInstalledOption6(C12ParseUtils.getInt(tableData,9));
-        
-        
-    } 
-    
+
+
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }

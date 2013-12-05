@@ -10,19 +10,18 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class CoincidentDemandSetupTableBasePage extends AbstractBasePage {
-    
+
     private int addressForkWPeak;
     private int rateForkWPeak; // 0=total, 1..4 = rate A..D
     private int addressForkvarPeak;
@@ -31,13 +30,13 @@ public class CoincidentDemandSetupTableBasePage extends AbstractBasePage {
     private int rateForkVAPeak; // 0=total, 1..4 = rate A..D
     private int addressForMinPFPeak;
     private int rateForMinPFPeak; // 0=total, 1..4 = rate A..D
-    
-    
+
+
     /** Creates a new instance of CoincidentDemandSetupTableBasePage */
     public CoincidentDemandSetupTableBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -53,11 +52,11 @@ public class CoincidentDemandSetupTableBasePage extends AbstractBasePage {
         return strBuff.toString();
     }
 
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x259E,12);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setAddressForkWPeak(ProtocolUtils.getInt(data,offset,2));
@@ -141,7 +140,7 @@ public class CoincidentDemandSetupTableBasePage extends AbstractBasePage {
     public void setRateForMinPFPeak(int rateForMinPFPeak) {
         this.rateForMinPFPeak = rateForMinPFPeak;
     }
-    
-    
-    
+
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

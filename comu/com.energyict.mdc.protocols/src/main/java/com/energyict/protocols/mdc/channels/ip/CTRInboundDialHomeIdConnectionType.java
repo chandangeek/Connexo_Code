@@ -1,17 +1,14 @@
 package com.energyict.protocols.mdc.channels.ip;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -26,11 +23,16 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
     private PropertySpec callHomeIdPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
     }
 
     protected String callHomeIdPropertyValue() {
         return (String) this.getProperty(CALL_HOME_ID_PROPERTY_NAME);
+    }
+
+    @Override
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        propertySpecs.add(this.callHomeIdPropertySpec());
     }
 
     @Override
@@ -39,23 +41,6 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
             return this.callHomeIdPropertySpec();
         }
         return null;
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return CALL_HOME_ID_PROPERTY_NAME.equals(name);
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = new ArrayList<>(1);
-        requiredProperties.add(this.callHomeIdPropertySpec());
-        return requiredProperties;
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
     }
 
     @Override
@@ -74,7 +59,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
         return new VoidComChannel();
     }
 

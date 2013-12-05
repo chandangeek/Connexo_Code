@@ -1,39 +1,40 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.TimeZone;
-
-import com.energyict.protocol.*;
 
 public class ProgrammingEventLog extends AbstractEventLog {
 
 	final int DEBUG=0;
-	
+
 	int mostRecent;
 	int count;
 	final int MAX_ENTRIES=10;
 	ProgrammerEventLogEntry[] programmerEventLogEntries;
-	
-	
+
+
 	public ProgrammingEventLog(TimeZone timeZone) throws IOException {
 		super(timeZone);
 	}
 
 //  public static void main(String[] args) throws IOException {
 //      System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ProgrammingEventLog(null)));
-//  } 	
+//  }
 	public String toString() {
 	      // Generated code by ToStringBuilder
-	      StringBuffer strBuff = new StringBuffer();
-	      strBuff.append("ProgrammingEventLog:\n");
-	      strBuff.append("   count="+getCount()+"\n");
-	      strBuff.append("   mostRecent="+getMostRecent()+"\n");
+	      StringBuilder builder = new StringBuilder();
+	      builder.append("ProgrammingEventLog:\n");
+	      builder.append("   count=").append(getCount()).append("\n");
+	      builder.append("   mostRecent=").append(getMostRecent()).append("\n");
 	      for (int i=0;i<getProgrammerEventLogEntries().length;i++) {
-	          strBuff.append("       programmerEventLogEntries["+i+"]="+getProgrammerEventLogEntries()[i]+"\n");
+	          builder.append("       programmerEventLogEntries[").append(i).append("]=").append(getProgrammerEventLogEntries()[i]).append("\n");
 	      }
-	      return strBuff.toString();
+	      return builder.toString();
 	  }
-	
+
 	public void parse(byte[] data) throws IOException {
 		int offset=0;
 		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);

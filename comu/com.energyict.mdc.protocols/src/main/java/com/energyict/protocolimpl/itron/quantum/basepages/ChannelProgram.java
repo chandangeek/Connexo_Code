@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ChannelProgram {
-    
+
     private int registerNumber;
     private int multiplier;
-    
+
     /** Creates a new instance of ChannelProgram */
     public ChannelProgram(byte[] data, int offset) throws IOException {
         setRegisterNumber((int)data[offset++] & 0xFF);
         setMultiplier(ProtocolUtils.getInt(data,offset,2));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -36,8 +36,8 @@ public class ChannelProgram {
         strBuff.append("   multiplier="+getMultiplier()+"\n");
         strBuff.append("   registerNumber="+getRegisterNumber()+"\n");
         return strBuff.toString();
-    }       
-    
+    }
+
 
     static public int size() {
         return 3;
@@ -58,5 +58,5 @@ public class ChannelProgram {
     public void setMultiplier(int multiplier) {
         this.multiplier = multiplier;
     }
-    
+
 }

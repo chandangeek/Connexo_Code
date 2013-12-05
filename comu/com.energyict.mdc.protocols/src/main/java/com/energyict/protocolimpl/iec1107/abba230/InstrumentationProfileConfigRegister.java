@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Copyrights EnergyICT

@@ -6,15 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocolimpl.base.ProfileDataReverser;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
@@ -22,20 +15,27 @@ import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreterImpl;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
 
 /**
  *
- * @author  Koen 
+ * @author  Koen
  */
 public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
-    
+
     private static final int DEBUG=0;
-    
+
     // 3 load survey types type 38, 39 and 40
     public static final int[] MODULO={8000,64000,4000};
     public static final int[] VALUEMASK={0x1FFF,0xFFFF,0xFFF};
-    
-    
+
+
     private List surveyDays; // type SurveyDay;
     /** Creates a new instance of DiscreteSurvey */
     /** Creates a new instance of MeterReadingBlocks */
@@ -43,7 +43,7 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
         super(mri,timeZone);
         surveyDays = new ArrayList();
     }
-    
+
     /*
      * parseData() builds a list of SurveyDay objects containing IntervalData objects for a whole day
      * <BR>
@@ -80,9 +80,9 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
         List channelInfos = buildChannelInfos();
         buildProfileData(channelInfos);
     } // void parseData(byte[] data)
-    
+
     /*
-     * Builds a list of SurveyDay objects starting with the most recent day 
+     * Builds a list of SurveyDay objects starting with the most recent day
      *
      */
     private void buildSurveyDays(byte[] loadSurveyData) throws IOException {
@@ -100,7 +100,7 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
             processed += (getMri().getSurveyInfo().getBlocks()*8*getMri().getSurveyInfo().getNrOfChannels());
             day--; // try if there's data for another day...
         } while ((loadSurveyData.length-processed)>8); // we should use 0 but 8 is also OK. 8 bytes is the end of a MRI file taken with PACS.EXE
-        
+
     } // private void buildSurveyDays(byte[] loadSurveyData)
 
     private void printSurveyDay(SurveyDay sd) {
@@ -108,7 +108,7 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
             System.out.println("      "+sd.getEods()[eod]);
         }
     }
-    
+
     private SurveyDay getMostRecentSurveyDay() {
         if (getMri().getProtocolLink().getPACTMode().isPAKNET()) {
             return (SurveyDay)surveyDays.get(surveyDays.size()-1);
@@ -117,19 +117,19 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
             return (SurveyDay)surveyDays.get(0);
         }
     }
-    
+
     private List buildChannelInfos() {
         List channelInfos = new ArrayList();
         SurveyDay surveyDay = getMostRecentSurveyDay();
         int channelId=0;
-         
+
         for (int channel = 0; channel < surveyDay.getEods().length ; channel++) {
 
            // if !statusflagchannel, continue
            if (!(isStatusFlagChannel() || ((!(EnergyTypeCode.isStatusFlagsChannel(surveyDay.getEods()[channel].getEtype()))) && (!isStatusFlagChannel())))) {
 			continue;
-		}    
-           
+		}
+
            ChannelInfo channelInfo = null;
            if (getChannelMap().getChannelFunction(channelId)==ChannelMap.FUNCTION_DEMAND) {
 			channelInfo = new ChannelInfo(channelId,"PACS_CHANNEL_"+(channel+1),EnergyTypeCode.getUnit(surveyDay.getEods()[channel].getEtype(),false));
@@ -141,16 +141,16 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
               int modulo = DiscreteSurvey.MODULO[getMri().getSurveyFlagsInfo().getSurtyp()-38];
               channelInfo.setCumulativeWrapValue(new BigDecimal(modulo));
            }
-           
-           channelInfos.add(channelInfo);   
+
+           channelInfos.add(channelInfo);
            channelId++;
-           
+
 
         } // for (int channel = 0; channel < surveyDay.getEods().length ; channel++)
 
         return channelInfos;
     }
-    
+
     /*
      *  Assemble all intervaldatas from different surverDays together into one intervaldatas list.
      *  Set profiledata's intervaldatas and sort.
@@ -163,8 +163,8 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
         getProfileData().sort();
         // In case of PAKNET mode, flip the channels and interval data!
         if (getMri().getProtocolLink().getPACTMode().isPAKNET()) {
-             ProfileDataReverser profileDataReverser = new ProfileDataReverser(getProfileData()); 
-             
+             ProfileDataReverser profileDataReverser = new ProfileDataReverser(getProfileData());
+
              // KV 07082006
              // If a calmu, sprint or premier meter have E4 starting their CLEM program, we still have the possibility to overrule by
              // setting MeterType to 2
@@ -173,7 +173,7 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
 			} else if (getMri().getProtocolLink().isMeterTypeCSP()) {
 				profileDataReverser.reverse();
 			}
-             
+
              // create ProfileData again, otherwise, the XML serializer have problems serializing ProfileDataReverser
              ProfileData pd = new ProfileData();
              pd.setIntervalDatas(profileDataReverser.getIntervalDatas());
@@ -181,9 +181,9 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
              pd.setMeterEvents(profileDataReverser.getMeterEvents());
              setProfileData(pd);
         }
-        
+
     } // private void buildProfileData()
-    
+
     protected int[] doGetEnergyTypeCodes() {
         if ((surveyDays == null) || (surveyDays.size() == 0)) {
 			return null;
@@ -191,25 +191,25 @@ public class DiscreteSurvey extends LoadSurveyInterpreterImpl {
         SurveyDay surveyDay = getMostRecentSurveyDay();
         int[] energyTypeCodes = new int[surveyDay.getEods().length];
         for (int i=0;i<energyTypeCodes.length;i++) {
-            energyTypeCodes[i] = surveyDay.getEods()[i].getEtype();             
+            energyTypeCodes[i] = surveyDay.getEods()[i].getEtype();
         }
         return energyTypeCodes;
     }
-    
+
     protected int doGetNrOfDays(Date from, Date to) throws IOException {
         if (to.getTime() < from.getTime()) {
 			throw new IOException("DiscreteSurvey, doGetNrOfBlocks, error ("+from+") > ("+to+")");
 		}
-        final long ONEDAY=24*60*60*1000;    
+        final long ONEDAY=24*60*60*1000;
         long tostd = to.getTime() + (long)getMri().getTimeZone().getOffset(to.getTime());
         long fromstd = from.getTime() + (long)getMri().getTimeZone().getOffset(from.getTime());
         long nrOfDaysToRetrieve = ((tostd/ONEDAY) - (fromstd/ONEDAY)) + 1;
         return (int)nrOfDaysToRetrieve; // +1  // KV 25082004 add 1 day to retrieve extra!!
                                                // done in another way. Ask for 2 days more profiledata is from < oldest date...
     }
-    
+
     protected int doGetNrOfBlocks(Date from, Date to) throws IOException {
         return (int)doGetNrOfDays(from,to)*getMri().getSurveyInfo().getBlocks()*getMri().getSurveyInfo().getNrOfChannels();
     }
-    
+
 } // public class DiscreteSurvey extends LoadSurveyInterpreterImpl

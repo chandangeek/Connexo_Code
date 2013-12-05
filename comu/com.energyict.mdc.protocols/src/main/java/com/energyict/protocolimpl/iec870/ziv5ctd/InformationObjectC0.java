@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 
 
 class InformationObjectC0 extends InformationObject {
@@ -55,17 +55,17 @@ class InformationObjectC0 extends InformationObject {
     public Date getTimeStamp() {
         return timeStamp;
     }
-    
+
     public String toString(){
-        return "InformationObject0xC0 [" 
+        return "InformationObject0xC0 ["
                 + activeImport + ", "
                 + activeExport + ", "
                 + q1 + ", "
                 + q2 + ", "
                 + q3 + ", "
-                + q4 + ", " 
+                + q4 + ", "
                 + timeStamp
                 + "]";
     }
-    
+
 }

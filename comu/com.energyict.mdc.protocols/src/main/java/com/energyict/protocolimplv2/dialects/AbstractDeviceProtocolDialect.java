@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.dialects;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 
 /**
  * Copyrights EnergyICT
@@ -9,14 +9,13 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
  * Time: 8:50
  */
 public abstract class AbstractDeviceProtocolDialect implements DeviceProtocolDialect {
-
     @Override
-    public boolean isRequiredProperty(String name) {
-        for (PropertySpec propertySpec : getRequiredProperties()) {
-            if (propertySpec.getName().equalsIgnoreCase(name)) {
-                return true;
+    public PropertySpec getPropertySpec (String name) {
+        for (PropertySpec propertySpec : this.getPropertySpecs()) {
+            if (name.equals(propertySpec.getName())) {
+                return propertySpec;
             }
         }
-        return false;
+        return null;
     }
 }

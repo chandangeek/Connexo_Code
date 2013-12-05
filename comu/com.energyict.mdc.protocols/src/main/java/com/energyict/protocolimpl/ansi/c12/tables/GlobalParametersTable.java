@@ -9,28 +9,26 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GlobalParametersTable extends AbstractTable {
-    
+
     private int psemIdentity;
     private long bitRate;
     private String[] modemSetupStrings;
-    
+
     /** Creates a new instance of GlobalParametersTable */
     public GlobalParametersTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(92));
     }
-    
+
      public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -43,18 +41,18 @@ public class GlobalParametersTable extends AbstractTable {
         return strBuff.toString();
     }
 
-   
+
 //        public static void main(String[] args) {
 //            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new GlobalParametersTable(null)));
-//        }         
-     
-     
-    protected void parse(byte[] tableData) throws IOException { 
+//        }
+
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualLogTable alt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
-        
+
         int offset=0;
         psemIdentity = C12ParseUtils.getInt(tableData,offset++);
         if (getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTelephoneTable().getTelephoneRecord().getTelephoneFlagsBitfield().getBitRate()==1) {
@@ -67,9 +65,9 @@ public class GlobalParametersTable extends AbstractTable {
             getModemSetupStrings()[i] = new String(ProtocolUtils.getSubArray2(tableData,offset,length));
             offset+=length;
         }
-        
-        
-    }         
+
+
+    }
 
     public int getPsemIdentity() {
         return psemIdentity;

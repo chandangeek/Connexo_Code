@@ -1,12 +1,17 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,7 +33,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	protected void init() {
 
 		setZeroBased(true);	// means that reg2read = reg-1
-		
+
 		// Voltage registers
         getRegisters().add(new HoldingRegister(1000,1,ObisCode.fromString("1.1.32.7.0.255"))); // RMS Phase-to-Phase voltage V12
         getRegisters().add(new HoldingRegister(1001,1,ObisCode.fromString("1.1.52.7.0.255"))); // RMS Phase-to-Phase voltage V23
@@ -40,7 +45,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1007,1,ObisCode.fromString("1.1.129.7.0.255"))); // Total average Line-to-Neutral
         getRegisters().add(new HoldingRegister(1145,1,ObisCode.fromString("1.1.12.6.0.255"))); // Maximum of V12, V23, V31
         getRegisters().add(new HoldingRegister(1146,1,ObisCode.fromString("1.1.12.3.0.255"))); // Minimum of V12, V23, V31
-        
+
         // Current registers
         getRegisters().add(new HoldingRegister(1016,1,ObisCode.fromString("1.1.31.7.0.255"))); // RMS current on phase 1:L1
         getRegisters().add(new HoldingRegister(1017,1,ObisCode.fromString("1.1.51.7.0.255"))); // RMS current on phase 2:L2
@@ -59,13 +64,13 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1035,1,ObisCode.fromString("1.1.41.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase2
         getRegisters().add(new HoldingRegister(1036,1,ObisCode.fromString("1.1.61.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase3
         getRegisters().add(new HoldingRegister(1037,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Total
-        
+
         // Reactive power
         getRegisters().add(new HoldingRegister(1038,1,ObisCode.fromString("1.1.23.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Phase1
         getRegisters().add(new HoldingRegister(1039,1,ObisCode.fromString("1.1.43.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Phase2
         getRegisters().add(new HoldingRegister(1040,1,ObisCode.fromString("1.1.63.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Phase3
-        getRegisters().add(new HoldingRegister(1041,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Total 
-        
+        getRegisters().add(new HoldingRegister(1041,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Total
+
         // Apparent power
         getRegisters().add(new HoldingRegister(1045,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("VA"))); // Apparent power Total
 
@@ -74,23 +79,23 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1047,1,ObisCode.fromString("1.1.53.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase B
         getRegisters().add(new HoldingRegister(1048,1,ObisCode.fromString("1.1.73.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase C
         getRegisters().add(new HoldingRegister(1049,1,ObisCode.fromString("1.1.13.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // Total power factor
-        
+
         // Signers
         getRegisters().add(new HoldingRegister(3316, 1, "PowerSign"));
         getRegisters().add(new HoldingRegister(3318, 1, "PowerFactorSign"));
-        
+
         // Clock
         getRegisters().add(new HoldingRegister(8023,4, "Date"));
-        
+
         // Buffer
         getRegisters().add(new HoldingRegister(8000,20, "Buffer"));
         getRegisters().add(new HoldingRegister(8021,1,"CommandStatus").setParser("IntegerParser"));
 
 
 	}
-	
+
     protected void initParsers() {
-    	
+
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
@@ -103,7 +108,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
 //                return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
-    	
+
     	getParserFactory().addParser("IntegerParser", new Parser() {
     		public Object val(int[] values, AbstractRegister register) throws IOException {
     			return values[0];
@@ -146,7 +151,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
             	}
             }
         });
-        
+
         getParserFactory().addParser("PowerFactorSign",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
             	long val = 0;
@@ -167,7 +172,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
             	}
             }
         });
-        
+
         getParserFactory().addDateParser(new Parser() {
             public Object val(int[] values, AbstractRegister register) {
                 Calendar cal = ProtocolUtils.getCleanCalendar(getModBus().getTimeZone());
@@ -181,7 +186,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return cal.getTime();
             }
         });
-        
-    } 
+
+    }
 
 }

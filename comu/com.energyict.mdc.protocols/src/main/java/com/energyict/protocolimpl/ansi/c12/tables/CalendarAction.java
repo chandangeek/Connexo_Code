@@ -9,24 +9,23 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12.tables;
-import java.io.*;
-import java.util.*;
-import java.math.*;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class CalendarAction {
-    
+
     private int calendarAction; // 8 bit
     private int calendarControl; // bit 4..0
     private boolean demandResetFlag; // bit 5
     private boolean selfReadFlag; // bit6
-    
-    
+
+
     /** Creates a new instance of CalendarAction */
     public CalendarAction(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -36,17 +35,17 @@ public class CalendarAction {
         setDemandResetFlag((getCalendarAction() & 0x20) == 0x20);
         setSelfReadFlag((getCalendarAction() & 0x40) == 0x40);
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("CalendarAction: calendarAction=0x"+Integer.toHexString(getCalendarAction())+"\n");
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 1;
-    }      
+    }
 
     public int getCalendarAction() {
         return calendarAction;

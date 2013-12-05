@@ -2,43 +2,43 @@
  * DataParse.java
  *
  * Created on 17 januari 2003, 14:13
- *      
+ *
  */
 
 package com.energyict.protocolimpl.actarissevc;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.Calculate;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.math.BigDecimal;
 
 /**
  *
  * @author  Koen
  */
-abstract public class SEVCDataParse {
-    
-    abstract protected int getOffset();
-    abstract protected int getFormat();
-    abstract protected Unit getUnit();
-    abstract protected int getLength();
-    
-    public final static int SEVC_VOLUME=0;
-    public final static int SEVC_FLOATING_POINT=1;
-    public final static int SEVC_UNSIGNED_INTEGER=2;
-    public final static int SEVC_HOUR=3;
-    public final static int SEVC_TIME=4;
-    public final static int SEVC_BINARY_MASK=5;
-    public final static int SEVC_INTEGER_BINARY=6;
-    public final static int SEVC_BYTE=7;
-    public final static int SEVC_SHORT=8;
-    
-    
+public abstract class SEVCDataParse {
+
+    protected abstract int getOffset();
+    protected abstract int getFormat();
+    protected abstract Unit getUnit();
+    protected abstract int getLength();
+
+    public static final int SEVC_VOLUME=0;
+    public static final int SEVC_FLOATING_POINT=1;
+    public static final int SEVC_UNSIGNED_INTEGER=2;
+    public static final int SEVC_HOUR=3;
+    public static final int SEVC_TIME=4;
+    public static final int SEVC_BINARY_MASK=5;
+    public static final int SEVC_INTEGER_BINARY=6;
+    public static final int SEVC_BYTE=7;
+    public static final int SEVC_SHORT=8;
+
+
     /** Creates a new instance of DataParse */
     public SEVCDataParse() {
     }
-    
+
     protected Number getValue(byte[] data) {
         switch(getFormat()) {
             case SEVC_VOLUME:
@@ -57,20 +57,20 @@ abstract public class SEVCDataParse {
                 return BigDecimal.valueOf(ProtocolUtils.getShortLE(data,(getOffset()/2)));
             case SEVC_BYTE:
                 return BigDecimal.valueOf((long)data[(getOffset()/2)]&0xFFL);
-                
+
         }
         return null;
     } // protected Number getValue(byte[] data)
-    
+
     private Number getfp(byte[] data) {
         return (Calculate.convertIEEE32fp2NumberLE(data, getOffset()/2));
     }
-    
+
     private Number getVolume(byte[] data) {
         long gtzero = ProtocolUtils.getIntLE(data,(getOffset()/2));
         long ltzero = ProtocolUtils.getIntLE(data,(getOffset()/2)+4);
         String str = String.valueOf(gtzero)+"."+String.valueOf(ltzero);
         return new BigDecimal(str);
     }
-    
+
 } // abstract public class SEVCDataParse

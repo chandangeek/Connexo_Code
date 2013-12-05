@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -23,13 +23,13 @@ import java.util.TimeZone;
  * @author Koen
  */
 public class Pmax {
-    
+
     private int variableName;
     private DateType DateDebutPeriode;
-    private int CodeAF; 
-    private DateType DateFinPeriode; 
-    private Quantity[] valuePmax;     
-    
+    private int CodeAF;
+    private DateType DateFinPeriode;
+    private Quantity[] valuePmax;
+
     /** Creates a new instance of Pmax */
     public Pmax(TrimaranDataContainer dc, TimeZone timezone, int variableName) throws IOException {
         int offset = 0;
@@ -59,8 +59,8 @@ public class Pmax {
             strBuff.append("       valuePmax["+i+"]="+getValuePmax()[i]+"\n");
         }
         return strBuff.toString();
-    }        
-    
+    }
+
     public DateType getDateDebutPeriode() {
         return DateDebutPeriode;
     }
@@ -100,5 +100,5 @@ public class Pmax {
     public void setVariableName(int variableName) {
         this.variableName = variableName;
     }
-    
+
 }

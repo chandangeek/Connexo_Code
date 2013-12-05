@@ -1,10 +1,11 @@
 package com.energyict.genericprotocolimpl.nta.profiles;
 
-import com.energyict.cbo.*;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;

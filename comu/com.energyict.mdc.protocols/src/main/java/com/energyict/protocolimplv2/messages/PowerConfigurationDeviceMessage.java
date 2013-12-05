@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,14 +17,14 @@ import java.util.List;
  */
 public enum PowerConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    IEC1107LimitPowerQuality(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
-    SetReferenceVoltage(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ReferenceVoltageAttributeName)),
-    SetVoltageSagTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagTimeThresholdAttributeName)),
-    SetVoltageSwellTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName)),
-    SetVoltageSagThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagThresholdAttributeName)),
-    SetVoltageSwellThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellThresholdAttributeName)),
-    SetLongPowerFailureTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName)),
-    SetLongPowerFailureThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureThresholdAttributeName));
+    IEC1107LimitPowerQuality(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
+    SetReferenceVoltage(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.ReferenceVoltageAttributeName)),
+    SetVoltageSagTimeThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagTimeThresholdAttributeName)),
+    SetVoltageSwellTimeThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName)),
+    SetVoltageSagThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagThresholdAttributeName)),
+    SetVoltageSwellThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellThresholdAttributeName)),
+    SetLongPowerFailureTimeThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName)),
+    SetLongPowerFailureThreshold(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureThresholdAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.POWER_CONFIGURATION;
 

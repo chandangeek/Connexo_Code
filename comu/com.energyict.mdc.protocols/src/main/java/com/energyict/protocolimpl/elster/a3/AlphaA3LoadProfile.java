@@ -10,18 +10,31 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
+import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalFormat;
+import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileBlockData;
+import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileStatusTable;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.elster.a3.tables.EventLogMfgCodeFactory;
 import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Koen
@@ -197,7 +210,7 @@ public class AlphaA3LoadProfile {
 //            return true;
 //        else
 //            return false;
-//    }    
+//    }
 
     private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException {
         // get blocks until last interval enddate < lastreading
@@ -270,7 +283,7 @@ public class AlphaA3LoadProfile {
 
 
 //            lpbd = alphaA3.getStandardTableFactory().getLoadProfileDataSetTableBlockHeader(0,block2read).getLoadProfileDataSet().getLoadProfileDataSets()[0];
-//if (DEBUG>=2) System.out.println("KV_DEBUG> (2) header lpbd="+lpbd);   
+//if (DEBUG>=2) System.out.println("KV_DEBUG> (2) header lpbd="+lpbd);
 //            if ((validBlockCount >=nrOfValidBlocks) || (lpbd.getBlockEndTime().before(lastReading))) break;
 //            validBlockCount++;
 
@@ -334,7 +347,7 @@ public class AlphaA3LoadProfile {
             if (block2read++ >= (maxNrOfBlocks - 1)) {
                 block2read = 0;
             }
-        } // while(true) 
+        } // while(true)
 
         /**************************************************************************************************************************************************
          P A R S E  T H E  D A T A
@@ -420,7 +433,7 @@ public class AlphaA3LoadProfile {
                     continue;
                 }
 
-                // if first interval marked as DST AND time is NOT in DST, subtract ONE hour! 
+                // if first interval marked as DST AND time is NOT in DST, subtract ONE hour!
                 if (firstInterval && intervalSet.isValid() && intervalSet.isDSTActive() && !alphaA3.getTimeZone().inDaylightTime(cal.getTime())) {
                     cal.add(Calendar.HOUR, -1);
                 }
@@ -492,7 +505,7 @@ public class AlphaA3LoadProfile {
 
         profileData.setIntervalDatas(intervalDatas);
 
-    } // private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException 
+    } // private void buildIntervalData(ProfileData profileData, Date lastReading, Date to) throws IOException
 
     private IntervalData createIntervalData(IntervalSet intervalSet, Date endDate, int interval, boolean powerOn) throws IOException {
 
@@ -514,7 +527,7 @@ public class AlphaA3LoadProfile {
                 // KV_TO_DO
                 // Depending on the UON for the profile data quantity, the engineering value calculation differs!
                 // See KV2(c) document with all explanation about that. For the moment we only use
-                // KVAh load profile calculation!  
+                // KVAh load profile calculation!
 
                 if (alphaA3.getProtocolChannelMap().isProtocolChannel(channel)) {
                     if (alphaA3.getProtocolChannelMap().getProtocolChannel(channel).getValue() == 1) { // engineering values
@@ -563,7 +576,7 @@ public class AlphaA3LoadProfile {
 
                 }
             }
-            com.energyict.protocol.ChannelInfo channelInfo = new com.energyict.protocol.ChannelInfo(channel, "AlphaA3_channel_" + channel, unit);
+            ChannelInfo channelInfo = new ChannelInfo(channel, "AlphaA3_channel_" + channel, unit);
             profileData.addChannel(channelInfo);
         }
     }
@@ -587,5 +600,5 @@ public class AlphaA3LoadProfile {
                 break;
             }
         } // while(true)
-    } // private void waitUntilTimeValid()    
+    } // private void waitUntilTimeValid()
 }

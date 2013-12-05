@@ -1,13 +1,15 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.StreamConnection;
 import com.energyict.dialer.coreimpl.UDPSession;
 import com.energyict.dialer.serialserviceprovider.SerialPort;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.tools.InputStreamObserver;
 import com.energyict.protocol.tools.OutputStreamObserver;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 /**

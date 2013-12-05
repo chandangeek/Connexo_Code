@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -26,14 +26,14 @@ import java.util.TimeZone;
  * @author kvds
  */
 public class DataRecord {
-    
+
     final int DEBUG=0;
-    
+
     private DataRecordHeader dataRecordHeader;
     private Quantity quantity;
     private String text="";
     private Date date;
-    
+
     /** Creates a new instance of DataRecord */
     public DataRecord(byte[] data, int offset, TimeZone timeZone) throws IOException {
 
@@ -41,7 +41,7 @@ public class DataRecord {
 
         setDataRecordHeader(new DataRecordHeader(data, offset, timeZone));
         offset += getDataRecordHeader().size();
-        
+
         if (dataRecordHeader.getValueInformationBlock()==null)
             return;
 
@@ -176,17 +176,17 @@ public class DataRecord {
         }
 
         if (DEBUG>=1) System.out.println("KV_DEBUG> DataRecord, quantity="+quantity);
-        
-        
-        
+
+
+
     } // public DataRecord(byte[] data, int offset, TimeZone timeZone) throws IOException
-    
+
     private int decodeVariableLength(byte[] data, int offset) throws IOException {
         int length = ProtocolUtils.getInt(data,offset++,1);
         if ((length>=0x00) && (length<=0xBF)) {
             setText(new String(ParseUtils.getSubArrayLE(data, offset, length)));
             offset+=length;
-            quantity=null;                
+            quantity=null;
         }
         else if ((length>=0xC0) && (length<=0xC9)) {
             length -= 0xC0;
@@ -200,7 +200,7 @@ public class DataRecord {
             length -= 0xD0;
             long val = ParseUtils.getBCD2LongLE(data,offset,length);
             offset+=length;
-            BigDecimal bd = BigDecimal.valueOf(val); 
+            BigDecimal bd = BigDecimal.valueOf(val);
             bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier()).multiply(new BigDecimal(-1));
             quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
         }
@@ -220,10 +220,10 @@ public class DataRecord {
             quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
         }
         else throw new IOException("DataRecord, invalid LVAR value ("+length+") (length byte of variable length data type)");
-        
+
         return offset;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -232,10 +232,10 @@ public class DataRecord {
         strBuff.append("   quantity="+getQuantity()+"\n");
         strBuff.append("   text="+getText()+"\n");
         strBuff.append("   date="+getDate()+"\n");
-        
+
         return strBuff.toString();
     }
-    
+
     public int size() {
         return getDataRecordHeader().size()+dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes()+getText().length();
     }
@@ -271,5 +271,5 @@ public class DataRecord {
     public void setText(String text) {
         this.text = text;
     }
-    
+
 }

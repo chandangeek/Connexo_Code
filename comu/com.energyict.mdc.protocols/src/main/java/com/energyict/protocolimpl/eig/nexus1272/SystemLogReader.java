@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.eig.nexus1272.command.Command;
-import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 
 public class SystemLogReader extends AbstractLogReader {
 
@@ -18,11 +18,11 @@ public class SystemLogReader extends AbstractLogReader {
 	public SystemLogReader(OutputStream os ,NexusProtocolConnection npc) {
 		outputStream = os;
 		connection = npc;
-		windowIndexAddress = new byte[] {(byte) 0x95, 0x0a};;  
+		windowIndexAddress = new byte[] {(byte) 0x95, 0x0a};;
 		windowModeAddress = new byte[] {(byte) 0x95, 0x4a};
 		windowEndAddress = 38976;
 	}
-	
+
 	@Override
 	protected Command getHeaderCommand() {
 		return NexusCommandFactory.getFactory().getSystemLogHeaderCommand();
@@ -32,12 +32,12 @@ public class SystemLogReader extends AbstractLogReader {
 	protected Command getWindowCommand() {
 		return NexusCommandFactory.getFactory().getSystemLogWindowCommand();
 	}
-	
+
 	@Override
 	public void parseLog(byte[] byteArray, ProfileData profileData, Date from, int intervalSeconds) throws IOException {
 		parseSystemLog(byteArray);
 	}
-	
+
 	public static final byte POWER = 0x000;
 	public static final byte PASSWORD = 0x001;
 	public static final byte CHANGE_PROGRAMMABLE_SETTINGS = 0x002;
@@ -82,7 +82,7 @@ public class SystemLogReader extends AbstractLogReader {
 				default:
 					meterEvents.add(new MeterEvent(recDate, MeterEvent.OTHER, subcode1, "Undefined event"));
 					event += " : Undefined" + " " + subcode1;
-					break; 
+					break;
 				}
 				break;
 
@@ -142,7 +142,7 @@ public class SystemLogReader extends AbstractLogReader {
 					event += " : Undefined";
 					break;
 				}
-				
+
 				break;
 			case CHANGE_PROGRAMMABLE_SETTINGS:
 				meterEvents.add(new MeterEvent(recDate, MeterEvent.CONFIGURATIONCHANGE, "Programmable Setting have been changed"));
@@ -432,8 +432,8 @@ public class SystemLogReader extends AbstractLogReader {
 					event += " : Undefined";
 					break;
 				}
-				
-				
+
+
 				break;
 			case FEATURE_RESET:
 				event += " => FEATURE RESET";
@@ -572,7 +572,7 @@ public class SystemLogReader extends AbstractLogReader {
 		return meterEvents;
 	}
 
-	
-	
-	
+
+
+
 }

@@ -10,20 +10,23 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.Unit;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author kvds
  */
 public class MultiplierFactory {
-    
+
     static List list = new ArrayList();
     static {
-        list.add(new Multiplier(1,Unit.get("kWh"),new BigDecimal("0.007812500"),new BigDecimal("0.031250000"),new BigDecimal("0.062500000"),new BigDecimal("0.125000000"),new BigDecimal("0.250000000")));
+        list.add(new Multiplier(1, Unit.get("kWh"),new BigDecimal("0.007812500"),new BigDecimal("0.031250000"),new BigDecimal("0.062500000"),new BigDecimal("0.125000000"),new BigDecimal("0.250000000")));
         list.add(new Multiplier(2,Unit.get("kWh"),new BigDecimal("512.000000000"),new BigDecimal("2048.000000000"),new BigDecimal("4096.000000000"),new BigDecimal("8192.000000000"),new BigDecimal("16384.000000000")));
         list.add(new Multiplier(3,Unit.get("kW"),new BigDecimal("0.004000000"),new BigDecimal("0.016000000"),new BigDecimal("0.032000000"),new BigDecimal("0.064000000"),new BigDecimal("0.128000000")));
         list.add(new Multiplier(4,Unit.get("var"),new BigDecimal("0.004000000"),new BigDecimal("0.016000000"),new BigDecimal("0.032000000"),new BigDecimal("0.064000000"),new BigDecimal("0.128000000")));
@@ -49,21 +52,21 @@ public class MultiplierFactory {
         list.add(new Multiplier(24,Unit.get("A"),new BigDecimal("0.003906300"),new BigDecimal("0.015625000"),new BigDecimal("0.031250000"),new BigDecimal("0.062500000"),new BigDecimal("0.125000000")));
         list.add(new Multiplier(25,Unit.get("kW"),new BigDecimal("0.004000000"),new BigDecimal("0.016000000"),new BigDecimal("0.032000000"),new BigDecimal("0.064000000"),new BigDecimal("0.128000000")));
         list.add(new Multiplier(26,Unit.get("kW"),new BigDecimal("0.004000000"),new BigDecimal("0.016000000"),new BigDecimal("0.032000000"),new BigDecimal("0.064000000"),new BigDecimal("0.128000000")));
-        list.add(new Multiplier(27,Unit.get("kW"),new BigDecimal("0.004000000"),new BigDecimal("0.016000000"),new BigDecimal("0.032000000"),new BigDecimal("0.064000000"),new BigDecimal("0.128000000")));        
-        
+        list.add(new Multiplier(27,Unit.get("kW"),new BigDecimal("0.004000000"),new BigDecimal("0.016000000"),new BigDecimal("0.032000000"),new BigDecimal("0.064000000"),new BigDecimal("0.128000000")));
+
     }
-    
+
     String firmwareVersion;
     // 0=100A; 1=300/400A; 2=800A, 3=1600A, 4=2400A
     int meterType;
-    
+
     /** Creates a new instance of MultiplierFactory */
     public MultiplierFactory(String firmwareVersion) {
         this.firmwareVersion=firmwareVersion;
     }
-    
+
     public void init() throws IOException {
-        
+
         if (firmwareVersion.indexOf("50")>=0)
             meterType=0;
         else if (firmwareVersion.indexOf("100")>=0)
@@ -85,12 +88,12 @@ public class MultiplierFactory {
         else
             throw new IOException("MultiplierFactory, error, no supported metertype for firmware version "+firmwareVersion);
     }
-    
+
     public BigDecimal findMultiplier(int address) throws IOException {
-        
+
         Iterator it = list.iterator();
         while(it.hasNext()) {
-            
+
             Multiplier multiplier = (Multiplier)it.next();
             if (multiplier.getAddress()==address) {
                 if (meterType == 0)
@@ -105,8 +108,8 @@ public class MultiplierFactory {
                     return multiplier.getMul2400A();
             }
         }
-        
+
         throw new IOException("MultiplierFactory, error, no register found for address "+address);
     }
-    
+
 }

@@ -10,35 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EventLogControlTable extends AbstractTable {
-    
+
     private HistoryCtrl historyCtrl;
-    
+
     /** Creates a new instance of EventLogControlTable */
     public EventLogControlTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(75));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EventLogControlTable: historyCtrl="+getHistoryCtrl()+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         setHistoryCtrl(new HistoryCtrl(tableData, 0, getTableFactory()));
-    }         
+    }
 
     public HistoryCtrl getHistoryCtrl() {
         return historyCtrl;

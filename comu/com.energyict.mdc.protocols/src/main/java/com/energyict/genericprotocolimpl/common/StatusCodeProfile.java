@@ -10,20 +10,20 @@
 
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 
 /**
  *
  * @author kvds
  */
-public class StatusCodeProfile { 
-    
-   
+public class StatusCodeProfile {
+
+
     /** Creates a new instance of StatusCodeProfile */
     private StatusCodeProfile() {
     }
-    
-    
+
+
     static final int CRITICAL_ERROR=0x01;
     static final int CLOCK_INVALID=0x02;
     static final int DATA_NOT_VALID=0x04;
@@ -32,11 +32,11 @@ public class StatusCodeProfile {
     static final int CLOCK_ADJUSTED=0x20;
     static final int POWER_UP=0x40;  // only used by IskraEmeko for power return
     static final int POWER_DOWN=0x80;
-    
+
     public static int intervalStateBits(int statusCodeProfile) {
-        
+
             int eiCode=0;
-        
+
         if ((statusCodeProfile & CRITICAL_ERROR) == CRITICAL_ERROR) {
 			eiCode |= IntervalStateBits.DEVICE_ERROR;
 		}
@@ -61,8 +61,8 @@ public class StatusCodeProfile {
         if ((statusCodeProfile & POWER_DOWN) == POWER_DOWN) {
 			eiCode |= IntervalStateBits.POWERDOWN;
 		}
-        
+
         return eiCode;
     }
-    
+
 }

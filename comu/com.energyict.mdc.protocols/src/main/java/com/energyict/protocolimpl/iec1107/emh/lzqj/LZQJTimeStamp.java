@@ -6,16 +6,16 @@
 
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.energyict.protocol.ProtocolUtils;
-
 /**
- * 
+ *
  * @author Koen
- * 
+ *
  *         02/11/2009 JME Parse two character years as follows: year 00 -> 50 = 2000 -> 2050 year 51 -> 99 = 1951 ->
  *         2099
  */
@@ -114,7 +114,7 @@ public class LZQJTimeStamp {
 
 	/**
 	 * Getter for property mode.
-	 * 
+	 *
 	 * @return Value of property mode.
 	 */
 	public int getMode() {
@@ -123,7 +123,7 @@ public class LZQJTimeStamp {
 
 	/**
 	 * Setter for property mode.
-	 * 
+	 *
 	 * @param mode
 	 *            New value of property mode.
 	 */
@@ -133,7 +133,7 @@ public class LZQJTimeStamp {
 
 	/**
 	 * Getter for property timeZone.
-	 * 
+	 *
 	 * @return Value of property timeZone.
 	 */
 	public java.util.TimeZone getTimeZone() {
@@ -159,7 +159,7 @@ public class LZQJTimeStamp {
 
 	/**
 	 * Getter for property calendar.
-	 * 
+	 *
 	 * @return Value of property calendar.
 	 */
 	public java.util.Calendar getCalendar() {
@@ -168,7 +168,7 @@ public class LZQJTimeStamp {
 
 	/**
 	 * Parse two character years as follows: year 00 -> 50 = 2000 -> 2050 year 51 -> 99 = 1951 -> 2099
-	 * 
+	 *
 	 * @param year
 	 * @return The correct year in the range of 1951 - 2050
 	 */

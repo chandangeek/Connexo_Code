@@ -11,29 +11,29 @@
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
 
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author Koen
  */
 public class MeterDataCommand extends AbstractCommand {
-    
+
     private int meterInput;
-    
+
     private long cumulativePulseCount;
     private int status;
-    
+
     private BigDecimal bigDecimalCumulativePulseCount;
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public MeterDataCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     // =0x"+Integer.toHexString(
     public String toString() {
         // Generated code by ToStringBuilder
@@ -43,11 +43,11 @@ public class MeterDataCommand extends AbstractCommand {
         strBuff.append("   cumulativePulseCount="+getCumulativePulseCount()+"\n");
         strBuff.append("   status=0x"+Integer.toHexString(getStatus())+"\n");
         return strBuff.toString();
-    }          
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        
+
         LookAtCommand lac = getCommandFactory().getLookAtCommand();
         if (lac.isCumulativePulseCount()) {
             offset=0;
@@ -55,7 +55,7 @@ public class MeterDataCommand extends AbstractCommand {
             offset+=5;
         }
         else {
-            if (getCommandFactory().getVerifyCommand().getSoftwareVersion() != 4) { 
+            if (getCommandFactory().getVerifyCommand().getSoftwareVersion() != 4) {
                 offset=2;
                 if (lac.isPSIEncoder() || lac.isSangamoEncoder()) {
                     setCumulativePulseCount(ParseUtils.getBCD2Long(data,offset,3));
@@ -63,26 +63,26 @@ public class MeterDataCommand extends AbstractCommand {
                 else if (lac.isJEM1MeterReadings() || lac.isJEM2MeterReadings()) {
                     setCumulativePulseCount(ParseUtils.getBCD2Long(data,offset,3));
                 }
-                else throw new IOException("MeterDataCommand, parse, invalid encoder type "+lac.getEncoderType()); 
+                else throw new IOException("MeterDataCommand, parse, invalid encoder type "+lac.getEncoderType());
                 offset+=3;
                 setStatus(ProtocolUtils.getInt(data,offset,1));
             }
             else throw new IOException("MeterDataCommand, parse, encoders not supported for softwareversion 4");
         }
-        
+
         setBigDecimalCumulativePulseCount(BigDecimal.valueOf(getCumulativePulseCount()));
-        
+
         // page 3-25 states that "this command not supported by n4nn versions... Does this means that the M command is not supported or only the encoder reading?
         // mail answer from George Sandler on 27/7/2006
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('M');
     }
-    
+
     protected byte[] prepareData() throws IOException {
         return new byte[]{(byte)getMeterInput(),0,0,0,0,0};
-        
+
     }
 
     public int getMeterInput() {
@@ -116,5 +116,5 @@ public class MeterDataCommand extends AbstractCommand {
     public void setBigDecimalCumulativePulseCount(BigDecimal bigDecimalCumulativePulseCount) {
         this.bigDecimalCumulativePulseCount = bigDecimalCumulativePulseCount;
     }
-    
+
 }

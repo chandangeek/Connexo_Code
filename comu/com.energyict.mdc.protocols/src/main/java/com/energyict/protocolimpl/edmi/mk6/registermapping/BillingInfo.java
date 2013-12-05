@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
+import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-
-import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
 
 
 
@@ -24,12 +24,12 @@ import com.energyict.protocolimpl.edmi.mk6.command.CommandFactory;
  */
 public class BillingInfo implements Serializable
 {
-    
+
 	/** Generated SerialVersionUID */
 	private static final long serialVersionUID = -9204872710461066424L;
 
 	private CommandFactory commandFactory;
-    
+
     private int nrOfBillingResets;
     private Date toDate;
     private Date fromDate;
@@ -42,7 +42,7 @@ public class BillingInfo implements Serializable
     public String toString() {
         return "BillingInfo: nrOfBillingResets="+nrOfBillingResets+", toDate="+toDate+", fromDate="+fromDate;
     }
-    
+
 
     private void init() throws IOException {
         setNrOfBillingResets(getCommandFactory().getReadCommand(0xF032).getRegister().getBigDecimal().intValue());
@@ -81,11 +81,11 @@ public class BillingInfo implements Serializable
     private void setFromDate(Date fromDate) {
         this.fromDate = fromDate;
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
 }

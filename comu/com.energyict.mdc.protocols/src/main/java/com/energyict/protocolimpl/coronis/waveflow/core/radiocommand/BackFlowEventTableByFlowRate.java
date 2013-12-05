@@ -5,7 +5,9 @@ import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class BackFlowEventTableByFlowRate extends AbstractRadioCommand {
 
@@ -55,10 +57,10 @@ public class BackFlowEventTableByFlowRate extends AbstractRadioCommand {
             if (!isValidDate(dateBytes)) {
                 break;       //Stop adding events when encountering an empty date
             }
-                    
+
             endDate = TimeDateRTCParser.parse(data, offset, 6, getWaveFlow().getTimeZone()).getTime();
             offset +=6;
-                             
+
             events.add(new BackFlowEventByFlowRate(getWaveFlow(), inputNumber, volume, detectionDurationInMinutes, backflowDurationInMinutes, endDate));
         }
 	}

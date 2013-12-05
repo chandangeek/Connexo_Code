@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
-import com.energyict.cbo.*;
-import java.math.*;
+import com.energyict.mdc.common.Unit;
+
+import java.math.BigDecimal;
 
 /**
  *
  * @author kvds
  */
 public class Multiplier {
-    
+
     private int address;
     private Unit unit;
     private BigDecimal mul100A;
@@ -26,7 +27,7 @@ public class Multiplier {
     private BigDecimal mul800A;
     private BigDecimal mul1600A;
     private BigDecimal mul2400A;
-    
+
     /** Creates a new instance of Multiplier */
     public Multiplier(int address, Unit unit, BigDecimal mul100A, BigDecimal mul300_400A, BigDecimal mul800A, BigDecimal mul1600A, BigDecimal mul2400A) {
         this.setAddress(address);
@@ -93,5 +94,5 @@ public class Multiplier {
     public void setMul2400A(BigDecimal mul2400A) {
         this.mul2400A = mul2400A;
     }
-    
+
 }

@@ -1,19 +1,24 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,11 +46,11 @@ public class GProfileBuilder {
 
 	/**
 	 * Builder for the scalerUnits.
-	 * 
+	 *
 	 * Currently we hardcoded the scalerUnit as a Liter
-	 * 
+	 *
 	 * @return a ScalerUnit array of 1 element, being Liter
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public ScalerUnit[] buildScalerUnits() throws IOException {
@@ -74,7 +79,7 @@ public class GProfileBuilder {
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		for (int i = 0; i < scalerunit.length; i++) {
 			ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getGasDevice().getDeviceID() + "_channel_" + i, scalerunit[i].getEisUnit());
-			
+
 			// Setting the cumulative value is the old way of doing, Eandis has an old way of doing so ...
 			channelInfo.setCumulativeWrapValue(new BigDecimal(100000000));
             // the setCumulative() is only from 8.5
@@ -199,7 +204,7 @@ public class GProfileBuilder {
 		try {
 			GasDevice gDevice = new GasDevice();
 			gDevice.init(null, null, TimeZone.getTimeZone("GMT"), Logger.getAnonymousLogger());
-			
+
 			GProfileBuilder builder = new GProfileBuilder(gDevice, null);
 			int bit = GasStatusCodes.intervalStateBits(49407);
 			Logger.getAnonymousLogger().log(Level.INFO, String.valueOf(bit));

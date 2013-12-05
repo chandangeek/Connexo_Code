@@ -10,21 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author Koen
  */
 public class QuantityId {
-    
+
     private int id;
     private String description;
     private int obisBField;
-    private int obisCField; 
+    private int obisCField;
     private Unit unit;
-    
+
     /** Creates a new instance of QuantityId */
     public QuantityId(int id,String description, int obisBField, int obisCField, Unit unit) {
         this.setId(id);
@@ -45,11 +44,11 @@ public class QuantityId {
         strBuff.append("   unit="+getUnit()+"\n");
         return strBuff.toString();
     }
-    
+
     public boolean isValid() {
         return id != 0;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -90,5 +89,5 @@ public class QuantityId {
     public void setUnit(Unit unit) {
         this.unit = unit;
     }
-    
+
 }

@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.Folder;
 
 import java.sql.SQLException;
 import java.util.Iterator;

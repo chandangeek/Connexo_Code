@@ -10,27 +10,29 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class EventRecordType {
-    
+
     private Date eventTimeStamp;
     private EventId eventId;
     private int checkSum;
     private int id;
-    
-    
+
+
     /**
-     * Creates a new instance of EventRecordType 
+     * Creates a new instance of EventRecordType
      */
     public EventRecordType(byte[] data,int offset, TimeZone timeZone) throws IOException {
-        
+
 
 
         setEventTimeStamp(Utils.getDateFromDateTimeEventLogEntry(data,offset,timeZone));
@@ -42,7 +44,7 @@ public class EventRecordType {
         setCheckSum(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -53,7 +55,7 @@ public class EventRecordType {
         strBuff.append("   eventTimeStamp="+getEventTimeStamp()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 9;
     }
@@ -89,7 +91,7 @@ public class EventRecordType {
     public void setId(int id) {
         this.id = id;
     }
-    
 
-    
+
+
 }

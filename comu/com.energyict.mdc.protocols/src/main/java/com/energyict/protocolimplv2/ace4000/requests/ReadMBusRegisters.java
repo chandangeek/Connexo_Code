@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.ResultType;
+import com.energyict.mdc.protocol.device.offline.OfflineRegister;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;

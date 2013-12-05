@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -16,10 +16,10 @@ import java.math.BigDecimal;
  *
  */
 public class ParametersMoins1 extends AbstractTrimaranObject{
-	
+
 	private DateType debutPeriode_168; 	// Date de dernière écriture de Paramètre
 	private DateType dernierHoroDate; 	// Date en cours au moment de la lecture
-	
+
 	private int TC_Moins1;						// rapport de transformation de puissance, de 1 à 3000
 	private int TT_Moins1;						// rapport de transformation de puissance, de 1 à 6000
 	private int KJ_Moins1;						// valeur de coefficient de pertes joules, multiplié par 1000
@@ -30,9 +30,9 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 	private int kep_Moins1;					// Facteur d'échelle des puissances en puissance de 10
 
 	private int tcc_Moins1;					// période d'intégration Tc pour le suivi de la courbe de charge en multiples de 1mn et selon un sous-multiple de 60
-	
+
 	private boolean ccReact_Moins1;			// enregistrement des quatre puissances réactives dans la courbe de charge
-	
+
 	private int variableName_Moins1;
 
 
@@ -53,20 +53,20 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 	}
 
 	protected void parse(byte[] data) throws IOException {
-		
+
 //    	System.out.println("GN_DEBUG> write to file");
 //    	File file = new File("c://TEST_FILES/089807000857ParametersMoins1.bin");
 //    	FileOutputStream fos = new FileOutputStream(file);
 //    	fos.write(data);
 //    	fos.close();
-		
+
 		int offset = 0;
 		TrimaranDataContainer dc = new TrimaranDataContainer();
 		dc.parseObjectList(data, null);
-		
+
 		setDebutPeriode_168(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
 		setDernierHoroDate(new DateType(dc.getRoot().getLong(offset++), getTrimaranObjectFactory().getTrimaran().getTimeZone()));
-		
+
 		setTC_Moins1(dc.getRoot().getInteger(offset++));
 		setTT_Moins1(dc.getRoot().getInteger(offset++));
 		setKJ_Moins1(dc.getRoot().getInteger(offset++));
@@ -272,7 +272,7 @@ public class ParametersMoins1 extends AbstractTrimaranObject{
 	public int getVariableName_Moins1() {
 		return variableName_Moins1;
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
 		strBuff.append("*** ParametersMinus1: ***\n");

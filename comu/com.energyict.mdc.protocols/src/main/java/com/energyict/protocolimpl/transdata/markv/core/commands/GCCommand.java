@@ -10,30 +10,33 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class GCCommand  extends AbstractCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("GC");
 
     private Date date;
-    
+
     /** Creates a new instance of GCCommand */
     public GCCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         return "GCCommand: "+getDate();
     }
-    
+
     protected void parse(String strData) throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getMarkV().getTimeZone());
@@ -46,7 +49,7 @@ public class GCCommand  extends AbstractCommand {
         cal.set(Calendar.YEAR,year>=50?year+1900:year+2000);
         setDate(cal.getTime());
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }

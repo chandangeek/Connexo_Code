@@ -1,6 +1,8 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -43,7 +45,7 @@ public class InitiatorDescriptor extends Structure {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -61,5 +63,5 @@ public class InitiatorDescriptor extends Structure {
 		sb.append("]");
 		return sb.toString();
 	}
-	
+
 }

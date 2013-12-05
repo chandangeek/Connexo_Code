@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dynamicattributes.EncryptedStringFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.dynamic.impl.EncryptedStringFactory;
+import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -176,6 +176,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 .forClass(String.class, new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())
                 .setDefaultValue("")
+                .markRequired()
                 .finish();
     }
 
@@ -184,6 +185,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 .forClass(String.class, new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())
                 .setDefaultValue("")
+                .markRequired()
                 .finish();
     }
 
@@ -192,6 +194,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 .forClass(String.class, new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())
                 .setDefaultValue("")
+                .markRequired()
                 .finish();
     }
 

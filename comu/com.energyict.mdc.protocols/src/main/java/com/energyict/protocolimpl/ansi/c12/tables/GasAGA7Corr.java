@@ -10,24 +10,21 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GasAGA7Corr {
-    
+
     private GasPress gasPressParm;
     private GasTemp gasTempParm;
     private Number auxCorrFactor;
     private Number gasAGA7Corr;
-    
+
     /** Creates a new instance of GasAGA7Corr */
     public GasAGA7Corr(byte[] data,int offset, int niFormat, int dataOrder) throws IOException {
         setGasPressParm(new GasPress(data,offset,niFormat,dataOrder));
@@ -41,8 +38,8 @@ public class GasAGA7Corr {
 
     static public int getSize(int niFormat) throws IOException {
         return C12ParseUtils.getNonIntegerSize(niFormat)*2+GasPress.getSize(niFormat)+GasTemp.getSize(niFormat);
-    } 
-    
+    }
+
     public GasPress getGasPressParm() {
         return gasPressParm;
     }
@@ -74,5 +71,5 @@ public class GasAGA7Corr {
     public void setGasAGA7Corr(Number gasAGA7Corr) {
         this.gasAGA7Corr = gasAGA7Corr;
     }
-    
+
 }

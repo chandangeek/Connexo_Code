@@ -1,13 +1,12 @@
 package com.energyict.genericprotocolimpl.common.tou;
 
+import org.w3c.dom.Element;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 public class CosemCalendar {
-	
+
 	protected final static String ELEMENTNAME = "cosemCalendar";
 
 	private static int DAYLIGHTSAVINGSTIMEACTIVEVALUE = 128;
@@ -24,7 +23,7 @@ public class CosemCalendar {
 	}
 
 	public CosemCalendar(Calendar timestamp, boolean daylightSavingTimeActive) {
-		super();		
+		super();
 		byte[] octetString = new byte[12];
 		octetString[0]= (byte)((timestamp.get(Calendar.YEAR) / 256)& 0xFF);
 		octetString[1]= (byte)((timestamp.get(Calendar.YEAR) % 256)& 0xFF);
@@ -44,12 +43,12 @@ public class CosemCalendar {
 	public CosemCalendar(OctetString octets){
 		this.calendar = octets;
 	}
-	
+
 	public CosemCalendar(Element element) {
 		String octetString = element.getFirstChild().getNodeValue();
 		calendar = new OctetString(octetString);
 	}
-	
+
         public String toString() {
             // Generated code by ToStringBuilder
             StringBuffer strBuff = new StringBuffer();
@@ -59,8 +58,8 @@ public class CosemCalendar {
             strBuff.append("   daylightSavingTimeActive="+isDaylightSavingTimeActive()+"\n");
             strBuff.append("   octetString="+getOctetString()+"\n");
             return strBuff.toString();
-        }        
-                
+        }
+
 	public OctetString getOctetString() {
 		return calendar;
 	}
@@ -71,19 +70,19 @@ public class CosemCalendar {
 
 	public boolean isDaylightSavingTimeActive(){
 		return (((int)(calendar.getOctets())[11]) & 0xFF) == DAYLIGHTSAVINGSTIMEACTIVEVALUE;
-		
+
 	}
-	
+
 	public Calendar getCalendar(){
 		Calendar result = new GregorianCalendar();
-		
+
 		result.set((((int)(calendar.getOctets())[0]) & 0xFF) * 256 + (((int)(calendar.getOctets())[1]) & 0xFF),
 		(((int)(calendar.getOctets())[2]) & 0xFF)-1,
 		(((int)(calendar.getOctets())[3]) & 0xFF),
 		(((int)(calendar.getOctets())[5]) & 0xFF),
 		(((int)(calendar.getOctets())[6]) & 0xFF),
 		(((int)(calendar.getOctets())[7]) & 0xFF));
-		
+
 		return result;
 	}
 

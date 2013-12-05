@@ -10,39 +10,35 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.S4;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author Koen
  */
 public class SourceInfo {
-    
+
     S4 s4;
-    
+
     /** Creates a new instance of SourceUnits */
     public SourceInfo(S4 s4) {
         this.s4=s4;
     }
-    
+
     public ObisCodeDescriptor getObisCodeDescriptor(int dataControlEntryIndex) throws IOException {
         UnitOfMeasure uom = UnitOfMeasureFactory.findUnitOfMeasure(dataControlEntryIndex);
         return new ObisCodeDescriptor(1, uom.getObisCField(), uom.getDescription());
     }
-    
+
     public Unit getUnit(int dataControlEntryIndex) throws IOException {
         UnitOfMeasure uom = UnitOfMeasureFactory.findUnitOfMeasure(dataControlEntryIndex);
         return uom.getUnit();
     }
-    
-    
+
+
     public BigDecimal basic2engineering(BigDecimal bd, int dataControlEntryIndex, boolean energy) throws IOException {
         UnitOfMeasure uom = UnitOfMeasureFactory.findUnitOfMeasure(dataControlEntryIndex);
         MeterFactors mf = s4.getManufacturerTableFactory().getMeterFactors();
@@ -58,8 +54,8 @@ public class SourceInfo {
             else
                 return bd.multiply(mf.getDemandMultiplier());
         }
-        
+
         return bd;
     } // public BigDecimal basic2engineering(BigDecimal bd, int dataControlEntryIndex, boolean energy) throws IOException
-    
+
 }

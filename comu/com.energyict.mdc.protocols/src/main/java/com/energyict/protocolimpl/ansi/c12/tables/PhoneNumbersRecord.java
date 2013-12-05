@@ -9,22 +9,19 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class PhoneNumbersRecord {
-    
+
     private String prefix;
     private String[] phoneNumbers;
-    
+
     /** Creates a new instance of PhoneNumbersRecord */
     public PhoneNumbersRecord(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualTelephoneTable att = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTelephoneTable();
@@ -56,7 +53,7 @@ public class PhoneNumbersRecord {
             size+=att.getTelephoneRecord().getPhoneNumberLength();
         }
         return size;
-    }      
+    }
 
     public String getPrefix() {
         return prefix;

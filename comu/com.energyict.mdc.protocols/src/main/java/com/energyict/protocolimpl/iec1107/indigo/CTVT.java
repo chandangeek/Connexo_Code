@@ -6,17 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
  */
 public class CTVT extends AbstractLogicalAddress {
-    
+
     private int ctvtUnits;
     private int ctvtFraction;
     private int registerSignificantFigure;
@@ -26,13 +26,13 @@ public class CTVT extends AbstractLogicalAddress {
     private String ctSecondary;
     private String vtPrimary;
     private String vtSecondary;
-    
+
     /** Creates a new instance of CTVT */
     public CTVT(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
     }
-    
-    
+
+
     public String toString() {
        StringBuffer strBuff = new StringBuffer();
        strBuff.append("CTVT: ");
@@ -48,39 +48,39 @@ public class CTVT extends AbstractLogicalAddress {
        strBuff.append(", wholeCurrent="+isWholeCurrentMeter()+", ct="+isCTMeter()+", ctvt="+isCTVTMeter());
        return strBuff.toString();
     }
-    
+
     private boolean isNONE(String str) {
         return (str.indexOf("NONE")!=-1);
     }
-    
+
     public boolean isCTMeter() {
         return ((isNONE(vtPrimary) ||
                  isNONE(vtSecondary)) &&
               (!(isNONE(ctPrimary) ||
                  isNONE(ctSecondary))));
     }
-    
-    
-    
+
+
+
     public boolean isCTVTMeter() {
         return ((!(isNONE(vtPrimary) ||
                  isNONE(vtSecondary))) &&
               (!(isNONE(ctPrimary) ||
                  isNONE(ctSecondary))));
     }
-    
+
     public boolean isWholeCurrentMeter() {
         return !isCTVTMeter() && !isCTMeter();
     }
-    
+
     private int getCTRatio() {
-        return Integer.parseInt(getCtPrimary())/Integer.parseInt(getCtSecondary()); 
+        return Integer.parseInt(getCtPrimary())/Integer.parseInt(getCtSecondary());
     }
-    
+
     private int getVTRatio() {
-        return Integer.parseInt(getVtPrimary())/Integer.parseInt(getVtSecondary()); 
+        return Integer.parseInt(getVtPrimary())/Integer.parseInt(getVtSecondary());
     }
-    
+
     public int getMultiplier() {
         if (isCTMeter())
            return getCTRatio();
@@ -88,10 +88,10 @@ public class CTVT extends AbstractLogicalAddress {
            return getCTRatio()*getVTRatio();
         else if (isWholeCurrentMeter())
             return 1;
-        
+
         else return 1;
     }
-    
+
     public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException {
         setCtvtUnits(ProtocolUtils.getInt(data,0,2));
         setCtvtFraction(ProtocolUtils.getInt(data,2,2));
@@ -175,5 +175,5 @@ public class CTVT extends AbstractLogicalAddress {
     public void setVtSecondary(String vtSecondary) {
         this.vtSecondary = vtSecondary;
     }
-    
+
 }

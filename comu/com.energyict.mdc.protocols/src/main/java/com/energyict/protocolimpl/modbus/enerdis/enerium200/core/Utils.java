@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.core;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
-import com.energyict.protocolimpl.modbus.core.Modbus;
 
 public class Utils {
 
@@ -18,7 +18,7 @@ public class Utils {
 
 	public static final int SETCLOCK			= 0x0104;
 	public static final int SETPROFILEPART 		= 0x0705;
-	
+
 	/*
 	 * Public methods
 	 */
@@ -66,7 +66,7 @@ public class Utils {
         r.setRegisterFactory(modbus.getRegisterFactory());
         return r.getReadHoldingRegistersRequest().getRegisters();
     }
-	
+
     private static byte[] readRawByteValues(int address, int length, Modbus modbus)  throws IOException {
         return intArrayToByteArray(readRawIntValues(address, length, modbus));
     }
@@ -92,7 +92,7 @@ public class Utils {
 			buffer.write(readRawByteValues(address + currentPos, currentLength, modbus));
 			currentPos += currentLength;
 		}
-		
+
 		return buffer.toByteArray();
     }
 
@@ -108,9 +108,9 @@ public class Utils {
 		pd.sort();
 		return pd.getIntervalDatas();
 	}
-    
+
 	public static long intToLongUnsigned(int value) {
 		return ((long)value) & 0x00000000FFFFFFFF;
 	}
-	
+
 }

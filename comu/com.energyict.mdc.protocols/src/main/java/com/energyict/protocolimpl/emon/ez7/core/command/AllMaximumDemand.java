@@ -6,22 +6,22 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.math.BigDecimal;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 /**
  *
  * @author  Koen
  */
 public class AllMaximumDemand extends AbstractCommand {
-    
+
     private static final int DEBUG=0;
     private static final String MAXDEMANDCOMMAND="RDA8";
     private static final String MAXDEMANDTIMESTAMPCOMMAND="RDD8";
@@ -34,7 +34,7 @@ public class AllMaximumDemand extends AbstractCommand {
         super(ez7CommandFactory);
     }
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();    
+        StringBuffer strBuff = new StringBuffer();
         strBuff.append("AllMaximumDemand:\n");
         for (int tariff = 0; tariff < NR_OF_TARIFFS; tariff++) {
            strBuff.append("tariff "+tariff+": ");
@@ -46,7 +46,7 @@ public class AllMaximumDemand extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         parseMaximumDemandTimestamp(ez7CommandFactory.getEz7().getEz7Connection().sendCommand(MAXDEMANDTIMESTAMPCOMMAND));
@@ -54,9 +54,9 @@ public class AllMaximumDemand extends AbstractCommand {
     }
 
     private void parseMaximumDemand(byte[] data) throws ConnectionException, IOException {
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
-        
+        if (DEBUG>=1)
+           System.out.println(new String(data));
+
         CommandParser cp = new CommandParser(data);
         for (int tariff = 0; tariff < NR_OF_TARIFFS; tariff++) {
            List values = cp.getValues("KWDA-"+(tariff+1));
@@ -67,11 +67,11 @@ public class AllMaximumDemand extends AbstractCommand {
            }
         }
     }
-    
+
     private void parseMaximumDemandTimestamp(byte[] data) {
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
-        
+        if (DEBUG>=1)
+           System.out.println(new String(data));
+
         Calendar calCurrent = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
         CommandParser cp = new CommandParser(data);
         for (int tariff = 0; tariff < NR_OF_TARIFFS; tariff++) {
@@ -80,7 +80,7 @@ public class AllMaximumDemand extends AbstractCommand {
            for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
               int valueHHMM = Integer.parseInt((String)valuesHHMM.get(channel));
               int valueMMDD = Integer.parseInt((String)valuesMMDD.get(channel));
-              
+
               if (valueMMDD==0) {
                   dates[channel][tariff] = null;
               }
@@ -103,15 +103,15 @@ public class AllMaximumDemand extends AbstractCommand {
            }
         }
     }
-    
+
     public Quantity getQuantity(int channel, int tariff) {
         try {
            return quantities[channel][tariff];
         }
         catch(ArrayIndexOutOfBoundsException e) {
             return null;
-        }        
-    }    
+        }
+    }
     public Date getDate(int channel, int tariff) {
         try {
            return dates[channel][tariff];
@@ -119,5 +119,5 @@ public class AllMaximumDemand extends AbstractCommand {
         catch(ArrayIndexOutOfBoundsException e) {
             return null;
         }
-    }    
+    }
 }

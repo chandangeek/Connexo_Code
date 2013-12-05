@@ -1,27 +1,27 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.energyict.protocol.ProtocolUtils;
-
 public class DataType {
 
     static int dbg = 0;
-    
+
     TimeZone timeZone;
-    
+
     final Time dateTime = new Time();
     final IntegrationPeriod integrationPeriod = new IntegrationPeriod ();
-    
+
     public DataType( TimeZone timeZone ){
         this.timeZone = timeZone;
-    } 
-    
+    }
+
     class Time {
-        
+
         Date parse( byte [] data ) throws IOException {
             Calendar calendar = ProtocolUtils.getCalendar(timeZone);
             calendar.set(Calendar.SECOND,ProtocolUtils.BCD2hex(data[0]));
@@ -31,16 +31,16 @@ public class DataType {
             calendar.set(Calendar.MONTH,ProtocolUtils.BCD2hex((byte)((int)data[4]&0x1F))-1);
             int y = ProtocolUtils.BCD2hex(data[6]);
             calendar.set(Calendar.YEAR,y == 99 ? 1999 : y+2000);
-            
+
             return calendar.getTime();
         }
-        
+
         byte[] construct( Date date ) {
             Calendar calendar = ProtocolUtils.getCalendar(timeZone);
             calendar.clear();
             calendar.setTime(date);
             byte[] data = new byte[14];
-            
+
             ProtocolUtils.val2BCDascii(calendar.get(Calendar.SECOND),data,0);
             ProtocolUtils.val2BCDascii(calendar.get(Calendar.MINUTE),data,2);
             ProtocolUtils.val2BCDascii(calendar.get(Calendar.HOUR_OF_DAY),data,4);
@@ -48,14 +48,14 @@ public class DataType {
             ProtocolUtils.val2BCDascii(calendar.get(Calendar.MONTH)+1,data,8);
             ProtocolUtils.val2BCDascii(0,data,10);
             ProtocolUtils.val2BCDascii(calendar.get(Calendar.YEAR)-2000,data,12);
-            
+
             return data;
         }
-        
+
     }
-    
+
     class IntegrationPeriod {
-        
+
         int parse( byte data ) {
             if( data == 0x00 ) return 1 * 60;
             if( data == 0x01 ) return 2 * 60;
@@ -70,9 +70,9 @@ public class DataType {
             if( data == 0x0A ) return 60 * 60;
             return -1;
         }
-        
+
     }
-    
+
     /** Special debug stuff */
     public static String toBinaryString(int b) {
         char[] result = {'0', '0', '0', '0', '0', '0', '0', '0'};
@@ -89,11 +89,11 @@ public class DataType {
             r = "0" + r;
         return r;
     }
-    
+
     /** Special debug stuff */
     public static String toHexaString( byte [] b, int pos, int length ){
         StringBuffer sb = new StringBuffer();
-        if( b == null ) 
+        if( b == null )
             sb.append( " <null> " );
         else
             for( int i = pos; i < pos + length; i ++  ){
@@ -101,17 +101,17 @@ public class DataType {
             }
         return sb.toString();
     }
-    
+
     /** Special debug stuff */
     public static String toHexaString( byte [] b ){
         return toHexaString( b, 0, b.length );
     }
-    
+
     /** Special debug stuff */
     public static StringBuffer toShortString( StringBuffer sb, byte [] ba, int anIndex ){
         int start = ( anIndex  - 8 );
         int stop = ( anIndex  + 8 );
-        
+
         for( int i = start; i < stop; i ++ ) {
             if( i == anIndex ) sb.append( "^" );
             if( i < 0 || i >= ba.length )
@@ -119,8 +119,8 @@ public class DataType {
             else
                 sb.append( toHexaString( ba[i] ) + " " );
         }
-        
+
         return sb;
     }
-    
+
 }

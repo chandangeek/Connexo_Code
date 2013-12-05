@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 
 import java.io.IOException;
 
@@ -88,7 +91,7 @@ public class HanBackupRestoreData extends Array {
             rStruct.addDataType(struct.getNextDataType());
             restoreBackups.addDataType(rStruct);
         }
-        
+
         restoreData.addDataType(restoreBackups);
         return restoreData;
     }

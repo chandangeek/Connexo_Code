@@ -6,56 +6,58 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocolimpl.iec1107.*;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 abstract public class AbstractLogicalAddress {
-    
+
     abstract public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException;
-    
+
     //byte[] data;
-    
+
     int size;
     int id;
-    
+
     LogicalAddressFactory logicalAddressFactory;
-    
+
     /** Creates a new instance of AbstractLogicalAddress */
     public AbstractLogicalAddress(int id,int size,LogicalAddressFactory logicalAddressFactory) {
         this.id=id;
         this.size=size;
         this.logicalAddressFactory=logicalAddressFactory;
     }
-    
+
     public void retrieve() throws IOException {
         byte[] data = getLogicalAddress();
         parse(data,getLogicalAddressFactory().getProtocolLink().getTimeZone());
     }
-    
+
     /*
      *  Must be overridden to implement the data builder...
      */
     protected byte[] buildData() {
         return null;
     }
-    
+
     public void write() throws IOException {
         setLogicalAddress(buildData());
     }
-    
+
     protected int getScaler() throws IOException {
-        return getLogicalAddressFactory().getHistoricalData(getId()%0x100).getScaler();  
+        return getLogicalAddressFactory().getHistoricalData(getId()%0x100).getScaler();
     }
     protected Date getBillingTimestamp() throws IOException {
         return getLogicalAddressFactory().getHistoricalData(getId()%0x100).getBillingDate();
     }
-    
+
     private void setLogicalAddress(byte[] data) throws FlagIEC1107ConnectionException,IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(Integer.toHexString(getId()).toUpperCase());
@@ -66,7 +68,7 @@ abstract public class AbstractLogicalAddress {
         if (str != null)
             validateData(str);
     }
-    
+
     private byte[] getLogicalAddress() throws FlagIEC1107ConnectionException,IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(Integer.toHexString(getId()).toUpperCase());
@@ -77,7 +79,7 @@ abstract public class AbstractLogicalAddress {
         byte[] ba = getLogicalAddressFactory().getProtocolLink().getFlagIEC1107Connection().receiveRawData();
         return ProtocolUtils.convert2ascii(validateData(ba));
     }
-    
+
     protected String buildLength(int value,int length) {
         String str=Integer.toHexString(value);
         StringBuffer strbuff = new StringBuffer();
@@ -87,11 +89,11 @@ abstract public class AbstractLogicalAddress {
         strbuff.append(str);
         return strbuff.toString();
     }
-        
+
     private void validateData(String str) throws FlagIEC1107ConnectionException {
         validateData(str.getBytes());
     }
-    
+
     private byte[] validateData(byte[] data) throws FlagIEC1107ConnectionException {
         String str = new String(data);
         // We know about ERRDAT and ERRADD as returned error codes from the Indigo+ meter.
@@ -101,7 +103,7 @@ abstract public class AbstractLogicalAddress {
         }
         return getLogicalAddressFactory().getProtocolLink().getFlagIEC1107Connection().parseDataBetweenBrackets(data);
     }
-    
+
     /**
      * Getter for property logicalAddressFactory.
      * @return Value of property logicalAddressFactory.
@@ -109,15 +111,15 @@ abstract public class AbstractLogicalAddress {
     public com.energyict.protocolimpl.iec1107.indigo.LogicalAddressFactory getLogicalAddressFactory() {
         return logicalAddressFactory;
     }
-    
+
     /**
      * Setter for property logicalAddressFactory.
      * @param logicalAddressFactory New value of property logicalAddressFactory.
      */
     public void setLogicalAddressFactory(com.energyict.protocolimpl.iec1107.indigo.LogicalAddressFactory logicalAddressFactory) {
         this.logicalAddressFactory = logicalAddressFactory;
-    }    
-    
+    }
+
     /**
      * Getter for property size.
      * @return Value of property size.
@@ -125,7 +127,7 @@ abstract public class AbstractLogicalAddress {
     public int getSize() {
         return size;
     }
-    
+
     /**
      * Getter for property id.
      * @return Value of property id.
@@ -133,5 +135,5 @@ abstract public class AbstractLogicalAddress {
     public int getId() {
         return id;
     }
-   
+
 }

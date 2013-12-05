@@ -10,27 +10,26 @@
 
 package com.energyict.protocolimpl.meteridentification;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 /**
  *
  * @author koen
  */
 public class TransdataMarkV extends AbstractManufacturer {
-    
+
     public String getManufacturer() throws IOException {
         return "Transdata";
-    }    
-    
+    }
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.transdata.markv.MarkV";
-    }    
-    
+    }
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
-    }    
-    
+    }
+
     public String getMeterDescription() throws IOException {
         return "Transdata MarkV";
     }

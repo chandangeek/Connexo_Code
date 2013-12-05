@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.NotFoundException;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.meterdata.identifiers.CanFindLoadProfile;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import org.junit.*;
@@ -24,25 +24,25 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
 
     @Test(expected = NotFoundException.class)
     public void testDeviceDoesNotExist () {
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
         doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        loadProfileIdentifier.getLoadProfile();
+        loadProfileIdentifier.findLoadProfile();
 
-        // Asserts: expected the NotFoundException reported by the DeviceIdentifier to be thrown or rethrown
+        // Asserts: expected the NotFoundException reported by the CanFindDevice to be thrown or rethrown
     }
 
     @Test
     public void testWithDeviceWithoutLoadProfiles () {
         Device device = mock(Device.class);
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
+        LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isNull();
@@ -53,12 +53,12 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfile expectedLoadProfile = mock(LoadProfile.class);
         Device device = mock(Device.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
+        LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isEqualTo(expectedLoadProfile);
@@ -70,12 +70,12 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfile anotherLoadProfile = mock(LoadProfile.class);
         Device device = mock(Device.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
-        LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
+        LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isEqualTo(expectedLoadProfile);

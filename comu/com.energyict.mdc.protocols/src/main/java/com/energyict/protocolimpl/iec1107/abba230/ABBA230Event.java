@@ -7,15 +7,15 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.util.Date;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
+import java.util.Date;
 
 /**@author fbo */
 
 public class ABBA230Event {
-    
+
     /** protocol events */
     private static final int TRANSIENT_RESET=0x01;
     private static final int TIME_SYNC=0x02;
@@ -24,52 +24,52 @@ public class ABBA230Event {
     private static final int CT_RATIO_CHANGE = 0x10;
     private static final int REVERSE_RUN=0x20;
     private static final int PHASE_FAILURE=0x40;
-    
+
     private Date date;
     private int meterCode;
     private int meterEventEiCode;
     private String description;
-    
+
     private MeterEvent meterEvent;
-    
+
     static ABBA230Event createReverseRun( Date date ) {
         return new ABBA230Event( date, REVERSE_RUN );
     }
-    
+
     static ABBA230Event createPhaseFailure( Date date ) {
         return new ABBA230Event( date, PHASE_FAILURE );
     }
-    
+
     static ABBA230Event createPowerFail( Date date ) {
         ABBA230Event event = new ABBA230Event();
-        event.date = date; 
-        event.meterEventEiCode = MeterEvent.POWERDOWN;     
+        event.date = date;
+        event.meterEventEiCode = MeterEvent.POWERDOWN;
         return event;
     }
-    
+
     static ABBA230Event createConfigurationChange(Date date, String description) {
         ABBA230Event event = new ABBA230Event();
-        event.date = date; 
-        event.meterEventEiCode = MeterEvent.CONFIGURATIONCHANGE;     
+        event.date = date;
+        event.meterEventEiCode = MeterEvent.CONFIGURATIONCHANGE;
         event.description = description;
         return event;
     }
-    
+
     static ABBA230Event createBilling(Date date) {
         ABBA230Event event = new ABBA230Event();
-        event.date = date; 
-        event.meterEventEiCode = MeterEvent.BILLING_ACTION;     
+        event.date = date;
+        event.meterEventEiCode = MeterEvent.BILLING_ACTION;
         return event;
     }
-    
-    
+
+
     private ABBA230Event() { }
-    
+
     /** Creates new AS230Event */
     ABBA230Event(Date date, int meterCode) {
         this.date = date;
         this.meterCode = meterCode;
-        
+
         switch( meterCode ) {
             case TRANSIENT_RESET:
                 break;
@@ -87,7 +87,7 @@ public class ABBA230Event {
                 break;
         }
     }
-    
+
     MeterEvent toMeterEvent(){
         if( meterEvent == null ) {
             if( description == null ){
@@ -98,9 +98,9 @@ public class ABBA230Event {
         }
         return meterEvent;
     }
-    
+
     public String toString(){
-        String result = 
+        String result =
             "MeterEvent [date " + date + ", " + meterEventEiCode + ", ";
         for( int i = 0; i < IntervalStateBits.states.length; i ++ ){
             if ((meterEventEiCode & (0x00000001<<i)) != 0) {
@@ -114,5 +114,5 @@ public class ABBA230Event {
         result += "]";
         return result;
     }
-    
+
 }

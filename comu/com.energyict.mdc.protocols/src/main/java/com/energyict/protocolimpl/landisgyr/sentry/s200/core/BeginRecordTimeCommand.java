@@ -10,26 +10,26 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class BeginRecordTimeCommand extends AbstractCommand {
-    
+
     private Date beginRecording;
     private int profileInterval; // in minutes
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public BeginRecordTimeCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -37,21 +37,21 @@ public class BeginRecordTimeCommand extends AbstractCommand {
         strBuff.append("   beginRecording="+getBeginRecording()+"\n");
         strBuff.append("   profileInterval="+getProfileInterval()+"\n");
         return strBuff.toString();
-    }         
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS200().getTimeZone());
-        
+
         cal.set(Calendar.MONTH,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF)-1);
         cal.set(Calendar.DAY_OF_MONTH,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF));
         cal.set(Calendar.HOUR_OF_DAY,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF));
         cal.set(Calendar.MINUTE,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF));
         setBeginRecording(cal.getTime());
         setProfileInterval((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
-        
+
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('G');
     }
@@ -71,5 +71,5 @@ public class BeginRecordTimeCommand extends AbstractCommand {
     public void setProfileInterval(int profileInterval) {
         this.profileInterval = profileInterval;
     }
-    
+
 }

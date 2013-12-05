@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 
@@ -13,7 +14,7 @@ import com.energyict.mdw.core.LogBookFactoryProvider;
  * Date: 13/05/13
  * Time: 13:16
  */
-public class LogBookIdentifierById implements LogBookIdentifier {
+public class LogBookIdentifierById implements CanFindLogBook {
 
     private final int logBookId;
 

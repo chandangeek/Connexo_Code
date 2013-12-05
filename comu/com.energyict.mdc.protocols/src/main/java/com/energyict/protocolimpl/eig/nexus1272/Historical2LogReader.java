@@ -1,5 +1,16 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
+import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
+import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
+import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -7,19 +18,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.ansi.c12.tables.IntervalSet;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.eig.nexus1272.command.Command;
-import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
-import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
-import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
-import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
 
 public class Historical2LogReader extends AbstractLogReader {
 
@@ -35,7 +33,7 @@ public class Historical2LogReader extends AbstractLogReader {
 		masterlpMap = mstrlpMap;
 		outputStream = os;
 		connection = npc;
-		windowIndexAddress = new byte[] {(byte) 0x95, 0x01};;  
+		windowIndexAddress = new byte[] {(byte) 0x95, 0x01};;
 		windowModeAddress = new byte[] {(byte) 0x95, 0x41};
 		windowEndAddress = 38400;
 	}
@@ -64,7 +62,7 @@ public class Historical2LogReader extends AbstractLogReader {
 		int offset = 0;
 		int length = 4;
 		int recNum = 0;
-		
+
 
 		try{
 
@@ -76,7 +74,7 @@ public class Historical2LogReader extends AbstractLogReader {
 				cal.setTime(recDate);
 				ParseUtils.isOnIntervalBoundary(cal, intervalSeconds);
 				int rest = (int)(cal.getTime().getTime()/1000) % intervalSeconds;
-				if (rest!=0) { 
+				if (rest!=0) {
 					if (rest < 450 ) {
 						ParseUtils.roundDown2nearestInterval(cal, intervalSeconds);
 					}
@@ -86,20 +84,20 @@ public class Historical2LogReader extends AbstractLogReader {
 					recDate = cal.getTime();
 					eiStatus = IntervalStateBits.SHORTLONG;
 				}
-				
+
 //				System.out.println(recDate + " --- " + cal.getTime());
 				if (recDate.before(from)) {
 					recNum++;
 					offset = recNum * recordSize;
 					continue;
 				}
-				
+
 				offset+= length;
 				IntervalData intervalData = new IntervalData(recDate,0,0);
 				for (LinePoint lp : meterlpMap) {
 					boolean found = false;
 					for (LinePoint lp2 : masterlpMap) {
-						
+
 						if (lp.getLine() == lp2.getLine() && lp.getPoint() == lp2.getPoint()) {
 							found = true;
 							BigDecimal val =new BigDecimal( parseF64(byteArray, offset));

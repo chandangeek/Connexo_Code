@@ -3,7 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PrimePlcMacSetupAttributes;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class PrimePlcMacSetup extends AbstractCosemObject {
     }
 
     /**
-     * The default {@link com.energyict.obis.ObisCode} of this {@link PrimePlcMacSetup}
+     * The default {@link ObisCode} of this {@link PrimePlcMacSetup}
      *
      * @return The obis code
      */

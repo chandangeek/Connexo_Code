@@ -1,18 +1,31 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.HistoricalRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public class G3BStoredValues implements StoredValues {
 
@@ -242,7 +255,7 @@ public class G3BStoredValues implements StoredValues {
     }
 
     /**
-     * This inner class is just a data container to cache the {@link com.energyict.cbo.Unit} and
+     * This inner class is just a data container to cache the {@link Unit} and
      * {@link com.energyict.dlms.ScalerUnit} of a register.
      *
      * @author jme

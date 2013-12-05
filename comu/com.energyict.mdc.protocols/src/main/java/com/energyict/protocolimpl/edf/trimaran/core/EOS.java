@@ -10,28 +10,27 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EOS extends AbstractSPDU {
-    
+
     /** Creates a new instance of XID */
     public EOS(SPDUFactory sPDUFactory) {
         super(sPDUFactory);
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
-        byte[] data = new byte[1]; 
+        byte[] data = new byte[1];
         data[0] = SPDU_EOS;
         return data;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
-        
+
     }
 
 } // public class XID extends AabstractSPDU

@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ReverseRotation {
-    
+
     private int kWhReverseRotation; // : UINT(0..1);
     private int powerFactorReverseRotation; // : UINT(2..3);
     private int selectableMetricReverseRotation; // : UINT(4..5);
@@ -33,7 +34,7 @@ public class ReverseRotation {
         setSelectableMetricReverseRotation(((temp & 0x30)>>4));
         setThirdMetricIgnoreReverseRotation(((temp & 0xC0)>>6));
     }
-    
+
     static public int getSize(ManufacturerTableFactory tableFactory) throws IOException {
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         return 1;
@@ -48,7 +49,7 @@ public class ReverseRotation {
         strBuff.append("   thirdMetricIgnoreReverseRotation="+getThirdMetricIgnoreReverseRotation()+"\n");
         return strBuff.toString();
     }
-    
+
     public int getKWhReverseRotation() {
         return kWhReverseRotation;
     }
@@ -80,5 +81,5 @@ public class ReverseRotation {
     private void setThirdMetricIgnoreReverseRotation(int thirdMetricIgnoreReverseRotation) {
         this.thirdMetricIgnoreReverseRotation = thirdMetricIgnoreReverseRotation;
     }
-    
+
 }

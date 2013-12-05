@@ -10,48 +10,49 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class UnitTable {
-    
+
     static List units=new ArrayList();
     static {
 
     }
-    
+
     private int registerNr;
     private int obisCField;
     private int obisDField;
     private Unit unit;
     private String description;
-    
+
     public boolean isVoltSquare() {
         return getObisCField()==ObisCodeExtensions.OBISCODE_C_VOLTSQUARE;
-    }        
+    }
     public boolean isAmpSquare() {
         return getObisCField()==ObisCodeExtensions.OBISCODE_C_AMPSQUARE;
-    }        
-    
+    }
+
     public BigDecimal getRegisterValue(byte[] data, int offset, int firmwareRevision, int scale) throws IOException {
 
         return null;
     } // public BigDecimal getRegisterValue(byte[] data, int offset, int firmwareRevision)
-    
-    
+
+
     public String toString() {
-       return getUnit()+", "+getDescription();    
+       return getUnit()+", "+getDescription();
     }
-    
+
     /** Creates a new instance of UnitTable */
     private UnitTable(int registerNr, int obisCField, int obisDField, Unit unit, String description) {
         this.setRegisterNr(registerNr);
@@ -92,7 +93,7 @@ public class UnitTable {
     public void setRegisterNr(int registerNr) {
         this.registerNr = registerNr;
     }
-    
+
     static public UnitTable findUnitTable(int registerNr) throws IOException {
         Iterator it = units.iterator();
         while(it.hasNext()) {
@@ -100,7 +101,7 @@ public class UnitTable {
             if (u.getRegisterNr() == registerNr)
                 return u;
         }
-        
+
         throw new IOException("UnitTable, findUnitTable, invalid registerNr "+registerNr);
     }
 
@@ -111,5 +112,5 @@ public class UnitTable {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
 }

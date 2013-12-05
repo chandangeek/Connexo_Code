@@ -10,44 +10,41 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Log {
-    
+
     private int logFlags; // 8 bit
     private boolean eventNumberFlag; // bit 0
     private boolean histDateTimeFlag; // bit 1
     private boolean histSeqNumberFlag; // bit 2
     private boolean histInhibitOvfFlag; // bit 3
     private boolean eventInhibitOvfFlag; // bit 4
-    
+
     private int nrOfStdEvents; // 1 byte
     private int nrOfMfgEvents; // 1 byte
     private int histDataLength; // 1 byte
     private int eventDataLength; // 1 byte
     private int nrOfHistoryEntries; // 2 bytes
     private int nrOfEventEntries; // 2 bytes
-    
+
     /** Creates a new instance of Log */
     public Log(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setLogFlags(C12ParseUtils.getInt(data, offset++));
         setEventNumberFlag((getLogFlags() & 0x01) == 0x01);
         setHistDateTimeFlag((getLogFlags() & 0x02) == 0x02);
         setHistSeqNumberFlag((getLogFlags() & 0x04) == 0x04);
         setHistInhibitOvfFlag((getLogFlags() & 0x08) == 0x08);
         setEventInhibitOvfFlag((getLogFlags() & 0x10) == 0x10);
-        
+
         setNrOfStdEvents(C12ParseUtils.getInt(data, offset++));
         setNrOfMfgEvents(C12ParseUtils.getInt(data, offset++));
         setHistDataLength(C12ParseUtils.getInt(data, offset++));
@@ -57,16 +54,16 @@ public class Log {
         setNrOfEventEntries(C12ParseUtils.getInt(data, offset, 2,dataOrder));
         offset+=2;
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Log: logFlags=0x"+Integer.toHexString(logFlags)+", nrOfStdEvents="+nrOfStdEvents+", nrOfMfgEvents="+nrOfMfgEvents+", histDataLength="+histDataLength+", eventDataLength="+eventDataLength+", nrOfHistoryEntries="+nrOfHistoryEntries+", nrOfEventEntries="+nrOfEventEntries+"\n");
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 9;
-    }      
+    }
 
     public int getLogFlags() {
         return logFlags;

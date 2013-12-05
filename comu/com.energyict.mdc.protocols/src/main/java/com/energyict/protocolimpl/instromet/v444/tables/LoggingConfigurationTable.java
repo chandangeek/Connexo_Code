@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -10,11 +10,11 @@ import java.util.List;
 
 
 public class LoggingConfigurationTable extends AbstractTable {
-	
+
 	private List channelInfos = new ArrayList();
 	private List wrapValues = new ArrayList();
-	
-	
+
+
 	public LoggingConfigurationTable(TableFactory tableFactory) {
 		super(tableFactory);
 		wrapValues = tableFactory.getInstromet444().getWrapValues();
@@ -31,9 +31,9 @@ public class LoggingConfigurationTable extends AbstractTable {
 		addChannelInfo(6, "Vn", Unit.get("m3"));
 	}
 
-	
+
 	protected void addChannelInfo(int id, String name, Unit unit) {
-		ChannelInfo info = 
+		ChannelInfo info =
 			new ChannelInfo(id, "Instromet_" + (id + 1) + "_" + name, unit);
 		if (wrapValues.size() >= (id + 1)) {
 			BigDecimal wrapValue = (BigDecimal) wrapValues.get(id);
@@ -43,15 +43,15 @@ public class LoggingConfigurationTable extends AbstractTable {
 		}
 		channelInfos.add(info);
 	}
-	
+
 	protected void parse(byte[] data) throws IOException {
 		// hard coded, log selection does not matces with meter
 	}
-	
+
 	public List getChannelInfos() {
 		return channelInfos;
 	}
-	
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer("");
         for (int i = 0; i < channelInfos.size(); i++) {
@@ -66,27 +66,27 @@ public class LoggingConfigurationTable extends AbstractTable {
         }
         return buffer.toString();
 	}
-	
-	
+
+
 	public int getTableType() {
 		return 10;
 	}
-	
+
 	protected void prepareBuild() throws IOException {
 		/*System.out.println("prepare build logging conf");
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.switchToLoggingConfigurationCommand().invoke();
 		parseStatus(response);
     	readHeaders();*/
 	}
-	
+
 	protected void doBuild() throws IOException {
 		/*System.out.println("doBuild logging conf");
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.readLogSelectorCommand().invoke();
 		parseStatus(response);
 	    parseWrite(response);*/

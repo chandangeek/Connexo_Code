@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileSpec;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
+import com.energyict.mdc.common.ObisCode;
 import org.junit.Test;
 
 import java.util.Arrays;

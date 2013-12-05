@@ -1,7 +1,11 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimarancje.core;
+
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,19 +14,15 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
-
 /**
  * @author gna
  *
  */
 public class PreviousPeriodTable extends AbstractTable{
-	
+
 	private Date timeStamp;
 	private int tarif;
-	
+
 	private long activeEnergyP1[] = new long[6]; 			//kWh
 	private int durationExceedingPowerP1[] = new int[4]; 	//minutes
 	private int exceedingPowerP1[] = new int[4]; 			//daVA(tenths of VA)
@@ -35,7 +35,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	private int maxDemandP2[] = new int[4]; 				//daVA
 //	private int tarifDurationP2[] = new int[4];				//h
 	private int coefficientP2[] = new int[4];				//%
-	
+
 	private int tarifVersionNextPeriod;
 
 	public PreviousPeriodTable(DataFactory dataFactory) {
@@ -52,7 +52,7 @@ public class PreviousPeriodTable extends AbstractTable{
 //		FileOutputStream fos = new FileOutputStream(file);
 //		fos.write(data);
 //		fos.close();
-		
+
 		if ((data[0] != -1) && (data[1] != -1) && (data[2] != -1) && (data[3] != -1) && (data[4] != -1)) {
 
 			int offset = 0;
@@ -126,19 +126,19 @@ public class PreviousPeriodTable extends AbstractTable{
 
 		}
 	}
-	
+
 	public static void main(String args[]){
 		try{
 			PreviousPeriodTable ppt = new PreviousPeriodTable(null);
-			
+
 	        File file = new File("c://TEST_FILES/PreviousPeriodTable.bin");
 	        FileInputStream fis = new FileInputStream(file);
 	        byte[] data=new byte[(int)file.length()];
 	        fis.read(data);
-	        fis.close(); 
+	        fis.close();
 	        ppt.parse(data);
 	        System.out.println(ppt.toString());
-			
+
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -192,7 +192,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public long getActiveEnergyP1(int t) {
 		return activeEnergyP1[t];
 	}
-	
+
 	public Quantity getActiveQuantityP1(int t){
 		return new Quantity(BigDecimal.valueOf(getActiveEnergyP1(t)),Unit.get("kWh"));
 	}
@@ -210,7 +210,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getDurationExceedingPowerP1(int t) {
 		return durationExceedingPowerP1[t];
 	}
-	
+
 	public Quantity getDurationExceedingPowerQuantityP1(int t){
 		return new Quantity(BigDecimal.valueOf(getDurationExceedingPowerP1(t)), Unit.get("min"));
 	}
@@ -228,7 +228,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getExceedingPowerP1(int t) {
 		return exceedingPowerP1[t];
 	}
-	
+
 	public Quantity getExceedingPowerQuantityP1(int t){
 		return new Quantity(BigDecimal.valueOf((long)(getExceedingPowerP1(t)*10)), Unit.get("VA"));
 	}
@@ -246,7 +246,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getMaxDemandP1(int t) {
 		return maxDemandP1[t];
 	}
-	
+
 	public Quantity getMaxDemandQuantityP1(int t){
 		return new Quantity(BigDecimal.valueOf((long)(getMaxDemandP1(t)*10)),Unit.get("VA"));
 	}
@@ -264,7 +264,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getCoefficientP1(int t) {
 		return coefficientP1[t];
 	}
-	
+
 	public Quantity getCoefficientQuantityP1(int t){
 		return new Quantity(BigDecimal.valueOf(getCoefficientP1(t)),Unit.get("%"));
 	}
@@ -282,7 +282,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public long getActiveEnergyP2(int t) {
 		return activeEnergyP2[t];
 	}
-	
+
 	public Quantity getActiveQuantityP2(int t){
 		return new Quantity(BigDecimal.valueOf(getActiveEnergyP2(t)),Unit.get("kWh"));
 	}
@@ -300,7 +300,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getDurationExceedingPowerP2(int t) {
 		return durationExceedingPowerP2[t];
 	}
-	
+
 	public Quantity getDurationExceedingPowerQuantityP2(int t){
 		return new Quantity(BigDecimal.valueOf(getDurationExceedingPowerP2(t)), Unit.get("min"));
 	}
@@ -318,7 +318,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getExceedingPowerP2(int t) {
 		return exceedingPowerP2[t];
 	}
-	
+
 	public Quantity getExceedingPowerQuantityP2(int t){
 		return new Quantity(BigDecimal.valueOf((long)(getExceedingPowerP2(t)*10)), Unit.get("VA"));
 	}
@@ -336,7 +336,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getMaxDemandP2(int t) {
 		return maxDemandP2[t];
 	}
-	
+
 	public Quantity getMaxDemandQuantityP2(int t){
 		return new Quantity(BigDecimal.valueOf((long)(getMaxDemandP2(t)*10)),Unit.get("VA"));
 	}
@@ -361,7 +361,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public void setCoefficientP2(int coefficientP2, int t) {
 		this.coefficientP2[t] = coefficientP2;
 	}
-	
+
 	public Quantity getCoefficientQuantityP2(int t){
 		return new Quantity(BigDecimal.valueOf(getCoefficientP2(t)),Unit.get("%"));
 	}
@@ -372,7 +372,7 @@ public class PreviousPeriodTable extends AbstractTable{
 	public int getTarifDuration(int t) {
 		return tarifDuration[t];
 	}
-	
+
 	public Quantity getTarifDurationQuantity(int t){
 		return new Quantity(BigDecimal.valueOf(getTarifDuration(t)), Unit.get("h"));
 	}

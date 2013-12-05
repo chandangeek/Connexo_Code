@@ -6,9 +6,12 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 import java.util.List;
@@ -234,7 +237,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @param obisCode the obisCode of the Object
      * @return a newly created MbusClient object
      * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
-     * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
+     * @deprecated use {@link #getMbusClient(ObisCode, int)} instead
      */
 	public MBusClient getMbusClient(ObisCode obisCode) throws IOException {
         return getMbusClient(obisCode, MbusClientAttributes.VERSION9);

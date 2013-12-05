@@ -10,23 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.ObisCode;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Register {
-    
+
     private int index;
     private ObisCode obisCode;
     private UnitTable unitTable;
-            
+
     public Register(int index, ObisCode obisCode, UnitTable unitTable) {
         this.setIndex(index);
         this.setObisCode(obisCode);
@@ -38,12 +35,12 @@ public class Register {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Register: 0x"+Integer.toHexString(getIndex())+", "+getUnitTable()+", "+getObisCode()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     public int getLength() throws IOException {
         return 6;
     }
-    
+
     public int getIndex() {
         return index;
     }
@@ -51,7 +48,7 @@ public class Register {
     public void setIndex(int index) {
         this.index = index;
     }
-    
+
     public ObisCode getObisCode() {
         return obisCode;
     }
@@ -68,5 +65,5 @@ public class Register {
         this.unitTable = unitTable;
     }
 
-    
+
 }

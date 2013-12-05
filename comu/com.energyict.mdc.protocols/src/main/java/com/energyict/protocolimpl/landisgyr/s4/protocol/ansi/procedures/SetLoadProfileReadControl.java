@@ -10,27 +10,30 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.procedures;
 
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SetLoadProfileReadControl extends AbstractProcedure {
-    
+
     private int nrOfReadBlocks;
     private int readBlockOffset;
     private int defaultNrOfReadBlocks;
-    
+
     /** Creates a new instance of SnapShotData */
     public SetLoadProfileReadControl(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(11,true));
     }
-    
+
     protected void prepare() throws IOException {
         byte[] data = new byte[6];
-        
+
         int dataOrder = getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         if (dataOrder==1) {
             data[0] = (byte)((nrOfReadBlocks>>8) & 0xFF);
@@ -48,7 +51,7 @@ public class SetLoadProfileReadControl extends AbstractProcedure {
             data[4] = (byte)((defaultNrOfReadBlocks) & 0xFF);
             data[5] = (byte)((defaultNrOfReadBlocks>>8) & 0xFF);
         }
-        
+
         setProcedureData(data);
     }
 
@@ -75,5 +78,5 @@ public class SetLoadProfileReadControl extends AbstractProcedure {
     public void setDefaultNrOfReadBlocks(int defaultNrOfReadBlocks) {
         this.defaultNrOfReadBlocks = defaultNrOfReadBlocks;
     }
-    
+
 }

@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.protocolimpl.base.AbstractContactorController;
+
 import java.io.IOException;
 import java.util.logging.Logger;
-
-import com.energyict.protocolimpl.base.AbstractContactorController;
 
 public class ABBA230ContactorController extends AbstractContactorController {
 

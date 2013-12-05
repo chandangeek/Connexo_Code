@@ -10,31 +10,30 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ENQ extends AbstractSPDU {
-    
+
     private int code;
     private byte[] data;
-    
+
     /** Creates a new instance of XID */
     public ENQ(SPDUFactory sPDUFactory) {
         super(sPDUFactory);
     }
-    
-    
+
+
     protected byte[] prepareBuild() throws IOException {
-        byte[] data = new byte[2]; 
+        byte[] data = new byte[2];
         data[0] = SPDU_ENQ;
         data[1] = (byte)getCode();
         return data;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         this.setData(data);
     }
@@ -54,5 +53,5 @@ public class ENQ extends AbstractSPDU {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
 } // public class XID extends AabstractSPDU

@@ -10,10 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 
 /**
@@ -21,18 +18,18 @@ import com.energyict.protocol.*;
  * @author Koen
  */
 public class LogIn extends AbstractProcedure {
-    
+
     private int userId; // 16 bit
     private byte[] password = new byte[20];
-    
+
     /** Creates a new instance of LogIn */
     public LogIn(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(18));
     }
-    
+
     protected void prepare() throws IOException {
         byte[] data = new byte[22];
-        
+
         int dataOrder = getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         if (dataOrder==1) {
             data[0] = (byte)((getUserId()>>8) & 0xFF);
@@ -62,5 +59,5 @@ public class LogIn extends AbstractProcedure {
     public void setPassword(byte[] password) {
         this.password = password;
     }
-    
+
 }

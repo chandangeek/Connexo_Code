@@ -10,30 +10,28 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class FirmwareAndSoftwareRevision extends AbstractBasePage {
-    
-    
+
+
     private BigDecimal swVersion;
     private BigDecimal fwVersion;
-    
+
     /** Creates a new instance of FirmwareAndSoftwareRevision */
     public FirmwareAndSoftwareRevision(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -41,12 +39,12 @@ public class FirmwareAndSoftwareRevision extends AbstractBasePage {
         strBuff.append("   swVersion="+getSwVersion()+"\n");
         strBuff.append("   fwVersion="+getFwVersion()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2201,4);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setSwVersion(ParseUtils.convertBCDFixedPoint(data, offset, 2, 8));
@@ -71,5 +69,5 @@ public class FirmwareAndSoftwareRevision extends AbstractBasePage {
     }
 
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

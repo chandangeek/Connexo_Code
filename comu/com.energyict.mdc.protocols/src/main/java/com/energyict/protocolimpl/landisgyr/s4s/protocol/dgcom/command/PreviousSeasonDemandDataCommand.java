@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -22,35 +22,35 @@ import com.energyict.protocolimpl.base.*;
  * @author Koen
  */
 public class PreviousSeasonDemandDataCommand extends AbstractCommand {
-    
-    
+
+
     private long previousSeasonCumulativeKWInPulses;
     private Date previousSeasonTimestampMaximumKW;
     private int previousSeasonMaximumKWInPulses;
     private long currentSeasonCumulativeKWInPulses;  // Energy & Demand --> cumulative demand
-    
+
     private long previousSeasonCumulativeKMInPulses;
     private Date previousSeasonTimestampMaximumKM;
     private int previousSeasonMaximumKMInPulses;
     private long currentSeasonCumulativeKMInPulses;
-    
+
     private int powerFactorAtPreviousSeasonMaxKW;
     private int powerFactorAtPreviousSeasonMaxKM;
-    
+
     private int previousSeasonCoincidentDemandInPulses;
-    
+
     private Date previousSeasonTimestampMaximumKM3;
     private int previousSeasonMaximumKM3InPulses;
     private int powerFactorAtPreviousSeasonMaxKM3;
     private int coincidentKM3AtPreviousSeasonMaxBillingDemandInPulses;
     private long previousSeasonTotalKM3h;
-    
-    
+
+
     /** Creates a new instance of TemplateCommand */
     public PreviousSeasonDemandDataCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -73,23 +73,23 @@ public class PreviousSeasonDemandDataCommand extends AbstractCommand {
         strBuff.append("   previousSeasonTotalKM3h="+getPreviousSeasonTotalKM3h()+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00))
             return new byte[]{(byte)0xC8,0,0,0,0,0,0,0,0};
         else
             return new byte[]{(byte)0x4C,0,0,0,0,0,0,0,0};
-            
+
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        
+
         setPreviousSeasonCumulativeKWInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
         setPreviousSeasonTimestampMaximumKW(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
         setPreviousSeasonMaximumKWInPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
         setCurrentSeasonCumulativeKWInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
-        
+
         if (getCommandFactory().getFirmwareVersionCommand().isRX()) {
             setPreviousSeasonCumulativeKMInPulses(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
             setPreviousSeasonTimestampMaximumKM(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
@@ -99,19 +99,19 @@ public class PreviousSeasonDemandDataCommand extends AbstractCommand {
             setPowerFactorAtPreviousSeasonMaxKW((int)ParseUtils.getBCD2LongLE(data, offset, 2));offset+=2;
             setPowerFactorAtPreviousSeasonMaxKM((int)ParseUtils.getBCD2LongLE(data, offset, 2));offset+=2;
         }
-        
+
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=2.10)) {
             setPreviousSeasonCoincidentDemandInPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
         }
-        
+
         if ((getCommandFactory().getFirmwareVersionCommand().isRX()) && (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)) {
             setPreviousSeasonTimestampMaximumKM3(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4s().getTimeZone()));offset+=6;
             setPreviousSeasonMaximumKM3InPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
             setPowerFactorAtPreviousSeasonMaxKM3((int)ParseUtils.getBCD2LongLE(data, offset, 2));offset+=2;
             setCoincidentKM3AtPreviousSeasonMaxBillingDemandInPulses(ProtocolUtils.getIntLE(data,offset,2));offset+=2;
-            setPreviousSeasonTotalKM3h(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;       
+            setPreviousSeasonTotalKM3h(ParseUtils.getBCD2LongLE(data, offset, 6));offset+=6;
         }
-        
+
     }
 
     public long getPreviousSeasonCumulativeKWInPulses() {

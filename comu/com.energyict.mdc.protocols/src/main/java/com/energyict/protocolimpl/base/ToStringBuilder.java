@@ -10,7 +10,10 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.beans.*;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 
 /**
@@ -18,13 +21,13 @@ import java.lang.reflect.Method;
  * @author koen
  */
 public class ToStringBuilder {
-    
-    
+
+
     /** Creates a new instance of ToStringBuilder */
     private ToStringBuilder() {
     }
-    
-    
+
+
     public static String print(Object obj) {
         StringBuffer strBuff = new StringBuffer();
         try {
@@ -48,28 +51,28 @@ public class ToStringBuilder {
         }
         return strBuff.toString();
     }
-    
-    
+
+
     /*
         Use:
         Add the following main to the class for which you want to generate toString() code
-     
+
         public static void main(String[] args) {
             System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new YourClass(...)));
-        } 
+        }
 
-        OR 
+        OR
 
         public YourClass() {
         }
         public static void main(String[] args) {
             System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new YourClass()));
-        }     
-     
-        copy and paste the output in your code.  
-          
+        }
+
+        copy and paste the output in your code.
+
      */
-    
+
     public static String genCode(Object obj) {
         StringBuffer strBuff = new StringBuffer();
         try {
@@ -84,7 +87,7 @@ public class ToStringBuilder {
             for(int i=0;i<pds.length;i++) {
                 Method method = pds[i].getReadMethod();
                 if (pds[i].getName().compareTo("class")!=0) {
-                    
+
                     if (method.getDeclaringClass()==obj.getClass()) {
                         try {
                             if (pds[i].getPropertyType().isArray()) {
@@ -107,5 +110,5 @@ public class ToStringBuilder {
             e.printStackTrace();
         }
         return strBuff.toString();
-    }    
+    }
 }

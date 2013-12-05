@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;

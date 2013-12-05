@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -12,13 +12,13 @@ import java.util.Date;
  * @author  Koen
  */
 public class BillingValue {
-    
+
     Date eventDateTime;
     Quantity quantity;
     ObisCode obisCode;
     long value;
     ScalerUnit scalerUnit;
-    
+
     /** Creates a new instance of BillingValue */
     public BillingValue(Date eventDateTime, long value, ScalerUnit scalerUnit, ObisCode obisCode) {
         this.eventDateTime =eventDateTime;
@@ -28,7 +28,7 @@ public class BillingValue {
         quantity = new Quantity(BigDecimal.valueOf(value),scalerUnit.getEisUnit());
     }
 
-    
+
     public BillingValue(Date eventDateTime, Quantity quantity, ObisCode obisCode) {
         this.eventDateTime =eventDateTime;
         this.quantity=quantity;
@@ -36,11 +36,11 @@ public class BillingValue {
         value = quantity.longValue();
         scalerUnit = new ScalerUnit(quantity.getUnit().getScale(),quantity.getUnit().getDlmsCode());
     }
-    
+
     public String toString() {
         return "ObisCode="+obisCode+", quantity="+(quantity)+(eventDateTime !=null?(", event datetime="+ eventDateTime):"");
     }
-    
+
     /**
      * Getter for property eventDateTime.
      * @return Value of property eventDateTime.

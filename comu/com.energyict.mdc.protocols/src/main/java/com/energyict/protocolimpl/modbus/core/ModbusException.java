@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
@@ -20,19 +20,19 @@ import java.io.*;
 
 public class ModbusException extends IOException {
 
-  static public final short GENERAL_ERROR=0;  
-  static public final short PARSE_ERROR=1;  
-  static public final short PARSE_LENGTH_ERROR=2;  
-  static public final short WRITE_ERROR=3;  
-    
+  static public final short GENERAL_ERROR=0;
+  static public final short PARSE_ERROR=1;
+  static public final short PARSE_LENGTH_ERROR=2;
+  static public final short WRITE_ERROR=3;
+
   private short sReason;
   private int functionErrorCode;
   private int exceptionCode;
-  
+
   public short getReason() {
      return sReason;
   }
-   
+
   public ModbusException(String str)
   {
       super(str);
@@ -43,20 +43,20 @@ public class ModbusException extends IOException {
   {
       super();
       this.sReason = -1;
-      
+
   } // public ConnectionException()
 
   public ModbusException(String str, short sReason) {
       this(str,sReason,-1,-1);
   }
-  
+
   public ModbusException(String str, short sReason, int functionErrorCode, int exceptionCode) {
       super(str);
       this.sReason = sReason;
       this.functionErrorCode=functionErrorCode;
       this.exceptionCode=exceptionCode;
 
-  } // public ConnectionException(String str)    
+  } // public ConnectionException(String str)
 
     public int getFunctionErrorCode() {
         return functionErrorCode;

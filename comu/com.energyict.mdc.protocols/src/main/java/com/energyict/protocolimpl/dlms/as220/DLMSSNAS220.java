@@ -17,9 +17,7 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
@@ -46,6 +44,8 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;

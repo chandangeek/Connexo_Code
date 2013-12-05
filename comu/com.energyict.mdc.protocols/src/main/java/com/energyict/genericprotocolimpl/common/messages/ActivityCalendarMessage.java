@@ -1,21 +1,33 @@
 package com.energyict.genericprotocolimpl.common.messages;
 
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.attributeobjects.*;
-import com.energyict.mdw.core.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
+import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
+import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
+import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdw.core.CodeDayTypeDef;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ActivityCalendarMessage {
-	
+
 	private Code ct;
 	private Array dayArray;
 	private Array seasonArray;
 	private Array weekArray;
 	private DLMSMeterConfig meterConfig;
-	
+
 	public ActivityCalendarMessage(Code ct, DLMSMeterConfig meterConfig){
 		this.ct = ct;
 		this.meterConfig = meterConfig;
@@ -31,9 +43,9 @@ public class ActivityCalendarMessage {
 	public void parse() throws IOException{
 		List calendars = ct.getCalendars();
 		HashMap seasonsProfile = new HashMap();
-		
+
 		Iterator itr = calendars.iterator();
-		while(itr.hasNext()){ 
+		while(itr.hasNext()){
 			CodeCalendar cc = (CodeCalendar)itr.next();
 			int seasonId = cc.getSeason();
 			if(seasonId != 0){
@@ -44,16 +56,16 @@ public class ActivityCalendarMessage {
 		}
 
 //		int numberOfSeasons = getNumberOfSeasons();
-		
+
 		int weekCount = 0;
 		Iterator seasonsPIt = seasonsProfile.entrySet().iterator();
 		while(seasonsPIt.hasNext()){
 			Map.Entry entry = (Map.Entry)seasonsPIt.next();
 			OctetString dateTime = (OctetString)entry.getKey();
-			
+
 			int seasonProfileNameId = (Integer)entry.getValue();
 			if(!seasonArrayExists(seasonProfileNameId, seasonArray)){
-				
+
 				String weekProfileName = Integer.toString(weekCount++);
 				SeasonProfiles sp = new SeasonProfiles();
 				sp.setSeasonProfileName(OctetString.fromString(Integer.toString(seasonProfileNameId))); 	// the seasonProfileName is the DB id of the season
@@ -105,7 +117,7 @@ public class ActivityCalendarMessage {
 							}
 						}
 					}
-					
+
 					wp.setWeekProfileName(OctetString.fromString(weekProfileName));
 					for(int i = 0; i < dayTypes.length; i++){
 						if(dayTypes[i] != null){
@@ -117,7 +129,7 @@ public class ActivityCalendarMessage {
 						}
 					}
 					weekArray.addDataType(wp);
-					
+
 				}
 			}
 		}
@@ -150,10 +162,10 @@ public class ActivityCalendarMessage {
 			dp.setDayProfileActions(daySchedules);
 			dayArray.addDataType(dp);
 		}
-	
+
 		checkForSingleSeasonStartDate();
 	}
-	
+
 	/**
 	 * Checks if a given seasonProfile already exists
 	 * @param seasonProfileNameId - the id of the 'to-check' seasonProfile
@@ -169,7 +181,7 @@ public class ActivityCalendarMessage {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Checks if a given weekProfile already exists
 	 * @param weekProfileName - the id of the 'to-check' weekProfile
@@ -192,7 +204,7 @@ public class ActivityCalendarMessage {
 	public Array getSeasonProfile() {
 		return this.seasonArray;
 	}
-	
+
 	/**
 	 * If only one season is defined, then you must at least enter 1 value for the startDate.
 	 */
@@ -208,7 +220,7 @@ public class ActivityCalendarMessage {
 	}
 
 	/**
-	 * @return the current weekArray 
+	 * @return the current weekArray
 	 */
 	public Array getWeekProfile() {
 		return this.weekArray;

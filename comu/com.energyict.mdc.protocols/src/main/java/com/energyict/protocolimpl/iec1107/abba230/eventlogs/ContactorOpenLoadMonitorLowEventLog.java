@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.TimeZone;
-
-import com.energyict.protocol.*;
 
 public class ContactorOpenLoadMonitorLowEventLog extends AbstractEventLog {
 
@@ -12,11 +13,11 @@ public class ContactorOpenLoadMonitorLowEventLog extends AbstractEventLog {
 	int mostRecent;
 	int count;
 	TimeStampInfoPair[] timeStampInfoPairs = new TimeStampInfoPair[10];
-	
+
 	public ContactorOpenLoadMonitorLowEventLog(TimeZone timeZone) throws IOException {
 		super(timeZone);
-	}	
-	
+	}
+
 	public void parse(byte[] data) throws IOException {
 		int offset=0;
 		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);

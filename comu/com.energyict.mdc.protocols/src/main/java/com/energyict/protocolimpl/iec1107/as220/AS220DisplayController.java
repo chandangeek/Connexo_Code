@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.logging.Logger;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * This class sends a message onto the display of the meter. This message has

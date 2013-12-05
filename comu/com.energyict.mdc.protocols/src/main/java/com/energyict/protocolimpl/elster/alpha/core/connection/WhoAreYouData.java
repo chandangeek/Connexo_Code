@@ -11,14 +11,13 @@
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 
 /**
  *
  * @author Koen
  */
 public class WhoAreYouData {
-    
+
     private int pcode;
     private int pseries;
     private int xuom;
@@ -26,13 +25,13 @@ public class WhoAreYouData {
     private int events;
     private int modstat;
     private byte[] passwordEncryptionKey;
-    
-    
+
+
     /** Creates a new instance of WhoAreYouData */
     public WhoAreYouData(byte[] data) {
         parse(data);
     }
-    
+
     private void parse(byte[] data) {
         setPcode((int)data[0]&0xff);
         setPseries((int)data[1]&0xff);
@@ -98,5 +97,5 @@ public class WhoAreYouData {
     public void setPasswordEncryptionKey(byte[] passwordEncryptionKey) {
         this.passwordEncryptionKey = passwordEncryptionKey;
     }
-    
+
 }

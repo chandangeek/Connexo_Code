@@ -7,31 +7,31 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.ProfileData;
-
-/** 
+/**
  * @author fbo */
 
 public class ApplicationFunction {
-    
+
     private final LinkLayer linkLayer;
     private final FrameFactory frameFactory;
-    
+
     private boolean cumulative;
     private final ArrayList channelInfo;
-    
+
     /** Creates a new instance of ApplicationFunction */
     public ApplicationFunction(Ziv5Ctd ziv) {
         this.linkLayer = ziv.linkLayer;
         this.frameFactory = ziv.frameFactory;
         this.cumulative = ziv.pCumulativeProfile;
-        
+
         this.channelInfo =  new ArrayList( ){
             {
                 ChannelInfo c1 = new ChannelInfo( 1, "Import Kw", Unit.get("kWh") );
@@ -59,14 +59,14 @@ public class ApplicationFunction {
             }
         };
     }
-    
+
     Object read( Asdu asdu ) throws IOException, ParseException {
-        
+
         ArrayList result = new ArrayList();
-        
+
         if( asdu.getTypeIdentification().isReadProfileCmd() ){
             return readProfile(asdu);
-        } 
+        }
         if( asdu.getTypeIdentification().isReadHistoricalTarification() ) {
             return readHistoricalTarification(asdu);
         }
@@ -76,24 +76,24 @@ public class ApplicationFunction {
         if( asdu.getTypeIdentification().isReadEvents() ) {
             return readEvents(asdu);
         }
-        
+
         readSingle(result, asdu);
         return result;
-        
+
     }
 
     private Object readProfile(final Asdu asdu) throws IOException, ParseException {
-        
+
         ProfileData pData = new ProfileData();
-        
+
         pData.setChannelInfos(channelInfo);
-        
+
         VariableFrame vFrame = (VariableFrame) linkLayer.requestRespond(
                 (VariableFrame) frameFactory.createVariable(
                 FunctionCode.PRIMARY[0x3], asdu ));
-        
+
         Frame resp = frameFactory.createFixed( FunctionCode.PRIMARY[0xb] );
-        
+
         CauseOfTransmission fCot = vFrame.getCauseOfTransmission();
         while( fCot != CauseOfTransmission.ACTIVATION_TERMINATION ) {
             vFrame = (VariableFrame)linkLayer.requestRespond(resp );
@@ -104,20 +104,20 @@ public class ApplicationFunction {
             }
             fCot = vFrame.getCauseOfTransmission();
         }
-        
+
         return pData;
     }
-    
+
     private Object readTarification( final Asdu asdu ) throws IOException {
-        
+
         InformationObject87 io87 = new InformationObject87();
-        
-        VariableFrame vFrame = 
+
+        VariableFrame vFrame =
                 (VariableFrame) linkLayer.requestRespond(
                     (VariableFrame) frameFactory.createVariable( FunctionCode.PRIMARY[0x3], asdu ));
-        
+
         Frame resp = frameFactory.createFixed( FunctionCode.PRIMARY[0xb] );
-        
+
         CauseOfTransmission fCot = vFrame.getCauseOfTransmission();
         while( fCot != CauseOfTransmission.ACTIVATION_TERMINATION ) {
             vFrame = (VariableFrame)linkLayer.requestRespond(resp );
@@ -128,23 +128,23 @@ public class ApplicationFunction {
             }
             fCot = vFrame.getCauseOfTransmission();
         }
-        
+
         return io87;
     }
-    
+
     private Object readHistoricalTarification( final Asdu asdu ) throws IOException {
-        
+
         InformationObject88 io88 = new InformationObject88();
-        
-        VariableFrame vFrame = 
+
+        VariableFrame vFrame =
                 (VariableFrame) linkLayer.requestRespond(
                     (VariableFrame) frameFactory.createVariable( FunctionCode.PRIMARY[0x3], asdu ));
-        
+
         if( vFrame.getCauseOfTransmission() != CauseOfTransmission.ACTIVATION_CONFIRMATION )
             return io88;
-        
+
         Frame resp = frameFactory.createFixed( FunctionCode.PRIMARY[0xb] );
-        
+
         CauseOfTransmission fCot = vFrame.getCauseOfTransmission();
         while( fCot != CauseOfTransmission.ACTIVATION_TERMINATION ) {
             vFrame = (VariableFrame)linkLayer.requestRespond(resp);
@@ -155,22 +155,22 @@ public class ApplicationFunction {
             }
             fCot = vFrame.getCauseOfTransmission();
         }
-        
+
         return io88;
     }
-    
+
     private List readEvents(final Asdu asdu) throws IOException {
-        
+
         ArrayList result = new ArrayList();
-        VariableFrame vFrame = 
+        VariableFrame vFrame =
             (VariableFrame) linkLayer.requestRespond(
             (VariableFrame) frameFactory.createVariable( FunctionCode.PRIMARY[0x3], asdu ));
 
         if( vFrame.getCauseOfTransmission() != CauseOfTransmission.ACTIVATION_CONFIRMATION )
             return result;
-        
+
         Frame resp = frameFactory.createFixed( FunctionCode.PRIMARY[0xb] );
-        
+
         CauseOfTransmission fCot = vFrame.getCauseOfTransmission();
         while( fCot != CauseOfTransmission.ACTIVATION_TERMINATION ) {
             vFrame = (VariableFrame)linkLayer.requestRespond(resp);
@@ -182,17 +182,17 @@ public class ApplicationFunction {
             }
             fCot = vFrame.getCauseOfTransmission();
         }
-        
+
         return result;
     }
 
     private void readSingle(final ArrayList result, final Asdu asdu) throws IOException, ParseException {
-        
+
         VariableFrame vFrame = (VariableFrame)
         linkLayer.requestRespond( (VariableFrame)
         frameFactory.createVariable(
                 FunctionCode.PRIMARY[0x3], asdu ));
         result.addAll( vFrame.getAsdu().getInformationObjects() );
     }
-    
+
 }

@@ -1,17 +1,21 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
 
 /**
  * Provides a summary of all DeviceMessages related to LoadProfiles and their configuration
@@ -23,20 +27,20 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum LoadProfileMessage implements DeviceMessageSpec {
 
     PARTIAL_LOAD_PROFILE_REQUEST(
-            PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)
+            RequiredPropertySpecFactory.newInstance().loadProfilePropertySpec(loadProfileAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(toDateAttributeName)
     ),
     ResetActiveImportLP(),
     ResetActiveExportLP(),
     ResetDailyProfile(),
     ResetMonthlyProfile(),
-    WRITE_CAPTURE_PERIOD_LP1(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
-    WRITE_CAPTURE_PERIOD_LP2(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
-    WriteConsumerProducerMode(PropertySpecFactory.stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
+    WRITE_CAPTURE_PERIOD_LP1(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(capturePeriodAttributeName)),
+    WRITE_CAPTURE_PERIOD_LP2(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(capturePeriodAttributeName)),
+    WriteConsumerProducerMode(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
     LOAD_PROFILE_REGISTER_REQUEST(
-            PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName)
+            RequiredPropertySpecFactory.newInstance().loadProfilePropertySpec(loadProfileAttributeName),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName)
     );
 
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILES;

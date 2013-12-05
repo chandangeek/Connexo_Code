@@ -10,27 +10,27 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author Koen
  */
 public class ObisCodeInfo {
-    
+
     private ObisCode obisCode;
     private String description;
     private Unit unit;
     int registerIndex;
     private int datacontrolEntryIndex;
     int occurance;
-    
+
     /** Creates a new instance of ObisCodeInfo */
     public ObisCodeInfo(ObisCode obisCode,String description,Unit unit,int registerIndex, int datacontrolEntryIndex) {
         this(obisCode,description,unit,registerIndex,datacontrolEntryIndex,0);
     }
-    
+
     public ObisCodeInfo(ObisCode obisCode,String description,Unit unit,int registerIndex, int datacontrolEntryIndex, int occurance) {
         this.obisCode=obisCode;
         this.description=description;
@@ -55,7 +55,7 @@ public class ObisCodeInfo {
     public Unit getUnit() {
         return unit;
     }
-    
+
     public boolean isCurrent() {
         return getObisCode().getF()==ObisCodeInfoFactory.CURRENT;
     }
@@ -77,11 +77,11 @@ public class ObisCodeInfo {
     public int getTierIndex() {
         return getObisCode().getE()-1;
     }
-    
+
     public int getOccurance() {
         return occurance;
     }
-    
+
     public boolean isTimeIntegral() {
         return getObisCode().getD() == ObisCode.CODE_D_TIME_INTEGRAL;
     }

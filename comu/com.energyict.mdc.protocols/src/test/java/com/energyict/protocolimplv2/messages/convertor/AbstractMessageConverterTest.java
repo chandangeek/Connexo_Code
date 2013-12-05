@@ -1,28 +1,26 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerImpl;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.interfaces.mdw.Mdw2MdcInterfaceImpl;
-import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageAttribute;
 import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
-import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecFactoryImpl;
 import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.cryptoimpl.KeyStoreDataVaultProvider;
 import com.energyict.mdw.cryptoimpl.SecureRandomProvider;
 import com.energyict.mdw.interfacing.mdc.DefaultMdcInterfaceProvider;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.messaging.Messaging;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -31,7 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Abstract class grouping common functionality used to test the various {@link LegacyMessageConverter LegacyMessageConverters} .
@@ -99,7 +100,7 @@ public abstract class AbstractMessageConverterTest {
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), getPropertySpecValue(propertySpec));
-            attributes.add(new TestOfflineDeviceMessageAttribute(new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), getMessageConverter()));
+            attributes.add(new TestOfflineDeviceMessageAttribute(message, new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), getMessageConverter()));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);
@@ -134,7 +135,7 @@ public abstract class AbstractMessageConverterTest {
     /**
      * Gets the value to use for the given {@link PropertySpec}
      */
-    abstract protected Object getPropertySpecValue(PropertySpec propertySpec);
+    protected abstract Object getPropertySpecValue(PropertySpec propertySpec);
 
     /**
      * An offline implementation version of an {@link com.energyict.mdc.messages.DeviceMessageAttribute} used for test purposes.
@@ -146,9 +147,10 @@ public abstract class AbstractMessageConverterTest {
         private PropertySpec propertySpec;
         private String name;
         private String deviceMessageAttributeValue;
-        private DeviceMessage deviceMessage;
+        private OfflineDeviceMessage deviceMessage;
 
-        public TestOfflineDeviceMessageAttribute(DeviceMessageAttribute deviceMessageAttribute, LegacyMessageConverter messageConverter) {
+        private TestOfflineDeviceMessageAttribute (OfflineDeviceMessage deviceMessage, DeviceMessageAttribute deviceMessageAttribute, LegacyMessageConverter messageConverter) {
+            this.deviceMessage = deviceMessage;
             this.deviceMessageAttribute = deviceMessageAttribute;
             this.messageConverter = messageConverter;
             goOffline();
@@ -158,7 +160,6 @@ public abstract class AbstractMessageConverterTest {
             this.propertySpec = this.deviceMessageAttribute.getSpecification();
             this.name = this.deviceMessageAttribute.getName();
             this.deviceMessageAttributeValue = messageConverter.format(propertySpec, this.deviceMessageAttribute.getValue());
-            this.deviceMessage = this.deviceMessageAttribute.getMessage();
         }
 
         @Override
@@ -177,7 +178,7 @@ public abstract class AbstractMessageConverterTest {
         }
 
         @Override
-        public DeviceMessage getDeviceMessage() {
+        public OfflineDeviceMessage getDeviceMessage () {
             return deviceMessage;
         }
     }

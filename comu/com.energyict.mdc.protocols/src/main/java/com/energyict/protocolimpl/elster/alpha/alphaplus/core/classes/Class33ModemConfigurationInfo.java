@@ -10,17 +10,16 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Class33ModemConfigurationInfo extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(33,64,false);
     String COMID;
     String INITSTR;
@@ -33,14 +32,14 @@ public class Class33ModemConfigurationInfo extends AbstractClass {
     //RESERVED [12]
 
     public String toString() {
-        return "Class33ModemConfigurationInfo: COMID="+COMID+", INITSTR="+INITSTR+", TWIND3="+TWIND3+", AUTOANS="+AUTOANS+", INITDEL="+INITDEL+", TRYDEL="+TRYDEL+", RSPEED=0x"+Integer.toHexString(RSPEED)+", DEVNUM="+DEVNUM;                
+        return "Class33ModemConfigurationInfo: COMID="+COMID+", INITSTR="+INITSTR+", TWIND3="+TWIND3+", AUTOANS="+AUTOANS+", INITDEL="+INITDEL+", TRYDEL="+TRYDEL+", RSPEED=0x"+Integer.toHexString(RSPEED)+", DEVNUM="+DEVNUM;
     }
-    
+
     /** Creates a new instance of Class33ModemConfigurationInfo */
     public Class33ModemConfigurationInfo(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         COMID = new String(ProtocolUtils.getSubArray(data,0, 7));
         INITSTR = new String(ProtocolUtils.getSubArray(data,8, 43));
@@ -51,9 +50,9 @@ public class Class33ModemConfigurationInfo extends AbstractClass {
         RSPEED = ProtocolUtils.getInt(data,49, 1);
         DEVNUM = ProtocolUtils.getInt(data,50, 1);
     }
-    
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
+        return classIdentification;
     }
 
     public String getCOMID() {
@@ -87,6 +86,6 @@ public class Class33ModemConfigurationInfo extends AbstractClass {
     public int getDEVNUM() {
         return DEVNUM;
     }
-    
-    
+
+
 }

@@ -10,17 +10,16 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GeneralDemandConfiguration extends AbstractDataDefinition {
-    
+
     private int numberOfTOUSummaries;// unsigned8;
     private int numberOfMultiplePeaksOrMinimumsSummaries;// unsigned16;
     private int numberOfRatesPerTOUSummary;// unsigned8;
@@ -35,15 +34,15 @@ public class GeneralDemandConfiguration extends AbstractDataDefinition {
     private int demandResetLockOutTime;// unsigned16; --in seconds
     private boolean useGlobalEOISource;// boolean;
     private int numberOfExtremaPerMPM;// unsigned16,
-    
-    
+
+
     /**
      * Creates a new instance of GeneralDemandConfiguration
      */
     public GeneralDemandConfiguration(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -64,11 +63,11 @@ public class GeneralDemandConfiguration extends AbstractDataDefinition {
         strBuff.append("   useGlobalEOISource="+isUseGlobalEOISource()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 15; // DLMS_GENERAL_DEMAND_CONFIG
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setNumberOfTOUSummaries(ProtocolUtils.getInt(data,offset++,1));

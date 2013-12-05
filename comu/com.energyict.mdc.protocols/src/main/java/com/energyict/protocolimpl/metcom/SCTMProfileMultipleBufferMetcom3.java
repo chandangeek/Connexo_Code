@@ -6,50 +6,47 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
-
-import com.energyict.protocolimpl.siemens7ED62.*;
+import java.util.List;
 
 /**
  *
  * @author  Koen
  */
 public class SCTMProfileMultipleBufferMetcom3 extends SCTMProfileMultipleBuffer {
-    
+
     /** Creates a new instance of SCTMProfileMetcom3FAF */
     public SCTMProfileMultipleBufferMetcom3(List frames, ChannelMap channelMap, List bufferStructures) {
         super(frames,channelMap,bufferStructures);
-        
+
     }
-    
-    
-    
-    
-    
+
+
+
+
+
      protected int getEIStatusFromMeteringValueStatus(int status, int deviceStatus) {
          int eiStatus=0;
          if ((status & CORRUPTEDVALUE) != 0) {
              if (((deviceStatus&U_BIT)==0))
-                 eiStatus|=IntervalStateBits.CORRUPTED;
+                 eiStatus|= IntervalStateBits.CORRUPTED;
          }
          if ((status & VALUEOVERFLOW) != 0)
              eiStatus|=IntervalStateBits.OVERFLOW;
          return eiStatus;
-     }    
-    
+     }
+
      protected int getEIStatusFromDeviceStatus(int status) {
         int eiStatus=0;
         if ((status&T_BIT) != 0) eiStatus |= IntervalData.SHORTLONG;
         if ((status&U_BIT) != 0) eiStatus |= IntervalData.SHORTLONG;
-        if ((status&M_BIT) != 0) eiStatus |= IntervalData.CONFIGURATIONCHANGE;  
+        if ((status&M_BIT) != 0) eiStatus |= IntervalData.CONFIGURATIONCHANGE;
         //if ((status&A_BIT) != 0) eiStatus |= IntervalData.OTHER;  changes for EDP 23092005
         if ((status&NP_BIT) != 0) eiStatus |= IntervalData.MISSING;
         if ((status&F_BIT) != 0) eiStatus |= IntervalData.CORRUPTED;
         return eiStatus;
-    }     
-        
+    }
+
 }

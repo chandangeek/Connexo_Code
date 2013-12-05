@@ -3,11 +3,12 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
-import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.inbound.FindMultipleDevices;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
-import com.energyict.mdw.offline.OfflineDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
  * Date: 9/3/13
  * Time: 11:45 AM
  */
-public class DeviceIdentifierBySerialNumberPlaceHolder implements ServerDeviceIdentifier {
+public class DeviceIdentifierBySerialNumberPlaceHolder implements CanFindDevice, FindMultipleDevices {
 
     private final SerialNumberPlaceHolder serialNumberPlaceHolder;
     private Device device;

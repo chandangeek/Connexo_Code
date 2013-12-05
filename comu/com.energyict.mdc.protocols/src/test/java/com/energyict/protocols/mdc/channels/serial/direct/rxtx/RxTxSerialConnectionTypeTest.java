@@ -1,11 +1,15 @@
 package com.energyict.protocols.mdc.channels.serial.direct.rxtx;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import org.junit.Test;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
+import org.junit.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for the {@link com.energyict.protocols.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType} component
@@ -14,34 +18,33 @@ import static org.junit.Assert.assertTrue;
  * Date: 13/08/12
  * Time: 15:21
  */
-public class RxTxSerialConnectionTypeTest {
+public class RxTxSerialConnectionTypeTest extends ConnectionTypePropertiesTest {
 
     @Test
     public void allowSimultaneousConnectionsTest(){
-        RxTxSerialConnectionType serialConnectionType = new RxTxSerialConnectionType();
+        RxTxSerialConnectionType serialConnectionType = newConnectionType();
 
         // assertion to test that no simultaneous connections are allowed on the serial connectionType
         assertFalse(serialConnectionType.allowsSimultaneousConnections());
     }
 
-    @Test
-    public void getRequiredKeysTest(){
-        RxTxSerialConnectionType serialConnectionType = new RxTxSerialConnectionType();
-
-        // asserts
-        assertThat(serialConnectionType.getRequiredProperties()).isNotEmpty();
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.PARITY_NAME));
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.BAUDRATE_NAME));
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME));
-        assertTrue(serialConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+    @Override
+    protected RxTxSerialConnectionType newConnectionType () {
+        return new RxTxSerialConnectionType();
     }
 
-    @Test
-    public void getOptionalPropertiesTest(){
-        RxTxSerialConnectionType serialConnectionType = new RxTxSerialConnectionType();
-
-        // asserts
-        assertThat(serialConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+    @Override
+    protected Set<String> requiredPropertyNames () {
+        return new HashSet<>(Arrays.asList(
+                SerialPortConfiguration.PARITY_NAME,
+                SerialPortConfiguration.BAUDRATE_NAME,
+                SerialPortConfiguration.NR_OF_STOP_BITS_NAME,
+                SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
     }
+
+    @Override
+    protected Set<String> optionalPropertyNames () {
+        return new HashSet<>(Arrays.asList(SerialPortConfiguration.FLOW_CONTROL_NAME));
+    }
+
 }

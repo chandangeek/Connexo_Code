@@ -10,32 +10,34 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-    
+
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
     }
-    
+
     protected void init() {
         // options
         setZeroBased(true); // this means that reg2read = reg-1
-        
+
         //getRegisters().add(new HoldingRegister(257,2,ObisCode.fromString("1.1.16.8.0.254"),Unit.get("kWh")).setParser("FloatingPoint")); // consumption
-        getRegisters().add(new HoldingRegister(1,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh")).setParser("EnergyParser")); // consumption
+        getRegisters().add(new HoldingRegister(1,2, ObisCode.fromString("1.1.16.8.0.255"), Unit.get("kWh")).setParser("EnergyParser")); // consumption
         getRegisters().add(new HoldingRegister(3,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW"))); // demand
         getRegisters().add(new HoldingRegister(4,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("var"))); // reactive power
         getRegisters().add(new HoldingRegister(5,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("VA"))); // apparent power
@@ -61,11 +63,11 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(25,1,ObisCode.fromString("1.1.1.4.0.255"),Unit.get("kW"))); // power average demand
         getRegisters().add(new HoldingRegister(26,1,ObisCode.fromString("1.1.1.3.0.255"),Unit.get("kW"))); // power min demand
         getRegisters().add(new HoldingRegister(27,1,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW"))); // power max demand
-        
-        
-        
+
+
+
     }
-    
+
     protected void initParsers() {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
@@ -74,7 +76,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
-        
+
         getParserFactory().addParser("EnergyParser",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
                 long val=(values[1]<<16)+values[0];
@@ -82,14 +84,14 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return bd.multiply(getModBus().getRegisterMultiplier(register.getReg()));
             }
         });
-        
+
         getParserFactory().addParser("FloatingPoint",new Parser() {
             public Object val(int[] values, AbstractRegister register) {
                 int val=(values[0]<<16)+values[1];
                 return new BigDecimal(""+Float.intBitsToFloat(val));
             }
         });
-        
+
     } //private void initParsers()
-    
+
 } // public class RegisterFactory extends AbstractRegisterFactory

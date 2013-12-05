@@ -10,40 +10,47 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author koen
  */
 public class RVCommand extends AbstractCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("RV",true,false);
-    
+
     private List eventLogs;
-    
+
     /** Creates a new instance of RVCommand */
     public RVCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("RVCommand:\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("RVCommand:\n");
         for (int i=0;i<eventLogs.size();i++) {
             EventLog el = (EventLog)eventLogs.get(i);
-            strBuff.append(el+"\n");
+            builder.append(el).append("\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
-    
+
     protected void parse(String strData) throws IOException {
-        
+
         byte[] data = strData.getBytes();
-        
+
         int eventLogCode;
         Date eventDate;
         int eventAverageMagnitude;
@@ -53,12 +60,12 @@ public class RVCommand extends AbstractCommand {
         int offset=1024; // first block only contains the eventlog size...
 //        if ((length%16) != 0)
 //            throw new IOException("RVCommand, parse(), data length is not divisable by 16, data.length="+length);
-  
+
         BufferedReader br = new BufferedReader(new StringReader(strData));
         int logSize = Integer.parseInt(br.readLine())+1024;
-        
+
         setEventLogs(new ArrayList());
-        
+
         while(offset<logSize) {
             durationUnit = ProtocolUtils.getInt(data,3+offset,1);
             eventDuration = ParseUtils.getBCD2LongLE(data,4+offset,4);
@@ -77,14 +84,14 @@ public class RVCommand extends AbstractCommand {
             getEventLogs().add(new EventLog(eventLogCode, eventDate, eventAverageMagnitude, eventDuration, durationUnit));
             offset+=16;
         }
-        
+
         setEventLogs(eventLogs);
     } // protected void parse(String strData) throws IOException
-    
+
     public void setNrOfRecords(int nrOfRecords) {
         commandIdentification.setArguments(new String[]{Integer.toString(nrOfRecords)});
     }
-    
+
     public List getMeterEvents() {
         List meterEvents = new ArrayList();
         Iterator it = eventLogs.iterator();
@@ -96,7 +103,7 @@ public class RVCommand extends AbstractCommand {
         }
         return meterEvents;
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }

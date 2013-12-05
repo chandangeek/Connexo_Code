@@ -10,34 +10,37 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class MonthInfoTable extends AbstractTable {
-    
+
     private Date timestamp;
     private Calendar timestampCalendar;
     private int tarif;
     private int month;
-    
+
     private final int PEAK=0;
     private final int NORMAL=1;
     private final int LOW=2;
-    
+
     private long[] activeEnergy = new long[3]; // kWh
     private long[] reactiveEnergy = new long[3]; // kvarh
     private int[] nrOf10inuteIntervals = new int[3];
     private int[] squareExceed = new int[3]; // kW
     private int[] nrOfExceeds = new int[3];
     private int[] maxDemand = new int[3]; // kW
-    
+
     private int subscribedPowerPeak; // kW
     private int subscribedPowerNormalWinter; // kW
     private int subscribedPowerLowWinter; // kW
@@ -47,16 +50,16 @@ public class MonthInfoTable extends AbstractTable {
     private int subscribedPowerNormalHalfSeason; // kW
     private int subscribedPowerLowHalfSeason; // kW
     private int subscribedPowerLowLowSeason; // kW
-    
+
     private int rapport; // TCxTT
     private int exceededEnergy; // kWh
     private int code;
-    
+
     /** Creates a new instance of MonthInfoTable */
     public MonthInfoTable(DataFactory dataFactory) {
         super(dataFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -98,15 +101,15 @@ public class MonthInfoTable extends AbstractTable {
         strBuff.append("   timestamp="+getTimestamp()+"\n");
         return strBuff.toString();
     }
-        
+
     protected int getCode() {
         return code;
     }
-    
+
     public void setCode(int code) {
         this.code=code;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         Calendar cal = ProtocolUtils.getCleanCalendar(getDataFactory().getTrimeran().getTimeZone());
@@ -118,7 +121,7 @@ public class MonthInfoTable extends AbstractTable {
         cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset++]));
         setTimestampCalendar(cal);
         setTimestamp(cal.getTime());
-        
+
         setTarif(data[offset++]);
         setMonth(ProtocolUtils.BCD2hex(data[offset++]));
         for (int i=0;i<3;i++) {
@@ -127,21 +130,21 @@ public class MonthInfoTable extends AbstractTable {
             getNrOf10inuteIntervals()[i] = ProtocolUtils.getIntLE(data,offset,2); offset+=2;
             getSquareExceed()[i] = ProtocolUtils.getIntLE(data,offset,3); offset+=3;
             getNrOfExceeds()[i] = ProtocolUtils.getIntLE(data,offset,2); offset+=2;
-            getMaxDemand()[i] = ProtocolUtils.getIntLE(data,offset,2); offset+=2;           
+            getMaxDemand()[i] = ProtocolUtils.getIntLE(data,offset,2); offset+=2;
         }
-        setSubscribedPowerPeak(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerNormalWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerNormalSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerMobile(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerNormalHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setSubscribedPowerLowLowSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        
-        setRapport(ProtocolUtils.getIntLE(data,offset,2)); offset+=2; 
-        setExceededEnergy(ProtocolUtils.getIntLE(data,offset,3)); offset+=3;       
-        
+        setSubscribedPowerPeak(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerNormalWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowWinter(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerNormalSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowSummer(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerMobile(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerNormalHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowHalfSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setSubscribedPowerLowLowSeason(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+
+        setRapport(ProtocolUtils.getIntLE(data,offset,2)); offset+=2;
+        setExceededEnergy(ProtocolUtils.getIntLE(data,offset,3)); offset+=3;
+
     }
 
     public Date getTimestamp() {
@@ -182,58 +185,58 @@ public class MonthInfoTable extends AbstractTable {
 
 
     public Quantity getActiveQuantity(int index) {
-        return new Quantity(BigDecimal.valueOf(getActiveEnergy()[index]),Unit.get("kWh"));
+        return new Quantity(BigDecimal.valueOf(getActiveEnergy()[index]), Unit.get("kWh"));
     }
     public Quantity getReactiveQuantity(int index) {
         return new Quantity(BigDecimal.valueOf(getReactiveEnergy()[index]),Unit.get("kvarh"));
-    }    
+    }
     public Quantity getSquareExceedQuantity(int index) {
         return new Quantity(BigDecimal.valueOf(getSquareExceed()[index]),Unit.get("kW"));
-    }    
+    }
     public Quantity getMaxDemandQuantity(int index) {
         return new Quantity(BigDecimal.valueOf(getMaxDemand()[index]),Unit.get("kW"));
-    }    
+    }
     public Quantity getNrOf10inuteIntervalsQuantity(int index) {
         return new Quantity(BigDecimal.valueOf(getNrOf10inuteIntervals()[index]),Unit.get(""));
-    }    
+    }
     public Quantity getNrOfExceedsQuantity(int index) {
         return new Quantity(BigDecimal.valueOf(getNrOfExceeds()[index]),Unit.get(""));
-    }    
+    }
     public Quantity getExceededEnergyQuantity() {
         return new Quantity(BigDecimal.valueOf(getExceededEnergy()),Unit.get("kWh"));
-    }    
-    
+    }
+
     public Quantity getSubscribedPowerPeakQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerPeak()),Unit.get("kW"));
     }
     public Quantity getSubscribedPowerNormalWinterQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerNormalWinter()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerLowWinterQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerLowWinter()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerNormalSummerQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerNormalSummer()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerLowSummerQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerLowSummer()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerMobileQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerMobile()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerNormalHalfSeasonQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerNormalHalfSeason()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerLowHalfSeasonQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerLowHalfSeason()),Unit.get("kW"));
-    }    
+    }
     public Quantity getSubscribedPowerLowLowSeasonQuantity() {
         return new Quantity(BigDecimal.valueOf(getSubscribedPowerLowLowSeason()),Unit.get("kW"));
-    }    
+    }
     public Quantity getRapportQuantity() {
         return new Quantity(BigDecimal.valueOf(getRapport()),Unit.get(""));
-    }    
-            
+    }
+
     public long[] getActiveEnergy() {
         return activeEnergy;
     }
@@ -362,8 +365,8 @@ public class MonthInfoTable extends AbstractTable {
         this.rapport = rapport;
     }
 
-    
-    
+
+
     public int getExceededEnergy() {
         return exceededEnergy;
     }
@@ -371,7 +374,7 @@ public class MonthInfoTable extends AbstractTable {
     private void setExceededEnergy(int exceededEnergy) {
         this.exceededEnergy = exceededEnergy;
     }
-    
+
     static public void main(String[] args) {
         try {
             byte[] data = new byte[]{(byte)0x19,(byte)0x06,(byte)0x06,(byte)0x10,(byte)0x19,(byte)0x57,(byte)0x05,(byte)0xb1,(byte)0x90,(byte)0x00,(byte)0x00,(byte)0xb4,(byte)0xbc,(byte)0x03,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x68,(byte)0x07,(byte)0xe5,(byte)0x01,(byte)0x5d,(byte)0x17,(byte)0xc2,(byte)0x00,(byte)0x80,(byte)0x07,(byte)0x4c,(byte)0x00,(byte)0x00,(byte)0x03,(byte)0x00,(byte)0x4a,(byte)0x05,(byte)0x31,(byte)0xf8,(byte)0x48,(byte)0x02,(byte)0x6f,(byte)0x52,(byte)0xfb,(byte)0x00,(byte)0xf0,(byte)0x09,(byte)0x8c,(byte)0x00,(byte)0x00,(byte)0x05,(byte)0x00,(byte)0x75,(byte)0x05,(byte)0x00,(byte)0x00,(byte)0x06,(byte)0x04,(byte)0x06,(byte)0x04,(byte)0x14,(byte)0x05,(byte)0x14,(byte)0x05,(byte)0x0a,(byte)0x00,(byte)0x06,(byte)0x04,(byte)0x06,(byte)0x04,(byte)0xaa,(byte)0x05,(byte)0xa0,(byte)0x0f,(byte)0x00,(byte)0x00,(byte)0x00};
@@ -391,5 +394,5 @@ public class MonthInfoTable extends AbstractTable {
     private void setTimestampCalendar(Calendar timestampCalendar) {
         this.timestampCalendar = timestampCalendar;
     }
-    
+
 }

@@ -10,24 +10,21 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 /**
  *
  * @author koen
  */
 public class ControlBitfield {
-    
+
     private int primaryPhoneNumber; // bit 2..0
     // reserved bit 3
     private int secondaryPhoneNumber; // bit 6..4
     private boolean useWindows; // bit 7
-    
-    
+
+
     /** Creates a new instance of DaysBitfield */
     public ControlBitfield(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int temp;
@@ -62,5 +59,5 @@ public class ControlBitfield {
     public boolean isUseWindows() {
         return useWindows;
     }
-    
+
 }

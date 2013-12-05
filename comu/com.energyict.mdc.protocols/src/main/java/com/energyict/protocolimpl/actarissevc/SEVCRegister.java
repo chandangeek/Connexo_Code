@@ -6,18 +6,16 @@
 
 package com.energyict.protocolimpl.actarissevc;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.Unit;
+
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class SEVCRegister extends SEVCDataParse {
-    
+
     protected String frame;
     protected int offset;
     protected int length;
@@ -25,18 +23,18 @@ public class SEVCRegister extends SEVCDataParse {
     protected int code;
     protected Unit unit;
 
-    Number value=null;    
-    
+    Number value=null;
+
     private SEVCRegisterFactory sevcRegisterFactory = null;
-    
+
     protected void setSEVCRegisterFactory(SEVCRegisterFactory sevcRegisterFactory) {
         this.sevcRegisterFactory = sevcRegisterFactory;
     }
-    
+
     protected SEVCRegisterFactory getSEVCRegisterFactory() {
         return sevcRegisterFactory;
     }
-    
+
         /*
          * offset = offset from start of APD in nibbles
          * length = length of data in nibbles
@@ -52,23 +50,23 @@ public class SEVCRegister extends SEVCDataParse {
     }
 
     protected int getOffset() {
-      return offset;   
+      return offset;
     }
     protected int getLength() {
-      return length;   
+      return length;
     }
     protected int getFormat() {
-      return format;   
+      return format;
     }
     protected Unit getUnit() {
         return unit;
     }
-    
+
 
     protected Number getValue(SEVCIEC1107Connection sevciec1107Connection) throws IOException {
         return doGetMeterRegisterValue(this,sevciec1107Connection);
     }
-    
+
     protected Number doGetMeterRegisterValue(SEVCRegister register,SEVCIEC1107Connection sevciec1107Connection) throws IOException {
        if (value == null) {
            try {
@@ -80,7 +78,7 @@ public class SEVCRegister extends SEVCDataParse {
            }
        } // if (value == null)
        return value;
-       
+
     } // protected Number doGetMeterRegisterValue(...)
-    
+
 } // public class SEVCRegister

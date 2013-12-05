@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.genericprotocolimpl.common.CommonObisCodeProvider;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 
 /**
@@ -118,7 +118,7 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public ObisCode getClockObisCode() {
         return ClockObisCode;
     }
-    
+
     /**
      * @return the obisCode for the <i>default</i> {@link com.energyict.dlms.cosem.ProfileGeneric}
      */

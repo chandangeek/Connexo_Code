@@ -10,25 +10,23 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  *
  * @author Koen
  */
 public class LoadProfileBlock {
-    
+
     static private final int INTERVALS_PER_BLOCK=128;
-    
+
     private Date blockEndTime;
     private BigDecimal[] values;
     private IntervalDataEntry[] intervaldatas=null;
-    
+
     /** Creates a new instance of RecordTemplate */
     public LoadProfileBlock(byte[] tableData,int offset,ManufacturerTableFactory manufacturerTableFactory, boolean headerOnly) throws IOException {
         //ActualRegisterTable art = manufacturerTableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
@@ -52,9 +50,9 @@ public class LoadProfileBlock {
                 offset += IntervalDataEntry.getSize(manufacturerTableFactory);
             }
         }
-        
+
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -69,8 +67,8 @@ public class LoadProfileBlock {
             }
         }
         return strBuff.toString();
-    }    
-    
+    }
+
     static public int getSize(ManufacturerTableFactory manufacturerTableFactory) throws IOException {
 //        ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
 //        ActualTimeAndTOUTable atatt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
@@ -78,7 +76,7 @@ public class LoadProfileBlock {
 //        ActualLoadProfileTable alpt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
         int nrOfChannels = manufacturerTableFactory.getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels();
         return 4+nrOfChannels*8+INTERVALS_PER_BLOCK*IntervalDataEntry.getSize(manufacturerTableFactory);
-    }     
+    }
 
     public Date getBlockEndTime() {
         return blockEndTime;

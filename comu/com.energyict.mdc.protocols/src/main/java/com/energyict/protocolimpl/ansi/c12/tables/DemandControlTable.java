@@ -10,12 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -23,19 +21,19 @@ import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
  */
 public class DemandControlTable extends AbstractTable {
 
-    
+
     private IntervalControl[] intervalControl;
     private int resetExclusion; // 8 bit Number of minutes after demand reset to exclude additional reset action
     private int powerfailRecognitionTime; // 8 bit Number of seconds after a powerfailure to valid powerfailure
     private int powerfailExclusion; // 8 bit Number of minutes after a powerfailure to inhibit demand calculations
     private int coldLoadPickup; // 8 bit Number of minutes after a powerfailure to provide cold load pickup function
-    
-    
+
+
     /** Creates a new instance of DemandControlTable */
     public DemandControlTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(13));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DemandControlTable:\n");
@@ -46,27 +44,27 @@ public class DemandControlTable extends AbstractTable {
         strBuff.append("\n");
         return  strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         ActualSourcesLimitingTable aslt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualSourcesLimitingTable();
         int offset=0;
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         if (aslt.isResetExcludeFlag()) {
             setResetExclusion(C12ParseUtils.getInt(tableData,offset));
             offset++;
         }
-        
-        if ((getTableFactory().getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) || 
+
+        if ((getTableFactory().getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) ||
             (aslt.isPowerfailExcludeFlag())) {
             setPowerfailRecognitionTime(C12ParseUtils.getInt(tableData,offset));
             offset++;
             setPowerfailExclusion(C12ParseUtils.getInt(tableData,offset));
             offset++;
-            setColdLoadPickup(C12ParseUtils.getInt(tableData,offset));       
+            setColdLoadPickup(C12ParseUtils.getInt(tableData,offset));
             offset++;
         }
-        
+
         setIntervalControl(new IntervalControl[aslt.getMaxNrOfEntriesDemandControl()]);
         for(int i=0;i<getIntervalControl().length;i++) {
             getIntervalControl()[i] = new IntervalControl(ProtocolUtils.getSubArray2(tableData,offset,IntervalControl.SIZE), aslt.isSlidingDemand(),dataOrder);

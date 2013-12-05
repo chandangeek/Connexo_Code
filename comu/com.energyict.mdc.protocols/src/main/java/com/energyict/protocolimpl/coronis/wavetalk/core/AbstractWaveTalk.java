@@ -1,13 +1,25 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 abstract public class AbstractWaveTalk extends AbstractProtocol implements ProtocolLink {
 
@@ -15,7 +27,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
     abstract protected void doTheInit() throws IOException;
     abstract protected void doTheDisConnect() throws IOException;
     abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    
+
 	/**
 	 * reference to the lower connect latyers of the wavenis stack
 	 */
@@ -26,10 +38,10 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	 */
 	private RadioCommandFactory radioCommandFactory;
 
-	
+
 	abstract public AbstractCommonObisCodeMapper getCommonObisCodeMapper();
 	abstract public ParameterFactory getParameterFactory();
-	
+
 	/**
 	 * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
 	 */
@@ -39,7 +51,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 	 * The obiscode for the load profile.
 	 */
 	ObisCode loadProfileObisCode;
-	
+
 
 	final public RadioCommandFactory getRadioCommandFactory() {
 		return radioCommandFactory;
@@ -53,8 +65,8 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 		}
 		doTheConnect();
 	}
-	
-	
+
+
 	@Override
 	protected void doDisConnect() throws IOException {
 		doTheDisConnect();
@@ -66,14 +78,14 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
 			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
 			int protocolCompatible, Encryptor encryptor,
 			HalfDuplexController halfDuplexController) throws IOException {
-		
+
 		radioCommandFactory = new RadioCommandFactory(this);
 		waveFlowConnect = new WaveFlowConnect(inputStream,outputStream,timeoutProperty,getLogger(),forcedDelay,getInfoTypeProtocolRetriesProperty());
-		
+
 		doTheInit();
-		
+
 		return waveFlowConnect;
-		
+
 	}
 
 	@Override
@@ -111,7 +123,7 @@ abstract public class AbstractWaveTalk extends AbstractProtocol implements Proto
     protected List doGetOptionalKeys() {
         return new ArrayList();
     }
-	
+
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
     	// absorb
     }

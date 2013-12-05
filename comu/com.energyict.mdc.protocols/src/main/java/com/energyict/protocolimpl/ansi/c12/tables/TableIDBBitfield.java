@@ -10,31 +10,29 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TableIDBBitfield {
-    
+
     private int procedureNr;        // TABLE_IDB_BFLD_SIZE bit 10..0
     private boolean stdVsMfgFlag;   // TABLE_IDB_BFLD_SIZE bit 11
-    private int selector;           // TABLE_IDB_BFLD_SIZE bit 15..12 
-    
+    private int selector;           // TABLE_IDB_BFLD_SIZE bit 15..12
+
     public TableIDBBitfield(int procedureNr,boolean stdVsMfgFlag,int selector) {
         this.procedureNr=procedureNr;
         this.stdVsMfgFlag=stdVsMfgFlag;
         this.selector=selector;
     }
-    
+
     /** Creates a new instance of TableIDBBitfield */
     public TableIDBBitfield(byte[] data,int offset, int dataOrder) throws IOException {
-        int tableIdbBitfield = C12ParseUtils.getInt(data,offset,2, dataOrder); 
+        int tableIdbBitfield = C12ParseUtils.getInt(data,offset,2, dataOrder);
         setProcedureNr(tableIdbBitfield & 0x07FF);
         setStdVsMfgFlag((tableIdbBitfield & 0x0800) == 0x0800);
         setSelector((tableIdbBitfield & 0xF000)>>12);
@@ -43,12 +41,12 @@ public class TableIDBBitfield {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("TableIDBBitfield: procedureNr="+procedureNr+", stdVsMfgFlag="+stdVsMfgFlag+", selector="+selector+"\n");
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize() throws IOException {
         return 2;
-    }      
+    }
 
     public int getProcedureNr() {
         return procedureNr;

@@ -1,8 +1,5 @@
 package com.energyict.protocols.mdc.inbound.dlms;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -11,18 +8,22 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
-import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
-import com.energyict.protocols.mdc.inbound.general.InboundConnection;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
+import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
+import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -33,8 +34,8 @@ import java.util.logging.Logger;
  * Extra requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
  *
- * @author: sva
- * @since: 26/10/12 (11:40)
+ * @author sva
+ * @since 26/10/12 (11:40)
  */
 public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
@@ -101,7 +102,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
      *
      * @return
      */
-    private SimpleApplicationServiceObject buildAso() throws IOException {
+    private SimpleApplicationServiceObject buildAso() {
         return new SimpleApplicationServiceObject(dlmsConnection);
     }
 
@@ -135,12 +136,6 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
         throw new IOException("Failed to read the serial number.");
     }
 
-    /**
-     * @param classId
-     * @param LN
-     * @param bAttr
-     * @return
-     */
     private byte[] buildGetRequest(int classId, byte[] LN, byte bAttr) {
         byte[] readRequestArray = new byte[DLMSCOSEMGlobals.GETREQUEST_DATA_SIZE];
 
@@ -181,11 +176,11 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> propertySpecs = super.getOptionalProperties();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS));
-        propertySpecs.add(PropertySpecFactory.obisCodePropertySpec(DEVICE_ID_OBISCODE_KEY));
+    public List<PropertySpec> getPropertySpecs () {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS));
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_MAC_ADDRESS));
+        propertySpecs.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpec(DEVICE_ID_OBISCODE_KEY));
         return propertySpecs;
     }
 

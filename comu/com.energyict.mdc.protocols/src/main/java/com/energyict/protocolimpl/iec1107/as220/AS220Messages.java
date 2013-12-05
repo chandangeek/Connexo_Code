@@ -1,14 +1,14 @@
 /**
  * AS220Messages.java
- * 
+ *
  * Created on 19-nov-2008, 13:15:45 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 /**
  * @author jme
- * 
+ *
  */
 public class AS220Messages implements MessageProtocol {
 

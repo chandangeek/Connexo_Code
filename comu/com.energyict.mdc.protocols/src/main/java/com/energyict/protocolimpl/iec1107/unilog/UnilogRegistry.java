@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.*;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -10,27 +10,23 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class Class14LoadProfileConfiguration extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(14,42,true);
 
-    
+
     private static final int MAX_PROFILE_CHANNELS=4;
     private static final int DAY_HEADER_SIZE=6;
-    
+
     // SPARE [3]
     int RLPSCAL;
     int LPLEN;
@@ -38,12 +34,12 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
     int LPMEM;
     int CHANS;
     int[] INPUTQUANTITIES = new int[MAX_PROFILE_CHANNELS];
-    
+
     public String toString() {
-        
+
         if ((RLPSCAL+LPLEN+DASIZE+LPMEM+CHANS)==0)
             return "NO Profile data configured in the meter!";
-        
+
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Class14LoadProfileConfiguration: RLPSCAL="+RLPSCAL);
         strBuff.append(", LPLEN="+LPLEN);
@@ -65,29 +61,29 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
         catch(IOException e) {
             e.printStackTrace();
         }
-        
-        
+
+
         return strBuff.toString();
     }
-    
+
     /** Creates a new instance of Class14LoadProfileConfiguration */
     public Class14LoadProfileConfiguration(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         RLPSCAL = ProtocolUtils.getInt(data,3,1);
         LPLEN = ProtocolUtils.getInt(data,4,1);
         DASIZE = ProtocolUtils.getInt(data,5,2);
         LPMEM = ProtocolUtils.getInt(data,7,1);
-        CHANS = ProtocolUtils.getInt(data,8,1);        
+        CHANS = ProtocolUtils.getInt(data,8,1);
         for (int i=0;i<MAX_PROFILE_CHANNELS;i++) {
            INPUTQUANTITIES[i] = ProtocolUtils.getInt(data,9+i,1);
         }
     }
-    
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
+        return classIdentification;
     }
 
     public int getRLPSCAL() {
@@ -117,8 +113,8 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
     public int getINPUTQUANTITY(int channel) {
         return INPUTQUANTITIES[channel];
     }
-    
-    
+
+
     /*************************************************************************************************
      * Derived methods to calculate profile specific parameters
      *************************************************************************************************/
@@ -148,14 +144,14 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
             throw new IOException("Class14LoadProfileConfiguration, getDayRecordSize(), class field DASIZE ("+getDASIZE()+") does not mach with calculated length ("+dalen+")");
         return dalen;
     }
-    
+
     public int getIntervalsPerDay() {
         return 24 * (3600/getLoadProfileInterval());
     }
     public int getIntervalsPerHour() {
         return (3600/getLoadProfileInterval());
     }
-    
+
     public Unit getUnit(int profileChannel) throws IOException {
        int channelCount=0;
        for (int meterChannel=0;meterChannel<MAX_PROFILE_CHANNELS;meterChannel++) {
@@ -168,9 +164,9 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
        }
        throw new IOException("Class14LoadProfileConfiguration, getUnit, invalid profileChannel "+profileChannel);
     } // public Unit getUnit(int profileChannel) throws IOException
-    
+
     /*
-     *   @result The meter's channel index. 
+     *   @result The meter's channel index.
      *           E.g. 2 active channels, channel 0 and 3 enabled, means, profile data channels 0 and 1 have respectively
      *                meterchannelindex 0 and 3
      */
@@ -186,7 +182,7 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
        }
        throw new IOException("Class14LoadProfileConfiguration, getUnit, invalid profileChannel "+profileChannel);
     } // public int getMeterChannelIndex(int profileChannel)
-    
+
     private Unit getInputQuantityUnit(int inputQuantity) throws IOException {
         if ((inputQuantity == 1) || (inputQuantity == 2))
             return Unit.get("kW");
@@ -210,7 +206,7 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
             return classFactory.getClass8FirmwareConfiguration().getBlockPhenomenonUnit(1, false);
         else throw new IOException("Class14LoadProfileConfiguration, getInputQuantityUnit, invalid inputQuantity "+inputQuantity);
     }
- 
+
     public int getPhenomenon(int profileChannel) throws IOException {
        int channelCount=0;
        for (int meterChannel=0;meterChannel<MAX_PROFILE_CHANNELS;meterChannel++) {
@@ -223,7 +219,7 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
        }
        throw new IOException("Class14LoadProfileConfiguration, getPhenomenon, invalid profileChannel "+profileChannel);
     } // public Unit getPhenomenon(int profileChannel) throws IOException
-    
+
     private int getInputQuantityPhenomenon(int inputQuantity) throws IOException {
         if ((inputQuantity == 1) || (inputQuantity == 2))
             return Class8FirmwareConfiguration.PHENOMENON_ACTIVE;

@@ -6,22 +6,32 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec870.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec870.IEC870Connection;
+import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
+import com.energyict.protocolimpl.iec870.IEC870Frame;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class DataWattTest {
-    
+
     /** Creates a new instance of DataWatt */
     public DataWattTest() {
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -29,7 +39,7 @@ public class DataWattTest {
         DataWattTest dw=new DataWattTest();
         dw.start();
     }
-    
+
     private static final String fileName2="C:\\Documents and Settings\\koen\\My Documents\\meterprotocols\\DataWatt\\history.txt";
     private static final String fileNameWrite="C:\\Documents and Settings\\koen\\My Documents\\meterprotocols\\DataWatt\\historydecoded.txt";
     //byte[] data1 = {0x68,0x0c,0x0c,0x68,0x08,0x04,0x00,0x65,0x01,0x0a,0x2a,0x04,0x00,0x00,0x00,0x05,(byte)0xaf,0x16};
@@ -40,7 +50,7 @@ public class DataWattTest {
             IEC870Frame f;
             FileOutputStream fos = new FileOutputStream(fileNameWrite);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-            
+
             /*f = new IEC870Frame(data1);
             System.out.println(f.toString(100));
             f = new IEC870Frame(data2);
@@ -53,18 +63,18 @@ public class DataWattTest {
                 try {
                     data = (byte[])frames.get(i);
                     f = new IEC870Frame(data);
-                    
-// *************** all data *****************                    
+
+// *************** all data *****************
                     // print raw bytes...
                     //System.out.println(ProtocolUtils.getResponseData(data));
                     bw.write(ProtocolUtils.getResponseData(data)+"\r\n");
                     //System.out.print(f.toString(i)); // write to stdout
                     bw.write(f.toString(i,TimeZone.getTimeZone("GMT+1"))); // write to file
-                    
+
 // *************** sequence *****************
 //                 System.out.println(f.getFrameInfo(i));
 //                 bw.write(f.getFrameInfo(i)+"\r\n");
-                    
+
                 }
                 catch(IEC870ConnectionException e) {
                     System.out.println("IEC870ConnectionException, "+e.getMessage());
@@ -88,11 +98,11 @@ public class DataWattTest {
     private List getFrames() throws IOException {
         List frames; // = new ArrayList();
         byte[] data = getByteArray();
-        
+
         ByteArrayInputStream bai = new ByteArrayInputStream(data);
         IEC870Connection iec870Connection = new IEC870Connection(bai,null,0,0,0,0,TimeZone.getTimeZone("GMT+1"));
         frames = iec870Connection.parseFrames();
-        
+
         return frames;
     }
     private int getValue(byte[] data,int offset) {
@@ -108,11 +118,11 @@ public class DataWattTest {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             byte[] data = new byte[fis.available()];
             fis.read(data);
-            
+
             for(int i=0;i<data.length;i+=2) {
                 bos.write(getValue(data, i));
             }
-            
+
             fis.close();
             return bos.toByteArray();
         }

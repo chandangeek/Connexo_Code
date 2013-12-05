@@ -10,14 +10,12 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-
 /**
  *
  * @author Koen
  */
 public class ClearData extends AbstractProcedure {
-    
+
     /** Creates a new instance of ClearData */
     public ClearData(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(3));

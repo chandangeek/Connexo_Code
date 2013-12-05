@@ -1,13 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.MultipleLoadProfileSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * For the <b>Kamstrup case</b> we support 1 Master and 2 Slaves.<br>
@@ -178,7 +187,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels({@link LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
      * </p>
      * <p>
@@ -202,10 +211,10 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     }
 
     /**
-     * Search for the {@link com.energyict.protocol.LoadProfileConfiguration} object which is linked to the given {@link com.energyict.protocol.LoadProfileReader}.
-     * The link is made using the {@link com.energyict.obis.ObisCode} from both objects.
+     * Search for the {@link com.energyict.protocol.LoadProfileConfiguration} object which is linked to the given {@link LoadProfileReader}.
+     * The link is made using the {@link ObisCode} from both objects.
      *
-     * @param lpro the {@link com.energyict.protocol.LoadProfileReader}
+     * @param lpro the {@link LoadProfileReader}
      * @return the requested {@link com.energyict.protocol.LoadProfileConfiguration}
      */
     private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro)  {
@@ -222,7 +231,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * Do the actual reading of the loadProfile data from the Meter
      *
      * @param lpro the identification of which LoadProfile to read
-     * @return a {@link com.energyict.protocol.ProfileData} object with the necessary intervals filled in.
+     * @return a {@link com.energyict.mdc.protocol.device.data.ProfileData} object with the necessary intervals filled in.
      * @throws IOException when a error happens during parsing
      */
     private ProfileData getRawProfileData(LoadProfileReader lpro) throws IOException {

@@ -6,15 +6,21 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.OctetString;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.dlms.DLMSCOSEMGlobals.*;
+import static com.energyict.dlms.DLMSCOSEMGlobals.SAP_ATTR_ASSIGNMENT_LIST;
+import static com.energyict.dlms.DLMSCOSEMGlobals.SAP_OBJECT_LN;
+import static com.energyict.dlms.DLMSCOSEMGlobals.SAP_OBJECT_SN;
 
 /**
  *
@@ -27,7 +33,7 @@ public class SAPAssignment extends AbstractCosemObject {
     public SAPAssignment(ProtocolLink protocolLink) {
         super(protocolLink,protocolLink.getReference() == ProtocolLink.LN_REFERENCE?new ObjectReference(SAP_OBJECT_LN):new ObjectReference(SAP_OBJECT_SN));
     }
-    
+
     protected int getClassId() {
         return DLMSClassId.SAP_ASSIGNMENT.getClassId();
     }
@@ -74,5 +80,5 @@ public class SAPAssignment extends AbstractCosemObject {
         }
         return logicalDeviceNames;
     }
-    
+
 }

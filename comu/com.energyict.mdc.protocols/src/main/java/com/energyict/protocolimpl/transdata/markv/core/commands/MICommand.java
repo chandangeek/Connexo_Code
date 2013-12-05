@@ -9,34 +9,36 @@
  */
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
-import java.io.*; 
-import java.util.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 /**
  *
  * @author koen
  */
 public class MICommand  extends AbstractCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("MI");
 
     private String modelNumber;
     private String serialNumber;
-    
+
     /** Creates a new instance of MICommand */
     public MICommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         return "MICommand: "+getModelNumber()+", "+getSerialNumber();
     }
-    
+
     protected void parse(String strData) throws IOException {
         BufferedReader br = new BufferedReader(new StringReader(strData));
         setModelNumber(br.readLine());
         setSerialNumber(br.readLine().trim());
     }
-    
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }
@@ -52,7 +54,7 @@ public class MICommand  extends AbstractCommand {
     public boolean is8ChannelMeter() {
         return getModelNumber().charAt(4) == 'L';
     }
-    
+
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -61,5 +63,5 @@ public class MICommand  extends AbstractCommand {
         this.serialNumber = serialNumber;
     }
 
-    
+
 }

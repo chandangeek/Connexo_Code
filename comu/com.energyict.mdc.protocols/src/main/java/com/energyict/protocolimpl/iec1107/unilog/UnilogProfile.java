@@ -1,25 +1,25 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
-
 /*
 * Structure of the response data
-* 
+*
 * P.01(0050101230000)(0000)(60)(2)(1:23.0.0)(m3)(2:23.0.0)(m3)
 * (00000245.000)(00000255.000)
 * P.01(0050102000000)(0000)(60)(2)(1:23.0.0)(m3)(2:23.0.0)(m3)
@@ -39,29 +39,29 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 * (00000245.000)(00000255.000)
 * (00000245.000)(00000255.000)
 * (00000245.000)(00000255.000)
-* 
+*
 * Header:
 *   (date)(?)(intervalLength)(nmbrChannels)(EDIScode for channel)(Unit for channel)(EDIScode for channel)(Unit for channel)
 *
-* The protocol sends the hours continuously; unless there is a change in the 
+* The protocol sends the hours continuously; unless there is a change in the
 * state flag, then it sends the header again.
  *
- * The state flag in the header is only related to the subsequent interval, not the 
+ * The state flag in the header is only related to the subsequent interval, not the
  * other intervals that follow.
 */
 
 
 /**
- * 
+ *
  * @author Koen & fbo
  */
 public class UnilogProfile extends VDEWProfile {
-    
-    private static final Unit[] dataUnits = { 
-            Unit.get("m3"), 
-            Unit.get("m3"), 
-            Unit.get("m3"), 
-            Unit.get(BaseUnit.KELVIN, -1), 
+
+    private static final Unit[] dataUnits = {
+            Unit.get("m3"),
+            Unit.get("m3"),
+            Unit.get("m3"),
+            Unit.get(BaseUnit.KELVIN, -1),
             Unit.get("mbar"),
             Unit.get(""),
             Unit.get("") ,
@@ -70,21 +70,21 @@ public class UnilogProfile extends VDEWProfile {
             Unit.get("")
     };
 
-    
+
     public UnilogProfile(ProtocolLink protocolLink,
             AbstractVDEWRegistry abstractVDEWRegistry) {
 
         super(null, protocolLink, abstractVDEWRegistry);
-    
+
     }
 
     public ProfileData getProfileData(Calendar fromCalendar,
             Calendar toCalendar, int nrOfChannels, int profileId)
             throws IOException {
-        
+
         byte[] data = readRawData(fromCalendar, toCalendar, profileId);
         return parse(data, nrOfChannels);
-    
+
     }
 
     private ProfileData parse(byte[] data, int nrOfChannels) throws IOException {
@@ -123,34 +123,34 @@ public class UnilogProfile extends VDEWProfile {
     private Calendar parseDateTime(byte[] data, int offset) throws IOException {
         int dst;
         dst = ProtocolUtils.hex2nibble(data[offset]);
-        
+
         TimeZone t = getProtocolLink().getTimeZone();
         Calendar c = ProtocolUtils.initCalendar(dst == 0x01, t );
-        
-        
+
+
         c.set(Calendar.YEAR, (int) ( 2000 + (int) ProtocolUtils.bcd2byte( data, 1 + offset)));
         c.set(Calendar.MONTH, (int) ((int) ProtocolUtils.bcd2byte(data, 3 + offset) - 1));
         c.set(Calendar.DAY_OF_MONTH, (int) ProtocolUtils.bcd2byte(data, 5 + offset));
         c.set(Calendar.HOUR_OF_DAY, (int) ProtocolUtils.bcd2byte(data,  7 + offset));
         c.set(Calendar.MINUTE, (int) ProtocolUtils.bcd2byte(data, 9 + offset));
-        
+
         // KV 25032004
-        
+
         int seconds = (int) ProtocolUtils.bcd2byte(data, 11 + offset);
-        
+
         if (seconds != 0){
-            
+
             String msg = "Unilog Profile, parseDateTime, seconds != 0 (";
             msg += seconds + ")";
-            
+
             getProtocolLink().getLogger().severe( msg );
-            
+
         }
-        
-        c.set(Calendar.SECOND, 0); 
+
+        c.set(Calendar.SECOND, 0);
         	//(int)ProtocolUtils.bcd2byte(data,11+iOffset));
         c.set(Calendar.MILLISECOND, 0);
-        
+
         return c;
     }
 
@@ -195,39 +195,39 @@ public class UnilogProfile extends VDEWProfile {
     private static final int FATAL_DEVICE_ERROR = 0x01;
 
 
-    private static final String[] statusstr = { 
+    private static final String[] statusstr = {
 	    "FATAL_DEVICE_ERROR",
-	    "RUNNING_RESERVE_EXHAUSTED", 
+	    "RUNNING_RESERVE_EXHAUSTED",
 	    "DISTURBED_MEASURE",
-	    "SEASONAL_SWITCHOVER", 
-	    "DEVICE_RESET", 
+	    "SEASONAL_SWITCHOVER",
+	    "DEVICE_RESET",
 	    "DEVICE_CLOCK_ERROR",
-	    "POWER_RECOVERY", 
-	    "POWER_FAILURE", 
+	    "POWER_RECOVERY",
+	    "POWER_FAILURE",
 	    "STATUS_WORD_STATED",
-	    "LOGGER_CLEARED", 
-	    "LOGBOOK_CLEARED", 
+	    "LOGGER_CLEARED",
+	    "LOGBOOK_CLEARED",
 	    "EXTERNAL_EVENT_ASSIGNED",
-	    "WAITING_EXTERNAL_EVENT", 
-	    "END_WRONG_OPERATION", 
+	    "WAITING_EXTERNAL_EVENT",
+	    "END_WRONG_OPERATION",
 	    "WRONG_OPERATION",
-	    "PARAMETER_SETTING" 
+	    "PARAMETER_SETTING"
     };
-    
+
 
     private long mapLogCodes(long lLogCode) {
 
         switch ( (int) lLogCode ) {
-        
+
 	        case PARAMETER_SETTING:
 	            return (MeterEvent.CONFIGURATIONCHANGE);
-	
+
 	        case DEVICE_CLOCK_SET:
 	            return (MeterEvent.SETCLOCK);
-	
+
 	        case WRONG_OPERATION:
 	            return (MeterEvent.PROGRAM_FLOW_ERROR);
-	
+
 	        case FATAL_DEVICE_ERROR:
 	            return (MeterEvent.FATAL_ERROR);
 
@@ -239,7 +239,7 @@ public class UnilogProfile extends VDEWProfile {
 
 	        case DEVICE_RESET:
 	            return (MeterEvent.CLEAR_DATA);
-	
+
 	        case STATUS_WORD_STATED:
 	        case LOGGER_CLEARED:
 	        case LOGBOOK_CLEARED:
@@ -252,31 +252,31 @@ public class UnilogProfile extends VDEWProfile {
 	        default:
 	            return (MeterEvent.OTHER);
 
-        } 
+        }
 
-    } 
-    
+    }
+
 
     ProfileData buildProfileData(byte[] responseData, int nrOfChannels)
             throws IOException {
-        
+
         ProfileData profileData= new ProfileData();
         TimeZone timeZone = getProtocolLink().getTimeZone();
         Calendar calendar = ProtocolUtils.getCalendar( timeZone );
-        
-        int status = 0;			
+
+        int status = 0;
         byte bNROfValues = 0;	// = nmbr of channels
         byte bInterval = 0;		// = duration of interval in min
 
         int t;
-        
+
         // We suppose that the profile contains nr of channels!!
         try {
 
             int i = 0;
             while (true) {
                 if (responseData[i] == 'P') {	// Parse the header info
-                    
+
                     i += 4; // skip P.01
                     i = gotoNextOpenBracket(responseData, i);
 
@@ -288,21 +288,21 @@ public class UnilogProfile extends VDEWProfile {
                     i = gotoNextOpenBracket(responseData, i + 1);
                     status = Integer.parseInt(parseFindString(responseData, i), 16);
                     status &= (SEASONAL_SWITCHOVER ^ 0xFFFF);
-                    
+
                     // Adding meterEvents
                     for (t = 0; t < 16; t++) {
                         if ((status & (0x01 << t)) != 0) {
-                            
+
                             Date date = new Date( calendar.getTimeInMillis() );
                             long logCode = (long) (status & (0x01 << t)) & 0xFF;
                             long eiLogCode = mapLogCodes( logCode );
                             int protocolCode = status & 0xff;
-                            
-                            MeterEvent me = 
+
+                            MeterEvent me =
                                 new MeterEvent( date, (int)eiLogCode, protocolCode );
-                            
+
                             profileData.addEvent( me );
-                            
+
                         }
                     }
 
@@ -333,13 +333,13 @@ public class UnilogProfile extends VDEWProfile {
                     			cUnit = Unit.get(channelUnit);
                     		} else {
                     			cUnit = Unit.getUndefined();
-                    		} 
+                    		}
                     		ci = new ChannelInfo(t, "EdisChannel-"+channelName, cUnit);
                     		if(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).isCumul()){
                     			ci.setCumulativeWrapValue(getProtocolLink().getProtocolChannelMap().getProtocolChannel(t).getWrapAroundValue());
                     		}
                     		profileData.addChannel(ci);
-                    		
+
                     	}
                     }
 
@@ -367,15 +367,15 @@ public class UnilogProfile extends VDEWProfile {
 					break;
 				}
             }
-            
+
         } catch (IOException e) {
             throw new IOException("buildProfileData> " + e.getMessage());
         }
-        
+
         return profileData;
-        
-    } 
-    
+
+    }
+
 
 }
 

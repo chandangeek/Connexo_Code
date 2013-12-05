@@ -10,22 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class QuantityFactory {
-    
+
     static List quantities = new ArrayList();
-    
+
     static {
         quantities.add(new QuantityId(0,null,-1,-1,null));
-        quantities.add(new QuantityId(1,"W delivered aggregate",1,1,Unit.get("W")));
+        quantities.add(new QuantityId(1,"W delivered aggregate",1,1, Unit.get("W")));
         quantities.add(new QuantityId(2,"W delivered phase A",1,21,Unit.get("W")));
         quantities.add(new QuantityId(3,"W delivered phase B",1,41,Unit.get("W")));
         quantities.add(new QuantityId(4,"W delivered phase C",1,61,Unit.get("W")));
@@ -365,55 +368,55 @@ public class QuantityFactory {
         quantities.add(new QuantityId(338,"Displacement Phase B PF",1,241,Unit.get("")));
         quantities.add(new QuantityId(339,"Displacement Phase C PF",1,242,Unit.get("")));
         quantities.add(new QuantityId(340,"Displacement Average",1,243,Unit.get("")));
-        
+
     }
-    
+
     /** Creates a new instance of QuantityFactory */
     private QuantityFactory() {
     }
-    
+
     static public QuantityId findQuantityId(int id) throws IOException {
         Iterator it = quantities.iterator();
-        
+
         while(it.hasNext()) {
             QuantityId qid = (QuantityId)it.next();
             if (qid.getId() == id) {
                 return qid;
             }
         }
-        
+
         throw new IOException("QuantityFactory, findQuantityId, invalid id="+id);
-        
+
     } // public QuantityId findQuantityId(int id) throws IOException
-    
+
 //    static void checkForDuplicates() {
 //        System.out.println("Start...");
 //        for (int i=0;i<quantities.size();i++) {
 //            QuantityId q1 = (QuantityId)quantities.get(i);
 //            for (int t=i;t<quantities.size();t++) {
 //                QuantityId q2 = (QuantityId)quantities.get(t);
-//                
+//
 //                if ((q1.getId() != q2.getId())&& (q1.getObisBField()==q2.getObisBField()) && (q1.getObisCField()==q2.getObisCField())) {
-//                    
+//
 //                    System.out.println("Duplicate found! q1.id="+q1.getId()+" == q2.id="+q2.getId());
 //                }
-//                
-//                
-//                
+//
+//
+//
 //            }
-//            
+//
 //        }
 //        System.out.println("end.");
 //    }
-    
+
     static public void main(String[] args) {
         //QuantityFactory.checkForDuplicates();
         Iterator it = quantities.iterator();
         while(it.hasNext()) {
             QuantityId qid = (QuantityId)it.next();
             System.out.println(qid.getObisBField()+", "+qid.getObisCField()+", "+qid.getDescription());
-            
+
         }
     }
-    
+
 } // public class QuantityFactory

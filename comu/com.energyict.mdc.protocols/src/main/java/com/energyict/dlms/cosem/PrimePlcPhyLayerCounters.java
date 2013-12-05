@@ -4,7 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.PrimePlcPhyLayerCountersAttributes;
 import com.energyict.dlms.cosem.methods.PrimePlcPhyLayerCountersMethods;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
@@ -20,7 +20,7 @@ import java.io.IOException;
 public class PrimePlcPhyLayerCounters extends AbstractCosemObject {
 
     /**
-     * The default {@link com.energyict.obis.ObisCode} used in most case for this {@link PrimePlcPhyLayerCounters} cosem object
+     * The default {@link ObisCode} used in most case for this {@link PrimePlcPhyLayerCounters} cosem object
      */
     public static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.28.1.0.255");
 
@@ -35,9 +35,9 @@ public class PrimePlcPhyLayerCounters extends AbstractCosemObject {
     }
 
     /**
-     * The default {@link com.energyict.obis.ObisCode} used in most case for this {@link PrimePlcPhyLayerCounters} cosem object
+     * The default {@link ObisCode} used in most case for this {@link PrimePlcPhyLayerCounters} cosem object
      *
-     * @return The default {@link com.energyict.obis.ObisCode}
+     * @return The default {@link ObisCode}
      */
     public static ObisCode getDefaultObisCode() {
         return DEFAULT_OBIS_CODE;

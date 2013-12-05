@@ -1,12 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.utils.ProtocolInterruptedException;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -441,7 +439,7 @@ public class ProtocolToolsTest {
     }
 
     /**
-     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(com.energyict.obis.ObisCode, int, byte)}.
+     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(ObisCode, int, byte)}.
      */
     @Test
     public final void testSetObisCodeField() {
@@ -456,7 +454,7 @@ public class ProtocolToolsTest {
     }
 
     /**
-     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(com.energyict.obis.ObisCode, int, byte)}.
+     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(ObisCode, int, byte)}.
      */
     @Test(expected = IllegalArgumentException.class)
     public final void testSetObisCodeFieldToLowException() {
@@ -464,7 +462,7 @@ public class ProtocolToolsTest {
     }
 
     /**
-     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(com.energyict.obis.ObisCode, int, byte)}.
+     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(ObisCode, int, byte)}.
      */
     @Test(expected = IllegalArgumentException.class)
     public final void testSetObisCodeFieldToHighException() {
@@ -472,7 +470,7 @@ public class ProtocolToolsTest {
     }
 
     /**
-     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(com.energyict.obis.ObisCode, int, byte)}.
+     * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#setObisCodeField(ObisCode, int, byte)}.
      */
     @Test(expected = IllegalArgumentException.class)
     public final void testSetObisCodeFieldObisNullException() {

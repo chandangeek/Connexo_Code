@@ -6,65 +6,65 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.TimeZone;
+
 //import com.energyict.protocolimpl.myprotocol.*;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
  */
 abstract public class AbstractLogicalAddress {
-    
+
     abstract public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException;
-    
+
     int channel;
-    
+
     LogicalAddressFactory logicalAddressFactory;
-    
+
     /** Creates a new instance of AbstractLogicalAddress */
     public AbstractLogicalAddress(int channel,int size,LogicalAddressFactory logicalAddressFactory) {
         this.channel=channel;
         this.logicalAddressFactory=logicalAddressFactory;
     }
-    
+
     /*public void retrieve() throws IOException {
         byte[] data = getLogicalAddress();
         parse(data,getLogicalAddressFactory().getU1600().getTimeZone());
     }*/
-    
+
     /*
      *  Must be overridden to implement the data builder...
      */
     protected byte[] buildData() {
         return null;
     }
-    
-   
-     
-     
+
+
+
+
       public void retrieve() throws IOException {
         byte[] data = getILONRegister();
         parse(data,getLogicalAddressFactory().getU1600().getTimeZone());
     }
-    
+
     /* public void retrieve() throws IOException {
         byte[] data = getLogicalAddress();
         parse(data,getLogicalAddressFactory().getU1600().getTimeZone());
     }*/
-    
-        
-    
-    
+
+
+
+
     private byte[] getILONRegister() throws ProtocolConnectionException,IOException {
         //StringBuffer strbuff = new StringBuffer();
         getLogicalAddressFactory().getU1600().getEclConnection().sendLONCommandFrame(getChannel());
         byte[] ba = getLogicalAddressFactory().getU1600().getEclConnection().receiveLONFrame();
         return  validateData(ba);
     }
-    
+
       private byte[] validateData(byte[] data) throws ProtocolConnectionException {
         String str = new String(data);
         String strValue = "";
@@ -78,7 +78,7 @@ abstract public class AbstractLogicalAddress {
         else
              throw new ProtocolConnectionException("AbstractLogicalAddress, validateData, "+getLogicalAddressFactory().getMeterExceptionInfo().getExceptionInfo(str));
 
-       
+
         // We know about ERRDAT and ERRADD as returned error codes from the Indigo+ meter.
         // Probably there are more...
         if (str.  indexOf("Fehler") != -1) {
@@ -86,8 +86,8 @@ abstract public class AbstractLogicalAddress {
         }
         return strValue.getBytes();
     }
-    
-    
+
+
     protected String buildLength(int value,int length) {
         String str=Integer.toHexString(value);
         StringBuffer strbuff = new StringBuffer();
@@ -97,9 +97,9 @@ abstract public class AbstractLogicalAddress {
         strbuff.append(str);
         return strbuff.toString();
     }
-        
-   
-    
+
+
+
     /**
      * Getter for property logicalAddressFactory.
      * @return Value of property logicalAddressFactory.
@@ -107,15 +107,15 @@ abstract public class AbstractLogicalAddress {
     public com.energyict.protocolimpl.gmc.u1600.LogicalAddressFactory getLogicalAddressFactory() {
         return logicalAddressFactory;
     }
-    
+
     /**
      * Setter for property logicalAddressFactory.
      * @param logicalAddressFactory New value of property logicalAddressFactory.
      */
     public void setLogicalAddressFactory(com.energyict.protocolimpl.gmc.u1600.LogicalAddressFactory logicalAddressFactory) {
         this.logicalAddressFactory = logicalAddressFactory;
-    }    
-    
+    }
+
     /**
      * Getter for property size.
      * @return Value of property size.
@@ -123,9 +123,9 @@ abstract public class AbstractLogicalAddress {
     public int getChannel() {
         return channel;
     }
-    
-   
-    
 
-   
+
+
+
+
 }

@@ -10,26 +10,26 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class EnergyRegister {
-    
+
     private QuantityId quantityId;
     private BigDecimal multiplier;
     private int rateSchedule;
-    
+
     /** Creates a new instance of Result */
     public EnergyRegister(byte[] data, int offset, MeterSetup meterSetup) throws IOException {
         setQuantityId(QuantityFactory.findQuantityId(ProtocolUtils.getInt(data,offset, 2)));
         offset+=2;
-        
+
         // Multiplier ID
         // 0 = 1.0
         // 1 = CT value
@@ -38,26 +38,26 @@ public class EnergyRegister {
         // 4 = customized value
         int multiplierId = ProtocolUtils.getInt(data,offset++,1);
         switch(multiplierId) {
-            case 0: 
+            case 0:
                 setMultiplier(new BigDecimal("1.0"));
                 break;
-            case 1: 
+            case 1:
                 setMultiplier(meterSetup.getCtMultiplier());
                 break;
-            case 2: 
+            case 2:
                 setMultiplier(meterSetup.getPtMultiplier());
                 break;
-            case 3: 
+            case 3:
                 setMultiplier(meterSetup.getCtMultiplier().multiply(meterSetup.getPtMultiplier()));
                 break;
-            case 4: 
+            case 4:
                 setMultiplier(meterSetup.getCustomMultiplier());
                 break;
         }
-        
-        setRateSchedule(ProtocolUtils.getInt(data,offset++,1));        
+
+        setRateSchedule(ProtocolUtils.getInt(data,offset++,1));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -67,11 +67,11 @@ public class EnergyRegister {
         strBuff.append("   rateSchedule="+getRateSchedule()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 4;
     }
-    
+
     public QuantityId getQuantityId() {
         return quantityId;
     }
@@ -88,7 +88,7 @@ public class EnergyRegister {
 
     public void setRateSchedule(int rateSchedule) {
         this.rateSchedule = rateSchedule;
-    }    
+    }
 
     public BigDecimal getMultiplier() {
         return multiplier;
@@ -98,5 +98,5 @@ public class EnergyRegister {
         this.multiplier = multiplier;
     }
 
-    
+
 }

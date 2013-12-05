@@ -1,20 +1,22 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
-import java.io.IOException;
-import java.util.*;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class TransientEventLog extends AbstractEventLog {
 
 	int mostRecent;
 	int count;
 	Date[] date = new Date[10];
-	
+
 	public TransientEventLog(TimeZone timeZone) throws IOException {
 		super(timeZone);
 	}
-	
+
 	public void parse(byte[] data) throws IOException {
 		int offset=0;
 		mostRecent = ProtocolUtils.getIntLE(data, offset++, 1);

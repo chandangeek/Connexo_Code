@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -33,12 +33,12 @@ public class MeterStatus extends AbstractTable {
     private int lineFrequency; //LINE_FREQUENCY : ARRAY[3] OF UINT8;
 
 
-      
+
     /** Creates a new instance of TableTemplate */
     public MeterStatus(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(12,true));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -53,7 +53,7 @@ public class MeterStatus extends AbstractTable {
     public BigDecimal getVoltageMultiplier() throws IOException {
         return VoltageCode.findVoltageCode(getVoltageCode()).getMultiplier().multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         ConfigurationTable cfgt = getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int offset=0;
@@ -61,19 +61,19 @@ public class MeterStatus extends AbstractTable {
         offset+=MeterMethodStatus.getSize(getManufacturerTableFactory());
 
         offset+=3; // skip ov er 3 bytes;
-        
+
         setDspFirmwareRevision(new DSPFirmwareRevision(tableData, offset, getManufacturerTableFactory()));
         offset+=DSPFirmwareRevision.getSize(getManufacturerTableFactory());
         setVoltageCode((int)tableData[offset++]&0xFF);
         setLineFrequency(C12ParseUtils.getInt(tableData, offset, 3, cfgt.getDataOrder()));
         offset+=3;
-        
-    } 
-    
+
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
-    
+
 //    protected void prepareBuild() throws IOException {
 //        // override to provide extra functionality...
 //        PartialReadInfo partialReadInfo = new PartialReadInfo(0,84);
@@ -111,6 +111,6 @@ public class MeterStatus extends AbstractTable {
     public void setLineFrequency(int lineFrequency) {
         this.lineFrequency = lineFrequency;
     }
-        
+
 
 }

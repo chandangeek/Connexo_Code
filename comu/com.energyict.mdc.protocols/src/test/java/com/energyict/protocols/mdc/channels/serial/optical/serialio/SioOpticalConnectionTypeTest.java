@@ -1,48 +1,38 @@
 package com.energyict.protocols.mdc.channels.serial.optical.serialio;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import org.junit.Test;
+import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Tests for the {@link com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType} component
+ * Tests for the {@link SioOpticalConnectionType} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/11/12
  * Time: 13:03
  */
-public class SioOpticalConnectionTypeTest {
+public class SioOpticalConnectionTypeTest extends ConnectionTypePropertiesTest{
 
-
-    @Test
-    public void allowSimultaneousConnectionsTest() {
-        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType();
-
-        assertFalse(sioOpticalConnectionType.allowsSimultaneousConnections());
+    @Override
+    protected SioOpticalConnectionType newConnectionType () {
+        return new SioOpticalConnectionType();
     }
 
-    @Test
-    public void getRequiredKeysTest() {
-        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType();
-
-        // asserts
-        assertThat(sioOpticalConnectionType.getRequiredProperties()).isNotEmpty();
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.PARITY_NAME));
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.BAUDRATE_NAME));
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME));
-        assertTrue(sioOpticalConnectionType.isRequiredProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
+    @Override
+    protected Set<String> requiredPropertyNames () {
+        return new HashSet<>(Arrays.asList(
+                SerialPortConfiguration.PARITY_NAME,
+                SerialPortConfiguration.BAUDRATE_NAME,
+                SerialPortConfiguration.NR_OF_STOP_BITS_NAME,
+                SerialPortConfiguration.NR_OF_DATA_BITS_NAME));
     }
 
-    @Test
-    public void getOptionalPropertiesTest() {
-        SioOpticalConnectionType sioOpticalConnectionType = new SioOpticalConnectionType();
-
-        // asserts
-        assertThat(sioOpticalConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(sioOpticalConnectionType.getOptionalProperties()).contains(sioOpticalConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+    @Override
+    protected Set<String> optionalPropertyNames () {
+        return new HashSet<>(Arrays.asList(SerialPortConfiguration.FLOW_CONTROL_NAME));
     }
 
 }

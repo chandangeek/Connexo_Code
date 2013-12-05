@@ -1,7 +1,10 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.protocol.ProtocolUtils;
 
 public class XdlmsAse {
@@ -89,7 +92,7 @@ public class XdlmsAse {
 		if(getResponseAllowed()){ // true is the default value
             xDlmsASEReq[t++] = (byte) 0x00;	// value is not present, default TRUE will be used
             //TODO the original was the one above
-            
+
 //			xDlmsASEReq[t++] = (byte) 0x01;	// value is not present, default TRUE will be used
 //            xDlmsASEReq[t++] = (byte) 0x01;	// value is not present, default TRUE will be used
 		} else {

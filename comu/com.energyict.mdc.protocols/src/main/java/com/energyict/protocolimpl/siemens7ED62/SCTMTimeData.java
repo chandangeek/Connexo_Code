@@ -8,21 +8,23 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
  */
 public class SCTMTimeData {
-    
-    int year,month,date,weekday,hour,minute,second;
-    byte[] data; 
 
-    
+    int year,month,date,weekday,hour,minute,second;
+    byte[] data;
+
+
     public SCTMTimeData(Calendar calendar) throws IOException {
            year = calendar.get(Calendar.YEAR);
            month = calendar.get(Calendar.MONTH);
@@ -32,7 +34,7 @@ public class SCTMTimeData {
            minute = calendar.get(Calendar.MINUTE);
            second = calendar.get(Calendar.SECOND);
     }
-    
+
     /** Creates a new instance of SCTMTimeData */
     public SCTMTimeData(byte[] data) throws IOException {
         if (data.length == 14) {
@@ -57,14 +59,14 @@ public class SCTMTimeData {
         }
         else throw new IOException("SCTMTimeData, wrong datalength ("+data.length+")");
     }
-    
+
     private int verifyYear(int rawyear) {
         if (rawyear <= 80) return rawyear+2000;
         else return rawyear+1900;
     }
-    
+
     public byte[] getSETTIMEData() {
-       data = new byte[12]; 
+       data = new byte[12];
        data[0] = getDecimalCoded(year-2000)[0];
        data[1] = getDecimalCoded(year-2000)[1];
        data[2] = getDecimalCoded(month+1)[0];
@@ -78,10 +80,10 @@ public class SCTMTimeData {
        data[9] = getDecimalCoded(hour)[1];
        data[10] = getDecimalCoded(minute)[0];
        data[11] = getDecimalCoded(minute)[1];
-       return data;   
+       return data;
     }
     public byte[] getBUFENQData() {
-       data = new byte[10]; 
+       data = new byte[10];
        data[0] = getDecimalCoded(year-2000)[0];
        data[1] = getDecimalCoded(year-2000)[1];
        data[2] = getDecimalCoded(month+1)[0];
@@ -92,32 +94,32 @@ public class SCTMTimeData {
        data[7] = getDecimalCoded(hour)[1];
        data[8] = getDecimalCoded(minute)[0];
        data[9] = getDecimalCoded(minute)[1];
-       return data;   
+       return data;
     }
-    
+
     private byte[] getDecimalCoded(int fieldval) {
         byte[] val = String.valueOf(fieldval).getBytes();
         byte[] codedval = new byte[2];
         if (val.length < 2) {
             codedval[0] = 0x30;
-            codedval[1] = val[0]; 
+            codedval[1] = val[0];
         }
         else {
             codedval[0] = val[0];
-            codedval[1] = val[1]; 
+            codedval[1] = val[1];
         }
         return codedval;
     }
-    
-    
+
+
     public Calendar getCalendar(TimeZone timeZone) {
        return doGetCalendar(timeZone);
     }
-    
+
     public Date getDate(TimeZone timeZone) {
        return doGetCalendar(timeZone).getTime();
     }
-    
+
     private Calendar doGetCalendar(TimeZone timeZone) {
        Calendar calendar = ProtocolUtils.getCleanCalendar(timeZone);
        calendar.set(Calendar.YEAR,year);
@@ -128,5 +130,5 @@ public class SCTMTimeData {
        calendar.set(Calendar.SECOND,second);
        return calendar;
     }
-    
+
 }

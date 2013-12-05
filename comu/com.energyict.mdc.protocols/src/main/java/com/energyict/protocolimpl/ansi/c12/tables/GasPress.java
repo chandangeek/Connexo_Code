@@ -10,24 +10,22 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 // pressure
 public class GasPress {
-    
+
     static private final int SIZE=3; // 3 x NiFormat
-    
+
     private Number gasPressZero;
     private Number gasPressFullscale;
     private Number basePressure;
-    
+
     /** Creates a new instance of GasPress */
     public GasPress(byte[] data, int offset, int niFormat, int dataOrder) throws IOException {
         setGasPressZero(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
@@ -36,11 +34,11 @@ public class GasPress {
         offset += C12ParseUtils.getNonIntegerSize(niFormat);
         setBasePressure(C12ParseUtils.getNumberFromNonInteger(data, offset, niFormat, dataOrder));
     }
-    
+
     static public int getSize(int niFormat) throws IOException {
         return SIZE*C12ParseUtils.getNonIntegerSize(niFormat);
     }
-    
+
     public Number getGasPressZero() {
         return gasPressZero;
     }
@@ -64,5 +62,5 @@ public class GasPress {
     public void setBasePressure(Number basePressure) {
         this.basePressure = basePressure;
     }
-    
+
 }

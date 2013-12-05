@@ -1,12 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -16,18 +11,22 @@ import com.energyict.protocolimpl.iec1107.ppm.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppm.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+
 /** @author Koen, fbo */
 
-public class Register { 
+public class Register {
 
 	final static int STRING = 0;
 	final static int DATE = 1;
 	final static int NUMBER = 2;
-	final static int LONG = 3; 
+	final static int LONG = 3;
 	final static int BYTEARRAY = 4;
-	final static int QUANTITY = 5; 
+	final static int QUANTITY = 5;
 	final static int INTEGER = 6;
-	final static int BITFIELD64 = 7; 
+	final static int BITFIELD64 = 7;
 	final static int HEX = 9;
 	final static int HEX_LE = 10;
 	final static int MD = 11;
@@ -102,13 +101,13 @@ public class Register {
 	protected String getName() {
 		return name;
 	}
-	
+
 	protected void setMetaRegister( MetaRegister metaRegister ){
 		this.metaRegister = metaRegister;
 	}
 
-        
-        
+
+
 	/* _________ __________ */
 
 	protected void setRegisterFactory(RegisterFactory abba1700RegisterFactory) {
@@ -193,7 +192,7 @@ public class Register {
 	}
 
 	protected Object parse(byte[] data) throws IOException {
-		
+
 		try {
 			switch (getType()) {
 				case STRING :
@@ -218,7 +217,7 @@ public class Register {
 					return data;
 
 				case QUANTITY :
-					MetaRegister metaRegister = 
+					MetaRegister metaRegister =
 						registerFactory.getRegisterInformation().get( name );
 					Unit unit = null;
 					BigDecimal scaleFactor = null;
@@ -238,7 +237,7 @@ public class Register {
 							getLength());
 
 				case MD :
-					metaRegister = 
+					metaRegister =
 						registerFactory.getRegisterInformation().get( name );
 					unit = null;
 					scaleFactor = null;
@@ -248,11 +247,11 @@ public class Register {
 					}
 					byte[] d = ProtocolUtils.getSubArray2(data, getOffset(),
 							getLength());
-					return new MaximumDemand( unit, d, scaleFactor, 
+					return new MaximumDemand( unit, d, scaleFactor,
 							getProtocolLink().getTimeZone() );
 
 				case REGISTER :
-					metaRegister = 
+					metaRegister =
 						registerFactory.getRegisterInformation().get( name );
 					unit = null;
 					scaleFactor = null;
@@ -269,17 +268,17 @@ public class Register {
 
 				case LOADPROFILEDEF :
 					return new LoadProfileDefinition(data);
-                    
-                case HISTORICAL : 
-                    HistoricalDataParser hdp = 
-                            new HistoricalDataParser( registerFactory.getPpm(), 
+
+                case HISTORICAL :
+                    HistoricalDataParser hdp =
+                            new HistoricalDataParser( registerFactory.getPpm(),
                                                       registerFactory );
                     hdp.setInput( data );
                     return hdp.match();
-                
+
                 case LAST_BILLING:
-                    HistoricalDataParser hdpl = 
-                            new HistoricalDataParser( registerFactory.getPpm(), 
+                    HistoricalDataParser hdpl =
+                            new HistoricalDataParser( registerFactory.getPpm(),
                                                       registerFactory );
                     hdpl.setInput( data );
                     return hdpl.matchPeriod();

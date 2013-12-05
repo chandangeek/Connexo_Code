@@ -1,16 +1,31 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class GMeterMessaging implements MessageProtocol {
 
@@ -177,10 +192,10 @@ public class GMeterMessaging implements MessageProtocol {
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-    
+
     /**
      * Generate a {@link MessageSpec} for the EncryptionMessage, that can be added to the list of supported messages
-     * 
+     *
      * @param keyId    - the ID of the message
      * @param tagName  - the tag of the message
      * @param advanced - indicate whether the message is visible only if the 'advanced' checkbox is checked
@@ -211,9 +226,9 @@ public class GMeterMessaging implements MessageProtocol {
 	 * 		{ 									<br>
 	 * 		Open_Key 	:  {@link OctetString}, <br>
 	 * 		Transfer_Key:  {@link OctetString}	<br>
-	 * 	} 
+	 * 	}
      * </code> </blockquote>
-	 * 
+	 *
      * @param messageEntry - the messageContent from EIServer
 	 *
 	 * @throws IOException
@@ -225,7 +240,7 @@ public class GMeterMessaging implements MessageProtocol {
     	rawData.addDataType(OctetString.fromByteArray(DLMSUtils.hexStringToByteArray(getMessageValue(messageEntry.getContent(), RtuMessageConstant.MBUS_TRANSFER_KEY))));
     	getGasDevice().getgMeter().getGasInstallController().setBothKeysAtOnce(rawData.getBEREncodedByteArray());
     }
-    
+
     private void writeCaptureDefinition(MessageEntry messageEntry) throws IOException {
         String[] parts = messageEntry.getContent().split("=");
         byte[] dib1Bytes = ProtocolTools.getBytesFromHexString(parts[1].substring(1).split("\"")[0], "$");
@@ -243,7 +258,7 @@ public class GMeterMessaging implements MessageProtocol {
 
     /**
      * Get a value from the messageContent
-     * 
+     *
      * @param elementTag - the startingTag
      * @return the value
      */

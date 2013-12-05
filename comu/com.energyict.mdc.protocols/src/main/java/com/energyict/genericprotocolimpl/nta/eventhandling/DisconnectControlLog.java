@@ -3,13 +3,16 @@ package com.energyict.genericprotocolimpl.nta.eventhandling;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public class DisconnectControlLog extends AbstractEvent{
-	
+
 	// Disconnect control log
 	private static final int EVENT_EVENT_LOG_CLEARED = 255;
 	private static final int EVENT_MANUAL_DISCONNECTION = 60;
@@ -20,7 +23,7 @@ public class DisconnectControlLog extends AbstractEvent{
 	private static final int EVENT_LIMITER_THRESHOLD_EXCEEDED = 65;
 	private static final int EVENT_LIMITER_THRESHOLD_OK = 66;
 	private static final int EVENT_LIMITER_THRESHOLD_CHANGED = 67;
-	
+
 	public DisconnectControlLog(TimeZone timeZone, DataContainer dc){
         super(dc, timeZone);
 	}

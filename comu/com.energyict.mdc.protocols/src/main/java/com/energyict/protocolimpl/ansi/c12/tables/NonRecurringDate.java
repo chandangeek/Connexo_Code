@@ -9,12 +9,11 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12.tables;
-import java.io.*;
-import java.util.*;
-import java.math.*;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
@@ -24,8 +23,8 @@ public class NonRecurringDate {
 
     private CalendarAction calendarAction;
     private Date nonRecurringDate;
-    
-    
+
+
     /** Creates a new instance of NonRecurringDate */
     public NonRecurringDate(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
@@ -33,19 +32,19 @@ public class NonRecurringDate {
         offset += C12ParseUtils.getDateSize();
         setCalendarAction(new CalendarAction(data, offset, tableFactory));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("NonRecurringDate: \n");
         strBuff.append("    calendarAction="+getCalendarAction()+"\n");
         strBuff.append("    nonRecurringDate="+getNonRecurringDate()+"\n");
         return strBuff.toString();
-        
+
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return CalendarAction.getSize(tableFactory)+C12ParseUtils.getDateSize();
-    }      
+    }
 
     public CalendarAction getCalendarAction() {
         return calendarAction;

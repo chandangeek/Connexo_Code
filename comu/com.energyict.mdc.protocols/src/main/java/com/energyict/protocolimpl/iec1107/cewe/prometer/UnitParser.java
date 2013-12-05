@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 
 /** Registers with dimensions (=units) are stored in this format: 121.5*kW */
 

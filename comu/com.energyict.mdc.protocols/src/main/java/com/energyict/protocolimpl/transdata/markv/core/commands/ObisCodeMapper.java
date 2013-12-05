@@ -10,29 +10,30 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
-
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.ObisUtils;
-import com.energyict.protocolimpl.transdata.markv.core.commands.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.transdata.markv.MarkV;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author koen
  */
 public class ObisCodeMapper {
-    
+
     MarkV markV;
-    
+
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(MarkV markV) {
         this.markV=markV;
     }
-    
+
     static public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
         List rdis = RegisterIdentification.getRegisterDataIds();
         Iterator it = rdis.iterator();
@@ -46,9 +47,9 @@ public class ObisCodeMapper {
     }
 
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        
+
         List ris = markV.getCommandFactory().getCCCommand().findRegisterIdentifications(obisCode);
-        
+
         if (ris.size() == 1) {
             RegisterIdentification ri = ((RegisterIdentification)ris.get(0));
             if (ri.getStrValue() != null)
@@ -64,5 +65,5 @@ public class ObisCodeMapper {
         }
         else throw new NoSuchRegisterException("Register with ObisCode "+obisCode+" does not exist!");
     }
-    
+
 }

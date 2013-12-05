@@ -3,7 +3,7 @@
  */
 package com.energyict.protocolimpl.base;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Classes who are mapping different attributes from an base dlms class to

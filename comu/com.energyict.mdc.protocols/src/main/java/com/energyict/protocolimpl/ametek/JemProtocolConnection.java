@@ -10,13 +10,20 @@
 
 package com.energyict.protocolimpl.ametek;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -73,7 +80,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 		return null;
 	}
 	public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
-		return null;   
+		return null;
 	}
 
 	public void delayAndFlush(int delay) throws IOException {
@@ -113,7 +120,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 		while(true) {
 
 			if ((kar = readIn()) != -1) {
-				
+
 				if (DEBUG >= 2) {
 					System.out.print(",0x");
 					ProtocolUtils.outputHex( ((int)kar));
@@ -216,7 +223,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 		} // while(true)
 
 	} // public Response receiveResponse()
-	
+
 	protected boolean verifyCheck(byte[] in)
 	{
 		byte[] check = getCheck(in, in.length - 2);
@@ -228,7 +235,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 		else
 			return false;
 	}
-	
+
 	protected byte[] getCheck(byte[] send, int length)
 	{
 		List sendList = new ArrayList();

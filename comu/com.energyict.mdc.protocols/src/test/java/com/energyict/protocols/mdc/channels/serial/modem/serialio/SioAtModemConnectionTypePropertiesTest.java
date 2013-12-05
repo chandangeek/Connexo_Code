@@ -1,12 +1,11 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
+import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionTypeTest;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import java.util.Set;
 
 /**
  * Tests the properties of the {@link com.energyict.protocols.mdc.channels.serial.modem.serialio.SioAtModemConnectionType} component.
@@ -16,60 +15,34 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * Time: 15:32
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SioAtModemConnectionTypePropertiesTest extends AbstractModemTests{
+public class SioAtModemConnectionTypePropertiesTest extends SioSerialConnectionTypeTest {
 
-    @Test
-    public void testGetOptionalPropertiesIsNotNull () {
-        SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
-        assertThat(connectionType.getOptionalProperties()).isNotNull();
+    @Override
+    protected SioAtModemConnectionType newConnectionType () {
+        return new SioAtModemConnectionType();
     }
 
-    @Test
-    public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
-        SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).
-                    as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
-        }
+    @Override
+    protected Set<String> requiredPropertyNames () {
+        Set<String> propertyNames = super.requiredPropertyNames();
+        propertyNames.add(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME);
+        return propertyNames;
     }
 
-    @Test
-    public void testOptionalPropertiesAreNotRequired () {
-        SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.isRequiredProperty(optionalPropertySpec.getName())).
-                    as("Optional property " + optionalPropertySpec.getName() + " is not expected to be required").
-                    isFalse();
-        }
-    }
-
-    @Test
-    public void testGetRequiredPropertiesIsNotNull () {
-        SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
-        assertThat(connectionType.getRequiredProperties()).isNotNull();
-    }
-
-    @Test
-    public void testAllRequiredPropertiesAreReturnedByGetPropertySpec () {
-        SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).
-                    as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
-        }
-    }
-
-    @Test
-    public void testRequiredPropertiesAreRequired () {
-        SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.isRequiredProperty(requiredPropertySpec.getName())).
-                    as("Optional property " + requiredPropertySpec.getName() + " is expected to be required").
-                    isTrue();
-        }
+    @Override
+    protected Set<String> optionalPropertyNames () {
+        Set<String> propertyNames = super.optionalPropertyNames();
+        propertyNames.add(TypedAtModemProperties.DELAY_BEFORE_SEND);
+        propertyNames.add(TypedAtModemProperties.DELAY_AFTER_CONNECT);
+        propertyNames.add(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
+        propertyNames.add(TypedAtModemProperties.AT_CONNECT_TIMEOUT);
+        propertyNames.add(TypedAtModemProperties.AT_COMMAND_TRIES);
+        propertyNames.add(TypedAtModemProperties.AT_MODEM_INIT_STRINGS);
+        propertyNames.add(TypedAtModemProperties.AT_MODEM_DIAL_PREFIX);
+        propertyNames.add(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR);
+        propertyNames.add(TypedAtModemProperties.AT_MODEM_POST_DIAL_COMMANDS);
+        propertyNames.add(TypedAtModemProperties.DTR_TOGGLE_DELAY);
+        return propertyNames;
     }
 
 }

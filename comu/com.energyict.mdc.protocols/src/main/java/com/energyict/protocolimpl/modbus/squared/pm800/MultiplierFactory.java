@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm800;
 
-import java.io.*;
-import java.math.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -28,9 +28,9 @@ public class MultiplierFactory {
     private BigDecimal e;
 
     private BigDecimal f;
-    
+
     PM800 pm800;
-    
+
     /** Creates a new instance of MultiplierFactory */
     public MultiplierFactory(PM800 pm800) {
         this.pm800=pm800;
@@ -56,11 +56,11 @@ public class MultiplierFactory {
            scalefactor = getF();
         }
         else throw new IOException("PM800, invalid scale "+(char)scale);
-        
+
         //return new BigDecimal(""+Math.pow(10, scalefactor.longValue()));
         return (new BigDecimal("1")).movePointRight((int)scalefactor.longValue());
     }
-    
+
     private BigDecimal getA() throws IOException {
         if (a==null)
             a= pm800.getRegisterFactory().findRegister("scale A").quantityValue().getAmount();

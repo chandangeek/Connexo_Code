@@ -10,19 +10,17 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
 
 /**
  *
  * @author Koen
  */
 abstract public class ProcedureFactory {
-    
+
     private C12ProtocolLink c12ProtocolLink;
     int sequenceNr;
-    
+
     /** Creates a new instance of ProcedureFactory */
     public ProcedureFactory(C12ProtocolLink c12ProtocolLink) {
         this.c12ProtocolLink = c12ProtocolLink;
@@ -32,7 +30,7 @@ abstract public class ProcedureFactory {
     public C12ProtocolLink getC12ProtocolLink() {
         return c12ProtocolLink;
     }
-    
+
     protected int getNewSequenceNr() {
         return sequenceNr++;
     }

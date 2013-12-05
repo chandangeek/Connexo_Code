@@ -1,12 +1,12 @@
 package com.energyict.genericprotocolimpl.nta.eventhandling;
 
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
 import java.util.Date;
 import java.util.HashMap;
 
-import com.energyict.protocol.MeterEvent;
-
 /**
- * 
+ *
  * @author gna Configuration of extra events that are defined after NTA
  *         implementation
  */

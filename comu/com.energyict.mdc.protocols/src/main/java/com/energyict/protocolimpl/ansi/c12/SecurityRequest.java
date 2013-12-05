@@ -9,29 +9,30 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12;
-import java.io.*;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
-public class SecurityRequest extends AbstractRequest { 
-    
+public class SecurityRequest extends AbstractRequest {
+
     RequestData requestData=new RequestData();
-    
+
     /** Creates a new instance of SecurityRequest */
     public SecurityRequest(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
           response = new SecurityResponse(getPSEMServiceFactory());
           response.build(responseData);
     }
-    
+
     protected RequestData getRequestData() {
         return requestData;
     }
-    
+
     public void secure(byte[] pw) throws IOException {
         byte[] password = pw;
         if (password.length != 20) {
@@ -44,5 +45,5 @@ public class SecurityRequest extends AbstractRequest {
         requestData.setCode(SECURITY);
         requestData.setData(password);
     }
-    
+
 }

@@ -17,7 +17,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,36 +31,36 @@ import java.util.TimeZone;
  */
 public class StoredValuesImpl implements StoredValues {
     final int DEBUG=0;
-    
+
     private static final int EOB_STATUS=0;
     private static final int TOTAL_ENERGY=1;
     private static final int ENERGY_RATES=2;
     private static final int MAXIMUM_DEMANDS=3;
     private static final int MD_RANGE=24; // 48 entries. ObisCode followed by struct, 24 times = 48 entries in the datacontainer
     private static final int CUMULATIVE_DEMAND=51; // unised for the moment...
-    
-    
+
+
     CosemObjectFactory cof;
     ProtocolLink protocolLink;
     ProfileGeneric profileGeneric=null;
-    
+
     List billingSets=new ArrayList();
-    
+
     /** Creates a new instance of StoredValues */
     public StoredValuesImpl(CosemObjectFactory cof) {
         this.cof=cof;
         protocolLink = cof.getProtocolLink();
     }
-    
+
     //***************************************************************************************************
     // implementation of the interfaceStoredValues
     public void retrieve() throws IOException {
-        
+
         // For the SL7000, we delay the retrieval until we know about which billingpoint shout be retrieved...
         //profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(cof.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
-    }    
+    }
 
-    public int getBillingPointCounter() throws IOException {   
+    public int getBillingPointCounter() throws IOException {
         if (billingSets.size() == 0) {
             // retrieve billingset
             profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN,protocolLink.getMeterConfig().getHistoricValuesSN()));
@@ -68,7 +68,7 @@ public class StoredValuesImpl implements StoredValues {
         }
         return ((BillingSet)billingSets.get(0)).getNrOfResets();
     }
-    
+
     public Date getBillingPointTimeDate(int billingPoint) throws IOException {
         // did we retrieve the billingset?
         if ((billingPoint+1) > billingSets.size()) {
@@ -80,18 +80,18 @@ public class StoredValuesImpl implements StoredValues {
         }
         return ((BillingSet)billingSets.get(billingPoint)).getBillingDate();
     }
-    
+
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
         // Do we have to retrieve the billingset?
         int billingPoint=0;
-        
+
         if (obisCode.getF() >= 101)
             billingPoint = obisCode.getF()- 101;
         else if ((obisCode.getF()  >=0) && (obisCode.getF() <= 99))
             billingPoint = obisCode.getF();
         else if ((obisCode.getF()  <=0) && (obisCode.getF() >= -99))
             billingPoint = obisCode.getF()*-1;
-        
+
         if ((billingPoint+1) > billingSets.size()) {
             byte[] ln = DLMSCOSEMGlobals.HISTORIC_VALUES_OBJECT_LN;
             ln[5] = (byte)(101+billingPoint);
@@ -100,7 +100,7 @@ public class StoredValuesImpl implements StoredValues {
             DataContainer dc= profileGeneric.getBuffer();
             processDataContainer(dc);
         }
-        
+
         BillingSet billingSet = (BillingSet)billingSets.get(billingPoint);
         HistoricalValue historicalValue = new HistoricalValue();
         historicalValue.setBillingDate(billingSet.getBillingDate());
@@ -111,17 +111,17 @@ public class StoredValuesImpl implements StoredValues {
         extendedRegister.setScalerUnit(billingValue.getScalerUnit());
         extendedRegister.setCaptureTime(billingValue.getCaptureDateTime());
         historicalValue.setCosemObject(extendedRegister);
-        
+
         return historicalValue;
-        
+
     }
 
-    
+
     public ProfileGeneric getProfileGeneric() {
         return profileGeneric;
     }
-    
-    
+
+
     //********************************************************************************************
     // Private methods to parse the datacontainer
     private List getAllMaximumDemands(int billingSetId,DataContainer dc) {
@@ -141,15 +141,15 @@ public class StoredValuesImpl implements StoredValues {
         } // for(int id=0;id<entries;id++)
         return billingValues;
     } // private List getAllMaximumDemands(int billingSetId)
-   
+
     private List getBillingValues(int billingSetId,int typeId,DataContainer dc) {
         List billingValues = new ArrayList();
-        
+
         DataStructure billingStructure = dc.getRoot().getStructure(billingSetId);
         if (!billingStructure.isStructure(typeId)) return billingValues;
         DataStructure typeIdStructure = billingStructure.getStructure(typeId);
         if (!typeIdStructure.isStructure(0)) return billingValues;
-        
+
         DataStructure ds = typeIdStructure.getStructure(0);
         int entries = ds.getNrOfElements();
         for(int id=0;id<entries;id++) {
@@ -170,7 +170,7 @@ public class StoredValuesImpl implements StoredValues {
         } // for(int id=0;id<entries;id++)
         return billingValues;
     } // private List getTotalEnergy(int billingSetId)
-    
+
     private BillingValue getBillingValue(int billingSetId,int typeId,DataContainer dc) {
     	DataStructure billingSetStruncture = dc.getRoot().getStructure(billingSetId);
     	if (!billingSetStruncture.isStructure(typeId)) return null;
@@ -188,7 +188,7 @@ public class StoredValuesImpl implements StoredValues {
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingValue);
         return billingValue;
     } // private List getBillingValue(int billingSetId)
-    
+
     private BillingSet getBillingSet(int billingSetId,DataContainer dc) {
         int daysSinceLastReset = dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getInteger(1);
         int nrOfResets= dc.getRoot().getStructure(billingSetId).getStructure(EOB_STATUS).getStructure(3).getInteger(0);
@@ -198,13 +198,13 @@ public class StoredValuesImpl implements StoredValues {
         if (DEBUG>=1) System.out.println("KV_DEBUG> "+billingSet);
         return billingSet;
     }
-    
+
     private void processDataContainer(DataContainer dc) {
         billingSets.clear();
         int nrOfBillingSets = dc.getRoot().getNrOfElements();
         if (DEBUG>=1) System.out.println("nrOfBillingSets : "+nrOfBillingSets);
         for (int billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++) {
-if (DEBUG>=1) System.out.println("************************************************************************************");            
+if (DEBUG>=1) System.out.println("************************************************************************************");
             BillingSet billingSet = getBillingSet(billingSetId,dc);
             billingSet.addBillingValues(getBillingValues(billingSetId,TOTAL_ENERGY,dc)); // total energy
             billingSet.addBillingValues(getBillingValues(billingSetId,ENERGY_RATES,dc)); // energy rates
@@ -224,19 +224,19 @@ if (DEBUG>=1) System.out.println("**********************************************
             billingSets.add(billingSet);
         } // for (billingSetId=0;billingSetId<nrOfBillingSets;billingSetId++)
     } // private void processDataContainer(DataContainer dc)
-    
-    
+
+
 //    private void parseDataContainerDebug(DataContainer dc) {
 //        int[] count=new int[dc.getMaxLevel()+1];
 //        int level=0;
 //        boolean ret=true;
 //        DataStructure root = dc.getRoot();
-//        
+//
 //        while(true) {
 //            int i;
 //            for (i=count[level];i<root.getNrOfElements();i++) {
 //                if (root.isStructure(i)) {
-//                    root=root.getStructure(i); 
+//                    root=root.getStructure(i);
 //                    count[level]=i+1;
 //                    level++;
 //                    System.out.println("level "+level+", elements : "+root.getNrOfElements());
@@ -252,7 +252,7 @@ if (DEBUG>=1) System.out.println("**********************************************
 //                        System.out.println("NumberOfElements "+i+" = "+root.getElement(i));
 //                }
 //            } // for (i=count[level];i<root.getNrOfElements();i++)
-//            
+//
 //            if (i == (root.getNrOfElements())) {
 //                root=root.getParent();
 //                count[level]=0;
@@ -265,8 +265,8 @@ if (DEBUG>=1) System.out.println("**********************************************
 //            } // if (i == (root.getNrOfElements()))
 //        } // while(true)
 //    } // private void parseDataContainerDebug()
-//    
-//    
+//
+//
 //    static public DataContainer getDataContainerDebug() {
 //        DataContainer dc=null;
 //        try {
@@ -280,7 +280,7 @@ if (DEBUG>=1) System.out.println("**********************************************
 //        }
 //        return dc;
 //    }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -288,5 +288,5 @@ if (DEBUG>=1) System.out.println("**********************************************
 //        // TODO code application logic here
 //        StoredValuesImpl dcp = new StoredValuesImpl(StoredValuesImpl.getDataContainerDebug());
 //    }
-    
+
 }

@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
@@ -46,7 +46,7 @@ public class UkHubEventProfiles {
         meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getCommunicationsFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getManufacturerLogbook(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
-        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
+        EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;
     }
 

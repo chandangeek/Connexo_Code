@@ -10,33 +10,34 @@
 
 package com.energyict.protocolimpl.modbus.veris.hawkeye;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-    
+
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
     }
-    
+
     protected void init() {
         // options
         setZeroBased(true); // this means that reg2read = reg-1
-        
-        getRegisters().add(new HoldingRegister(257,2,ObisCode.fromString("1.1.16.8.0.255"),Unit.get("kWh"))); // energy
+
+        getRegisters().add(new HoldingRegister(257,2, ObisCode.fromString("1.1.16.8.0.255"), Unit.get("kWh"))); // energy
         getRegisters().add(new HoldingRegister(261,2,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW"))); // demand power
-        getRegisters().add(new HoldingRegister(263,2,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("var"))); // reactive power 
+        getRegisters().add(new HoldingRegister(263,2,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("var"))); // reactive power
         getRegisters().add(new HoldingRegister(265,2,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("VA"))); // apparent power
         getRegisters().add(new HoldingRegister(267,2,ObisCode.fromString("1.1.13.7.0.255"),Unit.get(""))); // PF
         getRegisters().add(new HoldingRegister(269,2,ObisCode.fromString("1.1.12.7.0.255"))); // total line to line
@@ -61,10 +62,10 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(307,2,ObisCode.fromString("1.1.1.3.0.255"),Unit.get("kW"))); // power min demand
         getRegisters().add(new HoldingRegister(309,2,ObisCode.fromString("1.1.1.6.0.255"),Unit.get("kW"))); // power max demand
 
-        
-        
+
+
     }
-    
+
     protected void initParsers() {
         // BigDecimal parser
         getParserFactory().addBigDecimalParser(new Parser() {
@@ -74,5 +75,5 @@ public class RegisterFactory extends AbstractRegisterFactory {
             }
         });
     } //private void initParsers()
-    
+
 } // public class RegisterFactory extends AbstractRegisterFactory

@@ -1,20 +1,23 @@
 package com.energyict.genericprotocolimpl.common.tou;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 
 import java.util.Iterator;
 import java.util.List;
 
 public class CosemActivityCalendarBuilder {
-    
+
     ActivityCalendar messageActivityCalendar;
-            
+
     /** Creates a new instance of CosemActivityCalendarBuilder */
     public CosemActivityCalendarBuilder(ActivityCalendar messageActivityCalendar) {
         this.messageActivityCalendar=messageActivityCalendar;
     }
-    
+
     public OctetString calendarNameActive() {
         return OctetString.fromByteArray(new byte[]{messageActivityCalendar.getActiveCalendarName()});
     }
@@ -32,7 +35,7 @@ public class CosemActivityCalendarBuilder {
         }
         return array;
     }
-    
+
     public Array weekProfileTableActive() {
         Array array = new Array();
         List weekProfiles = messageActivityCalendar.getActiveWeekProfiles();
@@ -52,7 +55,7 @@ public class CosemActivityCalendarBuilder {
         }
         return array;
     }
-    
+
     public Array dayProfileTableActive() {
         Structure structureDay = new Structure();
         Array arrayDay = new Array();
@@ -76,7 +79,7 @@ public class CosemActivityCalendarBuilder {
         }
         return arrayDay;
     }
-    
+
     public OctetString calendarNamePassive() {
         return OctetString.fromByteArray(new byte[]{messageActivityCalendar.getPassiveCalendarName()});
     }
@@ -92,7 +95,7 @@ public class CosemActivityCalendarBuilder {
             structure.addDataType(OctetString.fromByteArray(new byte[]{sp.getWeek()}));
             array.addDataType(structure);
         }
-        return array;        
+        return array;
     }
     public Array weekProfileTablePassive() {
         Array array = new Array();
@@ -111,10 +114,10 @@ public class CosemActivityCalendarBuilder {
             structure.addDataType(new Unsigned8(wp.getSunday()));
             array.addDataType(structure);
         }
-        return array;        
+        return array;
     }
-    
-    
+
+
     public Array specialDays() {
     	Array specialDaysArray = new Array();
     	Iterator it = messageActivityCalendar.getSpecialDays().iterator();
@@ -128,8 +131,8 @@ public class CosemActivityCalendarBuilder {
     	}
     	return specialDaysArray;
     }
-    
-    
+
+
     public Array dayProfileTablePassive() {
         Array dayProfilesArray = new Array();
         List dayProfiles = messageActivityCalendar.getPassiveDayProfiles();
@@ -153,9 +156,9 @@ public class CosemActivityCalendarBuilder {
         }
         return dayProfilesArray;
     }
-            
+
     public OctetString activatePassiveCalendarTime() {
         return OctetString.fromByteArray(messageActivityCalendar.getActivatePassiveCalendarTime().getOctetString().getOctets());
     }
-    
+
 }

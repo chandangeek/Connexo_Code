@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class OpusProfile {
 

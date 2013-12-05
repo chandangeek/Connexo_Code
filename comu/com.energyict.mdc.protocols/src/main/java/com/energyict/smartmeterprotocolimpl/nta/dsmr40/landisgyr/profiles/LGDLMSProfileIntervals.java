@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;

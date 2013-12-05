@@ -6,20 +6,20 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
+import java.io.IOException;
 /**
  *
  * @author  Koen
  */
 public class IEC870TypeException extends IOException {
-    
+
   private short sReason;
 
   public short getReason()
   {
      return sReason;
   }
-   
+
   public IEC870TypeException(String str)
   {
       super(str);
@@ -30,7 +30,7 @@ public class IEC870TypeException extends IOException {
   {
       super();
       this.sReason = -1;
-      
+
   } // public IEC870ConnectionException()
 
   public IEC870TypeException(String str, short sReason)
@@ -38,5 +38,5 @@ public class IEC870TypeException extends IOException {
       super(str);
       this.sReason = sReason;
 
-  } // public IEC870TypeException(String str)    
+  } // public IEC870TypeException(String str)
 }

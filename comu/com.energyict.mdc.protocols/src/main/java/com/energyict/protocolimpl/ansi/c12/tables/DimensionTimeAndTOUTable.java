@@ -10,35 +10,30 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DimensionTimeAndTOUTable extends AbstractTable {
-    
+
     TimeTOU timeTOU;
-    
+
     /** Creates a new instance of DimensionTimeAndTOUTable */
     public DimensionTimeAndTOUTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(50));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DimensionTimeAndTOUTable: \n");
         strBuff.append("    timeTOU="+timeTOU+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         timeTOU = new TimeTOU(tableData, 0, getTableFactory());
     }
-    
+
 }

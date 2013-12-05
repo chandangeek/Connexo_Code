@@ -10,21 +10,22 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.itron.protocol.Utils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class PowerFactorBasePage extends AbstractBasePage {
-    
+
     private BigDecimal instantaneousPowerFactor;
     private BigDecimal averagePowerFactor;
     private BigDecimal previousPowerFactor;
@@ -35,13 +36,13 @@ public class PowerFactorBasePage extends AbstractBasePage {
     private BigDecimal wattHourReadingAtDemandReset;
     private BigDecimal vAHourReadingAtDemandReset;
     private BigDecimal powerFactorMinimumCoincidentRegisterValue;
-    
-    
+
+
     /** Creates a new instance of RealTimeBasePage */
     public PowerFactorBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -58,11 +59,11 @@ public class PowerFactorBasePage extends AbstractBasePage {
         strBuff.append("   powerFactorMinimumCoincidentRegisterValue="+getPowerFactorMinimumCoincidentRegisterValue()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x2A87,69);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setInstantaneousPowerFactor(new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4))));
@@ -73,33 +74,33 @@ public class PowerFactorBasePage extends AbstractBasePage {
         offset+=4;
         setMinimumPowerFactor(new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4))));
         offset+=4;
-        
+
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getFulcrum().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);        
-        
+            tz = ProtocolUtils.getWinterTimeZone(tz);
+
         setMinimumPowerFactorDate(Utils.buildDate(data,offset,tz));
         offset+=5;
-        
+
         setMinimumPowerFactorRates(new BigDecimal[RegisterFactory.MAX_NR_OF_RATES]);
         for (int i=0;i<RegisterFactory.MAX_NR_OF_RATES;i++) {
             getMinimumPowerFactorRates()[i] = new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4)));
             offset+=4;
         }
-        
+
         setMinimumPowerFactorRateDates(new Date[RegisterFactory.MAX_NR_OF_RATES]);
         for (int i=0;i<RegisterFactory.MAX_NR_OF_RATES;i++) {
             getMinimumPowerFactorRateDates()[i] = Utils.buildDate(data,offset,tz);
             offset+=5;
         }
-                
+
         setWattHourReadingAtDemandReset(new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4))));
         offset+=4;
         setVAHourReadingAtDemandReset(new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4))));
         offset+=4;
         setPowerFactorMinimumCoincidentRegisterValue(new BigDecimal(""+Float.intBitsToFloat(ProtocolUtils.getInt(data,offset,4))));
         offset+=4;
-        
+
     }
 
     public BigDecimal getInstantaneousPowerFactor() {
@@ -181,6 +182,6 @@ public class PowerFactorBasePage extends AbstractBasePage {
     public void setPowerFactorMinimumCoincidentRegisterValue(BigDecimal powerFactorMinimumCoincidentRegisterValue) {
         this.powerFactorMinimumCoincidentRegisterValue = powerFactorMinimumCoincidentRegisterValue;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
@@ -25,7 +25,7 @@ public class UpdateLastEntry extends AbstractProcedure {
      * 3 lp data set1 table 64
      * 4 lp data set2 table 65
      * 5 lp data set3 table 66
-     * 6 lp data set4 table 67 
+     * 6 lp data set4 table 67
      * 7 lp data set1..4 table 64..67
      * 8 history log table 74
      * 9..254 reserved
@@ -33,16 +33,16 @@ public class UpdateLastEntry extends AbstractProcedure {
      */
     private int list; // UINT8
     private int entriesRead; // UINT16 0..65535 number of entries confirmed
-    
+
     /** Creates a new instance of UpdateLastEntry */
     public UpdateLastEntry(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(5));
     }
-    
+
     protected void prepare() throws IOException {
         setProcedureData(new byte[]{(byte)list,(byte)(entriesRead>>8),(byte)entriesRead});
     }
-    
+
     public void setList(int list) {
         this.list = list;
     }

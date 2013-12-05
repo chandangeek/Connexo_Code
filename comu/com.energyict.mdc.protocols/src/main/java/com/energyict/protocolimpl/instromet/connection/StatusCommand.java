@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import java.io.IOException;
-
 import com.energyict.protocolimpl.instromet.core.InstrometProtocol;
 
+import java.io.IOException;
+
 public class StatusCommand extends AbstractCommand {
-	
+
 	private int status;
-	
+
 	public StatusCommand(InstrometProtocol instrometProtocol) {
 		super(instrometProtocol);
 	}
@@ -19,7 +19,7 @@ public class StatusCommand extends AbstractCommand {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	
+
 	public void checkStatusCode(int statusCode) throws IOException {
 		if (statusCode == 0) // OK
 			return;
@@ -41,7 +41,7 @@ public class StatusCommand extends AbstractCommand {
 			throw new IOException("Status code 11 was returned: Table Switch provided was invalid");
 		else
 			throw new IOException("Invalid status code returned: " + statusCode);
-		
+
 	}
 
 }

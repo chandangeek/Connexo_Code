@@ -1,14 +1,16 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Copyrights EnergyICT
@@ -136,7 +138,7 @@ public class ModbusTCPConnection extends ModbusConnection {
      * Assemble a valid request and send it to the device
      *
      * @param requestData
-     * @throws com.energyict.cbo.NestedIOException
+     * @throws NestedIOException
      *
      * @throws com.energyict.dialer.connection.ConnectionException
      *

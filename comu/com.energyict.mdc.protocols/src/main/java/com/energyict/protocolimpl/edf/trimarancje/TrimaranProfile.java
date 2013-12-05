@@ -10,51 +10,51 @@
 
 package com.energyict.protocolimpl.edf.trimarancje;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
 
 /**
  *
  * @author Koen
  */
 public class TrimaranProfile {
-    
+
     Trimaran trimaran;
-    
+
     private int pointer = 0;
     private DemandData[] demandData = {null, null, null, null,
     									null, null, null, null,
     									null, null, null, null,
     									null, null, null, null};
     private ProfileData profileData = null;
-    
+
     /** Creates a new instance of TrimeranProfile */
     public TrimaranProfile(Trimaran trimaran) {
         this.trimaran=trimaran;
     }
-    
-    
+
+
     public ProfileData getProfileData() throws IOException {
 
     	if( profileData == null){
     		profileData = new ProfileData();
-    		
+
     		if(trimaran.getMeterVersion().equalsIgnoreCase("V1")){
     			setDemandData(trimaran.getDataFactory().getDemandData());
     			profileData.setChannelInfos(getDemandData(0).getChannelInfos());
     			profileData.setIntervalDatas(getDemandData(0).getIntervalDatas());
     		}
-    		
+
     		else if(trimaran.getMeterVersion().equalsIgnoreCase("V2")){
     			//**********************************************************************************
     			// Made this implementation to check if het meter has a small or a large profile,
-    			// this doesn't seem to work with all the metes so I canceled this and just 
-    			// concentrated on the version one meters, these are the once that are implemented 
+    			// this doesn't seem to work with all the metes so I canceled this and just
+    			// concentrated on the version one meters, these are the once that are implemented
     			// in the ACCOR project.
     			//**********************************************************************************
 	    		while(true){
@@ -63,7 +63,7 @@ public class TrimaranProfile {
 	    			}
 	    			if (pointer == 1){
 	    				if(Arrays.equals(getDemandData(0).getData(), getDemandData(1).getData())){
-	    					break;          
+	    					break;
 	    				}
 	    			}
 	    			incrementPointer();
@@ -72,7 +72,7 @@ public class TrimaranProfile {
 					}
 	    		}
 	    		if(pointer >= 16){
-	    			
+
 	    			profileData.setChannelInfos(getDemandData(0).getChannelInfos(1));
 	    			List allIntervals = new ArrayList();
 	    			for(int i = 0; i < pointer; i++){
@@ -88,7 +88,7 @@ public class TrimaranProfile {
     	}
         return profileData;
     }
-    
+
     protected void incrementPointer() {
 		pointer++;
 	}
@@ -97,15 +97,15 @@ public class TrimaranProfile {
 	private DemandData getDemandData(int p){
     	return this.demandData[p];
     }
-    
+
     protected DemandData getDemandData(){
     	return this.demandData[pointer];
     }
-    
+
     protected void setDemandData(DemandData demandData){
     	this.demandData[pointer] = demandData;
     }
-    
+
     public int getProfileInterval() throws IOException{
     	if(getDemandData() == null) {
 			setDemandData(trimaran.getDataFactory().getDemandData());
@@ -128,5 +128,5 @@ public class TrimaranProfile {
 	protected void setPointer(int pointer) {
 		this.pointer = pointer;
 	}
-    
+
 }

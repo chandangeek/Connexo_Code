@@ -1,7 +1,7 @@
 package com.energyict.dlms;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.NestedIOException;
 
 import java.io.IOException;
 import java.io.InputStream;

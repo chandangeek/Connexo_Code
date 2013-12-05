@@ -6,21 +6,26 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class RTC extends AbstractCommand {
-    
+
     private static final int DEBUG=0;
     private static final String READCOMMAND="RT";
     private static final String WRITECOMMAND="ST";
@@ -29,7 +34,7 @@ public class RTC extends AbstractCommand {
     public RTC(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
     }
-    
+
     public String toString() {
         return getDate().toString();
     }
@@ -37,9 +42,9 @@ public class RTC extends AbstractCommand {
     public void write() throws ConnectionException,IOException {
         write(0);
     }
-    
+
 //    static public void main(String[] str) {
-//        TimeZone tz = TimeZone.getTimeZone("America/Mexico_City");     
+//        TimeZone tz = TimeZone.getTimeZone("America/Mexico_City");
 //        SimpleDateFormat sdf = new SimpleDateFormat();
 //        sdf.setTimeZone(tz);
 //        Calendar cal = Calendar.getInstance(); //ProtocolUtils.getCalendar(tz);
@@ -49,14 +54,14 @@ public class RTC extends AbstractCommand {
 //        String time = sdf.format(cal.getTime());
 //        String writeStr = date+" "+cal.get(Calendar.DAY_OF_WEEK)+" "+time+" "+(tz.inDaylightTime(cal.getTime())?"01":"00");
 //        System.out.println(writeStr);
-//        
+//
 //        Calendar cal1 = Calendar.getInstance();
 //        Calendar cal2 = ProtocolUtils.getCalendar(tz);
-//        
+//
 //        System.out.println(cal1.getTime().getTime());
 //        System.out.println(cal2.getTime().getTime());
 //    }
-    
+
     public void write(int roundTripCorrection) throws ConnectionException,IOException {
         TimeZone tz = ez7CommandFactory.getEz7().getTimeZone();
         SimpleDateFormat sdf = new SimpleDateFormat();
@@ -72,7 +77,7 @@ public class RTC extends AbstractCommand {
             System.out.println(writeStr);
         ez7CommandFactory.getEz7().getEz7Connection().sendCommand(WRITECOMMAND,writeStr);
     }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(READCOMMAND);
@@ -80,12 +85,12 @@ public class RTC extends AbstractCommand {
     }
 
     private void parse(byte[] data) throws IOException {
-        
+
         List values=null;
         int baseVal;
-        
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
+
+        if (DEBUG>=1)
+           System.out.println(new String(data));
         String dateTimeStr = new String(data);
         dateTimeStr = dateTimeStr.replaceAll("\r\n"," ");
         StringTokenizer strTok = new StringTokenizer(dateTimeStr," ");
@@ -102,23 +107,23 @@ public class RTC extends AbstractCommand {
         }
         //String weekDay = strTok.nextToken();
         //String ds = strTok.nextToken();
-        
+
         if ((time==null) || (date==null))
             throw new IOException("RTC, time and/or date string is null, cannot continue!");
-        
+
         //Calendar cal = ProtocolUtils.getCleanCalendar(ez7CommandFactory.getEz7().getTimeZone());
-        DateFormat sdf = new SimpleDateFormat("MM/dd/yy HH:mm:ss");   
+        DateFormat sdf = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
         sdf.setTimeZone(ez7CommandFactory.getEz7().getTimeZone());
-        
+
         try {
             setDate(sdf.parse(date+" "+time));
         }
         catch(ParseException e) {
             throw new NestedIOException(e,"RTC, parse, Error parsing the date time string!");
         }
-        
+
     }
-    
+
     /**
      * Getter for property date.
      * @return Value of property date.
@@ -126,7 +131,7 @@ public class RTC extends AbstractCommand {
     public java.util.Date getDate() {
         return date;
     }
-    
+
     /**
      * Setter for property date.
      * @param date New value of property date.
@@ -134,25 +139,24 @@ public class RTC extends AbstractCommand {
     public void setDate(java.util.Date date) {
         this.date = date;
     }
-    
-    
+
+
 
 }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

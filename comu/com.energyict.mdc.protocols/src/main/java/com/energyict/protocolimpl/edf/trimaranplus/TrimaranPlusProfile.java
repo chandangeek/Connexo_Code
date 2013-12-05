@@ -10,23 +10,24 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class TrimaranPlusProfile {
-    
+
     TrimaranPlus trimaranPlus;
-    
+
     /** Creates a new instance of TrimaranPlusProfile */
     public TrimaranPlusProfile(TrimaranPlus trimaranPlus) {
         this.trimaranPlus=trimaranPlus;
     }
-    
+
     public ProfileData getProfileData(Date lastReading) throws IOException {
         return trimaranPlus.getTrimaranObjectFactory().getCourbeCharge(lastReading).getProfileData();
     }

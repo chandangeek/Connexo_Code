@@ -10,26 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MeterIDS extends AbstractDataDefinition {
-    
+
     private String fullSerialNumber; // OctetString(24),
     private String fullMeterID; // OctetString(32),
     private String fullLoadResearchID; // OctetString(32),
-    
+
     /** Creates a new instance of DataIdentityTemplate */
     public MeterIDS(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -39,11 +38,11 @@ public class MeterIDS extends AbstractDataDefinition {
         strBuff.append("   fullSerialNumber="+getFullSerialNumber()+"\n");
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 0x0061; // 97 READ DLMS_METER_IDS
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setFullSerialNumber(new String(ProtocolUtils.getSubArray2(data, offset, 24)));
@@ -52,7 +51,7 @@ public class MeterIDS extends AbstractDataDefinition {
         offset+=32;
         setFullLoadResearchID(new String(ProtocolUtils.getSubArray2(data, offset, 32)));
         offset+=32;
-        
+
     }
 
     public String getFullSerialNumber() {

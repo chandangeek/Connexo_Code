@@ -10,18 +10,21 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class S200EventsFactory {
-    
-    static List list = new ArrayList();
+
+    static List<S200EventMapping> list = new ArrayList<>();
     static {
-        
+
         list.add(new S200EventMapping(1, MeterEvent.POWERDOWN));
         list.add(new S200EventMapping(2, MeterEvent.POWERUP));
         list.add(new S200EventMapping(3, MeterEvent.SETCLOCK_BEFORE));
@@ -56,19 +59,21 @@ public class S200EventsFactory {
         list.add(new S200EventMapping(0x21, MeterEvent.OTHER,"begin record command executed"));
         list.add(new S200EventMapping(0x22, MeterEvent.OTHER,"attempt acess with invalid password"));
         list.add(new S200EventMapping(0x23, MeterEvent.OTHER,"meter input static for 12 hours or more"));
-        
+
         // events not supported by n4nn versions
         list.add(new S200EventMapping(0x1E, MeterEvent.OTHER, "Horn On"));
         list.add(new S200EventMapping(0x1F, MeterEvent.OTHER, "Horn Of"));
-    
-        for (int i=0x24;i<=0x29;i++)
-            list.add(new S200EventMapping(i, MeterEvent.METER_ALARM, "Channel 0x"+Integer.toHexString(i-0x23)+" exceeds setpoint"));
-    
+
+        for (int i=0x24;i<=0x29;i++) {
+            list.add(new S200EventMapping(i, MeterEvent.METER_ALARM, "Channel 0x" + Integer.toHexString(i - 0x23) + " exceeds setpoint"));
+        }
+
         list.add(new S200EventMapping(0x2A, MeterEvent.OTHER,"line of message printed"));
-        
-        for (int i=0x2b;i<=0x4a;i++)
-            list.add(new S200EventMapping(i, MeterEvent.OTHER, "load control pattern 0x"+Integer.toHexString(i-0x2b)+" started"));
-        
+
+        for (int i=0x2b;i<=0x4a;i++) {
+            list.add(new S200EventMapping(i, MeterEvent.OTHER, "load control pattern 0x" + Integer.toHexString(i - 0x2b) + " started"));
+        }
+
         list.add(new S200EventMapping(0x4B, MeterEvent.OTHER,"horn turned off automatically"));
         list.add(new S200EventMapping(0x4C, MeterEvent.OTHER,"abort command executed"));
         list.add(new S200EventMapping(0x4D, MeterEvent.OTHER,"schedule loaded"));
@@ -79,28 +84,28 @@ public class S200EventsFactory {
         list.add(new S200EventMapping(0x52, MeterEvent.OTHER,"eprom read (S200 series)"));
         list.add(new S200EventMapping(0x53, MeterEvent.OTHER,"eprom written (S200 series)"));
 
-        for (int i=0x54;i<=0x57;i++)
-            list.add(new S200EventMapping(i, MeterEvent.RAM_MEMORY_ERROR, "ram chip 0x"+Integer.toHexString(i-0x54)+" error (S200 series)"));
-        
-        for (int i=0x58;i<=0x5F;i++)
-            list.add(new S200EventMapping(i, MeterEvent.OTHER, "relay 0x"+Integer.toHexString(((i-0x58)%4)+1)+" enabled if relay is enabled for load control"));
-        
+        for (int i=0x54;i<=0x57;i++) {
+            list.add(new S200EventMapping(i, MeterEvent.RAM_MEMORY_ERROR, "ram chip 0x" + Integer.toHexString(i - 0x54) + " error (S200 series)"));
+        }
+
+        for (int i=0x58;i<=0x5F;i++) {
+            list.add(new S200EventMapping(i, MeterEvent.OTHER, "relay 0x" + Integer.toHexString(((i - 0x58) % 4) + 1) + " enabled if relay is enabled for load control"));
+        }
+
         list.add(new S200EventMapping(0x60, MeterEvent.OTHER,"SSR cold started (S200 series - n5nn"));
     }
-    
-    
-    /** Creates a new instance of S200EventsFactory */
+
+
     private S200EventsFactory() {
     }
-    
-    static public S200EventMapping findEventMapping(int s200EventCode) {
-        Iterator it = list.iterator();
-        while(it.hasNext()) {
-            S200EventMapping s200EventMapping = (S200EventMapping)it.next();
-            if (s200EventMapping.getS200EventCode() == s200EventCode)
+
+    public static S200EventMapping findEventMapping(int s200EventCode) {
+        for (S200EventMapping s200EventMapping : list) {
+            if (s200EventMapping.getS200EventCode() == s200EventCode) {
                 return s200EventMapping;
+            }
         }
         return new S200EventMapping(s200EventCode, MeterEvent.OTHER,"Unknown event code "+s200EventCode);
     }
-    
+
 }

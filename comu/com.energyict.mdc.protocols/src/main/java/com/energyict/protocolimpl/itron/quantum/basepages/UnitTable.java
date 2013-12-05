@@ -10,24 +10,29 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ObisCodeExtensions;
+import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class UnitTable {
-    
+
     static List units=new ArrayList();
     static {
-        
-        units.add(new UnitTable(1,1,ObisCode.CODE_D_TIME_INTEGRAL1, Unit.get("Wh"),"delivered watthour"));
+
+        units.add(new UnitTable(1,1, ObisCode.CODE_D_TIME_INTEGRAL1, Unit.get("Wh"),"delivered watthour"));
         units.add(new UnitTable(2,2,ObisCode.CODE_D_TIME_INTEGRAL1, Unit.get("Wh"),"received wathour"));
         units.add(new UnitTable(3,3,ObisCode.CODE_D_TIME_INTEGRAL1, Unit.get("varh"),"delivered varhour"));
         units.add(new UnitTable(4,4,ObisCode.CODE_D_TIME_INTEGRAL1, Unit.get("varh"),"received varhour"));
@@ -137,27 +142,27 @@ public class UnitTable {
         units.add(new UnitTable(108,91,ObisCode.CODE_D_MINIMUM, Unit.get(BaseUnit.AMPERE),"minimum neutral amps"));
         units.add(new UnitTable(109,82,ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK, Unit.get(""),"high five"));
         units.add(new UnitTable(110,13,ObisCode.CODE_D_CURRENT_AVERAGE5, Unit.get(""),"present power factor"));
-                
+
     }
-    
+
     private int registerNr;
     private int obisCField;
     private int obisDField;
     private Unit unit;
     private String description;
-    
+
     public boolean isVoltSquare() {
         return getObisCField()==ObisCodeExtensions.OBISCODE_C_VOLTSQUARE;
-    }        
+    }
     public boolean isAmpSquare() {
         return getObisCField()==ObisCodeExtensions.OBISCODE_C_AMPSQUARE;
-    }        
-    
+    }
+
     public BigDecimal getRegisterValue(byte[] data, int offset, int firmwareRevision, int scale) throws IOException {
         BigDecimal bd=null;
-        
+
         switch(obisDField) {
-            
+
             // instantaneous
             case ObisCodeExtensions.OBISCODE_D_PEAK_INSTANTANEOUS:
             case ObisCode.CODE_D_INSTANTANEOUS: {
@@ -178,7 +183,7 @@ public class UnitTable {
                         bd = ParseUtils.convertNormSignedFP2Number(data,offset,6,16);
                     }
                 }
-                
+
                 //System.out.println("KV_DEBUG> "+bd);
                 bd = bd.movePointLeft(scale); // only for the instantaneous values... ?? KV_TO_DO
                 //System.out.println("KV_DEBUG> "+bd);
@@ -187,7 +192,7 @@ public class UnitTable {
             case ObisCodeExtensions.OBISCODE_D_TIMEOFOCCURANCE: {
                 bd = BigDecimal.valueOf(ProtocolUtils.getLong(data,offset, 6));
             } break; // ObisCodeExtensions.OBISCODE_D_TIMEOFOCCURANCE
-                    
+
             // energy & demand
             case ObisCode.CODE_D_MINIMUM:
             case ObisCode.CODE_D_TIME_INTEGRAL1:
@@ -195,32 +200,32 @@ public class UnitTable {
             case ObisCode.CODE_D_CURRENT_AVERAGE5:
             case ObisCodeExtensions.OBISCODE_D_CONTINUOUS_CUMULATIVE_DEMAND:
             case ObisCode.CODE_D_CUMULATIVE_MAXUMUM_DEMAND: {
-                
+
                 if (firmwareRevision < 13) {
                     bd = ParseUtils.convertBCDFixedPoint(data,offset,6,12);
                 }
                 else if (firmwareRevision >= 13) {
                     bd = ParseUtils.convertBCDFixedPoint(data,offset,6,16);
                 }
-                
+
             } break;
-            
+
             // powerfactor
             case ObisCodeExtensions.OBISCODE_D_HIGHESTPEAK:
             case ObisCodeExtensions.OBISCODE_D_COINCIDENT: {
                 bd = ParseUtils.convertNormSignedFP2Number(data,offset,6,32);
             } break;
-            
+
         } // switch(obisDField)
-        
+
         return bd;
     } // public BigDecimal getRegisterValue(byte[] data, int offset, int firmwareRevision)
-    
-    
+
+
     public String toString() {
-       return getUnit()+", "+getDescription();    
+       return getUnit()+", "+getDescription();
     }
-    
+
     /** Creates a new instance of UnitTable */
     private UnitTable(int registerNr, int obisCField, int obisDField, Unit unit, String description) {
         this.setRegisterNr(registerNr);
@@ -261,7 +266,7 @@ public class UnitTable {
     public void setRegisterNr(int registerNr) {
         this.registerNr = registerNr;
     }
-    
+
     static public UnitTable findUnitTable(int registerNr) throws IOException {
         Iterator it = units.iterator();
         while(it.hasNext()) {
@@ -269,7 +274,7 @@ public class UnitTable {
             if (u.getRegisterNr() == registerNr)
                 return u;
         }
-        
+
         throw new IOException("UnitTable, findUnitTable, invalid registerNr "+registerNr);
     }
 
@@ -280,5 +285,5 @@ public class UnitTable {
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
 }

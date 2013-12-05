@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.List;

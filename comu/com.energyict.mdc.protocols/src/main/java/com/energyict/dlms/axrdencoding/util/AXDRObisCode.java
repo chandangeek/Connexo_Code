@@ -2,7 +2,7 @@ package com.energyict.dlms.axrdencoding.util;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 public final class AXDRObisCode {
 

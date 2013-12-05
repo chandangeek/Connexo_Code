@@ -10,22 +10,20 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-
 /**
  *
  * @author Koen
  */
 public class ResponseFrame {
-    
+
     private byte[] data;
     private int stat;
     //private int len;
     private boolean ack;
     private String nakReason;
-    private int commandByte;   
+    private int commandByte;
     private int expectedFrameType;
-    
+
     /** Creates a new instance of ResponseFrame */
     public ResponseFrame() {
         ack=false;

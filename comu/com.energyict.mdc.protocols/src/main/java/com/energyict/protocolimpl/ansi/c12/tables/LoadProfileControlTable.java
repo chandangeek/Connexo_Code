@@ -10,55 +10,52 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.base.FirmwareVersion;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LoadProfileControlTable extends AbstractTable {
-    
+
     /*
      * intervalFormatCodex 1=uint8, 2=uint16, 4=uint32, 8=int8, 16=int16, 32=int32, 64=non integer format 1, 128 = non integer format 2
      * scalarsSetx applied to the interval data before storing in the load profile table
      * divisorSetx applied to the interval data before storing in the load profile table
      */
-    
+
     private LoadProfileSourceSelection[] loadProfileSelectionSet1;
     private int intervalFormatCode1; // 8 bit
     private int[] scalarsSet1; // 16 bit
     private int[] divisorSet1;
-    
+
     private LoadProfileSourceSelection[] loadProfileSelectionSet2;
     private int intervalFormatCode2; // 8 bit
     private int[] scalarsSet2; // 16 bit
     private int[] divisorSet2;
-    
+
     private LoadProfileSourceSelection[] loadProfileSelectionSet3;
     private int intervalFormatCode3; // 8 bit
     private int[] scalarsSet3; // 16 bit
     private int[] divisorSet3;
-    
+
     private LoadProfileSourceSelection[] loadProfileSelectionSet4;
     private int intervalFormatCode4; // 8 bit
     private int[] scalarsSet4; // 16 bit
     private int[] divisorSet4;
-    
+
     /** Creates a new instance of LoadProfileControlTable */
     public LoadProfileControlTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(62));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("LoadProfileControlTable: \n");
-        
+
         // set1
         for (int t=0;t<getLoadProfileSelectionSet1().length;t++)
             strBuff.append("    loadProfileSelectionSet1["+t+"]="+getLoadProfileSelectionSet1()[t]+"\n");
@@ -67,7 +64,7 @@ public class LoadProfileControlTable extends AbstractTable {
             strBuff.append("    scalarsSet1["+t+"]="+getScalarsSet1()[t]+"\n");
         for (int t=0;t<getDivisorSet1().length;t++)
             strBuff.append("    divisorSet1["+t+"]="+getDivisorSet1()[t]+"\n");
-        
+
         // set2
         for (int t=0;t<getLoadProfileSelectionSet2().length;t++)
             strBuff.append("    loadProfileSelectionSet2["+t+"]="+getLoadProfileSelectionSet2()[t]+"\n");
@@ -94,31 +91,31 @@ public class LoadProfileControlTable extends AbstractTable {
             strBuff.append("    scalarsSet4["+t+"]="+getScalarsSet4()[t]+"\n");
         for (int t=0;t<getDivisorSet4().length;t++)
             strBuff.append("    divisorSet4["+t+"]="+getDivisorSet4()[t]+"\n");
-        
+
         return strBuff.toString();
     }
-    
-    
-    private int checkVersionForFormatCode(int formatCode) throws IOException { 
+
+
+    private int checkVersionForFormatCode(int formatCode) throws IOException {
         // overrule for GEKV
         if (getTableFactory().getC12ProtocolLink().getManufacturer().getMeterProtocolClass().compareTo("com.energyict.protocolimpl.ge.kv.GEKV")==0) {
             FirmwareVersion fw = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getManufacturerIdentificationTable().getFirmwareVersion();
             FirmwareVersion fw2CheckAgainst = new FirmwareVersion("5.2");
             if (fw.equal(fw2CheckAgainst) || fw.before(fw2CheckAgainst)) {
-                return IntervalFormat.INT16;    
-            }   
+                return IntervalFormat.INT16;
+            }
         }
-        
+
         return formatCode;
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         //ActualRegisterTable art = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         //ActualTimeAndTOUTable atatt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualTimeAndTOUTable();
         ConfigurationTable cfgt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         ActualLoadProfileTable alpt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualLoadProfileTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-         
+
 
         int offset=0;
         setLoadProfileSelectionSet1(new LoadProfileSourceSelection[alpt.getLoadProfileSet().getNrOfChannelsSet()[0]]);
@@ -137,83 +134,83 @@ public class LoadProfileControlTable extends AbstractTable {
         if ((cfgt.getStdTablesUsed()[8]&0x01)==0x01) {
             for (int t=0;t<getLoadProfileSelectionSet1().length;t++) {
                 getLoadProfileSelectionSet1()[t]=new LoadProfileSourceSelection(tableData, offset, getTableFactory());
-                offset+=getLoadProfileSelectionSet1()[t].getSize(getTableFactory());                    
+                offset+=getLoadProfileSelectionSet1()[t].getSize(getTableFactory());
             } // for (int t=0;t<loadProfileSelectionSet1[i].length;t++) {
             setIntervalFormatCode1(checkVersionForFormatCode(C12ParseUtils.getInt(tableData,offset)));
-            offset++;  
+            offset++;
             if (alpt.getLoadProfileSet().isScalarDivisorFlagSet1()) {
                 for (int t=0;t<getScalarsSet1().length;t++) {
                     getScalarsSet1()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
                 for (int t=0;t<getDivisorSet1().length;t++) {
                     getDivisorSet1()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
             }
         } // if ((cfgt.getStdTablesUsed()[8]&0x01)==0x01)
-        
+
         // set2
         if ((cfgt.getStdTablesUsed()[8]&0x02)==0x02) {
             for (int t=0;t<getLoadProfileSelectionSet2().length;t++) {
                 getLoadProfileSelectionSet2()[t]=new LoadProfileSourceSelection(tableData, offset, getTableFactory());
-                offset+=getLoadProfileSelectionSet2()[t].getSize(getTableFactory());                    
+                offset+=getLoadProfileSelectionSet2()[t].getSize(getTableFactory());
             } // for (int t=0;t<loadProfileSelectionSet2[i].length;t++) {
             setIntervalFormatCode2(checkVersionForFormatCode(C12ParseUtils.getInt(tableData,offset)));
-            offset++;  
+            offset++;
             if (alpt.getLoadProfileSet().isScalarDivisorFlagSet2()) {
                 for (int t=0;t<getScalarsSet2().length;t++) {
                     getScalarsSet2()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
                 for (int t=0;t<getDivisorSet2().length;t++) {
                     getDivisorSet2()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
             }
         } // if ((cfgt.getStdTablesUsed()[8]&0x02)==0x02)
-        
+
         // set3
         if ((cfgt.getStdTablesUsed()[8]&0x04)==0x04) {
             for (int t=0;t<getLoadProfileSelectionSet3().length;t++) {
                 getLoadProfileSelectionSet3()[t]=new LoadProfileSourceSelection(tableData, offset, getTableFactory());
-                offset+=getLoadProfileSelectionSet3()[t].getSize(getTableFactory());                    
+                offset+=getLoadProfileSelectionSet3()[t].getSize(getTableFactory());
             } // for (int t=0;t<loadProfileSelectionSet3[i].length;t++) {
             setIntervalFormatCode3(checkVersionForFormatCode(C12ParseUtils.getInt(tableData,offset)));
-            offset++;  
+            offset++;
             if (alpt.getLoadProfileSet().isScalarDivisorFlagSet3()) {
                 for (int t=0;t<getScalarsSet3().length;t++) {
                     getScalarsSet3()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
                 for (int t=0;t<getDivisorSet3().length;t++) {
                     getDivisorSet3()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
             }
         } // if ((cfgt.getStdTablesUsed()[8]&0x04)==0x04)
-        
+
         // set4
         if ((cfgt.getStdTablesUsed()[8]&0x08)==0x08) {
             for (int t=0;t<getLoadProfileSelectionSet4().length;t++) {
                 getLoadProfileSelectionSet4()[t]=new LoadProfileSourceSelection(tableData, offset, getTableFactory());
-                offset+=getLoadProfileSelectionSet4()[t].getSize(getTableFactory());                    
+                offset+=getLoadProfileSelectionSet4()[t].getSize(getTableFactory());
             } // for (int t=0;t<loadProfileSelectionSet4[i].length;t++) {
             setIntervalFormatCode4(checkVersionForFormatCode(C12ParseUtils.getInt(tableData,offset)));
-            offset++;  
+            offset++;
             if (alpt.getLoadProfileSet().isScalarDivisorFlagSet4()) {
                 for (int t=0;t<getScalarsSet4().length;t++) {
                     getScalarsSet4()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
                 for (int t=0;t<getDivisorSet4().length;t++) {
                     getDivisorSet4()[t]=C12ParseUtils.getInt(tableData, offset, 2,dataOrder);
-                    offset+=2;                    
+                    offset+=2;
                 }
             }
         } // if ((cfgt.getStdTablesUsed()[8]&0x08)==0x08)
-        
-    }         
+
+    }
 
     public LoadProfileSourceSelection[] getLoadProfileSelectionSet1() {
         return loadProfileSelectionSet1;

@@ -10,42 +10,44 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class Register {
-    
+
     private int address;
     private int format;
     private ObisCode obisCode;
     private Unit unit;
     private String description;
     private int selfReadSet=-1;
-    
+
     public static final int FORMAT_IEEE_32BIT_FP=0;
     public static final int FORMAT_IEEE_32BIT_FP_WITH_5BYTE_TIMESTAMP=1;
     public static final int FORMAT_INTEGER_16BIT=2;
-    
+
     public Register(Register register, int address, int billingPoint, int selfReadSet) {
         this.setAddress(address);
         this.setFormat(register.getFormat());
         this.setObisCode(new ObisCode(register.getObisCode().getA(),register.getObisCode().getB(),register.getObisCode().getC(),register.getObisCode().getD(),register.getObisCode().getE(),billingPoint));
         this.setDescription(register.getDescription());
-        this.setUnit(register.getUnit());   
+        this.setUnit(register.getUnit());
         this.setSelfReadSet(selfReadSet);
     }
-    
-    
 
-    
+
+
+
     /** Creates a new instance of Register */
     public Register(int address, ObisCode obisCode) {
         this(address, FORMAT_IEEE_32BIT_FP, obisCode, obisCode.getDescription());
@@ -59,7 +61,7 @@ public class Register {
     public Register(int address, int format, ObisCode obisCode, String description) {
         this(address, format, obisCode, description, obisCode.getUnitElectricity(0));
     }
-            
+
     public Register(int address, int format, ObisCode obisCode, String description, Unit unit) {
         this.setAddress(address);
         this.setFormat(format);
@@ -73,8 +75,8 @@ public class Register {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Register: 0x"+Integer.toHexString(getAddress())+", "+getDescription()+", "+getObisCode()+"\n");
         return strBuff.toString();
-    }     
-    
+    }
+
     public int getLength() throws IOException {
         switch(getFormat()) {
             case FORMAT_IEEE_32BIT_FP: {
@@ -89,7 +91,7 @@ public class Register {
         }
         throw new IOException("Register, getLength(), error invalid format "+getFormat());
     }
-    
+
     public BigDecimal getValue(byte[]data) throws IOException {
         switch(getFormat()) {
             case FORMAT_IEEE_32BIT_FP: {
@@ -104,7 +106,7 @@ public class Register {
         }
         throw new IOException("Register, getValue(...), error invalid format "+getFormat());
     }
-    
+
     public Date getTimestamp(byte[]data, TimeZone timeZone) throws IOException {
         switch(getFormat()) {
             case FORMAT_IEEE_32BIT_FP: {
@@ -119,8 +121,8 @@ public class Register {
         }
         throw new IOException("Register, getTimestamp(...), error invalid format "+getFormat());
     }
-    
-    
+
+
     public int getAddress() {
         return address;
     }
@@ -172,5 +174,5 @@ public class Register {
     public boolean isSelfReadRegister() {
         return selfReadSet != -1;
     }
-    
+
 }

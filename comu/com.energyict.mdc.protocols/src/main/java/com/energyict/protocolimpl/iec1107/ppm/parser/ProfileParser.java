@@ -1,14 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppm.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppm.PPM;
 import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
@@ -16,6 +9,13 @@ import com.energyict.protocolimpl.iec1107.ppm.RegisterFactory;
 import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileStatus;
 import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /** @author fbo */
 

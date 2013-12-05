@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -29,7 +29,7 @@ public class AXDRTimeDurationTest {
 	}
 
 	/**
-	 * Test method for {@link com.energyict.dlms.axrdencoding.util.AXDRTimeDuration#encode(com.energyict.cbo.TimeDuration)}.
+	 * Test method for {@link com.energyict.dlms.axrdencoding.util.AXDRTimeDuration#encode(TimeDuration)}.
 	 */
 	@Test
 	public final void testEncode() {

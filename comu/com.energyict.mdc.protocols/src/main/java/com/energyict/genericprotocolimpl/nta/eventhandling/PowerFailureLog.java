@@ -3,20 +3,23 @@ package com.energyict.genericprotocolimpl.nta.eventhandling;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
- * 
+ *
  * @author gna
  * Changes:
  * GNA|20072009| Changed the duration to a long, otherwise you could get negative durations ...
  */
 
 public class PowerFailureLog extends AbstractEvent{
-	
+
 	// Power failure log
 	public PowerFailureLog(TimeZone timeZone, DataContainer dc){
         super(dc, timeZone);

@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edf.core;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

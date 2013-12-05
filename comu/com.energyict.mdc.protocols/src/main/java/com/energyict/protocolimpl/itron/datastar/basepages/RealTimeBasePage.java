@@ -10,37 +10,37 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class RealTimeBasePage extends AbstractBasePage {
-    
+
     private Calendar calendar=null;
-    
+
     /** Creates a new instance of RealTimeBasePage */
     public RealTimeBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
-        StringBuffer strBuff = new StringBuffer(); 
+        StringBuffer strBuff = new StringBuffer();
         strBuff.append("RealTimeBasePage:\n");
         strBuff.append("   calendar="+getCalendar()+"\n");
         strBuff.append("   date="+getCalendar().getTime()+"\n");
         return strBuff.toString();
-    }   
-    
-    
+    }
+
+
     protected BasePageDescriptor preparebuild() throws IOException {
         BasePageDescriptor bd = new BasePageDescriptor(0x0, 7);
         if (calendar != null) {
@@ -56,13 +56,13 @@ public class RealTimeBasePage extends AbstractBasePage {
         } // if (calendar != null)
         return bd;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
-        
+
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
             tz = ProtocolUtils.getWinterTimeZone(tz);
-        
+
         setCalendar(ProtocolUtils.getCleanCalendar(tz));
         getCalendar().set(Calendar.DAY_OF_WEEK,(int)ProtocolUtils.getInt(data,0,1));
         int year = (int)ProtocolUtils.getInt(data,1, 1);
@@ -81,5 +81,5 @@ public class RealTimeBasePage extends AbstractBasePage {
     public void setCalendar(Calendar calendar) {
         this.calendar = calendar;
     }
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

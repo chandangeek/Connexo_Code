@@ -10,16 +10,17 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ConstantsDataRead extends AbstractDataRead {
-    
+
     private float ctMultiplier;
     private float vtMultiplier;
     private float registerMultiplier;
@@ -43,13 +44,13 @@ public class ConstantsDataRead extends AbstractDataRead {
     private int phaseCDCDetect; // UINT16
     private int serviceTypeDetected; // UINT8
     private int abcPhaseRotation; // UINT8
-    
-    
+
+
     /** Creates a new instance of ConstantsDataRead */
     public ConstantsDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -79,19 +80,19 @@ public class ConstantsDataRead extends AbstractDataRead {
         strBuff.append("   vtMultiplier="+getVtMultiplier()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
 
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
-        setCtMultiplier(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+
+        setCtMultiplier(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setVtMultiplier(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setVtMultiplier(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setRegisterMultiplier(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setRegisterMultiplier(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        
+
         int count;
         for(count=0;count<10;count++) {
             if (data[offset+count] == 0) {
@@ -101,33 +102,33 @@ public class ConstantsDataRead extends AbstractDataRead {
         }
         customerSerialNumber = new String(ProtocolUtils.getSubArray2(data,offset, count));
         offset+=10;
-        
+
         setProgramID(C12ParseUtils.getInt(data,offset,2, dataOrder));
         offset+=2;
-        setFirmwareVersionRevision(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setFirmwareVersionRevision(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
         setDemandIntervalLength(C12ParseUtils.getInt(data,offset++));
-        setPhaseAVoltage(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseAVoltage(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseACurrent(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseACurrent(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseACurrentAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseACurrentAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseBVoltage(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseBVoltage(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseBVoltageAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseBVoltageAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseBCurrent(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseBCurrent(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseBCurrentAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseBCurrentAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseCVoltage(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseCVoltage(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseCVoltageAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseCVoltageAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseCCurrent(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseCCurrent(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
-        setPhaseCCurrentAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder))); 
+        setPhaseCCurrentAngle(Float.intBitsToFloat(C12ParseUtils.getInt(data,offset,4, dataOrder)));
         offset+=4;
         setPhaseADCDetect(C12ParseUtils.getInt(data,offset,2, dataOrder));
         offset+=2;
@@ -137,9 +138,9 @@ public class ConstantsDataRead extends AbstractDataRead {
         offset+=2;
         setServiceTypeDetected(C12ParseUtils.getInt(data,offset++));
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         long[] lids = new long[]{LogicalIDFactory.findLogicalId("CT_MULTIPLIER").getId(),
                                  LogicalIDFactory.findLogicalId("VT_MULTIPLIER").getId(),
                                  LogicalIDFactory.findLogicalId("REGISTER_MULTIPLIER").getId(),
@@ -148,9 +149,9 @@ public class ConstantsDataRead extends AbstractDataRead {
                                  LogicalIDFactory.findLogicalId("FIRMWARE_VERSION_REVISION").getId(),
                                  LogicalIDFactory.findLogicalId("DEMAND_INTERVAL_LENGTH").getId(),
                                  LogicalIDFactory.findLogicalId("ALL_SITESCAN").getId()};
-        
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x08, lids));    
-        
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x08, lids));
+
     } // protected void prepareBuild() throws IOException
 
     public float getCtMultiplier() {
@@ -336,5 +337,5 @@ public class ConstantsDataRead extends AbstractDataRead {
     public void setAbcPhaseRotation(int abcPhaseRotation) {
         this.abcPhaseRotation = abcPhaseRotation;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

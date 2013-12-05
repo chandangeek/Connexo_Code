@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.meteridentification;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 /**
  *
@@ -21,25 +20,25 @@ import java.util.*;
  *
  */
 public class ElsterAlphaPlus extends AbstractManufacturer {
-    
-    public String getManufacturer() throws IOException {  
+
+    public String getManufacturer() throws IOException {
         return "Elster";
-    }    
-    
+    }
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus";
-    }    
-    
+    }
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
-    }    
-    
+    }
+
     public String getMeterDescription() throws IOException {
         return "PowerPlus Alpha";
     }
-    
+
     public String getResourceName() throws IOException {
         return "AlphaPlusPasswords";
     }
-    
+
 }

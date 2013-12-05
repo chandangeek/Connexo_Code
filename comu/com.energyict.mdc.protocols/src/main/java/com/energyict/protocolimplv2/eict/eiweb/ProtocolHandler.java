@@ -1,27 +1,44 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.*;
-import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.comserver.time.Clocks;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.DeviceLogBook;
+import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCodeImpl;
 import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.mdc.protocol.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.CollectedConfigurationInformation;
+import com.energyict.mdc.protocol.device.data.CollectedData;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdw.core.LogBookTypeFactory;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -166,7 +183,7 @@ public class ProtocolHandler {
         if (this.packetBuilder.getNrOfAcceptedMessages() != null) {
             nrOfAcceptedMessages = this.packetBuilder.getNrOfAcceptedMessages();
         }
-        List<OfflineDeviceMessage> pendingMessages = this.inboundDAO.confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        List<OfflineDeviceMessage> pendingMessages = this.inboundDAO.confirmSentMessagesAndGetPending((CanFindDevice) this.getDeviceIdentifier(), nrOfAcceptedMessages);
         this.sendMessages(pendingMessages);
     }
 
@@ -269,7 +286,7 @@ public class ProtocolHandler {
 
     private DeviceLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCodeImpl(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCodeImpl((CanFindDevice) getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
     }

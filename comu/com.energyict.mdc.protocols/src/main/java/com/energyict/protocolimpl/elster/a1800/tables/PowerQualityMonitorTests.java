@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.elster.a1800.tables;
 
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

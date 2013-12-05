@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
@@ -18,13 +18,13 @@ import java.io.*;
  */
 abstract public class AbstractDataRead {
 
-    
+
     abstract protected void parse(byte[] data) throws IOException;
-    
+
     private DataReadFactory dataReadFactory;
 
     private DataReadDescriptor dataReadDescriptor;
-    
+
     /** Creates a new instance of AbstractDataRead */
     public AbstractDataRead(DataReadFactory dataReadFactory) {
         this.dataReadFactory=dataReadFactory;
@@ -32,13 +32,13 @@ abstract public class AbstractDataRead {
 
     protected void prepareBuild() throws IOException {
     }
-    
+
     public void invoke() throws IOException {
         prepareBuild();
         dataReadFactory.getManufacturerTableFactory().getWriteOnlyTable2049(dataReadDescriptor);
         parse (dataReadFactory.getManufacturerTableFactory().getReadOnlyTable2050().getData());
     }
-    
+
     public DataReadFactory getDataReadFactory() {
         return dataReadFactory;
     }
@@ -54,5 +54,5 @@ abstract public class AbstractDataRead {
     public void setDataReadDescriptor(DataReadDescriptor dataReadDescriptor) {
         this.dataReadDescriptor = dataReadDescriptor;
     }
-    
+
 }

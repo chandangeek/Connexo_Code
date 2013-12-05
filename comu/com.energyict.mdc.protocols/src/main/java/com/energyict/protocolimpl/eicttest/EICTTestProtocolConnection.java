@@ -10,19 +10,26 @@
 
 package com.energyict.protocolimpl.eicttest;
 
-import com.energyict.cbo.*;
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.meteridentification.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.logging.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Logger;
 
 /**
  *
  * @author fde
  */
 public class EICTTestProtocolConnection extends Connection implements ProtocolConnection {
-    
+
     InputStream inputStream;
     OutputStream outputStream;
     int iTimeout;
@@ -34,7 +41,7 @@ public class EICTTestProtocolConnection extends Connection implements ProtocolCo
     int iProtocolTimeout;
     boolean boolFlagIEC1107Connected;
     Logger logger;
-    
+
     /** Creates a new instance of EICTTestProtocolConnection */
     public EICTTestProtocolConnection(InputStream inputStream,
                                  OutputStream outputStream,
@@ -53,9 +60,9 @@ public class EICTTestProtocolConnection extends Connection implements ProtocolCo
         boolFlagIEC1107Connected=false;
         this.logger=logger;
     }
-    
+
     public void setHHUSignOn(HHUSignOn hhuSignOn) {
-        
+
     }
     public HHUSignOn getHhuSignOn() {
         return null;
@@ -68,7 +75,7 @@ public class EICTTestProtocolConnection extends Connection implements ProtocolCo
         return null;
     }
     public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
-        return null;   
+        return null;
     }
-    
+
 }

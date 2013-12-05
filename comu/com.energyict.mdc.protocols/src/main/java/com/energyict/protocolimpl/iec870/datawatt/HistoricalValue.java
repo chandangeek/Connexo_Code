@@ -6,25 +6,23 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.mdc.protocol.device.data.IntervalData;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec870.*;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  *
  * @author  Koen
  */
 public class HistoricalValue implements Comparable {
-    
+
     int status;
     BigDecimal value;
     Date date;
     Channel channel;
     boolean dateInvalid;
-    
+
     /** Creates a new instance of HistoricalValues */
     public HistoricalValue(int status, BigDecimal value, Date date, Channel channel, boolean dateInvalid) {
         this.date=date;
@@ -33,11 +31,11 @@ public class HistoricalValue implements Comparable {
         this.status=status;
         this.dateInvalid=dateInvalid;
     }
-    
+
     public boolean isDateInValid() {
         return dateInvalid;
     }
-    
+
     public Date getDate() {
         return date;
     }
@@ -50,7 +48,7 @@ public class HistoricalValue implements Comparable {
     public Channel getChannel() {
         return channel;
     }
-    
+
     // for all types, bit7 of status means Invalid (IV)
     public int getEIStatus() {
         int eiStatus=0;
@@ -75,23 +73,23 @@ public class HistoricalValue implements Comparable {
                 eiStatus |= IntervalData.CORRUPTED;
             }
         }
-        
+
         if (isDateInValid()) {
             eiStatus |= IntervalData.SHORTLONG;
         }
-        
+
         return eiStatus;
     }
-    
+
     public int compareTo(Object o) {
         return (date.compareTo(((HistoricalValue)o).getDate()));
     }
-    
+
     public String toString() {
         if (date != null)
             return "channel="+channel.getChannelId()+" "+getDate()+" "+isDateInValid()+" val="+value.toString()+" status="+status+" addresstype=0x"+Integer.toHexString(channel.getChannelType());
         else
             return "channel="+channel.getChannelId()+" val="+value.toString()+" status="+status+" addresstype=0x"+Integer.toHexString(channel.getChannelType());
     }
-    
+
 }

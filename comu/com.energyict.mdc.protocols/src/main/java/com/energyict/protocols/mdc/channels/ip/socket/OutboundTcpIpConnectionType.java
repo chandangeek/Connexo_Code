@@ -1,15 +1,19 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.ServerComChannel;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
 import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.*;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for TCP/IP.
+ * Provides an implementation for the {@link ConnectionType} interface for TCP/IP.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (14:59)
@@ -41,15 +45,13 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
-            if(property.getValue() != null){
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
+        for (ConnectionProperty property : properties) {
+            if (property.getValue() != null) {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        ServerComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-        comChannel.setComPort(comPort);
-        return comChannel;
+        return this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
     }
 
 }

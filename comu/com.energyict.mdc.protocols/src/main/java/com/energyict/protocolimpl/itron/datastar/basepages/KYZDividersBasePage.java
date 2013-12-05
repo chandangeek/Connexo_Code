@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class KYZDividersBasePage extends AbstractBasePage {
-    
+
     private int[] divider = new int[4];
-    
+
     /** Creates a new instance of KYZDividersBasePage */
     public KYZDividersBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -38,19 +35,19 @@ public class KYZDividersBasePage extends AbstractBasePage {
             strBuff.append("       divider["+i+"]="+getDivider()[i]+"\n");
         }
         return strBuff.toString();
-    }    
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0xFE,0x2);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         getDivider()[0] = (data[0]&0xf)+1;
         getDivider()[1] = ((((int)data[0]&0xff) & 0xf0) >> 4)+1;
         getDivider()[2] = (data[1]&0xf)+1;
         getDivider()[3] = ((((int)data[1]&0xff) & 0xf0) >> 4)+1;
-        
+
     }
 
     public int[] getDivider() {
@@ -61,5 +58,5 @@ public class KYZDividersBasePage extends AbstractBasePage {
         this.divider = divider;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

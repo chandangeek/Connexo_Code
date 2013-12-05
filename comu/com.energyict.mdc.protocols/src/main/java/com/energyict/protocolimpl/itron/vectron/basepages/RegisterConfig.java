@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.Unit;
 
 /**
  *
  * @author Koen
  */
 public class RegisterConfig {
-    
+
     private int id;
     private Unit unit;
     private String description;
@@ -25,7 +25,7 @@ public class RegisterConfig {
     private int obisCField;
 
     /**
-     * Creates a new instance of RegisterConfig 
+     * Creates a new instance of RegisterConfig
      */
     public RegisterConfig(int id, Unit unit, String description, int obisCField) {
         this.setUnit(unit);
@@ -37,7 +37,7 @@ public class RegisterConfig {
     public String toString() {
         return  "id="+getId()+", unit="+unit+", description="+description+"\n";
     }
-    
+
     public Unit getUnit() {
         return unit;
     }
@@ -61,9 +61,9 @@ public class RegisterConfig {
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public boolean isNoMapping() {
-        return getUnit()==null;    
+        return getUnit()==null;
     }
 
     public int getObisCField() {

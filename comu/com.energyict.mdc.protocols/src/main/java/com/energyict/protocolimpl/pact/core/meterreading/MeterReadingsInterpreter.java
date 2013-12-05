@@ -6,17 +6,11 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreter;
@@ -25,19 +19,25 @@ import com.energyict.protocolimpl.pact.core.survey.ascii.AsciiSurvey;
 import com.energyict.protocolimpl.pact.core.survey.binary.BinarySurvey;
 import com.energyict.protocolimpl.pact.core.survey.discrete.DiscreteSurvey;
 import com.energyict.protocolimpl.pact.core.survey.link.LinkSurvey;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class MeterReadingsInterpreter {
-    
+
     private static final int DEBUG=0;
-    
+
     // General information
     private SurveyInfo surveyInfo=null;
     private SurveyFlagsInfo surveyFlagsInfo=null;
     private GeneralInformation generalInformation=null;
-    
+
     // One set of historical data
     private List totalRegisters=null; // of type TotalRegister
     private List cumulativeMaximumDemand_Qs=null; // of type CumulativeMaximumDemand
@@ -46,17 +46,17 @@ public class MeterReadingsInterpreter {
     private List maximumDemand_qs=null; // of type MaximumDemand
     private List rateRegisters=null; // of type RateRegister
     //List billingPoints=null; // of type BillingPoint
-    
-    
-    private List timeDateMDs=null; // of type TimeDateMD 
+
+
+    private List timeDateMDs=null; // of type TimeDateMD
     //TimeDateMD timeDateMD=null;
     private AdditionalInformation additionalInformation=null;
     private CommissioningInformation commissioningInformation=null;
     private EnergyTypeList energyTypeList=null;
     private Seeds seeds=null;
-    private Counters counters=null; 
+    private Counters counters=null;
     private BillingPoint billingPoint=null;
-    
+
     // Many sets of historical data
     private List billingPointIdentifiers = null; // of type BillingPointIdentifier
     private List channelDefinitionRegisters = null; // of type ChannelDefinitionRegister
@@ -65,26 +65,26 @@ public class MeterReadingsInterpreter {
     private List cumulativeMaximumDemandRegisters = null; // of type CumulativeMaximumDemandRegister
     private List demandScalings = null; // of type DemandScaling
     private List tariffNameFlags = null; // of type TariffNameFlag
-    
+
     private boolean registersRead=false;
-    
+
     private TariffNameFlag tariffNameFlag=null;
-    
+
     private String serialId=null;
     private String clemProgramName=null;
     private String currentTariffName=null;
-    
+
     private byte[] data;
     private byte[] loadSurveyData;
     private int dataPtr=0;
     private ProtocolLink protocolLink;
-    
-    
+
+
     /** Creates a new instance of MeterReadingBlocks */
     public MeterReadingsInterpreter(byte[] data,ProtocolLink protocolLink) {
        this(data, 0, protocolLink);
     }
-    
+
     /** Creates a new instance of MeterReadingBlocks */
     public MeterReadingsInterpreter(byte[] data, int dataPtr,ProtocolLink protocolLink) {
     	if(data != null){
@@ -93,7 +93,7 @@ public class MeterReadingsInterpreter {
         this.dataPtr=dataPtr;
         this.protocolLink=protocolLink;
     }
-    
+
     public void parse() {
         parseFirstBlocks();
         parseNextBlocks();
@@ -125,11 +125,11 @@ public class MeterReadingsInterpreter {
             return protocolLink.getRegisterTimeZone();
         }
     }
-    
+
     private boolean isMultipleSet() {
         return (getTotalRegisters() == null);
     }
-    
+
     private List getMaximumDemands() {
         if (getMaximumDemand_ms() != null) {
 			return getMaximumDemand_ms();
@@ -139,7 +139,7 @@ public class MeterReadingsInterpreter {
 			return null;
 		}
     }
-    
+
     private List getCumulativeMaximumDemands() {
         if (getCumulativeMaximumDemand_Qs() != null) {
 			return getCumulativeMaximumDemand_Qs();
@@ -147,9 +147,9 @@ public class MeterReadingsInterpreter {
 			return getCumulativeMaximumDemand_ds();
 		} else {
 			return null;
-		}                                
+		}
     }
-    
+
     public String getObisCodeDescriptions() {
         StringBuffer strBuff = new StringBuffer();
         if (isMultipleSet()) { // multiple set of history data
@@ -158,11 +158,11 @@ public class MeterReadingsInterpreter {
         else {  // single set of History data
             strBuff.append(getSingleSetObisCodeDescriptions());
         } // if single set of history data
-        
+
         strBuff.append("General purpose registers:\n");
-        strBuff.append(MeterReadingIdentifier.GENERAL_PURPOSE_CODES); 
-        
-        
+        strBuff.append(MeterReadingIdentifier.GENERAL_PURPOSE_CODES);
+
+
         return strBuff.toString();
     } // public String getRegisterInfo()
 
@@ -176,8 +176,8 @@ public class MeterReadingsInterpreter {
         }
         return -1;
     }
-    
-     
+
+
     private String getMultipleSetObisCodeDescriptions() {
         if (!registersRead) {
 			return "No registers available for reading!\n";
@@ -236,10 +236,10 @@ public class MeterReadingsInterpreter {
                 }
             }
         }
-        
+
         return strBuff.toString();
-    }    
-    
+    }
+
     private String getSingleSetObisCodeDescriptions() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("Total registers (Single Set):\n");
@@ -298,9 +298,9 @@ public class MeterReadingsInterpreter {
                 }
             }
         } // if (getCumulativeMaximumDemands() != null)
-        return strBuff.toString();        
+        return strBuff.toString();
     } // private String getSingleSetObisCodeDescriptions()
-    
+
     public String toString() {
         return "serialId (first block)= "+getSerialId()+"\n"+
                "clemProgramName (second block)= "+getClemProgramName()+"\n"+
@@ -322,8 +322,8 @@ public class MeterReadingsInterpreter {
                "CommissioningInformation (K)= "+(getCommissioningInformation()!=null ? getCommissioningInformation().toString():"no CommissioningInformation")+"\n"+
                "EnergyTypeList (J)= "+(getEnergyTypeList()!=null ? getEnergyTypeList().toString():"no EnergyTypeList")+"\n"+
                "Counters (H)= "+(getCounters()!=null ? getCounters().toString():"no Counters")+"\n"+
-               
-               
+
+
                "billingPointIdentifiers (0x80)= "+(billingPointIdentifiers != null ? printList(billingPointIdentifiers):"no BillingPointIdentifier objects")+"\n"+
                "channelDefinitionRegisters (0x81)= "+(channelDefinitionRegisters != null ? printList(channelDefinitionRegisters):"no ChannelDefinitionRegister objects")+"\n"+
                "rateRegisterValues (0x82)= "+(rateRegisterValues != null ? printList(rateRegisterValues):"no RateRegisterValue objects")+"\n"+
@@ -333,7 +333,7 @@ public class MeterReadingsInterpreter {
                "tariffNameFlags (0x86&0x87)= "+(tariffNameFlags != null ? printList(tariffNameFlags):"no TariffNameFlag objects")+"\n"+
                getObisCodeDescriptions();
     }
-    
+
     private String printList(List lst) {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("\n");
@@ -342,9 +342,9 @@ public class MeterReadingsInterpreter {
             MeterReadingsBlock mrb = (MeterReadingsBlock)it.next();
             strBuff.append(mrb.toString()+"\n");
         }
-        return strBuff.toString(); 
+        return strBuff.toString();
     }
-    
+
     public boolean isTariffSeriesCLEM() {
         return (getClemProgramName().indexOf("TA")!=-1);
     }
@@ -357,34 +357,34 @@ public class MeterReadingsInterpreter {
     public boolean isProfileSeriesCLEM() {
         return ((getClemProgramName().indexOf("RR")!=-1) || (getClemProgramName().indexOf("PR")!=-1));
     }
-    
+
     private void parseFirstBlocks() {
         // get serialId and CLEM program name
         setSerialId(new String(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
         dataPtr+=8; // inc one block
         setClemProgramName(new String(ProtocolUtils.getSubArray2(data,dataPtr+1,7)));
-        
+
         if (isTariffSeriesCLEM()) {
-            System.out.println("KV_DEBUG> Tariff Series CLEM program!!!! Obsolete? Tariff series CLEM programs are not fully supported!!");  
+            System.out.println("KV_DEBUG> Tariff Series CLEM program!!!! Obsolete? Tariff series CLEM programs are not fully supported!!");
         }
-        
+
         dataPtr+=8; // inc one block
     }
-    
+
     private void parseNextBlocks() {
         // parse further meterreading blocks
         boolean endMarker=false;
         do {
             switch (data[dataPtr]) {
-                
+
                 //************************* General information **************************
                 case 'F': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Flags and survey information");
 					}
                     setSurveyFlagsInfo(new SurveyFlagsInfo(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
-                } break; // F, Flags and survey information 
-                
+                } break; // F, Flags and survey information
+
                 case 'H': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> General purpose counters");
@@ -395,7 +395,7 @@ public class MeterReadingsInterpreter {
                         getCounters().setData(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     }
                 } break; // H, General purpose counters
-                
+
                 case 'S': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Seeds");
@@ -409,21 +409,21 @@ public class MeterReadingsInterpreter {
 					}
                     setGeneralInformation(new GeneralInformation(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // i, General information
-                
+
                 case 's': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Survey information");
 					}
                     setSurveyInfo(new SurveyInfo(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // s, Survey information
-                
+
                 case 't': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Current tariff name");
 					}
                     setCurrentTariffName(new String(ProtocolUtils.getSubArray(data,dataPtr+1,dataPtr+7)));
                 } break; // t, Current tariff name
-                
+
                 case '#': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Authenticator (end block)");
@@ -434,9 +434,9 @@ public class MeterReadingsInterpreter {
                        int authenticator = ProtocolUtils.getIntLE(authent,1,4);
                     }
                     catch(IOException e) {
-                       e.printStackTrace(); // should not happen    
+                       e.printStackTrace(); // should not happen
                     }
-                    
+
                     // authentication 1..4
                     //int newDataPtr = dataPtr+8;
                     loadSurveyData = ProtocolUtils.getSubArray(data,dataPtr+8); //newDataPtr); // all profile data follows directly after the meterreading blocks
@@ -452,16 +452,16 @@ public class MeterReadingsInterpreter {
 					} else {
                         getAdditionalInformation().setData(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     }
-                } break; // I, Additional flags information 
+                } break; // I, Additional flags information
 
                 case 'J': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Energy type list");
 					}
                     setEnergyTypeList(new EnergyTypeList(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
-                    
-                } break; // J, Energy type list  
-                
+
+                } break; // J, Energy type list
+
                 case 'K': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Comissioning information");
@@ -472,7 +472,7 @@ public class MeterReadingsInterpreter {
                         getCommissioningInformation().setData(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7));
                     }
                 } break; // K, Comissioning information
-                
+
                 case 'Q': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Cumulative maximum demand register");
@@ -482,9 +482,9 @@ public class MeterReadingsInterpreter {
 					}
                     cumulativeMaximumDemand_Qs.add(new CumulativeMaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
-                    
+
                 } break; // Q, Cumulative maximum demand register
-                
+
                 case 'T': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Total (unit) register");
@@ -495,9 +495,9 @@ public class MeterReadingsInterpreter {
 					}
                     totalRegisters.add(new TotalRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
-                    
+
                 } break; // T, Total (unit) register
-                
+
                 case 'c': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Rate register");
@@ -507,9 +507,9 @@ public class MeterReadingsInterpreter {
 					}
                     rateRegisters.add(new RateRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
-                    
+
                 } break; // c, Rate register
-                
+
                 case 'd': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Cumulative MD register");
@@ -520,7 +520,7 @@ public class MeterReadingsInterpreter {
                     cumulativeMaximumDemand_ds.add(new CumulativeMaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                 } break; // d, Cumulative MD register
-                
+
                 case 'h': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Time and date of MD");
@@ -530,7 +530,7 @@ public class MeterReadingsInterpreter {
 					}
                     timeDateMDs.add(new TimeDateMD(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),getMeterTypeDependentTimeZone()));
                 } break; // h, Time and date of MD
-                
+
                 case 'm': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Maximum demand register (m)");
@@ -540,22 +540,22 @@ public class MeterReadingsInterpreter {
 					}
                     maximumDemand_ms.add(new MaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),'m'));
                     registersRead=true;
-                    
-                } break; // m, Maximum demand register 
-                
+
+                } break; // m, Maximum demand register
+
                 case 'o': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Old tariff name");
 					}
                 } break; // o, Old tariff name
-                
+
                 case 'p': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Billing point and billing kWh register");
 					}
                     setBillingPoint(new BillingPoint(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),protocolLink.getTimeZone()));
                 } break; // p, Billing point and billing kWh register
-                
+
                 case 'q': {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Maximum demand register (q)");
@@ -566,7 +566,7 @@ public class MeterReadingsInterpreter {
                     maximumDemand_qs.add(new MaximumDemand(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),'q'));
                     registersRead=true;
                 } break; // q, Maximum demand register (q)
-                
+
                 //************************* Many sets of history data **************************
                 case (byte)0x80: {
                     if (DEBUG>=1) {
@@ -576,8 +576,8 @@ public class MeterReadingsInterpreter {
 						billingPointIdentifiers = new ArrayList();
 					}
                     billingPointIdentifiers.add(new BillingPointIdentifier(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),protocolLink.getTimeZone()));
-                } break; // 0x80, Billing point identifier 
-                
+                } break; // 0x80, Billing point identifier
+
                 case (byte)0x81: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Channel definition and register value");
@@ -587,8 +587,8 @@ public class MeterReadingsInterpreter {
 					}
                     channelDefinitionRegisters.add(new ChannelDefinitionRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
-                } break; // 0x81, Channel definition and register value 
-                
+                } break; // 0x81, Channel definition and register value
+
                 case (byte)0x82: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Rate register");
@@ -598,8 +598,8 @@ public class MeterReadingsInterpreter {
 					}
                     rateRegisterValues.add(new RateRegisterValue(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
-                } break; // 0x82, Rate register 
-                
+                } break; // 0x82, Rate register
+
                 case (byte)0x83: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Maximum demand register");
@@ -610,7 +610,7 @@ public class MeterReadingsInterpreter {
                     maximumDemandRegisters.add(new MaximumDemandRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7),getMeterTypeDependentTimeZone()));
                     registersRead=true;
                 } break; // 0x83, Maximum demand register
-                
+
                 case (byte)0x84: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Cumulative MD register");
@@ -621,7 +621,7 @@ public class MeterReadingsInterpreter {
                     cumulativeMaximumDemandRegisters.add(new CumulativeMaximumDemandRegister(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                     registersRead=true;
                 } break; // 0x84, Cumulative MD register
-                
+
                 case (byte)0x85: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Demand scaling");
@@ -629,9 +629,9 @@ public class MeterReadingsInterpreter {
                     if (demandScalings == null) {
 						demandScalings = new ArrayList();
 					}
-                    demandScalings.add(new DemandScaling(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7))); 
+                    demandScalings.add(new DemandScaling(ProtocolUtils.getSubArray(data,dataPtr,dataPtr+7)));
                 } break; // 0x85, Demand scaling
-                
+
                 case (byte)0x86: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Tariff name");
@@ -648,7 +648,7 @@ public class MeterReadingsInterpreter {
                         tariffNameFlag=null;
                     }
                 } break; // 0x86, Tariff name
-                
+
                 case (byte)0x87: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Tariff name and flags");
@@ -665,55 +665,55 @@ public class MeterReadingsInterpreter {
                         tariffNameFlag=null;
                     }
                 } break; // 0x87, Tariff name and flags
-                
+
                 case (byte)0x88: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Download tariff transaction seed");
 					}
                 } break; // 0x88, Download tariff transaction seed
-                
+
                 case (byte)0x89: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Multi-level maximum demands");
 					}
                 } break; // 0x89, Multi-level maximum demands
-                
+
                 case (byte)0x8A: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Time on and off power");
 					}
                 } break; // 0x8A, Time on and off power
-                
+
                 case (byte)0x8C: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Register snapshot block");
 					}
                 } break; // 0x8C, Register snapshot block
-                
+
                 case (byte)0x8D: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Miscellaneous channel data");
 					}
                 } break; // 0x8D, Miscellaneous channel data
-                
+
                 case (byte)0x8E: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> Miscellaneous non-channel data");
 					}
                 } break; // 0x8E, Miscellaneous non-channel data
-                
+
                 default: {
                     if (DEBUG>=1) {
 						System.out.println("KV_DEBUG> !!! unknown block identifier 0x"+Integer.toHexString(ProtocolUtils.byte2int(data[dataPtr])));
 					}
                 } break; // default
             } // switch (data[dataPtr])
-            
+
             dataPtr+=8; // inc one block
-            
+
         } while((dataPtr < data.length) && (!endMarker));
     } // private void parseNextBlocks()
-   
+
     public RegisterValue getValue(ObisCode obisCode) throws IOException {
         if (!registersRead) {
 			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
@@ -721,7 +721,7 @@ public class MeterReadingsInterpreter {
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(obisCode));
         return mrp.getValue();
     }
-    
+
     public Quantity getValue(MeterReadingIdentifier mrid) throws IOException {
         if (!registersRead) {
 			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
@@ -729,7 +729,7 @@ public class MeterReadingsInterpreter {
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, mrid);
         return mrp.getValue().getQuantity();
     }
-    
+
     public Quantity getValue(int channelNumber) throws IOException {
         if (!registersRead) {
 			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
@@ -737,7 +737,7 @@ public class MeterReadingsInterpreter {
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(channelNumber));
         return mrp.getValue().getQuantity();
     }
-    
+
     public Quantity getValueEType(int eType) throws IOException {
         if (!registersRead) {
 			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
@@ -748,7 +748,7 @@ public class MeterReadingsInterpreter {
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(eType,true));
         return mrp.getValue().getQuantity();
     }
-    
+
     public int getNrOfReadingChannels() {
         if (getTotalRegisters()!= null) {
 			return getTotalRegisters().size();
@@ -756,7 +756,7 @@ public class MeterReadingsInterpreter {
 			return getChannelDefinitionRegisters().size();
 		}
     }
-    
+
     /** Getter for property surveyInfo.
      * @return Value of property surveyInfo.
      *
@@ -764,7 +764,7 @@ public class MeterReadingsInterpreter {
     public SurveyInfo getSurveyInfo() {
         return surveyInfo;
     }
-    
+
     /** Setter for property surveyInfo.
      * @param surveyInfo New value of property surveyInfo.
      *
@@ -772,7 +772,7 @@ public class MeterReadingsInterpreter {
     public void setSurveyInfo(SurveyInfo surveyInfo) {
         this.surveyInfo = surveyInfo;
     }
-    
+
     /** Getter for property surveyFlagsInfo.
      * @return Value of property surveyFlagsInfo.
      *
@@ -780,7 +780,7 @@ public class MeterReadingsInterpreter {
     public SurveyFlagsInfo getSurveyFlagsInfo() {
         return surveyFlagsInfo;
     }
-    
+
     /** Setter for property surveyFlagsInfo.
      * @param surveyFlagsInfo New value of property surveyFlagsInfo.
      *
@@ -788,7 +788,7 @@ public class MeterReadingsInterpreter {
     public void setSurveyFlagsInfo(SurveyFlagsInfo surveyFlagsInfo) {
         this.surveyFlagsInfo = surveyFlagsInfo;
     }
-    
+
     /** Getter for property serialId.
      * @return Value of property serialId.
      *
@@ -796,7 +796,7 @@ public class MeterReadingsInterpreter {
     public java.lang.String getSerialId() {
         return serialId;
     }
-    
+
     /** Setter for property serialId.
      * @param serialId New value of property serialId.
      *
@@ -804,7 +804,7 @@ public class MeterReadingsInterpreter {
     public void setSerialId(java.lang.String serialId) {
         this.serialId = serialId;
     }
-    
+
     /** Getter for property clemProgramName.
      * @return Value of property clemProgramName.
      *
@@ -812,7 +812,7 @@ public class MeterReadingsInterpreter {
     public java.lang.String getClemProgramName() {
         return clemProgramName;
     }
-    
+
     /** Setter for property clemProgramName.
      * @param clemProgramName New value of property clemProgramName.
      *
@@ -820,7 +820,7 @@ public class MeterReadingsInterpreter {
     public void setClemProgramName(java.lang.String clemProgramName) {
         this.clemProgramName = clemProgramName;
     }
-    
+
     /** Getter for property currentTariffName.
      * @return Value of property currentTariffName.
      *
@@ -828,7 +828,7 @@ public class MeterReadingsInterpreter {
     public java.lang.String getCurrentTariffName() {
         return currentTariffName;
     }
-    
+
     /** Setter for property currentTariffName.
      * @param currentTariffName New value of property currentTariffName.
      *
@@ -836,7 +836,7 @@ public class MeterReadingsInterpreter {
     public void setCurrentTariffName(java.lang.String currentTariffName) {
         this.currentTariffName = currentTariffName;
     }
-    
+
     /** Getter for property loadSurveyData.
      * @return Value of property loadSurveyData.
      *
@@ -844,7 +844,7 @@ public class MeterReadingsInterpreter {
     public byte[] getLoadSurveyData() {
         return this.loadSurveyData;
     }
-    
+
     /** Setter for property loadSurveyData.
      * @param loadSurveyData New value of property loadSurveyData.
      *
@@ -871,15 +871,15 @@ public class MeterReadingsInterpreter {
 		}
         return null;
     }
-    
+
     /** Getter for property generalInformation.
      * @return Value of property generalInformation.
      *
      */
     public com.energyict.protocolimpl.pact.core.meterreading.GeneralInformation getGeneralInformation() {
         return generalInformation;
-    }    
-    
+    }
+
     /** Setter for property generalInformation.
      * @param generalInformation New value of property generalInformation.
      *
@@ -887,7 +887,7 @@ public class MeterReadingsInterpreter {
     public void setGeneralInformation(com.energyict.protocolimpl.pact.core.meterreading.GeneralInformation generalInformation) {
         this.generalInformation = generalInformation;
     }
-    
+
     /** Getter for property timeDateMDs.
      * @return Value of property timeDateMDs.
      *
@@ -895,7 +895,7 @@ public class MeterReadingsInterpreter {
     public List getTimeDateMDs() {
         return timeDateMDs;
     }
-    
+
     /** Getter for property billingPointIdentifiers.
      * @return Value of property billingPointIdentifiers.
      *
@@ -903,7 +903,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getBillingPointIdentifiers() {
         return billingPointIdentifiers;
     }
-    
+
     /** Setter for property billingPointIdentifiers.
      * @param billingPointIdentifiers New value of property billingPointIdentifiers.
      *
@@ -911,7 +911,7 @@ public class MeterReadingsInterpreter {
     public void setBillingPointIdentifiers(java.util.List billingPointIdentifiers) {
         this.billingPointIdentifiers = billingPointIdentifiers;
     }
-    
+
     /** Getter for property channelDefinitionRegisters.
      * @return Value of property channelDefinitionRegisters.
      *
@@ -919,7 +919,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getChannelDefinitionRegisters() {
         return channelDefinitionRegisters;
     }
-    
+
     /** Setter for property channelDefinitionRegisters.
      * @param channelDefinitionRegisters New value of property channelDefinitionRegisters.
      *
@@ -927,7 +927,7 @@ public class MeterReadingsInterpreter {
     public void setChannelDefinitionRegisters(java.util.List channelDefinitionRegisters) {
         this.channelDefinitionRegisters = channelDefinitionRegisters;
     }
-    
+
     /** Getter for property rateRegisterValues.
      * @return Value of property rateRegisterValues.
      *
@@ -935,7 +935,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getRateRegisterValues() {
         return rateRegisterValues;
     }
-    
+
     /** Setter for property rateRegisterValues.
      * @param rateRegisterValues New value of property rateRegisterValues.
      *
@@ -943,7 +943,7 @@ public class MeterReadingsInterpreter {
     public void setRateRegisterValues(java.util.List rateRegisterValues) {
         this.rateRegisterValues = rateRegisterValues;
     }
-    
+
     /** Getter for property maximumDemandRegisters.
      * @return Value of property maximumDemandRegisters.
      *
@@ -951,7 +951,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getMaximumDemandRegisters() {
         return maximumDemandRegisters;
     }
-    
+
     /** Setter for property maximumDemandRegisters.
      * @param maximumDemandRegisters New value of property maximumDemandRegisters.
      *
@@ -959,7 +959,7 @@ public class MeterReadingsInterpreter {
     public void setMaximumDemandRegisters(java.util.List maximumDemandRegisters) {
         this.maximumDemandRegisters = maximumDemandRegisters;
     }
-    
+
     /** Getter for property cumulativeMaximumDemandRegisters.
      * @return Value of property cumulativeMaximumDemandRegisters.
      *
@@ -967,7 +967,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getCumulativeMaximumDemandRegisters() {
         return cumulativeMaximumDemandRegisters;
     }
-    
+
     /** Setter for property cumulativeMaximumDemandRegisters.
      * @param cumulativeMaximumDemandRegisters New value of property cumulativeMaximumDemandRegisters.
      *
@@ -975,7 +975,7 @@ public class MeterReadingsInterpreter {
     public void setCumulativeMaximumDemandRegisters(java.util.List cumulativeMaximumDemandRegisters) {
         this.cumulativeMaximumDemandRegisters = cumulativeMaximumDemandRegisters;
     }
-    
+
     /** Getter for property demandScalings.
      * @return Value of property demandScalings.
      *
@@ -983,7 +983,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getDemandScalings() {
         return demandScalings;
     }
-    
+
     /** Setter for property demandScalings.
      * @param demandScalings New value of property demandScalings.
      *
@@ -991,7 +991,7 @@ public class MeterReadingsInterpreter {
     public void setDemandScalings(java.util.List demandScalings) {
         this.demandScalings = demandScalings;
     }
-    
+
     /** Getter for property tariffNameFlags.
      * @return Value of property tariffNameFlags.
      *
@@ -999,7 +999,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getTariffNameFlags() {
         return tariffNameFlags;
     }
-    
+
     /** Setter for property tariffNameFlags.
      * @param tariffNameFlags New value of property tariffNameFlags.
      *
@@ -1007,8 +1007,8 @@ public class MeterReadingsInterpreter {
     public void setTariffNameFlags(java.util.List tariffNameFlags) {
         this.tariffNameFlags = tariffNameFlags;
     }
-    
-    
+
+
     /** Getter for property additionalInformation.
      * @return Value of property additionalInformation.
      *
@@ -1016,7 +1016,7 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.meterreading.AdditionalInformation getAdditionalInformation() {
         return additionalInformation;
     }
-    
+
     /** Setter for property additionalInformation.
      * @param additionalInformation New value of property additionalInformation.
      *
@@ -1024,7 +1024,7 @@ public class MeterReadingsInterpreter {
     public void setAdditionalInformation(com.energyict.protocolimpl.pact.core.meterreading.AdditionalInformation additionalInformation) {
         this.additionalInformation = additionalInformation;
     }
-    
+
     /** Getter for property commissioningInformation.
      * @return Value of property commissioningInformation.
      *
@@ -1032,7 +1032,7 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.meterreading.CommissioningInformation getCommissioningInformation() {
         return commissioningInformation;
     }
-    
+
     /** Setter for property commissioningInformation.
      * @param commissioningInformation New value of property commissioningInformation.
      *
@@ -1040,7 +1040,7 @@ public class MeterReadingsInterpreter {
     public void setCommissioningInformation(com.energyict.protocolimpl.pact.core.meterreading.CommissioningInformation commissioningInformation) {
         this.commissioningInformation = commissioningInformation;
     }
-    
+
     /** Getter for property energyTypeList.
      * @return Value of property energyTypeList.
      *
@@ -1048,7 +1048,7 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.meterreading.EnergyTypeList getEnergyTypeList() {
         return energyTypeList;
     }
-    
+
     /** Setter for property energyTypeList.
      * @param energyTypeList New value of property energyTypeList.
      *
@@ -1056,7 +1056,7 @@ public class MeterReadingsInterpreter {
     public void setEnergyTypeList(com.energyict.protocolimpl.pact.core.meterreading.EnergyTypeList energyTypeList) {
         this.energyTypeList = energyTypeList;
     }
-    
+
     /** Getter for property counters.
      * @return Value of property counters.
      *
@@ -1064,7 +1064,7 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.meterreading.Counters getCounters() {
         return counters;
     }
-    
+
     /** Setter for property counters.
      * @param counters New value of property counters.
      *
@@ -1072,7 +1072,7 @@ public class MeterReadingsInterpreter {
     public void setCounters(com.energyict.protocolimpl.pact.core.meterreading.Counters counters) {
         this.counters = counters;
     }
-    
+
     /** Getter for property totalRegisters.
      * @return Value of property totalRegisters.
      *
@@ -1080,7 +1080,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getTotalRegisters() {
         return totalRegisters;
     }
-    
+
     /** Setter for property totalRegisters.
      * @param totalRegisters New value of property totalRegisters.
      *
@@ -1088,7 +1088,7 @@ public class MeterReadingsInterpreter {
     public void setTotalRegisters(java.util.List totalRegisters) {
         this.totalRegisters = totalRegisters;
     }
-    
+
     /** Getter for property cumulativeMaximumDemand_Qs.
      * @return Value of property cumulativeMaximumDemand_Qs.
      *
@@ -1096,7 +1096,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getCumulativeMaximumDemand_Qs() {
         return cumulativeMaximumDemand_Qs;
     }
-    
+
     /** Setter for property cumulativeMaximumDemand_Qs.
      * @param cumulativeMaximumDemand_Qs New value of property cumulativeMaximumDemand_Qs.
      *
@@ -1104,7 +1104,7 @@ public class MeterReadingsInterpreter {
     public void setCumulativeMaximumDemand_Qs(java.util.List cumulativeMaximumDemand_Qs) {
         this.cumulativeMaximumDemand_Qs = cumulativeMaximumDemand_Qs;
     }
-    
+
     /** Getter for property cumulativeMaximumDemand_ds.
      * @return Value of property cumulativeMaximumDemand_ds.
      *
@@ -1112,7 +1112,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getCumulativeMaximumDemand_ds() {
         return cumulativeMaximumDemand_ds;
     }
-    
+
     /** Setter for property cumulativeMaximumDemand_ds.
      * @param cumulativeMaximumDemand_ds New value of property cumulativeMaximumDemand_ds.
      *
@@ -1120,7 +1120,7 @@ public class MeterReadingsInterpreter {
     public void setCumulativeMaximumDemand_ds(java.util.List cumulativeMaximumDemand_ds) {
         this.cumulativeMaximumDemand_ds = cumulativeMaximumDemand_ds;
     }
-    
+
     /** Getter for property maximumDemand_ms.
      * @return Value of property maximumDemand_ms.
      *
@@ -1128,7 +1128,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getMaximumDemand_ms() {
         return maximumDemand_ms;
     }
-    
+
     /** Setter for property maximumDemand_ms.
      * @param maximumDemand_ms New value of property maximumDemand_ms.
      *
@@ -1136,7 +1136,7 @@ public class MeterReadingsInterpreter {
     public void setMaximumDemand_ms(java.util.List maximumDemand_ms) {
         this.maximumDemand_ms = maximumDemand_ms;
     }
-    
+
     /** Getter for property maximumDemand_qs.
      * @return Value of property maximumDemand_qs.
      *
@@ -1144,7 +1144,7 @@ public class MeterReadingsInterpreter {
     public java.util.List getMaximumDemand_qs() {
         return maximumDemand_qs;
     }
-    
+
     /** Setter for property maximumDemand_qs.
      * @param maximumDemand_qs New value of property maximumDemand_qs.
      *
@@ -1152,7 +1152,7 @@ public class MeterReadingsInterpreter {
     public void setMaximumDemand_qs(java.util.List maximumDemand_qs) {
         this.maximumDemand_qs = maximumDemand_qs;
     }
-    
+
     /** Getter for property rateRegisters.
      * @return Value of property rateRegisters.
      *
@@ -1161,8 +1161,8 @@ public class MeterReadingsInterpreter {
         return rateRegisters;
     }
 
-    
-    
+
+
     /** Getter for property timeZone.
      * @return Value of property timeZone.
      *
@@ -1170,7 +1170,7 @@ public class MeterReadingsInterpreter {
     public java.util.TimeZone getTimeZone() {
         return protocolLink.getTimeZone();
     }
-    
+
     /** Getter for property seeds.
      * @return Value of property seeds.
      *
@@ -1178,7 +1178,7 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.meterreading.Seeds getSeeds() {
         return seeds;
     }
-    
+
     /** Setter for property seeds.
      * @param seeds New value of property seeds.
      *
@@ -1186,7 +1186,7 @@ public class MeterReadingsInterpreter {
     public void setSeeds(com.energyict.protocolimpl.pact.core.meterreading.Seeds seeds) {
         this.seeds = seeds;
     }
-    
+
     /**
      * Getter for property billingPoint.
      * @return Value of property billingPoint.
@@ -1194,7 +1194,7 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.meterreading.BillingPoint getBillingPoint() {
         return billingPoint;
     }
-    
+
     /**
      * Setter for property billingPoint.
      * @param billingPoint New value of property billingPoint.
@@ -1202,7 +1202,7 @@ public class MeterReadingsInterpreter {
     public void setBillingPoint(com.energyict.protocolimpl.pact.core.meterreading.BillingPoint billingPoint) {
         this.billingPoint = billingPoint;
     }
-    
+
     /**
      * Getter for property protocolLink.
      * @return Value of property protocolLink.
@@ -1210,5 +1210,5 @@ public class MeterReadingsInterpreter {
     public com.energyict.protocolimpl.pact.core.common.ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
 }

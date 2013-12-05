@@ -5,26 +5,27 @@
  */
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
-import java.io.*;
-import java.util.*;
 
-import com.energyict.cbo.*;
+import com.energyict.mdc.common.Quantity;
+
+import java.util.Date;
+
 /**
  *
  * @author  Koen
  */
 public class Register {
-    
+
     private static final int CUMULATIVE_ENERGY_NO_RESET_AT_BP=2;
     private static final int PERIODIC_ENERGY_RESET_AT_BP=3;
     private static final int PERIODIC_MAX_DEMAND_RESET_AT_BP=4;
     private static final int CUMULATIVE_MAX_DEMAND_RESET_AT_BP=8;
-    
+
     int type;
     Quantity quantity;
     Date mdTimestamp;
     Date billingTimestamp;
-    
+
     /** Creates a new instance of Register */
     public Register(int type, Quantity quantity, Date mdTimestamp, Date billingTimestamp) {
         this.type=type;
@@ -32,11 +33,11 @@ public class Register {
         this.mdTimestamp=mdTimestamp;
         this.billingTimestamp=billingTimestamp;
     }
-    
+
     public String toString() {
         return getTypeDescription()+", "+getQuantity()+(mdTimestamp==null?"":", MD:"+mdTimestamp)+(billingTimestamp==null?"":", BP:"+billingTimestamp);
     }
-    
+
     private String getTypeDescription() {
        switch(type) {
            case CUMULATIVE_ENERGY_NO_RESET_AT_BP:
@@ -51,7 +52,7 @@ public class Register {
                return "unknown registertype "+type;
        }
     }
-    
+
     /**
      * Getter for property type.
      * @return Value of property type.
@@ -64,10 +65,10 @@ public class Register {
      * Getter for property quantity.
      * @return Value of property quantity.
      */
-    public com.energyict.cbo.Quantity getQuantity() {
+    public Quantity getQuantity() {
         return quantity;
     }
- 
+
     /**
      * Getter for property mdTimestamp.
      * @return Value of property mdTimestamp.
@@ -83,5 +84,5 @@ public class Register {
     public java.util.Date getBillingTimestamp() {
         return billingTimestamp;
     }
- 
+
 }

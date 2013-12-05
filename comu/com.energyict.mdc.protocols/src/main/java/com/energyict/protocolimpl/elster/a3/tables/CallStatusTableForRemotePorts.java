@@ -10,18 +10,17 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
-public class CallStatusTableForRemotePorts extends AbstractTable { 
+public class CallStatusTableForRemotePorts extends AbstractTable {
 
     /*
     Memory storage: Registered memory (RAM saved on power fail)
@@ -34,25 +33,25 @@ public class CallStatusTableForRemotePorts extends AbstractTable {
     Data Procedure (MP-3) clears the entire table.
     */
 
-    private int callStatus1; // 1 byte Call status for phone number 1. The meter will post the following status information: 
-                                              // 0 no phone call made since last Reset Status procedure 
-                                              // 1 phone call in progress 
-                                              // 3 waiting for a connection 
-                                              // 4 communicating 
-                                              // 5 completed normally 
-                                              // 6 not completed 
-                                              // 7 not completed, line busy 
-                                              // 8 not completed, no dial tone 
-    private int callStatus2; // 1 byte Call status for phone number 2.  
-    private int callStatus3; // 1 byte Call status for phone number 3.  
+    private int callStatus1; // 1 byte Call status for phone number 1. The meter will post the following status information:
+                                              // 0 no phone call made since last Reset Status procedure
+                                              // 1 phone call in progress
+                                              // 3 waiting for a connection
+                                              // 4 communicating
+                                              // 5 completed normally
+                                              // 6 not completed
+                                              // 7 not completed, line busy
+                                              // 8 not completed, no dial tone
+    private int callStatus2; // 1 byte Call status for phone number 2.
+    private int callStatus3; // 1 byte Call status for phone number 3.
 
-    
-    
+
+
     /** Creates a new instance of CallStatusTableForRemotePorts */
     public CallStatusTableForRemotePorts(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(97,true));
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -62,18 +61,18 @@ public class CallStatusTableForRemotePorts extends AbstractTable {
         strBuff.append("   callStatus3="+getCallStatus3()+"\n");
         return strBuff.toString();
     }
-    
+
 //     public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new CallStatusTableForRemotePorts(null)));
-//     }    
-    
+//     }
+
     protected void parse(byte[] tableData) throws IOException {
         int offset = 0;
         setCallStatus1(C12ParseUtils.getInt(tableData,offset++));
         setCallStatus2(C12ParseUtils.getInt(tableData,offset++));
         setCallStatus3(C12ParseUtils.getInt(tableData,offset++));
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
@@ -101,6 +100,6 @@ public class CallStatusTableForRemotePorts extends AbstractTable {
     public void setCallStatus3(int callStatus3) {
         this.callStatus3 = callStatus3;
     }
-    
+
 
 }

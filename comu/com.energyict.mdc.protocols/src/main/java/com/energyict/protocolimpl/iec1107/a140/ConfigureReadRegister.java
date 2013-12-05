@@ -1,24 +1,24 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 public class ConfigureReadRegister extends Register {
 
     private int value;
-    
+
     public ConfigureReadRegister(
-            A140 a140, 
+            A140 a140,
             String id, int length, int sets, int options) {
         super(a140, id, length, sets, options);
     }
-    
+
     public int getValue( ) throws IOException{
         read();
         return value;
     }
-    
+
     public void setValue( int v ) {
         value = v;
     }

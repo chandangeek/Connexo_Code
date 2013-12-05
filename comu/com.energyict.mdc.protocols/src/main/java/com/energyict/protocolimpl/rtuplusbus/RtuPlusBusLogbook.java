@@ -6,23 +6,22 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.tools.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 //import com.energyict.rtuplusbus.RtuPlusBusFrames;
-import java.util.logging.*;
-import com.energyict.cbo.*;
 
 /**
  *
  * @author  Stefan Grosjean
  */
 public class RtuPlusBusLogbook {
-    
-    
+
+
     //
     //  L o g b o o k   M e s s a g e s    //
     private static final int LB_VM1           = 1;
@@ -74,28 +73,28 @@ public class RtuPlusBusLogbook {
     private static final int LB_ERR_INTERRUPT = 103; // Unexpected interrupt
     private static final int LB_ERR_PROG      = 104; // Execute outside program bounds
     private static final int LB_DEBUG         = 105;
-    
+
     TimeZone timeZone = null;
-    
-    
+
+
     /** Creates a new instance of RtuPlusBusLogbook */
     public RtuPlusBusLogbook( TimeZone aTimeZone )
     { this.timeZone = aTimeZone;
     }
-    
-    
+
+
     public void parseLogbook( int[] aiReceivedData, ProfileData aProfileData )
     { int i;
       int liEventID;
       long llTimeOfRecord;
       Calendar calendar = Calendar.getInstance( this.timeZone);
-      
+
       for( i=0; i < 10 ; i++ ) {
           // Get the Event/Logbook Message
           liEventID  = (aiReceivedData[(1 + i * 10)] & 0xFF) << 8;
           liEventID +=  aiReceivedData[(    i * 10)];
           liEventID = mapEventID( liEventID );
-          
+
           // Get the Time and Convert it
           llTimeOfRecord = (aiReceivedData[(5 + i * 10) ] & 0xFF) << 24;
           llTimeOfRecord +=(aiReceivedData[(4 + i * 10)] & 0xFF) << 16;
@@ -103,32 +102,32 @@ public class RtuPlusBusLogbook {
           llTimeOfRecord +=(aiReceivedData[(2 + i * 10)] & 0xFF);
           calendar.set( 1980, calendar.JANUARY, 1, 0, 0, 0);
           calendar.setTimeInMillis( calendar.getTimeInMillis() + ( llTimeOfRecord * 1000 ) );
-          
+
           // Add the Event to the ProfileData..
           aProfileData.addEvent( new MeterEvent( new Date(calendar.getTime().getTime()), liEventID ) );
-          
+
       }
     }
-    
-    
+
+
     private int mapEventID(int aiEventID ) {
         switch( aiEventID ) {
-            
+
             // POWERFAIL AND WATCHDOG
             case  LB_POWERFAIL     : return( MeterEvent.POWERDOWN );
             case  LB_POWERON       : return( MeterEvent.POWERUP );
             case  LB_WATCHDOG      : return( MeterEvent.WATCHDOGRESET );
-            
+
             // CONFIGURATION CHANGES
             case  LB_PARMETERS     : return( MeterEvent.CONFIGURATIONCHANGE );
             case  LB_PARRTU        : return( MeterEvent.CONFIGURATIONCHANGE );
             case  LB_PARPID        : return( MeterEvent.CONFIGURATIONCHANGE );
             case  LB_PARTOT        : return( MeterEvent.CONFIGURATIONCHANGE );
             case  LB_TELE          : return( MeterEvent.CONFIGURATIONCHANGE );
-            
+
             // OVERFLOW OF TOTALISER OUTPUT
             case  LB_TOT_OVERFLOW  : return( MeterEvent.REGISTER_OVERFLOW );
-            
+
             // ALL KINDS OF ..
             case  LB_VM1           : return( MeterEvent.OTHER );
             case  LB_CPYIO_ERR     : return( MeterEvent.OTHER );
@@ -137,7 +136,7 @@ public class RtuPlusBusLogbook {
             case  LB_NOFUNC        : return( MeterEvent.OTHER );
             case  LB_AMETERS       : return( MeterEvent.OTHER );
             case  LB_ALARMS        : return( MeterEvent.OTHER );
-            
+
             // CLOCK, SYNCHRO AND INTERVAL BOUNDERIES
             case  LB_SYNC          : return( MeterEvent.SETCLOCK );
             case  LB_SYNC_NOK      : return( MeterEvent.SETCLOCK );
@@ -145,25 +144,25 @@ public class RtuPlusBusLogbook {
             case  LB_CLOCKERROR    : return( MeterEvent.SETCLOCK );
             case  LB_INTVADJUST    : return( MeterEvent.SETCLOCK);
             case  LB_CLOCK         : return( MeterEvent.SETCLOCK );
-            
+
             // MEMORY PROBLEMS
             case  LB_ERR_EEPROM    : return( MeterEvent.RAM_MEMORY_ERROR );
             case  LB_MEM_CLEAR     : return( MeterEvent.RAM_MEMORY_ERROR );
- 
+
             // HARDWARE PROBLEMS ..
             case  LB_AUX_SUPPLY    : return( MeterEvent.OTHER );
-                        
+
             // PID REGULATOR AND OTHER ..
             case  LB_PIDLOADS      : return( MeterEvent.OTHER );
             case  LB_PIDOUTP       : return( MeterEvent.OTHER );
             case  LB_PIDSETP       : return( MeterEvent.OTHER );
             case  LB_COS_OUTP      : return( MeterEvent.OTHER );
             case  LB_TAROUT        : return( MeterEvent.OTHER );
-            
-            // COMMUNICATION 
+
+            // COMMUNICATION
             case  LB_MODBUS_COM0   : return( MeterEvent.OTHER );
             case  LB_MODBUS_COM1   : return( MeterEvent.OTHER );
-            
+
             // RUNTIME ERRORS
             case  LB_ERR_RUNTIME   : return( MeterEvent.PROGRAM_FLOW_ERROR );
             case  LB_ERR_FATAL     : return( MeterEvent.PROGRAM_FLOW_ERROR );
@@ -175,9 +174,9 @@ public class RtuPlusBusLogbook {
             case  LB_ERR_INTERRUPT : return( MeterEvent.PROGRAM_FLOW_ERROR ); // Unexpected interrupt
             case  LB_ERR_PROG      : return( MeterEvent.PROGRAM_FLOW_ERROR ); // Execute outside program bounds
             case  LB_DEBUG         : return( MeterEvent.PROGRAM_FLOW_ERROR );
-            
+
             default: return(MeterEvent.OTHER);
         }
     }
-    
+
 }

@@ -10,19 +10,20 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class GEDeviceTable extends AbstractTable {
-    
-    
+
+
     private int mfgVersion; // 1 byte
     private int mfgRevision; // 1 byte
     // rom constants
@@ -79,12 +80,12 @@ public class GEDeviceTable extends AbstractTable {
     private int userFlashRevision; // 1 byte
     private int userFlashBuild; // 1 byte
     private int userChecksum; // 2 bytes
-    
+
     /** Creates a new instance of GEDeviceTable */
     public GEDeviceTable(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(0,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("GEDeviceTable: \n");
@@ -144,15 +145,15 @@ public class GEDeviceTable extends AbstractTable {
         strBuff.append("userFlashRevision="+userFlashRevision+", "); // 1 byte
         strBuff.append("userFlashBuild="+userFlashBuild+", "); // 1 byte
         strBuff.append("userChecksum="+userChecksum+"\n"); // 2 bytes
-        
-        
+
+
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setMfgVersion(C12ParseUtils.getInt(tableData,offset++));
         setMfgRevision(C12ParseUtils.getInt(tableData,offset++));
         // rom constants
@@ -215,22 +216,22 @@ public class GEDeviceTable extends AbstractTable {
         setUserFlashVersion(C12ParseUtils.getInt(tableData,offset++));
         setUserFlashRevision(C12ParseUtils.getInt(tableData,offset++));
         setUserFlashBuild(C12ParseUtils.getInt(tableData,offset++));
-        
-// The KV2 only returns 58 bytes instead of 59 bytes needed if we read 2 bytes checksum...        
+
+// The KV2 only returns 58 bytes instead of 59 bytes needed if we read 2 bytes checksum...
 //        setUserChecksum(C12ParseUtils.getInt(tableData,offset,2,dataOrder));
 //        offset+=2;
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }
-    
+
 //    protected void prepareBuild() throws IOException {
 //        // override to provide extra functionality...
 //        PartialReadInfo partialReadInfo = new PartialReadInfo(0,84);
 //        setPartialReadInfo(partialReadInfo);
 //    }
-        
+
     public int getMfgVersion() {
         return mfgVersion;
     }

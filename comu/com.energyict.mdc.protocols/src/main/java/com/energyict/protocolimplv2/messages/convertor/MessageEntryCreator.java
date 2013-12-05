@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
 import com.energyict.protocol.messaging.Messaging;
 
 /**
- * Defines functionality to create {@link com.energyict.protocol.MessageEntry MessageEntries}
+ * Defines functionality to create {@link MessageEntry MessageEntries}
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/03/13

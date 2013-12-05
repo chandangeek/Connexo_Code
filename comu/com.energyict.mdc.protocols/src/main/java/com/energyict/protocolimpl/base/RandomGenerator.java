@@ -10,21 +10,22 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.util.Random;
 
 /**
  *
  * @author Koen
  */
-public class RandomGenerator { 
-    
-    
-    
+public class RandomGenerator {
+
+
+
     /** Creates a new instance of RandomGenerator */
     private RandomGenerator() {
     }
-    
+
     static public byte[] getRandomSequence() {
         Random rnd = new Random();
         long val = rnd.nextLong();
@@ -34,9 +35,9 @@ public class RandomGenerator {
         }
         return randomSequence;
     }
-    
+
     public static void main(String[] args) {
         System.out.println(ProtocolUtils.outputHexString(RandomGenerator.getRandomSequence()));
     }
-    
+
 }

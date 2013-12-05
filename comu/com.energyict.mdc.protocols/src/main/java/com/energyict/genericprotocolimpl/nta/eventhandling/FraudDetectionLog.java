@@ -1,14 +1,14 @@
 package com.energyict.genericprotocolimpl.nta.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 public class FraudDetectionLog extends AbstractEvent{
-	
+
 	// Fraud detection log
 	private static final int EVENT_EVENT_LOG_CLEARED = 255;
 	private static final int EVENT_TERMINAL_COVER_REMOVED = 40;
@@ -18,13 +18,13 @@ public class FraudDetectionLog extends AbstractEvent{
 	private static final int EVENT_METER_COVER_REMOVED = 44;
 	private static final int EVENT_METER_COVER_CLOSED = 45;
 	private static final int EVENT_TIMES_WRONG_PASSWORD = 46;
-	
+
 	public FraudDetectionLog(TimeZone timeZone, DataContainer dc){
         super(dc, timeZone);
 	}
 
 	protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-		
+
 		if( !ExtraEvents.extraEvents.containsKey(new Integer(eventId)) ){
 			switch(eventId){
 			case EVENT_EVENT_LOG_CLEARED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Fraud detection event log profile cleared."));}break;
@@ -40,6 +40,6 @@ public class FraudDetectionLog extends AbstractEvent{
 		} else {
 			meterEvents.add(ExtraEvents.getExtraEvent(eventTimeStamp, eventId));
 		}
-		
+
 	}
 }

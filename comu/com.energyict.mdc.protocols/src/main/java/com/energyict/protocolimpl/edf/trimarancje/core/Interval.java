@@ -10,18 +10,18 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import java.math.*;
+import java.math.BigDecimal;
 
 /**
  *
  * @author Koen
  */
 public class Interval {
-    
-    
+
+
     private BigDecimal value;
     private int eiStatus;
-    
+
     /** Creates a new instance of Interval */
     public Interval(int val) {
         this(val, 0);
@@ -34,7 +34,7 @@ public class Interval {
     public String toString() {
         return "Interval: value="+value+", eiStatus="+eiStatus;
     }
-    
+
     public BigDecimal getValue() {
         return value;
     }
@@ -50,5 +50,5 @@ public class Interval {
     private void setEiStatus(int eiStatus) {
         this.eiStatus = eiStatus;
     }
-    
+
 }

@@ -10,20 +10,20 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.util.*;
+import java.util.Date;
 
 /**
  *
  * @author koen
  */
 public class EventLog {
-    
+
     private int eventLogCode;
     private Date eventDate;
     private int eventAverageMagnitude;
     private long eventDuration;
     private int durationUnit;
-    
+
     /** Creates a new instance of EventLog */
     public EventLog(int eventLogCode,Date eventDate,int eventAverageMagnitude,long eventDuration,int durationUnit) {
         this.setEventLogCode(eventLogCode);
@@ -36,7 +36,7 @@ public class EventLog {
     public String toString() {
         return "EventLog: eventLogCode="+getEventLogCode()+" ("+EventLogCodes.getEventLogMapping(getEventLogCode())+"), eventDate="+getEventDate()+", eventAverageMagnitude="+getEventAverageMagnitude()+", eventDuration="+getEventDuration()+", durationUnit="+getDurationUnit();
     }
-    
+
     public int getEventLogCode() {
         return eventLogCode;
     }
@@ -76,5 +76,5 @@ public class EventLog {
     private void setDurationUnit(int durationUnit) {
         this.durationUnit = durationUnit;
     }
-    
+
 }

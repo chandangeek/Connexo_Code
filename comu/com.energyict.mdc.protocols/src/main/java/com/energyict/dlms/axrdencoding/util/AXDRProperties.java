@@ -1,14 +1,14 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Properties;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
 
 public final class AXDRProperties {
 

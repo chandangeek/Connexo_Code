@@ -4,7 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2PHYAndMACCountersAttribute;
 import com.energyict.dlms.cosem.methods.PLCOFDMType2PHYAndMACCountersMethods;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 

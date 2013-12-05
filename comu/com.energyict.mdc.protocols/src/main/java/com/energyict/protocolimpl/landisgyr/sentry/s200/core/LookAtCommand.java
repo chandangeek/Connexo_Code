@@ -10,30 +10,30 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class LookAtCommand {
-    
+
     CommandFactory commandFactory;
     private LookAtLCommand lookAtL;
     private LookAtlCommand2 lookAtl;
-    
+
     /** Creates a new instance of LookAtCommand */
     public LookAtCommand(CommandFactory commandFactory) {
         this.commandFactory=commandFactory;
     }
-    
+
     public void init() throws IOException {
         setLookAtL(new LookAtLCommand(commandFactory));
         getLookAtL().build();
         setLookAtl(new LookAtlCommand2(commandFactory));
         getLookAtl().build();
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -42,7 +42,7 @@ public class LookAtCommand {
         strBuff.append("   lookAtl="+getLookAtl()+"\n");
         return strBuff.toString();
     }
-    
+
     // L command
     public int getInputType() {
         return getLookAtL().getInputType();
@@ -60,10 +60,10 @@ public class LookAtCommand {
         if (input<=3)
            return getLookAtL().getPulseDivisors()[input];
         else
-           return getLookAtl().getPulseDivisors()[input]; 
+           return getLookAtl().getPulseDivisors()[input];
     }
 
-    // l command    
+    // l command
     public int getEncoderType() {
         return getLookAtl().getEncoderType();
     }
@@ -75,11 +75,11 @@ public class LookAtCommand {
     public int getEncoderFlags() {
         return getLookAtl().getEncoderFlags();
     }
-    
+
     public boolean isCumulativePulseCount() {
         return (getEncoderFlags() & 0x01) == 0x01;
     }
-    
+
     public boolean isPSIEncoder() {
         return getEncoderType() == 0;
     }

@@ -10,20 +10,22 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.Unit;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class UnitOfMeasureFactory {
-    
+
     static List list = new ArrayList();
-    
+
     static {
-        
+
         list.add(new UnitOfMeasure(0x00, Unit.get("kWh"), 0xF, "kWh manipulated", 15, 1, 0x9, "kWh imported",1 ));
         list.add(new UnitOfMeasure(0x01, Unit.get("kWh"), 0x6, "kWh exported", 2, 1));
         list.add(new UnitOfMeasure(0x03, Unit.get("kVAh"), 0xF, "kVAh rms manipulated", 9, 1));
@@ -49,16 +51,16 @@ public class UnitOfMeasureFactory {
         list.add(new UnitOfMeasure(0x18, Unit.get("V"), 0xF, "Swell V(c)", 138, 2));
         list.add(new UnitOfMeasure(0x19, Unit.get("V"), 0xF, "Sag V any phase", 139, 2));
         list.add(new UnitOfMeasure(0x1A, Unit.get("V"), 0xF, "Swell V any phase", 140, 2));
-        
+
     }
-    
-    
-    
+
+
+
     /** Creates a new instance of UnitOfMeasureFactory */
     private UnitOfMeasureFactory() {
     }
-    
-    
+
+
     static public UnitOfMeasure findUnitOfMeasure(int id) throws IOException {
         for (int i=0;i<list.size();i++) {
             UnitOfMeasure uom = (UnitOfMeasure)list.get(i);
@@ -67,6 +69,6 @@ public class UnitOfMeasureFactory {
         }
         throw new IOException("UnitOfMeasureFactory, findUnitOfMeasure, no unit of measure for id "+id);
     }
-    
-    
+
+
 }

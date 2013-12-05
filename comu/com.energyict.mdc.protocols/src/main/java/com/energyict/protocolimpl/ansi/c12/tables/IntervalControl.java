@@ -10,26 +10,23 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-
-
-import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class IntervalControl {
-    
+
     static public final int SIZE=2;
-    
+
     private int subInterval; // 8 bit Number of minutes in the subinterval
     private int intervalMultiplier; // 8 bit the multiplier by which the subInterval is multiplied
-    private int intervalLength; // 16 bit Length of the demand interval in minutes 
+    private int intervalLength; // 16 bit Length of the demand interval in minutes
     boolean slidingDemand;
-    
+
     /** Creates a new instance of IntervalControl */
     public IntervalControl(byte[] data, boolean slidingDemand, int dataOrder) throws IOException {
         this.slidingDemand=slidingDemand;
@@ -45,7 +42,7 @@ public class IntervalControl {
     public String toString() {
         return "IntervalControl (slidingDemand="+slidingDemand+"): subInterval="+getSubInterval()+", intervalMultiplier="+getIntervalMultiplier()+", intervalLength="+getIntervalLength()+"\n";
     }
-    
+
     public int getSubInterval() {
         return subInterval;
     }
@@ -69,5 +66,5 @@ public class IntervalControl {
     public void setIntervalLength(int intervalLength) {
         this.intervalLength = intervalLength;
     }
-    
+
 }

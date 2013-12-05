@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class DisplayConfigurationTable extends AbstractTable {
-    
+
     private int dateFormat; // 1 byte
     private int suppressLeadZeros; // 1 byte
     private int dispScalar; // 1 byte
@@ -35,12 +36,12 @@ public class DisplayConfigurationTable extends AbstractTable {
     int numericFormat1; // 1 byte
     int numericFormat2; // 1 byte
     String[] userDefinedLabels; // 5 x 6 byte
-    
+
     /** Creates a new instance of DisplayConfigurationTable */
     public DisplayConfigurationTable(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(70,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DisplayConfigurationTable: dateFormat="+getDateFormat()+
@@ -59,23 +60,23 @@ public class DisplayConfigurationTable extends AbstractTable {
         for (int i=0;i<5;i++) {
             strBuff.append("userDefinedLabels["+i+"]="+userDefinedLabels[i]+"\n");
         }
-                        
+
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException {   
+
+    protected void parse(byte[] tableData) throws IOException {
         int offset=0;
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        setDateFormat(C12ParseUtils.getInt(tableData,offset++)); 
-        setSuppressLeadZeros(C12ParseUtils.getInt(tableData,offset++)); 
-        setDispScalar(C12ParseUtils.getInt(tableData,offset++)); 
-        setDemandDispUnits(C12ParseUtils.getInt(tableData,offset++)); 
-        setPrimaryDisplay(C12ParseUtils.getInt(tableData,offset++)); 
-        setDispMultiplier(C12ParseUtils.getLong(tableData,offset,4, dataOrder)); 
+        setDateFormat(C12ParseUtils.getInt(tableData,offset++));
+        setSuppressLeadZeros(C12ParseUtils.getInt(tableData,offset++));
+        setDispScalar(C12ParseUtils.getInt(tableData,offset++));
+        setDemandDispUnits(C12ParseUtils.getInt(tableData,offset++));
+        setPrimaryDisplay(C12ParseUtils.getInt(tableData,offset++));
+        setDispMultiplier(C12ParseUtils.getLong(tableData,offset,4, dataOrder));
         offset+=4;
-        setCumDemandDigits(C12ParseUtils.getInt(tableData,offset++)); 
-        setDemandDigits(C12ParseUtils.getInt(tableData,offset++)); 
-        setEnergyDigits(C12ParseUtils.getInt(tableData,offset++)); 
+        setCumDemandDigits(C12ParseUtils.getInt(tableData,offset++));
+        setDemandDigits(C12ParseUtils.getInt(tableData,offset++));
+        setEnergyDigits(C12ParseUtils.getInt(tableData,offset++));
         fixedPointFormat1 = C12ParseUtils.getInt(tableData,offset++);
         fixedPointFormat2 = C12ParseUtils.getInt(tableData,offset++);
         numericFormat1 = C12ParseUtils.getInt(tableData,offset++);
@@ -85,7 +86,7 @@ public class DisplayConfigurationTable extends AbstractTable {
            userDefinedLabels[i] = new String(ProtocolUtils.getSubArray2(tableData,offset, 6));
            offset+=6;
         }
-        
+
     }
 
     public int getDateFormat() {

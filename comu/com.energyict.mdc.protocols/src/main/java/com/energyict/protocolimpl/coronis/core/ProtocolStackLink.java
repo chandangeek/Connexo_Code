@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.core;
 
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.NestedIOException;
 
 import java.util.logging.Logger;
 

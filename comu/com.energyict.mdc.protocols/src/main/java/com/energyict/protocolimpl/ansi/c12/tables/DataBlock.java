@@ -10,31 +10,28 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DataBlock {
-    
+
     private Number[] summations;
     private Demands[] demands;
     private Coincidents[] coincidents;
-    
+
     /** Creates a new instance of DataBlock */
     public DataBlock(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
-        
-        
+
+
+
         setSummations(new Number[art.getNrOfSummations()]);
         for(int i=0;i<getSummations().length;i++) {
             getSummations()[i] = C12ParseUtils.getNumberFromNonInteger(data, offset, cfgt.getNonIntFormat1(),dataOrder);
@@ -51,29 +48,29 @@ public class DataBlock {
             offset+=Coincidents.getSize(tableFactory);
         }
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DataBlock: \n");
         for(int i=0;i<getSummations().length;i++) {
-            strBuff.append("    summations["+i+"]="+getSummations()[i]+"\n");   
+            strBuff.append("    summations["+i+"]="+getSummations()[i]+"\n");
         }
         for(int i=0;i<getDemands().length;i++) {
-            strBuff.append("    demands["+i+"]="+getDemands()[i]+"\n");   
+            strBuff.append("    demands["+i+"]="+getDemands()[i]+"\n");
         }
         for(int i=0;i<getCoincidents().length;i++) {
-            strBuff.append("    coincidents["+i+"]="+getCoincidents()[i]+"\n");   
+            strBuff.append("    coincidents["+i+"]="+getCoincidents()[i]+"\n");
         }
         return strBuff.toString();
     }
-    
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         ActualRegisterTable art = tableFactory.getC12ProtocolLink().getStandardTableFactory().getActualRegisterTable();
         ConfigurationTable cfgt = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable();
-        
+
         return art.getNrOfSummations() * C12ParseUtils.getNonIntegerSize(cfgt.getNonIntFormat1())+
                art.getNrOfDemands() * Demands.getSize(tableFactory)+
-               art.getNrOfCoinValues() * Coincidents.getSize(tableFactory);  
+               art.getNrOfCoinValues() * Coincidents.getSize(tableFactory);
     }
 
     public Number[] getSummations() {
@@ -99,5 +96,5 @@ public class DataBlock {
     public void setCoincidents(Coincidents[] coincidents) {
         this.coincidents = coincidents;
     }
-    
+
 }

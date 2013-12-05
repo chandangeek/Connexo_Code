@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -22,13 +23,13 @@ public class RevisionLevelCommand extends AbstractCommand {
     private int rev;
     private int dialOut;
     private int type;
-    
-    
+
+
     /** Creates a new instance of ForceStatusCommand */
     public RevisionLevelCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -37,18 +38,18 @@ public class RevisionLevelCommand extends AbstractCommand {
         strBuff.append("   dialOut=0x"+Integer.toHexString(getDialOut())+"\n");
         strBuff.append("   type=0x"+Integer.toHexString(getType())+"\n");
         return strBuff.toString();
-    }        
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setRev(ProtocolUtils.BCD2hex(data[offset++]));
         setDialOut(ProtocolUtils.getInt(data,offset++,1));
         setType(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
-        
-        
+
+
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('v');
     }
@@ -77,5 +78,5 @@ public class RevisionLevelCommand extends AbstractCommand {
         this.type = type;
     }
 
-    
+
 }

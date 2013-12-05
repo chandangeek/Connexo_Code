@@ -10,19 +10,22 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
  * @author Koen
  */
 public class Result {
-    
+
     static List resultCodes = new ArrayList();
     static List contexts = new ArrayList();
-    
+
     static {
         resultCodes.add(new ResultCode(0,"RSL_OK"));
         resultCodes.add(new ResultCode(1,"RSL_NO_CONFIG"));
@@ -283,27 +286,27 @@ public class Result {
         contexts.add(new Context(217,"CTX_TOU_POSTSTATUSFILE"));
         contexts.add(new Context(218,"CTX_GEOIS_LOGNEXTEOI"));
     }
-    
+
     ResultCode resultCode; // Unsigned16,
     Context context; // Unsigned16,
-    
+
     /** Creates a new instance of Result */
     public Result(byte[] data,int offset) throws IOException {
         resultCode = findResultCode(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;
         context = findContext(ProtocolUtils.getInt(data,offset, 2));
         offset+=2;
-        
+
     }
-    
+
     static public int size() {
         return 4;
     }
-    
+
     public String toString() {
         return "resultCode="+resultCode+", context="+context;
     }
-    
+
     private ResultCode findResultCode(int id) throws IOException {
         Iterator it = resultCodes.iterator();
         while(it.hasNext()) {
@@ -313,7 +316,7 @@ public class Result {
         }
         throw new IOException("Result, invalid resultcode "+id);
     } // private ResultCode findResultCode(int id) throws IOException
-    
+
     private Context findContext(int id) throws IOException {
         Iterator it = contexts.iterator();
         while(it.hasNext()) {
@@ -323,5 +326,5 @@ public class Result {
         }
         throw new IOException("Result, invalid context "+id);
     } // private Context findContext(int id) throws IOException
-    
+
 }

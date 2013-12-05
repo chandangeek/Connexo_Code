@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.base.ToStringBuilder;
 
 public class Enerium200Register {
 
 	private static final int DEBUG = 0;
-	
+
 	public static final int NON_SIGNED_1_100	= 1;
 	public static final int NON_SIGNED_1_10000	= 2;
 	public static final int SIGNED				= 3;
@@ -17,7 +17,7 @@ public class Enerium200Register {
 	public static final int F15					= 7;
 	public static final int SIGNED_1_10000 		= 8;
 	public static final int SIGNED_1_100 		= 9;
-	
+
 	private int address;
 	private int size;
 	private Unit unit;
@@ -25,7 +25,7 @@ public class Enerium200Register {
 	private ObisCode obisCode;
 	private int scaler;
 	private int type;
-	
+
 	/*
 	 * Constructors
 	 */
@@ -87,7 +87,7 @@ public class Enerium200Register {
 	public void setType(int type) {
 		this.type = type;
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(ToStringBuilder.genCode(new Enerium200Register(0,0,ObisCode.fromString("1.1.1.1.1.1"),Unit.get(""),"blabla",0,0)));
 	}
@@ -105,5 +105,5 @@ public class Enerium200Register {
         return strBuff.toString();
     }
 
-	
+
 }

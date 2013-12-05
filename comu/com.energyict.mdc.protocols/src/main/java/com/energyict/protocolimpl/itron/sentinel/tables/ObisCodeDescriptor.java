@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  *
  * @author koen
  */
 public class ObisCodeDescriptor {
-    
+
     private String description;
     private ObisCode obisCode;
-    
+
     /** Creates a new instance of ObisCodeDescriptor */
     public ObisCodeDescriptor(ObisCode obisCode,String description) {
         this.setObisCode(obisCode);
@@ -42,5 +42,5 @@ public class ObisCodeDescriptor {
     private void setObisCode(ObisCode obisCode) {
         this.obisCode = obisCode;
     }
-    
+
 }

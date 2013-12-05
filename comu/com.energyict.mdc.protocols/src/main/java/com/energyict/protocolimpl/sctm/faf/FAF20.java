@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.sctm.faf;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
 
 import java.io.IOException;
@@ -26,10 +26,10 @@ KV|23032005|Changed header to be compatible with protocol version tool
  * @endchanges
  */
 public class FAF20 extends Metcom3FAF implements RegisterProtocol {
-   
+
     FAF20Registers fafRegisters=null;
-    
-    /** Creates a new instance of MTT3A */ 
+
+    /** Creates a new instance of MTT3A */
     public FAF20() {
         fafRegisters = new FAF20Registers(this);
     }
@@ -47,7 +47,7 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
     }
 
     public List getOptionalKeys() {
-        List result = new ArrayList(); 
+        List result = new ArrayList();
         result.add("Timeout");
         result.add("Retries");
         result.add("HalfDuplex");
@@ -59,11 +59,11 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
         result.add("TimeSetMethod");
         result.add("Software7E1");
         return result;
-    }    
-    
-    
+    }
+
+
     /*******************************************************************************************
-    R e g i s t e r P r o t o c o l  i n t e r f a c e 
+    R e g i s t e r P r o t o c o l  i n t e r f a c e
     *******************************************************************************************/
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         //return ObisCodeMapper.getRegisterInfo(obisCode);
@@ -74,10 +74,10 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
         //return ocm.getRegisterValue(obisCode);
         return fafRegisters.readRegisterValue(obisCode);
     }
-    
+
     public String getRegistersInfo(int extendedLogging) throws IOException {
         //return regs.getRegisterInfo();
         return fafRegisters.getRegisterInfo();
     }
-    
+
 }

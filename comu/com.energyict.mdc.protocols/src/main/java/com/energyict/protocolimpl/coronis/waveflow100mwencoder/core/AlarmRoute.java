@@ -2,30 +2,32 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
-public class AlarmRoute extends AbstractRadioCommand { 
+public class AlarmRoute extends AbstractRadioCommand {
 
-	
-	
-	
+
+
+
 	AlarmRoute(WaveFlow100mW waveFlow100mW) {
 		super(waveFlow100mW);
 	}
 
 	private int alarmConfiguration;
-	
+
 	final void setAlarmConfiguration(int alarmConfiguration) {
 		this.alarmConfiguration = alarmConfiguration;
 	}
 
 
-	
+
 	@Override
 	void parse(byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
-			
+
 			dais = new DataInputStream(new ByteArrayInputStream(data));
 			int result = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (result != 0) {
@@ -41,8 +43,8 @@ public class AlarmRoute extends AbstractRadioCommand {
 					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
-		}		
-		
+		}
+
 	}
 
 	@Override
@@ -57,5 +59,5 @@ public class AlarmRoute extends AbstractRadioCommand {
 		return EncoderRadioCommandId.AlarmRoute;
 	}
 
-	
+
 }

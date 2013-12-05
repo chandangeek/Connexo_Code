@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  * Useful utils for operations with the S4s data
@@ -29,7 +29,7 @@ public class S4sObjectUtils {
 		}
 		return strBuff2.toString().getBytes();
 	}
-	
+
 	/**
 	 * Revert from LSB-MBS to MSB-LSB
 	 * @param array - the Array to revert
@@ -41,11 +41,11 @@ public class S4sObjectUtils {
 		for(int i = 0; i < array.length; i++,offset--) {
 			reverse[i] = array[offset];
 		}
-		
+
 		return reverse;
 	}
-	
-	
+
+
 	/**
 	 * Convert a byteArray with ASCII values of a decimal number to a byteArray forming decimal numbers
 	 * @param data ex. [56, 48, 57, 48, 52, 50]
@@ -64,7 +64,7 @@ public class S4sObjectUtils {
 		}
 		return converted;
 	}
-	
+
 	/**
 	 * Check whether the recordData contains a date or if its just an interval.
 	 * The fist BIT of the 4th last BYTE is 1 if it contains a date.
@@ -79,7 +79,7 @@ public class S4sObjectUtils {
 			return false;
 		}
 	}
-	
+
 	public static byte[] hexStringToByteArray(String str){
 		if(str.length() == 1){
 			str = "0"+str;

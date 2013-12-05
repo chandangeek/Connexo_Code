@@ -10,25 +10,21 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
-
-import com.energyict.cbo.*;
 /**
  *
  * @author koen
  */
 public class HCCommand extends QuantitiesCommand {
-    
+
     private static final CommandIdentification commandIdentification = new CommandIdentification("HC",false,true);
-    
+
     /** Creates a new instance of SCCommand */
     public HCCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
- 
+
     protected CommandIdentification getCommandIdentification() {
         return commandIdentification;
     }
-    
+
 }

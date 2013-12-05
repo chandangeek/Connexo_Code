@@ -10,34 +10,35 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
-
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class WriteMultipleRegisters extends AbstractRequest {
-    
+
     private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_WRITEMULTIPLEREGISTER);
-    
+
     int writeStartingAddress;
     int writeQuantityOfRegisters;
     int readStartingAddress;
     int readQuantityOfRegisters;
-    
+
     /** Creates a new instance of WriteMultipleRegisters */
     public WriteMultipleRegisters(FunctionCodeFactory functionCodeFactory) {
         super(functionCodeFactory);
     }
-    
+
     public String toString() {
         return "WriteMultipleRegisters: readStartingAddress="+readStartingAddress+", readQuantityOfRegisters="+readQuantityOfRegisters;
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         readStartingAddress = ProtocolUtils.getInt(responseData.getData(),0, 2);
         readQuantityOfRegisters = ProtocolUtils.getInt(responseData.getData(),2, 2);
@@ -58,10 +59,10 @@ public class WriteMultipleRegisters extends AbstractRequest {
         byte[] data = ProtocolUtils.concatByteArrays(dataHeader, registerValues);
         requestData.setData(data);
     }
-    
+
     public RequestData getRequestData() {
         return requestData;
-    }    
-        
-    
+    }
+
+
 }

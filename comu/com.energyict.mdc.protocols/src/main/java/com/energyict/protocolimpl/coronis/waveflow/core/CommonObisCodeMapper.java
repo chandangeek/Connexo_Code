@@ -1,19 +1,27 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.waveflow.core.parameter.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.OperatingMode;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType;
+import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
 public class CommonObisCodeMapper {
 
-    static Map<ObisCode, String> registerMaps = new HashMap<ObisCode, String>();
+    static Map<ObisCode, String> registerMaps = new HashMap<>();
 
     private static final int MULTIPLIER = 256;
     public static final ObisCode OBISCODE_APPLICATION_STATUS = ObisCode.fromString("0.0.96.5.2.255");

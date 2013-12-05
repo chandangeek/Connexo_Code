@@ -10,14 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 
 /**
@@ -25,9 +22,9 @@ import com.energyict.cbo.*;
  * @author Koen
  */
 public class Class7MeteringFunctionBlock extends AbstractClass {
-    
+
     ClassIdentification classIdentification = new ClassIdentification(7,304,true);
-    
+
 
     long XMTRSN;
     BigDecimal XKH;
@@ -36,16 +33,16 @@ public class Class7MeteringFunctionBlock extends AbstractClass {
     int XKHDIV;
     // XKE2 [5]
     // RESERVED [283]
-    
+
     public String toString() {
         return "Class7MeteringFunctionBlock: XMTRSN="+XMTRSN+", XKH="+XKH+", XPR1="+XPR1+", XKE1="+XKE1+", XKHDIV="+XKHDIV;
     }
-    
+
     /** Creates a new instance of Class6MeteringFunctionBlock */
     public Class7MeteringFunctionBlock(ClassFactory classFactory) {
         super(classFactory);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         XMTRSN = ParseUtils.getBCD2Long(data,0, 5); //new String(ProtocolUtils.getSubArray2(data, 0, 5));
         if (getClassIdentification().getLength() > 5) {
@@ -55,16 +52,16 @@ public class Class7MeteringFunctionBlock extends AbstractClass {
             XKHDIV = ProtocolUtils.getInt(data,14, 1);
         }
     }
-    
+
     protected ClassIdentification getClassIdentification() {
-        return classIdentification; 
+        return classIdentification;
     }
 
     public void discoverSerialNumber() {
         getClassIdentification().setLength(5);
         getClassIdentification().setVerify(false);
     }
-    
+
     public long getXMTRSN() {
         return XMTRSN;
     }
@@ -84,5 +81,5 @@ public class Class7MeteringFunctionBlock extends AbstractClass {
     public int getXKHDIV() {
         return XKHDIV;
     }
-    
+
 }

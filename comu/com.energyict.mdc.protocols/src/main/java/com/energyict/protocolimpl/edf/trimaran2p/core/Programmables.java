@@ -1,10 +1,10 @@
 /**
- * 
+ *
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
@@ -17,25 +17,25 @@ import java.util.TimeZone;
  *
  */
 public class Programmables{
-	
+
 	private int variableName;
-	
+
 	private DateType debutPeriode;			// Date du jour à 00h de la derniére mise à zero de l'index NJ ou date d'initialisation si elle est postérieure
 	private int nombre;						// Périodicité en nombre de jours pour arrêter l'index
 	private DateType dernierHorodate;		// Date en cours au moment de la lecture
 	private Quantity[] ixProg = {null, null, null,		// Index courants des énergies EacpNJ, EacnNJ en kWh,
 									null, null, null};	// Erc1NJ, Erc3NJ, Erc2NJ, Erc4NJ en kvarh
 	private Quantity[] ixProgMoins1 = {null, null, null,	// Index courants des énergies EacpNJ-1, EacnNJ-1 en kWh,
-										null, null, null};	// Erc1NJ-1, Erc3NJ-1, Erc2NJ-1, Erc4NJ-1 en kvarh		
+										null, null, null};	// Erc1NJ-1, Erc3NJ-1, Erc2NJ-1, Erc4NJ-1 en kvarh
 
 	/**
-	 * @throws IOException 
-	 * 
+	 * @throws IOException
+	 *
 	 */
 	public Programmables(TrimaranDataContainer dc, TimeZone timeZone, int variableName) throws IOException {
 		int offset = 0;
 		setVariableName(variableName);
-		
+
 		setDebutPeriode(new DateType(dc.getRoot().getLong(offset++), timeZone));
 		setNombre(dc.getRoot().getInteger(offset++));
 		setDernierHorodate(new DateType(dc.getRoot().getLong(offset++), timeZone));
@@ -54,7 +54,7 @@ public class Programmables{
 				setIxProgMoins1(new Quantity(new BigDecimal(dc.getRoot().getStructure(offset).getLong(i)), Unit.get("kvarh")), i);
 			}
 		}
-		
+
 	}
 
 	/**
@@ -71,15 +71,15 @@ public class Programmables{
 	protected void parse(byte[] data) throws IOException {
 
 	}
-	
+
 	public String toString(){
 		StringBuffer strBuff = new StringBuffer();
-		
+
 		strBuff.append("*** IndexProgrammables + " + getVariableName() + ": ***\n");
 		strBuff.append("	- DebutPeriode: " + getDebutPeriode());
 		strBuff.append("	- Nombre: " + getNombre());strBuff.append("\n");
 		strBuff.append("	- DernierHorodate: " + getDernierHorodate());
-		
+
 		strBuff.append("	- IxProg EacpNJ: " + getIxProg(0));strBuff.append("\n");
 		strBuff.append("	- IxProg EacnNJ: " + getIxProg(1));strBuff.append("\n");
 		strBuff.append("	- IxProg Erc1NJ: " + getIxProg(2));strBuff.append("\n");
@@ -93,7 +93,7 @@ public class Programmables{
 		strBuff.append("	- IxProg Erc3NJ-1: " + getIxProgMoins1(3));strBuff.append("\n");
 		strBuff.append("	- IxProg Erc2NJ-1: " + getIxProgMoins1(4));strBuff.append("\n");
 		strBuff.append("	- IxProg Erc4NJ-1: " + getIxProgMoins1(5));strBuff.append("\n");
-		
+
 		return strBuff.toString();
 	}
 

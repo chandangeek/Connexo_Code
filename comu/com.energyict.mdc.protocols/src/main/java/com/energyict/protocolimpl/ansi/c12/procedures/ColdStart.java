@@ -10,14 +10,12 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-
 /**
  *
  * @author Koen
  */
 public class ColdStart extends AbstractProcedure {
-    
+
     /** Creates a new instance of ColdStart */
     public ColdStart(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(0));

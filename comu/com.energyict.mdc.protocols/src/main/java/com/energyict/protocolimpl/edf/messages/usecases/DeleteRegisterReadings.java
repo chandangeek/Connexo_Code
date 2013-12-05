@@ -2,11 +2,19 @@ package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdw.amr.*;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.amr.Register;
+import com.energyict.mdw.amr.RegisterReading;
+import com.energyict.mdw.amr.RegisterReadingFactory;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceEvent;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.MeteringWarehouse;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 
 public class DeleteRegisterReadings extends AbstractFolderAction implements Transaction {
 

@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.APSEPDUFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFactory;
 
+import java.util.TimeZone;
+import java.util.logging.Logger;
+
 /**
- * 
+ *
  * @author Koen
  */
 public interface ProtocolLink {

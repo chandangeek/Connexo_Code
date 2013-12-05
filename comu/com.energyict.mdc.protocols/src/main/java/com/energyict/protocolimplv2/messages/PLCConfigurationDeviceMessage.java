@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,79 +19,79 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
 
     ForceManualRescanPLCBus(),
     SetMulticastAddresses(
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.MulticastAddress1AttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.MulticastAddress2AttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.MulticastAddress3AttributeName)),
-    SetActivePlcChannel(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ActiveChannelAttributeName)),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.MulticastAddress1AttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.MulticastAddress2AttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.MulticastAddress3AttributeName)),
+    SetActivePlcChannel(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.ActiveChannelAttributeName)),
     SetPlcChannelFrequencies(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FMAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FMAttributeName)),
     SetSFSKInitiatorPhase(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName)),
     SetSFSKMaxFrameLength(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName)),
 
-    SetActiveScanDurationAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.activeScanDurationAttributeName)),
-    SetBroadCastLogTableEntryTTLAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)),
-    SetDiscoveryAttemptsSpeedAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.discoveryAttemptsSpeedAttributeName)),
-    SetMaxAgeTimeAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.maxAgeTimeAttributeName)),
-    SetMaxNumberOfHopsAttributeName(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxNumberOfHopsAttributeName)),
-    SetMaxPANConflictsCountAttributeName(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxPANConflictsCountAttributeName)),
-    SetPanConflictWaitTimeAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.panConflictWaitTimeAttributeName)),
-    SetToneMaskAttributeName(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.toneMaskAttributeName)),
-    SetWeakLQIValueAttributeName(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.weakLQIValueAttributeName)),
-    WritePlcG3Timeout(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.plcG3TimeoutAttributeName)),
+    SetActiveScanDurationAttributeName(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.activeScanDurationAttributeName)),
+    SetBroadCastLogTableEntryTTLAttributeName(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)),
+    SetDiscoveryAttemptsSpeedAttributeName(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.discoveryAttemptsSpeedAttributeName)),
+    SetMaxAgeTimeAttributeName(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.maxAgeTimeAttributeName)),
+    SetMaxNumberOfHopsAttributeName(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.maxNumberOfHopsAttributeName)),
+    SetMaxPANConflictsCountAttributeName(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.maxPANConflictsCountAttributeName)),
+    SetPanConflictWaitTimeAttributeName(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.panConflictWaitTimeAttributeName)),
+    SetToneMaskAttributeName(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.toneMaskAttributeName)),
+    SetWeakLQIValueAttributeName(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.weakLQIValueAttributeName)),
+    WritePlcG3Timeout(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.plcG3TimeoutAttributeName)),
     ResetPlcOfdmMacCounters(),
-    SetPanId(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.G3PanIdAttributename)),
-    SetMaxOrphanTimer(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.MaxOrphanTimerAttributeName)),
+    SetPanId(RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.G3PanIdAttributename)),
+    SetMaxOrphanTimer(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.MaxOrphanTimerAttributeName)),
 
     SetSFSKRepeater(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.REPEATERAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.REPEATERAttributeName)),
     SetSFSKGain(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_RECEIVING_GAINAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_TRANSMITTING_GAINAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SEARCH_INITIATOR_GAINAttributeName)),
-    SetTimeoutNotAddressed(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.MAX_RECEIVING_GAINAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.MAX_TRANSMITTING_GAINAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.SEARCH_INITIATOR_GAINAttributeName)),
+    SetTimeoutNotAddressed(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName)),
     SetSFSKMacTimeouts(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SEARCH_INITIATOR_TIMEOUTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TIME_OUT_FRAME_NOT_OKAttributeName)),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.SEARCH_INITIATOR_TIMEOUTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.TIME_OUT_FRAME_NOT_OKAttributeName)),
     SetPlcChannelFreqSnrCredits(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_SNRAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_CREDITWEIGHTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_SNRAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_CREDITWEIGHTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_SNRAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_CREDITWEIGHTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_SNRAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_CREDITWEIGHTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_SNRAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_CREDITWEIGHTAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FSAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FMAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_SNRAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_CREDITWEIGHTAttributeName));
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_SNRAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_CREDITWEIGHTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_SNRAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL2_CREDITWEIGHTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_SNRAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL3_CREDITWEIGHTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_SNRAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL4_CREDITWEIGHTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_SNRAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL5_CREDITWEIGHTAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FSAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_FMAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_SNRAttributeName),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL6_CREDITWEIGHTAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;
 

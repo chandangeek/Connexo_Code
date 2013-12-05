@@ -1,9 +1,11 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.mdc.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -11,10 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for the CTR protocol
+* Models a {@link DeviceProtocolDialect} for the CTR protocol
 *
-* @author: sva
-* @since: 16/10/12 (113:25)
+* @author sva
+* @since 16/10/12 (113:25)
 */
 public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
@@ -56,158 +58,154 @@ public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec securityLevelPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(SECURITY_LEVEL_PROPERTY_NAME);
+        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(SECURITY_LEVEL_PROPERTY_NAME);
     }
 
     private PropertySpec addressingModePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ADDRESSING_MODE_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(ADDRESSING_MODE_PROPERTY_NAME);
     }
 
     private PropertySpec clientMacAddressPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CLIENT_MAC_ADDRESS_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(CLIENT_MAC_ADDRESS_PROPERTY_NAME);
     }
 
     private PropertySpec serverMacAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(SERVER_MAC_ADDRESS_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(SERVER_MAC_ADDRESS_PROPERTY_NAME);
     }
 
     private PropertySpec connectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CONNECTION_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(CONNECTION_PROPERTY_NAME);
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
     }
 
     private PropertySpec informationFieldSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(INFORMATION_FIELD_SIZE_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(INFORMATION_FIELD_SIZE_PROPERTY_NAME);
     }
 
     private PropertySpec maxRecPduSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(MAX_REC_PDU_SIZE_PROPERTY_NAME);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
     }
 
     private PropertySpec roundTripCorrectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ROUND_TRIP_CORRECTION_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(ROUND_TRIP_CORRECTION_PROPERTY_NAME);
     }
 
     private PropertySpec bulkRequestPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(BULK_REQUEST_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(BULK_REQUEST_PROPERTY_NAME);
     }
 
     private PropertySpec cipheringTypePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CIPHERING_TYPE_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(CIPHERING_TYPE_PROPERTY_NAME);
     }
 
     private PropertySpec ntaSimulationToolPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(NTA_SIMULATION_TOOL_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(NTA_SIMULATION_TOOL_PROPERTY_NAME);
     }
 
     private PropertySpec dataTransportAuthenticationKeyPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(DATATRANSPORT_AUTHENTICATIONKEY_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(DATATRANSPORT_AUTHENTICATIONKEY_PROPERTY_NAME);
     }
 
     private PropertySpec newDataTransportAuthenticationKeyPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME);
     }
 
     private PropertySpec dataTransportEncryptionKeyPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(DATATRANSPORT_ENCRYPTIONKEY_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(DATATRANSPORT_ENCRYPTIONKEY_PROPERTY_NAME);
     }
 
     private PropertySpec newDataTransportEncryptionKeyPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(NEW_DATATRANSPORT_ENCRYPTION_KEY_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(NEW_DATATRANSPORT_ENCRYPTION_KEY_PROPERTY_NAME);
     }
 
     private PropertySpec newHlsSecretPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(NEW_HLS_SECRET_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(NEW_HLS_SECRET_PROPERTY_NAME);
     }
 
     private PropertySpec wakeUpPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(WAKE_UP_PROPERTY_NAME);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(WAKE_UP_PROPERTY_NAME);
     }
 
     private PropertySpec oldMbusDiscoverySpec() {
-        return PropertySpecFactory.booleanPropertySpec(OLD_MBUS_DISCOVERY);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(OLD_MBUS_DISCOVERY);
     }
 
     private PropertySpec fixMbusHexShortIdSpec() {
-        return PropertySpecFactory.booleanPropertySpec(FIX_MBUS_HEX_SHORT_ID);
+        return OptionalPropertySpecFactory.newInstance().booleanPropertySpec(FIX_MBUS_HEX_SHORT_ID);
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        if (SECURITY_LEVEL_PROPERTY_NAME.equals(name)) {
-            return this.securityLevelPropertySpec();
-        } else if (ADDRESSING_MODE_PROPERTY_NAME.equals(name)) {
-            return this.addressingModePropertySpec();
-        } else if (CLIENT_MAC_ADDRESS_PROPERTY_NAME.equals(name)) {
-            return this.clientMacAddressPropertySpec();
-        } else if (SERVER_MAC_ADDRESS_PROPERTY_NAME.equals(name)) {
-            return this.serverMacAddressPropertySpec();
-        } else if (CONNECTION_PROPERTY_NAME.equals(name)) {
-            return this.connectionPropertySpec();
-        } else if (FORCED_DELAY_PROPERTY_NAME.equals(name)) {
-            return this.forcedDelayPropertySpec();
-        } else if (DELAY_AFTER_ERROR_PROPERTY_NAME.equals(name)) {
-            return this.delayAfterErrorPropertySpec();
-        } else if (INFORMATION_FIELD_SIZE_PROPERTY_NAME.equals(name)) {
-            return this.informationFieldSizePropertySpec();
-        } else if (MAX_REC_PDU_SIZE_PROPERTY_NAME.equals(name)) {
-            return this.maxRecPduSizePropertySpec();
-        } else if (RETRIES_PROPERTY_NAME.equals(name)) {
-            return this.retriesPropertySpec();
-        } else if (TIMEOUT_PROPERTY_NAME.equals(name)) {
-            return this.timeoutPropertySpec();
-        } else if (ROUND_TRIP_CORRECTION_PROPERTY_NAME.equals(name)) {
-            return this.roundTripCorrectionPropertySpec();
-        } else if (BULK_REQUEST_PROPERTY_NAME.equals(name)) {
-            return this.bulkRequestPropertySpec();
-        } else if (CIPHERING_TYPE_PROPERTY_NAME.equals(name)) {
-            return this.cipheringTypePropertySpec();
-        } else if (NTA_SIMULATION_TOOL_PROPERTY_NAME.equals(name)) {
-            return this.ntaSimulationToolPropertySpec();
-        } else if (DATATRANSPORT_AUTHENTICATIONKEY_PROPERTY_NAME.equals(name)) {
-            return this.dataTransportAuthenticationKeyPropertySpec();
-        } else if (NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME.equals(name)) {
-            return this.newDataTransportAuthenticationKeyPropertySpec();
-        } else if (DATATRANSPORT_ENCRYPTIONKEY_PROPERTY_NAME.equals(name)) {
-            return this.dataTransportEncryptionKeyPropertySpec();
-        } else if (NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME.equals(name)) {
-            return this.newDataTransportEncryptionKeyPropertySpec();
-        } else if (NEW_HLS_SECRET_PROPERTY_NAME.equals(name)) {
-            return this.newHlsSecretPropertySpec();
-        } else if (WAKE_UP_PROPERTY_NAME.equals(name)) {
-            return this.wakeUpPropertySpec();
-        } else if (OLD_MBUS_DISCOVERY.equals(name)) {
-            return this.oldMbusDiscoverySpec();
-        } else if (FIX_MBUS_HEX_SHORT_ID.equals(name)) {
-            return this.fixMbusHexShortIdSpec();
-        } else {
-            return null;
+        switch (name) {
+            case SECURITY_LEVEL_PROPERTY_NAME:
+                return this.securityLevelPropertySpec();
+            case ADDRESSING_MODE_PROPERTY_NAME:
+                return this.addressingModePropertySpec();
+            case CLIENT_MAC_ADDRESS_PROPERTY_NAME:
+                return this.clientMacAddressPropertySpec();
+            case SERVER_MAC_ADDRESS_PROPERTY_NAME:
+                return this.serverMacAddressPropertySpec();
+            case CONNECTION_PROPERTY_NAME:
+                return this.connectionPropertySpec();
+            case FORCED_DELAY_PROPERTY_NAME:
+                return this.forcedDelayPropertySpec();
+            case DELAY_AFTER_ERROR_PROPERTY_NAME:
+                return this.delayAfterErrorPropertySpec();
+            case INFORMATION_FIELD_SIZE_PROPERTY_NAME:
+                return this.informationFieldSizePropertySpec();
+            case MAX_REC_PDU_SIZE_PROPERTY_NAME:
+                return this.maxRecPduSizePropertySpec();
+            case RETRIES_PROPERTY_NAME:
+                return this.retriesPropertySpec();
+            case TIMEOUT_PROPERTY_NAME:
+                return this.timeoutPropertySpec();
+            case ROUND_TRIP_CORRECTION_PROPERTY_NAME:
+                return this.roundTripCorrectionPropertySpec();
+            case BULK_REQUEST_PROPERTY_NAME:
+                return this.bulkRequestPropertySpec();
+            case CIPHERING_TYPE_PROPERTY_NAME:
+                return this.cipheringTypePropertySpec();
+            case NTA_SIMULATION_TOOL_PROPERTY_NAME:
+                return this.ntaSimulationToolPropertySpec();
+            case DATATRANSPORT_AUTHENTICATIONKEY_PROPERTY_NAME:
+                return this.dataTransportAuthenticationKeyPropertySpec();
+            case DATATRANSPORT_ENCRYPTIONKEY_PROPERTY_NAME:
+                return this.dataTransportEncryptionKeyPropertySpec();
+            case NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME:
+                return this.newDataTransportEncryptionKeyPropertySpec();
+            case NEW_HLS_SECRET_PROPERTY_NAME:
+                return this.newHlsSecretPropertySpec();
+            case WAKE_UP_PROPERTY_NAME:
+                return this.wakeUpPropertySpec();
+            case OLD_MBUS_DISCOVERY:
+                return this.oldMbusDiscoverySpec();
+            case FIX_MBUS_HEX_SHORT_ID:
+                return this.fixMbusHexShortIdSpec();
+            default:
+                return null;
         }
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(this.securityLevelPropertySpec());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(this.addressingModePropertySpec(),
+    public List<PropertySpec> getPropertySpecs () {
+        return Arrays.asList(
+                this.securityLevelPropertySpec(),
+                this.addressingModePropertySpec(),
                 this.clientMacAddressPropertySpec(),
                 this.serverMacAddressPropertySpec(),
                 this.connectionPropertySpec(),
@@ -230,4 +228,5 @@ public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
                 this.oldMbusDiscoverySpec(),
                 this.fixMbusHexShortIdSpec());
     }
+
 }

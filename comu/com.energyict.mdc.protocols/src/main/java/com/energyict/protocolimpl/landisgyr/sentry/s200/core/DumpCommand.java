@@ -10,31 +10,32 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Koen
  */
 public class DumpCommand extends AbstractCommand {
-    
+
     private int nrOfBlocks=0xFFFF;
     private int channels=0xFF;
     private boolean dumpHistoryLog=true;
     private boolean dumpLoadControlMessageTable=false;
-    
+
     private Date date;
     private Calendar lastEndingInterval;
-    
+
     /** Creates a new instance of ForceStatusCommand */
     public DumpCommand(CommandFactory cm) {
         super(cm);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -45,8 +46,8 @@ public class DumpCommand extends AbstractCommand {
         strBuff.append("   dumpLoadControlMessageTable="+isDumpLoadControlMessageTable()+"\n");
         strBuff.append("   nrOfBlocks="+getNrOfBlocks()+"\n");
         return strBuff.toString();
-    }         
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setLastEndingInterval(ProtocolUtils.getCleanCalendar(getCommandFactory().getS200().getTimeZone()));
@@ -61,25 +62,25 @@ public class DumpCommand extends AbstractCommand {
         Calendar calSystem = ProtocolUtils.getCalendar(getCommandFactory().getS200().getTimeZone());
         ParseUtils.roundDown2nearestInterval(calSystem, getCommandFactory().getBeginRecordTimeCommand().getProfileInterval()*60);
         getLastEndingInterval().set(Calendar.YEAR,calSystem.get(Calendar.YEAR));
-        
-        
+
+
         setDate(getLastEndingInterval().getTime());
     }
-    
+
     protected CommandDescriptor getCommandDescriptor() {
         return new CommandDescriptor('D');
     }
-    
+
     protected byte[] prepareData() throws IOException {
         byte[] data = new byte[6];
-        
+
         data[0] = (byte)(getNrOfBlocks() & 0xFF);
         data[1] = (byte)getChannels();
         data[2] = (byte)(isDumpHistoryLog()?0:'H');
         data[3] = (byte)(isDumpLoadControlMessageTable()?1:0);
         data[4] = (byte)((getNrOfBlocks()>>8) & 0xFF);
         data[5] = 0;
-        
+
         return data;
     }
 
@@ -130,5 +131,5 @@ public class DumpCommand extends AbstractCommand {
     private void setLastEndingInterval(Calendar lastEndingInterval) {
         this.lastEndingInterval = lastEndingInterval;
     }
-    
+
 }

@@ -9,32 +9,32 @@
  */
 
 package com.energyict.protocolimpl.meteridentification;
-import java.io.*;
-import java.util.*;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class KV2 extends AbstractManufacturer {
-    
+
     /** Creates a new instance of KV2 */
     public KV2() {
     }
-    
+
     public String getManufacturer() throws IOException {
         return "General Electric Industrial";
     }
-    
+
     public String getMeterProtocolClass() throws IOException {
         return "com.energyict.protocolimpl.ge.kv.GEKV2";
     }
-    
+
     public String[] getMeterSerialNumberRegisters() throws IOException {
         return null;
     }
-    
+
     public String getMeterDescription() throws IOException {
         return "General Electric Industrial KV2";
-    }    
+    }
 }

@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -19,22 +19,22 @@ import java.util.List;
  * @author  Koen
  */
 public class SlidingKWDemands extends AbstractCommand {
-    
+
     private static final int DEBUG=0;
     private static final String COMMAND="RS*";
-    private static final Unit UNIT = Unit.get("kW");    
+    private static final Unit UNIT = Unit.get("kW");
     private static final int NR_OF_CHANNELS=8;
     private static final int NR_OF_5_MINUTE_INTERVALS=12; // 5*12 = 60 minutes, 0 = most recent interval
-    
+
     Quantity[][] quantities = new Quantity[NR_OF_CHANNELS][NR_OF_5_MINUTE_INTERVALS];
-    
+
     /** Creates a new instance of SlidingKWDemands */
     public SlidingKWDemands(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
     }
-    
+
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();    
+        StringBuffer strBuff = new StringBuffer();
         strBuff.append("AllEnergy:\n");
         for (int interval = 0; interval < NR_OF_5_MINUTE_INTERVALS; interval++) {
            strBuff.append("interval "+interval+": ");
@@ -45,19 +45,19 @@ public class SlidingKWDemands extends AbstractCommand {
         }
         return strBuff.toString();
     }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
-    }    
+    }
 
     protected void parse(byte[] data) throws ConnectionException, IOException {
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
-        
+        if (DEBUG>=1)
+           System.out.println(new String(data));
+
         CommandParser cp = new CommandParser(data);
-        
+
         for (int interval=0;interval<NR_OF_5_MINUTE_INTERVALS;interval++) {
             // Generation 1: tag = LINE-1, LINE-2, ...
             // Generation 2: tag contains timestamp: 0440-1 (04h:40m, line 1), 0435-2 (04h 35m, line 2), ...
@@ -67,9 +67,9 @@ public class SlidingKWDemands extends AbstractCommand {
                 quantities[channel][interval] = new Quantity(bd,UNIT);
             }
         }
-        
+
     }
- 
+
     public Quantity getQuantity(int channel, int interval5min) {
         try {
            return quantities[channel][interval5min];
@@ -77,6 +77,6 @@ public class SlidingKWDemands extends AbstractCommand {
         catch(ArrayIndexOutOfBoundsException e) {
             return null;
         }
-        
+
     }
 }

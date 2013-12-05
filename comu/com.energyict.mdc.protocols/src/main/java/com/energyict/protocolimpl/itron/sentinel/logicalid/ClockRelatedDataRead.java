@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
 
 
 /**
@@ -22,8 +20,8 @@ import java.util.*;
  * @author Koen
  */
 public class ClockRelatedDataRead extends AbstractDataRead {
-    
-    
+
+
     private int daysSinceLastDemandReset; // UINT16
     private int daysSinceLastTimeTestModeWasEntered; // UINT16
     private long timeOfLastPowerOutage; // (in seconds since 00:00:00 01/01/2000) UINT32
@@ -38,7 +36,7 @@ public class ClockRelatedDataRead extends AbstractDataRead {
     public ClockRelatedDataRead(DataReadFactory dataReadFactory) {
         super(dataReadFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -52,13 +50,13 @@ public class ClockRelatedDataRead extends AbstractDataRead {
         strBuff.append("   timeOfLastInterrogation="+getTimeOfLastInterrogation()+"\n");
         strBuff.append("   timeOfLastPowerOutage="+getTimeOfLastPowerOutage()+"\n");
         return strBuff.toString();
-    }   
-    
+    }
+
     protected void parse(byte[] data) throws IOException {
-        
+
         int offset=0;
         int dataOrder = getDataReadFactory().getManufacturerTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setDaysSinceLastDemandReset(C12ParseUtils.getInt(data,offset,2, dataOrder));
         offset+=2;
         setDaysSinceLastTimeTestModeWasEntered(C12ParseUtils.getInt(data,offset,2, dataOrder));
@@ -75,9 +73,9 @@ public class ClockRelatedDataRead extends AbstractDataRead {
         offset+=2;
         setDaylightSavingsTimeIsConfigured(C12ParseUtils.getInt(data,offset++));
     }
-    
+
     protected void prepareBuild() throws IOException {
-        
+
         long[] lids = new long[]{LogicalIDFactory.findLogicalId("DAYS_SINCE_DEMAND_RESET").getId(),
                                  LogicalIDFactory.findLogicalId("DAYS_SINCE_LAST_TEST").getId(),
                                  LogicalIDFactory.findLogicalId("TIME_OF_LAST_OUTAGE").getId(),
@@ -86,11 +84,11 @@ public class ClockRelatedDataRead extends AbstractDataRead {
                                  LogicalIDFactory.findLogicalId("CURRENT_BATTERY_READING").getId(),
                                  LogicalIDFactory.findLogicalId("GOOD_BATTERY_READING").getId(),
                                  LogicalIDFactory.findLogicalId("DST_CONFIGURED").getId()};
-        
 
-                                 
-        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x08, lids));    
-        
+
+
+        setDataReadDescriptor(new DataReadDescriptor(0x00, 0x08, lids));
+
     } // protected void prepareBuild() throws IOException
 
     public int getDaysSinceLastDemandReset() {
@@ -156,5 +154,5 @@ public class ClockRelatedDataRead extends AbstractDataRead {
     public void setDaylightSavingsTimeIsConfigured(int daylightSavingsTimeIsConfigured) {
         this.daylightSavingsTimeIsConfigured = daylightSavingsTimeIsConfigured;
     }
-    
+
 } // public class ConstantsDataRead extends AbstractDataRead

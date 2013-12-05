@@ -10,32 +10,31 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class KYZInputTable extends AbstractBasePage {
-    
+
     private int kYZ1PreviousState;
     private int kYZ1NumberOfPulses;
     private int kYZ2PreviousState;
     private int kYZ2NumberOfPulses;
     private int kYZ3PreviousState;
     private int kYZ3NumberOfPulses;
-    
-    
+
+
     /** Creates a new instance of RealTimeBasePage */
     public KYZInputTable(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -48,11 +47,11 @@ public class KYZInputTable extends AbstractBasePage {
         strBuff.append("   KYZ3PreviousState="+getKYZ3PreviousState()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x25C2,0x9);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setKYZ1PreviousState(ProtocolUtils.getInt(data,offset++,1));
@@ -114,6 +113,6 @@ public class KYZInputTable extends AbstractBasePage {
     public void setKYZ3NumberOfPulses(int kYZ3NumberOfPulses) {
         this.kYZ3NumberOfPulses = kYZ3NumberOfPulses;
     }
-    
-    
+
+
 } // public class RealTimeBasePage extends AbstractBasePage

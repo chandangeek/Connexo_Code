@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
 import com.energyict.dlms.DlmsSession;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.prime.PrimeClock;
 

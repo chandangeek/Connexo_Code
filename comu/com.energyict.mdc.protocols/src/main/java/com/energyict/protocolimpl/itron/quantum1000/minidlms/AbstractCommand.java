@@ -10,24 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class AbstractCommand {
-    
+
     private final int DEBUG=0;
-    
+
     private CommandFactory commandFactory;
-    
-    
+
+
     abstract protected byte[] prepareInvoke();
-    
+
     private AbstractCommandResponse response;
-    
+
     /** Creates a new instance of AbstractCommand */
     public AbstractCommand(CommandFactory commandFactory) {
         this.setCommandFactory(commandFactory);
@@ -35,16 +36,16 @@ abstract public class AbstractCommand {
 
     public void invoke() throws IOException {
         byte[] data2Send =  prepareInvoke();
-        
+
         // send command to meter using datalink...
         byte[] data = getCommandFactory().getProtocolLink().getMiniDLMSConnection().sendCommand(data2Send);
-        
-        
+
+
         if (((int)data[0]&0xff) == AbstractCommandResponse.getREAD_RESPONSE()) {
             if ((data.length >=4) && ((data[2] == 0)&(data[3] == 0x0b))) {
-                
-if (DEBUG>=1) System.out.println("ReadReply "+ProtocolUtils.outputHexString(data)); 
-        
+
+if (DEBUG>=1) System.out.println("ReadReply "+ProtocolUtils.outputHexString(data));
+
                 setResponse(new ReadReply());
                 getResponse().parse(data);
             }
@@ -56,8 +57,8 @@ if (DEBUG>=1) System.out.println("ReadReplyDataError"+ProtocolUtils.outputHexStr
                 getResponse().parse(data);
                 throw new ReplyException((AbstractReplyError)getResponse());
             }
-            
-        }  // if (((int)data[0]&0xff) == AbstractCommandResponse.getREAD_RESPONSE())       
+
+        }  // if (((int)data[0]&0xff) == AbstractCommandResponse.getREAD_RESPONSE())
         else if (((int)data[0]&0xff) == AbstractCommandResponse.getWRITE_RESPONSE()) {
             if (data.length < 3) {
                 setResponse(new WriteReply());
@@ -68,7 +69,7 @@ if (DEBUG>=1) System.out.println("ReadReplyDataError"+ProtocolUtils.outputHexStr
                 getResponse().parse(data);
                 throw new ReplyException((AbstractReplyError)getResponse());
             }
-            
+
         }
         else if (((int)data[0]&0xff) == AbstractCommandResponse.getLOGGED_OFF()) {
             setResponse(new LoggedOffReply());
@@ -101,10 +102,10 @@ if (DEBUG>=1) System.out.println("ReadReplyDataError"+ProtocolUtils.outputHexStr
                 throw new ReplyException((AbstractReplyError)getResponse());
             }
         }
-        
-        
+
+
     } // public void invoke()
-    
+
     public CommandFactory getCommandFactory() {
         return commandFactory;
     }
@@ -122,5 +123,5 @@ if (DEBUG>=1) System.out.println("ReadReplyDataError"+ProtocolUtils.outputHexStr
     }
 
 
-    
+
 } // abstract public class AbstractCommand

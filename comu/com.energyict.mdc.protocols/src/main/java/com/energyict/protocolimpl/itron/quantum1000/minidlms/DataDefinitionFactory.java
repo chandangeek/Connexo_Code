@@ -10,17 +10,18 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.remoteprocedures.AbstractRemoteProcedure;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DataDefinitionFactory {
-    
+
     private ProtocolLink protocolLink;
-           
+
     EnergyRegisterConfiguration energyRegisterConfiguration=null;
     DemandRegisterConfiguration demandRegisterConfiguration=null;
     SelfReadRegisterConfiguration selfReadRegisterConfiguration=null;
@@ -34,13 +35,13 @@ public class DataDefinitionFactory {
     MultiTariffScheduleGeneralParameters multiTariffScheduleGeneralParameters=null;
     MultiTariffRateScheduleGeneralParameters multiTariffRateScheduleGeneralParameters=null;
     MeterSetup meterSetup=null;
-    
+
     /** Creates a new instance of DataDefinitionFactory */
     public DataDefinitionFactory(ProtocolLink protocolLink) {
         this.setProtocolLink(protocolLink);
     }
-    
-    
+
+
     public MeterSetup getMeterSetup() throws IOException {
         if (meterSetup==null) {
             meterSetup = new MeterSetup(this);
@@ -48,7 +49,7 @@ public class DataDefinitionFactory {
         }
         return meterSetup;
     }
-    
+
     public MultiTariffRateScheduleGeneralParameters getMultiTariffRateScheduleGeneralParameters() throws IOException {
         if (multiTariffRateScheduleGeneralParameters==null) {
             multiTariffRateScheduleGeneralParameters = new MultiTariffRateScheduleGeneralParameters(this);
@@ -56,28 +57,28 @@ public class DataDefinitionFactory {
         }
         return multiTariffRateScheduleGeneralParameters;
     }
-    
+
     public boolean isTOUMeter() throws IOException {
         return getMultiTariffScheduleGeneralParameters()!=null;
     }
-    
+
     public MultiTariffScheduleGeneralParameters getMultiTariffScheduleGeneralParameters() throws IOException {
         if (multiTariffScheduleGeneralParameters==null) {
             multiTariffScheduleGeneralParameters = new MultiTariffScheduleGeneralParameters(this);
             try {
                 multiTariffScheduleGeneralParameters.invokeRead();
-            } 
+            }
             catch(ReplyException e) {
                 if (e.getAbstractReplyDataError().isInvalidObject()) {
                     multiTariffScheduleGeneralParameters=null;
                     return null;
                 }
                 throw e;
-            }            
+            }
         }
         return multiTariffScheduleGeneralParameters;
     }
-    
+
     public GeneralDemandConfiguration getGeneralDemandConfiguration() throws IOException {
         if (generalDemandConfiguration==null) {
             generalDemandConfiguration = new GeneralDemandConfiguration(this);
@@ -85,7 +86,7 @@ public class DataDefinitionFactory {
         }
         return generalDemandConfiguration;
     }
-    
+
     public GeneralEnergyConfiguration getGeneralEnergyConfiguration() throws IOException {
         if (generalEnergyConfiguration==null) {
             generalEnergyConfiguration = new GeneralEnergyConfiguration(this);
@@ -102,7 +103,7 @@ public class DataDefinitionFactory {
         }
         return defaultViewIdConfiguration;
     }
-    
+
     public GeneralDiagnosticInfo getGeneralDiagnosticInfo() throws IOException {
         if (generalDiagnosticInfo==null) {
             generalDiagnosticInfo = new GeneralDiagnosticInfo(this);
@@ -110,7 +111,7 @@ public class DataDefinitionFactory {
         }
         return generalDiagnosticInfo;
     }
-    
+
     public SelfReadGeneralConfiguration getSelfReadGeneralConfiguration() throws IOException {
         if (selfReadGeneralConfiguration == null) {
             selfReadGeneralConfiguration = new SelfReadGeneralConfiguration(this);
@@ -118,9 +119,9 @@ public class DataDefinitionFactory {
         }
         return selfReadGeneralConfiguration;
     }
-    
+
     public MassMemoryConfiguration getMassMemoryConfiguration(int index) throws IOException {
-        
+
         if (index==0) {
             try {
                 if (massMemoryConfiguration0 == null) {
@@ -149,11 +150,11 @@ public class DataDefinitionFactory {
                throw e;
             }
         }
-        
+
         throw new IOException("DataDefinitionFactory, getMassMemoryConfiguration, invalid index"+index);
     }
-    
-    
+
+
     public SelfReadRegisterConfiguration getSelfReadRegisterConfiguration() throws IOException {
         if (selfReadRegisterConfiguration == null) {
             selfReadRegisterConfiguration = new SelfReadRegisterConfiguration(this);
@@ -170,7 +171,7 @@ public class DataDefinitionFactory {
         }
         return selfReadRegisterConfiguration;
     }
-    
+
     public DemandRegisterConfiguration getDemandRegisterConfiguration() throws IOException {
         if (demandRegisterConfiguration == null) {
             demandRegisterConfiguration = new DemandRegisterConfiguration(this);
@@ -187,7 +188,7 @@ public class DataDefinitionFactory {
         }
         return demandRegisterConfiguration;
     }
-    
+
     public EnergyRegisterConfiguration getEnergyRegisterConfiguration() throws IOException {
         if (energyRegisterConfiguration == null) {
             energyRegisterConfiguration = new EnergyRegisterConfiguration(this);
@@ -195,7 +196,7 @@ public class DataDefinitionFactory {
         }
         return energyRegisterConfiguration;
     }
-    
+
     public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
@@ -203,53 +204,53 @@ public class DataDefinitionFactory {
     private void setProtocolLink(ProtocolLink protocolLink) {
         this.protocolLink = protocolLink;
     }
-    
-    
-    
-    
+
+
+
+
     public void setDLMLSecurity(String password) throws IOException {
         DLMSSecurity dlmsSecurity = new DLMSSecurity(this);
         dlmsSecurity.setPassword(password);
         dlmsSecurity.invokeWrite();
     }
-    
+
     public void setRemoteProcedureCall(AbstractRemoteProcedure remoteProcedure) throws IOException {
         RemoteProcedureCall rpc = new RemoteProcedureCall(this);
         rpc.setRemoteProcedure(remoteProcedure);
         rpc.invokeWrite();
     }
-    
+
     public SelfReadGeneralInformation getSelfReadGeneralInformation() throws IOException {
         SelfReadGeneralInformation obj = new SelfReadGeneralInformation(this);
         obj.invokeRead();
         return obj;
     }
-    
+
     public MeterIDS getMeterIDS() throws IOException {
         MeterIDS obj = new MeterIDS(this);
         obj.invokeRead();
         return obj;
     }
-    
+
     public RealTime getRealTime() throws IOException {
         RealTime obj = new RealTime(this);
         obj.invokeRead();
         return obj;
     }
-    
+
 
     public EnergyRegistersReading getEnergyRegistersReadingTotal() throws IOException {
-        return getEnergyRegistersReading(0);   
+        return getEnergyRegistersReading(0);
     }
-    
+
     public EnergyRegistersReading getEnergyRegistersReading(int index) throws IOException {
         EnergyRegistersReading obj = new EnergyRegistersReading(this);
         obj.setIndex(index);
         obj.invokeRead();
         return obj;
     }
-    
-    
+
+
     public DemandRegisterReadings getDemandRegisterReadings(int index,int range) throws IOException {
         DemandRegisterReadings obj = new DemandRegisterReadings(this);
         obj.setIndex(index);
@@ -257,55 +258,55 @@ public class DataDefinitionFactory {
         obj.invokeRead();
         return obj;
     }
-    
+
     public MultiplePeaksOrMinimums getMultiplePeaksOrMinimums() throws IOException {
         MultiplePeaksOrMinimums obj = new MultiplePeaksOrMinimums(this);
         obj.invokeRead();
         return obj;
     }
-    
+
     public MassMemoryInformation getMassMemoryInformation(int index) throws IOException {
         MassMemoryInformation obj = new MassMemoryInformation(this);
         obj.setIndex(index);
         obj.invokeRead();
         return obj;
     }
-    
+
     public ViewInformation getViewInformation() throws IOException {
         ViewInformation obj = new ViewInformation(this);
         obj.invokeRead();
         return obj;
     }
-    
+
     public ViewObjectConfig getViewObjectConfig() throws IOException {
         ViewObjectConfig obj = new ViewObjectConfig(this);
         obj.invokeRead();
         return obj;
     }
-    
+
     public MassMemory getMassMemory() throws IOException {
         MassMemory obj = new MassMemory(this);
         obj.invokeRead();
         return obj;
     }
-    
+
     public EventLogSummary getEventLogSummary() throws IOException {
         EventLogSummary obj = new EventLogSummary(this);
         obj.invokeRead();
         return obj;
     }
-    
-    
+
+
     public SelfReadDataUpload getSelfReadDataUpload() throws IOException {
         SelfReadDataUpload srdu = new SelfReadDataUpload(protocolLink);
         srdu.invoke();
         return srdu;
-    }    
-    
+    }
+
     public EventLogUpload getEventLogUpload() throws IOException {
         EventLogUpload elu = new EventLogUpload(protocolLink);
         elu.invoke();
         return elu;
-    }    
-    
+    }
+
 } // public class DataDefinitionFactory

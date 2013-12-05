@@ -11,13 +11,15 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 /**
  *
  * @author kvds
  */
 public class DataFieldCoding {
-    
+
 
     static public final int TYPE_BINARY=0;
     static public final int TYPE_BCD=1;
@@ -25,8 +27,8 @@ public class DataFieldCoding {
     static public final int TYPE_NODATA=3;
     static public final int TYPE_VARIABLELENGTH=4;
     static public final int TYPE_SPECIALFUNCTIONS=5;
-    
-    
+
+
     static List list = new ArrayList();
     static {
         list.add(new DataFieldCoding(0,0, "NoData", TYPE_NODATA));
@@ -46,13 +48,13 @@ public class DataFieldCoding {
         list.add(new DataFieldCoding(14,6, "12 digit BCD", TYPE_BCD));
         list.add(new DataFieldCoding(15,8, "special functions", TYPE_SPECIALFUNCTIONS));
     }
-    
-    
+
+
     private int lengthInBytes;
     private String description;
     private int type;
     private int id;
-    
+
     /** Creates a new instance of DataFieldCoding */
     private DataFieldCoding(int id, int lengthInBytes, String description, int type) {
         this.setLengthInBytes(lengthInBytes);
@@ -60,16 +62,16 @@ public class DataFieldCoding {
         this.setType(type);
         this.setId(id);
     }
-    
+
     public boolean isTYPE_NODATA() {
         return getType()==TYPE_NODATA;
     }
-    
+
     public boolean isTYPE_SPECIALFUNCTIONS() {
         return getType()==TYPE_SPECIALFUNCTIONS;
     }
-    
-    public String toString() { 
+
+    public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DataFieldCoding:\n");
@@ -79,7 +81,7 @@ public class DataFieldCoding {
         strBuff.append("   type="+getType()+"\n");
         return strBuff.toString();
     }
-    
+
     static public DataFieldCoding findDataFieldCoding(int id) throws IOException {
         Iterator it = list.iterator();
         while(it.hasNext()) {
@@ -89,7 +91,7 @@ public class DataFieldCoding {
         }
         throw new IOException("DataFieldCoding, invalid id "+id);
     }
-    
+
     public int getLengthInBytes() {
         return lengthInBytes;
     }
@@ -121,5 +123,5 @@ public class DataFieldCoding {
     public void setId(int id) {
         this.id = id;
     }
-    
+
 }

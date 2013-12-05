@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractContactorController;
+
+import java.io.IOException;
+import java.util.logging.Logger;
 
 public class AS220ContactorController extends AbstractContactorController {
 

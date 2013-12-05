@@ -6,28 +6,27 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author  Koen
  */
 public class SCTMEvent {
-    
+
     private int length;
     private int type;
     private SCTMTimeData from=null,to=null;
     String adat=null,edat=null;
     String subAddress=null;
     /** Creates a new instance of SCTMEvent */
-    
+
     public SCTMEvent(byte[] data) throws IOException {
-        this(data,-1); 
+        this(data,-1);
     }
-    
+
     public SCTMEvent(byte[] data,int meterType) throws IOException {
         length = (int)((data[0]-0x30)*10+(data[1]-0x30));
         if (length != 0) {
@@ -49,48 +48,48 @@ public class SCTMEvent {
             setAdat((new String(ProtocolUtils.getSubArray2(data, 19, sublength))).trim());
             setEdat((new String(ProtocolUtils.getSubArray2(data, 19+sublength, sublength))).trim());
         }
-        
+
     }
 
-    
+
     private boolean isFromTimeDate(int type) {
        if ((type==0xA1)||(type==0xA2)||(type==0xC1)||(type==0xC2)||
-           (type==0xA3)||(type==0xD1)||(type==0xD2)||(type==0xD3)||(type==0xD4)) 
-            return true; 
+           (type==0xA3)||(type==0xD1)||(type==0xD2)||(type==0xD3)||(type==0xD4))
+            return true;
        else return false;
     }
-    
-    
+
+
     private boolean isToTimeDate(int type) {
        if ((type==0xA1)||(type==0xA2)||(type==0xC1)||(type==0xC2)) return false;
-       else if ((type==0xA3)||(type==0xD1)||(type==0xD2)||(type==0xD3)||(type==0xD4)) return true; 
+       else if ((type==0xA3)||(type==0xD1)||(type==0xD2)||(type==0xD3)||(type==0xD4)) return true;
        else return false;
     }
-    
+
     private byte[] getTimeDataArray(byte[] data, int offset) {
         byte[] td = new byte[10];
         for (int i=0;i<td.length;i++) td[i] = data[offset+i];
         return td;
     }
-    
+
     public int getType() {
-       return type;   
+       return type;
     }
     public SCTMTimeData getFrom() {
-       return from;   
+       return from;
     }
     public SCTMTimeData getTo() {
-       return to;   
+       return to;
     }
-    
+
     /**
      * Getter for property adat.
      * @return Value of property adat.
      */
     public java.lang.String getAdat() {
         return adat;
-    }    
- 
+    }
+
     /**
      * Setter for property adat.
      * @param adat New value of property adat.
@@ -98,7 +97,7 @@ public class SCTMEvent {
     public void setAdat(java.lang.String adat) {
         this.adat = adat;
     }
-    
+
     /**
      * Getter for property edat.
      * @return Value of property edat.
@@ -106,7 +105,7 @@ public class SCTMEvent {
     public java.lang.String getEdat() {
         return edat;
     }
-    
+
     /**
      * Setter for property edat.
      * @param edat New value of property edat.
@@ -114,7 +113,7 @@ public class SCTMEvent {
     public void setEdat(java.lang.String edat) {
         this.edat = edat;
     }
-    
+
     /**
      * Getter for property subAddress.
      * @return Value of property subAddress.
@@ -122,7 +121,7 @@ public class SCTMEvent {
     public java.lang.String getSubAddress() {
         return subAddress;
     }
-    
+
     /**
      * Setter for property subAddress.
      * @param subAddress New value of property subAddress.
@@ -130,5 +129,5 @@ public class SCTMEvent {
     public void setSubAddress(java.lang.String subAddress) {
         this.subAddress = subAddress;
     }
-    
+
 } // public class SCTMEvent

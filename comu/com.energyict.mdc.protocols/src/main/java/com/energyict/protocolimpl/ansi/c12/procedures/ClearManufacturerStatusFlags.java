@@ -10,22 +10,19 @@
 
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ClearManufacturerStatusFlags extends AbstractProcedure {
-    
+
     /** Creates a new instance of ClearManufacturerStatusFlags */
     public ClearManufacturerStatusFlags(ProcedureFactory procedureFactory) {
         super(procedureFactory,new ProcedureIdentification(8));
     }
-    
+
     protected void prepare() throws IOException {
         setProcedureData(getProcedureFactory().getC12ProtocolLink().getStandardTableFactory().getEndDeviceModeAndStatusTable().getEndDeviceManufacturerStatus());
     }

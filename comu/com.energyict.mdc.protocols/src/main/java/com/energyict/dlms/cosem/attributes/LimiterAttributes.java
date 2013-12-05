@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Copyrights EnergyICT
@@ -53,7 +53,7 @@ public enum LimiterAttributes implements DLMSClassAttributes {
     public int getShortName() {
         return this.shortName;
     }
-    
+
     public static LimiterAttributes findByAttributeNumber(int attribute){
         for(LimiterAttributes limiterAttribute : LimiterAttributes.values()){
             if(limiterAttribute.getAttributeNumber() == attribute){

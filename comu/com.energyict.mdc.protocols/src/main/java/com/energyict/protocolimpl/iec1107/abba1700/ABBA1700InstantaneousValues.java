@@ -6,25 +6,26 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+
 /**
  *
  * @author  Koen
  */
 public class ABBA1700InstantaneousValues {
-    
-    private static final int DEBUG=0; 
-    
+
+    private static final int DEBUG=0;
+
     public static final int PHASE_TOTAL=0x00;
     public static final int PHASE_A=0x10;
     public static final int PHASE_B=0x20;
     public static final int PHASE_C=0x40;
-    
+
     public static final int RMS_CURRENT=0x01;
     public static final int RMS_VOLTAGE=0x02;
     public static final int POWER_FACTOR=0x03;
@@ -39,29 +40,29 @@ public class ABBA1700InstantaneousValues {
     public static final int ACTIVE_POWER_SCALED=0x0C;
     public static final int REACTIVE_POWER_SCALED=0x0D;
     public static final int APPARENT_POWER_SCALED=0x0E;
-    
+
     ABBA1700RegisterFactory abba1700RegisterFactory=null;
-    
+
     /** Creates a new instance of ABBA1700InstantaneousValues */
     public ABBA1700InstantaneousValues(ABBA1700RegisterFactory abba1700RegisterFactory) {
         this.abba1700RegisterFactory = abba1700RegisterFactory;
     }
 
     public Quantity getInstantaneousValue(String val2retrieve) throws IOException {
-        return doGetInstantaneousValue(val2retrieve,Unit.get(""));
+        return doGetInstantaneousValue(val2retrieve, Unit.get(""));
     }
 
-    
+
     public String getInstantaneousValueDescription(int phaseIndex, int quantityIndex) throws IOException {
         StringBuffer strBuff = new StringBuffer();
-        
+
         strBuff.append("Instantaneous value, ");
-        
+
         if (phaseIndex==PHASE_A) strBuff.append("Phase L1, ");
         else if (phaseIndex==PHASE_B) strBuff.append("Phase L2, ");
         else if (phaseIndex==PHASE_C) strBuff.append("Phase L3, ");
         else if (phaseIndex==PHASE_TOTAL) strBuff.append("Phase L1+L2+L3, ");
-        
+
         if (quantityIndex == RMS_CURRENT) strBuff.append("RMS current");
         else if (quantityIndex == RMS_VOLTAGE) strBuff.append("RMS voltage");
         else if (quantityIndex == POWER_FACTOR) strBuff.append("power factor");
@@ -76,15 +77,15 @@ public class ABBA1700InstantaneousValues {
         else if (quantityIndex == ACTIVE_POWER_SCALED) strBuff.append("active power scaled");
         else if (quantityIndex == REACTIVE_POWER_SCALED) strBuff.append("reactive power scaled");
         else if (quantityIndex == APPARENT_POWER_SCALED) strBuff.append("apparent power scaled");
-        
+
         return strBuff.toString();
     }
-    
+
     public Quantity getInstantaneousValue(int phaseIndex, int quantityIndex) throws IOException {
         int instval = phaseIndex|quantityIndex;
-        
+
         Unit unit=null;
-        
+
         if (quantityIndex == RMS_CURRENT) unit = Unit.get(BaseUnit.AMPERE);
         else if (quantityIndex == RMS_VOLTAGE) unit = Unit.get(BaseUnit.VOLT);
         else if (quantityIndex == POWER_FACTOR) unit = Unit.get("");
@@ -99,10 +100,10 @@ public class ABBA1700InstantaneousValues {
         else if (quantityIndex == ACTIVE_POWER_SCALED) unit = Unit.get("kW");
         else if (quantityIndex == REACTIVE_POWER_SCALED) unit = Unit.get("kvar");
         else if (quantityIndex == APPARENT_POWER_SCALED) unit = Unit.get("kVA");
-        
+
         return doGetInstantaneousValue(ProtocolUtils.buildStringHex(instval,2),unit);
     }
-    
+
     private Quantity doGetInstantaneousValue(String val2retrieve,Unit unit) throws IOException {
         int instval = 0;
         abba1700RegisterFactory.setRegister("InstantaneousValuesRequest",val2retrieve);
@@ -115,5 +116,5 @@ public class ABBA1700InstantaneousValues {
         InstantaneousValue iv = (InstantaneousValue)abba1700RegisterFactory.getRegister("InstantaneousValues");
         return new Quantity(iv.getQuantity().getAmount(),unit);
     }
-    
+
 }

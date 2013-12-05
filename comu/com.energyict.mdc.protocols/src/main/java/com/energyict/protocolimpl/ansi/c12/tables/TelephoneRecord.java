@@ -9,19 +9,16 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TelephoneRecord {
-    
+
     private TelephoneFlagsBitfield telephoneFlagsBitfield;
     private int numberOfOriginateWindows;
     private int numberOfSetupStrings;
@@ -36,7 +33,7 @@ public class TelephoneRecord {
     private int numberOfAnswerWindows;
     private int numberOfCallerIds;
     private int callerIdLength;
-    
+
     /** Creates a new instance of TelephoneRecord */
     public TelephoneRecord(byte[] data,int offset,TableFactory tableFactory) throws IOException {
         telephoneFlagsBitfield = new TelephoneFlagsBitfield(data,offset,tableFactory);
@@ -55,7 +52,7 @@ public class TelephoneRecord {
         numberOfCallerIds = C12ParseUtils.getInt(data,offset++);
         callerIdLength = C12ParseUtils.getInt(data,offset++);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -76,11 +73,11 @@ public class TelephoneRecord {
         strBuff.append("   telephoneFlagsBitfield="+getTelephoneFlagsBitfield()+"\n");
         return strBuff.toString();
     }
-    
-        
+
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 13+TelephoneFlagsBitfield.getSize(tableFactory);
-    }      
+    }
 
     public TelephoneFlagsBitfield getTelephoneFlagsBitfield() {
         return telephoneFlagsBitfield;

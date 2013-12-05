@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
@@ -21,7 +21,7 @@ import java.util.List;
  * @author  Koen
  */
 public class EventGeneral extends AbstractCommand {
-    
+
     protected static final int DEBUG=0;
     protected static final String COMMAND="REG";
 
@@ -38,9 +38,9 @@ public class EventGeneral extends AbstractCommand {
         values = new int[NR_OF_CHANNELS][NR_OF_LINES];
         meterUnpluggedDates = new Date[NR_OF_CHANNELS];
     }
-    
+
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();    
+        StringBuffer strBuff = new StringBuffer();
         strBuff.append("EventLoad:\n");
         for (int line = 0; line < NR_OF_LINES; line++) {
            strBuff.append("line "+line+": ");
@@ -51,11 +51,11 @@ public class EventGeneral extends AbstractCommand {
         }
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
             if (meterUnpluggedDates[channel] != null)
-               strBuff.append("ch "+channel+" meterUnpluggedDates="+meterUnpluggedDates[channel]+", ");   
+               strBuff.append("ch "+channel+" meterUnpluggedDates="+meterUnpluggedDates[channel]+", ");
         }
         return strBuff.toString();
-    }   
-    
+    }
+
     public List toMeterEvents() {
         List meterEvents = new ArrayList();
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
@@ -65,34 +65,34 @@ public class EventGeneral extends AbstractCommand {
         }
         return meterEvents;
     }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
     }
-    
+
     private void parse(byte[] data) {
-        
+
         if (DEBUG>=1)
             System.out.println(new String(data));
-        
+
         Calendar calCurrent = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
         CommandParser cp = new CommandParser(data);
-        
+
         for (int line = 0; line < NR_OF_LINES; line++) {
            List vals = cp.getValues("FLAG-"+(line+1));
            for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
                values[channel][line] = Integer.parseInt((String)vals.get(channel),16);
            }
         }
-        
+
         List valuesMMDD = cp.getValues("FLAG-8");
         List valuesHHMM = cp.getValues("FLAG-9");
         for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
             int valueHHMM = Integer.parseInt((String)valuesHHMM.get(channel));
             int valueMMDD = Integer.parseInt((String)valuesMMDD.get(channel));
-            
+
             if (valueMMDD==0)
                 meterUnpluggedDates[channel] = null;
             else {
@@ -112,7 +112,7 @@ public class EventGeneral extends AbstractCommand {
             }
         }
     }
-    
+
     /**
      * Getter for property meterUnpluggedDate.
      * @return Value of property meterUnpluggedDate.
@@ -120,14 +120,14 @@ public class EventGeneral extends AbstractCommand {
     private java.util.Date getMeterUnpluggedDate(int channel) {
         return this.meterUnpluggedDates[channel];
     }
-    
+
     public int getValue(int channel, int line) {
         try {
-            return values[channel][line];    
+            return values[channel][line];
         }
         catch(ArrayIndexOutOfBoundsException e) {
             return -1;
         }
-    }    
-    
+    }
+
 }

@@ -10,24 +10,24 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author koen
  */
 public class WriteCommand extends AbstractCommand {
-    
+
     private int registerId;
     private byte[] data;
-    
+
     /** Creates a new instance of WriteCommand */
     public WriteCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -35,14 +35,14 @@ public class WriteCommand extends AbstractCommand {
         strBuff.append("   data="+ProtocolUtils.outputHexString(getData())+"\n");
         return strBuff.toString();
     }
-    
+
 //    public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new ReadCommand(null)));
 //    }
-     
+
     private final char COMMAND='N'; // 'W'
-    
-    protected byte[] prepareBuild() {  
+
+    protected byte[] prepareBuild() {
         byte[] data2 = new byte[getData().length+1+4];
         data2[0] = COMMAND;
         data2[1]=(byte)(getRegisterId()>>24);
@@ -52,22 +52,22 @@ public class WriteCommand extends AbstractCommand {
         System.arraycopy(getData(),0,data2,5,getData().length);
         return data2;
     }
-    
+
     protected void parse(byte[] rawData) throws IOException {
     }
-    
+
     public byte[] getData() {
         return data;
     }
-    
+
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
     public int getRegisterId() {
         return registerId;
     }
-    
+
     public void setRegisterId(int registerId) {
         this.registerId = registerId;
     }

@@ -1,14 +1,14 @@
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.DeployFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.EventFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.EventPOFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.RegisterFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.RequestFrame;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.List;

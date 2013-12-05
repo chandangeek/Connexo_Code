@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -21,10 +23,10 @@ import java.util.List;
 public enum GeneralDeviceMessage implements DeviceMessageSpec {
 
     WRITE_RAW_IEC1107_CLASS(
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
-    WRITE_FULL_CONFIGURATION(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName));
+            RequiredPropertySpecFactory.newInstance().boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
+            RequiredPropertySpecFactory.newInstance().boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
+    WRITE_FULL_CONFIGURATION(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName));
 
     private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
 

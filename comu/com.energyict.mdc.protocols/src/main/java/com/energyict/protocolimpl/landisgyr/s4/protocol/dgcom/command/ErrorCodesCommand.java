@@ -10,37 +10,39 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ErrorCodesCommand extends AbstractCommand {
-    
+
     /*
     DX ERROR Codebyte
     0 Low battery
-    1 Unprogrammed 
+    1 Unprogrammed
     2 Memory failure
-    3 Demand overflow 
-    4 Stuck switch 
+    3 Demand overflow
+    4 Stuck switch
     5 Unsafe power failure
     6 Reverse rotation
     7 Not used
 
     RX Error code 1 & mask 1
-    0 Low battery 
-    1 Unprogrammed 
-    2 Memory failure 
-    3 Demand overflow 
-    4 Stuck switch 
-    5 Unsafe power failure 
-    6 Not used 
-    7 Not used 
+    0 Low battery
+    1 Unprogrammed
+    2 Memory failure
+    3 Demand overflow
+    4 Stuck switch
+    5 Unsafe power failure
+    6 Not used
+    7 Not used
 
-    RX Error code 2 & mask 2    
+    RX Error code 2 & mask 2
     0 Low battery
     1 DSP overflow error
     2 Phase error
@@ -78,7 +80,7 @@ public class ErrorCodesCommand extends AbstractCommand {
     6 DSP comm. timeout
     7 Out of calibration
      */
-    
+
     private int errorCode1;
     private int errorCode2;
     private int errorMask1;
@@ -86,14 +88,14 @@ public class ErrorCodesCommand extends AbstractCommand {
     private int memoryFailure;
     private int phaseError;
     private int measurementDiagnosticFailure;
-            
-    
-    
+
+
+
     /** Creates a new instance of TemplateCommand */
     public ErrorCodesCommand(CommandFactory commandFactory) {
         super(commandFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -107,11 +109,11 @@ public class ErrorCodesCommand extends AbstractCommand {
         strBuff.append("   phaseError=0x"+Integer.toHexString(getPhaseError())+"\n");
         return strBuff.toString();
     }
-    
+
     protected byte[] prepareBuild() {
         return new byte[]{(byte)0x83,0,0,0,0,0,0,0,0};
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         if (getCommandFactory().getFirmwareVersionCommand().isDX()) {
             setErrorCode1(ProtocolUtils.getInt(data,0,1));
@@ -187,29 +189,29 @@ public class ErrorCodesCommand extends AbstractCommand {
     public final int PHASE_FAILURE = 0x04; // error code 2
     public final int MEASUREMENT_DIAGNOSTIC_FAILURE = 0x20; // error code 2
     public final int REVERSE_ROTATION = 0x40; // error code 1
-    
+
     public int getIntervalStateBits() throws IOException {
         int eiState=0;
         if (((getErrorMask1()&MEMORY_FAILURE) == MEMORY_FAILURE) && ((getErrorCode1()&MEMORY_FAILURE) == MEMORY_FAILURE)) {
             if ((getMemoryFailure() & 0x10)==0x10)
                 eiState |= IntervalStateBits.CORRUPTED;
         }
-        
+
         if (((getErrorMask2()&PHASE_FAILURE) == PHASE_FAILURE) && ((getErrorCode2()&PHASE_FAILURE) == PHASE_FAILURE)) {
             if (((getPhaseError() & 0x1)==0x1) || ((getPhaseError() & 0x2)==0x2) || ((getPhaseError() & 0x8)==0x8))
                 eiState |= IntervalStateBits.PHASEFAILURE;
         }
-        
+
         if (((getErrorMask2()&MEASUREMENT_DIAGNOSTIC_FAILURE) == MEASUREMENT_DIAGNOSTIC_FAILURE) && ((getErrorCode2()&MEASUREMENT_DIAGNOSTIC_FAILURE) == MEASUREMENT_DIAGNOSTIC_FAILURE)) {
             if ((getMemoryFailure() & 0x10)==0x10)
                 eiState |= IntervalStateBits.CORRUPTED;
         }
-        
+
         if (getCommandFactory().getFirmwareVersionCommand().isDX()) {
             if ((getErrorMask1()&REVERSE_ROTATION) == REVERSE_ROTATION)
                 eiState |= IntervalStateBits.REVERSERUN;
         }
         return eiState;
-        
+
     }
 }

@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -20,12 +19,12 @@ import com.energyict.protocol.*;
 public class LogoffResponse extends AbstractResponse {
 
     private boolean logoff=false;
-    
+
     /** Creates a new instance of LogoffResponse */
     public LogoffResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         setLogoff(true);

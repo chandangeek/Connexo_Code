@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
-import com.energyict.cbo.InvalidValueException;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.*;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.InvalidValueException;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -43,15 +43,14 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     protected static final int DEFAULT_POST_DIAL_TRIES = 1;
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
+        for (ConnectionProperty property : properties) {
             if (property.getValue() != null) {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
         try {
-            ServerComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-            comChannel.setComPort(comPort);
+            ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
             sendPostDialCommand(comChannel);
             return comChannel;
         } catch (InvalidValueException e) {
@@ -59,7 +58,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected void sendPostDialCommand(ServerComChannel comChannel) throws InvalidValueException {
+    protected void sendPostDialCommand(ComChannel comChannel) throws InvalidValueException {
         if (getPostDialCommandPropertyValue() != null) {
             for (int i = 0; i < getPostDialTriesPropertyValue(); i++) {
                 delayBeforeSend(getPostDialDelayPropertyValue());
@@ -112,24 +111,23 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_DELAY);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(POST_DIAL_DELAY);
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(POST_DIAL_TRIES);
+        return OptionalPropertySpecFactory.newInstance().bigDecimalPropertySpec(POST_DIAL_TRIES);
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(POST_DIAL_COMMAND);
+        return OptionalPropertySpecFactory.newInstance().stringPropertySpec(POST_DIAL_COMMAND);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        final List<PropertySpec> allOptionalProperties = super.getOptionalProperties();
-        allOptionalProperties.add(this.postDialDelayPropertySpec());
-        allOptionalProperties.add(this.postDialRetriesPropertySpec());
-        allOptionalProperties.add(this.postDialCommandPropertySpec());
-        return allOptionalProperties;
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        super.addPropertySpecs(propertySpecs);
+        propertySpecs.add(this.postDialDelayPropertySpec());
+        propertySpecs.add(this.postDialRetriesPropertySpec());
+        propertySpecs.add(this.postDialCommandPropertySpec());
     }
 
     @Override
@@ -152,4 +150,5 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     public String getVersion() {
         return "$Date: 2013-05-16 13:24:08 +0200 (do, 16 mei 2013) $";
     }
+
 }

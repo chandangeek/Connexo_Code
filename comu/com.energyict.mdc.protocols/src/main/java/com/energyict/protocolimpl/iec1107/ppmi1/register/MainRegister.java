@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.register;
 
-import java.util.Date;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ppmi1.MetaRegister;
+
+import java.util.Date;
 
 /**
  * @author Koen, fbo

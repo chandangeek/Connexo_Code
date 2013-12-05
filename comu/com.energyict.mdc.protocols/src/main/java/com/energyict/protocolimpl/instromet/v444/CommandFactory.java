@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import java.util.Calendar;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.LogoffCommand;
 import com.energyict.protocolimpl.instromet.connection.ReadCommand;
 import com.energyict.protocolimpl.instromet.connection.TableSwitchCommand;
@@ -12,80 +9,82 @@ import com.energyict.protocolimpl.instromet.v444.tables.CountersTable;
 import com.energyict.protocolimpl.instromet.v444.tables.LoggedDataTable;
 import com.energyict.protocolimpl.instromet.v444.tables.LoggingConfigurationTable;
 import com.energyict.protocolimpl.instromet.v444.tables.PeakHourPeakDayTable;
-  
+
+import java.util.Calendar;
+
 public class CommandFactory {
-	
+
 	private Instromet444 instromet444;
-	
+
 	public CommandFactory(Instromet444 instromet444) {
 		this.instromet444 = instromet444;
 	}
-	
+
 	protected TableSwitchCommand tableSwitchCommand(int tableType) {
 		TableSwitchCommand writeCommand = new TableSwitchCommand(instromet444);
 		writeCommand.setTableType(tableType);
 		return writeCommand;
 	}
-	
+
 	public ReadCommand readLoggedDataCommand(int startAddress, int size) {
 		return readCommand(startAddress, size);
 	}
-	
+
 	public TableSwitchCommand switchToLoggedDataCommand() {
 		return tableSwitchCommand(
 				new LoggedDataTable(
 						instromet444.getTableFactory()).getTableType());
 	}
-	
+
 	public TableSwitchCommand switchToLoggingConfigurationCommand() {
 		System.out.println("send table switch logging conf");
 		return tableSwitchCommand(
 				new LoggingConfigurationTable(
-						instromet444.getTableFactory()).getTableType()); 
+						instromet444.getTableFactory()).getTableType());
 	}
-	
+
 	public TableSwitchCommand switchToCorrectorInformation() {
 		return tableSwitchCommand(
 				new CorrectorInformationTable(
-						instromet444.getTableFactory()).getTableType()); 
+						instromet444.getTableFactory()).getTableType());
 	}
-	
-	
+
+
 	public TableSwitchCommand switchToPeakTable() {
 		return tableSwitchCommand(
 				new PeakHourPeakDayTable(
-						instromet444.getTableFactory()).getTableType()); 
+						instromet444.getTableFactory()).getTableType());
 	}
-	
+
 	public TableSwitchCommand switchToCounters() {
 		return tableSwitchCommand(
 				new CountersTable(
-						instromet444.getTableFactory()).getTableType()); 
+						instromet444.getTableFactory()).getTableType());
 	}
-	
+
 	public LogoffCommand logoffCommand() {
 		return new LogoffCommand(instromet444);
 	}
-	
+
 	public ReadCommand readHeadersCommand() {
 		return readCommand(1, 5);
 	}
-	
+
 	protected ReadCommand readCommand(int startAddress, int length) {
 		ReadCommand readCommand = new ReadCommand(instromet444);
 		readCommand.setStartAddress(startAddress);
 		readCommand.setLength(length);
 		return readCommand;
 	}
-	
+
 	public WriteCommand setTimeCommand() {
 		System.out.println("setTimeCommand");
 		int startAddress = 28;
 		byte[] data = new byte[7];
 		Calendar cal = Calendar.getInstance(instromet444.getTimeZone());
-		
-		cal.add(Calendar.MILLISECOND,this.instromet444.getRoundtripCorrection());     
-		
+
+		cal.add(Calendar.MILLISECOND,this.instromet444.getRoundtripCorrection());
+
 		int year = cal.get(Calendar.YEAR) - 2000;
 		int month = cal.get(Calendar.MONTH) + 1;
 		int day = cal.get(Calendar.DATE);
@@ -118,31 +117,31 @@ public class CommandFactory {
 		data[0] = (byte) (sec&0xFF);
 		return writeCommand(startAddress, data);
 	}
-	
+
 	public WriteCommand writeCommand(int startAddress, byte[] data) {
 		WriteCommand writeCommand = new WriteCommand(instromet444);
 		writeCommand.setStartAddress(startAddress);
 		writeCommand.setData(data);
 		return writeCommand;
 	}
-	
+
 	public ReadCommand readLogSelectorCommand() {
 		return readCommand(9, 10);
 	}
-	
+
 	public ReadCommand readCountersCommand() {
 		return readCommand(6, 16);
 	}
-	
+
 	public ReadCommand readCorrectorInformationCommand() {
 		return readCommand(6, 29);
 	}
-	
+
 	public ReadCommand readPeakCommand() {
 		return readCommand(6, 15);
 	}
-	
-	
+
+
 
 
 }

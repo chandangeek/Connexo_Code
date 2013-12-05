@@ -10,27 +10,23 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import java.io.*;
-
-import com.energyict.dialer.connection.*;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 abstract public class CommandBuilder {
-    
+
     AlphaConnection alphaConnection;
-    
+
     abstract int getExpectedFrameType();
-    
+
     /** Creates a new instance of CommandBuilder */
     public CommandBuilder(AlphaConnection alphaConnection) {
         this.alphaConnection=alphaConnection;
     }
-    
-    
+
+
     /*******************************************************************************************
      * PROTECTED METHODS delegete to AlphaConnection Class
      ******************************************************************************************/
@@ -48,7 +44,7 @@ abstract public class CommandBuilder {
     }
     protected ResponseFrame sendCommand(byte[] data, boolean response) throws IOException {
         ResponseFrame responseFrame = alphaConnection.sendCommand(data,getExpectedFrameType(),response);
-        
+
         if (response) {
             if (!responseFrame.isAck())
                 throw new IOException("sendCommand(), ERROR, reason "+responseFrame.getNakReason());
@@ -58,5 +54,5 @@ abstract public class CommandBuilder {
             return null;
         }
     }
-    
+
 }

@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ResponseReceiver {
 

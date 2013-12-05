@@ -5,7 +5,11 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
 import com.energyict.protocolimpl.coronis.wavelog.core.radiocommand.AbstractRadioCommand;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -13,7 +17,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     static final int PARAM_UPDATE_ERROR = 0xFF;
     private static final int RESPONSE_ACK_NEW_READMODE = 0x98;        //Old read mode response: 0x90, indicates the presence of the working mode bytes in the response.
     private static final int RESPONSE_ACK_NEW_WRITEMODE = 0x99;       //Old write mode response: 0x91, indicates the presence of the working mode bytes in the response.
-    private static final int REQUEST_NEW_WRITEMODE = 0x19;            //Old write mode request: 0x11  
+    private static final int REQUEST_NEW_WRITEMODE = 0x19;            //Old write mode request: 0x11
 
     enum ParameterId {
 

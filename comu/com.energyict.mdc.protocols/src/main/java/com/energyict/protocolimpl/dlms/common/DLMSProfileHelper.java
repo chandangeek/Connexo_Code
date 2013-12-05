@@ -1,19 +1,26 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Class containing functionality to create the channelInfos for a load profile and cache it.
@@ -179,7 +186,7 @@ public class DLMSProfileHelper {
      * instead of calling this method directly
      *
      * @param capturedObject The captured object to get the unit from
-     * @return The unit or {@link com.energyict.cbo.Unit#getUndefined()} if not available
+     * @return The unit or {@link Unit#getUndefined()} if not available
      * @throws java.io.IOException If there occurred an error while reading the unit from the device
      */
     private final Unit readUnitFromDevice(final CapturedObject capturedObject) throws IOException {

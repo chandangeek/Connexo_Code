@@ -1,12 +1,14 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT

@@ -1,21 +1,32 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.Register;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -57,8 +68,8 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
 
     private final UkHub meterProtocol;
 
-    private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<Register, ComposedRegister>();
-    private Map<Register, DLMSAttribute> registerMap = new HashMap<Register, DLMSAttribute>();
+    private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<>();
+    private Map<Register, DLMSAttribute> registerMap = new HashMap<>();
 
     /**
      * Default constructor
@@ -91,7 +102,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
      * @throws java.io.IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(registers, this.meterProtocol.supportsBulkRequests());
 
         for (Register register : registers) {
@@ -122,7 +133,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
 
     /**
      * Construct a ComposedCosemObject from a list of <CODE>Registers</CODE>.
-     * If the {@link com.energyict.protocol.Register} is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
+     * If the {@link com.energyict.mdc.protocol.device.data.Register} is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
      * and the ObisCode is listed in the ObjectList(see {@link com.energyict.dlms.DLMSMeterConfig#getInstance(String)}, then we define a ComposedRegister and add
      * it to the {@link #composedRegisterMap}. Otherwise if it is not a DLMS <CODE>Register</CODE> or <CODE>ExtendedRegister</CODE>, but the ObisCode exists in the
      * ObjectList, then we just add it to the {@link #registerMap}. The handling of the <CODE>registerMap</CODE> should be done by the {@link #readRegisters(java.util.List)}
@@ -134,7 +145,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
      */
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<Register> registers, boolean supportsBulkRequest) throws IOException {
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (Register register : registers) {
                 ObisCode rObisCode = register.getObisCode();
 

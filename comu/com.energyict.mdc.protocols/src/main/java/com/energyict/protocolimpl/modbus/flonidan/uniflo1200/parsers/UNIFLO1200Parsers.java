@@ -1,31 +1,31 @@
 /**
  * UNIFLO1200Parsers.java
- * 
+ *
  * Created on 8-dec-2008, 15:23:58 by jme
- * 
+ *
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
+
 /**
  * @author jme
  *
  */
 public class UNIFLO1200Parsers {
-	
+
 	private static final int DEBUG 				= 0;
 	private static final int DECIMALS 			= -1;
 	private TimeZone tz 						= null;
-	
+
     public static final String PARSER_UINT8		= "UINT8_Parser"; 		// 1 byte
     public static final String PARSER_UINT16	= "UINT16_Parser"; 		// 2 bytes (word)
     public static final String PARSER_UINT32	= "UINT32_Parser"; 		// 4 bytes (long)
@@ -37,13 +37,13 @@ public class UNIFLO1200Parsers {
     public static final String PARSER_LOC_PTR	= "LOC_PTR_Parser";		// 2 bytes (location pointer)
     public static final String PARSER_STR29		= "STR29_Parser";		// 29 chars
     public static final String PARSER_STR1		= "STR1_Parser";		// 1 char
-    public static final String PARSER_UINT160	= "UINT160_Parser";		// 2 bytes (word, reverse data storing) 
-    public static final String PARSER_UINT320	= "UINT320_Parser";		// 4 bytes (long, reverse data storing) 
-    public static final String PARSER_REAL320	= "REAL320_Parser";		// 4 bytes (single, reverse data storing) 
+    public static final String PARSER_UINT160	= "UINT160_Parser";		// 2 bytes (word, reverse data storing)
+    public static final String PARSER_UINT320	= "UINT320_Parser";		// 4 bytes (long, reverse data storing)
+    public static final String PARSER_REAL320	= "REAL320_Parser";		// 4 bytes (single, reverse data storing)
     public static final String PARSER_STR8		= "STR8_Parser";		// 8 chars
     public static final String PARSER_DATABLOCK	= "DATABLOCK_Parser";	// x bytes (Data block of bytes. Length is unknown)
     public static final String PARSER_STRING 	= "String_Parser";		// x chars (Data block of chars, Length is unknown)
-	public static final String PARSER_GAS_FORM	= "GAS_FORMULA_Parser"; // convert option byte to used conversion type string (AGA8, ...) 
+	public static final String PARSER_GAS_FORM	= "GAS_FORMULA_Parser"; // convert option byte to used conversion type string (AGA8, ...)
 	public static final String PARSER_INTERVAL 	= "INTERVAL_Parser";	// convert option byte to log interval time in seconds
 	public static final String PARSER_UINT8_SWP = "UNINT8_SWAP_Parser";
 	public static final String PARSER_STR1_SWP 	= "STR1_SWAP_Parser";
@@ -59,15 +59,15 @@ public class UNIFLO1200Parsers {
     public static final int LENGTH_LOC_PTR		= 1;		// 2 bytes (location pointer)
     public static final int LENGTH_STR29		= 15;		// 29 chars
     public static final int LENGTH_STR1			= 1;		// 1 char
-    public static final int LENGTH_UINT160		= 1;		// 2 bytes (word, reverse data storing) 
-    public static final int LENGTH_UINT320		= 2;		// 4 bytes (long, reverse data storing) 
-    public static final int LENGTH_REAL320		= 2;		// 4 bytes (single, reverse data storing) 
+    public static final int LENGTH_UINT160		= 1;		// 2 bytes (word, reverse data storing)
+    public static final int LENGTH_UINT320		= 2;		// 4 bytes (long, reverse data storing)
+    public static final int LENGTH_REAL320		= 2;		// 4 bytes (single, reverse data storing)
     public static final int LENGTH_STR8			= 4;		// 8 chars
-//	public static final int LENGTH_GAS_FORM		= 1; 		// convert option byte to used conversion type string (AGA8, ...) 
-    
+//	public static final int LENGTH_GAS_FORM		= 1; 		// convert option byte to used conversion type string (AGA8, ...)
+
     public static byte[] buildTimeDate(Calendar cal) {
     	byte[] b = new byte[6];
-    	
+
     	b[0] = (byte) ((cal.get(Calendar.YEAR) - 2000) & 0x000000FF);
     	b[1] = (byte) ((cal.get(Calendar.MONTH) + 1) & 0x000000FF);
     	b[2] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0x000000FF);
@@ -77,7 +77,7 @@ public class UNIFLO1200Parsers {
 
     	return b;
     }
-    
+
     public UNIFLO1200Parsers(TimeZone timezone) {
     	this.tz = timezone;
     }
@@ -94,12 +94,12 @@ public class UNIFLO1200Parsers {
             } else {
                 bd = new BigDecimal( (values[0]<<16)+values[1] );
             }
-            
+
             if (DECIMALS > -1) bd = bd.setScale(DECIMALS, BigDecimal.ROUND_HALF_UP);
             return bd;
         }
     }
-    
+
     public class TimeParser implements Parser {
 		public Object val(int[] values, AbstractRegister register) throws IOException {
 			Calendar cal = ProtocolUtils.getCalendar(getTZ());
@@ -113,13 +113,13 @@ public class UNIFLO1200Parsers {
 			return cal.getTime();
 		}
     }
-    
+
     public class StringParser implements Parser {
         public Object val(int[] values, AbstractRegister register) {
             String result = "";
         	for (int i = 0; i < values.length; i++) {
-				result += (char)((values[i] & 0x0000FF00) >> 8); 
-				result += (char)(values[i] & 0x000000FF); 
+				result += (char)((values[i] & 0x0000FF00) >> 8);
+				result += (char)(values[i] & 0x000000FF);
 			}
         	return result;
         }
@@ -129,8 +129,8 @@ public class UNIFLO1200Parsers {
         public Object val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < 11; i++) {
-				result += (char)((values[i] & 0x0000FF00) >> 8); 
-				result += (char)(values[i] & 0x000000FF); 
+				result += (char)((values[i] & 0x0000FF00) >> 8);
+				result += (char)(values[i] & 0x000000FF);
 			}
         	return result;
         }
@@ -138,30 +138,30 @@ public class UNIFLO1200Parsers {
 
     public class STR1Parser implements Parser {
         public Object val(int[] values, AbstractRegister register) {
-            return "" + (char)((values[0] & 0x0000FF00) >> 8); 
+            return "" + (char)((values[0] & 0x0000FF00) >> 8);
         }
     }
 
     public class STR1SwappedParser implements Parser {
         public Object val(int[] values, AbstractRegister register) {
-            return "" + (char)((values[0] & 0x000000FF)); 
+            return "" + (char)((values[0] & 0x000000FF));
         }
     }
-    
+
     public class STR29Parser implements Parser {
         public Object val(int[] values, AbstractRegister register) {
             String result = "";
             for (int i = 0; i < 15; i++) {
-				result += (char)((values[i] & 0x0000FF00) >> 8); 
-				if (i != 14) result += (char)(values[i] & 0x000000FF); 
+				result += (char)((values[i] & 0x0000FF00) >> 8);
+				if (i != 14) result += (char)(values[i] & 0x000000FF);
 			}
         	return result;
         }
     }
-    
+
     public class UINT8Parser implements Parser {
         public Object val(int[] values, AbstractRegister register) {
-        	Integer returnValue = 
+        	Integer returnValue =
         		new Integer(((values[0] & 0x0000FF00) >> 8));
         	return returnValue;
         }
@@ -223,13 +223,13 @@ public class UNIFLO1200Parsers {
         }
     }
 
-    
+
     public class REAL32Parser implements Parser {
         public Object val(int[] values, AbstractRegister register) {
         	int fractionalPart;
         	BigDecimal returnValue;
 
-        	fractionalPart = 
+        	fractionalPart =
         		((values[0] & 0x0000FF00) >> 8) +
 				((values[0] & 0x000000FF) << 8) +
 				((values[1] & 0x0000FF00) << 8) +
@@ -247,23 +247,23 @@ public class UNIFLO1200Parsers {
         	BigDecimal returnValue;
         	int intPart;
         	int fractionalPart;
-        	
-        	intPart = 
+
+        	intPart =
         		((values[0] & 0x0000FF00) >> 8) +
 				((values[0] & 0x000000FF) << 8) +
 				((values[1] & 0x0000FF00) << 8) +
 				((values[1] & 0x000000FF) << 24);
 
-        	fractionalPart = 
+        	fractionalPart =
         		((values[2] & 0x0000FF00) >> 8) +
 				((values[2] & 0x000000FF) << 8) +
 				((values[3] & 0x0000FF00) << 8) +
 				((values[3] & 0x000000FF) << 24);
-        	
+
         	returnValue = new BigDecimal(intPart);
         	returnValue = returnValue.add(new BigDecimal(Float.intBitsToFloat(fractionalPart)));
         	if (DECIMALS > -1) returnValue = returnValue.setScale(DECIMALS, BigDecimal.ROUND_HALF_UP);
-        	
+
         	return returnValue;
         }
     }
@@ -278,7 +278,7 @@ public class UNIFLO1200Parsers {
 			return b;
 		}
     }
-    
+
     public class GasFormulaParser implements Parser {
     	public Object val(int[] values, AbstractRegister register) {
     		int returnValue = (values[0] & 0x0000FF00) >> 8;

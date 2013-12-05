@@ -7,7 +7,12 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.SamplingPeriod
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 public class ExtendedIndexReading extends AbstractRadioCommand {
 
@@ -104,7 +109,7 @@ public class ExtendedIndexReading extends AbstractRadioCommand {
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();
         }
-        
+
         Calendar calLastOfMonth = new GregorianCalendar(timeZone);
         calLastOfMonth.setTime(dateOfLastLoggedValue);
         calLastOfMonth.set(Calendar.DATE, 1);

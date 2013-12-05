@@ -5,10 +5,10 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.mdc.common.Unit;
 
-import com.energyict.cbo.Unit;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  *
@@ -16,12 +16,12 @@ import com.energyict.cbo.Unit;
  */
 public class DateValuePair {
 
-    
+
     Date date;
     BigDecimal value;
     Unit unit;
     String text;
-    
+
     /** Creates a new instance of DateValuePair */
     public DateValuePair(Date date,BigDecimal value, Unit unit, String text) {
         this.date = date;
@@ -29,7 +29,7 @@ public class DateValuePair {
         this.unit = unit;
         this.text = text;
     }
-    
+
     /**
      * Getter for property value.
      * @return Value of property value.
@@ -37,7 +37,7 @@ public class DateValuePair {
     public java.math.BigDecimal getValue() {
         return value;
     }
-    
+
     /**
      * Setter for property value.
      * @param value New value of property value.
@@ -45,7 +45,7 @@ public class DateValuePair {
     public void setValue(java.math.BigDecimal value) {
         this.value = value;
     }
-    
+
     /**
      * Getter for property date.
      * @return Value of property date.
@@ -53,7 +53,7 @@ public class DateValuePair {
     public java.util.Date getDate() {
         return date;
     }
-    
+
     /**
      * Setter for property date.
      * @param date New value of property date.
@@ -61,7 +61,7 @@ public class DateValuePair {
     public void setDate(java.util.Date date) {
         this.date = date;
     }
-    
+
     public Unit getUnit() {
 		return unit;
 	}
@@ -73,13 +73,13 @@ public class DateValuePair {
 	public String toString() {
         return getValue()+", "+getDate();
     }
-	
+
 	public void setText(String text) {
 		this.text = text;
 	}
-	
+
 	public String getText() {
 		return text;
 	}
-	
+
 }

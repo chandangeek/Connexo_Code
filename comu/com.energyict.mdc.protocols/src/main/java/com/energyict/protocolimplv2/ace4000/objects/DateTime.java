@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import org.w3c.dom.Element;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
+import org.w3c.dom.Element;
 
 /**
  * @author gna

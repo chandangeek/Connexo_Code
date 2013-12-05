@@ -10,25 +10,24 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class SecurityCommand extends AbstractCommand{
-    
+
     private String securityCode=new String(new byte[]{0,0,0,0,0,0,0,0}); // 8 bytes security code default all 0's
-    
-    
+
+
     /** Creates a new instance of SecurityCommand */
     public SecurityCommand(SchlumbergerProtocol schlumbergerProtocol) {
         super(schlumbergerProtocol);
     }
-    
+
     protected Command preparebuild() throws IOException {
         Command command = new Command('S');
         // ,unitType,unitId,
@@ -38,7 +37,7 @@ public class SecurityCommand extends AbstractCommand{
         command.setData(data);
         return command;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
     }
 
@@ -51,5 +50,5 @@ public class SecurityCommand extends AbstractCommand{
     }
 
 
-        
+
 }

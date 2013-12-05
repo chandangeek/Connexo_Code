@@ -10,39 +10,40 @@
 
 package com.energyict.protocolimpl.ge.kv.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MeterProgramConstants1 extends AbstractTable {
-    
+
     private int frequency; // 8 bit, 0=50Hz, 1=60Hz
     private int timeBase; // 8 bit, 0=line, 1=crystal
-    private int kt; // 16 bit 
-    
+    private int kt; // 16 bit
+
     /** Creates a new instance of MeterProgramConstants1 */
     public MeterProgramConstants1(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(66,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("MeterProgramConstants1: frequency="+getFrequency()+", timeBase="+getTimeBase()+", kt="+getKt()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void prepareTransfer() {
-        
+
     }
-    
-    protected void parse(byte[] tableData) throws IOException {    
+
+    protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         setFrequency(C12ParseUtils.getInt(tableData,0));
         setTimeBase(C12ParseUtils.getInt(tableData,1));
         setKt(C12ParseUtils.getInt(tableData,2,2,dataOrder));

@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -70,26 +70,26 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     /**
      * Property keys
      */
-    final static String PK_NODE_PREFIX = "NodeIdPrefix";
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_SECURITY_LEVEL = "SecurityLevel";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_FORCE_DELAY = "ForceDelay";
-    final static String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
-    final static String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
+    static final String PK_NODE_PREFIX = "NodeIdPrefix";
+    static final String PK_TIMEOUT = "Timeout";
+    static final String PK_RETRIES = "Retries";
+    static final String PK_SECURITY_LEVEL = "SecurityLevel";
+    static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    static final String PK_FORCE_DELAY = "ForceDelay";
+    static final String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
+    static final String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
 
     /**
      * Property Default values
      */
-    final static String PD_NODE_PREFIX = "F";
-    final static String PD_NODE_ID = "";
-    final static int PD_TIMEOUT = 10000;
-    final static int PD_RETRIES = 5;
-    final static int PD_ROUNDTRIP_CORRECTION = 0;
-    final static int PD_SECURITY_LEVEL = 2;
-    final static String PD_EXTENDED_LOGGING = "0";
-    final static int PD_FORCE_DELAY = 250;
+    static final String PD_NODE_PREFIX = "F";
+    static final String PD_NODE_ID = "";
+    static final int PD_TIMEOUT = 10000;
+    static final int PD_RETRIES = 5;
+    static final int PD_ROUNDTRIP_CORRECTION = 0;
+    static final int PD_SECURITY_LEVEL = 2;
+    static final String PD_EXTENDED_LOGGING = "0";
+    static final int PD_FORCE_DELAY = 250;
 
     /**
      * Property values Required properties will have NO default value Optional

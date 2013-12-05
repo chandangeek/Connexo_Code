@@ -1,17 +1,15 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import java.io.ByteArrayOutputStream;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
-
 class LinkLayer extends Connection {
-	
+
 	private static final int PASSWORD_ERROR_BIT = 0x80;
 
     int cmdCount = 0;
@@ -48,12 +46,12 @@ class LinkLayer extends Connection {
                 sleep(50);
 //                maxSys.getLogger().info("Y sent: " + ProtocolUtils.outputHexString(command.getBytes()));
                 sendRawData(command.getBytes());
-                
+
                 sleep(50);
                 ByteArray ba = receiveResponse(16);
-                
+
 //                maxSys.getLogger().info("Y received: " + ProtocolUtils.outputHexString(ba.getBytes()));
-                
+
                 if ((PASSWORD_ERROR_BIT & ba.getBytes()[6]) == PASSWORD_ERROR_BIT)
                 	throw new IOException("1) Communication error or wrong password: " + ba.toHexaString(true));
 
@@ -62,14 +60,14 @@ class LinkLayer extends Connection {
                 int blockNr = 0xff;
 
                 while (!done) {
-                	
+
                 	Date before = new Date();
                 	sleep(80);
                 	byte[] ack = cmdFactory.createAck(blockNr).getBytes();
 //                	maxSys.getLogger().info("X ack sent: " + blockNr + ", " + ProtocolUtils.outputHexString(ack)
 //                			+ ", " + (new Date().getTime() - before.getTime()));
                     sendRawData(ack);
-                    
+
                     //maxSys.getLogger().info("");
 //                    maxSys.getLogger().info("receive block data " + blockNr);
                     //sleep(50);
@@ -83,7 +81,7 @@ class LinkLayer extends Connection {
                         done = true;
                     }
                 }
-                
+
                 byte[] lastAck = cmdFactory.createAck(0).getBytes();
 //            	maxSys.getLogger().info("X ack sent: 0 " + ProtocolUtils.outputHexString(lastAck));
                 sendRawData(lastAck);
@@ -92,11 +90,11 @@ class LinkLayer extends Connection {
                 //sleep(forceDelay);
 
                 return rslt.trim();
-                
+
             } catch (TimeOutException toe) {
                 toe.printStackTrace();
                 nrTry++;
-                
+
             } catch (IOException ioe) {
                 throw ioe;
             }
@@ -110,7 +108,7 @@ class LinkLayer extends Connection {
 
     }
 
-    
+
     protected void sleep(int millisec) throws IOException{
     	try {
             Thread.sleep(millisec);
@@ -119,7 +117,7 @@ class LinkLayer extends Connection {
             throw new IOException(e.getMessage());
         }
     }
-    
+
     ByteArray send( XCommand command, int customRetries ) throws IOException {
     	//sleep(maxSys.getCommandDelay());
         int nrTry = 0;
@@ -147,9 +145,9 @@ class LinkLayer extends Connection {
         }
 
         throw new IOException("2) Failed to read: communication error");
-        
+
     }
-    
+
     ByteArray send( XCommand command ) throws IOException {
     	//sleep(maxSys.getCommandDelay());
         int nrTry = 0;
@@ -177,17 +175,17 @@ class LinkLayer extends Connection {
         }
 
         throw new IOException("3) Failed to read: communication error");
-        
+
     }
-    
+
     static final int WAIT_FOR_STX = 1;
     static final int STX_FOUND = 2;
     static final int BLOCK_INDICATOR_FOUND = 3;
     static final int ACK_FOUND = 4;
-    
-    
+
+
     protected ByteArray receiveBlockData(int length) throws IOException {
-    	
+
     	byte stx = 0x02;
     	byte blockIndicator = 0x0c;
     	long endTime = System.currentTimeMillis() + timeoutMilli;
@@ -223,7 +221,7 @@ class LinkLayer extends Connection {
         				buffer.add((byte) aChar);
         				if (buffer.size() == 267) {
         					Date before = new Date();
-//        					this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true) 
+//        					this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true)
 //        							+ ", " + (new Date().getTime() - before.getTime()));
             				return buffer;
         				}
@@ -237,9 +235,9 @@ class LinkLayer extends Connection {
             }
         }
     }
-    
+
     protected ByteArray receiveResponse(int length) throws IOException {
-    	
+
     	byte stx = 0x02;
     	byte ack = 0x06;
     	byte nack = 0x15;
@@ -281,7 +279,7 @@ class LinkLayer extends Connection {
         				buffer.add((byte) aChar);
         				if (buffer.size() == 16) {
         					Date before = new Date();
-//        					this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true) 
+//        					this.maxSys.getLogger().info("return data= " + buffer.toHexaString(true)
 //        							+ ", " + (new Date().getTime() - before.getTime()));
             				return buffer;
         				}

@@ -1,20 +1,44 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.RegisterCache;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
-abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache {
+public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache {
 
     protected enum PairingMeterId {
         AS253(1),
@@ -37,7 +61,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
      */
     @Override
     protected void doConnect() throws IOException {
-        if (serialNumberA != null && serialNumberA.length() != 0) {
+        if (serialNumberA != null && !serialNumberA.isEmpty()) {
             String meterSerialNumber;
             try {
                 meterSerialNumber = readRegister(getUtilityIdObiscode()).getText().trim();
@@ -57,7 +81,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         }
     }
 
-    static private final int EMETER_NR_OF_CHANNELS = 4;
+    private static final int EMETER_NR_OF_CHANNELS = 4;
     protected static final String PROPERTY_LP_MULTIPLIER = "ApplyLoadProfileMultiplier";
 
     protected abstract void doTheValidateProperties(Properties properties);

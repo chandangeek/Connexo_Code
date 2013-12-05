@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Password;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;

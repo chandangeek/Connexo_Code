@@ -10,30 +10,28 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class DataBuffersBasePage extends AbstractBasePage {
-    
+
     private int[] inputDataBuffers = new int[4];
     private int[] inputTotalBuffers = new int[4];
     private int[] temporaryDataBuffers = new int[4];
     private int[] temporaryTotalBuffers = new int[4];
-    
-    
+
+
     /** Creates a new instance of RealTimeBasePage */
     public DataBuffersBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -51,12 +49,12 @@ public class DataBuffersBasePage extends AbstractBasePage {
             strBuff.append("       temporaryTotalBuffers["+i+"]="+getTemporaryTotalBuffers()[i]+"\n");
         }
         return strBuff.toString();
-    }   
-    
+    }
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0xBB,40);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         for (int i=0;i<getInputDataBuffers().length;i++) {
@@ -109,5 +107,5 @@ public class DataBuffersBasePage extends AbstractBasePage {
         this.temporaryTotalBuffers = temporaryTotalBuffers;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

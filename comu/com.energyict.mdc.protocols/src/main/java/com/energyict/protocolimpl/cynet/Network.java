@@ -1,10 +1,13 @@
 package com.energyict.protocolimpl.cynet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Network class, contains basic info about a network.
- * 
+ *
  * @author alex
  */
 public final class Network {
@@ -30,7 +33,7 @@ public final class Network {
 
 	/**
 	 * Create a new network using the given super net and span.
-	 * 
+	 *
 	 * @param superNet
 	 *            The super net.
 	 * @param span
@@ -58,10 +61,10 @@ public final class Network {
 
 	/**
 	 * Returns the sub net at the given net number.
-	 * 
+	 *
 	 * @param netNumber
 	 *            The net number.
-	 * 
+	 *
 	 * @return The particular subnet, null if no such subnet known.
 	 */
 	public final Network getSubnet(final int netNumber) {
@@ -70,7 +73,7 @@ public final class Network {
 
 	/**
 	 * Adds the given master in a subnet with the given index as net number.
-	 * 
+	 *
 	 * @param master
 	 *            The master of the new network.
 	 * @param index
@@ -86,7 +89,7 @@ public final class Network {
 
 	/**
 	 * Returns the master node of the network.
-	 * 
+	 *
 	 * @return The master node of the network.
 	 */
 	public final Set<NetworkNode> getNetworkMasters() {
@@ -95,7 +98,7 @@ public final class Network {
 
 	/**
 	 * Sets the master node ID.
-	 * 
+	 *
 	 * @param masterNodeId
 	 *            The master node ID.
 	 */
@@ -105,7 +108,7 @@ public final class Network {
 
 	/**
 	 * Adds the given slave to the list of slave nodes of this network.
-	 * 
+	 *
 	 * @param slave
 	 *            The slave to add.
 	 */
@@ -156,7 +159,7 @@ public final class Network {
 
 		for (int i = 0; i < this.subnets.length; i++) {
 			final Network subnet = this.subnets[i];
-			
+
 			if (subnet != null) {
 				builder.append("\r\n");
 				builder.append(indent).append("Subnet index [").append(i).append("]\r\n");
@@ -170,7 +173,7 @@ public final class Network {
 
 	/**
 	 * Returns the depth.
-	 * 
+	 *
 	 * @return The depth.
 	 */
 	final int getDepth() {
@@ -184,7 +187,7 @@ public final class Network {
 	/**
 	 * Returns an array containing all the slave nodes that are present on this
 	 * network.
-	 * 
+	 *
 	 * @return An array containing all the slave nodes that are present on this
 	 *         network.
 	 */
@@ -195,16 +198,16 @@ public final class Network {
 
 	/**
 	 * Returns the span this network is configured with.
-	 * 
+	 *
 	 * @return The span this network is configured with.
 	 */
 	public final int getSpan() {
 		return this.span;
 	}
-	
+
 	/**
 	 * Returns the number of submaster slots.
-	 * 
+	 *
 	 * @return	The number of submaster slots.
 	 */
 	public final int getNumberOfSubmasterSlots() {
@@ -213,7 +216,7 @@ public final class Network {
 
 	/**
 	 * Returns all the reachable nodes from this network.
-	 * 
+	 *
 	 * @return All the reachable nodes from this network.
 	 */
 	public final NetworkNode[] getAllNodes() {
@@ -229,7 +232,7 @@ public final class Network {
 
 		for (int i = 0; i < this.subnets.length; i++) {
 			final Network subnet = this.subnets[i];
-			
+
 			if (subnet != null) {
 				final NetworkNode[] subnetNodes = subnet.getAllNodes();
 
@@ -244,7 +247,7 @@ public final class Network {
 
 	/**
 	 * Returns true if this is the central master's network.
-	 * 
+	 *
 	 * @return True if this is the network of the central master, false if it is
 	 *         not.
 	 */
@@ -254,16 +257,16 @@ public final class Network {
 
 	/**
 	 * Returns all the known subnets.
-	 * 
+	 *
 	 * @return All the known subnets.
 	 */
 	public final Network[] getSubnets() {
 		return this.subnets;
 	}
-	
+
 	/**
 	 * Returns the supernet
-	 * 
+	 *
 	 * @return the supernet of this network
 	 */
 	public final Network getSupernet(){

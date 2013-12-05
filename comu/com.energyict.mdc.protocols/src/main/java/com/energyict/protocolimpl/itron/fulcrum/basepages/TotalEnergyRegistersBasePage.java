@@ -10,19 +10,17 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class TotalEnergyRegistersBasePage extends AbstractBasePage {
-    
+
     private TotalEnergyRegister wattHour;
     private TotalEnergyRegister varHourLagging;
     private TotalEnergyRegister vAHour;
@@ -30,12 +28,12 @@ public class TotalEnergyRegistersBasePage extends AbstractBasePage {
     private TotalEnergyRegister varHourLeadingOrTotal;
     private TotalEnergyRegister voltsSquaredHour;
     private TotalEnergyRegister ampHour;
-    
+
     /** Creates a new instance of TotalEnergyRegistersBasePage */
     public TotalEnergyRegistersBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -49,11 +47,11 @@ public class TotalEnergyRegistersBasePage extends AbstractBasePage {
         strBuff.append("   wattHour="+getWattHour()+"\n");
         return strBuff.toString();
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x49CB,0x4A57-0x49CB);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setWattHour(new TotalEnergyRegister(data,offset));
@@ -127,5 +125,5 @@ public class TotalEnergyRegistersBasePage extends AbstractBasePage {
     public void setAmpHour(TotalEnergyRegister ampHour) {
         this.ampHour = ampHour;
     }
-    
+
 } // public class RealTimeBasePage extends AbstractBasePage

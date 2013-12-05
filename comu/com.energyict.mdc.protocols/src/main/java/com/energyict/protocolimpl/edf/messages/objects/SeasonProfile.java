@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
 import com.energyict.mdc.common.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.util.Calendar;
 

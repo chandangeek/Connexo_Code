@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.nta.abstractnta;
 
-import com.energyict.genericprotocolimpl.nta.abstractnta.MbusObisCodeProvider;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Contains functionality for the correct NTA obiscodes

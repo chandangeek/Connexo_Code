@@ -1,8 +1,11 @@
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.mdc.protocol.device.data.MeterData;
+import com.energyict.mdc.protocol.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
-import com.energyict.protocol.*;
 
 /**
  * Copyrights EnergyICT

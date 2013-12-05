@@ -10,28 +10,27 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
  * @author koen
  */
 public class ResponseData {
-    
+
     private byte[] data;
     private int sPDUType;
-    
+
     /** Creates a new instance of ResponseData */
     public ResponseData(byte[] data) {
         this.setData(ProtocolUtils.getSubArray2(data, 1, data.length-1));
         this.setSPDUType((int)data[0]&0xFF);
     }
-   
+
     public String toString() {
         return "ResponseData binary: "+ProtocolUtils.outputHexString(getData())+"\n"+"ResponseData ascii: "+new String(getData());
     }
-    
+
     public byte[] getData() {
         return data;
     }

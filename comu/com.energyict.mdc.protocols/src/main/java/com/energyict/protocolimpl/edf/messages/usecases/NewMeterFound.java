@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.Folder;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
 
 import java.sql.SQLException;

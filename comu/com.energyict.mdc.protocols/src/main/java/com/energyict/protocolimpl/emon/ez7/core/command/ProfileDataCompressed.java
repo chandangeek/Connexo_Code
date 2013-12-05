@@ -7,9 +7,9 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalValue;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
@@ -255,6 +255,6 @@ public class ProfileDataCompressed extends AbstractCommand {
 //        double valRounded = (double)Math.round(val*multiplier)/multiplier;
 //        System.out.println(val);
 //        System.out.println(valRounded);
-//    } 
+//    }
 
 }

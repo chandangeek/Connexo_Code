@@ -10,30 +10,28 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ProcedureInitiateTable extends AbstractTable {
-    
-    private TableIDBBitfield tableIDBBitfield;   
+
+    private TableIDBBitfield tableIDBBitfield;
     private int sequenceNr; // byte
     private AbstractProcedure procedure; // procedureData, byte[]
-    
+
     /** Creates a new instance of ProcedureInitiateTable */
     public ProcedureInitiateTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(7));
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
-         
+
     }
-    
+
     protected void prepareTransfer() throws IOException {
         byte[] procedureData = getProcedure().getProcedureData();
         byte[] tableData = new byte[(procedureData==null?0:procedureData.length)+TableIDBBitfield.getSize()+1];
@@ -41,19 +39,19 @@ public class ProcedureInitiateTable extends AbstractTable {
         tableIdbBitfield |= (getTableIDBBitfield().isStdVsMfgFlag()?0x0800:0x0000);
         tableIdbBitfield |= (getTableIDBBitfield().getSelector()<<12);
         int dataOrder = tableFactory.getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
-        
+
         if (dataOrder == 0) { // least significant first
-            tableData[0] = (byte)(tableIdbBitfield); 
+            tableData[0] = (byte)(tableIdbBitfield);
             tableData[1] = (byte)(tableIdbBitfield>>8);
             tableData[2] = (byte)getSequenceNr();
         }
         else if (dataOrder == 1) { // most significant first
-            tableData[0] = (byte)(tableIdbBitfield>>8); 
+            tableData[0] = (byte)(tableIdbBitfield>>8);
             tableData[1] = (byte)tableIdbBitfield;
             tableData[2] = (byte)getSequenceNr();
         }
         else throw new IOException("ProcedureInitiateTable, prepareTransfer(), invalid dataOrder "+dataOrder);
-        
+
         if (procedureData!=null)
             System.arraycopy(procedureData,0,tableData,3,procedureData.length);
         setTableData(tableData);
@@ -82,7 +80,7 @@ public class ProcedureInitiateTable extends AbstractTable {
     public void setTableIDBBitfield(TableIDBBitfield tableIDBBitfield) {
         this.tableIDBBitfield = tableIDBBitfield;
     }
-    
-    
-    
+
+
+
 }

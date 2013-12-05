@@ -1,18 +1,18 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.LittleEndianInputStream;
 import com.energyict.cbo.TimeConstants;
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.meterdata.DeviceLoadProfile;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.device.data.CollectedData;
+import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

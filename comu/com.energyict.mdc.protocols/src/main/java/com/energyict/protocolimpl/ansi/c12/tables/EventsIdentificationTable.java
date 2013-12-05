@@ -10,27 +10,24 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EventsIdentificationTable extends AbstractTable {
-    
+
     private byte[] stdEventsSupported;
     private byte[] mfgEventsSupported;
-    
+
     /** Creates a new instance of EventsIdentificationTable */
     public EventsIdentificationTable(StandardTableFactory tableFactory) {
         super(tableFactory,new TableIdentification(72));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EventsIdentificationTable: \n");
@@ -38,15 +35,15 @@ public class EventsIdentificationTable extends AbstractTable {
         strBuff.append("mfgEventsSupported = "+ProtocolUtils.getResponseData(getMfgEventsSupported())+"\n");
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException { 
+
+    protected void parse(byte[] tableData) throws IOException {
         ActualLogTable alt = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getActualLogTable();
         int offset=0;
         setStdEventsSupported(ProtocolUtils.getSubArray2(tableData, offset, alt.getLog().getNrOfStdEvents()));
         offset+=alt.getLog().getNrOfStdEvents();
         setMfgEventsSupported(ProtocolUtils.getSubArray2(tableData, offset, alt.getLog().getNrOfMfgEvents()));
         offset+=alt.getLog().getNrOfMfgEvents();
-    }         
+    }
 
     public byte[] getStdEventsSupported() {
         return stdEventsSupported;

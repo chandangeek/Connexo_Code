@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.instromet.v555;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.Response;
@@ -24,7 +24,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 public class Instromet555 extends InstrometProtocol {
-	
+
 	private Instromet555Profile instromet555Profile = null;
 	private TableFactory tableFactory = null;
     private CommandFactory commandFactory=null;
@@ -32,15 +32,15 @@ public class Instromet555 extends InstrometProtocol {
     private RegisterFactory registerFactory;
     private List wrapValues = new ArrayList();
     private int iRoundtripCorrection;
-	
+
 	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         return getInstromet555Profile().getProfileData(lastReading,includeEvents);
     }
-	
+
 	public int getRoundtripCorrection() {
 		return this.iRoundtripCorrection;
 	}
-	
+
 	public RegisterFactory getRegisterFactory() throws IOException {
         if (registerFactory == null) {
             registerFactory = new RegisterFactory(this);
@@ -48,11 +48,11 @@ public class Instromet555 extends InstrometProtocol {
         }
         return registerFactory;
     }
-	
+
 	public TableFactory getTableFactory() {
 		return tableFactory;
 	}
-	
+
 	protected void setWrapValues() throws IOException {
 		String channelMapValue = null;
 		try {
@@ -66,11 +66,11 @@ public class Instromet555 extends InstrometProtocol {
 		}
 		catch (NumberFormatException e) {
 			throw new IOException(
-					"Invalid property values channelmap: should contain numbers: " 
+					"Invalid property values channelmap: should contain numbers: "
 					+ channelMapValue);
 		}
 	}
-	
+
 	public Instromet555Profile getInstromet555Profile() {
         return instromet555Profile;
     }
@@ -78,15 +78,15 @@ public class Instromet555 extends InstrometProtocol {
     public void setInstromet555Profile(Instromet555Profile instromet555Profile) {
         this.instromet555Profile = instromet555Profile;
     }
-    
+
     public CommandFactory getCommandFactory() {
         return commandFactory;
     }
 
     private void setCommandFactory(CommandFactory commandFactory) {
         this.commandFactory = commandFactory;
-    }    
-    
+    }
+
     protected void doTheInit() throws IOException {
     	this.getInstrometConnection().setNodeAddress(this.getCommId());
         setCommandFactory(new CommandFactory(this));
@@ -95,20 +95,20 @@ public class Instromet555 extends InstrometProtocol {
     	setWrapValues();
     	iRoundtripCorrection=getInfoTypeRoundtripCorrection();
     }
-    
+
     public List getWrapValues() {
     	return wrapValues;
     }
-    
+
     protected void validateSerialNumber() throws IOException {
         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || 
+        if ((getInfoTypeSerialNumber() == null) ||
             ("".compareTo(getInfoTypeSerialNumber())==0)) return;
         String sn = this.getTableFactory().getCorrectorInformationTable().getSerialNumber();
         if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
-    
+
     public int getCommId() throws IOException {
     	String nodeAddress = getInfoTypeNodeAddress();
     	if ((nodeAddress == null) || ("".equals(nodeAddress)))
@@ -122,12 +122,12 @@ public class Instromet555 extends InstrometProtocol {
     		}
     	}
     }
-   
+
 
 	protected void doConnect() throws IOException {
 		getInstrometConnection().wakeUp();
 	}
-	
+
     public void parseStatus(Response response) throws IOException {
     	byte[] data = response.getData();
     	if (data.length < 2)
@@ -135,7 +135,7 @@ public class Instromet555 extends InstrometProtocol {
     	char function = (char) data[0];
     	Command command = new Command(function);
     	if (command.isStatusCommand()) {
-    		StatusCommand statusCommand = 
+    		StatusCommand statusCommand =
     			new StatusCommand(tableFactory.getInstromet555());
     		statusCommand.checkStatusCode((int) data[1]);
     	}
@@ -151,7 +151,7 @@ public class Instromet555 extends InstrometProtocol {
 	}
 
 	protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
-		
+
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -181,15 +181,15 @@ public class Instromet555 extends InstrometProtocol {
 		response = cfactory.setTimeCommand().invoke();
 		parseStatus(response);
 	}
-	
+
 	public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
-    
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
-    } 
-    
+    }
+
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return this.tableFactory.getLoggingConfigurationTable().getChannelInfos().size();
     }

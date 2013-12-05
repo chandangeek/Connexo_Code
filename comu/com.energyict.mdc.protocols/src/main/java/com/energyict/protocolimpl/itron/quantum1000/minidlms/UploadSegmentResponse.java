@@ -10,24 +10,25 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class UploadSegmentResponse extends AbstractCommandResponse {
-    
+
     private int responseID;
     private int segmentNr;
     private int dataType;
     private byte[] data;
-    
+
     /** Creates a new instance of UploadSegmentResponse */
     public UploadSegmentResponse() {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -40,16 +41,16 @@ public class UploadSegmentResponse extends AbstractCommandResponse {
         strBuff.append("   segmentNr="+getSegmentNr()+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] rawData) throws IOException {
         int offset = 0;
         offset++; // skip confirmed service response
-        setResponseID((int)rawData[offset++]&0xFF); 
+        setResponseID((int)rawData[offset++]&0xFF);
         setSegmentNr(ProtocolUtils.getInt(rawData,offset,2));
         offset+=2;
-        setDataType((int)rawData[offset++]&0xFF); 
+        setDataType((int)rawData[offset++]&0xFF);
         setData(ProtocolUtils.getSubArray2(rawData,offset, rawData.length-offset));
-        
+
      }
 
     public int getResponseID() {
@@ -83,5 +84,5 @@ public class UploadSegmentResponse extends AbstractCommandResponse {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
 }

@@ -1,6 +1,6 @@
 package com.energyict.dlms;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * <p>Copyright: Copyright (c) 2005</p>

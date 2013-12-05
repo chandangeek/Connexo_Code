@@ -10,39 +10,40 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class ScaleFactorTable extends AbstractTable {
-    
+
     private int voltSquareLine2NeutralScaleFactor; // 2 bytes
     private int voltSquareLine2LineScaleFactor; // 2 bytes
     private int currentSquareScaleFactor; // 3 bytes
     private int neutralCurrentSquareScaleFactor; // 3 bytes
     private int demandScaleFactorVA; // 3 bytes
     private int energyScaleFactorVA; // 2 bytes
-    
-    
-    
+
+
+
     /** Creates a new instance of ScaleFactorTable */
     public ScaleFactorTable(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(75,true));
     }
-    
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ScaleFactorTable: voltSquareLine2NeutralScaleFactor="+getVoltSquareLine2NeutralScaleFactor()+", voltSquareLine2LineScaleFactor="+getVoltSquareLine2LineScaleFactor()+", currentSquareScaleFactor="+getCurrentSquareScaleFactor()+", neutralCurrentSquareScaleFactor="+getNeutralCurrentSquareScaleFactor()+", demandScaleFactorVA="+getDemandScaleFactorVA()+", energyScaleFactorVA="+getEnergyScaleFactorVA()+"\n");
-                        
+
         return strBuff.toString();
     }
-    
-    protected void parse(byte[] tableData) throws IOException {   
+
+    protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset=0;
         setVoltSquareLine2NeutralScaleFactor(C12ParseUtils.getInt(tableData,offset,2,dataOrder));

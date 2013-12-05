@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link com.energyict.protocols.mdc.channels.serial.modem.serialio.SioCaseModemConnectionType} component
- * 
+ *
  * @author sva
  * @since 30/04/13 - 14:43
  */
@@ -127,7 +127,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         SioCaseModemConnectionType caseModemConnectionType = new SioCaseModemConnectionType();
 
         try {
-            caseModemConnectionType.connect(comPort, getProperProperties());
+            caseModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
@@ -147,7 +147,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(atModemComponent);
         SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
 
-        caseModemConnectionType.connect(comPort, getProperProperties());
+        caseModemConnectionType.connect(getProperProperties());
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
     }
@@ -165,7 +165,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
 
         try {
-            caseModemConnectionType.connect(comPort, getProperProperties());
+            caseModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
@@ -187,7 +187,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
 
         try {
-            caseModemConnectionType.connect(comPort, getProperProperties());
+            caseModemConnectionType.connect(getProperProperties());
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-216")) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
@@ -210,7 +210,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
         SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
 
-        caseModemConnectionType.connect(comPort, getProperProperties());
+        caseModemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).dialModem(comChannel);
     }
@@ -226,7 +226,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
         SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
 
-        caseModemConnectionType.connect(comPort, getProperProperties());
+        caseModemConnectionType.connect(getProperProperties());
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, never()).sendAddressSelector(comChannel);
@@ -249,7 +249,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         when(this.serialComponentFactory.newCaseModemComponent(any(AbstractCaseModemProperties.class))).thenReturn(modemComponent);
         SioCaseModemConnectionType caseModemConnectionType = spy(new SioCaseModemConnectionType());
 
-        caseModemConnectionType.connect(comPort, properProperties);
+        caseModemConnectionType.connect(properProperties);
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).sendAddressSelector(comChannel);

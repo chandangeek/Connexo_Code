@@ -1,12 +1,6 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Calendar;
-import java.util.Date;
-
-import com.energyict.protocol.ProfileData;
+import com.energyict.mdc.protocol.device.data.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
@@ -16,12 +10,18 @@ import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.WriteSingleRegisterCommand;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
+
 public abstract class AbstractLogReader implements LogReader{
 
 	protected OutputStream outputStream;
 	protected NexusProtocolConnection connection;
 
-	byte[] windowIndexAddress;  
+	byte[] windowIndexAddress;
 	byte[] windowModeAddress;
 	protected int windowEndAddress;
 
@@ -121,7 +121,7 @@ public abstract class AbstractLogReader implements LogReader{
 			doneReading  = true;
 		}
 		windowIndex--;
-		
+
 		while (windowIndex != startWindowIndex && ! doneReading) {
 			if (windowIndex < 0) { //wrap awound
 				windowIndex = largestWindowIndex;
@@ -160,7 +160,7 @@ public abstract class AbstractLogReader implements LogReader{
 		setWindowIndex(new byte[]{(byte) 0xFF,(byte) 0xFF});
 
 		return baos2.toByteArray();
-		
+
 	}
 
 
@@ -174,7 +174,7 @@ public abstract class AbstractLogReader implements LogReader{
 		if (len == 0) {
 			return new byte[]{};
 		}
-		Command command = getWindowCommand(); 
+		Command command = getWindowCommand();
 		byte[] numRegisters = new byte[] {0x00, (byte) len};
 		((ReadCommand)command).setNumRegisters(numRegisters);
 		outputStream.write(command.build());
@@ -211,7 +211,7 @@ public abstract class AbstractLogReader implements LogReader{
 		//	9. Read the Window from starting offset to the end of the Window.
 		setWindowIndex(AbstractCommand.intToByteArray(startWindowIndex));
 
-		Command command = getWindowCommand(); 
+		Command command = getWindowCommand();
 		int address = ProtocolUtils.getShort(((ReadCommand)command).getStartAddress(), 0) +  + startWindowOffset/2;
 		int len = windowEndAddress - address;
 		if (len == 0) {

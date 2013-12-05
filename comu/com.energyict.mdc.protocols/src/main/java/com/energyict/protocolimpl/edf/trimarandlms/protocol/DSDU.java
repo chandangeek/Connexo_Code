@@ -10,26 +10,28 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class DSDU {
-    
+
     private byte[] data;
     private byte[] segmentData;
     private boolean priority;
     private boolean end;
-    private int stsap; 
-    private int dtsap;        
-    
+    private int stsap;
+    private int dtsap;
+
     /** Creates a new instance of DSDU */
     public DSDU() {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -45,20 +47,20 @@ public class DSDU {
         }
         strBuff.append("   stsap="+getStsap()+"\n");
         return strBuff.toString();
-    }            
+    }
     // check if the DT+ is 101
     public boolean checkSgt() {
         return  ((int)data[0]&0xE0)==0xA0;
     }
     public boolean lastSgt() {
         return isEnd();
-    }     
+    }
     public void init(boolean priority, boolean end, int stsap, int dtsap, byte[] data) throws IOException {
         setEnd(end);
         setStsap(stsap);
         setDtsap(dtsap);
         setPriority(priority);
-        
+
         int temp = 0xA000;
         temp |= end?0x1000:0x0000;
         temp |= (stsap<<10);
@@ -69,7 +71,7 @@ public class DSDU {
         baos.write(data);
         setData(baos.toByteArray());
     }
-    
+
     public void init(boolean priority) throws IOException {
         init(null, priority);
     }
@@ -81,14 +83,14 @@ public class DSDU {
         setData(data);
         if (data != null) {
            setSegmentData(ProtocolUtils.getSubArray(data,2,data.length-3));
-//System.out.println("segment ="+ProtocolUtils.outputHexString(getSegmentData()));           
+//System.out.println("segment ="+ProtocolUtils.outputHexString(getSegmentData()));
            int temp = ProtocolUtils.getInt(data,0, 2);
            setEnd((temp&0x1000) != 0);
            setStsap((temp&0xC00)>>10);
            setDtsap(temp&0x3FF);
         }
     }
-    
+
     public int size() {
         return getData().length;
     }

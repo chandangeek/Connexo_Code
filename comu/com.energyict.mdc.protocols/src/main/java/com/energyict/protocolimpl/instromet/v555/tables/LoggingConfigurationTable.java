@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.device.data.ChannelInfo;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoggingConfigurationTable extends AbstractTable {
-	
+
 	private List channelInfos = new ArrayList();
 	private List wrapValues = new ArrayList();
-	
+
 	static final int PRESSURE = 8;
 	static final int TEMPERATURE = 12;
 	static final int Z = 15;
@@ -29,15 +29,15 @@ public class LoggingConfigurationTable extends AbstractTable {
 	static final int VEN = 27;
 	static final int STATUS_NOW = 53;
 	static final int STATUS_LATCHED = 54;
-	
+
 	private List codes = new ArrayList();
-	
-	
+
+
 	public LoggingConfigurationTable(TableFactory tableFactory) {
 		super(tableFactory);
 		wrapValues = tableFactory.getInstromet555().getWrapValues();
 	}
-	
+
 	protected void parse(byte[] data) throws IOException {
 		parse(ProtocolUtils.byte2int(data[0]), 0);
 		parse(ProtocolUtils.byte2int(data[1]), 1);
@@ -45,7 +45,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 		parse(ProtocolUtils.byte2int(data[3]), 3);
 		parse(ProtocolUtils.byte2int(data[4]), 4);
 	}
-	
+
 	public List getChannelInfos() {
 	    boolean containsFloatingPointValue = this.containsFloatingPoint();
 	    if (containsFloatingPointValue) {
@@ -57,7 +57,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 	        for (int i = (size - 1); i >= 0; i--) {
                 ChannelInfo info = (ChannelInfo) channelInfos.get(i);
                 int id = (size - 1) - i;
-                
+
                 info.setUnit((Unit) units.get((size - 1) - i));
                 //info.setId(id);
                     /*if (wrapValues.size() >= (id + 1)) {
@@ -68,8 +68,8 @@ public class LoggingConfigurationTable extends AbstractTable {
                         info.setCumulativeWrapValue(null);
                     }*/
                 //System.out.println("wrap value: " + wrapValue);
-                
-                
+
+
                 System.out.println("add " + ((ChannelInfo) channelInfos.get(i)).getName()
                         + ", " + ((ChannelInfo) channelInfos.get(i)).getUnit()
                         + ", " + ((ChannelInfo) channelInfos.get(i)).getId()
@@ -81,7 +81,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 	    else
 	        return channelInfos;
 	}
-	
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer("");
         List infos = getChannelInfos();
@@ -97,11 +97,11 @@ public class LoggingConfigurationTable extends AbstractTable {
         }
         return buffer.toString();
 	}
-	
+
 	protected void parse(int value, int id) throws IOException  {
 		if (value == 0)
 			return;
-		ChannelInfo info = 
+		ChannelInfo info =
 			new ChannelInfo(id, "Instromet_" + (id + 1) + "_" + value, getUnit(value));
 		if (wrapValues.size() >= (id + 1)) {
 			BigDecimal wrapValue = (BigDecimal) wrapValues.get(id);
@@ -112,7 +112,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 		channelInfos.add(info);
 		codes.add(new Integer(value));
 	}
-	
+
 	protected boolean containsFloatingPoint() {
 	    int size = codes.size();
 	    for (int i = 0; i < size; i++) {
@@ -121,7 +121,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 	    }
 	    return false;
 	}
-	
+
 	protected boolean isFloatingPoint(int index) { // zero based index!
 		int code = ((Integer) codes.get(index)).intValue();
 		if ((code == PRESSURE) || (code == TEMPERATURE) || (code == CF))
@@ -129,7 +129,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 		else
 			return false;
 	}
-	
+
 	protected Unit getUnit(int value) throws IOException {
         switch (value) {
             case PRESSURE:  return Unit.get("bar");
@@ -147,30 +147,30 @@ public class LoggingConfigurationTable extends AbstractTable {
             //case STATUS_NOW: break;
             //case STATUS_LATCHED: break;
             default: throw new IOException(
-            		"Logging configuration table: Invalid logged data code (" + 
+            		"Logging configuration table: Invalid logged data code (" +
             		value + ")"  + ", not supported");
         }
 	}
-	
+
 	public int getTableType() {
 		return 10;
 	}
-	
+
 	protected void prepareBuild() throws IOException {
 		System.out.println("prepare build logging conf");
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.switchToLoggingConfigurationCommand().invoke();
 		parseStatus(response);
     	readHeaders();
 	}
-	
+
 	protected void doBuild() throws IOException {
 		System.out.println("doBuild logging conf");
-		CommandFactory commandFactory = 
+		CommandFactory commandFactory =
 			getTableFactory().getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.readLogSelectorCommand().invoke();
 		parseStatus(response);
 	    parseWrite(response);

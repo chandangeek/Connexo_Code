@@ -6,23 +6,26 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
  * @author  Koen
  */
 public class CP24Time2a {
-    
+
     private static final int LENGTH=3;
     private static final int MINUTES=0x3F;
-    
+
     Calendar calendar=null;
     boolean inValid=false;
     TimeZone timeZone=null;
-    
+
     /** Creates a new instance of CP24Time2a */
     public CP24Time2a(TimeZone timeZone,byte[] data,int offset) throws IEC870TypeException {
         this.timeZone=timeZone;
@@ -31,18 +34,18 @@ public class CP24Time2a {
         else
             parse(ProtocolUtils.getSubArray(data,offset,(offset+LENGTH)-1));
     }
-    
+
     public Date getDate() {
         return calendar.getTime();
     }
     public int getSeconds() {
         return calendar.get(Calendar.MINUTE)*60+calendar.get(Calendar.SECOND);
     }
-    
+
     public boolean isInValid() {
         return inValid;
     }
-    
+
     private void parse(byte[] data) throws IEC870TypeException {
         try {
             calendar = Calendar.getInstance(timeZone);
@@ -55,9 +58,9 @@ public class CP24Time2a {
             throw new IEC870TypeException("CP24Time2a, parse, IOException, "+e.getMessage());
         }
     }
-    
+
     public String toString() {
         return calendar.getTime().toString();
     }
-       
+
 }

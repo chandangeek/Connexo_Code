@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
+import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocolimpl.eig.nexus1272.command.Command;
-import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 
 public class LimitTriggerLogReader extends AbstractLogReader {
 
@@ -20,7 +20,7 @@ public class LimitTriggerLogReader extends AbstractLogReader {
 	public LimitTriggerLogReader(OutputStream os ,NexusProtocolConnection npc) {
 		outputStream = os;
 		connection = npc;
-		windowIndexAddress = new byte[] {(byte) 0x95, 0x02};;  
+		windowIndexAddress = new byte[] {(byte) 0x95, 0x02};;
 		windowModeAddress = new byte[] {(byte) 0x95, 0x42};
 		windowEndAddress = 38464;
 	}

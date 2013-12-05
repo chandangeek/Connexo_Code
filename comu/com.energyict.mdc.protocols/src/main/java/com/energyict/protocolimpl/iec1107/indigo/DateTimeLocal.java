@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
 
 /**
  *
@@ -21,20 +21,20 @@ public class DateTimeLocal extends DateTime {
     public DateTimeLocal(int id,int size, LogicalAddressFactory laf) throws IOException {
         super(id,size,laf);
     }
-    
+
     public String toString() {
         return "Datetime local="+getDate().toString();
     }
-    
+
     public void parse(byte[] data, java.util.TimeZone timeZone) throws IOException {
        Calendar calendar=ProtocolUtils.getCleanCalendar(timeZone);
        parseDate(data,calendar);
     }
-    
+
     protected byte[] buildData() {
         Calendar calendar=ProtocolUtils.getCleanCalendar(getLogicalAddressFactory().getProtocolLink().getTimeZone());
         calendar.setTime(date);
         return (buildData(calendar));
-    }    
-    
+    }
+
 }

@@ -10,42 +10,43 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import com.energyict.protocolimpl.itron.sentinel.*;
-import com.energyict.protocolimpl.itron.sentinel.logicalid.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
+import com.energyict.protocolimpl.itron.sentinel.Sentinel;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.DataReadDescriptor;
+import com.energyict.protocolimpl.itron.sentinel.logicalid.DataReadFactory;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ManufacturerTableFactory extends TableFactory {
-    
+
     private C12ProtocolLink c12ProtocolLink;
     Sentinel sentinel;
-            
+
     /** Creates a new instance of TableFactory */
     public ManufacturerTableFactory(Sentinel sentinel) {
         this.sentinel = sentinel;
-        
+
     }
-    
+
     // cached tables
-    
+
     public WriteOnlyTable2049 getWriteOnlyTable2049(DataReadDescriptor dataReadDescriptor) throws IOException {
         WriteOnlyTable2049 w = new WriteOnlyTable2049(this);
         w.setDataReadDescriptor(dataReadDescriptor);
         w.transfer();
         return w;
     }
-    
+
     public ReadOnlyTable2050 getReadOnlyTable2050() throws IOException {
         ReadOnlyTable2050 r = new ReadOnlyTable2050(this);
         r.build();
         return r;
     }
-    
+
     public LoadProfileData getLoadProfileDataHeaderOnly(int blockId) throws IOException {
         return getLoadProfileData(blockId, 1, true);
     }
@@ -60,7 +61,7 @@ public class ManufacturerTableFactory extends TableFactory {
         lpd.build();
         return lpd;
     }
-    
+
 
     public C12ProtocolLink getC12ProtocolLink() {
         return (C12ProtocolLink)sentinel;
@@ -70,5 +71,5 @@ public class ManufacturerTableFactory extends TableFactory {
         return sentinel.getDataReadFactory();
     }
 
-    
+
 }

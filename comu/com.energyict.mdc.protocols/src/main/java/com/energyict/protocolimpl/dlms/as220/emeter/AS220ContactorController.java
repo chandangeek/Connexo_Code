@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+
+import java.io.IOException;
 
 /**
  * This class is used to change the contactor state of an AS220 device

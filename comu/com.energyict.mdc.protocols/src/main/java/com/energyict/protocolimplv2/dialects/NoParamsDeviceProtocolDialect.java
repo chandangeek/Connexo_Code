@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.dialects;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,18 +17,13 @@ import java.util.List;
 public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
+    public List<PropertySpec> getPropertySpecs () {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public PropertySpec getPropertySpec (String name) {
         return null;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>(0);
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>(0);
     }
 
     @Override

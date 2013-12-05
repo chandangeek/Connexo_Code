@@ -3,7 +3,8 @@ package com.energyict.genericprotocolimpl.common.pooling;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Provides functionality to create a fullShadow <CODE>Device</CODE> which will contain all necessary information for a protocol to execute his tasks

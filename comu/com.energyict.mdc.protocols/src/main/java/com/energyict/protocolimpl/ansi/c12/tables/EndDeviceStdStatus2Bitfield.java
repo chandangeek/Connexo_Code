@@ -9,33 +9,28 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;   
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class EndDeviceStdStatus2Bitfield {
-    
+
     /** Creates a new instance of EndDeviceStdStatus2Bitfield */
     public EndDeviceStdStatus2Bitfield(byte[] data,int offset,TableFactory tableFactory) throws IOException {
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EndDeviceStdStatus2Bitfield: reserved\n");
         return strBuff.toString();
     }
-  
-    
+
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 1;
-    }      
+    }
 
 }

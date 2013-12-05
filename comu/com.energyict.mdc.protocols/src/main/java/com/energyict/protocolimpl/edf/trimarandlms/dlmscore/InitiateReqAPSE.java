@@ -10,34 +10,34 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.InitiateResponse;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 abstract public class InitiateReqAPSE extends AbstractAPSEPDU {
-    
+
     abstract protected byte[] preparebuildPDU() throws IOException;
     abstract protected void parsePDU(byte[] data) throws IOException;
-    
-    
+
+
     private InitiateRespAPSE initiateRespAPSE=null;
-    
-    
+
+
     /** Creates a new instance of AuthenticationReqAPSE */
     public InitiateReqAPSE(APSEPDUFactory aPSEFactory) {
         super(aPSEFactory);
     }
-    
+
     final int INITIATE_REQ_APSE = 6;
-    
+
     byte[] preparebuild() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write(INITIATE_REQ_APSE);
         baos.write(0x80);
         baos.write(0x40);
@@ -49,7 +49,7 @@ abstract public class InitiateReqAPSE extends AbstractAPSEPDU {
         baos.write(preparebuildPDU());
         return baos.toByteArray();
     }
-    
+
     void parse(byte[] data) throws IOException {
         setInitiateRespAPSE(new InitiateResponse(getAPSEFactory().getProtocolLink().getDLMSPDUFactory()));
         getInitiateRespAPSE().parse(data);

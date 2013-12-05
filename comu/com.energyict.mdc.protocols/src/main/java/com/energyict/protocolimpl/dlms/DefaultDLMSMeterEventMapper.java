@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.List;
@@ -23,10 +23,10 @@ public abstract class DefaultDLMSMeterEventMapper implements DLMSMeterEventMappe
                 0
         );
     }
-    
+
     protected abstract int getEisEventCode(final int meterEventCode);
-    
+
     protected abstract String getEventMessage(final int meterEventCode);
-    
-    
+
+
 }

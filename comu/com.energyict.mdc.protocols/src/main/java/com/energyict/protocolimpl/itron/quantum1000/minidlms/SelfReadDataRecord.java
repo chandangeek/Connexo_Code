@@ -10,17 +10,22 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
  * @author Koen
  */
 public class SelfReadDataRecord {
-    
-    
+
+
     private int reasonForTrigger; // UNSIGNED16,
     private int year; // BYTE,
     private int month; // BYTE,
@@ -51,11 +56,11 @@ public class SelfReadDataRecord {
         cal.set(Calendar.MINUTE, getMinute());
         cal.set(Calendar.SECOND, getSecond());
         setDate(cal.getTime());
-        
+
         for (int i=0;i<selfReadRegisterConfiguration.getSelfReadRegisterConfigurationTypes().length;i++) {
-            
+
             SelfReadRegisterConfigurationType srct = selfReadRegisterConfiguration.getSelfReadRegisterConfigurationTypes()[i];
-            
+
             setFreezeRegisterDatas(new ArrayList());
             if (srct.isSelfReadDemandRegisterType()) {
                 getFreezeRegisterDatas().add(new SelfReadDemandRegister(data,offset, timeZone));
@@ -65,12 +70,12 @@ public class SelfReadDataRecord {
                 offset+=SelfReadEnergyRegister.size();
             } else throw new IOException("SelfReadDataRecord, size, invalid selfReadRegisterConfigurationType "+srct);
         } // for (int i=0;i<selfReadRegisterConfiguration.getSelfReadRegisterConfigurationTypes().length;i++)
-        
-        
+
+
         setChecksum(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -82,7 +87,7 @@ public class SelfReadDataRecord {
         strBuff.append("   checksum="+getChecksum()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size(SelfReadRegisterConfiguration selfReadRegisterConfiguration) throws IOException {
         int size=0;
         for (int i=0;i<selfReadRegisterConfiguration.getSelfReadRegisterConfigurationTypes().length;i++) {
@@ -95,77 +100,77 @@ public class SelfReadDataRecord {
         }
         return size+10;
     }
-    
+
     public int getReasonForTrigger() {
         return reasonForTrigger;
     }
-    
+
     public void setReasonForTrigger(int reasonForTrigger) {
         this.reasonForTrigger = reasonForTrigger;
     }
-    
+
     public int getYear() {
         return year;
     }
-    
+
     public void setYear(int year) {
         this.year = year;
     }
-    
+
     public int getMonth() {
         return month;
     }
-    
+
     public void setMonth(int month) {
         this.month = month;
     }
-    
+
     public int getDay() {
         return day;
     }
-    
+
     public void setDay(int day) {
         this.day = day;
     }
-    
+
     public int getHour() {
         return hour;
     }
-    
+
     public void setHour(int hour) {
         this.hour = hour;
     }
-    
+
     public int getMinute() {
         return minute;
     }
-    
+
     public void setMinute(int minute) {
         this.minute = minute;
     }
-    
+
     public int getSecond() {
         return second;
     }
-    
+
     public void setSecond(int second) {
         this.second = second;
     }
-    
-    
-    
+
+
+
     public int getChecksum() {
         return checksum;
     }
-    
+
     public void setChecksum(int checksum) {
         this.checksum = checksum;
     }
-    
+
     public Date getDate() {
         return date;
     }
-    
+
     public void setDate(Date date) {
         this.date = date;
     }
@@ -177,7 +182,7 @@ public class SelfReadDataRecord {
     public void setFreezeRegisterDatas(List freezeRegisterDatas) {
         this.freezeRegisterDatas = freezeRegisterDatas;
     }
-    
-    
-    
+
+
+
 }

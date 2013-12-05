@@ -1,19 +1,21 @@
 package com.energyict.protocols.mdc.channels.ip.datagrams;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
+import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for UDP.
+ * Provides an implementation for the {@link ConnectionType} interface for UDP.
  * <p/>
  * Copyrights EnergyICT
  * Date: 9/11/12
@@ -43,9 +45,9 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
-        for (ConnectionTaskProperty property : properties) {
-            if(property.getValue() != null){
+    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
+        for (ConnectionProperty property : properties) {
+            if (property.getValue() != null) {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
@@ -58,19 +60,13 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        final List<PropertySpec> allRequiredProperties = super.getRequiredProperties();
-        allRequiredProperties.add(this.bufferSizePropertySpec());
-        return allRequiredProperties;
+    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
+        super.addPropertySpecs(propertySpecs);
+        propertySpecs.add(this.bufferSizePropertySpec());
     }
 
     private PropertySpec bufferSizePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(BUFFER_SIZE_NAME);
-    }
-
-    @Override
-    public boolean isRequiredProperty(String name) {
-        return super.isRequiredProperty(name) || BUFFER_SIZE_NAME.equals(name);
+        return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(BUFFER_SIZE_NAME);
     }
 
     @Override
@@ -89,4 +85,5 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     public String getVersion() {
         return "$Date: 2013-04-12 15:03:44 +0200 (vr, 12 apr 2013) $";
     }
+
 }

@@ -1,15 +1,18 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.Code;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
@@ -921,7 +924,7 @@ public class ObjectFactory {
         return createCommonRegister(registerValue, getAce4000().getDeviceIdentifier());
     }
 
-    private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
+    private CollectedRegister createCommonRegister(RegisterValue registerValue, CanFindDevice deviceIdentifier) {
         //TODO should this be max demand register?
         CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), deviceIdentifier));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
@@ -1029,7 +1032,7 @@ public class ObjectFactory {
         return meter.getTime();
     }
 
-    public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
+    public CollectedLogBook getDeviceLogBook(CanFindLogBook identifier) {
         CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(identifier);
         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
         return deviceLogBook;

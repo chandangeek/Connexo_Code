@@ -2,9 +2,9 @@ package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.device.data.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.ProtocolMessages;

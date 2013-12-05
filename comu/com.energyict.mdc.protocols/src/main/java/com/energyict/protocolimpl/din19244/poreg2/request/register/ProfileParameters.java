@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
-import com.energyict.protocolimpl.din19244.poreg2.core.*;
+import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
+import com.energyict.protocolimpl.din19244.poreg2.core.RegisterDataParser;
+import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
 
 import java.io.IOException;
 import java.util.ArrayList;

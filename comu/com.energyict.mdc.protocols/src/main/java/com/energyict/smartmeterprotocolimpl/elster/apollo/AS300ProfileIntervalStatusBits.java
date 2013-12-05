@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.protocol.device.data.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.util.HashMap;
@@ -30,10 +30,10 @@ public class AS300ProfileIntervalStatusBits implements ProfileIntervalStatusBits
     }
 
     /**
-     * Convert the given protocolStatus code to a proper EIS {@link com.energyict.protocol.IntervalStateBits}
+     * Convert the given protocolStatus code to a proper EIS {@link IntervalStateBits}
      *
      * @param protocolStatusCode the statusCode from the device
-     * @return the status code according to the {@link com.energyict.protocol.IntervalStateBits}
+     * @return the status code according to the {@link IntervalStateBits}
      */
     public int getEisStatusCode(int protocolStatusCode) {
         int eiCode = 0;

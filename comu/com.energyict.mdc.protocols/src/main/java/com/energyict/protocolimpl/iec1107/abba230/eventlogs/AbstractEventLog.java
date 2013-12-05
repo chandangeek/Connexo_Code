@@ -1,15 +1,17 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
-import java.io.IOException;
-import java.util.*;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
-import com.energyict.protocol.MeterEvent;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 
 abstract public class AbstractEventLog {
-    
+
 	TimeZone timeZone;
 	List meterEvents=new ArrayList();
-	
+
 	public AbstractEventLog(TimeZone timeZone) throws IOException {
         this.timeZone=timeZone;
     }

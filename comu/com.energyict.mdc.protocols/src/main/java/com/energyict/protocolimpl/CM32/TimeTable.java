@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.CM32;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.Date;
 
-import com.energyict.protocol.ProtocolUtils;
-
 public class TimeTable {
-	
+
 	private CM32 cm32Protocol;
     private Date time;
-	
+
 	public TimeTable(CM32 cm32Protocol) {
 		this.cm32Protocol = cm32Protocol;
 	}
-	
-	
+
+
 	public void parse(byte[] data) {
 		Calendar c = ProtocolUtils.getCalendar(cm32Protocol.getTimeZone());
 		int sec = data[0];
@@ -32,7 +32,7 @@ public class TimeTable {
         c.set( Calendar.SECOND, sec);
         this.time = c.getTime();
 	}
-	
+
 	public Date getTime() {
 		return time;
 	}

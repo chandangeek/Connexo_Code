@@ -6,16 +6,15 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class IEC870Frame {
-    
+
     // from primary station
     static public final int CONTROL_SEND_CONFIRM_RESET_REMOTE_LINK = 0;
     static public final int CONTROL_SEND_CONFIRM_RESET_USER_PROCESS = 1;
@@ -27,24 +26,24 @@ public class IEC870Frame {
     static public final int CONTROL_REQUEST_RESPOND_CLASS1 = 10;
     static public final int CONTROL_REQUEST_RESPOND_CLASS2 = 11;
     final int[] CLIENT_CONTROL_FCV={0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0};
-    
+
     // from secondary station
     static public final int CONTROL_CONFIRM_ACK=0;
     static public final int CONTROL_CONFIRM_NACK=1;
     static public final int CONTROL_RESPOND_USER_DATA=8;
     static public final int CONTROL_RESPOND_NACK=9;
     static public final int CONTROL_RESPOND_STATUS_LINK=11;
-    
-    
+
+
     private static final int PRM_PRIMARY=0x40;
     private static final int FCV_PRIMARY=0x10;
     private static final int FCB_PRIMARY=0x20;
-    
+
     //final int[] CLIENT_CONTROL_FILTER={1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1};
     //final int[] SERVER_CONTROL_FILTER={1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1};
     private static final int[] CLIENT_CONTROL_FILTER={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     private static final int[] SERVER_CONTROL_FILTER={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-    
+
     final String[] FROM_CLIENT = {"SEND/CONFIRM expected, Reset of remote link",
     "SEND/CONFIRM expected, Reset of user process",
     "SEND/CONFIRM expected, Reserved for balanced transmission procedure",
@@ -61,7 +60,7 @@ public class IEC870Frame {
     "Reserved",
     "Reserved",
     "Reserved"};
-    
+
     final String[] FROM_SERVER = {"CONFIRM, ACK: positive acknowledge",
     "CONFIRM, NACK: message not accepted, link busy",
     "Reserved",
@@ -78,19 +77,19 @@ public class IEC870Frame {
     "Reserved for special use by agreement",
     "Link service not functioning",
     "Link service not implemented"};
-    
-    
+
+
     static public final int FRAME_VARIABLE_LENGTH=0x68;
     static public final int FRAME_FIXED_LENGTH=0x10;
     static public final int FRAME_SINGLE_CHAR_E5=0xE5;
     static public final int FRAME_SINGLE_CHAR_A2=0xA2;
     static public final int FRAME_END=0x16;
-    
+
     static public final int VARIABLE_FRAME_HEADER_LENGTH=4;
     static public final int VARIABLE_FRAME_TAIL_LENGTH=2;
     static public final int FIXED_FRAME_HEADER_LENGTH=1;
     static public final int FIXED_FRAME_TAIL_LENGTH=2;
-    
+
     int type=-1;
     int control=-1;
     int address=-1;
@@ -98,7 +97,7 @@ public class IEC870Frame {
     IEC870ASDU asdu=null;
     byte[] data=null;
     //int checksum;
-    
+
     /** Creates a new instance of IEC870Frame */
     public IEC870Frame(int function,int address,IEC870ASDU asdu) throws IEC870ConnectionException {
         this(FRAME_VARIABLE_LENGTH,function,address,asdu.getData().length+3,asdu);
@@ -114,13 +113,13 @@ public class IEC870Frame {
         if (CLIENT_CONTROL_FCV[function] == 1)
             this.control |= FCV_PRIMARY;
         this.address=address;
-        if (asdu != null) 
+        if (asdu != null)
             this.length=asdu.getData().length+3;
         else
             this.length=length;
         this.asdu=asdu;
     }
-    
+
     /** Creates a new instance of IEC870Frame */
     public IEC870Frame(byte[] data) throws IEC870ConnectionException {
         this.data=data;
@@ -133,19 +132,19 @@ public class IEC870Frame {
             case IEC870Frame.FRAME_VARIABLE_LENGTH:
                 buildVariableLengthFrame(data);
                 break; // FRAME_VARIABLE_LENGTH
-                
+
             case IEC870Frame.FRAME_FIXED_LENGTH:
                 buildFixedLengthFrame(data);
                 break; // FRAME_FIXED_LENGTH
-                
+
             case IEC870Frame.FRAME_SINGLE_CHAR_E5:
             case IEC870Frame.FRAME_SINGLE_CHAR_A2:
                 break; // FRAME_SINGLE_CHAR_A2
-                
+
             default: throw new IEC870ConnectionException("Invalid frame format (type) (start character) "+Integer.toHexString(type));
         } // switch(type)
     } // public IEC870Frame(byte[] data)
-    
+
     public boolean toggleFCB(boolean fcb) {
         if ((fcb) || (!isFCV())) {
             resetFCB();
@@ -162,12 +161,12 @@ public class IEC870Frame {
     public void resetFCB() {
         control &= (FCB_PRIMARY^0xFF);
     }
-    
+
     public byte[] getData() throws IEC870ConnectionException {
         buildData();
         return data;
     }
-    
+
     public boolean isSingleCharAck() {
         return (type == FRAME_SINGLE_CHAR_E5);
     }
@@ -186,7 +185,7 @@ public class IEC870Frame {
     public IEC870ASDU getASDU() {
         return asdu;
     }
-    
+
     public boolean isClient() {
         return (control & 0x40) != 0;
     }
@@ -211,7 +210,7 @@ public class IEC870Frame {
     public boolean isDFC() {
         return (control & 0x10) != 0;
     }
-    
+
     public String getFrameInfo(int i) {
         String strControl=null;
         String strasdu=null;
@@ -231,33 +230,33 @@ public class IEC870Frame {
         }
         return strControl;
     }
-    
+
     public String toString() {
         return toString(TimeZone.getDefault());
     }
-    
+
     public String toString(TimeZone timeZone) {
         return toString(-1,timeZone);
     }
-    
+
     public String toString(int info, TimeZone timeZone) {
         StringBuffer strbuff = new StringBuffer();
         String strControl=null;
         if (((isClient()) && (CLIENT_CONTROL_FILTER[getFunction()] == 1)) ||
         ((isServer()) && (SERVER_CONTROL_FILTER[getFunction()] == 1))) {
-            
+
             if (info != -1)
                 strbuff.append("****************************** IEC870 FRAME "+info+" ********************************\r\n");
             else
                 strbuff.append("****************************** IEC870 FRAME ********************************\r\n");
-            
+
             if (isClient()) {
                 strControl="------->CLIENT: "+FROM_CLIENT[getFunction()]+" FCV="+isFCV()+" FCB="+isFCB();
             }
             else if (isServer()) {
                 strControl="<-------SERVER: "+FROM_SERVER[getFunction()]+" ACD="+isACD()+" DFC="+isDFC();
             }
-            
+
             if ((type == IEC870Frame.FRAME_SINGLE_CHAR_E5) || (type == IEC870Frame.FRAME_SINGLE_CHAR_A2))
                 strbuff.append("type=0x"+Integer.toHexString(type)+" (Single character)"+"\r\n");
             else {
@@ -268,22 +267,22 @@ public class IEC870Frame {
                     strbuff.append("type=0x"+Integer.toHexString(type)+", control=0x"+Integer.toHexString(control)+" ("+strControl+") , address=0x"+Integer.toHexString(address)+"\r\n");
                 }
             }
-            
+
             if (asdu != null) strbuff.append(asdu.toString(timeZone));
             strbuff.append("\r\n");
         }
         return strbuff.toString();
     }
-    
+
     private void buildVariableLengthFrame(byte[] data) throws IEC870ConnectionException {
         length = ProtocolUtils.getByte2Int(data,1);
         control = ProtocolUtils.getByte2Int(data,4);
         address = ProtocolUtils.getShortLE(data,5);
         asdu = new IEC870ASDU(ProtocolUtils.getSubArray(data,7,data.length-3));
         //checksum = ProtocolUtils.getByte2Int(data,data.length-VARIABLE_FRAME_TAIL_LENGTH);
-        
+
     } // private void buildVariableLengthFrame(byte[] data)
-    
+
     private void buildFixedLengthFrame(byte[] data) throws IEC870ConnectionException {
         length = 3;
         control = ProtocolUtils.getByte2Int(data,1);
@@ -293,7 +292,7 @@ public class IEC870Frame {
             asdu = new IEC870ASDU(ProtocolUtils.getSubArray(data,4,data.length-3));
         //checksum = ProtocolUtils.getByte2Int(data,data.length-FIXED_FRAME_TAIL_LENGTH);
     } // private void buildFixedLengthFrame(byte[] data)
-    
+
     private void buildData() throws IEC870ConnectionException {
         int i,checksum=0;
         switch(type) {
@@ -309,13 +308,13 @@ public class IEC870Frame {
                 checksum += (int)data[4]&0xFF;
                 checksum += (int)data[5]&0xFF;
                 checksum += (int)data[6]&0xFF;
-                
+
                 for (i=0;i<(length-3);i++) {
                     data[7+i] = asdu.getData()[i];
                     checksum += (int)asdu.getData()[i] & 0xFF;
                 }
                 break; // FRAME_VARIABLE_LENGTH
-                
+
             case IEC870Frame.FRAME_FIXED_LENGTH:
                 data = new byte[length+FIXED_FRAME_HEADER_LENGTH+FIXED_FRAME_TAIL_LENGTH];
                 data[0] = (byte)type;
@@ -326,14 +325,14 @@ public class IEC870Frame {
                 checksum += (int)data[2]&0xFF;
                 checksum += (int)data[3]&0xFF;
                 break; // FRAME_FIXED_LENGTH
-                
+
             default: throw new IEC870ConnectionException("IEC870Frame, buildData, Invalid frame format (type) (start character) "+Integer.toHexString(type));
         } // switch(type)
-        
+
         data[data.length-2] = (byte)checksum;
         data[data.length-1] = FRAME_END;
     } // buildData()
-    
+
     public static void main(String[] args) {
         try {
             IEC870Frame frame = new IEC870Frame(IEC870Frame.CONTROL_SEND_CONFIRM_RESET_REMOTE_LINK,0xFFFF);
@@ -342,8 +341,8 @@ public class IEC870Frame {
         catch(IEC870ConnectionException e) {
             e.printStackTrace();
         }
-        
+
     }
-    
-    
+
+
 } // public class IEC870Frame

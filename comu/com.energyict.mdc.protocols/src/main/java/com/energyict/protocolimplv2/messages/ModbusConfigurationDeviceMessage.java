@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,17 +17,17 @@ import java.util.List;
  */
 public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SetMmEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmEveryAttributeName)),
-    SetMmTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmTimeoutAttributeName)),
-    SetMmInstant(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmInstantAttributeName)),
-    SetMmOverflow(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmOverflowAttributeName)),
-    SetMmConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmConfigAttributeName)),
-    WriteSingleRegisters(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName)),
-    WriteMultipleRegisters(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName));
+    SetMmEvery(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetMmEveryAttributeName)),
+    SetMmTimeout(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetMmTimeoutAttributeName)),
+    SetMmInstant(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetMmInstantAttributeName)),
+    SetMmOverflow(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetMmOverflowAttributeName)),
+    SetMmConfig(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetMmConfigAttributeName)),
+    WriteSingleRegisters(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName)),
+    WriteMultipleRegisters(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
+            RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MODBUS_CONFIGURATION;
 

@@ -10,34 +10,36 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*; 
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.vectron.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  *
  * @author Koen
  */
 public class RegisterConfigurationBasePage extends AbstractBasePage {
-    
-/*    
+
+/*
 1D98 - Register 1, rate E mapping
 1D99 - Register 1, TOU mapping
 1D9A - Register 2, rate E mapping
 1D9B - Register 2, TOU mapping
 1D9C - Register 3, rate E mapping
-1D9D - Register 4, rate E mapping    
-*/   
+1D9D - Register 4, rate E mapping
+*/
 
-    
+
     static List list = new ArrayList();
     static {
-        list.add(new RegisterConfig(0,null,null, -1)); 
-        list.add(new RegisterConfig(1,Unit.get("kWh"),"watthour energy", 1));
+        list.add(new RegisterConfig(0,null,null, -1));
+        list.add(new RegisterConfig(1, Unit.get("kWh"),"watthour energy", 1));
         list.add(new RegisterConfig(2,Unit.get("kvarh"),"reactive lagging energy", 5));
         list.add(new RegisterConfig(3,Unit.get("kvarh"),"reactive leading energy", 8));
         list.add(new RegisterConfig(4,Unit.get("kVAh"),"apparent lagging energy",9));
@@ -47,21 +49,21 @@ public class RegisterConfigurationBasePage extends AbstractBasePage {
         list.add(new RegisterConfig(8,Unit.get("kVA"),"apparent lagging demand",9));
         list.add(new RegisterConfig(9,Unit.get("kVA"),"apparent total demand",9));
     }
-    
+
     private RegisterConfig register1RateEMapping;
     private RegisterConfig register1TOUMapping;
     private RegisterConfig register2RateEMapping;
     private RegisterConfig register2TOUMapping;
     private RegisterConfig register3RateEMapping;
     private RegisterConfig register4RateEMapping;
-    
 
-    
+
+
     /** Creates a new instance of RealTimeBasePage */
     public RegisterConfigurationBasePage(BasePagesFactory basePagesFactory) {
         super(basePagesFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -73,8 +75,8 @@ public class RegisterConfigurationBasePage extends AbstractBasePage {
         strBuff.append("   register3RateEMapping="+getRegister3RateEMapping()+"\n");
         strBuff.append("   register4RateEMapping="+getRegister4RateEMapping()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
 
     private RegisterConfig findRegisterConfig(int id) throws IOException {
         Iterator it = list.iterator();
@@ -83,13 +85,13 @@ public class RegisterConfigurationBasePage extends AbstractBasePage {
             if (rc.getId()==id)
                 return rc;
         }
-        throw new IOException("RegisterConfigurationBasePage, invalid id "+id); 
+        throw new IOException("RegisterConfigurationBasePage, invalid id "+id);
     }
-    
+
     protected BasePageDescriptor preparebuild() throws IOException {
         return new BasePageDescriptor(0x1D98,6);
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
         setRegister1RateEMapping(findRegisterConfig(ProtocolUtils.getInt(data,offset++,1)));
@@ -148,5 +150,5 @@ public class RegisterConfigurationBasePage extends AbstractBasePage {
         this.register4RateEMapping = register4RateEMapping;
     }
 
-        
+
 } // public class RealTimeBasePage extends AbstractBasePage

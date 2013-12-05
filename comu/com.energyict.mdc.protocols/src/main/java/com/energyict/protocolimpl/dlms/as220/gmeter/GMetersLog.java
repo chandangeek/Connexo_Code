@@ -3,55 +3,57 @@ package com.energyict.protocolimpl.dlms.as220.gmeter;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.device.events.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class GMetersLog {
 
 	private DataContainer dcEvents;
-	
+
 	// Mbus log
 	private static final int MBUS1_REPLACE_BATTERY = 102;
 	private static final int MBUS2_REPLACE_BATTERY = 112;
 	private static final int MBUS3_REPLACE_BATTERY = 122;
 	private static final int MBUS4_REPLACE_BATTERY = 132;
-	
+
 	private static final int MBUS1_FRAUD_ATTEMPT = 103;
 	private static final int MBUS2_FRAUD_ATTEMPT = 113;
 	private static final int MBUS3_FRAUD_ATTEMPT = 123;
 	private static final int MBUS4_FRAUD_ATTEMPT = 133;
-	
+
 	private static final int MBUS1_CLOCK_ADJUST_FAILED = 104;
 	private static final int MBUS2_CLOCK_ADJUST_FAILED = 114;
 	private static final int MBUS3_CLOCK_ADJUST_FAILED = 124;
 	private static final int MBUS4_CLOCK_ADJUST_FAILED = 134;
-	
+
 	private static final int MBUS1_PERMANENT_ERROR = 105;
 	private static final int MBUS2_PERMANENT_ERROR = 115;
 	private static final int MBUS3_PERMANENT_ERROR = 125;
 	private static final int MBUS4_PERMANENT_ERROR = 135;
-	
+
 	private static final int MBUS1_VALVE_ALARM = 164;
 	private static final int MBUS2_VALVE_ALARM = 174;
 	private static final int MBUS3_VALVE_ALARM = 184;
 	private static final int MBUS4_VALVE_ALARM = 194;
-	
-	
+
+
 	/**
 	 * Default constructor
-	 * @param dc 
+	 * @param dc
 	 */
 	public GMetersLog(DataContainer dc){
 		this.dcEvents = dc;
 	}
-	
+
 	/**
 	 * Build up a list of MeterEvents
-	 * 
+	 *
 	 * @return the list of MeterEvents
-	 * 
+	 *
 	 * @throws IOException if constructing the dateTime failed
 	 */
 	public List<MeterEvent> getMeterEvents() throws IOException{
@@ -72,18 +74,18 @@ public class GMetersLog {
 
 	/**
 	 * Add an event to the global eventList
-	 * 
-	 * @param meterEvents 
+	 *
+	 * @param meterEvents
 	 * 				- the global eventList
-	 * 
+	 *
 	 * @param eventTimeStamp
 	 * 				- the timestamp from the event
-	 * 
+	 *
 	 * @param eventId
 	 * 				- the eventId from the device
 	 */
 	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-		
+
 		switch(eventId){
 		case MBUS1_REPLACE_BATTERY : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "MBus 1 Battery LOW"));}break;
 		case MBUS1_FRAUD_ATTEMPT : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TAMPER, eventId, "Mbus 1 Fraud attempt"));}break;
@@ -109,7 +111,7 @@ public class GMetersLog {
 		case MBUS4_PERMANENT_ERROR : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.FATAL_ERROR, eventId, "MBus 4 Permanent Error"));}break;
 		case MBUS4_VALVE_ALARM : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.HARDWARE_ERROR, eventId, "MBus 4 Valve alarm"));}break;
 
-		
+
 		default:{
 			meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
 		}break;
@@ -119,6 +121,6 @@ public class GMetersLog {
 	private boolean isOctetString(Object element) {
 		return (element instanceof com.energyict.dlms.OctetString)?true:false;
 	}
-	
+
 
 }

@@ -5,28 +5,36 @@
  */
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
-import java.io.*;
-import java.util.*;
+
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+
+import java.io.IOException;
 import java.math.BigDecimal;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
  */
 public class HistorySeriesRead extends AbstractDataReadingCommand {
-    
+
     private static final int DEBUG=0;
-    
+
     LoadProfileDataBlock loadProfileDataBlock=null;
     int nrOfIntervals=0;
-    
+
     /** Creates a new instance of HistorySeriesRead */
     public HistorySeriesRead(DataReadingCommandFactory drcf) {
         super(drcf);
     }
-    
+
     public void parse(byte[] data, TimeZone timeZone) throws java.io.IOException {
         int pos=0;
         Date firstStartingDate=null;
@@ -45,7 +53,7 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
                     firstStartingDate = dp.parseDateTime(str.substring(str.indexOf(',')+1));
                     profileInterval=Integer.parseInt(str.substring(0,str.indexOf(',')))*60;
                     if (profileInterval != getDataReadingCommandFactory().getEnermet().getProfileInterval())
-                         throw new IOException("HistorySeriesRead, parse, DataParseException, error different profileInterval bewteen meter ("+profileInterval+") and configured ("+getDataReadingCommandFactory().getEnermet().getProfileInterval()+")");                    
+                         throw new IOException("HistorySeriesRead, parse, DataParseException, error different profileInterval bewteen meter ("+profileInterval+") and configured ("+getDataReadingCommandFactory().getEnermet().getProfileInterval()+")");
                 }
                 else {
                     int status;
@@ -62,11 +70,11 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
                         }
                         else
                             bd = new BigDecimal(str2);
-                        
+
                         Unit unit = Unit.get(str.split("\\*")[1]);
                         loadProfileEntries.add(new LoadProfileEntry(new Quantity(bd,unit),status));
                     }
-                    
+
                 }
             } // for (pos=0;pos<nrOfIntervals;pos++)
         }
@@ -75,7 +83,7 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         }
         loadProfileDataBlock = new LoadProfileDataBlock(firstStartingDate,loadProfileEntries,profileInterval);
     }
-    
+
     /**
      * Getter for property loadProfile.
      * @return Value of property loadProfile.
@@ -88,7 +96,7 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         int nrOfIntervalsPerDay = (24*3600) / profileInterval;
         return getLoadProfileDataBlock(from, nrOfIntervalsPerDay, channel);
     }
-    
+
     public LoadProfileDataBlock getLoadProfileDataBlock(Date from,int nrOfIntervals, int channel) throws IOException {
         this.nrOfIntervals=nrOfIntervals;
 //        Calendar cal = ProtocolUtils.getCleanCalendar(TimeZoneManager.getTimeZone("GMT"));
@@ -102,14 +110,14 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
         cal.get(Calendar.HOUR_OF_DAY)+","+
         cal.get(Calendar.MINUTE)+","+
         cal.get(Calendar.SECOND));
-        
+
         return getLoadProfileDataBlock();
     }
-    
+
     public String toString() {
         return getLoadProfileDataBlock().toString();
     }
-    
+
     /**
      * Getter for property loadProfileDataBlock.
      * @return Value of property loadProfileDataBlock.
@@ -117,6 +125,6 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
     private LoadProfileDataBlock getLoadProfileDataBlock() {
         return loadProfileDataBlock;
     }
-    
-    
+
+
 }

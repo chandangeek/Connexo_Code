@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 
 class InChnlCntrlRcd {
 
@@ -17,7 +17,7 @@ class InChnlCntrlRcd {
         iccr.xfmrRatio = assembly.doubleValue();
         return iccr;
     }
-    
+
     int getForm() {
         return form;
     }
@@ -29,7 +29,7 @@ class InChnlCntrlRcd {
     int getUnitOfMeas() {
         return unitOfMeas;
     }
-    
+
     Unit getUnit() {
         return UnitOfMeasureCode.get( unitOfMeas ).getUnit();
     }
@@ -37,7 +37,7 @@ class InChnlCntrlRcd {
     double getXfmrRatio() {
         return xfmrRatio;
     }
-    
+
     public String toString(){
         return new StringBuffer()
         .append( "InChnlCntrlRcd [ " )

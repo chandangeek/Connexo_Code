@@ -4,7 +4,9 @@ import com.energyict.genericprotocolimpl.edmi.mk10.parsers.MK10OutputStreamParse
 import com.energyict.protocol.tools.OutputStreamDecorator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
