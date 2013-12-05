@@ -90,17 +90,10 @@ public class MeterActivationImpl implements MeterActivation {
 	
 	@Override
 	public List<Channel> getChannels() {
-		return getChannels(true);
-	}
+        return Collections.unmodifiableList(doGetChannels());
+    }
 
-	private List<Channel> getChannels(boolean protect) {
-		if (channels == null) {
-			channels = Bus.getOrmClient().getChannelFactory().find("meterActivation",this);
-		}
-		return protect ? Collections.unmodifiableList(channels) : channels;
-	}
-	
-	@Override
+    @Override
 	public Date getStart() {
 		return interval.getStart();
 	}
@@ -114,11 +107,19 @@ public class MeterActivationImpl implements MeterActivation {
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
 		//TODO: check for duplicate channel
         Channel channel = Bus.getChannelBuilder().meterActivation(this).readingTypes(main, readingTypes).build();
-        getChannels(false).add(channel);
+        List<Channel> result = doGetChannels();
+        result.add(channel);
         return channel;
 	}
 
-	@Override
+    private List<Channel> doGetChannels() {
+        if (channels == null) {
+            channels = Bus.getOrmClient().getChannelFactory().find("meterActivation", this);
+        }
+        return channels;
+    }
+
+    @Override
 	public List<ReadingType> getReadingTypes() {
         ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
 		for (Channel channel : getChannels()) {
