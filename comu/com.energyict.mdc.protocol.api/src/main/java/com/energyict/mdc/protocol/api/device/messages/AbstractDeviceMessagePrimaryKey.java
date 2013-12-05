@@ -16,7 +16,7 @@ public abstract class AbstractDeviceMessagePrimaryKey {
      * @param dirtyClassName the className containing inner-class enum rubbish
      * @return the <i>cleanClassName</i> where we can perform working <code>Class.forName(cleanClassName)</code> on
      */
-    protected String cleanUpClassName(String dirtyClassName) {
+    public String cleanUpClassName (String dirtyClassName) {
         String[] parts = dirtyClassName.split(DOLLAR_REGEX);
         if (isGivenStringNumeric(parts[parts.length - 1])) {
             return dirtyClassName.substring(0, dirtyClassName.lastIndexOf(DOLLAR_SIGN));
@@ -25,7 +25,7 @@ public abstract class AbstractDeviceMessagePrimaryKey {
         }
     }
 
-    protected boolean isGivenStringNumeric(String possibleInt) {
+    public boolean isGivenStringNumeric (String possibleInt) {
         if (possibleInt != null) {
             try {
                 Double.parseDouble(possibleInt);
