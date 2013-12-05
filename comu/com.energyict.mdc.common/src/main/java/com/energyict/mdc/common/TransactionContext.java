@@ -2,6 +2,8 @@ package com.energyict.mdc.common;
 
 import com.elster.jupiter.transaction.TransactionService;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -11,9 +13,12 @@ public class TransactionContext {
 
     private int nestCount = 0;
     private JmsSessionContext jmsSessionContext;
+    private DataSource dataSource;
+    private Connection connection;
 
-    public TransactionContext () {
+    public TransactionContext (DataSource dataSource) {
         super();
+        this.dataSource = dataSource;
     }
 
     public boolean begin () throws SQLException {
@@ -83,6 +88,7 @@ public class TransactionContext {
                 throw new DatabaseException(e);
             }
         }
+        this.closeConnection();
     }
 
     public boolean isFinished () {
@@ -94,6 +100,16 @@ public class TransactionContext {
             jmsSessionContext = new JmsSessionContext();
         }
         return jmsSessionContext;
+    }
+
+    public Connection getConnection () {
+        if (!this.isFinished()) {
+            return this.connection;
+        }
+        else {
+            this.obtainConnection();
+            return this.connection;
+        }
     }
 
     public <T> T execute (Transaction<T> transaction, TransactionService transactionService, TransactionResource resource) throws SQLException, BusinessException {
@@ -119,6 +135,7 @@ public class TransactionContext {
         if (this.nestCount == 1) {
             // Top level transaction
             try {
+                this.obtainConnection();
                 return transactionService.execute(new com.elster.jupiter.transaction.Transaction<T>() {
                     @Override
                     public T perform () {
@@ -132,14 +149,7 @@ public class TransactionContext {
                             throw new RuntimeSQLException(e);
                         }
                         finally {
-                            try {
-                                /* Close the Jupiter connection that was created
-                                 * for the purpose of this transaction. */
-                                Environment.DEFAULT.get().getConnection().close();
-                            }
-                            catch (SQLException e) {
-                                throw new RuntimeSQLException(e);
-                            }
+                            closeConnection();
                         }
                     }
                 });
@@ -154,6 +164,27 @@ public class TransactionContext {
         else {
             // Nested transaction
             return transaction.doExecute();
+        }
+    }
+
+    private void obtainConnection () {
+        try {
+            this.connection = this.dataSource.getConnection();
+        }
+        catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    private void closeConnection () {
+        try {
+            /* Close the Jupiter connection that was created
+             * for the purpose of this transaction. */
+            this.connection.close();
+            this.connection = null;
+        }
+        catch (SQLException e) {
+            throw new RuntimeSQLException(e);
         }
     }
 

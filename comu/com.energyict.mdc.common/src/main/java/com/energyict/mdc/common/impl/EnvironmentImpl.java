@@ -187,12 +187,14 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public void closeConnection () {
-        close();
+        if (!this.isInTransaction()) {
+            this.getTransactionContext().close(this.getEventManager());
+        }
     }
 
     @Override
     public void close () {
-        this.transactionContextHolder.get().close(this.getEventManager());
+        this.closeConnection();
         this.transactionContextHolder.remove();
         if (this.eventManagerHolder != null) {
             this.eventManagerHolder.remove();
@@ -207,12 +209,7 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public Connection getConnection () {
-        try {
-            return this.getDataSource().getConnection();
-        }
-        catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
+        return this.getTransactionContext().getConnection();
     }
 
     @Override
@@ -387,7 +384,7 @@ public class EnvironmentImpl implements Environment {
     }
 
     private TransactionContext newTransactionContext () {
-        return new TransactionContext();
+        return new TransactionContext(this.dataSource);
     }
 
     @Override
