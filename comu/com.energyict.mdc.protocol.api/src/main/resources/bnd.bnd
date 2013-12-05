@@ -11,5 +11,6 @@ Export-Package: com.energyict.mdc.protocol,\
         com.energyict.mdc.protocol.dynamic,\
         com.energyict.mdc.protocol.inbound,\
         com.energyict.mdc.protocol.security,\
+        com.energyict.mdc.protocol.services,\
         com.energyict.mdc.protocol.tasks,\
         com.energyict.mdc.protocol.tasks.support
