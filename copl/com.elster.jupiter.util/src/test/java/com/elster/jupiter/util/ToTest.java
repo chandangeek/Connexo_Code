@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.io.File;
 import java.nio.file.Paths;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ToTest {
 

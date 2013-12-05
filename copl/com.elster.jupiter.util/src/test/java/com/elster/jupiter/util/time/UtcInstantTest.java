@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  */
