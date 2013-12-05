@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.device.messages;
 
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 
 /**
  * Provides an implementation for the  {@link PropertySpec} interface

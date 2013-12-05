@@ -1,6 +1,9 @@
 package com.energyict.mdc.protocol.device.messages;
 
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import org.junit.*;
 
 import java.util.Arrays;

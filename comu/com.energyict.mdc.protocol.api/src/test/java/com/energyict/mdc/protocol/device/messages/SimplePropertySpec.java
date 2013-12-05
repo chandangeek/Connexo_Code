@@ -1,11 +1,9 @@
 package com.energyict.mdc.protocol.device.messages;
 
 import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.protocol.dynamic.ValueFactory;
-
-import java.math.BigDecimal;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpecPossibleValues;
+import com.energyict.mdc.protocol.api.dynamic.ValueFactory;
 
 /**
  * Serves as the root for all {@link PropertySpec} test implementations.
