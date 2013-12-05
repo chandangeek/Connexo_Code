@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
@@ -259,6 +261,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	private static class SingleTimeSeriesStorer {
 		private final List<TimeSeriesEntryImpl> newEntries = new ArrayList<>();
 		private final List<TimeSeriesEntryImpl> oldEntries = new ArrayList<>();
+        private final Set<Date> entryDates = new HashSet<>();
 		private Date minDate;
 		private Date maxDate;
 		private int insertCount = 0;
@@ -271,11 +274,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		void add(TimeSeriesEntryImpl entry) {
-			for (TimeSeriesEntryImpl each : newEntries) {
-				if (each.getTimeStamp().equals(entry.getTimeStamp())) {
-					throw new IllegalArgumentException();
-				}
-			}
+            if (!entryDates.add(entry.getTimeStamp())) {
+                throw new IllegalArgumentException();
+            }
 			newEntries.add(entry);
 		}
 		
