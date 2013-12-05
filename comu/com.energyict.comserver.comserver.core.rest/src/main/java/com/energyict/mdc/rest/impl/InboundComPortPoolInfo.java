@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPoolShadow> {
-    public List<InboundComPortInfo> inboundComPorts;
-    public int discoveryProtocolPluggableClassId;
 
     public InboundComPortPoolInfo() {
     }
@@ -16,9 +14,11 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPoolSh
     public InboundComPortPoolInfo(InboundComPortPool comPortPool) {
         super(comPortPool);
         this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClass().getId();
-        this.inboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
-        for (InboundComPort inboundComPort : comPortPool.getComPorts()) {
-            inboundComPorts.add(ComPortInfoFactory.asInboundInfo(inboundComPort));
+        if (comPortPool.getComPorts()!=null) {
+            this.inboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
+            for (InboundComPort inboundComPort : comPortPool.getComPorts()) {
+                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(inboundComPort));
+            }
         }
     }
 

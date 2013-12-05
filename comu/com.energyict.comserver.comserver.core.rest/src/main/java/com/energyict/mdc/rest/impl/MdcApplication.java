@@ -9,8 +9,11 @@ import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
 import com.energyict.mdc.services.LicensedProtocolService;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,10 +26,13 @@ public class MdcApplication extends Application {
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
     private volatile LicensedProtocolService licensedProtocolService;
+    private volatile ComServerService comServerService;
+    private volatile ComPortPoolService comPortPoolService;
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(ComServerResource.class,
+        return ImmutableSet.of(AutoCloseDatabaseConnection.class,
+                ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
                 DeviceCommunicationProtocolsResource.class,
@@ -37,13 +43,17 @@ public class MdcApplication extends Application {
                 CodeTableResource.class);
     }
 
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
+    }
+
     @Reference
     public void setDeviceProtocolPluggableClassService(DeviceProtocolPluggableClassService deviceProtocolPluggableClassService) {
         this.deviceProtocolPluggableClassService = deviceProtocolPluggableClassService;
-    }
-
-    public DeviceProtocolPluggableClassService getDeviceProtocolPluggableClassService() {
-        return deviceProtocolPluggableClassService;
     }
 
     @Reference
@@ -53,24 +63,17 @@ public class MdcApplication extends Application {
 
     @Reference
     public void setComPortPoolService(ComPortPoolService comPortPoolService) {
-        ComPortPoolServiceHolder.setComPortPoolService(comPortPoolService);
+        this.comPortPoolService = comPortPoolService;
     }
 
     @Reference
     public void setComServerService(ComServerService comServerService) {
-        ComServerServiceHolder.setComServerService(comServerService);
+        this.comServerService = comServerService;
     }
     
-    public ComPortService getComPortService() {
-        return comPortService;
-    }
-
     @Reference
     public void setComPortService(ComPortService comPortService) {
         this.comPortService = comPortService;
-    }
-    public DeviceProtocolService getDeviceProtocolService() {
-        return deviceProtocolService;
     }
 
     @Reference
@@ -78,17 +81,9 @@ public class MdcApplication extends Application {
         this.inboundDeviceProtocolService = inboundDeviceProtocolService;
     }
 
-    public InboundDeviceProtocolService getInboundDeviceProtocolService() {
-        return inboundDeviceProtocolService;
-    }
-
     @Reference
     public void setInboundDeviceProtocolPluggableClassService(InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService) {
         this.inboundDeviceProtocolPluggableClassService = inboundDeviceProtocolPluggableClassService;
-    }
-
-    public InboundDeviceProtocolPluggableClassService getInboundDeviceProtocolPluggableClassService() {
-        return inboundDeviceProtocolPluggableClassService;
     }
 
     @Reference
@@ -96,7 +91,19 @@ public class MdcApplication extends Application {
         this.licensedProtocolService = licensedProtocolService;
     }
 
-    public LicensedProtocolService getLicensedProtocolService() {
-        return licensedProtocolService;
+    class HK2Binder extends AbstractBinder {
+
+        @Override
+        protected void configure() {
+            System.out.println("Binding services using HK2");
+            bind(comServerService).to(ComServerService.class);
+            bind(comPortService).to(ComPortService.class);
+            bind(deviceProtocolPluggableClassService).to(DeviceProtocolPluggableClassService.class);
+            bind(deviceProtocolService).to(DeviceProtocolService.class);
+            bind(inboundDeviceProtocolService).to(InboundDeviceProtocolService.class);
+            bind(inboundDeviceProtocolPluggableClassService).to(InboundDeviceProtocolPluggableClassService.class);
+            bind(licensedProtocolService).to(LicensedProtocolService.class);
+            bind(comPortPoolService).to(ComPortPoolService.class);
+        }
     }
 }

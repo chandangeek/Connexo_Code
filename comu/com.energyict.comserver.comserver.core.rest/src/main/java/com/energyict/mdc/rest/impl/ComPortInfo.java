@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public abstract class ComPortInfo<T extends ComPortShadow> {
 
     public int id;
+    public String direction;
     public String name;
     public String description;
     public boolean active;

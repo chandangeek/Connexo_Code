@@ -9,6 +9,10 @@ public class TimeDurationInfo {
     public TimeDurationInfo() {
     }
 
+    public TimeDurationInfo(String bogus) {
+        // Constructor to allow ExtJS empty string TimeDurations
+    }
+
     public TimeDurationInfo(TimeDuration timeDuration) {
         this.count=timeDuration.getCount();
         this.timeUnit=TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());

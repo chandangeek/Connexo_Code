@@ -4,8 +4,7 @@ import com.energyict.mdc.protocol.inbound.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
 import com.energyict.mdw.core.PluggableClass;
-import org.glassfish.jersey.server.ResourceConfig;
-
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,12 +27,12 @@ import javax.ws.rs.core.Response;
 @Path("/devicediscoveryprotocols")
 public class DeviceDiscoveryProtocolsResource {
 
-    private final InboundDeviceProtocolService inboundDeviceProtocolService;
-    private final InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
+    @Inject
+    private InboundDeviceProtocolService inboundDeviceProtocolService;
+    @Inject
+    private InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
 
     public DeviceDiscoveryProtocolsResource(@Context Application application) {
-        this.inboundDeviceProtocolPluggableClassService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getInboundDeviceProtocolPluggableClassService();
-        this.inboundDeviceProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getInboundDeviceProtocolService();
     }
 
     @GET

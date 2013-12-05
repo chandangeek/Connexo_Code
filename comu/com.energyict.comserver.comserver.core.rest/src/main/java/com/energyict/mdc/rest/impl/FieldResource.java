@@ -21,6 +21,9 @@ import javax.ws.rs.Path;
 @Path("/field")
 public class FieldResource {
 
+    /**
+     * This method will return a JSON list of all available field descriptions in this resource
+     */
     @GET
     public Object getAllFields() {
         final List<Object> allFields = new ArrayList<>();

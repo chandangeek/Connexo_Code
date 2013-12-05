@@ -4,6 +4,7 @@ import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
 import java.util.Date;
+import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -21,6 +22,10 @@ public abstract class ComPortPoolInfo<T extends ComPortPoolShadow> {
     public boolean obsoleteFlag;
     public Date obsoleteDate;
     public ComPortType type;
+    public List<InboundComPortInfo> inboundComPorts;
+    public int discoveryProtocolPluggableClassId;
+    public List<OutboundComPortInfo> outboundComPorts;
+    public TimeDurationInfo taskExecutionTimeout;
 
     public ComPortPoolInfo() {
     }
