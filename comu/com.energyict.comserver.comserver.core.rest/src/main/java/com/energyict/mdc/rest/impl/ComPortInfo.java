@@ -6,7 +6,7 @@ import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import java.math.BigDecimal;
 import java.util.Date;

@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.properties;
 
-import com.energyict.cbo.HexString;
+import com.energyict.mdc.common.HexString;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.rest.impl.CodeTableResource;
 import com.energyict.mdc.rest.impl.CodeTableInfo;

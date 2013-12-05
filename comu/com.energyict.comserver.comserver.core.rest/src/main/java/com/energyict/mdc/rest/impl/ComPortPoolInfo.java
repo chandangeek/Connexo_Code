@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.ComPortPool;
-import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;

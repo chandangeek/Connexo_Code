@@ -1,11 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.servers.ComServer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

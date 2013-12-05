@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 
 public class TimeDurationInfo {
     public int count;

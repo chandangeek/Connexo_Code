@@ -3,10 +3,10 @@ package com.energyict.mdc.rest.impl.properties;
 import com.energyict.cpo.BoundedBigDecimalPropertySpec;
 import com.energyict.cpo.FixedLengthHexStringPropertySpec;
 import com.energyict.cpo.FixedLengthStringPropertySpec;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecPossibleValues;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dynamicattributes.AttributeValueSelectionMode;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpecPossibleValues;
 import com.energyict.mdc.rest.impl.properties.validators.NumberValidationRules;
 import com.energyict.mdc.rest.impl.properties.validators.StringValidationRules;
 

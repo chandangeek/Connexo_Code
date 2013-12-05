@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
@@ -31,9 +31,6 @@ public class DeviceCommunicationProtocolInfo {
     public String deviceProtocolVersion;
     public PropertyInfo[] propertyInfos;
 
-    public DeviceCommunicationProtocolInfo() {
-    }
-
     public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
@@ -54,12 +51,10 @@ public class DeviceCommunicationProtocolInfo {
     }
 
     private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        List<PropertySpec> optionalProperties = deviceProtocolPluggableClass.getDeviceProtocol().getOptionalProperties();
-        List<PropertySpec> requiredProperties = deviceProtocolPluggableClass.getDeviceProtocol().getRequiredProperties();
+        List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, optionalProperties, properties, propertyInfoList);
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, requiredProperties, properties, propertyInfoList);
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList);
         return propertyInfoList;
     }
 
