@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;

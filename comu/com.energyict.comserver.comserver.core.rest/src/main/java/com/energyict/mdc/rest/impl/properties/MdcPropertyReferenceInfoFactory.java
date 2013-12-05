@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.rest.impl.CodeTableResource;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;

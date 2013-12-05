@@ -5,7 +5,7 @@ import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.protocol.ComPortType;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.servers.ComServer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

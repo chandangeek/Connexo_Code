@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.protocol.ComPortType;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 
