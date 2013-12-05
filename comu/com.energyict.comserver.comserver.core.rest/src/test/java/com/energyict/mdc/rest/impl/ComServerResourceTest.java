@@ -12,8 +12,8 @@ import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fest.assertions.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -24,11 +24,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
+ * Hardcoding URLS here will be a "gently" reminder
+ * @author bvn
+ */
 public class ComServerResourceTest extends JerseyTest {
 
     private static ComServerService comServerService;
@@ -152,6 +157,7 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
         onlineComServerInfo.queryAPIUsername= "user name"; // UNUSED
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
         final Response response = target("/comservers/3").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 

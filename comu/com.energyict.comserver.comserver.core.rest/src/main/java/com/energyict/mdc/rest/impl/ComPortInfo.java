@@ -55,7 +55,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
         this.description = comPort.getDescription();
         this.active = comPort.isActive();
         this.bound = comPort.isInbound();
-        this.comServer_id = comPort.getComServer().getId();
+        this.comServer_id = comPort.getComServer()!=null?comPort.getComServer().getId():0;
         this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.modificationDate = comPort.getModificationDate();

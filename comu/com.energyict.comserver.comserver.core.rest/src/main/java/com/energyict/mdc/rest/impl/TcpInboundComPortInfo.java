@@ -13,12 +13,10 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
     public TcpInboundComPortInfo(TCPBasedInboundComPort comPort) {
         super(comPort);
         this.portNumber = comPort.getPortNumber();
-        this.comPortPool_id = comPort.getComPortPool().getId();
     }
 
     protected void writeToShadow(TCPBasedInboundComPortShadow shadow) {
         super.writeToShadow(shadow);
-        shadow.setInboundComPortPoolId(this.comPortPool_id);
         shadow.setPortNumber(this.portNumber);
     }
 

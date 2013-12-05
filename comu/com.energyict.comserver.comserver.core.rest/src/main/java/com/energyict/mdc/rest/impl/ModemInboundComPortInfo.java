@@ -16,20 +16,22 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         super(comPort);
         this.ringCount = comPort.getRingCount();
         this.maximumNumberOfDialErrors = comPort.getMaximumNumberOfDialErrors();
-        this.connectTimeout = new TimeDurationInfo(comPort.getConnectTimeout());
-        this.delayAfterConnect = new TimeDurationInfo(comPort.getDelayAfterConnect());
-        this.delayBeforeSend = new TimeDurationInfo(comPort.getDelayBeforeSend());
-        this.atCommandTimeout = new TimeDurationInfo(comPort.getAtCommandTimeout());
+        this.connectTimeout = comPort.getConnectTimeout()!=null?new TimeDurationInfo(comPort.getConnectTimeout()):null;
+        this.delayAfterConnect = comPort.getDelayAfterConnect()!=null?new TimeDurationInfo(comPort.getDelayAfterConnect()):null;
+        this.delayBeforeSend = comPort.getDelayBeforeSend()!=null?new TimeDurationInfo(comPort.getDelayBeforeSend()):null;
+        this.atCommandTimeout = comPort.getAtCommandTimeout()!=null?new TimeDurationInfo(comPort.getAtCommandTimeout()):null;
         this.atCommandTry = comPort.getAtCommandTry();
         this.modemInitStrings = comPort.getModemInitStrings();
         this.addressSelector = comPort.getAddressSelector();
         this.postDialCommands = comPort.getPostDialCommands();
-        this.comPortName = comPort.getSerialPortConfiguration().getComPortName();
-        this.baudrate = comPort.getSerialPortConfiguration().getBaudrate();
-        this.nrOfDataBits = comPort.getSerialPortConfiguration().getNrOfDataBits();
-        this.nrOfStopBits = comPort.getSerialPortConfiguration().getNrOfStopBits();
-        this.flowControl = comPort.getSerialPortConfiguration().getFlowControl();
-        this.parity = comPort.getSerialPortConfiguration().getParity();
+        if (comPort.getSerialPortConfiguration()!=null) {
+            this.comPortName = comPort.getSerialPortConfiguration().getComPortName();
+            this.baudrate = comPort.getSerialPortConfiguration().getBaudrate();
+            this.nrOfDataBits = comPort.getSerialPortConfiguration().getNrOfDataBits();
+            this.nrOfStopBits = comPort.getSerialPortConfiguration().getNrOfStopBits();
+            this.flowControl = comPort.getSerialPortConfiguration().getFlowControl();
+            this.parity = comPort.getSerialPortConfiguration().getParity();
+        }
     }
 
     @Override
@@ -37,10 +39,18 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         super.writeToShadow(shadow);
         shadow.setRingCount(this.ringCount);
         shadow.setMaximumNumberOfDialErrors(this.maximumNumberOfDialErrors);
-        shadow.setConnectTimeout(this.connectTimeout.asTimeDuration());
-        shadow.setDelayAfterConnect(this.delayAfterConnect.asTimeDuration());
-        shadow.setDelayBeforeSend(this.delayBeforeSend.asTimeDuration());
-        shadow.setAtCommandTimeout(this.atCommandTimeout.asTimeDuration());
+        if (this.connectTimeout!=null) {
+            shadow.setConnectTimeout(this.connectTimeout.asTimeDuration());
+        }
+        if (this.delayAfterConnect!=null) {
+            shadow.setDelayAfterConnect(this.delayAfterConnect.asTimeDuration());
+        }
+        if (this.delayBeforeSend!=null) {
+            shadow.setDelayBeforeSend(this.delayBeforeSend.asTimeDuration());
+        }
+        if (this.atCommandTimeout!=null) {
+            shadow.setAtCommandTimeout(this.atCommandTimeout.asTimeDuration());
+        }
         shadow.setAtCommandTry(this.atCommandTry);
         shadow.setModemInitStrings(this.modemInitStrings);
         shadow.setAddressSelector(this.addressSelector);

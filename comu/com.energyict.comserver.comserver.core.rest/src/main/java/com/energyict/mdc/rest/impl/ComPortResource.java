@@ -12,7 +12,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.json.JSONArray;
 
 @Path("/comports")
@@ -58,7 +60,12 @@ public class ComPortResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortInfo getComPort(@PathParam("id") int id) {
-        return ComPortInfoFactory.asInfo(comPortService.find(id));
+        ComPort comPort = comPortService.find(id);
+        if (comPort==null) {
+            throw new WebApplicationException("No ComPort with id "+id,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        return ComPortInfoFactory.asInfo(comPort);
     }
 
 }
