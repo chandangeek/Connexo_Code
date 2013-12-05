@@ -40,7 +40,7 @@ Ext.define('Ext.grid.column.RowNumberer', {
 </span>     * @cfg {String} text
      * Any valid text or HTML fragment to display in the header cell for the row number column.
      */
-    text: &quot;&amp;#160&quot;,
+    text: &quot;&amp;#160;&quot;,
 
 <span id='Ext-grid-column-RowNumberer-cfg-width'>    /**
 </span>     * @cfg {Number} width
@@ -79,6 +79,19 @@ Ext.define('Ext.grid.column.RowNumberer', {
         me.scope = me;
     },
 
+<span id='Ext-grid-column-RowNumberer-method-beforeRender'>    beforeRender: function() {
+</span>        var rowBody = this.up('gridpanel').view.findFeature('rowbody');
+
+        this.callParent(arguments);
+
+        // If there is a RowBody Feature, and this coliumn is index 1 (immediately after the expander)...
+        // the RowBody cell must not span this column, and this column must span into the expander row.
+        if (rowBody &amp;&amp; this.ownerCt.items.indexOf(this) === 1) {
+            rowBody.colSpanDecrement = rowBody.colSpanDecrement + 1;
+            this.rowspan = 2;
+        }
+    },
+
 <span id='Ext-grid-column-RowNumberer-cfg-resizable'>    // private
 </span>    resizable: false,
 <span id='Ext-grid-column-RowNumberer-cfg-hideable'>    hideable: false,
@@ -90,20 +103,17 @@ Ext.define('Ext.grid.column.RowNumberer', {
 </span><span id='Ext-grid-column-RowNumberer-property-rowspan'>    rowspan: undefined,
 </span>
 <span id='Ext-grid-column-RowNumberer-method-renderer'>    // private
-</span>    renderer: function(value, metaData, record, rowIdx, colIdx, store) {
+</span>    renderer: function(value, metaData, record, rowIdx, colIdx, dataSource, view) {
         var rowspan = this.rowspan,
-            page = store.currentPage,
-            result = record.index;
-            
+            page = dataSource.currentPage,
+            result = view.store.indexOf(record);
+
         if (rowspan) {
             metaData.tdAttr = 'rowspan=&quot;' + rowspan + '&quot;';
         }
 
-        if (result == null) {
-            result = rowIdx;
-            if (page &gt; 1) {
-                result += (page - 1) * store.pageSize; 
-            }
+        if (page &gt; 1) {
+            result += (page - 1) * dataSource.pageSize; 
         }
         return result + 1;
     }

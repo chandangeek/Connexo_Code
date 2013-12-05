@@ -21,8 +21,10 @@
     init: function() {
         var me = this;
 
-        me.callParent(arguments);
-        me.tip.on('beforeshow', me.onBeforeFirstShow, me, { single: true });
+        // Will return false if not ready to proceed
+        if (me.callParent(arguments) !== false) {
+            me.tip.on('beforeshow', me.onBeforeFirstShow, me, { single: true });
+        }
     },
 
     onBeforeFirstShow: function(tip) {

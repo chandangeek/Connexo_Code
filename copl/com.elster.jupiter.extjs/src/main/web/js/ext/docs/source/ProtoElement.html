@@ -216,7 +216,7 @@ Ext.define('Ext.util.ProtoElement', (function () {
             to[me.clsProp] = classList.join(' ');
 
             if (style) {
-                to[me.styleProp] = me.styleIsText ? Ext.DomHelper.generateStyles(style) : style;
+                to[me.styleProp] = me.styleIsText ? Ext.DomHelper.generateStyles(style, null, true) : style;
             }
             
             if (removedClasses) {

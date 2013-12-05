@@ -141,6 +141,8 @@ Ext.define('Ext.form.field.File', {
      */
     readOnly: true,
 
+<span id='Ext-form-field-File-cfg-submitValue'>    submitValue: false,
+</span>
 <span id='Ext-form-field-File-property-triggerNoEditCls'>    /**
 </span>     * Do not show hand pointer over text field since file choose dialog is only shown when clicking in the button
      * @private
@@ -199,15 +201,24 @@ Ext.define('Ext.form.field.File', {
 </span>     * Gets the markup to be inserted into the subTplMarkup.
      */
     getTriggerMarkup: function() {
-        return '&lt;td id=&quot;' + this.id + '-browseButtonWrap&quot;&gt;&lt;/td&gt;';
+        return '&lt;td id=&quot;' + this.id + '-browseButtonWrap&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;';
     },
 
 <span id='Ext-form-field-File-method-onFileChange'>    /**
 </span>     * @private Event handler fired when the user selects a file.
      */
     onFileChange: function(button, e, value) {
-        this.lastValue = null; // force change event to get fired even if the user selects a file with the same name
+        this.duringFileSelect = true;
         Ext.form.field.File.superclass.setValue.call(this, value);
+        delete this.duringFileSelect;
+    },
+    
+<span id='Ext-form-field-File-method-didValueChange'>    didValueChange: function(){
+</span>        // In the case of the file field, the change event will only ever fire 
+        // if the value actually changes, so we always want to fire the change event
+        // This affects Chrome specifically, because hitting the cancel button will
+        // reset the file upload.
+        return !!this.duringFileSelect;
     },
 
 <span id='Ext-form-field-File-method-setValue'>    /**
@@ -224,6 +235,8 @@ Ext.define('Ext.form.field.File', {
             me.fileInputEl = me.button.fileInputEl;
             if (clear) {
                 me.inputEl.dom.value = '';
+                // Reset the underlying value if we're clearing it
+                Ext.form.field.File.superclass.setValue.call(this, null);
             }
         }
         me.callParent();
@@ -251,15 +264,31 @@ Ext.define('Ext.form.field.File', {
     },
 
 <span id='Ext-form-field-File-method-extractFileInput'>    extractFileInput: function() {
-</span>        var fileInput = this.button.fileInputEl.dom;
-        this.reset();
+</span>        var me = this,
+            fileInput;
+            
+        if (me.rendered) {
+            fileInput = me.button.fileInputEl.dom;
+            me.reset();
+        } else {
+            // Create a fake empty field here so it will still be submitted.
+            // All other unrendered fields provide a value.
+            fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.className = Ext.baseCSSPrefix + 'hide-display';
+            fileInput.name = me.getName();
+        }
         return fileInput;
     },
     
 <span id='Ext-form-field-File-method-restoreInput'>    restoreInput: function(el) {
-</span>        var button = this.button;
-        button.restoreInput(el);
-        this.fileInputEl = button.fileInputEl;
+</span>        // If we're not rendered we don't need to do anything, it will be created
+        // when we get flushed to the DOM.
+        if (this.rendered) {
+            var button = this.button;
+            button.restoreInput(el);
+            this.fileInputEl = button.fileInputEl;
+        }
     },
 
 <span id='Ext-form-field-File-method-onDestroy'>    onDestroy: function(){
@@ -271,6 +300,7 @@ Ext.define('Ext.form.field.File', {
 <span id='Ext-form-field-File-method-getButtonMarginProp'>    getButtonMarginProp: function() {
 </span>        return 'margin-left:';
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

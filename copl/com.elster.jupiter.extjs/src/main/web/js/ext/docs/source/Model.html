@@ -1635,15 +1635,13 @@ Ext.define('Ext.data.Model', {
                 for (storeCount = stores.length; i &lt; storeCount; i++) {
                     store = stores[i];
 
-                    // If the store has a remove (it's not a TreeStore), then
-                    // remove this record from Store. Avoid Store handling anything by passing the &quot;isMove&quot; flag
+                    // If the store has a remove it's not a TreeStore
                     if (store.remove) {
                         store.remove(me, true);
+                    } else {
+                        store.fireEvent('bulkremove', store, [me], [store.indexOf(me)], false);    
                     }
-
-                    // Other parties may need to know that the record as gone
-                    // eg View SelectionModels
-                    store.fireEvent('bulkremove', store, [me], [store.indexOf(me)], false);
+                    
                     if (isNotPhantom) {
                         store.fireEvent('write', store, operation);
                     }

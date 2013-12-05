@@ -111,8 +111,7 @@ Ext.define('Ext.data.flash.BinaryXhr', {
          * @private
          */
         injectFlashPlugin: function() {
-            var divTag, pTag, aTag, iTag,
-                me=this,
+            var me = this,
                 flashLoaderPath, flashObjectPath;
                 // Generate the following HTML set of tags:
                // + '&lt;div id=&quot;ext-flash-polyfill&quot;&gt;'
@@ -120,25 +119,26 @@ Ext.define('Ext.data.flash.BinaryXhr', {
                 //+ '&lt;a href=&quot;http://www.adobe.com/go/getflashplayer&quot;&gt;&lt;img src=&quot;' + window.location.protocol + '//www.adobe.com/images/shared/download_buttons/get_flash_player.gif&quot; alt=&quot;Get Adobe Flash player&quot; /&gt;&lt;/a&gt;'
                 //+ '&lt;/div&gt;'
             
-            iTag=document.createElement(&quot;img&quot;);
-            iTag.setAttribute(&quot;src&quot;,  window.location.protocol + '//www.adobe.com/images/shared/download_buttons/get_flash_player.gif');
-            iTag.setAttribute(&quot;alt&quot;, &quot;Get Adobe Flash player&quot;);
-            
-            aTag=document.createElement(&quot;a&quot;);
-            aTag.setAttribute(&quot;href&quot;, &quot;http://www.adobe.com/go/getflashplayer&quot;);
-            aTag.appendChild(iTag);
-            
-            pTag=document.createElement(&quot;p&quot;);
-            pTag.innerHTML=&quot;To view this page ensure that Adobe Flash Player version 11.1.0 or greater is installed.&quot;;
-            
-            divTag=document.createElement(&quot;div&quot;);
-            divTag.setAttribute(&quot;id&quot;, &quot;ext-flash-polyfill&quot;);
-            divTag.appendChild(pTag);
-            divTag.appendChild(iTag);
-            
-            Ext.getBody().dom.appendChild(divTag);
-            
-            
+            me.flashPolyfillEl = Ext.getBody().appendChild({
+                id: 'ext-flash-polyfill',
+                cn: [
+                    {
+                        tag: 'p',
+                        html: 'To view this page ensure that Adobe Flash Player version 11.1.0 or greater is installed.'
+                    },
+                    {
+                        tag: 'a',
+                        href: 'http://www.adobe.com/go/getflashplayer',
+                        cn: [
+                            {
+                                tag: 'img',
+                                src: window.location.protocol + '//www.adobe.com/images/shared/download_buttons/get_flash_player.gif',
+                                alt: 'Get Adobe Flash player'
+                            }
+                        ]
+                    }
+                ]
+            });
             
             // Now load the flash-loading script
             

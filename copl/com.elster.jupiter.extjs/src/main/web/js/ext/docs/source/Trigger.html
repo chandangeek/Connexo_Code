@@ -160,10 +160,21 @@ Ext.define('Ext.form.field.Trigger', {
             childElCls = values.childElCls, // either '' or ' x-foo'
             field = me.callParent(arguments);
 
-        return '&lt;table id=&quot;' + me.id + '-triggerWrap&quot; class=&quot;' + Ext.baseCSSPrefix + 'form-trigger-wrap' + childElCls + '&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;&lt;tbody&gt;&lt;tr&gt;' +
-            '&lt;td id=&quot;' + me.id + '-inputCell&quot; class=&quot;' + Ext.baseCSSPrefix + 'form-trigger-input-cell' + childElCls + '&quot;&gt;' + field + '&lt;/td&gt;' +
-            me.getTriggerMarkup() +
-            '&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;';
+        return [
+            '&lt;table id=&quot;', me.id, '-triggerWrap&quot; class=&quot;', Ext.baseCSSPrefix,
+                'form-trigger-wrap', childElCls,
+                '&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; role=&quot;presentation&quot;&gt;',
+                '&lt;tbody role=&quot;presentation&quot;&gt;',
+                    '&lt;tr role=&quot;presentation&quot;&gt;',
+                        '&lt;td id=&quot;', me.id, '-inputCell&quot; class=&quot;', Ext.baseCSSPrefix,
+                            'form-trigger-input-cell', childElCls, '&quot; role=&quot;presentation&quot;&gt;',
+                            field,
+                        '&lt;/td&gt;',
+                            me.getTriggerMarkup(),
+                    '&lt;/tr&gt;',
+                '&lt;/tbody&gt;',
+            '&lt;/table&gt;'
+        ].join('');
     },
     
 <span id='Ext-form-field-Trigger-method-getSubTplData'>    getSubTplData: function(){
@@ -212,12 +223,13 @@ Ext.define('Ext.form.field.Trigger', {
         for (i = 0; (triggerCls = me['trigger' + (i + 1) + 'Cls']) || i &lt; 1; i++) {
             triggerConfigs.push({
                 tag: 'td',
+                role: 'presentation',
                 valign: 'top',
                 cls: cls,
                 style: style,
                 cn: {
                     cls: [Ext.baseCSSPrefix + 'trigger-index-' + i, triggerBaseCls, triggerCls].join(' '),
-                    role: 'button'
+                    role: 'presentation'
                 }
             });
         }
@@ -245,6 +257,7 @@ Ext.define('Ext.form.field.Trigger', {
          */
         if (!me.triggerWidth) {
             tempEl = Ext.getBody().createChild({
+                role: 'presentation',
                 style: 'position: absolute;', 
                 cls: Ext.baseCSSPrefix + 'form-trigger'
             });
@@ -331,7 +344,7 @@ Ext.define('Ext.form.field.Trigger', {
             triggerWrap = me.triggerWrap,
             triggerEl = me.triggerEl,
             disableCheck = me.disableCheck,
-            els, eLen, el, e, idx;
+            els, len, el, i, idx, cls;
 
         if (me.repeatTriggerClick) {
             me.triggerRepeater = new Ext.util.ClickRepeater(triggerWrap, {
@@ -355,13 +368,16 @@ Ext.define('Ext.form.field.Trigger', {
         triggerEl.addClsOnOver(me.triggerBaseCls + '-over', disableCheck, me);
 
         els  = triggerEl.elements;
-        eLen = els.length;
+        len = els.length;
 
-        for (e = 0; e &lt; eLen; e++) {
-            el = els[e];
-            idx = e+1;
-            el.addClsOnOver(me['trigger' + (idx) + 'Cls'] + '-over', disableCheck, me);
-            el.addClsOnClick(me['trigger' + (idx) + 'Cls'] + '-click', disableCheck, me);
+        for (i = 0; i &lt; len; i++) {
+            el = els[i];
+            idx = i + 1;
+            cls = me['trigger' + (idx) + 'Cls'];
+            if (cls) {
+                el.addClsOnOver(cls + '-over', disableCheck, me);
+                el.addClsOnClick(cls + '-click', disableCheck, me);
+            }
         }
 
         triggerEl.addClsOnClick(me.triggerBaseCls + '-click', disableCheck, me);
@@ -422,10 +438,18 @@ Ext.define('Ext.form.field.Trigger', {
 
 <span id='Ext-form-field-Trigger-method-onBlur'>    /**
 </span>     * @private
-     * The default blur handling must not occur for a TriggerField, implementing this template method as emptyFn disables that.
+     * The default blur handling must not occur for a TriggerField, implementing this template method disables that.
      * Instead the tab key is monitored, and the superclass's onBlur is called when tab is detected
      */
-    onBlur: Ext.emptyFn,
+    onBlur: function() {
+        var me = this,
+            blurTask = me.blurTask;
+            
+        // Only trigger a blur if called programmatically
+        if (me.blurring) {
+            me.triggerBlur();
+        }
+    },
 
 <span id='Ext-form-field-Trigger-method-mimicBlur'>    // @private
 </span>    mimicBlur: function(e) {

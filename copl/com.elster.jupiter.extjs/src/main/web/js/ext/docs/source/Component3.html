@@ -90,10 +90,10 @@ Ext.define('Ext.layout.component.Component', {
             widthName = widthModel.names.width;
 
             if (!body) {
-                dirty = firstCycle ? owner[widthName] !== lastSize.width
-                                   : widthModel.constrained;
+                dirty = me.setWidthInDom ||
+                        (firstCycle ? owner[widthName] !== lastSize.width : widthModel.constrained);
             }
-            
+
             ownerContext.setWidth(owner[widthName], dirty);
         } else if (ownerContext.isTopLevel) {
             if (widthModel.calculated) {

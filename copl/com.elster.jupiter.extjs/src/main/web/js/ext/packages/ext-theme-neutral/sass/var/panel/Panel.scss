@@ -2,9 +2,9 @@
  * @class Ext.panel.Panel
  */
 
-// TODO: setting this probably doesn't work well, since border-radius is typically
+// TODO: setting this probably does not work well, since border-radius is typically
 // reserved for framed-panels - should we remove this?
-$panel-border-radius: null !default;
+$panel-border-radius: 0 !default;
 
 /**
  * @var {number}
@@ -25,13 +25,16 @@ $panel-base-color: $base-color !default;
 $panel-border-color: $panel-base-color !default;
 
 /**
- * @var {$border-width-threshold}
- * The maximum width a Panel's border can be before resizer handles are embedded into the borders using negative absolute positions.
+ * @var {number}
+ * The maximum width a Panel's border can be before resizer handles are embedded
+ * into the borders using negative absolute positions.
  *
- * This defaults to 2, so that in the classic theme which uses 1 pixel borders, resize handles are in the content area
- * within the border as they always have been.
+ * This defaults to 2, so that in the classic theme which uses 1 pixel borders,
+ * resize handles are in the content area within the border as they always have
+ * been.
  *
- * In the Neptune theme, the handles are embedded into the 5 pixel wide borders of any framed panel.
+ * In the Neptune theme, the handles are embedded into the 5 pixel wide borders
+ * of any framed panel.
  */
 $border-width-threshold: 2 !default;
 
@@ -79,6 +82,12 @@ $panel-body-font-size: $font-size !default;
  * The default font-weight of the Panel body
  */
 $panel-body-font-weight: normal !default;
+
+/**
+ * @var {string}
+ * The default font-family of the Panel body
+ */
+$panel-body-font-family: $font-family !default;
 
 /**
  * @var {number}
@@ -152,7 +161,7 @@ $panel-header-text-padding: 0 !default;
  * gradient or a list of color stops. Used as the `$type` parameter for
  * {@link Global_CSS#background-gradient}.
  */
-$panel-header-background-gradient: null !default;
+$panel-header-background-gradient: 'none' !default;
 
 /**
  * @var {color}

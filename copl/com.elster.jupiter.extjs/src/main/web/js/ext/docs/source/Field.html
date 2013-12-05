@@ -168,7 +168,7 @@ Ext.define('Ext.data.Field', {
      *
      * The data type for automatic conversion from received data to the *stored* value if
      * `{@link Ext.data.Field#convert convert}` has not been specified. This may be specified as a string value.
-     * Possible values are
+     * Possible values are:
      *
      * - auto (Default, implies no conversion)
      * - string
@@ -176,6 +176,9 @@ Ext.define('Ext.data.Field', {
      * - float
      * - boolean
      * - date
+     * 
+     * Note that when a type is specified, any {@link #defaultValue} will be passed through the {@link #convert}
+     * function for the type.
      *
      * This may also be specified by referencing a member of the {@link Ext.data.Types} class.
      *

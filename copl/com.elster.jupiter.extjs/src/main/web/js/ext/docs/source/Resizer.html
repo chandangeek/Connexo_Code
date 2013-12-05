@@ -174,9 +174,11 @@ Ext.define('Ext.resizer.Resizer', {
 </span>     * @property {Ext.Element} el
      * Outer element for resizing behavior.
      */
+    
+    ariaRole: 'presentation',
 
-    constructor: function(config) {
-        var me = this,
+<span id='Ext-resizer-Resizer-method-constructor'>    constructor: function(config) {
+</span>        var me = this,
             target,
             targetEl,
             tag,
@@ -281,6 +283,7 @@ Ext.define('Ext.resizer.Resizer', {
             targetEl = me.el;
             box = targetEl.getBox();
             me.target = me.el = me.el.wrap({
+                role: 'presentation',
                 cls: me.wrapCls,
                 id: me.el.id + '-rzwrap',
                 style: targetEl.getStyles('margin-top', 'margin-bottom')
@@ -364,7 +367,7 @@ Ext.define('Ext.resizer.Resizer', {
                 handleEls.push(
                     '&lt;div id=&quot;', me.el.id, '-', pos, '-handle&quot;',
                         ' class=&quot;', Ext.String.format(handleCls, pos), ' ', unselectableCls, '&quot;',
-                        ' unselectable=&quot;on&quot;',
+                        ' unselectable=&quot;on&quot; role=&quot;presentation&quot;',
                         style,
                     '&gt;&lt;/div&gt;'
                 );

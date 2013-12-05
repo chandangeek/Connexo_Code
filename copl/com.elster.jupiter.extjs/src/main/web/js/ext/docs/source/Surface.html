@@ -383,6 +383,7 @@ Ext.define('Ext.draw.Surface', {
                 me.addGradient(gradient);
                 me.background = me.add({
                     type: 'rect',
+                    isBackground: true,
                     x: 0,
                     y: 0,
                     width: width,
@@ -393,6 +394,7 @@ Ext.define('Ext.draw.Surface', {
             } else if (config.fill) {
                 me.background = me.add({
                     type: 'rect',
+                    isBackground: true,
                     x: 0,
                     y: 0,
                     width: width,
@@ -403,6 +405,7 @@ Ext.define('Ext.draw.Surface', {
             } else if (config.image) {
                 me.background = me.add({
                     type: 'image',
+                    isBackground: true,
                     x: 0,
                     y: 0,
                     width: width,

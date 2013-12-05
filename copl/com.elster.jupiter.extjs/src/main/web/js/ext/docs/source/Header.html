@@ -30,7 +30,7 @@ Ext.define('Ext.panel.Header', {
     isHeader       : true,
 <span id='Ext-panel-Header-cfg-defaultType'>    defaultType    : 'tool',
 </span><span id='Ext-panel-Header-property-indicateDrag'>    indicateDrag   : false,
-</span><span id='Ext-panel-Header-property-weight'>    weight         : -1,
+</span><span id='Ext-panel-Header-cfg-weight'>    weight         : -1,
 </span><span id='Ext-panel-Header-cfg-componentLayout'>    componentLayout: 'body',
 </span>
 <span id='Ext-panel-Header-cfg-titleAlign'>    /**
@@ -51,14 +51,18 @@ Ext.define('Ext.panel.Header', {
 <span id='Ext-panel-Header-cfg-renderTpl'>    renderTpl: [
 </span>        '&lt;div id=&quot;{id}-body&quot; class=&quot;{headerCls}-body {baseCls}-body {bodyCls} {bodyTargetCls}',
         '&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-body-{parent.ui}-{.}&lt;/tpl&gt;&quot;',
-        '&lt;tpl if=&quot;bodyStyle&quot;&gt; style=&quot;{bodyStyle}&quot;&lt;/tpl&gt;&gt;',
+        '&lt;tpl if=&quot;bodyStyle&quot;&gt; style=&quot;{bodyStyle}&quot;&lt;/tpl&gt; role=&quot;presentation&quot;&gt;',
             '{%this.renderContainer(out,values)%}',
         '&lt;/div&gt;'
     ],
 
 <span id='Ext-panel-Header-property-headingTpl'>    headingTpl: [
 </span>        // unselectable=&quot;on&quot; is required for Opera, other browsers inherit unselectability from the header
-        '&lt;span id=&quot;{id}-textEl&quot; class=&quot;{headerCls}-text {cls}-text {cls}-text-{ui}&quot; unselectable=&quot;on&quot;&gt;{title}&lt;/span&gt;'
+        '&lt;span id=&quot;{id}-textEl&quot; class=&quot;{headerCls}-text {cls}-text {cls}-text-{ui}&quot; unselectable=&quot;on&quot;',
+            '&lt;tpl if=&quot;headerRole&quot;&gt;',
+                ' role=&quot;{headerRole}&quot;',
+            '&lt;/tpl&gt;',
+        '&gt;{title}&lt;/span&gt;'
     ],
 
 <span id='Ext-panel-Header-cfg-shrinkWrap'>    shrinkWrap: 3,
@@ -137,7 +141,8 @@ Ext.define('Ext.panel.Header', {
         me.orientation = me.orientation || 'horizontal';
         me.dock = (me.dock) ? me.dock : (me.orientation == 'horizontal') ? 'top' : 'left';
 
-        if (ownerCt ? (!ownerCt.border &amp;&amp; !ownerCt.frame) : !me.border) {
+        // test for border === false is needed because undefined is the same as true
+        if (ownerCt ? (ownerCt.border === false &amp;&amp; !ownerCt.frame) : me.border === false) {
             uiClasses.push(me.orientation + '-noborder');
         }
         me.addClsWithUI(uiClasses);
@@ -160,7 +165,7 @@ Ext.define('Ext.panel.Header', {
 
         // Add Title
         me.titleCmp = new Ext.Component({
-            ariaRole  : 'heading',
+            ariaRole  : 'presentation',
             focusable : false,
             noWrap    : true,
             flex      : 1,
@@ -175,6 +180,7 @@ Ext.define('Ext.panel.Header', {
                 title: me.title,
                 cls  : me.baseCls,
                 headerCls: me.headerCls,
+                headerRole: me.headerRole,
                 ui   : me.ui
             },
             childEls  : ['textEl'],
@@ -218,6 +224,17 @@ Ext.define('Ext.panel.Header', {
             element: 'el',
             scope: me
         });
+    },
+
+<span id='Ext-panel-Header-method-setTitlePosition'>    /**
+</span>     * Sets the position of the title in the header's items
+     * @param {Number} index
+     */
+    setTitlePosition: function(index) {
+        var me = this;
+    
+        me.titlePosition = index = Math.min(index, me.items.length - 1);
+        me.insert(index, me.titleCmp);
     },
 
 <span id='Ext-panel-Header-method-initIconCmp'>    initIconCmp: function() {
@@ -596,7 +613,7 @@ Ext.define('Ext.panel.Header', {
         this.add(Ext.ComponentManager.create(tool, 'tool'));
     },
 
-<span id='Ext-panel-Header-method-syncBeforeAfterTitleClasses'>    syncBeforeAfterTitleClasses: function() {
+<span id='Ext-panel-Header-method-syncBeforeAfterTitleClasses'>    syncBeforeAfterTitleClasses: function(force) {
 </span>        var me = this,
             items = me.items,
             childItems = items.items,
@@ -606,7 +623,7 @@ Ext.define('Ext.panel.Header', {
             syncGen = me.syncBeforeAfterGen,
             afterCls, beforeCls, i, item;
 
-        if (syncGen === itemGeneration) {
+        if (!force &amp;&amp; (syncGen === itemGeneration)) {
             return;
         }
         me.syncBeforeAfterGen = itemGeneration;
@@ -668,7 +685,7 @@ Ext.define('Ext.panel.Header', {
             cls = me.callParent(),
             owner = me.ownerCt;
             
-        if (!me.expanding &amp;&amp; (owner &amp;&amp; owner.collapsed) || me.isCollapsedExpander) {
+        if (!me.expanding &amp;&amp; owner &amp;&amp; (owner.collapsed || me.isCollapsedExpander)) {
             cls += '-' + owner.collapsedCls; 
         }
         return cls + '-' + me.dock;

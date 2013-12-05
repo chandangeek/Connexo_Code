@@ -32,8 +32,8 @@ $color: #000 !default;
 $font-family: helvetica, arial, verdana, sans-serif !default;
 
 <span id='Global_CSS-css_var-S-font-size'>/**
-</span> * @var {string} $font-size
- * The default font-family to be used throughout the theme.
+</span> * @var {number} $font-size
+ * The default font-size to be used throughout the theme.
  */
 $font-size: 13px !default;
 
@@ -55,12 +55,10 @@ $base-color: #808080 !default;
  */
 $neutral-color: #dcdcdc !default;
 
-// documented in ext-theme-base
-$include-shadow-images: true !default;
-
 <span id='Global_CSS-css_var-S-body-background-color'>/**
 </span> * @var {color} $body-background-color
- * Background color to apply to the body element
+ * Background color to apply to the body element.  If set to transparent or 'none' no
+ * background-color style will be set on the body element.
  */
 $body-background-color: transparent !default;</pre>
 </body>

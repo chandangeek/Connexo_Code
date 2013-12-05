@@ -201,6 +201,8 @@ Ext.define('Ext.window.MessageBox', {
 </span>
     iconHeight: 35,
 <span id='Ext-window-MessageBox-property-iconWidth'>    iconWidth: 50,
+</span>    
+<span id='Ext-window-MessageBox-property-ariaRole'>    ariaRole: 'alertdialog',
 </span>
 <span id='Ext-window-MessageBox-method-makeButton'>    makeButton: function(btnIdx) {
 </span>        var btnId = this.buttonIds[btnIdx];
@@ -237,7 +239,6 @@ Ext.define('Ext.window.MessageBox', {
 </span>        var me = this,
             cls = me.cfg.cls;
 
-        me.dd.endDrag();
         me.progressBar.reset();
         if (cls) {
             me.removeCls(cls);
@@ -304,7 +305,7 @@ Ext.define('Ext.window.MessageBox', {
         });
         me.progressBar = new Ext.ProgressBar({
             id: baseId + '-progressbar',
-            margins: '0 10 10 10'
+            margin: '0 10 10 10'
         });
 
         me.items = [me.topContainer, me.progressBar];
@@ -948,6 +949,7 @@ Ext.define('Ext.window.MessageBox', {
      * Singleton instance of {@link Ext.window.MessageBox}.
      */
     Ext.MessageBox = Ext.Msg = new this();
-});</pre>
+});
+</pre>
 </body>
 </html>

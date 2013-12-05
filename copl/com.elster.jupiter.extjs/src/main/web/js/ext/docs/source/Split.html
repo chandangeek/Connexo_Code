@@ -96,12 +96,15 @@ Ext.define('Ext.button.Split', {
     },
 
 <span id='Ext-button-Split-method-onClick'>    // @private
-</span>    onClick : function(e, t) {
+</span>    onClick : function(e) {
         var me = this;
         
-        e.preventDefault();
+        me.doPreventDefault(e);
         if (!me.disabled) {
             if (me.overMenuTrigger) {
+                // Force prevent default here, if we click on the arrow part
+                // we want to trigger the menu, not any link if we have it
+                e.preventDefault();
                 me.maybeShowMenu();
                 me.fireEvent(&quot;arrowclick&quot;, me, e);
                 if (me.arrowHandler) {

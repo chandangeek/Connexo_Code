@@ -165,8 +165,12 @@ Ext.define('Ext.form.FieldContainer', {
 </span>    // child fields, let them handle themselves
     invalidCls: '',
 
-<span id='Ext-form-FieldContainer-property-fieldSubTpl'>    fieldSubTpl: '&lt;div id=&quot;{id}-containerEl&quot; class=&quot;{containerElCls}&quot;&gt;{%this.renderContainer(out,values)%}&lt;/div&gt;',
-</span>
+<span id='Ext-form-FieldContainer-property-fieldSubTpl'>    fieldSubTpl: [
+</span>        '&lt;div id=&quot;{id}-containerEl&quot; class=&quot;{containerElCls}&quot; role=&quot;presentation&quot;&gt;',
+            '{%this.renderContainer(out,values)%}',
+        '&lt;/div&gt;'
+    ],
+
 <span id='Ext-form-FieldContainer-method-initComponent'>    initComponent: function() {
 </span>        var me = this;
 
@@ -186,19 +190,19 @@ Ext.define('Ext.form.FieldContainer', {
 </span>     * @protected Called when a {@link Ext.form.Labelable} instance is added to the container's subtree.
      * @param {Ext.form.Labelable} labelable The instance that was added
      */
-    onAdd: function(labelable) {
+    onAdd: function(item) {
         var me = this;
         
         // Fix for https://sencha.jira.com/browse/EXTJSIV-6424
         // In FF, positioning absolutely within a TD positions relative to the TR!
         // So we must add the width of a visible, left-aligned label cell to the x coordinate.
-        if (Ext.isGecko &amp;&amp; me.layout.type === 'absolute' &amp;&amp; !me.hideLabel &amp;&amp; me.labelAlign !== 'top') {
-            labelable.x += (me.labelWidth + me.labelPad);
+        if (item.isLabelable &amp;&amp; Ext.isGecko &amp;&amp; me.layout.type === 'absolute' &amp;&amp; !me.hideLabel &amp;&amp; me.labelAlign !== 'top') {
+            item.x += (me.labelWidth + me.labelPad);
         }
         me.callParent(arguments);
-        if (me.combineLabels) {
-            labelable.oldHideLabel = labelable.hideLabel;
-            labelable.hideLabel = true;
+        if (item.isLabelable &amp;&amp; me.combineLabels) {
+            item.oldHideLabel = item.hideLabel;
+            item.hideLabel = true;
         }
         me.updateLabel();
     },
@@ -207,12 +211,12 @@ Ext.define('Ext.form.FieldContainer', {
 </span>     * @protected Called when a {@link Ext.form.Labelable} instance is removed from the container's subtree.
      * @param {Ext.form.Labelable} labelable The instance that was removed
      */
-    onRemove: function(labelable, isDestroying) {
+    onRemove: function(item, isDestroying) {
         var me = this;
         me.callParent(arguments);
         if (!isDestroying) {
-            if (me.combineLabels) {
-                labelable.hideLabel = labelable.oldHideLabel;
+            if (item.isLabelable &amp;&amp; me.combineLabels) {
+                item.hideLabel = item.oldHideLabel;
             }
             me.updateLabel();
         }   

@@ -75,6 +75,13 @@
  *             }
  *         }]
  *     });
+ *
+ *  # Cell Editing and Cell Selection Model
+ *
+ * Note that if {@link Ext.grid.plugin.CellEditing cell editing} or the {@link Ext.selection.CellModel cell selection model} are going
+ * to be used, then the {@link Ext.grid.feature.RowWrap RowWrap} feature, or {@link Ext.grid.plugin.RowExpander RowExpander} plugin MUST
+ * be used for intra-cell navigation to be correct.
+ *
  */
 Ext.define('Ext.grid.feature.RowBody', {
     extend: 'Ext.grid.feature.Feature',
@@ -85,6 +92,8 @@ Ext.define('Ext.grid.feature.RowBody', {
 </span><span id='Ext-grid-feature-RowBody-property-rowBodyTdSelector'>    rowBodyTdSelector: 'td.' + Ext.baseCSSPrefix + 'grid-cell-rowbody',
 </span><span id='Ext-grid-feature-RowBody-property-eventPrefix'>    eventPrefix: 'rowbody',
 </span><span id='Ext-grid-feature-RowBody-property-eventSelector'>    eventSelector: 'tr.' + Ext.baseCSSPrefix + 'grid-rowbody-tr',
+</span>
+<span id='Ext-grid-feature-RowBody-property-colSpanDecrement'>    colSpanDecrement: 0,
 </span>
 <span id='Ext-grid-feature-RowBody-property-tableTpl'>    tableTpl: {
 </span>        before: function(values, out) {
@@ -107,9 +116,9 @@ Ext.define('Ext.grid.feature.RowBody', {
             'values.view.rowBodyFeature.setupRowData(values.record, values.recordIndex, values);',
             'this.nextTpl.applyOut(values, out, parent);',
         '%}',
-        '&lt;tr class=&quot;' + Ext.baseCSSPrefix + 'grid-rowbody-tr {rowBodyCls}&quot;&gt;',
-            '&lt;td class=&quot;' + Ext.baseCSSPrefix + 'grid-cell-rowbody' + '&quot; colspan=&quot;{rowBodyColspan}&quot;&gt;',
-                '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-rowbody' + ' {rowBodyDivCls}&quot;&gt;{rowBody}&lt;/div&gt;',
+        '&lt;tr class=&quot;', Ext.baseCSSPrefix, 'grid-rowbody-tr {rowBodyCls}&quot; {ariaRowAttr}&gt;',
+            '&lt;td class=&quot;', Ext.baseCSSPrefix, 'grid-cell-rowbody', '&quot; colspan=&quot;{rowBodyColspan}&quot; {ariaCellAttr}&gt;',
+                '&lt;div class=&quot;', Ext.baseCSSPrefix, 'grid-rowbody', ' {rowBodyDivCls}&quot; {ariaCellInnerAttr}&gt;{rowBody}&lt;/div&gt;',
             '&lt;/td&gt;',
         '&lt;/tr&gt;', {
             priority: 100,
@@ -236,7 +245,7 @@ Ext.define('Ext.grid.feature.RowBody', {
 
 <span id='Ext-grid-feature-RowBody-method-setup'>    setup: function(rows, rowValues) {
 </span>        rowValues.rowBodyCls = this.rowBodyCls;
-        rowValues.rowBodyColspan = rowValues.view.getGridColumns().length;
+        rowValues.rowBodyColspan = rowValues.view.getGridColumns().length - this.colSpanDecrement;
     },
 
 <span id='Ext-grid-feature-RowBody-method-cleanup'>    cleanup: function(rows, rowValues) {

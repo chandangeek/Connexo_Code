@@ -126,7 +126,8 @@ Ext.define('Ext.form.action.DirectSubmit', {
             //&lt;/debug&gt;
             
             api.submit = fn = Ext.direct.Manager.parseMethod(fn);
-            
+            me.cleanup(formInfo);
+
             //&lt;debug&gt;
             if (!Ext.isFunction(fn)) {
                 Ext.Error.raise('Cannot resolve Ext.Direct API method ' + fnName);

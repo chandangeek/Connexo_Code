@@ -275,7 +275,6 @@ Ext.define('Ext.data.reader.Reader', {
         var me = this;
         
         me.mixins.observable.constructor.call(me, config);
-        me.fieldCount = 0;
         me.model = Ext.ModelManager.getModel(me.model);
 
         // Extractors can only be calculated if the fields MixedCollection has been set.
@@ -306,15 +305,24 @@ Ext.define('Ext.data.reader.Reader', {
      * @param {Boolean} setOnProxy True to also set on the Proxy, if one is configured
      */
     setModel: function(model, setOnProxy) {
-        var me = this;
+        var me = this,
+            oldModel = me.model,
+            force = true;
         
-        me.model = Ext.ModelManager.getModel(model);
+        model = me.model = Ext.ModelManager.getModel(model);
+        if (model &amp;&amp; oldModel === model) {
+            // Setting the same model, only force the fn creation if the generation has changed.
+            // This is especially important when creating hasMany associations, since the model
+            // will get set during the store creation process for each record in the owner store.
+            force = me.lastFieldGeneration !== model.prototype.fields.generation;
+        }
+        
         if (model) {
-            me.buildExtractors(true);
+            me.buildExtractors(force);
         }
         
         if (setOnProxy &amp;&amp; me.proxy) {
-            me.proxy.setModel(me.model, true);
+            me.proxy.setModel(model, true);
         }
     },
 

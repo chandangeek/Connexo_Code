@@ -65,7 +65,7 @@ Ext.define('Ext.view.BoundList', {
     ],
 
 <span id='Ext-view-BoundList-cfg-renderTpl'>    renderTpl: [
-</span>        '&lt;div id=&quot;{id}-listEl&quot; class=&quot;{baseCls}-list-ct ', Ext.dom.Element.unselectableCls, '&quot; style=&quot;overflow:auto&quot;&gt;&lt;/div&gt;',
+</span>        '&lt;div id=&quot;{id}-listEl&quot; role=&quot;presentation&quot; class=&quot;{baseCls}-list-ct ', Ext.dom.Element.unselectableCls, '&quot; style=&quot;overflow:auto&quot;&gt;&lt;/div&gt;',
         '{%',
             'var me=values.$comp, pagingToolbar=me.pagingToolbar;',
             'if (pagingToolbar) {',

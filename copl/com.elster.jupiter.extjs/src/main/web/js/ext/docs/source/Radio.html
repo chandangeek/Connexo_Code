@@ -271,7 +271,11 @@ Ext.define('Ext.form.field.Radio', {
     },
 
 <span id='Ext-form-field-Radio-method-getModelData'>    getModelData: function() {
-</span>        return this.getSubmitData();
+</span>        var o = this.callParent(arguments);
+        if (o) {
+            o[this.getName()] = this.getSubmitValue();
+        }
+        return o;
     },
 
 <span id='Ext-form-field-Radio-method-onChange'>    // inherit docs

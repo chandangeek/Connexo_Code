@@ -284,7 +284,8 @@ Ext.define('Ext.form.field.Text', {
 <span id='Ext-form-field-Text-property-valueContainsPlaceholder'>    // private
 </span>    valueContainsPlaceholder : false,
 
-
+<span id='Ext-form-field-Text-property-ariaRole'>    ariaRole: 'textbox',
+</span>
 <span id='Ext-form-field-Text-method-initComponent'>    initComponent: function () {
 </span>        var me = this;
         
@@ -534,8 +535,9 @@ Ext.define('Ext.form.field.Text', {
             inputEl.removeCls(me.emptyCls);
             me.valueContainsPlaceholder = false;
         } else if (Ext.supports.Placeholder) {
-            me.inputEl.removeCls(me.emptyCls);
+            inputEl.removeCls(me.emptyCls);
         }
+        
         if (me.selectOnFocus || isEmpty) {
             // see: http://code.google.com/p/chromium/issues/detail?id=4505
             if (Ext.isWebKit) {
@@ -544,7 +546,7 @@ Ext.define('Ext.form.field.Text', {
                 }
                 me.inputFocusTask.delay(1);
             } else {
-                inputEl.dom.select();
+                me.focusInput();
             }
         }
     },
@@ -569,8 +571,16 @@ Ext.define('Ext.form.field.Text', {
 
 <span id='Ext-form-field-Text-method-postBlur'>    // private
 </span>    postBlur : function(){
+        var task = this.inputFocusTask;
+        
         this.callParent(arguments);
         this.applyEmptyText();
+        // Once we blur, cancel any pending select events from focus
+        // We need this because of the WebKit bug detailed in beforeFocus
+        if (task) {
+            task.cancel();
+        }
+        
     },
 
 <span id='Ext-form-field-Text-method-filterKeys'>    // private

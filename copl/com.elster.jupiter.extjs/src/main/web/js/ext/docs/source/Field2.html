@@ -234,7 +234,7 @@ Ext.define('Ext.form.field.Field', {
     getSubmitData: function() {
         var me = this,
             data = null;
-        if (!me.disabled &amp;&amp; me.submitValue &amp;&amp; !me.isFileUpload()) {
+        if (!me.disabled &amp;&amp; me.submitValue) {
             data = {};
             data[me.getName()] = '' + me.getValue();
         }
@@ -255,10 +255,13 @@ Ext.define('Ext.form.field.Field', {
      * strings if that particular name has multiple values. It can also return null if there are no parameters to be
      * submitted.
      */
-    getModelData: function() {
+    getModelData: function(includeEmptyText, /*private*/ isSubmitting) {
         var me = this,
             data = null;
-        if (!me.disabled &amp;&amp; !me.isFileUpload()) {
+        
+        // Note that we need to check if this operation is being called from a Submit action because displayfields aren't
+        // to be submitted,  but they can call this to get their model data.
+        if (!me.disabled &amp;&amp; (me.submitValue || !isSubmitting)) {
             data = {};
             data[me.getName()] = me.getValue();
         }
@@ -306,16 +309,28 @@ Ext.define('Ext.form.field.Field', {
      *    if it has changed.
      */
     checkChange: function() {
-        if (!this.suspendCheckChange) {
-            var me = this,
-                newVal = me.getValue(),
-                oldVal = me.lastValue;
-            if (!me.isEqual(newVal, oldVal) &amp;&amp; !me.isDestroyed) {
+        var me = this,
+            newVal, oldVal;
+            
+        if (!me.suspendCheckChange) {
+            newVal = me.getValue();
+            oldVal = me.lastValue;
+                
+            if (!me.isDestroyed &amp;&amp; me.didValueChange(newVal, oldVal)) {
                 me.lastValue = newVal;
                 me.fireEvent('change', me, newVal, oldVal);
                 me.onChange(newVal, oldVal);
             }
         }
+    },
+    
+<span id='Ext-form-field-Field-method-didValueChange'>    /**
+</span>     * @private
+     * Checks if the value has changed. Allows subclasses to override for
+     * any more complex logic.
+     */
+    didValueChange: function(newVal, oldVal){
+        return !this.isEqual(newVal, oldVal);
     },
 
 <span id='Ext-form-field-Field-method-onChange'>    /**

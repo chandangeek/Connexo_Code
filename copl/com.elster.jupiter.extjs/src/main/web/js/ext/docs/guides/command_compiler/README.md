@@ -1,18 +1,17 @@
 # Sencha Compiler Reference
 
-One of the major components new to Sencha Cmd with version 3 is the compiler. In a nutshell,
-the compiler is a JavaScript-to-JavaScript, framework-aware optimizer. It is designed to
-"understand" your high-level Ext JS and Sencha Touch code and produce the smallest, most
+One of the major components in [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) 
+is its compiler, which provides a JavaScript-to-JavaScript, framework-aware optimizer. 
+The optimizer 
+"understands" your high-level Ext JS and Sencha Touch code and produces the smallest, most
 efficient code possible to support these high-level abstractions.
-
-{@img ../command/sencha-command-128.png}
 
 Before using the compiler, you should understand the basics of Sencha Cmd by reading the
 following guides:
 
- * [Introduction to Sencha Cmd](#/guide/command)
- * [Using Sencha Cmd](#/guide/command_app)
- * [Compiler-Friendly Code Guidelines](#/guide/command_code)
+ * [Introduction to Sencha Cmd](#!/guide/command)
+ * [Using Sencha Cmd](#!/guide/command_app)
+ * [Compiler-Friendly Code Guidelines](#!/guide/command_code)
 
 ## Sets And The Current Set
 
@@ -23,7 +22,7 @@ determine their dependencies. The set of all files is determined by the `classpa
 
 In this example, the compiler recursively loads `"*.js"` from the specified list of folders.
 This set of all files defines the basis for all operations to follow (that is, it defines
-the "universe").
+its "universe").
 
 The default classpath used by the compiler comes from these configuration properties:
 
@@ -34,32 +33,34 @@ of files called the "current set". The current set starts out equal to the unive
 files, but this can be manipulated using the many commands provided to perform set
 operations.
 
-*Note.* With the compiler, you will often see rather long command lines using the command
-chaining mechanism `and`. Also, in practical use cases, for long command lines you should
-consider using [Ant](#/guide/command_ant) or a "response file". See
-[Advanced Sencha Cmd](#/guide/command_advanced). In this guide, all command lines will be
+**Note** With the compiler, you often see rather long command lines using the `and` command
+chaining mechanism. Also, in practical use cases, for long command lines, you should
+consider using [Ant](#!/guide/command_ant) or a "response file". See
+[Advanced Sencha Cmd](#!/guide/command_advanced). 
+
+In this guide, all command lines are
 complete (and potentially long) to keep the examples as clear as possible.
 
 ## Generating Output with `concat`
 
 A compiler ultimately is all about writing useful output given some number of inputs. The
-`concat` command is designed to concatenate the source for the current set of files in the
+`concat` command concatenates the source for the current set of files in the
 appropriate dependency order.
 
-The one required parameter is `-out`, which indicates the name of the output file. There
-are other options, however, that effect the generated file. You can pick one of the
+The one required parameter is `-out`, which indicates the name of the output file. 
+Other options affect the generated file. You can pick one of the
 following options for compression:
 
- * `-compress` - Compress the generated file using the default compressor. Currently this
+ * `-compress` - Compresses the generated file using the default compressor. Currently this
  is the same as `-yui`.
- * `-max` - Compress the generated file using all compressors and keep the smallest.
- * `-closure` - Compress the generated file using [Google Closure Compiler](https://developers.google.com/closure/compiler/).
- * `-uglify` - Compress the generated file using [UglifyJS](https://github.com/mishoo/UglifyJS/).
- * `-yui` - Compress the source file using  [YUI Compressor](http://developer.yahoo.com/yui/compressor/).
- * `-strip` - Strip comments from the output file, but preserve whitespace. This is the
- option used to convert "ext-all-debug-w-comments.js" into "ext-all-debug.js".
+ * `-max` - Compresses the generated file using all compressors and keep the smallest.
+ * `-closure` - Compresses the generated file using the [Google Closure Compiler](https://developers.google.com/closure/compiler/).
+ * `-uglify` - Compresses the generated file using [UglifyJS](https://github.com/mishoo/UglifyJS/).
+ * `-yui` - Compresses the source file using the [YUI Compressor](http://developer.yahoo.com/yui/compressor/).
+ * `-strip` - Strips comments from the output file, but preserves whitespace. This 
+ option converts "ext-all-debug-w-comments.js" into "ext-all-debug.js".
 
-The following command illustrates how to produce three flavors of output given a single
+The following command produces three flavors of output from a single
 read of the source.
 
     sencha compile -classpath=sdk/src \
@@ -74,12 +75,12 @@ read of the source.
 
 The compiler can also generate metadata in many useful ways, for example, the names of
 all source files, the set of files in dependency order, etc. To see what is available,
-see the [Generating Metadata](#/guide/command_compiler_meta) guide.
+see the [Generating Metadata](#!/guide/command_compiler_meta) guide.
 
 ## Saving And Restoring Sets
 
 When you need to produce multiple output files, it can be very helpful to save the
-current set for later use, which you do like this:
+current set for later use:
 
     sencha compile -classpath=sdk/src \
         exclude -namespace Ext.chart and \
@@ -89,9 +90,9 @@ current set for later use, which you do like this:
         ...
 
 `The `save` command takes a snapshot of the current set and stores it under the given name
-(`nocharts` in the above).
+(`nocharts` in this example).
 
-The simplest use of a saved set is the `restore` command. This does the reverse and
+The simplest use of a saved set is with the `restore` command., which does the reverse and
 restores the current set to its state at the time of the `save`.
 
 ## Set Operations
@@ -140,7 +141,7 @@ So, let's start with a simple example and build an `"ext-all-no-charts-debug-w-c
 What is happening here is that we started with only the Ext JS sources (in `"sdk/src"`) and
 they were all part of the "current set". We then performed a set difference by excluding
 all files in the `Ext.chart` namespace. The current set was then equivalent to `"ext-all.js"`
-but without any of the Chart package.
+but without use of the Chart package.
 
 ### Negating `include` and `exclude` with `-not`
 
@@ -155,13 +156,13 @@ For example:
         exclude -not -namespace Ext and \
         ...
 
-The above `exclude` command will exclude from the current set any classes that are not in
+The `exclude` command excludes from the current set any classes that are not in
 the `Ext` namespace.
 
 ### The `all` Set
 
 In some cases, it is very handy to restore the current set to all files or to the empty
-set. To do this, you simply use `include` or `exclude` with the `-all` switch. To build
+set. To do this, simply use `include` or `exclude` with the `-all` switch. To build
 on the previous example:
 
     sencha compile -classpath=sdk/src \
@@ -178,7 +179,7 @@ empty set.
 
 As shown already, the `include` command is a form of set union: it performs a union of
 the current set with the set of matching files. Sometimes it is desirable to not include
-the current set in the union and only those file matching the desired criteria. This is
+the current set in the union and only include those file matching the desired criteria. This is
 what the `union` command does.
 
 The `union` command has all of the options of `include`. Consider this `union` command:
@@ -199,7 +200,7 @@ It is exactly equivalent to this pair of `exclude` and `include` commands:
 One of the most important set operations is the union of all files explicitly specified
 and all of the files they require. This is the core of a build process, since this is
 how you select only the set of files you need. So, if you have a small set of top-level
-files to start the process, say the class `MyApp.App`, you can do something like this:
+files to start the process, say the class `MyApp.App`, you can use:
 
     sencha compile -classpath=sdk/src,app \
         union -r -class MyApp.App and \
@@ -219,14 +220,14 @@ accepts named sets (using `-set`).
         intersect -set page1,page2 and \
         ... \
 
-This command above intersects the two page sets and produces their intersection as the
+This command intersects the two page sets and produces their intersection as the
 current set.
 
 ### Intersect (Fuzzy)
 
 When dealing with more than two sets, `intersect` has an option called `-min` that sets
 the threshold for membership in the current set. This option is discussed in more detail
-in [Multi-Page Ext JS Apps](#/guide/command_app_multi).
+in [Multi-Page Ext JS Apps](#!/guide/command_app_multi).
 
 For example,
 
@@ -261,7 +262,7 @@ valid [Java charset](http://docs.oracle.com/javase/7/docs/api/java/nio/charset/C
 name. The default is "UTF-8".
 
 The `charset` directive is used to describe the encoding of an input file to the compiler.
-This does not effect the encoding of the output file. The content of the input file is
+This does not affect the encoding of the output file. The content of the input file is
 converted to Unicode internally.
 
 ### Tagging
@@ -292,14 +293,14 @@ also provides these directives:
     //@requires Bar.foo.Stuff
 
 These directives set up the same basic metadata in the compiler that tracks what file
-defines a type and what types that file requires. In most ways, then, these directives
+defines a type and what types that a file requires. In most ways, then, these directives
 accomplish the same thing as an `Ext.define` with a `requires` property.
 
 You can use either of these directives in a file without using the other.
 
 ## Conditional Compilation
 
-The compiler supports conditional compilation directives, such as the one illustrated here:
+The compiler supports conditional compilation directives, such as:
 
     foo: function () {
         //<debug>
@@ -311,10 +312,10 @@ The compiler supports conditional compilation directives, such as the one illust
         this.bar();
     }
 
-This may be the most useful of the conditional directives, which you'd use for code that
+This may be the most useful of the conditional directives, which you can use for code that
 you want to run in a development environment but not in production. 
 
-**Important.** When you use conditional compilation, remember that unless you always run
+**Important** When you use conditional compilation, remember that unless you always run
 compiled code, the directives are just comments and the conditional code will be "live"
 during development.
 
@@ -331,7 +332,7 @@ For example, this command:
         -debug \
         ...
 
-generates code like this:
+Generates code like this:
 
     foo: function () {
         if (sometest) {
@@ -347,7 +348,7 @@ However, this command:
         -debug=false \
         ...
 
-generates code like this:
+Generates code like this:
 
     foo: function () {
         this.bar();

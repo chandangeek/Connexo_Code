@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * @author Ed Spencer
@@ -408,10 +408,6 @@ Ext.define('Ext.data.AbstractStore', {
         //ensures that the Proxy is instantiated correctly
         me.setProxy(me.proxy || me.model.getProxy());
 
-        if (!me.disableMetaChangeEvent) {
-            me.proxy.on('metachange', me.onMetaChange, me);
-        }
-
         if (me.id && !me.storeId) {
             me.storeId = me.id;
             delete me.id;
@@ -439,21 +435,28 @@ Ext.define('Ext.data.AbstractStore', {
      * @return {Ext.data.proxy.Proxy} The attached Proxy object
      */
     setProxy: function(proxy) {
-        var me = this;
+        var me = this,
+            model = me.model;
 
         if (proxy instanceof Ext.data.proxy.Proxy) {
-            proxy.setModel(me.model);
+            proxy.setModel(model);
         } else {
             if (Ext.isString(proxy)) {
                 proxy = {
-                    type: proxy
+                    type: proxy,
+                    model: model
                 };
+            } else if (!proxy.model) {
+                proxy = Ext.apply({
+                    model: model
+                }, proxy)
             }
-            Ext.applyIf(proxy, {
-                model: me.model
-            });
 
             proxy = Ext.createByAlias('proxy.' + proxy.type, proxy);
+        }
+
+        if (!me.disableMetaChangeEvent) {
+            proxy.on('metachange', me.onMetaChange, me);
         }
 
         me.proxy = proxy;
@@ -853,16 +856,21 @@ Ext.define('Ext.data.AbstractStore', {
      */
     load: function(options) {
         var me = this,
-            operation;
+            operation = {
+                action: 'read'
+            };
 
-        options = Ext.apply({
-            action: 'read',
-            filters: me.filters.items,
-            sorters: me.getSorters()
-        }, options);
-        me.lastOptions = options;
+        // Only add filtering and sorting options if those options are remote
+        if (me.remoteFilter) {
+            operation.filters = me.filters.items;
+        }
+        if (me.remoteSort) {
+            operation.sorters = me.getSorters();
+        }
+        Ext.apply(operation, options);
+        me.lastOptions = operation;
 
-        operation = new Ext.data.Operation(options);
+        operation = new Ext.data.Operation(operation);
 
         if (me.fireEvent('beforeload', me, operation) !== false) {
             me.loading = true;
@@ -877,7 +885,8 @@ Ext.define('Ext.data.AbstractStore', {
      * @param {Object} options A config object which contains options which may override the options passed to the previous load call.
      */
     reload: function(options) {
-        return this.load(Ext.apply(this.lastOptions, options));
+        var o = Ext.apply({}, options, this.lastOptions);
+        return this.load(o);
     },
 
     /**

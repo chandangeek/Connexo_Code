@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * A specialized floating Component that supports a drop status icon, {@link Ext.Layer} styles
@@ -28,11 +28,13 @@ Ext.define('Ext.dd.StatusProxy', {
     ],
 
     renderTpl: [
-        '<div class="' + Ext.baseCSSPrefix + 'dd-drop-icon"></div>' +
-        '<div id="{id}-ghost" class="' + Ext.baseCSSPrefix + 'dd-drag-ghost"></div>'
+        '<div class="' + Ext.baseCSSPrefix + 'dd-drop-icon" role="presentation"></div>' +
+        '<div id="{id}-ghost" class="' + Ext.baseCSSPrefix + 'dd-drag-ghost" role="presentation"></div>'
     ],
     
     repairCls: Ext.baseCSSPrefix + 'dd-drag-repair',
+    
+    ariaRole: 'presentation',
 
     /**
      * Creates new StatusProxy.

@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 // @define Ext.MessageBox, Ext.Msg
 
@@ -201,6 +201,8 @@ Ext.define('Ext.window.MessageBox', {
 
     iconHeight: 35,
     iconWidth: 50,
+    
+    ariaRole: 'alertdialog',
 
     makeButton: function(btnIdx) {
         var btnId = this.buttonIds[btnIdx];
@@ -237,7 +239,6 @@ Ext.define('Ext.window.MessageBox', {
         var me = this,
             cls = me.cfg.cls;
 
-        me.dd.endDrag();
         me.progressBar.reset();
         if (cls) {
             me.removeCls(cls);
@@ -304,7 +305,7 @@ Ext.define('Ext.window.MessageBox', {
         });
         me.progressBar = new Ext.ProgressBar({
             id: baseId + '-progressbar',
-            margins: '0 10 10 10'
+            margin: '0 10 10 10'
         });
 
         me.items = [me.topContainer, me.progressBar];

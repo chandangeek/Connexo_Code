@@ -1,3 +1,6 @@
+/** @class Ext.tab.Tab */
+//
+
 $tab-base-color: adjust-color($base-color, $hue: 0deg, $saturation: 33.016%, $lightness: 9.02%) !default; //#deecfd
 $tab-base-color-over: adjust-color($tab-base-color, $hue: 0deg, $saturation: 11.429%, $lightness: 2.353%) !default;
 $tab-base-color-disabled: adjust-color($base-color, $hue: 0deg, $saturation: 15.873%, $lightness: 9.02%) !default; //E1ECFA

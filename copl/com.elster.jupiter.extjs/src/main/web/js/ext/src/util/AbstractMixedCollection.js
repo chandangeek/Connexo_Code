@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * @class Ext.util.AbstractMixedCollection
@@ -226,7 +226,7 @@ Ext.define('Ext.util.AbstractMixedCollection', {
             indexMap = me.indexMap,
             index = me.indexOfKey(oldKey),
             item;
-            
+
         if (index > -1) {
             item = map[oldKey];
             delete map[oldKey];
@@ -234,8 +234,10 @@ Ext.define('Ext.util.AbstractMixedCollection', {
             map[newKey] = item;
             indexMap[newKey] = index;
             me.keys[index] = newKey;
-            me.generation++;
-            
+
+            // indexGeneration will be in sync since we called indexOfKey
+            // And we kept it all in sync, so now generation changes we keep the indexGeneration matched
+            me.indexGeneration = ++me.generation;
         }
     },
 
@@ -407,7 +409,7 @@ Ext.define('Ext.util.AbstractMixedCollection', {
             }
         }
 
-        // First, remove duplicates of the keys. If a removal point is less than insertion index, decr insertion index
+        // First, remove duplicates of the keys. If a removal point is less than insertion index, decr insertion index.
         me.suspendEvents();
         for (i = 0; i < len; i++) {
             itemKey = keys[i];
@@ -1028,6 +1030,10 @@ Ext.define('Ext.util.AbstractMixedCollection', {
             }
         }
 
+        // The add using an external key will make the newMC think that keys cannot be reliably extracted
+        // from objects, so that an indexOf call will always have to do a linear search.
+        // If the flag is not set in this object, we know that the clone will not need it either.
+        newMC.useLinearSearch = me.useLinearSearch;
         return newMC;
     },
 
@@ -1113,9 +1119,14 @@ Ext.define('Ext.util.AbstractMixedCollection', {
      */
     clone : function() {
         var me = this,
-            copy = new this.self(me.initialConfig);
+            copy = new me.self(me.initialConfig);
 
         copy.add(me.keys, me.items);
+        
+        // The add using external keys will make the clone think that keys cannot be reliably extracted
+        // from objects, so that an indexOf call will always have to do a linear search.
+        // If the flag is not set in this object, we know that the clone will not need it either.
+        copy.useLinearSearch = me.useLinearSearch;
         return copy;
     }
 });

@@ -4,8 +4,6 @@ The metadata tracked by the Sencha Cmd compiler has a variety of uses, some of w
 examine in this guide. To support these uses, the compiler can export and format this
 metadata in several different ways, which we'll cover here, as well.
 
-{@img ../command/sencha-command-128.png}
-
 ## Generating Output with `meta`
 
 One of the major new dimensions provided by the compiler is its ability to export metadata

@@ -28,11 +28,13 @@ Ext.define('Ext.dd.StatusProxy', {
     ],
 
 <span id='Ext-dd-StatusProxy-cfg-renderTpl'>    renderTpl: [
-</span>        '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'dd-drop-icon&quot;&gt;&lt;/div&gt;' +
-        '&lt;div id=&quot;{id}-ghost&quot; class=&quot;' + Ext.baseCSSPrefix + 'dd-drag-ghost&quot;&gt;&lt;/div&gt;'
+</span>        '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'dd-drop-icon&quot; role=&quot;presentation&quot;&gt;&lt;/div&gt;' +
+        '&lt;div id=&quot;{id}-ghost&quot; class=&quot;' + Ext.baseCSSPrefix + 'dd-drag-ghost&quot; role=&quot;presentation&quot;&gt;&lt;/div&gt;'
     ],
     
 <span id='Ext-dd-StatusProxy-property-repairCls'>    repairCls: Ext.baseCSSPrefix + 'dd-drag-repair',
+</span>    
+<span id='Ext-dd-StatusProxy-property-ariaRole'>    ariaRole: 'presentation',
 </span>
 <span id='Ext-dd-StatusProxy-method-constructor'>    /**
 </span>     * Creates new StatusProxy.

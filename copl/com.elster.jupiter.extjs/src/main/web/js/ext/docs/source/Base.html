@@ -551,7 +551,7 @@ var noArgs = [],
                             member.$owner = me;
                             member.$name = name;
 
-                            previous = target[name];
+                            previous = target.hasOwnProperty(name) &amp;&amp; target[name];
                             if (previous) {
                                 member.$previous = previous;
                             }

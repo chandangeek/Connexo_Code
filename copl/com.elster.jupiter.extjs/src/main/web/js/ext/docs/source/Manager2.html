@@ -46,6 +46,7 @@ Ext.define('Ext.fx.Manager', {
     constructor: function() {
         var me = this;
         me.items = new Ext.util.MixedCollection();
+        me.targetArr = {};
         me.mixins.queue.constructor.call(me);
         
         // Do not use fireIdleEvent: false. Each tick of the TaskRunner needs to fire the idleEvent
@@ -248,7 +249,7 @@ Ext.define('Ext.fx.Manager', {
 </span>     * @private
      * Run the individual animation for this frame
      */
-    runAnim: function(anim) {
+    runAnim: function(anim, forceEnd) {
         if (!anim) {
             return;
         }
@@ -257,6 +258,11 @@ Ext.define('Ext.fx.Manager', {
             elapsedTime = me.timestamp - anim.startTime,
             lastFrame = (elapsedTime &gt;= anim.duration),
             target, o;
+            
+        if (forceEnd) {
+            elapsedTime = anim.duration;
+            lastFrame = true;
+        }
 
         target = this.collectTargetData(anim, elapsedTime, useCSS3, lastFrame);
         
@@ -287,6 +293,12 @@ Ext.define('Ext.fx.Manager', {
             o.single = true;
             target.on(o);
         }
+        return target;
+    },
+    
+<span id='Ext-fx-Manager-method-jumpToEnd'>    jumpToEnd: function(anim) {
+</span>        var target = this.runAnim(anim, true);
+        this.applyAnimAttrs(target, target.anims[anim.id]);
     },
 
 <span id='Ext-fx-Manager-method-collectTargetData'>    /**
@@ -335,6 +347,21 @@ Ext.define('Ext.fx.Manager', {
         };
         
         return target;
+    },
+    
+<span id='Ext-fx-Manager-method-applyAnimAttrs'>    // Duplicating this code for performance reasons. We only want to apply the anims
+</span>    // to a single animation because we're hitting the end. It may be out of sequence from
+    // the runner timer.
+    applyAnimAttrs: function(target, animWrap) {
+        var anim = animWrap.anim;
+        if (animWrap.attributes &amp;&amp; anim.isRunning()) {
+            target.el.setAttr(animWrap.attributes, false, animWrap.isLastFrame);
+                            
+            // If this particular anim is at the last frame end it
+            if (animWrap.isLastFrame) {
+                anim.lastFrame();
+            }
+        }
     },
     
 <span id='Ext-fx-Manager-method-applyPendingAttrs'>    /**

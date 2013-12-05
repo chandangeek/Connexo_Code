@@ -31,7 +31,7 @@
  * 
  * # BasicForm
  * 
- * Although **not listed** as configuration options of FormPanel, the FormPanel class accepts all
+ * FormPanel class accepts all
  * of the config options supported by the {@link Ext.form.Basic} class, and will pass them along to
  * the internal BasicForm when it is created.
  * 
@@ -165,20 +165,34 @@ Ext.define('Ext.form.Panel', {
 <span id='Ext-form-Panel-property-ariaRole'>    ariaRole: 'form',
 </span>    
 <span id='Ext-form-Panel-property-basicFormConfigs'>    basicFormConfigs: [
+</span><span id='Ext-form-Panel-cfg-api'>        /** @cfg @inheritdoc Ext.form.Basic#api */
 </span>        'api', 
-        'baseParams', 
-        'errorReader', 
-        'jsonSubmit',
-        'method', 
-        'paramOrder',
-        'paramsAsHash',
-        'reader',
-        'standardSubmit',
-        'timeout',
-        'trackResetOnLoad',
-        'url',
-        'waitMsgTarget',
-        'waitTitle'
+<span id='Ext-form-Panel-cfg-baseParams'>        /** @cfg @inheritdoc Ext.form.Basic#baseParams */
+</span>        'baseParams', 
+<span id='Ext-form-Panel-cfg-errorReader'>        /** @cfg @inheritdoc Ext.form.Basic#errorReader */
+</span>        'errorReader', 
+<span id='Ext-form-Panel-cfg-jsonSubmit'>        /** @cfg @inheritdoc Ext.form.Basic#jsonSubmit */
+</span>        'jsonSubmit',
+<span id='Ext-form-Panel-cfg-method'>        /** @cfg @inheritdoc Ext.form.Basic#method */
+</span>        'method', 
+<span id='Ext-form-Panel-cfg-paramOrder'>        /** @cfg @inheritdoc Ext.form.Basic#paramOrder */
+</span>        'paramOrder',
+<span id='Ext-form-Panel-cfg-paramsAsHash'>        /** @cfg @inheritdoc Ext.form.Basic#paramsAsHash */
+</span>        'paramsAsHash',
+<span id='Ext-form-Panel-cfg-reader'>        /** @cfg @inheritdoc Ext.form.Basic#reader */
+</span>        'reader',
+<span id='Ext-form-Panel-cfg-standardSubmit'>        /** @cfg @inheritdoc Ext.form.Basic#standardSubmit */
+</span>        'standardSubmit',
+<span id='Ext-form-Panel-cfg-timeout'>        /** @cfg @inheritdoc Ext.form.Basic#timeout */
+</span>        'timeout',
+<span id='Ext-form-Panel-cfg-trackResetOnLoad'>        /** @cfg @inheritdoc Ext.form.Basic#trackResetOnLoad */
+</span>        'trackResetOnLoad',
+<span id='Ext-form-Panel-cfg-url'>        /** @cfg @inheritdoc Ext.form.Basic#url */
+</span>        'url',
+<span id='Ext-form-Panel-cfg-waitMsgTarget'>        /** @cfg @inheritdoc Ext.form.Basic#waitMsgTarget */
+</span>        'waitMsgTarget',
+<span id='Ext-form-Panel-cfg-waitTitle'>        /** @cfg @inheritdoc Ext.form.Basic#waitTitle */
+</span>        'waitTitle'
     ],
 
 <span id='Ext-form-Panel-method-initComponent'>    initComponent: function() {

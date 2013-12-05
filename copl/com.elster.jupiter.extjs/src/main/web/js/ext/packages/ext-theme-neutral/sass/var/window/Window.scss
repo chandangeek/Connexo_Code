@@ -240,3 +240,21 @@ $window-wrap-border-width: 1px !default;
  * True to include the "default" window UI
  */
 $include-window-default-ui: $include-default-uis !default;
+
+/**
+ * @var {number}
+ * The default font-size of the Window body
+ */
+$window-body-font-size: $panel-body-font-size !default;
+
+/**
+ * @var {string}
+ * The default font-weight of the Window body
+ */
+$window-body-font-weight: $panel-body-font-weight !default;
+
+/**
+ * @var {string}
+ * The default font-family of the Window body
+ */
+$window-body-font-family: $panel-body-font-family !default;

@@ -50,6 +50,22 @@ var TemplateClass = function(){},
         return result;
     },
 
+<span id='Ext-Object-method-clear'>    /**
+</span>     * This method removes all keys from the given object.
+     * @param {Object} object The object from which to remove all keys.
+     * @return {Object} The given object.
+     */
+    clear: function (object) {
+        var keys = ExtObject.getKeys(object),
+            n = keys.length;
+
+        while (n--) {
+            delete object[keys[n]];
+        }
+
+        return object;
+    },
+
 <span id='Ext-Object-method-toQueryObjects'>    /**
 </span>     * Converts a `name` - `value` pair to an array of objects with support for nested structures. Useful to construct
      * query strings. For example:

@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * Basic Toolbar class. Although the {@link Ext.container.Container#defaultType defaultType} for
@@ -256,9 +256,36 @@ Ext.define('Ext.toolbar.Toolbar', {
 
     /**
      * @cfg {String} defaultButtonUI
-     * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items
+     * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items. This is a quick and simple
+     * way to change the look of all child {@link Ext.button.Button Buttons}.
+     *
+     * If there is no value for defaultButtonUI, the button's {@link Ext.Component#ui ui} value will get `-toolbar`
+     * appended so the {@link Ext.button.Button Button} has a different look when it's a child of a {@link Ext.toolbar.Toolbar Toolbar}.
+     * To prevent this and have the same look as buttons outside of a toolbar, you can provide a string value to the defaultButtonUI:
+     *
+     *     Ext.create('Ext.panel.Panel', {
+     *         renderTo    : document.body,
+     *         width       : 300,
+     *         title       : 'Panel',
+     *         html        : 'Some Body',
+     *         dockedItems : [
+     *             {
+     *                 xtype           : 'toolbar',
+     *                 dock            : 'top',
+     *                 defaultButtonUI : 'default',
+     *                 items           : [
+     *                     {
+     *                         text : 'Save'
+     *                     },
+     *                     {
+     *                         text : 'Remove'
+     *                     }
+     *                 ]
+     *             }
+     *         ]
+     *     });
      */
-    
+
     // @private
     trackMenus: true,
 
@@ -361,7 +388,7 @@ Ext.define('Ext.toolbar.Toolbar', {
      *
      * @method add
      */
-    
+
     /**
      * Inserts a Component into this Container at a specified index.
      *
@@ -393,7 +420,7 @@ Ext.define('Ext.toolbar.Toolbar', {
             }
 
             this.applyDefaults(c);
-            
+
             // See: EXTJSIV-7578
             args = [c];
         }
@@ -447,15 +474,15 @@ Ext.define('Ext.toolbar.Toolbar', {
         this.callParent(arguments);
         this.trackMenu(component);
     },
-    
+
     // @private
     onRemove: function(c) {
         this.callParent(arguments);
         this.trackMenu(c, true);
     },
-    
+
     getChildItemsToDisable: function() {
-        return this.items.getRange();   
+        return this.items.getRange();
     },
 
     // @private

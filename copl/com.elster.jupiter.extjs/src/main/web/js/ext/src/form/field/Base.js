@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * @docauthor Jason Johnston <jason@sencha.com>
@@ -111,7 +111,7 @@ Ext.define('Ext.form.field.Base', {
      * @private
      */
     fieldSubTpl: [ // note: {id} here is really {inputId}, but {cmpId} is available
-        '<input id="{id}" type="{type}" {inputAttrTpl}',
+        '<input id="{id}" type="{type}" role="{role}" {inputAttrTpl}',
             ' size="1"', // allows inputs to fully respect CSS widths across all browsers
             '<tpl if="name"> name="{name}"</tpl>',
             '<tpl if="value"> value="{[Ext.util.Format.htmlEncode(values.value)]}"</tpl>',
@@ -370,7 +370,8 @@ Ext.define('Ext.form.field.Base', {
             fieldStyle : me.getFieldStyle(),
             tabIdx     : me.tabIndex,
             inputCls   : me.inputCls,
-            typeCls    : Ext.baseCSSPrefix + 'form-' + (type === 'password' ? 'text' : type)
+            typeCls    : Ext.baseCSSPrefix + 'form-' + (type === 'password' ? 'text' : type),
+            role       : me.ariaRole
         }, me.subTplData);
 
         me.getInsertionRenderData(data, me.subTplInsertions);
@@ -428,7 +429,8 @@ Ext.define('Ext.form.field.Base', {
     },
 
     getFieldStyle: function() {
-        return Ext.isObject(this.fieldStyle) ? Ext.DomHelper.generateStyles(this.fieldStyle) : this.fieldStyle ||'';
+        var style = this.fieldStyle;
+        return Ext.isObject(style) ? Ext.DomHelper.generateStyles(style, null, true) : style || '';
     },
 
     // private
@@ -450,7 +452,7 @@ Ext.define('Ext.form.field.Base', {
         var me = this,
             data = null,
             val;
-        if (!me.disabled && me.submitValue && !me.isFileUpload()) {
+        if (!me.disabled && me.submitValue) {
             val = me.getSubmitValue();
             if (val !== null) {
                 data = {};

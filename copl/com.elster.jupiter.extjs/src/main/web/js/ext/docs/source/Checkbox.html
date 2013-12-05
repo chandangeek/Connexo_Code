@@ -115,7 +115,7 @@ Ext.define('Ext.form.field.Checkbox', {
 </span>    
 <span id='Ext-form-field-Checkbox-property-stretchInputElFixed'>    // inputEl should always retain the same size, never stretch
 </span>    stretchInputElFixed: false,
-
+    
 <span id='Ext-form-field-Checkbox-property-childEls'>    childEls: [
 </span><span id='Ext-form-field-Checkbox-property-boxLabelEl'>        /**
 </span>         * @property {Ext.Element} boxLabelEl
@@ -127,32 +127,31 @@ Ext.define('Ext.form.field.Checkbox', {
 
 <span id='Ext-form-field-Checkbox-cfg-fieldSubTpl'>    // note: {id} here is really {inputId}, but {cmpId} is available
 </span>    fieldSubTpl: [
-        '&lt;tpl if=&quot;boxLabel &amp;&amp; boxLabelAlign == \'before\'&quot;&gt;',
-            '{beforeBoxLabelTpl}',
-            '&lt;label id=&quot;{cmpId}-boxLabelEl&quot; {boxLabelAttrTpl} class=&quot;{boxLabelCls} {boxLabelCls}-{boxLabelAlign}&quot; for=&quot;{id}&quot;&gt;',
-                '{beforeBoxLabelTextTpl}',
-                '{boxLabel}',
-                '{afterBoxLabelTextTpl}',
-            '&lt;/label&gt;',
-            '{afterBoxLabelTpl}',
-        '&lt;/tpl&gt;',
-        // Creates an input of the configured type. By default, this is &quot;button&quot; to enable theming.
-        // When ARIA is enabled, this reverts to a &quot;checkbox&quot;
-        '&lt;input type=&quot;{inputTypeAttr}&quot; id=&quot;{id}&quot; {inputAttrTpl}',
-            '&lt;tpl if=&quot;tabIdx&quot;&gt; tabIndex=&quot;{tabIdx}&quot;&lt;/tpl&gt;',
-            '&lt;tpl if=&quot;disabled&quot;&gt; disabled=&quot;disabled&quot;&lt;/tpl&gt;',
-            '&lt;tpl if=&quot;fieldStyle&quot;&gt; style=&quot;{fieldStyle}&quot;&lt;/tpl&gt;',
-            '&lt;tpl if=&quot;ariaAttrs&quot;&gt; {ariaAttrs}&lt;/tpl&gt;',
-            ' class=&quot;{fieldCls} {typeCls} {inputCls} {childElCls}&quot; autocomplete=&quot;off&quot; hidefocus=&quot;true&quot; /&gt;',
-        '&lt;tpl if=&quot;boxLabel &amp;&amp; boxLabelAlign == \'after\'&quot;&gt;',
-            '{beforeBoxLabelTpl}',
-            '&lt;label id=&quot;{cmpId}-boxLabelEl&quot; {boxLabelAttrTpl} class=&quot;{boxLabelCls} {boxLabelCls}-{boxLabelAlign}&quot; for=&quot;{id}&quot;&gt;',
-                '{beforeBoxLabelTextTpl}',
-                '{boxLabel}',
-                '{afterBoxLabelTextTpl}',
-            '&lt;/label&gt;',
-            '{afterBoxLabelTpl}',
-        '&lt;/tpl&gt;',
+        '&lt;div class=&quot;{wrapInnerCls} {noBoxLabelCls}&quot; role=&quot;presentation&quot;&gt;',
+            '&lt;tpl if=&quot;labelAlignedBefore&quot;&gt;',
+                '{beforeBoxLabelTpl}',
+                '&lt;label id=&quot;{cmpId}-boxLabelEl&quot; {boxLabelAttrTpl} class=&quot;{boxLabelCls} {boxLabelCls}-{boxLabelAlign}&quot; for=&quot;{id}&quot;&gt;',
+                    '{beforeBoxLabelTextTpl}',
+                    '{boxLabel}',
+                    '{afterBoxLabelTextTpl}',
+                '&lt;/label&gt;',
+                '{afterBoxLabelTpl}',
+            '&lt;/tpl&gt;',
+            '&lt;input type=&quot;button&quot; id=&quot;{id}&quot; role=&quot;{role}&quot; {inputAttrTpl}',
+                '&lt;tpl if=&quot;tabIdx&quot;&gt; tabIndex=&quot;{tabIdx}&quot;&lt;/tpl&gt;',
+                '&lt;tpl if=&quot;disabled&quot;&gt; disabled=&quot;disabled&quot;&lt;/tpl&gt;',
+                '&lt;tpl if=&quot;fieldStyle&quot;&gt; style=&quot;{fieldStyle}&quot;&lt;/tpl&gt;',
+                ' class=&quot;{fieldCls} {typeCls} {inputCls} {childElCls} {afterLabelCls}&quot; autocomplete=&quot;off&quot; hidefocus=&quot;true&quot; /&gt;',
+            '&lt;tpl if=&quot;boxLabel &amp;&amp; !labelAlignedBefore&quot;&gt;',
+                '{beforeBoxLabelTpl}',
+                '&lt;label id=&quot;{cmpId}-boxLabelEl&quot; {boxLabelAttrTpl} class=&quot;{boxLabelCls} {boxLabelCls}-{boxLabelAlign}&quot; for=&quot;{id}&quot;&gt;',
+                    '{beforeBoxLabelTextTpl}',
+                    '{boxLabel}',
+                    '{afterBoxLabelTextTpl}',
+                '&lt;/label&gt;',
+                '{afterBoxLabelTpl}',
+            '&lt;/tpl&gt;',
+        '&lt;/div&gt;',
         {
             disableFormats: true,
             compiled: true
@@ -257,6 +256,16 @@ Ext.define('Ext.form.field.Checkbox', {
      */
     boxLabelAlign: 'after',
 
+<span id='Ext-form-field-Checkbox-property-afterLabelCls'>    afterLabelCls: Ext.baseCSSPrefix + 'form-cb-after',
+</span>
+<span id='Ext-form-field-Checkbox-property-wrapInnerCls'>    wrapInnerCls: Ext.baseCSSPrefix + 'form-cb-wrap-inner',
+</span>
+<span id='Ext-form-field-Checkbox-property-noBoxLabelCls'>    // This is to work around lack of min-width support in older IE browsers.
+</span>    // If it's determined that there is no box label, apply the following class to the
+    // wrapper around the inputEl and all browsers will get width from its theme's CSS rule.
+    // See EXTJSIV-10302 and EXTJSIV-10977.
+    noBoxLabelCls: Ext.baseCSSPrefix + 'form-cb-wrap-inner-no-box-label',
+
 <span id='Ext-form-field-Checkbox-cfg-inputValue'>    /**
 </span>     * @cfg {String} inputValue
      * The value that should go into the generated input element's value attribute and should be used as the parameter
@@ -289,11 +298,8 @@ Ext.define('Ext.form.field.Checkbox', {
 <span id='Ext-form-field-Checkbox-cfg-checkChangeEvents'>    // private overrides
 </span>    checkChangeEvents: [],
 <span id='Ext-form-field-Checkbox-cfg-inputType'>    inputType: 'checkbox',
+</span><span id='Ext-form-field-Checkbox-property-ariaRole'>    ariaRole: 'checkbox',
 </span>    
-<span id='Ext-form-field-Checkbox-property-inputTypeAttr'>    // private - the actual input type to use. inputType is just used to generate a class name
-</span>    inputTypeAttr: 'button',
-
-
 <span id='Ext-form-field-Checkbox-property-onRe'>    // private
 </span>    onRe: /^on$/i,
 
@@ -301,8 +307,15 @@ Ext.define('Ext.form.field.Checkbox', {
 </span>    inputCls: Ext.baseCSSPrefix + 'form-cb',
 
 <span id='Ext-form-field-Checkbox-method-initComponent'>    initComponent: function() {
-</span>        this.callParent(arguments);
-        this.getManager().add(this);
+</span>        var me = this,
+            value = me.value;
+            
+        if (value !== undefined) {
+            me.checked = me.isChecked(value, me.inputValue);
+        }
+        
+        me.callParent(arguments);
+        me.getManager().add(me);
     },
 
 <span id='Ext-form-field-Checkbox-method-initValue'>    initValue: function() {
@@ -327,21 +340,26 @@ Ext.define('Ext.form.field.Checkbox', {
         if (me.isChecked(me.rawValue, me.inputValue)) {
             me.addCls(me.checkedCls);
         }
+
         return me.callParent();
     },
 
-<span id='Ext-form-field-Checkbox-method-getFieldStyle'>    getFieldStyle: function() {
-</span>        return Ext.isObject(this.fieldStyle) ? Ext.DomHelper.generateStyles(this.fieldStyle) : this.fieldStyle ||'';
-    },
-
 <span id='Ext-form-field-Checkbox-method-getSubTplData'>    getSubTplData: function() {
-</span>        var me = this;
+</span>        var me = this,
+            boxLabel = me.boxLabel,
+            boxLabelAlign = me.boxLabelAlign,
+            labelAlignedBefore = boxLabel &amp;&amp; boxLabelAlign === 'before';
+
         return Ext.apply(me.callParent(), {
-            disabled      : me.readOnly || me.disabled,
-            boxLabel      : me.boxLabel,
-            boxLabelCls   : me.boxLabelCls,
-            boxLabelAlign : me.boxLabelAlign,
-            inputTypeAttr : me.inputTypeAttr
+            disabled: me.readOnly || me.disabled,
+            wrapInnerCls: me.wrapInnerCls,
+            boxLabel: boxLabel,
+            boxLabelCls: me.boxLabelCls,
+            boxLabelAlign: boxLabelAlign,
+            labelAlignedBefore: labelAlignedBefore,
+            afterLabelCls: labelAlignedBefore ? me.afterLabelCls : '',
+            noBoxLabelCls: !boxLabel ? me.noBoxLabelCls : '',
+            role: me.ariaRole
         });
     },
 

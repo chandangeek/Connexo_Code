@@ -116,7 +116,7 @@ Ext.define('Ext.form.action.Submit', {
             form = me.form,
             jsonSubmit = me.jsonSubmit || form.jsonSubmit,
             paramsProp = jsonSubmit ? 'jsonData' : 'params',
-            formEl, formInfo;
+            formInfo;
 
         // For uploads we need to create an actual form that contains the file upload fields,
         // and pass that to the ajax call so it can do its iframe-based submit method.
@@ -160,7 +160,7 @@ Ext.define('Ext.form.action.Submit', {
     getParams: function(useModelValues) {
         var falseVal = false,
             configParams = this.callParent(),
-            fieldParams = this.form.getValues(falseVal, falseVal, this.submitEmptyText !== falseVal, useModelValues);
+            fieldParams = this.form.getValues(falseVal, falseVal, this.submitEmptyText !== falseVal, useModelValues, /*isSubmitting*/ true);
         return Ext.apply({}, fieldParams, configParams);
     },
 
@@ -192,8 +192,7 @@ Ext.define('Ext.form.action.Submit', {
         for (i = 0; i &lt; len; ++i) {
             field = fields[i];
 
-            // can only have a selected file value after being rendered
-            if (field.rendered &amp;&amp; field.isFileUpload()) {
+            if (field.isFileUpload()) {
                 uploadFields.push(field);
             }
         }
@@ -215,6 +214,7 @@ Ext.define('Ext.form.action.Submit', {
 
         formSpec = {
             tag: 'form',
+            role: 'presentation',
             action: me.getUrl(),
             method: me.getMethod(),
             target: me.target || '_self',

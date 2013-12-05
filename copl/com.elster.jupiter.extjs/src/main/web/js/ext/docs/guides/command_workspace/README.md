@@ -1,7 +1,5 @@
 # Workspaces in Sencha Cmd
 
-{@img ../command/sencha-command-128.png}
-
 This guide shows how to use the new workspace feature of Sencha Cmd for building large
 applications that use multiple pages. This feature lets Sencha Cmd understand the pages,
 frameworks, and the shared code used by the various pages of your application. This
@@ -10,7 +8,7 @@ enables Sencha Cmd to automate many common tasks.
 The process for building a large application starts off the same as the process for
 building a single-page app. Before learning about the workspace feature for large
 applications, be sure to understand Sencha Cmd basics by reading
-[Using Sencha Cmd](#/guide/command_app). 
+[Using Sencha Cmd](#!/guide/command_app). 
 
 *Note on terminology.* Sencha frameworks-based applications, which employ MVC architecture,
 call `Ext.application` at the top of the code tree. This can be confusing because the
@@ -48,7 +46,7 @@ This will create the following structure in the specified folder.
             plugin.xml      # Plugin for Sencha Cmd
 
 The above directory structure should be familiar as it was part of the structure created in
-[Using Sencha Cmd](#/guide/command_app). In this case, however, only the ".sencha/workspace"
+[Using Sencha Cmd](#!/guide/command_app). In this case, however, only the ".sencha/workspace"
 folder is created.
 
 ## Frameworks
@@ -119,7 +117,7 @@ will be created (which is slightly different than for a single-page app):
             package/
 
 To generate more pages, repeat the above command. See the respective framework's
-[Using Sencha Cmd](#/guide/command_app) guide for details.
+[Using Sencha Cmd](#!/guide/command_app) guide for details.
 
 ## Building Pages
 
@@ -129,11 +127,11 @@ from each of the appropriate folders:
     sencha app build
 
 For efficiency, you can create a script for this process, perhaps using Sencha Cmd's
-[Ant Integration](#/guide/command_ant).
+[Ant Integration](#!/guide/command_ant).
 
 ## Configuration
 
-Configuration is similar to what is described in [Using Sencha Cmd](#/guide/command_app).
+Configuration is similar to what is described in [Using Sencha Cmd](#!/guide/command_app).
 The file `".sencha/app/sencha.cfg"` holds configuration for one page ("app"). The most
 important of the properties found there is perhaps `app.classpath`.
 

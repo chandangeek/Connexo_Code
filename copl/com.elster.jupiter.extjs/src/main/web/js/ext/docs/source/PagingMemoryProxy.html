@@ -22,6 +22,11 @@ Ext.define('Ext.ux.data.PagingMemoryProxy', {
     extend: 'Ext.data.proxy.Memory',
     alias: 'proxy.pagingmemory',
     alternateClassName: 'Ext.data.PagingMemoryProxy',
+    
+<span id='Ext-ux-data-PagingMemoryProxy-method-constructor'>    constructor: function() {
+</span>        Ext.log.warn('Ext.ux.data.PagingMemoryProxy functionality has been merged into Ext.data.proxy.Memory by using the enablePaging flag.');    
+        this.callParent(arguments);
+    },
 
 <span id='Ext-ux-data-PagingMemoryProxy-method-read'>    read : function(operation, callback, scope){
 </span>        var reader = this.getReader(),

@@ -26,6 +26,10 @@ Ext.define('Ext.layout.component.field.Text', {
 
 <span id='Ext-layout-component-field-Text-property-type'>    type: 'textfield',
 </span>    
+<span id='Ext-layout-component-field-Text-cfg-setWidthInDom'>    // Private. Forces the width to be set into the DOM when a configured width (See Component layout's beginLayoutCycle).
+</span>    // This is needed because the 100% width in the input element needs a width to be 100% of.
+    setWidthInDom: true,
+    
 <span id='Ext-layout-component-field-Text-property-canGrowWidth'>    canGrowWidth: true,
 </span>
 <span id='Ext-layout-component-field-Text-method-beginLayoutCycle'>    beginLayoutCycle: function(ownerContext) {

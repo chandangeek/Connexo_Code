@@ -17,7 +17,7 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='Ext-grid-locking-HeaderContainer'>/**
 </span> * Private class which acts as a HeaderContainer for the Lockable which aggregates all columns
- * from both sides of the Loackable. It is never rendered, it's just used to interrogate the
+ * from both sides of the Lockable. It is never rendered, it's just used to interrogate the
  * column collection.
  * @private
  */
@@ -39,10 +39,15 @@ Ext.define('Ext.grid.locking.HeaderContainer', {
         me.callParent();
 
         // Create the unified column manager for the lockable grid assembly
+        lockedGrid.visibleColumnManager.rootColumns =
+            normalGrid.visibleColumnManager.rootColumns =
+            lockable.visibleColumnManager =
+            me.visibleColumnManager = new Ext.grid.ColumnManager(true, lockedGrid.headerCt, normalGrid.headerCt);
+            
         lockedGrid.columnManager.rootColumns =
             normalGrid.columnManager.rootColumns =
             lockable.columnManager =
-            me.columnManager = new Ext.grid.ColumnManager(lockedGrid.headerCt, normalGrid.headerCt);
+            me.columnManager = new Ext.grid.ColumnManager(false, lockedGrid.headerCt, normalGrid.headerCt);
 
         // Relay events from both sides' headerCts
         events = lockedGrid.headerCt.events;

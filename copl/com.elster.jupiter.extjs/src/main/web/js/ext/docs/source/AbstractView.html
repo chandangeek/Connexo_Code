@@ -189,6 +189,9 @@ Ext.define('Ext.view.AbstractView', {
      */
     preserveScrollOnRefresh: false,
 
+<span id='Ext-view-AbstractView-property-ariaRole'>    ariaRole: 'listbox',
+</span><span id='Ext-view-AbstractView-property-itemAriaRole'>    itemAriaRole: 'option',
+</span>    
 <span id='Ext-view-AbstractView-property-last'>    //private
 </span>    last: false,
 
@@ -220,7 +223,7 @@ Ext.define('Ext.view.AbstractView', {
                 me.itemSelector = '.' + me.itemCls;
             }
 
-            itemTpl = Ext.String.format('&lt;tpl for=&quot;.&quot;&gt;&lt;div class=&quot;{0}&quot;&gt;{1}&lt;/div&gt;&lt;/tpl&gt;', me.itemCls, itemTpl);
+            itemTpl = Ext.String.format('&lt;tpl for=&quot;.&quot;&gt;&lt;div class=&quot;{0}&quot; role=&quot;{2}&quot;&gt;{1}&lt;/div&gt;&lt;/tpl&gt;', me.itemCls, itemTpl, me.itemAriaRole);
             me.tpl = new Ext.XTemplate(itemTpl, memberFn);
         }
 
@@ -777,12 +780,16 @@ Ext.define('Ext.view.AbstractView', {
             nodes = me.bufferRender(records, index, true),
             all = me.all,
             count = all.getCount(),
-            i, l;
+            i, l, nodeContainer, fragment;
 
         if (count === 0) {
+            nodeContainer = this.getNodeContainer();
+            fragment = document.createDocumentFragment();
+
             for (i = 0, l = nodes.length; i &lt; l; i++) {
-                this.getNodeContainer().appendChild(nodes[i]);
+                fragment.appendChild(nodes[i]);
             }
+            nodeContainer.appendChild(fragment);
         } else if (index &lt; count) {
             if (index === 0) {
                 all.item(index).insertSibling(nodes, 'before', true);
@@ -952,6 +959,9 @@ Ext.define('Ext.view.AbstractView', {
 
 <span id='Ext-view-AbstractView-method-onBindStore'>    onBindStore: function(store, initial, propName) {
 </span>        this.setMaskBind(store);
+
+        // After the oldStore (.store) has been unbound/bound,
+        // do the same for the old data source (.dataSource).
         if (!initial &amp;&amp; propName === 'store') {
             this.bindStore(store, false, 'dataSource');
         }

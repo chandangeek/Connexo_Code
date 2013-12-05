@@ -144,7 +144,7 @@ Ext.define('Ext.layout.container.Box', {
             'if(oc=oh.getPrefixConfig())dh.generateMarkup(oc, out)',
         '}%}',
         '&lt;div id=&quot;{ownerId}-innerCt&quot; class=&quot;{[l.innerCls]} {[oh.getOverflowCls()]}&quot; role=&quot;presentation&quot;&gt;',
-            '&lt;div id=&quot;{ownerId}-targetEl&quot; class=&quot;{targetElCls}&quot;&gt;',
+            '&lt;div id=&quot;{ownerId}-targetEl&quot; class=&quot;{targetElCls}&quot; role=&quot;presentation&quot;&gt;',
                 '{%this.renderBody(out, values)%}',
             '&lt;/div&gt;',
         '&lt;/div&gt;',
@@ -493,12 +493,6 @@ Ext.define('Ext.layout.container.Box', {
 
         plan.targetSize = targetSize;
 
-        // If we are not widthModel.shrinkWrap, we need the width before we can lay out boxes:
-        if (!ownerContext.parallelSizeModel.shrinkWrap &amp;&amp; !targetSize[names.gotWidth]) {
-            me.done = false;
-            return;
-        }
-
         if (!state.parallelDone) {
             state.parallelDone = me.calculateParallel(ownerContext, names, plan);
         }
@@ -525,8 +519,9 @@ Ext.define('Ext.layout.container.Box', {
 
             me.publishInnerCtSize(ownerContext, me.reserveOffset ? me.availableSpaceOffset : 0);
 
-            // Calculate stretchmax only if there is &gt;1 child item, or there is a stretchMaxPartner wanting the info
-            if (me.done &amp;&amp; (ownerContext.childItems.length &gt; 1 || ownerContext.stretchMaxPartner) &amp;&amp; ownerContext.boxOptions.align.stretchmax &amp;&amp; !state.stretchMaxDone) {
+            // We always need to run calculateStretchMax, when relevant since we may 
+            // have hit a constraint in an earlier calculation.
+            if (me.done &amp;&amp; ownerContext.boxOptions.align.stretchmax &amp;&amp; !state.stretchMaxDone) {
                 me.calculateStretchMax(ownerContext, names, plan);
                 state.stretchMaxDone = true;
             }
@@ -548,7 +543,8 @@ Ext.define('Ext.layout.container.Box', {
             flexedItemsLength = flexedItems.length,
             pack = ownerContext.boxOptions.pack,
             padding = me.padding,
-            containerWidth = plan.targetSize[widthName],
+            targetSize = plan.targetSize,
+            containerWidth = targetSize[widthName],
             totalMargin = 0,
             left = padding[beforeXName],
             nonFlexWidth = left + padding[afterXName] + me.scrollOffset +
@@ -556,6 +552,14 @@ Ext.define('Ext.layout.container.Box', {
             scrollbarWidth = Ext.getScrollbarSize()[names.width],
             i, childMargins, remainingWidth, remainingFlex, childContext, flex, flexedWidth,
             contentWidth, mayNeedScrollbarAdjust, childWidth, percentageSpace;
+            
+        // If we are not widthModel.shrinkWrap, we need the width before we can lay out boxes.
+        // This check belongs here so it does not prevent the perpendicular from attempting to
+        // calculate. It may have a dependency on the width, but it may be able to achieve
+        // the correct size without the width.
+        if (!ownerContext.parallelSizeModel.shrinkWrap &amp;&amp; !targetSize[names.gotWidth]) {
+            return false;
+        }
 
         // We may need to add scrollbar size to parallel size if
         //     Scrollbars take up space
@@ -734,6 +738,14 @@ Ext.define('Ext.layout.container.Box', {
             if (isNaN(availHeight)) {
                 return false;
             }
+        }
+        
+        // If we don't have the parallel size done, we can't calculate scrolling yet
+        // The only exception is when we're aligning stretch. This means that the perpendicular
+        // dimension won't have any effect since we'll be stretching to the container size. If we hit a min
+        // constrain we'll get invalidated and we'll need to recalculate anyway
+        if (!isStretch &amp;&amp; !ownerContext.parallelSizeModel.shrinkWrap &amp;&amp; !ownerContext.state.parallelDone &amp;&amp; me.scrollParallel) {
+            return false;
         }
 
         // If the intention is to horizontally scroll child components, but the container is too narrow,
@@ -1112,14 +1124,24 @@ Ext.define('Ext.layout.container.Box', {
         }
     },
 
-<span id='Ext-layout-container-Box-method-onRemove'>    onRemove: function(comp){
-</span>        var me = this;
+<span id='Ext-layout-container-Box-method-onRemove'>    onRemove: function(comp, isDestroying){
+</span>        var me = this,
+            names = me.names,
+            el;
+            
         me.callParent(arguments);
         if (me.overflowHandler) {
             me.overflowHandler.onRemove(comp);
         }
         if (comp.layoutMarginCap == me.id) {
             delete comp.layoutMarginCap;
+        }
+        
+        if (!me.owner.destroying &amp;&amp; !isDestroying &amp;&amp; comp.rendered) {
+            // Clear top/left styles
+            el = comp.getEl();
+            el.setStyle(names.beforeY, '');
+            el.setStyle(names.beforeX, '');
         }
     },
 
@@ -1173,8 +1195,10 @@ Ext.define('Ext.layout.container.Box', {
 </span>     * @private
      */
     destroy: function() {
-        Ext.destroy(this.innerCt, this.overflowHandler);
-        this.callParent(arguments);
+        var me = this;
+        Ext.destroy(me.innerCt, me.overflowHandler);
+        me.flexSortFn = me.innerCt = null;
+        me.callParent(arguments);
     },
 
 <span id='Ext-layout-container-Box-method-getRenderData'>    getRenderData: function() {

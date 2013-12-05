@@ -162,33 +162,36 @@ Ext.define('Ext.chart.axis.Gauge', {
     },
 
 <span id='Ext-chart-axis-Gauge-method-drawLabel'>    drawLabel: function() {
-</span>        var chart = this.chart,
+</span>        var me = this,
+            chart = me.chart,
             surface = chart.surface,
             bbox = chart.chartBBox,
             centerX = bbox.x + (bbox.width / 2),
             centerY = bbox.y + bbox.height,
-            margin = this.margin || 10,
+            margin = me.margin || 10,
             rho = Math.min(bbox.width, 2 * bbox.height) /2 + 2 * margin,
             round = Math.round,
             labelArray = [], label,
-            maxValue = this.maximum || 0,
-            minValue = this.minimum || 0,
-            steps = this.steps, i = 0,
-            adjY,
+            maxValue = me.maximum || 0,
+            minValue = me.minimum || 0,
+            steps = me.steps, 
             pi = Math.PI,
             cos = Math.cos,
             sin = Math.sin,
             labelConf = this.label,
-            renderer = labelConf.renderer || Ext.identityFn;
+            renderer = labelConf.renderer || Ext.identityFn,
+            reverse = me.reverse,
+            i, adjY, idx;
 
         if (!this.labelArray) {
             //draw scale
             for (i = 0; i &lt;= steps; i++) {
                 // TODO Adjust for height of text / 2 instead
                 adjY = (i === 0 || i === steps) ? 7 : 0;
+                idx = reverse ? steps - i : i;
                 label = surface.add({
                     type: 'text',
-                    text: renderer(round(minValue + i / steps * (maxValue - minValue))),
+                    text: renderer(round(minValue + idx / steps * (maxValue - minValue))),
                     x: centerX + rho * cos(i / steps * pi - pi),
                     y: centerY + rho * sin(i / steps * pi - pi) - adjY,
                     'text-anchor': 'middle',
@@ -208,8 +211,9 @@ Ext.define('Ext.chart.axis.Gauge', {
             for (i = 0; i &lt;= steps; i++) {
                 // TODO Adjust for height of text / 2 instead
                 adjY = (i === 0 || i === steps) ? 7 : 0;
+                idx = reverse ? steps - i : i;
                 labelArray[i].setAttributes({
-                    text: renderer(round(minValue + i / steps * (maxValue - minValue))),
+                    text: renderer(round(minValue + idx / steps * (maxValue - minValue))),
                     x: centerX + rho * cos(i / steps * pi - pi),
                     y: centerY + rho * sin(i / steps * pi - pi) - adjY
                 }, true);

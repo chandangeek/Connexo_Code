@@ -257,10 +257,9 @@ Ext.define('Ext.layout.container.Card', {
     },
 
 <span id='Ext-layout-container-Card-method-onRemove'>    onRemove: function(component) {
-</span>        var me = this;
-        
-        if (component === me.activeItem) {
-            me.activeItem = null;
+</span>        this.callParent(arguments);
+        if (component === this.activeItem) {
+            this.activeItem = null;
         }
     },
 

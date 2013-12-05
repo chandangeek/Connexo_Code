@@ -54,7 +54,9 @@ Ext.define('Ext.tip.QuickTip', {
         anchor : 'anchor',
         showDelay: 'qshowDelay'
     },
-
+    
+<span id='Ext-tip-QuickTip-cfg-shrinkWrapDock'>    shrinkWrapDock: true,
+</span>
 <span id='Ext-tip-QuickTip-method-initComponent'>    // @private
 </span>    initComponent : function(){
         var me = this;
@@ -318,7 +320,7 @@ Ext.define('Ext.tip.QuickTip', {
                  // Note that the quicktip could also have been registered with the QuickTipManager.
                  // If this was the case, then we don't want to veto showing it.
                  // Simply do a lookup in the registered targets collection.
-                 if (!text &amp;&amp; !me.targets[target.target]) {
+                 if (!text &amp;&amp; !me.targets[Ext.id(target.target)]) {
                      return true;
                  }
              }
@@ -345,7 +347,7 @@ Ext.define('Ext.tip.QuickTip', {
         var me = this,
             target = me.activeTarget,
             header = me.header,
-            cls;
+            dismiss, cls;
 
         if (target) {
             if (!me.rendered) {
@@ -361,7 +363,9 @@ Ext.define('Ext.tip.QuickTip', {
             }
             me.update(target.text);
             me.autoHide = target.autoHide;
-            me.dismissDelay = target.dismissDelay || me.dismissDelay;
+            dismiss = target.dismissDelay;
+            
+            me.dismissDelay = Ext.isNumber(dismiss) ? dismiss : me.dismissDelay;
             if (target.mouseOffset) {
                 xy[0] += target.mouseOffset[0];
                 xy[1] += target.mouseOffset[1];

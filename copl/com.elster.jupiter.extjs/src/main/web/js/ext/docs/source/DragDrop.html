@@ -769,9 +769,11 @@ Ext.define('Ext.dd.DragDrop', {
 </span>     * Removes all drag and drop hooks for this element
      */
     unreg: function() {
-        Ext.EventManager.un(this.id, &quot;mousedown&quot;, this.handleMouseDown, this);
-        this._domRef = null;
-        this.DDMInstance._remove(this);
+        var me = this;
+        
+        Ext.EventManager.un(me.id, &quot;mousedown&quot;, me.handleMouseDown, me);
+        me._domRef = null;
+        me.DDMInstance._remove(me, me.autoGroup);
     },
 
 <span id='Ext-dd-DragDrop-method-destroy'>    /**

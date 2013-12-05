@@ -1,3 +1,6 @@
+/** @class Ext.panel.Table */
+//
+
 //Neptune cells
 $grid-cell-inner-padding: 5px 10px 4px !default;
 $grid-row-cell-border-color: #ededed !default;
@@ -7,8 +10,8 @@ $grid-row-cell-font-size: $font-size;
 $grid-row-cell-focus-border-style: solid !default;
 
 // special cells
-$grid-cell-special-background-color: null !default;
-$grid-cell-special-background-gradient: null !default;
+$grid-cell-special-background-color: 'none' !default;
+$grid-cell-special-background-gradient: 'none' !default;
 $grid-cell-special-border-width: 1px 0 !default;
 
 //row cell over

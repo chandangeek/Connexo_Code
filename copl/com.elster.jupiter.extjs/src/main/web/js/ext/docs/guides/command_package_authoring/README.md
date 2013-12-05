@@ -3,14 +3,12 @@
 Sencha Cmd v3.1 includes the Sencha Package Manager. Packages have many uses even if you
 do not intend to distribute the packages you create. This guide covers to process of
 creating your own packages as well as distributing them. For information on using packages
-please refer to [Sencha Cmd Packages](#/guide/command_packages).
-
-{@img ../command/sencha-command-128.png}
+please refer to [Sencha Cmd Packages](#!/guide/command_packages).
 
 ## Generating Packages
 
 Before we can generate a new package, we must first create a home for it: a
-[Workspace](#/guide/command_workspace). For this example we will use Ext JS 4.2 for this
+[Workspace](#!/guide/command_workspace). For this example we will use Ext JS 4.2 for this
 package, so we start with this command:
 
     sencha -sdk /path/to/ext-4.2.0 generate workspace /path/to/workspace
@@ -111,7 +109,7 @@ code. This code is automatically included in the `classpath` for applications or
 packages to `require` and use.
 
 This is where you would likely put most of your JavaScript code. Classes placed in this
-folder should follow the [Compiler-Friendly Code Guidelines](#/guide/command_code).
+folder should follow the [Compiler-Friendly Code Guidelines](#!/guide/command_code).
 
 ### Sass
 
@@ -233,7 +231,7 @@ because the theme will be included in `sencha app build`.
 
 ## Local Repository
 
-The local repository was introduced in [Sencha Cmd Packages](#/guide/command_packages),
+The local repository was introduced in [Sencha Cmd Packages](#!/guide/command_packages),
 but there is more to know about it when you want distribute the packages you have created.
 
 ### Structure

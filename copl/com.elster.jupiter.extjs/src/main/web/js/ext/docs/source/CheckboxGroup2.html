@@ -43,9 +43,10 @@ Ext.define('Ext.layout.container.CheckboxGroup', {
 
 <span id='Ext-layout-container-CheckboxGroup-property-renderTpl'>    renderTpl: [
 </span>        '&lt;table id=&quot;{ownerId}-innerCt&quot; class=&quot;' + Ext.plainTableCls + '&quot; cellpadding=&quot;0&quot;',
-            'role=&quot;presentation&quot; style=&quot;{tableStyle}&quot;&gt;&lt;tbody&gt;&lt;tr&gt;',
+            'role=&quot;presentation&quot; style=&quot;{tableStyle}&quot;&gt;',
+            '&lt;tbody role=&quot;presentation&quot;&gt;&lt;tr role=&quot;presentation&quot;&gt;',
             '&lt;tpl for=&quot;columns&quot;&gt;',
-                '&lt;td class=&quot;{parent.colCls}&quot; valign=&quot;top&quot; style=&quot;{style}&quot;&gt;',
+                '&lt;td class=&quot;{parent.colCls}&quot; valign=&quot;top&quot; style=&quot;{style}&quot; role=&quot;presentation&quot;&gt;',
                     '{% this.renderColumn(out,parent,xindex-1) %}',
                 '&lt;/td&gt;',
             '&lt;/tpl&gt;',
@@ -424,7 +425,8 @@ Ext.define('Ext.layout.container.CheckboxGroup', {
                 row.createChild({
                     cls: cls,
                     tag: 'td',
-                    vAlign: 'top'
+                    vAlign: 'top',
+                    role: 'presentation'
                 });
             }
         }

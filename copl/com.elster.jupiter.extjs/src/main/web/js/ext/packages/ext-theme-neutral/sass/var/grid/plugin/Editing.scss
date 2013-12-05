@@ -3,6 +3,7 @@
  */
 
 /**
+ * @var {number}
  * The height of grid editor text fields.  Defaults to $form-field-height.  If grid row
  * height is smaller than $form-field-height, defaults to the grid row height.  Grid row
  * height is caluclated by adding $grid-row-cell-line-height to the top and bottom values of
@@ -11,6 +12,7 @@
 $grid-editor-height: if($grid-row-height < $form-field-height, $grid-row-height, $form-field-height) !default;
 
 /**
+ * @var {number/list}
  * The padding of grid editor text fields.
  */
 $grid-editor-padding:

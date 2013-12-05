@@ -32,6 +32,13 @@ Ext.define('Ext.grid.CellContext', {
 </span>        this.view = view;
     },
     
+<span id='Ext-grid-CellContext-method-isEqual'>    isEqual: function(other) {
+</span>        if (other) {
+            return this.record === other.record &amp;&amp; this.columnHeader === other.columnHeader;
+        }
+        return false;
+    },
+    
 <span id='Ext-grid-CellContext-method-setPosition'>    // Selection row/record &amp; column/columnHeader
 </span>    setPosition: function(row, col) {
         var me = this;
@@ -73,17 +80,15 @@ Ext.define('Ext.grid.CellContext', {
     
 <span id='Ext-grid-CellContext-method-setColumn'>    setColumn: function(col) {
 </span>        var me = this,
-            columnManager = me.view.ownerCt.columnManager;
+            mgr = me.view.ownerCt.getColumnManager();
+            
         if (col !== undefined) {
-            // column index passed
             if (typeof col === 'number') {
                 me.column = col;
-                me.columnHeader = columnManager.getHeaderAtIndex(col);
-            }
-            // column Header passed
-            else if (col.isHeader) {
+                me.columnHeader = mgr.getHeaderAtIndex(col);
+            } else if (col.isHeader) {
                 me.columnHeader = col;
-                me.column = columnManager.getHeaderIndex(col);
+                me.column = mgr.getHeaderIndex(col);
             }
         }
     }

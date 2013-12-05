@@ -133,9 +133,9 @@ Ext.define('Ext.form.field.Number', {
     //&lt;locale&gt;
 <span id='Ext-form-field-Number-cfg-decimalSeparator'>    /**
 </span>     * @cfg {String} decimalSeparator
-     * Character(s) to allow as the decimal separator
+     * Character(s) to allow as the decimal separator. Defaults to {@link Ext.util.Format#decimalSeparator decimalSeparator}.
      */
-    decimalSeparator : '.',
+    decimalSeparator : null,
     //&lt;/locale&gt;
     
     //&lt;locale&gt;
@@ -229,6 +229,9 @@ Ext.define('Ext.form.field.Number', {
 
 <span id='Ext-form-field-Number-method-initComponent'>    initComponent: function() {
 </span>        var me = this;
+        if (me.decimalSeparator === null) {
+            me.decimalSeparator = Ext.util.Format.decimalSeparator;
+        }
         me.callParent();
 
         me.setMinValue(me.minValue);

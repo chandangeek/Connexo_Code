@@ -1075,8 +1075,8 @@ Ext.define('Ext.layout.component.Dock', {
             after = this.afterInvalidateShrinkWrapDock,
             horzSize = horz.end - horz.begin,
             vertSize = vert.initialSize,
-            invalidateHorz = horz.shrinkWrapDock &amp;&amp; horz.maxChildSize &lt; horzSize,
-            invalidateVert = vert.shrinkWrapDock &amp;&amp; vert.maxChildSize &lt; vertSize,
+            invalidateHorz = horz.shrinkWrapDock &amp;&amp; horz.maxChildSize &lt;= horzSize,
+            invalidateVert = vert.shrinkWrapDock &amp;&amp; vert.maxChildSize &lt;= vertSize,
             dockedItems, len, i, itemContext, itemSize, isHorz, axis, sizeProp;
 
         if (invalidateHorz || invalidateVert) {

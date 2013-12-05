@@ -69,7 +69,7 @@ Ext.define('Ext.dom.AbstractHelper', {
                     if (!me.confRe.test(attr)) {
                         if (typeof val == &quot;object&quot;) {
                             buffer.push(' ', attr, '=&quot;');
-                            me.generateStyles(val, buffer).push('&quot;');
+                            me.generateStyles(val, buffer, true).push('&quot;');
                         } else {
                             buffer.push(' ', me.attributeTransform[attr] || attr, '=&quot;', val, '&quot;');
                         }
@@ -129,16 +129,26 @@ Ext.define('Ext.dom.AbstractHelper', {
      * 
      * @param {Object} styles The object describing the styles.
      * @param {String[]} [buffer] The output buffer.
+     * @param {Boolean} [encode] `true` to {@link Ext.String.htmlEncode} property values if they
+     * are going to be inserted as HTML attributes.
      * @return {String/String[]} If buffer is passed, it is returned. Otherwise the style
      * string is returned.
      */
-    generateStyles: function (styles, buffer) {
+    generateStyles: function (styles, buffer, encode) {
         var a = buffer || [],
-            name;
+            name, val;
 
         for (name in styles) {
             if (styles.hasOwnProperty(name)) {
-                a.push(this.decamelizeName(name), ':', styles[name], ';');
+                val = styles[name];
+                // Since a majority of attributes won't have html characters (basically
+                // restricted to fonts), we'll check first before we try and encode it
+                // because it's less expensive and this method gets called a lot.
+                name = this.decamelizeName(name);
+                if (encode &amp;&amp; Ext.String.hasHtmlCharacters(val)) {
+                    val = Ext.String.htmlEncode(val);
+                }
+                a.push(name, ':', val, ';');
             }
         }
 
@@ -212,8 +222,8 @@ Ext.define('Ext.dom.AbstractHelper', {
         where = where.toLowerCase();
 
         // add these here because they are used in both branches of the condition.
-        hash['beforebegin'] = ['BeforeBegin', 'previousSibling'];
-        hash['afterend'] = ['AfterEnd', 'nextSibling'];
+        hash.beforebegin = ['BeforeBegin', 'previousSibling'];
+        hash.afterend = ['AfterEnd', 'nextSibling'];
 
         range = el.ownerDocument.createRange();
         setStart = 'setStart' + (this.endRe.test(where) ? 'After' : 'Before');

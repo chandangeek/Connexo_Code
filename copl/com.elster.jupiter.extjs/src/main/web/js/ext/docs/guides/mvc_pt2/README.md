@@ -289,6 +289,7 @@ We set up all the view dependencies in our viewport. This will allow us to use t
                 items: [{
                     width: 250,
                     xtype: 'panel',
+                    id: 'west-region',
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -328,7 +329,7 @@ In terms of architecture, one of the most important things to note here is the f
 
 ## Application logic
 
-In Ext JS 3, we often added our application’s logic to the views themselves using handlers on buttons, binding listeners to subcomponents, and overriding methods on the views when extending them. However, just like you shouldn’t inline CSS styles in your HTML markup, it’s preferrable to separate the application’s logic from the view definitions. In Ext JS 4, we provide controlleres in the MVC package. They are responsible for listening to events fired by the views and other controllers, and for implementing application logic to act on those events. There are several benefits to this design.
+In Ext JS 3, we often added our application’s logic to the views themselves using handlers on buttons, binding listeners to subcomponents, and overriding methods on the views when extending them. However, just like you shouldn’t inline CSS styles in your HTML markup, it’s preferrable to separate the application’s logic from the view definitions. In Ext JS 4, we provide controllers in the MVC package. They are responsible for listening to events fired by the views and other controllers, and for implementing application logic to act on those events. There are several benefits to this design.
 
 One benefit is that your application logic is not bound to instances of views which means we can destroy and instantiate our views, as needed, while the application logic continues processing other things, like synchronizing data.
 

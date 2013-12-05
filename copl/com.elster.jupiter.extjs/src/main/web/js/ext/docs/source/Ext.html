@@ -42,8 +42,6 @@ Ext._startTime = new Date().getTime();
         ExtApp,
         iterableRe = /\[object\s*(?:Array|Arguments|\w*Collection|\w*List|HTML\s+document\.all\s+class)\]/;
 
-    Function.prototype.$extIsFunction = true;
-
     Ext.global = global;
 
     for (i in enumerablesTest) {
@@ -536,8 +534,13 @@ Ext._startTime = new Date().getTime();
          * @return {Boolean}
          * @method
          */
-        isFunction: function(value) {
-            return !!(value &amp;&amp; value.$extIsFunction);
+        isFunction:
+        // Safari 3.x and 4.x returns 'function' for typeof &lt;NodeList&gt;, hence we need to fall back to using
+        // Object.prototype.toString (slower)
+        (typeof document !== 'undefined' &amp;&amp; typeof document.getElementsByTagName('body') === 'function') ? function(value) {
+            return !!value &amp;&amp; toString.call(value) === '[object Function]';
+        } : function(value) {
+            return !!value &amp;&amp; typeof value === 'function';
         },
 
 <span id='Ext-method-isNumber'>        /**
@@ -616,7 +619,7 @@ Ext._startTime = new Date().getTime();
          */
         isIterable: function(value) {
             // To be iterable, the object must have a numeric length property and must not be a string or function.
-            if (!value || typeof value.length !== 'number' || typeof value === 'string' || value.$extIsFunction) {
+            if (!value || typeof value.length !== 'number' || typeof value === 'string' || Ext.isFunction(value)) {
                 return false;
             }
 

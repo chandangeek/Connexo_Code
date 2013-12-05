@@ -37,11 +37,12 @@ Ext.define('Ext.grid.ColumnLayout', {
 </span><span id='Ext-grid-ColumnLayout-property-lastHeaderCls'>    lastHeaderCls: Ext.baseCSSPrefix + 'column-header-last',
 </span>
 <span id='Ext-grid-ColumnLayout-method-initLayout'>    initLayout: function() {
-</span>        if (!this.scrollbarWidth) {
-            this.self.prototype.scrollbarWidth = Ext.getScrollbarSize().width;
+</span>        var me = this;
+        if (me.scrollbarWidth === undefined) {
+            me.self.prototype.scrollbarWidth = Ext.getScrollbarSize().width;
         }
-        this.grid = this.owner.up('[scrollerOwner]');
-        this.callParent();
+        me.grid = this.owner.up('[scrollerOwner]');
+        me.callParent();
     },
 
 <span id='Ext-grid-ColumnLayout-method-beginLayout'>    // Collect the height of the table of data upon layout begin
@@ -54,6 +55,7 @@ Ext.define('Ext.grid.ColumnLayout', {
             len = items.length,
             firstCls = me.firstHeaderCls, 
             lastCls = me.lastHeaderCls,
+            removeCls = [firstCls, lastCls],
             i, item;
 
         // If we are one side of a locking grid, then if we are on the &quot;normal&quot; side, we have to grab the normal view
@@ -69,18 +71,13 @@ Ext.define('Ext.grid.ColumnLayout', {
 
         for (i = 0; i &lt; len; i++) {
             item = items[i];
-
-            // Keep the isLast flag correct so that the column's component layout can know whether or not
-            // it needs a right border. See ColumnComponentLayout.beginLayoutCycle
-            item.isLast = false;
-            item.removeCls([firstCls, lastCls]);
+            item.removeCls(removeCls);
             if (i === 0) {
                 item.addCls(firstCls);
             }
 
             if (i === len - 1) {
                 item.addCls(lastCls);
-                item.isLast = true;
             }
         }
 
@@ -88,7 +85,7 @@ Ext.define('Ext.grid.ColumnLayout', {
 
         // If the owner is the grid's HeaderContainer, and the UI displays old fashioned scrollbars and there is a rendered View with data in it,
         // collect the View context to interrogate it for overflow, and possibly invalidate it if there is overflow
-        if (!owner.isColumn &amp;&amp; Ext.getScrollbarSize().width &amp;&amp; !grid.collapsed &amp;&amp; view &amp;&amp;
+        if (!owner.isColumn &amp;&amp; me.scrollbarWidth &amp;&amp; !grid.collapsed &amp;&amp; view &amp;&amp;
                 view.rendered &amp;&amp; (ownerContext.viewTable = view.body.dom)) {
             ownerContext.viewContext = ownerContext.context.getCmp(view);
         }
@@ -101,9 +98,7 @@ Ext.define('Ext.grid.ColumnLayout', {
 <span id='Ext-grid-ColumnLayout-method-calculate'>    calculate: function(ownerContext) {
 </span>        this.callParent(arguments);
 
-        // If we have calculated the widths, then if forceFit, and there are no flexes, we cannot tell the
-        // TableLayout we are done. We will have to go through the convertWidthsToFlexes stage.
-        if (ownerContext.state.parallelDone &amp;&amp; (!this.owner.forceFit || ownerContext.flexedItems.length)) {
+        if (ownerContext.state.parallelDone) {
             // TODO: auto width columns aren't necessarily done here.
             // see view.TableLayout, there is a work around for that there 
             ownerContext.setProp('columnWidthsDone', true);
@@ -198,7 +193,7 @@ Ext.define('Ext.grid.ColumnLayout', {
                 if (isNaN(viewHeight)) {
                     me.done = false;
                 } else if (ownerContext.state.tableHeight &gt; viewHeight) {
-                    result.width -= Ext.getScrollbarSize().width;
+                    result.width -= me.scrollbarWidth;
                     ownerContext.state.parallelDone = false;
                     viewContext.invalidate();
                 }
@@ -280,7 +275,7 @@ Ext.define('Ext.grid.ColumnLayout', {
             // innerCt must also encompass any vertical scrollbar width if there may be one
             view = me.owner.ownerCt.view;
             if (view.scrollFlags.y) {
-                size.width += Ext.getScrollbarSize().width;
+                size.width += me.scrollbarWidth;
             }
         }
 

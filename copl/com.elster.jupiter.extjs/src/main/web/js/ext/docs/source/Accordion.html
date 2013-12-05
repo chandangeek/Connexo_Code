@@ -188,22 +188,17 @@ Ext.define('Ext.layout.container.Accordion', {
                     }
 
                     // If only one child Panel may be expanded, then intercept expand/show requests.
-                    owner.mon(comp, {
-                        show: me.onComponentShow,
-                        beforeexpand: me.onComponentExpand,
-                        beforecollapse: me.onComponentCollapse,
-                        scope: me
-                    });
+                    owner.mon(comp, 'show', me.onComponentShow, me);
                 }
                 // Need to still check this outside multi because we don't want
                 // a single item to be able to collapse
-                owner.mon(comp, 'beforecollapse', me.onComponentCollapse, me);
                 comp.headerOverCls = Ext.baseCSSPrefix + 'accordion-hd-over';
             }
         }
 
-        // If no collapsed:false Panels found, make the first one expanded.
-        if (!multi) {
+        // If no collapsed:false Panels found, make the first one expanded, only if we're
+        // not during an expand/collapse
+        if (!me.processing &amp;&amp; !multi) {
             if (!expandedItem) {
                 if (ln) {
                     items[0].collapsed = false;
@@ -274,29 +269,28 @@ Ext.define('Ext.layout.container.Accordion', {
         }
     },
 
-<span id='Ext-layout-container-Accordion-method-onComponentExpand'>    // When a Component expands, adjust the heights of the other Components to be just enough to accommodate
+<span id='Ext-layout-container-Accordion-method-onBeforeComponentExpand'>    // When a Component expands, adjust the heights of the other Components to be just enough to accommodate
 </span>    // their headers.
     // The expanded Component receives the only flex value, and so gets all remaining space.
-    onComponentExpand: function(toExpand) {
+    onBeforeComponentExpand: function(toExpand) {
         var me = this,
             owner = me.owner,
             multi = me.multi,
             animate = me.animate,
             moveToTop = !multi &amp;&amp; !me.animate &amp;&amp; me.activeOnTop,
             expanded,
-            expandedCount, i,
             previousValue;
 
         if (!me.processing) {
             me.processing = true;
             previousValue = owner.deferLayouts;
             owner.deferLayouts = true;
-            expanded = multi ? [] : me.getExpanded();
-            expandedCount = expanded.length;
             
-            // Collapse all other expanded child items (Won't loop if multi is true)
-            for (i = 0; i &lt; expandedCount; i++) {
-                expanded[i].collapse();
+            if (!multi) {
+                expanded = me.getExpanded()[0];
+                if (expanded &amp;&amp; expanded !== toExpand) {
+                    expanded.collapse();
+                }
             }
             
             if (moveToTop) {
@@ -311,7 +305,7 @@ Ext.define('Ext.layout.container.Accordion', {
         }
     },
 
-<span id='Ext-layout-container-Accordion-method-onComponentCollapse'>    onComponentCollapse: function(comp) {
+<span id='Ext-layout-container-Accordion-method-onBeforeComponentCollapse'>    onBeforeComponentCollapse: function(comp) {
 </span>        var me = this,
             owner = me.owner,
             toExpand,
@@ -349,8 +343,21 @@ Ext.define('Ext.layout.container.Accordion', {
     },
 
 <span id='Ext-layout-container-Accordion-method-onComponentShow'>    onComponentShow: function(comp) {
-</span>        // Showing a Component means that you want to see it, so expand it.
-        this.onComponentExpand(comp);
+</span>        this.onBeforeComponentExpand(comp);
+    },
+
+<span id='Ext-layout-container-Accordion-method-onRemove'>    onRemove: function(panel, isDestroying){
+</span>        var me = this,
+            item;
+            
+        me.callParent(arguments);
+        
+        if (!me.owner.destroying &amp;&amp; !me.multi &amp;&amp; !panel.collapsed) {
+            item = me.owner.items.first();
+            if (item) {
+                item.expand();
+            }
+        }
     },
     
 <span id='Ext-layout-container-Accordion-method-getExpanded'>    getExpanded: function(explicitCheck){
@@ -363,18 +370,22 @@ Ext.define('Ext.layout.container.Accordion', {
             
         for (; i &lt; len; ++i) {
             item = items[i];
-            if (explicitCheck) {
-                add = item.hasOwnProperty('collapsed') &amp;&amp; item.collapsed === false;
-            } else {
-                add = !item.collapsed;
-            }
-            if (add) {
-                out.push(item);
+
+            if (!item.hidden) {
+                if (explicitCheck) {
+                    add = item.hasOwnProperty('collapsed') &amp;&amp; item.collapsed === false;
+                } else {
+                    add = !item.collapsed;
+                }
+                if (add) {
+                    out.push(item);
+                }
             }
         }
         return out;
             
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

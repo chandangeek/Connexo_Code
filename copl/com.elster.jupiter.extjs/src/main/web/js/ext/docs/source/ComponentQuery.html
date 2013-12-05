@@ -544,10 +544,15 @@ Ext.define('Ext.ComponentQuery', {
             re: /^\.([\w\-]+)(?:\((true|false)\))?/,
             method: filterByXType
         }, {
-            // checks for [attribute=value], [attribute^=value], [attribute$=value], [attribute*=value], [attribute~=value], [attribute%=value], [attribute!=value]
             // Allow [@attribute] to check truthy ownProperty
             // Allow [?attribute] to check for presence of ownProperty
-            re: /^(?:\[((?:@|\?)?[\w\-\$]*[^\^\$\*~%!])\s?(?:(=|.=)\s?['&quot;]?(.*?)[&quot;']?)?\])/,
+            // Allow [$attribute]
+            // Checks for @|?|$ -&gt; word/hyphen chars -&gt; any special attribute selector characters before
+            // the '=', etc. It strips out whitespace.
+            // For example:
+            //     [attribute=value], [attribute^=value], [attribute$=value], [attribute*=value],
+            //     [attribute~=value], [attribute%=value], [attribute!=value]
+            re: /^(?:\[((?:[@?$])?[\w\-]*)\s*(?:([\^$*~%!]?=)\s*['&quot;]?(.*?)[&quot;']?)?\])/,
             method: filterByAttribute
         }, {
             // checks for #cmpItemId
@@ -630,23 +635,59 @@ Ext.define('Ext.ComponentQuery', {
 
         is: function(component) {
             var operations = this.operations,
-                components = Ext.isArray(component) ? component : [component],
-                originalLength = components.length,
-                lastOperation = operations[operations.length-1],
-                ln, i;
-
-            components = filterItems(components, lastOperation);
-            if (components.length === originalLength) {
-                if (operations.length &gt; 1) {
-                    for (i = 0, ln = components.length; i &lt; ln; i++) {
-                        if (Ext.Array.indexOf(this.execute(), components[i]) === -1) {
-                            return false;
+                len = operations.length,
+                active = [component],
+                operation, i, j, mode, matches, items, item;
+                
+            // Loop backwards, since we're going up the hierarchy
+            for (i = len - 1; i &gt;= 0; --i) {
+                operation = operations[i];
+                mode = operation.mode;
+                // Traversing hierarchy
+                if (mode) {
+                    if (mode === '^') {
+                        active = getItems(active, ' ');
+                    } else if (mode === '&gt;') {
+                        items = [];
+                        for (j = 0, len = active.length; j &lt; len; ++j) {
+                            item = active[j].getRefOwner();
+                            if (item) {
+                                items.push(item);
+                            }
                         }
+                        active = items;
+                    } else {
+                        active = getAncestors(active);
+                    }
+                    
+                    // After traversing the hierarchy, if we have no items, jump out
+                    if (active.length === 0) {
+                        return false;
+                    }
+                    
+                } else {
+                    active = filterItems(active, operation);
+                    if (active.length === 0) {
+                        return false;
                     }
                 }
-                return true;
             }
-            return false;
+            return true;
+        },
+        
+        getMatches: function(components, operations) {
+            var len = operations.length,
+                i;
+                
+            for (i = 0; i &lt; len; ++i) {
+                components = filterItems(components, operations[i]);
+                // Performance enhancement, if we have nothing, we can
+                // never add anything new, so jump out
+                if (components.length === 0) {
+                    break;
+                }  
+            }
+            return components;
         }
     });
 
@@ -904,6 +945,7 @@ Ext.define('Ext.ComponentQuery', {
             });
         }
     });
-});</pre>
+});
+</pre>
 </body>
 </html>

@@ -35,9 +35,9 @@ Ext.define('Ext.ux.GMapPanel', {
         this.callParent();        
     },
     
-<span id='Ext-ux-GMapPanel-method-afterFirstLayout'>    afterFirstLayout : function(){
+<span id='Ext-ux-GMapPanel-method-onBoxReady'>    onBoxReady : function(){
 </span>        var center = this.center;
-        this.callParent();       
+        this.callParent(arguments);       
         
         if (center) {
             if (center.geoCodeAddr) {

@@ -94,6 +94,8 @@ Ext.define('Ext.LoadMask', {
     useTargetEl: false,
 
 <span id='Ext-LoadMask-cfg-baseCls'>    baseCls: Ext.baseCSSPrefix + 'mask-msg',
+</span>    
+<span id='Ext-LoadMask-property-ariaRole'>    ariaRole: 'presentation',
 </span>
 <span id='Ext-LoadMask-property-childEls'>    childEls: [
 </span>        'msgEl',
@@ -101,7 +103,9 @@ Ext.define('Ext.LoadMask', {
     ],
 
 <span id='Ext-LoadMask-cfg-renderTpl'>    renderTpl: [
-</span>        '&lt;div id=&quot;{id}-msgEl&quot; class=&quot;{[values.$comp.msgCls]} ',
+</span>        '&lt;div id=&quot;{id}-msgEl&quot; role=&quot;{role}&quot;',
+            '&lt;tpl if=&quot;ariaAttr&quot;&gt; {ariaAttr}&lt;/tpl&gt;',
+            ' class=&quot;{[values.$comp.msgCls]} ',
             Ext.baseCSSPrefix, 'mask-msg-inner{childElCls}&quot;&gt;',
             '&lt;div id=&quot;{id}-msgTextEl&quot; class=&quot;', Ext.baseCSSPrefix ,'mask-msg-text',
                 '{childElCls}&quot;&gt;&lt;/div&gt;',
@@ -381,6 +385,7 @@ Ext.define('Ext.LoadMask', {
 <span id='Ext-LoadMask-method-getMaskEl'>    getMaskEl: function(){
 </span>        var me = this;
         return me.maskEl || (me.maskEl = me.el.insertSibling({
+            role: 'presentation',
             cls: me.maskCls,
             style: {
                 zIndex: me.el.getStyle('zIndex') - 2

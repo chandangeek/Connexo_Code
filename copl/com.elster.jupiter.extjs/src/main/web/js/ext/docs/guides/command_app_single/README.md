@@ -1,7 +1,5 @@
 # Single-Page Ext JS Apps
 
-{@img ../command/sencha-command-128.png}
-
 This guide covers single-page Ext JS applications that *do not* use the generated scaffold
 described in [Using Sencha Cmd with Ext JS](#/guide/command_app). While the convenient
 commands like `sencha app build` won't understand these applications and so cannot be

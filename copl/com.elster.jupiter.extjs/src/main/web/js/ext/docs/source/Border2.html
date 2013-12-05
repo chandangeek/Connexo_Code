@@ -24,11 +24,7 @@
         if (me.owner.getHierarchyState().rtl) {
             me.padOnContainerProp = 'right';
             me.padNotOnContainerProp = 'left';  
-            me.horzMarginProp = 'right';
-        } else {
-            me.padOnContainerProp = 'left';
-            me.padNotOnContainerProp = 'right';   
-            me.horzMarginProp = 'left';
+            me.horzPositionProp = 'right';
         }
         me.callParent(arguments);    
     }

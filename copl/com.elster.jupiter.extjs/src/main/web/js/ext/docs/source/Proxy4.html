@@ -119,7 +119,10 @@ Ext.define('Ext.panel.Proxy', {
             if (me.insertProxy) {
                 // bc Panels aren't absolute positioned we need to take up the space
                 // of where the panel previously was
-                me.proxy = me.panel.el.insertSibling({cls: Ext.baseCSSPrefix + 'panel-dd-spacer'});
+                me.proxy = me.panel.el.insertSibling({
+                    role: 'presentation',
+                    cls: Ext.baseCSSPrefix + 'panel-dd-spacer'
+                });
                 me.proxy.setSize(panelSize);
             }
         }

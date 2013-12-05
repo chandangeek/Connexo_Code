@@ -24,7 +24,7 @@ Ext.define('Ext.grid.property.HeaderContainer', {
     extend: 'Ext.grid.header.Container',
 
     alternateClassName: 'Ext.grid.PropertyColumnModel',
-    
+
 <span id='Ext-grid-property-HeaderContainer-property-nameWidth'>    nameWidth: 115,
 </span>
 <span id='Ext-grid-property-HeaderContainer-property-nameText'>    // @private strings used for locale support
@@ -55,7 +55,7 @@ Ext.define('Ext.grid.property.HeaderContainer', {
      */
     constructor : function(grid, store) {
         var me = this;
-        
+
         me.grid = grid;
         me.store = store;
         me.callParent([{
@@ -69,7 +69,7 @@ Ext.define('Ext.grid.property.HeaderContainer', {
                 dataIndex: grid.nameField,
                 renderer: Ext.Function.bind(me.renderProp, me),
                 itemId: grid.nameField,
-                menuDisabled :true,
+                menuDisabled: true,
                 tdCls: me.nameColumnCls,
                 innerCls: me.nameColumnInnerCls
             }, {
@@ -84,8 +84,11 @@ Ext.define('Ext.grid.property.HeaderContainer', {
                 menuDisabled: true
             }]
         }]);
+
+        // PropertyGrid needs to know which column is the editable &quot;value&quot; column.
+        me.grid.valueColumn = me.items.items[1];
     },
-    
+
 <span id='Ext-grid-property-HeaderContainer-method-getCellEditor'>    getCellEditor: function(record){
 </span>        return this.grid.getCellEditor(record, this);
     },

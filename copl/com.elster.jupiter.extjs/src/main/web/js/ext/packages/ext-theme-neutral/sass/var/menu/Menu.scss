@@ -42,7 +42,13 @@ $menu-border-style: solid !default;
  * @var {number}
  * The border-width of the Menu
  */
-$menu-border-width: null !default;
+$menu-border-width: 0 !default;
+
+/**
+ * @var {string}
+ * The font-family of {@link Ext.menu.Item Menu Items}
+ */
+$menu-item-font-family: $font-family !default;
 
 /**
  * @var {number}
@@ -51,10 +57,10 @@ $menu-border-width: null !default;
 $menu-item-font-size: $font-size !default;
 
 /**
- * @var {number}
- * The margin of {@link Ext.menu.Item Menu Items}
+ * @var {string}
+ * The font-weight of {@link Ext.menu.Item Menu Items}
  */
-$menu-item-margin: 1px !default;
+$menu-item-font-weight: normal !default;
 
 /**
  * @var {number}
@@ -92,7 +98,7 @@ $menu-item-active-border-color: adjust-color($base-color, $saturation: 23%, $lig
  * of a predefined gradient or a list of color stops. Used as the `$type` parameter for
  * {@link Global_CSS#background-gradient}.
  */
-$menu-item-background-gradient: null !default;
+$menu-item-background-gradient: 'none' !default;
 
 /**
  * @var {number}
@@ -106,11 +112,6 @@ $menu-item-active-border-radius: 0 !default;
  */
 $menu-item-icon-size: 16px !default;
 
-/**
- * @var {number}
- * The space to the left and right of {@link Ext.menu.Item Menu Item} icons
- */
-$menu-item-icon-horizontal-spacing: 3px !default;
 
 /**
  * @var {list}
@@ -118,30 +119,55 @@ $menu-item-icon-horizontal-spacing: 3px !default;
  */
 $menu-item-icon-background-position: center center !default;
 
-// private
-$menu-item-icon-top: round(($menu-item-height - vertical($menu-item-border-width) - $menu-item-icon-size) / 2) + 1 !default;
+/**
+ * @var {number}
+ * vertical offset for menu item icons/checkboxes.  By default the icons are roughly
+ * vertically centered, but it may be necessary in some cases to make minor adjustments
+ * to the vertical position.
+ */
+$menu-item-icon-vertical-offset: 0 !default;
 
 /**
  * @var {number}
- * The space to the left and right of {@link Ext.menu.Item Menu Item} text
+ * vertical offset for menu item text.  By default the text is given a line-height
+ * equal to the menu item's content-height, however, depending on the font this may not
+ * result in perfect vertical centering.  Offset can be used to make small adjustments
+ * to the text's vertical position.
+ */
+$menu-item-text-vertical-offset: 0 !default;
+
+/**
+ * @var {number/list}
+ * The space to the left and right of {@link Ext.menu.Item Menu Item} text. Can be specified
+ * as a number (e.g. 5px) or as a list with 2 items for different left/right values. e.g.
+ *
+ *     $menu-item-text-horizontal-spacing: 4px 8px !default; // 4px of space to the left, and 8px to the right
  */
 $menu-item-text-horizontal-spacing: 4px !default;
+
+/**
+ * @var {number}
+ * The space to the left and right of {@link Ext.menu.Item Menu Item} icons. Can be specified
+ * as a number (e.g. 5px) or as a list with 2 items for different left/right values. e.g.
+ *
+ *     $menu-item-icon-horizontal-spacing: 4px 8px !default; // 4px of space to the left, and 8px to the right
+ */
+$menu-item-icon-horizontal-spacing: 3px 5px !default;
+
+/**
+ * @var {number}
+ * The space to the left and right of {@link Ext.menu.Item Menu Item} arrows. Can be specified
+ * as a number (e.g. 5px) or as a list with 2 items for different left/right values. e.g.
+ *
+ *     $menu-item-arrow-horizontal-spacing: 4px 8px !default; // 4px of space to the left, and 8px to the right
+ */
+$menu-item-arrow-horizontal-spacing: 5px 0 !default;
 
 /**
  * @var {number/list}
  * The margin of {@link Ext.menu.Separator Menu Separators}
  */
 $menu-item-separator-margin: 2px 0 !default;
-
-/**
- * @var {number}
- * The padding to the right of {@link Ext.menu.CheckItem Check Items}, to make room
- * for the checkbox
- */
-$menu-check-item-padding: 22px !default;
-
-// Right (or left in RTL mode) padding on menu items
-$menu-item-trailing-padding: 0 !default;
 
 /**
  * @var {number}
@@ -154,12 +180,6 @@ $menu-item-arrow-height: 9px !default;
  * The width of {@link Ext.menu.Item Menu Item} arrows
  */
 $menu-item-arrow-width: 12px !default;
-
-/**
- * @var {number}
- * The space to the left and right of {@link Ext.menu.Item Menu Item} arrows
- */
-$menu-item-arrow-horizontal-spacing: 0 !default;
 
 // private
 $menu-item-arrow-top: round(($menu-item-height - vertical($menu-item-border-width) - $menu-item-arrow-height) / 2) !default;
@@ -210,7 +230,7 @@ $menu-text-color: #000 !default;
  * @var {number/list}
  * The margin non-MenuItems placed in a Menu
  */
-$menu-component-margin: null !default;
+$menu-component-margin: 0 !default;
 
 /**
  * @var {color} $menu-glyph-color

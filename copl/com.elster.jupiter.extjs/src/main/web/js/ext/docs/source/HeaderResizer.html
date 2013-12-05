@@ -56,8 +56,14 @@ Ext.define('Ext.grid.plugin.HeaderResizer', {
      * AbstractComponent calls destroy on all its plugins at destroy time.
      */
     destroy: function() {
-        if (this.tracker) {
-            this.tracker.destroy();
+        var tracker = this.tracker;
+        if (tracker) {
+            delete tracker.onBeforeStart;
+            delete tracker.onStart;
+            delete tracker.onDrag;
+            delete tracker.onEnd;
+            tracker.destroy();
+            this.tracker = null;
         }
     },
 

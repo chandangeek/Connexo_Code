@@ -99,12 +99,13 @@
         if (!this.isScrollable()) {
             return false;
         }
+        direction = direction.substr(0, 1);
         var me = this,
             side = direction === 'r' || direction === 'l' ? 'left' : 'top',
             scrolled = false,
             currentScroll, constrainedScroll;
 
-        if (direction === 'r') {
+        if (direction === 'l' || direction === 't' || direction === 'u') {
             distance = -distance;
         }
 

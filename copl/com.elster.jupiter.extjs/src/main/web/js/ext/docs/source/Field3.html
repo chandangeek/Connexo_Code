@@ -33,7 +33,7 @@ Ext.define('Ext.layout.component.field.Field', {
 <span id='Ext-layout-component-field-Field-property-type'>    /* End Definitions */
 </span>
     type: 'field',
-    
+
 <span id='Ext-layout-component-field-Field-property-naturalSizingProp'>    naturalSizingProp: 'size',
 </span>
 <span id='Ext-layout-component-field-Field-method-beginLayout'>    beginLayout: function(ownerContext) {
@@ -214,7 +214,7 @@ Ext.define('Ext.layout.component.field.Field', {
                         height = props.height;
                         
                     if (height === undefined) {
-                        props.height = height = labelContext.el.getHeight();
+                        props.height = height = labelContext.el.getHeight() + labelContext.getMarginInfo().height;
                     }
 
                     return height;
@@ -383,6 +383,10 @@ Ext.define('Ext.layout.component.field.Field', {
             var tip = this.tip;
             if (!tip) {
                 tip = this.tip = Ext.create('Ext.tip.QuickTip', {
+                    //&lt;debug&gt;
+                    // tell the spec runner to ignore this element when checking if the dom is clean 
+                    sticky: true,
+                    //&lt;/debug&gt;
                     ui: 'form-invalid'
                 });
                 tip.tagConfig = Ext.apply({}, {attribute: 'errorqtip'}, tip.tagConfig);

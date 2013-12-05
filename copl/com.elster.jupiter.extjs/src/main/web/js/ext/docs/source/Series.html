@@ -29,7 +29,6 @@
  *  - `itemclick` When the user interacts with a marker.
  *  - `itemmouseup` When the user interacts with a marker.
  *  - `itemmousedown` When the user interacts with a marker.
- *  - `itemmousemove` When the user iteracts with a marker.
  *  - `afterrender` Will be triggered when the animation ends or when the series has been rendered completely.
  *
  * For example:
@@ -125,19 +124,8 @@ Ext.define('Ext.chart.series.Series', {
 <span id='Ext-chart-series-Series-property-nullPadding'>    // @private default padding
 </span>    nullPadding: { left:0, right:0, width:0, bottom:0, top:0, height:0 },
 
-<span id='Ext-chart-series-Series-cfg-listeners'>    /**
-</span>     * @cfg {Object} listeners
-     * An (optional) object with event callbacks. All event callbacks get the target *item* as first parameter. The callback functions are:
-     *
-     *  - itemclick
-     *  - itemmouseover
-     *  - itemmouseout
-     *  - itemmousedown
-     *  - itemmouseup
-     */
-
-    constructor: function(config) {
-        var me = this;
+<span id='Ext-chart-series-Series-method-constructor'>    constructor: function(config) {
+</span>        var me = this;
         if (config) {
             Ext.apply(me, config);
         }
@@ -151,12 +139,58 @@ Ext.define('Ext.chart.series.Series', {
 
         me.addEvents({
             scope: me,
+            
+<span id='Ext-chart-series-Series-event-itemclick'>            /**
+</span>             * @event itemclick
+             * Fires when the user clicks on a marker.
+             * @param {Object} item Target item object. See {@link #getItemFromPoint} for
+             * description of object properties.
+             */
             itemclick: true,
+            
+<span id='Ext-chart-series-Series-event-itemdblclick'>            /**
+</span>             * @event itemdblclick
+             * Fires when the user double clicks on a marker.
+             * @param {Object} item Target item object. See {@link #getItemFromPoint} for
+             * description of object properties.
+             */
+            itemdblclick: true,
+            
+<span id='Ext-chart-series-Series-event-itemmouseover'>            /**
+</span>             * @event itemmouseover
+             * Fires when the user hovers mouse cursor over a marker.
+             * @param {Object} item Target item object. See {@link #getItemFromPoint} for
+             * description of object properties.
+             */
             itemmouseover: true,
+            
+<span id='Ext-chart-series-Series-event-itemmouseout'>            /**
+</span>             * @event itemmouseout
+             * Fires when the user moves mouse cursor out of marker.
+             * @param {Object} item Target item object. See {@link #getItemFromPoint} for
+             * description of object properties.
+             */
             itemmouseout: true,
+            
+<span id='Ext-chart-series-Series-event-itemmousedown'>            /**
+</span>             * @event itemmousedown
+             * Fires when a marker receives mousedown event.
+             * @param {Object} item Target item object. See {@link #getItemFromPoint} for
+             * description of object properties.
+             */
             itemmousedown: true,
+            
+<span id='Ext-chart-series-Series-event-itemmouseup'>            /**
+</span>             * @event itemmouseup
+             * Fires when a marker receives mouseup event.
+             * @param {Object} item Target item object. See {@link #getItemFromPoint} for
+             * description of object properties.
+             */
             itemmouseup: true,
+            
             mouseleave: true,
+            
+            // Seems that this event is not implemented anywhere?
             afterdraw: true,
 
 <span id='Ext-chart-series-Series-event-titlechange'>            /**
@@ -182,6 +216,8 @@ Ext.define('Ext.chart.series.Series', {
         }
     },
     
+<span id='Ext-chart-series-Series-method-initialize'>    initialize: Ext.emptyFn,
+</span>    
 <span id='Ext-chart-series-Series-method-onRedraw'>    onRedraw: Ext.emptyFn,
 </span>    
 <span id='Ext-chart-series-Series-method-eachRecord'>    /**
@@ -252,7 +288,7 @@ Ext.define('Ext.chart.series.Series', {
                 // use callback, don't overwrite listeners
                 callback: function() {
                     me.animating = false;
-                    me.fireEvent('afterrender');
+                    me.fireEvent('afterrender', me);
                 }
             }));
         }

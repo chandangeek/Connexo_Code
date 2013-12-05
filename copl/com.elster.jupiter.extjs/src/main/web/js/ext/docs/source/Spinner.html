@@ -125,10 +125,12 @@ Ext.define('Ext.form.field.Spinner', {
      * {@link #keyNavEnabled} is true. Must be implemented by subclasses.
      */
     onSpinDown: Ext.emptyFn,
-
-<span id='Ext-form-field-Spinner-property-triggerTpl'>    triggerTpl: '&lt;td style=&quot;{triggerStyle}&quot; class=&quot;{triggerCls}&quot;&gt;' +
-</span>                    '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'trigger-index-0 ' + Ext.baseCSSPrefix + 'form-trigger ' + Ext.baseCSSPrefix + 'form-spinner-up {spinnerUpCls} {childElCls}&quot; role=&quot;button&quot;&gt;&lt;/div&gt;' +
-                    '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'trigger-index-1 ' + Ext.baseCSSPrefix + 'form-trigger ' + Ext.baseCSSPrefix + 'form-spinner-down {spinnerDownCls} {childElCls}&quot; role=&quot;button&quot;&gt;&lt;/div&gt;' +
+    
+<span id='Ext-form-field-Spinner-property-ariaRole'>    ariaRole: 'spinbutton',
+</span>
+<span id='Ext-form-field-Spinner-property-triggerTpl'>    triggerTpl: '&lt;td style=&quot;{triggerStyle}&quot; class=&quot;{triggerCls}&quot; role=&quot;presentation&quot;&gt;' +
+</span>                    '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'trigger-index-0 ' + Ext.baseCSSPrefix + 'form-trigger ' + Ext.baseCSSPrefix + 'form-spinner-up {spinnerUpCls} {childElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/div&gt;' +
+                    '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'trigger-index-1 ' + Ext.baseCSSPrefix + 'form-trigger ' + Ext.baseCSSPrefix + 'form-spinner-down {spinnerDownCls} {childElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/div&gt;' +
                 '&lt;/td&gt;' +
             '&lt;/tr&gt;',
 
@@ -204,9 +206,9 @@ Ext.define('Ext.form.field.Spinner', {
             childElCls = values.childElCls, // either '' or ' x-foo'
             field = Ext.form.field.Base.prototype.getSubTplMarkup.apply(me, arguments);
 
-        return '&lt;table id=&quot;' + me.id + '-triggerWrap&quot; class=&quot;' + Ext.baseCSSPrefix + 'form-trigger-wrap' + childElCls + '&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;&gt;' +
-            '&lt;tbody&gt;' +
-                '&lt;tr&gt;&lt;td id=&quot;' + me.id + '-inputCell&quot; class=&quot;' + Ext.baseCSSPrefix + 'form-trigger-input-cell' + childElCls + '&quot;&gt;' + field + '&lt;/td&gt;' +
+        return '&lt;table id=&quot;' + me.id + '-triggerWrap&quot; class=&quot;' + Ext.baseCSSPrefix + 'form-trigger-wrap' + childElCls + '&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; role=&quot;presentation&quot;&gt;' +
+            '&lt;tbody role=&quot;presentation&quot;&gt;' +
+                '&lt;tr role=&quot;presentation&quot;&gt;&lt;td id=&quot;' + me.id + '-inputCell&quot; class=&quot;' + Ext.baseCSSPrefix + 'form-trigger-input-cell' + childElCls + '&quot; role=&quot;presentation&quot;&gt;' + field + '&lt;/td&gt;' +
                 me.getTriggerMarkup() +
             '&lt;/tbody&gt;&lt;/table&gt;';
     },

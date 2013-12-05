@@ -124,8 +124,10 @@ Ext.define('Ext.layout.container.boxOverflow.Scroller', {
             cls += ' ' + me.scrollerCls + '-plain';
         }
         return {
+            role: 'presentation',
             cls: cls,
             cn : {
+                role: 'presentation',
                 id : owner.id + layout.names.beforeScrollerSuffix,
                 cls: me.scrollerCls + ' ' + me.beforeScrollerCls,
                 style: 'display:none'
@@ -144,8 +146,10 @@ Ext.define('Ext.layout.container.boxOverflow.Scroller', {
             cls += ' ' + me.scrollerCls + '-plain';
         }
         return {
+            role: 'presentation',
             cls: cls,
             cn : {
+                role: 'presentation',
                 id : owner.id + layout.names.afterScrollerSuffix,
                 cls: me.scrollerCls + ' ' + me.afterScrollerCls,
                 style: 'display:none'

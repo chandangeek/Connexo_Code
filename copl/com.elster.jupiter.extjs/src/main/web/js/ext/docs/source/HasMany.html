@@ -237,19 +237,23 @@ associations: [{
         return function() {
             var me = this,
                 config, filter,
-                modelDefaults = {};
+                modelDefaults = {},
+                id;
                 
             if (me[storeName] === undefined) {
+                id = me.get(primaryKey);
                 if (filterProperty) {
                     filter = {
                         property  : filterProperty,
                         value     : me.get(filterProperty),
                         exactMatch: true
                     };
-                } else {
+                } else if (me.hasId(id)) {
+                    // We only want to add this filter if the record has
+                    // a value for the primary key.
                     filter = {
                         property  : foreignKey,
-                        value     : me.get(primaryKey),
+                        value     : id,
                         exactMatch: true
                     };
                 }
@@ -258,7 +262,7 @@ associations: [{
                 
                 config = Ext.apply({}, storeConfig, {
                     model        : associatedModel,
-                    filters      : [filter],
+                    filters      : filter ? [filter] : undefined,
                     remoteFilter : false,
                     modelDefaults: modelDefaults,
                     disableMetaChangeEvent: true

@@ -178,6 +178,7 @@ Ext.define('Ext.data.proxy.Memory', {
             // Filter the resulting array of records
             if (filters &amp;&amp; filters.length) {
                 records = resultSet.records = Ext.Array.filter(records, Ext.util.Filter.createFilterFn(filters));
+                resultSet.total = records.length;
             }
 
             // Remotely, groupers just mean top priority sorters

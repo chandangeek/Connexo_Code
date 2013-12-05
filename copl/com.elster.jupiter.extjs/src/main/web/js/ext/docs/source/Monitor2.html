@@ -129,7 +129,7 @@ Ext.define('Ext.container.Monitor', {
             }
         }
          
-        items = ct.query('container');
+        items = ct.query('&gt;container');
         for (i = 0, len = items.length; i &lt; len; ++i) {
             me.onContainerAdd(items[i], true);
         }

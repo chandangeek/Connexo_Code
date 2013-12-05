@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * Catalonian Translation by halkon_polako 6-12-2007
@@ -136,7 +136,6 @@ Ext.define("Ext.locale.ca.form.field.Text", {
 
 Ext.define("Ext.locale.ca.form.field.Number", {
     override: "Ext.form.field.Number",
-    decimalSeparator: ",",
     decimalPrecision: 2,
     minText: "El valor m&#237;nim per aquest camp &#233;s {0}",
     maxText: "El valor m&#224;xim per aquest camp &#233;s {0}",
@@ -264,7 +263,7 @@ Ext.define("Ext.locale.ca.grid.header.Container", {
 });
 
 Ext.define("Ext.locale.ca.grid.GroupingFeature", {
-    override: "Ext.grid.GroupingFeature",
+    override: "Ext.grid.feature.Grouping",
     emptyGroupText: '(Buit)',
     groupByText: 'Agrupar Per Aquest Camp',
     showGroupsText: 'Mostrar en Grups'

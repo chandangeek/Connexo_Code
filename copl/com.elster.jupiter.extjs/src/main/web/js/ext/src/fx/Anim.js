@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * This class manages animation for a specific {@link #target}. The animation allows
@@ -86,6 +86,12 @@ Ext.define('Ext.fx.Anim', {
     /**
      * @cfg {Function} scope
      * The scope that the {@link #callback} function will be called with
+     */
+    
+    /**
+     * @cfg {Boolean} remove
+     * `true` to remove the target when the animation is complete, using the appropriate removal
+     * method for the target. For example, a component will be destroyed, elements will be removed.
      */
 
     /**
@@ -197,6 +203,14 @@ Ext.define('Ext.fx.Anim', {
      * Number of times to execute the animation.
      */
     iterations: 1,
+    
+    /**
+     * @cfg {Boolean} autoEnd
+     * `true` to immediately force this animation to its final state. This can be useful
+     * in cases where you want the final effect of an animation, but need to the actual
+     * animation dynamically. Also see the {@link #jumpToEnd} method.
+     */
+    autoEnd: false,
 
     /**
      * @cfg {Boolean} alternate
@@ -314,6 +328,10 @@ Ext.define('Ext.fx.Anim', {
         );
         me.mixins.observable.constructor.call(me);
         Ext.fx.Manager.addAnim(me);
+        if (config.autoEnd) {
+            me.running = true;
+            me.jumpToEnd();
+        }
     },
 
     /**
@@ -393,6 +411,21 @@ Ext.define('Ext.fx.Anim', {
             me.frameCount = 0;
         }
     },
+    
+    /**
+     * Immediately force this animation to its final state.
+     */
+    jumpToEnd: function(){
+        var me = this;
+        
+        if (!me.endWasCalled) {
+            if (!me.currentAttrs) {
+                me.initAttrs();
+            }
+            Ext.fx.Manager.jumpToEnd(me);
+            me.end();
+        }
+    },
 
     /**
      * @private
@@ -463,16 +496,20 @@ Ext.define('Ext.fx.Anim', {
      * stop and destroy the running animation.
      */
     end: function() {
-        if (this.endWasCalled++) {
+        var me = this;
+        if (me.endWasCalled++) {
             return;
         }
-        var me = this;
+        
         me.startTime = 0;
         me.paused = false;
         me.running = false;
         Ext.fx.Manager.removeAnim(me);
         me.fireEvent('afteranimate', me, me.startTime);
         Ext.callback(me.callback, me.scope, [me, me.startTime]);
+        if (me.remove) {
+            me.target.remove();
+        }
     },
     
     isReady: function() {

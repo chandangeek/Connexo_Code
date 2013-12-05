@@ -42,7 +42,11 @@ $include-missing-images: true !default;
 
 <span id='Global_CSS-css_var-S-include-ie'>/**
 </span> * @var {boolean} $include-ie
- * True to include Internet Explorer specific rules
+ * True to include Internet Explorer specific rules for IE9 and lower.  IE10 and up are
+ * considered to be &quot;modern&quot; browsers, and as such do not need any of the CSS hacks required
+ * for IE9 and below.  Setting this property to false will result in a significantly smaller
+ * CSS file size, and may also result in a slight performance improvement, because the
+ * browser will have fewer rules to process.
  */
 $include-ie: true !default;
 
@@ -59,18 +63,6 @@ $include-content-box: $include-ie !default;
  */
 $include-ff: true !default;
 
-<span id='Global_CSS-css_var-S-include-chrome'>/**
-</span> * @var {boolean} $include-chrome
- * True to include Chrome specific rules
- */
-$include-chrome: true !default;
-
-<span id='Global_CSS-css_var-S-include-safari'>/**
-</span> * @var {boolean} $include-safari
- * True to include Safari specific rules
- */
-$include-safari: true !default;
-
 <span id='Global_CSS-css_var-S-include-opera'>/**
 </span> * @var {boolean} $include-opera
  * True to include Opera specific rules
@@ -83,22 +75,37 @@ $include-opera: true !default;
  */
 $include-webkit: true !default;
 
-$supports-border-radius: true !default;
-$supports-gradients: true !default;
+<span id='Global_CSS-css_var-S-include-safari'>/**
+</span> * @var {boolean} $include-safari
+ * True to include Safari specific rules
+ */
+$include-safari: $include-webkit !default;
 
-$compile-all: true !default;
+<span id='Global_CSS-css_var-S-include-chrome'>/**
+</span> * @var {boolean} $include-chrome
+ * True to include Chrome specific rules
+ */
+$include-chrome: $include-webkit !default;
+
+<span id='Global_CSS-css_var-S-include-slicer-border-radius'>/**
+</span> * @var {boolean} $include-slicer-border-radius
+ * True to include rules for rounded corners produced by the slicer.  Enables emulation
+ * of CSS3 border-radius in browsers that do not support it.
+ */
+$include-slicer-border-radius: $include-ie !default;
+
+<span id='Global_CSS-css_var-S-include-slicer-gradient'>/**
+</span> * @var {boolean} $include-slicer-gradient
+ * True to include rules for background gradients produced by the slicer.  Enables emulation
+ * of CSS3 background-gradient in browsers that do not support it.
+ */
+$include-slicer-gradient: $include-ie !default;
 
 <span id='Global_CSS-css_var-S-css-shadow-border-radius'>/**
-</span> * @var {measurement} $css-shadow-border-radius
+</span> * @var {number} $css-shadow-border-radius
  * The border radius for CSS shadows
  */
 $css-shadow-border-radius: 5px !default;
-
-<span id='Global_CSS-css_var-S-include-shadow-images'>/**
-</span> * @var {color} $include-shadow-images
- * True to include all shadow images.
- */
-$include-shadow-images: true !default;
 
 // documented in rtl/util/Renderable
 $include-rtl: false !default;

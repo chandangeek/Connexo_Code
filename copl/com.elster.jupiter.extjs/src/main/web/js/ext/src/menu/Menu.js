@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * A menu object. This is the container to which you may add {@link Ext.menu.Item menu items}.
@@ -61,7 +61,6 @@ Ext.define('Ext.menu.Menu', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.menu',
     requires: [
-        'Ext.layout.container.Fit',
         'Ext.layout.container.VBox',
         'Ext.menu.CheckItem',
         'Ext.menu.Item',
@@ -296,6 +295,7 @@ Ext.define('Ext.menu.Menu', {
         // TODO: Move this to a subTemplate When we support them in the future
         if (me.showSeparator) {
             me.iconSepEl = me.layout.getElementTarget().insertFirst({
+                role: 'presentation',
                 cls: Ext.baseCSSPrefix + 'menu-icon-separator',
                 html: '&#160;'
             });
@@ -329,7 +329,7 @@ Ext.define('Ext.menu.Menu', {
      * @return {Boolean}
      */
     canActivateItem: function(item) {
-        return item && !item.isDisabled() && item.isVisible() && (item.canActivate || item.getXTypes().indexOf('menuitem') < 0);
+        return item && !item.isDisabled() && item.isVisible() && (item.canActivate || !item.isMenuItem);
     },
 
     /**
@@ -368,7 +368,18 @@ Ext.define('Ext.menu.Menu', {
 
     // @private
     getItemFromEvent: function(e) {
-        return this.getChildByElement(e.getTarget());
+        var me = this,
+            renderTarget = me.layout.getRenderTarget().dom,
+            toEl = e.getTarget();
+
+        // See which top level element the event is in and find its owning Component.
+        while (toEl.parentNode !== renderTarget) {
+            toEl = toEl.parentNode;
+            if (!toEl) {
+                return;
+            }
+        }
+        return Ext.getCmp(toEl.id);
     },
 
     lookupComponent: function(cmp) {
@@ -523,18 +534,18 @@ Ext.define('Ext.menu.Menu', {
             me.deactivateActiveItem();
             if (me.canActivateItem(item)) {
                 if (item.activate) {
-                    item.activate();
+                    // Activate passing skipCheck flag. We checked using me.canActivate()
+                    item.activate(true);
                     if (item.activated) {
                         me.activeItem = item;
                         me.focusedItem = item;
-                        me.focus();
                     }
                 } else {
                     item.focus();
                     me.focusedItem = item;
                 }
             }
-            item.el.scrollIntoView(me.layout.getRenderTarget());
+            // Activating will focus, focusing will scroll the item into view.
         }
     },
 

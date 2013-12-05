@@ -19,7 +19,7 @@ $toolbar-background-color: $base-color !default;
  * The background-gradient of the Toolbar.  Can be either the name of a predefined gradient
  * or a list of color stops. Used as the `$type` parameter for {@link Global_CSS#background-gradient}.
  */
-$toolbar-background-gradient: null !default;
+$toolbar-background-gradient: 'none' !default;
 
 /**
  * @var {number}
@@ -235,7 +235,7 @@ $toolbar-scroll-left-background-x: -$toolbar-scroller-width !default;
  * @var {string}
  * The sprite to use for {@link Ext.panel.Tool Tools} on a Toolbar
  */
-$toolbar-tool-background-image: null !default;
+$toolbar-tool-background-image: 'none' !default;
 
 /**
  * @var {boolean}

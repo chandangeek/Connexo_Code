@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * @author Ed Spencer
@@ -168,7 +168,7 @@ Ext.define('Ext.data.Field', {
      *
      * The data type for automatic conversion from received data to the *stored* value if
      * `{@link Ext.data.Field#convert convert}` has not been specified. This may be specified as a string value.
-     * Possible values are
+     * Possible values are:
      *
      * - auto (Default, implies no conversion)
      * - string
@@ -176,6 +176,9 @@ Ext.define('Ext.data.Field', {
      * - float
      * - boolean
      * - date
+     * 
+     * Note that when a type is specified, any {@link #defaultValue} will be passed through the {@link #convert}
+     * function for the type.
      *
      * This may also be specified by referencing a member of the {@link Ext.data.Types} class.
      *

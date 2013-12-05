@@ -240,28 +240,29 @@ class and are added to the Model's prototype the first time an instance of that 
 So what exactly are these 22 extra fields, and what do they do?  A quick look at the NodeInterface source code reveals that it decorates the Model with the following fields.
 These fields are used internally to store information relating to the tree's structure and state:
 
-    {name: 'parentId',   type: idType,    defaultValue: null},
-    {name: 'index',      type: 'int',     defaultValue: null, persist: false},
-    {name: 'depth',      type: 'int',     defaultValue: 0, persist: false},
-    {name: 'expanded',   type: 'bool',    defaultValue: false, persist: false},
-    {name: 'expandable', type: 'bool',    defaultValue: true, persist: false},
-    {name: 'checked',    type: 'auto',    defaultValue: null, persist: false},
-    {name: 'leaf',       type: 'bool',    defaultValue: false},
-    {name: 'cls',        type: 'string',  defaultValue: null, persist: false},
-    {name: 'iconCls',    type: 'string',  defaultValue: null, persist: false},
-    {name: 'icon',       type: 'string',  defaultValue: null, persist: false},
-    {name: 'root',       type: 'boolean', defaultValue: false, persist: false},
-    {name: 'isLast',     type: 'boolean', defaultValue: false, persist: false},
-    {name: 'isFirst',    type: 'boolean', defaultValue: false, persist: false},
-    {name: 'allowDrop',  type: 'boolean', defaultValue: true, persist: false},
-    {name: 'allowDrag',  type: 'boolean', defaultValue: true, persist: false},
-    {name: 'loaded',     type: 'boolean', defaultValue: false, persist: false},
-    {name: 'loading',    type: 'boolean', defaultValue: false, persist: false},
-    {name: 'href',       type: 'string',  defaultValue: null, persist: false},
-    {name: 'hrefTarget', type: 'string',  defaultValue: null, persist: false},
-    {name: 'qtip',       type: 'string',  defaultValue: null, persist: false},
-    {name: 'qtitle',     type: 'string',  defaultValue: null, persist: false},
-    {name: 'children',   type: 'auto',   defaultValue: null, persist: false}
+    { name : 'parentId',   type : idType,    defaultValue : null,  useNull : idField.useNull                },
+    { name : 'index',      type : 'int',     defaultValue : -1,    persist : false          , convert: null },
+    { name : 'depth',      type : 'int',     defaultValue : 0,     persist : false          , convert: null },
+    { name : 'expanded',   type : 'bool',    defaultValue : false, persist : false          , convert: null },
+    { name : 'expandable', type : 'bool',    defaultValue : true,  persist : false          , convert: null },
+    { name : 'checked',    type : 'auto',    defaultValue : null,  persist : false          , convert: null },
+    { name : 'leaf',       type : 'bool',    defaultValue : false                            },
+    { name : 'cls',        type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'iconCls',    type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'icon',       type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'root',       type : 'boolean', defaultValue : false, persist : false          , convert: null },
+    { name : 'isLast',     type : 'boolean', defaultValue : false, persist : false          , convert: null },
+    { name : 'isFirst',    type : 'boolean', defaultValue : false, persist : false          , convert: null },
+    { name : 'allowDrop',  type : 'boolean', defaultValue : true,  persist : false          , convert: null },
+    { name : 'allowDrag',  type : 'boolean', defaultValue : true,  persist : false          , convert: null },
+    { name : 'loaded',     type : 'boolean', defaultValue : false, persist : false          , convert: null },
+    { name : 'loading',    type : 'boolean', defaultValue : false, persist : false          , convert: null },
+    { name : 'href',       type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'hrefTarget', type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'qtip',       type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'qtitle',     type : 'string',  defaultValue : '',    persist : false          , convert: null },
+    { name : 'qshowDelay', type : 'int',     defaultValue : 0,     persist : false          , convert: null },
+    { name : 'children',   type : 'auto',    defaultValue : null,  persist : false          , convert: null }
 
 #### NodeInterface Fields are Reserved Names
 
@@ -287,6 +288,11 @@ should never be changed.
 
             // override a non-persistent NodeInterface field to make it persistent
             { name: 'iconCls', type: 'string',  defaultValue: null, persist: true },
+
+            // Make the index persistent, so that when reordering nodes, syncing to the server
+            // passes the new index as well as the parentId.
+            // (Note that if moved to the same index in a different parent, the index will still be sent in order to fully describe the operation)
+            { name: 'index', type: 'int', defaultValue: -1, persist: true}
         ]
     });
 

@@ -15,9 +15,8 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='Ext-button-Button'>/**
-</span> * @class Ext.button.Button
- */
+  <pre class="prettyprint lang-js"><span id='Ext-button-Button'>/** @class Ext.button.Button */
+</span>//
 
 <span id='Ext-button-Button-css_var-S-button-arrow-width'>/**
 </span> * @var {number}
@@ -494,25 +493,25 @@ $button-default-base-color: $base-color !default;
 </span> * @var {color}
  * The base color for the `default` button UI when the cursor is over the button
  */
-$button-default-base-color-over: $button-default-base-color !default;
+$button-default-base-color-over: button-default-background-color-over($button-default-base-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-base-color-focus'>/**
 </span> * @var {color}
  * The base color for the `default` button UI when the button is focused
  */
-$button-default-base-color-focus: $button-default-base-color-over !default;
+$button-default-base-color-focus: button-default-background-color-focus($button-default-base-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-base-color-pressed'>/**
 </span> * @var {color}
  * The base color for the `default` button UI when the button is pressed
  */
-$button-default-base-color-pressed: $button-default-base-color !default;
+$button-default-base-color-pressed: button-default-background-color-pressed($button-default-base-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-base-color-disabled'>/**
 </span> * @var {color}
  * The base color for the `default` button UI when the button is disabled
  */
-$button-default-base-color-disabled: $base-color !default;
+$button-default-base-color-disabled: button-default-background-color-disabled($button-default-base-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-border-color'>/**
 </span> * @var {color}
@@ -524,25 +523,25 @@ $button-default-border-color: $base-color !default;
 </span> * @var {color}
  * The border-color for the `default` button UI when the cursor is over the button
  */
-$button-default-border-color-over: $base-color !default;
+$button-default-border-color-over: button-default-border-color-over($button-default-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-border-color-focus'>/**
 </span> * @var {color}
  * The border-color for the `default` button UI when the button is focused
  */
-$button-default-border-color-focus: $base-color !default;
+$button-default-border-color-focus: button-default-border-color-focus($button-default-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-border-color-pressed'>/**
 </span> * @var {color}
  * The border-color for the `default` button UI when the button is pressed
  */
-$button-default-border-color-pressed: $base-color !default;
+$button-default-border-color-pressed: button-default-border-color-pressed($button-default-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-border-color-disabled'>/**
 </span> * @var {color}
  * The border-color for the `default` button UI when the button is disabled
  */
-$button-default-border-color-disabled: $base-color !default;
+$button-default-border-color-disabled: button-default-border-color-disabled($button-default-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-background-color'>/**
 </span> * @var {color}
@@ -560,7 +559,7 @@ $button-default-background-color-over: $button-default-base-color-over !default;
 </span> * @var {color}
  * The background-color for the `default` button UI when the button is focused
  */
-$button-default-background-color-focus: $button-default-background-color-over !default;
+$button-default-background-color-focus: $button-default-base-color-focus !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-background-color-pressed'>/**
 </span> * @var {color}
@@ -572,7 +571,7 @@ $button-default-background-color-pressed: $button-default-base-color-pressed !de
 </span> * @var {color}
  * The background-color for the `default` button UI when the button is disabled
  */
-$button-default-background-color-disabled: null !default;
+$button-default-background-color-disabled: $button-default-base-color-disabled !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-background-gradient'>/**
 </span> * @var {string/list}
@@ -624,25 +623,25 @@ $button-default-color: #000 !default;
 </span> * @var {color}
  * The text color for the `default` button UI when the cursor is over the button
  */
-$button-default-color-over: $button-default-color !default;
+$button-default-color-over: button-default-color-over($button-default-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-color-focus'>/**
 </span> * @var {color}
  * The text color for the `default` button UI when the button is focused
  */
-$button-default-color-focus: $button-default-color-over !default;
+$button-default-color-focus: button-default-color-focus($button-default-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-color-pressed'>/**
 </span> * @var {color}
  * The text color for the `default` button UI when the button is pressed
  */
-$button-default-color-pressed: $button-default-color !default;
+$button-default-color-pressed: button-default-color-pressed($button-default-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-color-disabled'>/**
 </span> * @var {color}
  * The text color for the `default` button UI when the button is disabled
  */
-$button-default-color-disabled: $button-default-color !default;
+$button-default-color-disabled: button-default-color-disabled($button-default-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-default-glyph-color'>/**
 </span> * @var {color}
@@ -666,25 +665,25 @@ $button-toolbar-border-color: $base-color !default;
 </span> * @var {color}
  * The border-color for the `default-toolbar` button UI when the cursor is over the button
  */
-$button-toolbar-border-color-over: $button-toolbar-border-color !default;
+$button-toolbar-border-color-over: button-toolbar-border-color-over($button-toolbar-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-border-color-focus'>/**
 </span> * @var {color}
  * The border-color for the `default-toolbar` button UI when the button is focused
  */
-$button-toolbar-border-color-focus: $button-toolbar-border-color-over !default;
+$button-toolbar-border-color-focus: button-toolbar-border-color-focus($button-toolbar-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-border-color-pressed'>/**
 </span> * @var {color}
  * The border-color for the `default-toolbar` button UI when the button is pressed
  */
-$button-toolbar-border-color-pressed: $button-toolbar-border-color !default;
+$button-toolbar-border-color-pressed: button-toolbar-border-color-pressed($button-toolbar-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-border-color-disabled'>/**
 </span> * @var {color}
  * The border-color for the `default-toolbar` button UI when the button is disabled
  */
-$button-toolbar-border-color-disabled: $button-toolbar-border-color !default;
+$button-toolbar-border-color-disabled: button-toolbar-border-color-disabled($button-toolbar-border-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-background-color'>/**
 </span> * @var {color}
@@ -696,25 +695,25 @@ $button-toolbar-background-color: $base-color !default;
 </span> * @var {color}
  * The background-color for the `default-toolbar` button UI when the cursor is over the button
  */
-$button-toolbar-background-color-over: $button-toolbar-background-color !default;
+$button-toolbar-background-color-over: button-toolbar-background-color-over($button-toolbar-background-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-background-color-focus'>/**
 </span> * @var {color}
  * The background-color for the `default-toolbar` button UI when the button is focused
  */
-$button-toolbar-background-color-focus: $button-toolbar-background-color-over !default;
+$button-toolbar-background-color-focus: button-toolbar-background-color-focus($button-toolbar-background-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-background-color-pressed'>/**
 </span> * @var {color}
  * The background-color for the `default-toolbar` button UI when the button is pressed
  */
-$button-toolbar-background-color-pressed: $button-toolbar-background-color !default;
+$button-toolbar-background-color-pressed: button-toolbar-background-color-pressed($button-toolbar-background-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-background-color-disabled'>/**
 </span> * @var {color}
  * The background-color for the `default-toolbar` button UI when the button is disabled
  */
-$button-toolbar-background-color-disabled: $button-toolbar-background-color !default;
+$button-toolbar-background-color-disabled: button-toolbar-background-color-disabled($button-toolbar-background-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-background-gradient'>/**
 </span> * @var {string/list}
@@ -766,25 +765,25 @@ $button-toolbar-color: #000 !default;
 </span> * @var {color}
  * The text color for the `default-toolbar` button UI when the cursor is over the button
  */
-$button-toolbar-color-over: $button-toolbar-color !default;
+$button-toolbar-color-over: button-toolbar-color-over($button-toolbar-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-color-focus'>/**
 </span> * @var {color}
  * The text color for the `default-toolbar` button UI when the button is focused
  */
-$button-toolbar-color-focus: $button-toolbar-color-over !default;
+$button-toolbar-color-focus: button-toolbar-color-focus($button-toolbar-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-color-pressed'>/**
 </span> * @var {color}
  * The text color for the `default-toolbar` button UI when the button is pressed
  */
-$button-toolbar-color-pressed: $button-toolbar-color !default;
+$button-toolbar-color-pressed: button-toolbar-color-pressed($button-toolbar-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-color-disabled'>/**
 </span> * @var {color}
  * The text color for the `default-toolbar` button UI when the button is disabled
  */
-$button-toolbar-color-disabled: $button-toolbar-color !default;
+$button-toolbar-color-disabled: button-toolbar-color-disabled($button-toolbar-color) !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-glyph-color'>/**
 </span> * @var {color}
@@ -815,6 +814,12 @@ $button-include-ui-split-arrows: false !default;
  * True to include different split arrows for buttons' hover state.
  */
 $button-include-split-over-arrows: false !default;
+
+<span id='Ext-button-Button-css_var-S-button-include-split-noline-arrows'>/**
+</span> * @var {boolean} $button-include-split-noline-arrows
+ * True to include &quot;noline&quot; split arrows for buttons in their default state.
+ */
+$button-include-split-noline-arrows: false !default;
 
 <span id='Ext-button-Button-css_var-S-button-toolbar-include-split-noline-arrows'>/**
 </span> * @var {boolean} $button-toolbar-include-split-noline-arrows

@@ -148,6 +148,8 @@ Ext.define('Ext.form.FieldSet', {
     layout: 'anchor',
 
 <span id='Ext-form-FieldSet-cfg-componentLayout'>    componentLayout: 'fieldset',
+</span>    
+<span id='Ext-form-FieldSet-property-ariaRole'>    ariaRole: null,
 </span>
 <span id='Ext-form-FieldSet-cfg-autoEl'>    autoEl: 'fieldset',
 </span>
@@ -157,7 +159,7 @@ Ext.define('Ext.form.FieldSet', {
 
 <span id='Ext-form-FieldSet-cfg-renderTpl'>    renderTpl: [
 </span>        '{%this.renderLegend(out,values);%}',
-        '&lt;div id=&quot;{id}-body&quot; class=&quot;{baseCls}-body {bodyTargetCls}&quot;&lt;tpl if=&quot;bodyStyle&quot;&gt; style=&quot;{bodyStyle}&quot;&lt;/tpl&gt;&gt;',
+        '&lt;div id=&quot;{id}-body&quot; class=&quot;{baseCls}-body {bodyTargetCls}&quot; role=&quot;presentation&quot;&lt;tpl if=&quot;bodyStyle&quot;&gt; style=&quot;{bodyStyle}&quot;&lt;/tpl&gt;&gt;',
             '{%this.renderContainer(out,values);%}',
         '&lt;/div&gt;'
     ],
@@ -319,6 +321,8 @@ Ext.define('Ext.form.FieldSet', {
                 baseCls: me.baseCls + '-header',
                 id: me.id + '-legend',
                 autoEl: 'legend',
+                ariaRole: null,
+                ariaLabelledBy: '.' + me.baseCls + '-header-text',
                 items: items,
                 ownerCt: me,
                 shrinkWrap: true,
@@ -392,6 +396,7 @@ Ext.define('Ext.form.FieldSet', {
             cls: me.baseCls + '-header' + suffix,
             id: me.id + '-legendChk',
             checked: !me.collapsed,
+            msgTarget: 'none',
             listeners: {
                 change: me.onCheckChange,
                 scope: me
@@ -500,7 +505,7 @@ Ext.define('Ext.form.FieldSet', {
         }
         
         if (title || me.checkboxToggle || me.collapsible) {
-            me.addCls(baseCls + '-with-header');
+            me.addCls(baseCls + '-with-legend');
         }
     },
 

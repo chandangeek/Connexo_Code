@@ -95,7 +95,7 @@ Ext.define('Ext.panel.Tool', {
     ],
 
 <span id='Ext-panel-Tool-cfg-renderTpl'>    renderTpl: [
-</span>        '&lt;img role=&quot;presentation&quot; id=&quot;{id}-toolEl&quot; src=&quot;{blank}&quot; class=&quot;{baseCls}-img {baseCls}-{type}' +
+</span>        '&lt;img id=&quot;{id}-toolEl&quot; src=&quot;{blank}&quot; class=&quot;{baseCls}-img {baseCls}-{type}' +
             '{childElCls}&quot; role=&quot;presentation&quot;/&gt;'
     ],
 
@@ -329,10 +329,18 @@ Ext.define('Ext.panel.Tool', {
 
 <span id='Ext-panel-Tool-method-onDestroy'>    // inherit docs
 </span>    onDestroy: function(){
-        if (Ext.quickTipsActive &amp;&amp; Ext.isObject(this.tooltip)) {
-            Ext.tip.QuickTipManager.unregister(this.id);
+        var me = this;
+        
+        if (Ext.quickTipsActive &amp;&amp; Ext.isObject(me.tooltip)) {
+            Ext.tip.QuickTipManager.unregister(me.id);
         }
-        this.callParent();
+        
+        // ARIA overrides may create a keyMap on a Tool
+        if (me.keyMap) {
+            me.keyMap.destroy();
+        }
+        
+        me.callParent();
     },
 
 <span id='Ext-panel-Tool-method-onMouseDown'>    /**

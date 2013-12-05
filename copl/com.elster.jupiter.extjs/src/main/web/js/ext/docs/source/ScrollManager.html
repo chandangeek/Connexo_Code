@@ -68,9 +68,10 @@ Ext.define('Ext.dd.ScrollManager', {
             var proc   = this.proc,
                 procEl = proc.el,
                 ddScrollConfig = proc.el.ddScrollConfig,
-                inc = ddScrollConfig ? ddScrollConfig.increment : this.increment;
+                inc =     ddScrollConfig &amp;&amp; ddScrollConfig.increment    ? ddScrollConfig.increment : this.increment,
+                animate = ddScrollConfig &amp;&amp; 'animate' in ddScrollConfig ? ddScrollConfig.animate   : this.animate;
 
-            if (!this.animate) {
+            if (!animate) {
                 if (procEl.scroll(proc.dir, inc)) {
                     this.triggerRefresh();
                 }
@@ -114,8 +115,7 @@ Ext.define('Ext.dd.ScrollManager', {
             this.refreshCache();
         }
 
-        var xy = e.getXY(),
-            pt = e.getPoint(),
+        var pt = e.getPoint(),
             proc = this.proc,
             els = this.els,
             id, el, r, c;
@@ -132,7 +132,7 @@ Ext.define('Ext.dd.ScrollManager', {
                     return;
                 }else if (r.right - pt.x &lt;= c.hthresh) {
                     if (proc.el != el) {
-                        this.startProc(el, &quot;left&quot;);
+                        this.startProc(el, &quot;right&quot;);
                     }
                     return;
                 } else if(pt.y - r.top &lt;= c.vthresh) {
@@ -142,7 +142,7 @@ Ext.define('Ext.dd.ScrollManager', {
                     return;
                 } else if(pt.x - r.left &lt;= c.hthresh) {
                     if (proc.el != el) {
-                        this.startProc(el, &quot;right&quot;);
+                        this.startProc(el, &quot;left&quot;);
                     }
                     return;
                 }

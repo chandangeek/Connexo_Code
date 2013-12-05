@@ -15,8 +15,27 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">.#{$prefix}grid-cell-inner-row-numberer {
-    padding: $grid-row-numberer-cell-padding;
-}</pre>
+  <pre class="prettyprint lang-js"><span id='Ext-grid-column-RowNumberer'>/**
+</span> * @class Ext.grid.column.RowNumberer
+ */
+
+<span id='Ext-grid-column-RowNumberer-css_var-S-grid-row-numberer-cell-spacing-before'>/**
+</span> * @var {number}
+ * The horizontal space before the number in the RowNumberer cell
+ */
+$grid-row-numberer-cell-spacing-before: 3px !default;
+
+<span id='Ext-grid-column-RowNumberer-css_var-S-grid-row-numberer-cell-spacing-after'>/**
+</span> * @var {number}
+ * The horizontal space after the number in the RowNumberer cell
+ */
+$grid-row-numberer-cell-spacing-after: 5px !default;
+
+// private
+$grid-row-numberer-cell-padding:
+    top($grid-cell-inner-padding)
+    $grid-row-numberer-cell-spacing-after
+    bottom($grid-cell-inner-padding)
+    $grid-row-numberer-cell-spacing-before;</pre>
 </body>
 </html>

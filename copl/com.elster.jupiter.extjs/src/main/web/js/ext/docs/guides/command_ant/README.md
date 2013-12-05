@@ -1,11 +1,10 @@
 # Ant Integration
 
-In addition to the command line interface described in the [Getting Started](#/guide/command)
-guide, Sencha Cmd also provides direct interfaces for use in Ant.
+In addition to the command line interface described in the [Getting Started](#!/guide/command)
+guide, [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) also provides 
+direct interfaces for use in Ant.
 
-{@img ../command/sencha-command-128.png}
-
-[Ant](http://ant.apache.org/) has long been a pillar of the Java development community,
+[Apache Ant](http://ant.apache.org/) has long been a pillar of the Java development community,
 but at its core, Ant is an XML-based, cross-platform scripting platform. We call it a
 "platform" rather than a "language" because Ant can easily incorporate libraries of code
 in JAR form, or you can use one of the many supported scripting languages as part of your
@@ -15,9 +14,9 @@ Ant can, of course, call other programs (like Sencha Cmd), passing arguments and
 processing exit codes, but what Ant is particularly good at is manipulating files. This
 is because Ant was designed for use with build scripts.
 
-As touched on in the [Advanced Sencha Cmd](#/guide/command_advanced) guide, Sencha Cmd
+As touched on in the [Advanced Sencha Cmd](#!/guide/command_advanced) guide, Sencha Cmd
 is delivered as a JAR file and it exposes its core functionality as an Ant Library (or
-`antlib`). The command line level of Sencha Cmd, as well as SDK-specific processing
+`antlib`). The command line level of Sencha Cmd, as well as specific processing
 are implemented on top of this layer. So anything you can do in one, you can do in the
 other.
 
@@ -29,7 +28,7 @@ make repeated calls through the command line interface.
     <taskdef resource="com/sencha/ant/antlib.xml" 
              classpath="${cmd.dir}/sencha.jar"/>
 
-When an Ant script is executed using `sencha ant ...`, the `cmd.dir` property is defined
+When an Ant script executes using `sencha ant ...`, the `cmd.dir` property defines
 on entry. Otherwise, the Ant script or the executing party must determine `cmd.dir` in an
 appropriate way for the local machine.
 
@@ -76,7 +75,7 @@ without deleting them. Also, blank lines are skipped:
 
     <x-sencha-command>
         compile
-            # Include the app folder and the sdk/src folder
+            # Include the app folder and the Cmd/src folder
             --classpath=${app.dir},${sdk.dir}/src
 
             # Turn off debugging (comment next line to leave debug enabled):
@@ -123,9 +122,9 @@ this is an application's `"app.js"` file.
 
 When processing a `".merge"` file, `x-generate` performs the following steps:
 
-  1. Move the target file (e.g., `"app.js"`) to the side (e.g., as `"app.js.$old"`).
-  2. Generate the new version of the file in the target location (e.g., `"app.js"`).
-  3. Using a data store, regenerate the base version (e.g., `"app.js.$base"`). That is,
+  1. Move the target file (for example, `"app.js"`) to the side (for example, as `"app.js.$old"`).
+  2. Generate the new version of the file in the target location (for example, `"app.js"`).
+  3. Using a data store, regenerate the base version (for example, `"app.js.$base"`). That is,
   the version generated the last time.
   4. Perform a 3-way merge on these files and update the target file.
   5. Report any merge conflicts.
@@ -193,7 +192,7 @@ template file to a specified output file:
         <param name="bar" value="42" />
     </x-generate>
 
-The source filename determines how the process will proceed (which template engine to use
+The source filename determines how the process proceeds (and which template engine to use
 and if it is sacred), but that is all.
 
 ### x-generate file todir
@@ -204,7 +203,7 @@ In many cases, you can leave off the target filename and just specify the folder
         <param name="bar" value="42" />
     </x-generate>
 
-This will generate `"foo.js"` (using XTemplate) in the `"build"` folder.
+This generates `"foo.js"` (using XTemplate) in the `"build"` folder.
 
 Beyond avoiding redundancy, this form also allows the source filename to be a template,
 for example:

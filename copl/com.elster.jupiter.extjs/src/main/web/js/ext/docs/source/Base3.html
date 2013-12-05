@@ -111,7 +111,7 @@ Ext.define('Ext.form.field.Base', {
      * @private
      */
     fieldSubTpl: [ // note: {id} here is really {inputId}, but {cmpId} is available
-        '&lt;input id=&quot;{id}&quot; type=&quot;{type}&quot; {inputAttrTpl}',
+        '&lt;input id=&quot;{id}&quot; type=&quot;{type}&quot; role=&quot;{role}&quot; {inputAttrTpl}',
             ' size=&quot;1&quot;', // allows inputs to fully respect CSS widths across all browsers
             '&lt;tpl if=&quot;name&quot;&gt; name=&quot;{name}&quot;&lt;/tpl&gt;',
             '&lt;tpl if=&quot;value&quot;&gt; value=&quot;{[Ext.util.Format.htmlEncode(values.value)]}&quot;&lt;/tpl&gt;',
@@ -370,7 +370,8 @@ Ext.define('Ext.form.field.Base', {
             fieldStyle : me.getFieldStyle(),
             tabIdx     : me.tabIndex,
             inputCls   : me.inputCls,
-            typeCls    : Ext.baseCSSPrefix + 'form-' + (type === 'password' ? 'text' : type)
+            typeCls    : Ext.baseCSSPrefix + 'form-' + (type === 'password' ? 'text' : type),
+            role       : me.ariaRole
         }, me.subTplData);
 
         me.getInsertionRenderData(data, me.subTplInsertions);
@@ -428,7 +429,8 @@ Ext.define('Ext.form.field.Base', {
     },
 
 <span id='Ext-form-field-Base-method-getFieldStyle'>    getFieldStyle: function() {
-</span>        return Ext.isObject(this.fieldStyle) ? Ext.DomHelper.generateStyles(this.fieldStyle) : this.fieldStyle ||'';
+</span>        var style = this.fieldStyle;
+        return Ext.isObject(style) ? Ext.DomHelper.generateStyles(style, null, true) : style || '';
     },
 
 <span id='Ext-form-field-Base-method-onRender'>    // private
@@ -450,7 +452,7 @@ Ext.define('Ext.form.field.Base', {
         var me = this,
             data = null,
             val;
-        if (!me.disabled &amp;&amp; me.submitValue &amp;&amp; !me.isFileUpload()) {
+        if (!me.disabled &amp;&amp; me.submitValue) {
             val = me.getSubmitValue();
             if (val !== null) {
                 data = {};

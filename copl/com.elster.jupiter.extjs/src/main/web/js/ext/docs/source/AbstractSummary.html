@@ -35,7 +35,7 @@ Ext.define('Ext.grid.feature.AbstractSummary', {
         before: function(values, out) {
             // If a summary record comes through the rendering pipeline, render it simply, and return false from the
             // before method which aborts the tpl chain
-            if (values.record.isSummary) {
+            if (values.record.isSummary &amp;&amp; this.summaryFeature.showSummaryRow) {
                 this.summaryFeature.outputSummaryRecord(values.record, values, out);
                 return false;
             }

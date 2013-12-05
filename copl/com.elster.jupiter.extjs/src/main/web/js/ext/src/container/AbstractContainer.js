@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * An abstract base class which provides shared methods for Containers across the Sencha product line.
@@ -33,7 +33,7 @@ Ext.define('Ext.container.AbstractContainer', {
         'Ext.layout.container.Auto',
         'Ext.ZIndexManager'
     ],
-    
+
     mixins: {
         queryable: 'Ext.Queryable'
     },
@@ -138,7 +138,7 @@ Ext.define('Ext.container.AbstractContainer', {
      *     // specifying a single item
      *     items: {...},
      *     layout: 'fit',    // The single items is sized to fit
-     *      
+     *
      *     // specifying multiple items
      *     items: [{...}, {...}],
      *     layout: 'hbox', // The items are arranged horizontally
@@ -228,7 +228,7 @@ Ext.define('Ext.container.AbstractContainer', {
       * @since 2.3.0
       */
     defaultType: 'panel',
-    
+
     /**
      * @cfg {Boolean} [detachOnRemove=true]
      * True to move any component to the {@link Ext#getDetachedBody detachedBody} when the component is
@@ -261,6 +261,8 @@ Ext.define('Ext.container.AbstractContainer', {
      */
 
     defaultLayoutType: 'auto',
+    
+    ariaRole: 'presentation',
 
     // @private
     initComponent : function(){
@@ -296,7 +298,7 @@ Ext.define('Ext.container.AbstractContainer', {
             /**
              * @event add
              * Fires after any {@link Ext.Component} is added or inserted into the container.
-             * 
+             *
              * **This event bubbles:** 'add' will also be fired when Component is added to any of
              * the child containers or their childern or ...
              * @param {Ext.container.Container} this
@@ -399,7 +401,7 @@ Ext.define('Ext.container.AbstractContainer', {
         var floaters = this.floatingItems.items,
             floaterCount = floaters.length,
             i, floater
-            
+
         this.callParent(arguments);
 
         // Contained, unrendered, autoShow items must be shown upon next layout of the Container
@@ -439,12 +441,12 @@ Ext.define('Ext.container.AbstractContainer', {
         this.callParent(arguments);
         this.getLayout().setupRenderTpl(renderTpl);
     },
-    
+
     // @private
     getDefaultContentTarget: function() {
         return this.el;
     },
-    
+
     // @private
     getContentTarget: function(){
         return this.getLayout().getContentTarget();
@@ -589,13 +591,13 @@ Ext.define('Ext.container.AbstractContainer', {
      *
      * **If** the Container was configured with a size-managing {@link #layout} manager,
      * the Container will recalculate its internal layout at this time too.
-     *  
+     *
      * Note that the default layout manager simply renders child Components sequentially
      * into the content area and thereafter performs no sizing.
-     *  
+     *
      * If adding multiple new child Components, pass them as an array to the `add` method,
      * so that only one layout recalculation is performed.
-     *  
+     *
      *     tb = new {@link Ext.toolbar.Toolbar}({
      *         renderTo: document.body
      *     });  // toolbar is rendered
@@ -624,7 +626,8 @@ Ext.define('Ext.container.AbstractContainer', {
             args = Ext.Array.slice(arguments),
             index = (typeof args[0] == 'number') ? args.shift() : -1,
             layout = me.getLayout(),
-            addingArray, items, i, length, item, pos, ret;
+            addingArray, items, i, length, item, pos, ret,
+            needsLayout = false;
 
         if (args.length == 1 && Ext.isArray(args[0])) {
             items = args[0];
@@ -669,6 +672,7 @@ Ext.define('Ext.container.AbstractContainer', {
                 me.onAdd(item, pos);
                 layout.onAdd(item, pos);
 
+                needsLayout = true;
                 if (me.hasListeners.add) {
                     me.fireEvent('add', me, item, pos);
                 }
@@ -676,7 +680,10 @@ Ext.define('Ext.container.AbstractContainer', {
         }
 
         // We need to update our layout after adding all passed items
-        me.updateLayout();
+        // Unless we only added floating items.
+        if (needsLayout) {
+            me.updateLayout();
+        }
         if (me.rendered) {
             Ext.resumeLayouts(true);
         }
@@ -758,7 +765,7 @@ Ext.define('Ext.container.AbstractContainer', {
     move : function(fromIdx, toIdx) {
         var items = this.items,
             item;
-            
+
         if (fromIdx.isComponent) {
             fromIdx = items.indexOf(fromIdx);
         }
@@ -771,7 +778,7 @@ Ext.define('Ext.container.AbstractContainer', {
         this.updateLayout();
         return item;
     },
-    
+
     onMove: Ext.emptyFn,
 
     /**
@@ -869,14 +876,14 @@ Ext.define('Ext.container.AbstractContainer', {
         // Only have the layout perform remove postprocessing if the Component is not being destroyed
         else {
             if (hasLayout && !floating) {
-                layout.afterRemove(component);       
+                layout.afterRemove(component);
             }
             if (me.detachOnRemove && component.rendered) {
                 me.detachComponent(component);
             }
         }
     },
-    
+
     // Detach a component from the DOM
     detachComponent: function(component){
         Ext.getDetachedBody().appendChild(component.getEl());
@@ -918,7 +925,7 @@ Ext.define('Ext.container.AbstractContainer', {
      * @protected
      * Used by {@link Ext.ComponentQuery ComponentQuery}, {@link #child} and {@link #down} to retrieve all of the items
      * which can potentially be considered a child of this Container.
-     * 
+     *
      * This may be overriden by Components which have ownership of Components
      * that are not contained in the {@link #property-items} collection.
      *
@@ -1031,9 +1038,9 @@ Ext.define('Ext.container.AbstractContainer', {
         if (Ext.isObject(comp)) {
             comp = comp.getItemId();
         }
-        
+
         var c = this.items.get(comp);
-             
+
         // Only allow finding by index on the main items container
         if (!c && typeof comp != 'number') {
             c = this.floatingItems.get(comp);
@@ -1136,7 +1143,7 @@ Ext.define('Ext.container.AbstractContainer', {
 
         return this;
     },
-    
+
     /**
      * Gets a list of child components to enable/disable when the container is
      * enabled/disabled
@@ -1160,7 +1167,7 @@ Ext.define('Ext.container.AbstractContainer', {
                 me.doRemove(c, true);
             }
         }
-        
+
         if (floatingItems) {
             while ((c = floatingItems.first())) {
                 me.doRemove(c, true);

@@ -276,8 +276,6 @@ Ext.define('Ext.tree.ViewDropZone', {
             // Coalesce layouts caused by node removal, appending and sorting
             Ext.suspendLayouts();
 
-            targetView.getSelectionModel().clearSelections();
-
             // Insert the records into the target node
             for (i = 0, len = data.records.length; i &lt; len; i++) {
                 record = data.records[i];

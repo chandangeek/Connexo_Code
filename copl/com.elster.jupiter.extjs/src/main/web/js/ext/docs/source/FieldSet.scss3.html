@@ -29,7 +29,7 @@ $fieldset-header-font-size: ceil($font-size * .9) !default;
 </span> * @var {string}
  * The font-weight of the FieldSet header
  */
-$fieldset-header-font-weight: bold !default;
+$fieldset-header-font-weight: normal !default;
 
 <span id='Ext-form-FieldSet-css_var-S-fieldset-header-font-family'>/**
 </span> * @var {string}
@@ -44,7 +44,7 @@ $fieldset-header-font-family: $font-family !default;
 $fieldset-header-line-height: 14px !default;
 
 // private
-$fieldset-header-font: #{$fieldset-header-font-size}/#{$fieldset-header-line-height} $fieldset-header-font-weight $fieldset-header-font-family !default;
+$fieldset-header-font: $fieldset-header-font-weight #{$fieldset-header-font-size}/#{$fieldset-header-line-height} $fieldset-header-font-family !default;
 
 <span id='Ext-form-FieldSet-css_var-S-fieldset-header-color'>/**
 </span> * @var {color}
@@ -121,7 +121,7 @@ $fieldset-collapse-tool-size: 15px !default;
  * The background-image to use for the collapse tool. If null the default tool
  * sprite will be used.  Defaults to null.
  */
-$fieldset-collapse-tool-background-image: null !default;
+$fieldset-collapse-tool-background-image: 'none' !default;
 
 // private
 $fieldset-collapse-tool-background-position: 0 ($fieldset-collapse-tool-size * -4) !default;

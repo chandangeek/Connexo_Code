@@ -33,15 +33,15 @@ Ext.define('Ext.form.field.FileButton', {
 <span id='Ext-form-field-FileButton-cfg-preventDefault'>    preventDefault: false,
 </span>
 <span id='Ext-form-field-FileButton-cfg-renderTpl'>    renderTpl: [
-</span>        '&lt;span id=&quot;{id}-btnWrap&quot; class=&quot;{baseCls}-wrap',
+</span>        '&lt;span id=&quot;{id}-btnWrap&quot; role=&quot;presentation&quot; class=&quot;{baseCls}-wrap',
             '&lt;tpl if=&quot;splitCls&quot;&gt; {splitCls}&lt;/tpl&gt;',
             '{childElCls}&quot; unselectable=&quot;on&quot;&gt;',
-            '&lt;span id=&quot;{id}-btnEl&quot; class=&quot;{baseCls}-button&quot;&gt;',
+            '&lt;span id=&quot;{id}-btnEl&quot; class=&quot;{baseCls}-button&quot; role=&quot;button&quot;&gt;',
                 '&lt;span id=&quot;{id}-btnInnerEl&quot; class=&quot;{baseCls}-inner {innerCls}',
                     '{childElCls}&quot; unselectable=&quot;on&quot;&gt;',
                     '{text}',
                 '&lt;/span&gt;',
-                '&lt;span role=&quot;img&quot; id=&quot;{id}-btnIconEl&quot; class=&quot;{baseCls}-icon-el {iconCls}',
+                '&lt;span role=&quot;presentation&quot; id=&quot;{id}-btnIconEl&quot; class=&quot;{baseCls}-icon-el {iconCls}',
                     '{childElCls} {glyphCls}&quot; unselectable=&quot;on&quot; style=&quot;',
                     '&lt;tpl if=&quot;iconUrl&quot;&gt;background-image:url({iconUrl});&lt;/tpl&gt;',
                     '&lt;tpl if=&quot;glyph &amp;&amp; glyphFontFamily&quot;&gt;font-family:{glyphFontFamily};&lt;/tpl&gt;&quot;&gt;',
@@ -49,7 +49,7 @@ Ext.define('Ext.form.field.FileButton', {
                 '&lt;/span&gt;',
             '&lt;/span&gt;',
         '&lt;/span&gt;',
-        '&lt;input id=&quot;{id}-fileInputEl&quot; class=&quot;{childElCls} {inputCls}&quot; type=&quot;file&quot; size=&quot;1&quot; name=&quot;{inputName}&quot;&gt;'
+        '&lt;input id=&quot;{id}-fileInputEl&quot; class=&quot;{childElCls} {inputCls}&quot; type=&quot;file&quot; size=&quot;1&quot; name=&quot;{inputName}&quot; role=&quot;{role}&quot;&gt;'
     ],
     
 <span id='Ext-form-field-FileButton-method-getTemplateArgs'>    getTemplateArgs: function(){

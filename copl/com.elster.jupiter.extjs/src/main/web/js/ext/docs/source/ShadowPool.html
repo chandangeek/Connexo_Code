@@ -38,6 +38,10 @@ Ext.define('Ext.ShadowPool', {
         if (!sh) {
             sh = Ext.get(Ext.DomHelper.insertHtml(&quot;beforeBegin&quot;, document.body.firstChild, this.markup));
             sh.autoBoxAdjust = false;
+            //&lt;debug&gt;
+            // tell the spec runner to ignore this element when checking if the dom is clean 
+            sh.dom.setAttribute('data-sticky', true);
+            //&lt;/debug&gt;
         }
         return sh;
     },

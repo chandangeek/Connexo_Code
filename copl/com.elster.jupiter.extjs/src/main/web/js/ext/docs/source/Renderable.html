@@ -25,15 +25,16 @@
     // of right and left TD elements switched.
     rtlFrameTableTpl: [
         '{%this.renderDockedItems(out,values,0);%}',
-        '&lt;table class=&quot;', Ext.plainTableCls, '&quot; cellpadding=&quot;0&quot;&gt;&lt;tbody&gt;',
+        '&lt;table id=&quot;{fgid}Table&quot; class=&quot;', Ext.plainTableCls, '&quot; cellpadding=&quot;0&quot; role=&quot;presentation&quot;&gt;',
+        '&lt;tbody role=&quot;presentation&quot;&gt;',
             '&lt;tpl if=&quot;top&quot;&gt;',
-                '&lt;tr&gt;',
+                '&lt;tr role=&quot;presentation&quot;&gt;',
                     '&lt;tpl if=&quot;right&quot;&gt;&lt;td id=&quot;{fgid}TR&quot; class=&quot;{frameCls}-tr {baseCls}-tr {baseCls}-{ui}-tr&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-tr&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tpl&gt;',
                     '&lt;td id=&quot;{fgid}TC&quot; class=&quot;{frameCls}-tc {baseCls}-tc {baseCls}-{ui}-tc&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-tc&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;',
                     '&lt;tpl if=&quot;left&quot;&gt;&lt;td id=&quot;{fgid}TL&quot; class=&quot;{frameCls}-tl {baseCls}-tl {baseCls}-{ui}-tl&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-tl&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tpl&gt;',
                 '&lt;/tr&gt;',
             '&lt;/tpl&gt;',
-            '&lt;tr&gt;',
+            '&lt;tr role=&quot;presentation&quot;&gt;',
                 '&lt;tpl if=&quot;right&quot;&gt;&lt;td id=&quot;{fgid}MR&quot; class=&quot;{frameCls}-mr {baseCls}-mr {baseCls}-{ui}-mr&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-mr&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tpl&gt;',
                 '&lt;td id=&quot;{fgid}MC&quot; class=&quot;{frameCls}-mc {baseCls}-mc {baseCls}-{ui}-mc&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-mc&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;',
                     '{%this.applyRenderTpl(out, values)%}',
@@ -41,7 +42,7 @@
                 '&lt;tpl if=&quot;left&quot;&gt;&lt;td id=&quot;{fgid}ML&quot; class=&quot;{frameCls}-ml {baseCls}-ml {baseCls}-{ui}-ml&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-ml&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tpl&gt;',
             '&lt;/tr&gt;',
             '&lt;tpl if=&quot;bottom&quot;&gt;',
-                '&lt;tr&gt;',
+                '&lt;tr role=&quot;presentation&quot;&gt;',
                     '&lt;tpl if=&quot;right&quot;&gt;&lt;td id=&quot;{fgid}BR&quot; class=&quot;{frameCls}-br {baseCls}-br {baseCls}-{ui}-br&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-br&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tpl&gt;',
                     '&lt;td id=&quot;{fgid}BC&quot; class=&quot;{frameCls}-bc {baseCls}-bc {baseCls}-{ui}-bc&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-bc&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;',
                     '&lt;tpl if=&quot;left&quot;&gt;&lt;td id=&quot;{fgid}BL&quot; class=&quot;{frameCls}-bl {baseCls}-bl {baseCls}-{ui}-bl&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-{parent.ui}-{.}-bl&lt;/tpl&gt;{frameElCls}&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tpl&gt;',
@@ -90,6 +91,7 @@
 
         return data;
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

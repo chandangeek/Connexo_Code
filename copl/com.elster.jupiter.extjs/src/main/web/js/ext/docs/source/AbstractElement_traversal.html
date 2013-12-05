@@ -22,8 +22,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
     override: 'Ext.dom.AbstractElement',
 
 <span id='Ext-dom-AbstractElement-method-findParent'>    /**
-</span>     * Looks at this node and then at parent nodes for a match of the passed simple selector (e.g. div.some-class or span:first-child)
-     * @param {String} selector The simple selector to test
+</span>     * Looks at this node and then at parent nodes for a match of the passed simple selector.
+     * @param {String} selector The simple selector to test. See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Number/String/HTMLElement/Ext.Element} [limit]
      * The max depth to search as a number or an element which causes the upward traversal to stop
      * and is &lt;b&gt;not&lt;/b&gt; considered for inclusion as the result. (defaults to 50 || document.documentElement)
@@ -52,8 +52,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
     },
 
 <span id='Ext-dom-AbstractElement-method-findParentNode'>    /**
-</span>     * Looks at parent nodes for a match of the passed simple selector (e.g. div.some-class or span:first-child)
-     * @param {String} selector The simple selector to test
+</span>     * Looks at parent nodes for a match of the passed simple selector.
+     * @param {String} selector The simple selector to test. See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Number/String/HTMLElement/Ext.Element} [limit]
      * The max depth to search as a number or an element which causes the upward traversal to stop
      * and is &lt;b&gt;not&lt;/b&gt; considered for inclusion as the result. (defaults to 50 || document.documentElement)
@@ -65,10 +65,9 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
         return p ? p.findParent(simpleSelector, limit, returnEl) : null;
     },
 
-<span id='Ext-dom-AbstractElement-method-up'>    /**
-</span>     * Walks up the DOM looking for a parent node that matches the passed simple selector (e.g. div.some-class or span:first-child).
-     * This is a shortcut for findParentNode() that always returns an Ext.dom.Element.
-     * @param {String} selector The simple selector to test
+<span id='Ext-dom-AbstractElement-method-up'>    /**.
+</span>     * This is a shortcut for findParentNode() that always returns an Ext.dom.Element.
+     * @param {String} selector The simple selector to test. See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Number/String/HTMLElement/Ext.Element} [limit]
      * The max depth to search as a number or an element which causes the upward traversal to stop
      * and is &lt;b&gt;not&lt;/b&gt; considered for inclusion as the result. (defaults to 50 || document.documentElement)
@@ -131,7 +130,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
 
 <span id='Ext-dom-AbstractElement-method-parent'>     /**
 </span>     * Gets the parent node for this element, optionally chaining up trying to match a selector
-     * @param {String} [selector] Find a parent node that matches the passed simple selector
+     * @param {String} [selector] Find a parent node that matches the passed simple selector. 
+     * See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Boolean} [returnDom=false] True to return a raw dom node instead of an Ext.dom.Element
      * @return {Ext.dom.Element/HTMLElement} The parent node or null
      */
@@ -141,7 +141,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
 
 <span id='Ext-dom-AbstractElement-method-next'>     /**
 </span>     * Gets the next sibling, skipping text nodes
-     * @param {String} [selector] Find the next sibling that matches the passed simple selector
+     * @param {String} [selector] Find the next sibling that matches the passed simple selector.
+     * See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Boolean} [returnDom=false] True to return a raw dom node instead of an Ext.dom.Element
      * @return {Ext.dom.Element/HTMLElement} The next sibling or null
      */
@@ -151,7 +152,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
 
 <span id='Ext-dom-AbstractElement-method-prev'>    /**
 </span>     * Gets the previous sibling, skipping text nodes
-     * @param {String} [selector] Find the previous sibling that matches the passed simple selector
+     * @param {String} [selector] Find the previous sibling that matches the passed simple selector.
+     * See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Boolean} [returnDom=false] True to return a raw dom node instead of an Ext.dom.Element
      * @return {Ext.dom.Element/HTMLElement} The previous sibling or null
      */
@@ -162,7 +164,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
 
 <span id='Ext-dom-AbstractElement-method-first'>    /**
 </span>     * Gets the first child, skipping text nodes
-     * @param {String} [selector] Find the next sibling that matches the passed simple selector
+     * @param {String} [selector] Find the next sibling that matches the passed simple selector.
+     * See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Boolean} [returnDom=false] True to return a raw dom node instead of an Ext.dom.Element
      * @return {Ext.dom.Element/HTMLElement} The first child or null
      */
@@ -172,7 +175,8 @@ Ext.define('Ext.dom.AbstractElement_traversal', {
 
 <span id='Ext-dom-AbstractElement-method-last'>    /**
 </span>     * Gets the last child, skipping text nodes
-     * @param {String} [selector] Find the previous sibling that matches the passed simple selector
+     * @param {String} [selector] Find the previous sibling that matches the passed simple selector.
+     * See {@link Ext.dom.Query} for information about simple selectors.
      * @param {Boolean} [returnDom=false] True to return a raw dom node instead of an Ext.dom.Element
      * @return {Ext.dom.Element/HTMLElement} The last child or null
      */

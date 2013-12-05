@@ -88,10 +88,10 @@ Ext.define('Ext.layout.container.Form', {
 
 <span id='Ext-layout-container-Form-property-childEls'>    childEls: ['formTable'],
 </span>    
-<span id='Ext-layout-container-Form-property-padRow'>    padRow: '&lt;tr&gt;&lt;td class=&quot;' + Ext.baseCSSPrefix + 'form-item-pad&quot; colspan=&quot;3&quot;&gt;&lt;/td&gt;&lt;/tr&gt;',
+<span id='Ext-layout-container-Form-property-padRow'>    padRow: '&lt;tr role=&quot;presentation&quot;&gt;&lt;td class=&quot;' + Ext.baseCSSPrefix + 'form-item-pad&quot; colspan=&quot;3&quot; role=&quot;presentation&quot;&gt;&lt;/td&gt;&lt;/tr&gt;',
 </span>
 <span id='Ext-layout-container-Form-property-renderTpl'>    renderTpl: [
-</span>        '&lt;table id=&quot;{ownerId}-formTable&quot; class=&quot;{tableCls}&quot; style=&quot;width:100%&quot; cellpadding=&quot;0&quot;&gt;',
+</span>        '&lt;table id=&quot;{ownerId}-formTable&quot; class=&quot;{tableCls}&quot; style=&quot;width:100%&quot; cellpadding=&quot;0&quot; role=&quot;presentation&quot;&gt;',
             '{%this.renderBody(out,values)%}',
         '&lt;/table&gt;',
         '{%this.renderPadder(out,values)%}'
@@ -151,6 +151,7 @@ Ext.define('Ext.layout.container.Form', {
 </span>
         if (item.tag &amp;&amp; item.tag == 'table') {
             item.tag = 'tbody';
+            item.role = 'presentation';
             delete item.cellspacing;
             delete item.cellpadding;
 
@@ -167,10 +168,13 @@ Ext.define('Ext.layout.container.Form', {
 
         return {
             tag: 'tbody',
+            role: 'presentation',
             cn: {
                 tag: 'tr',
+                role: 'presentation',
                 cn: {
                     tag: 'td',
+                    role: 'presentation',
                     colspan: 3,
                     style: 'width:100%',
                     cn: item
@@ -355,7 +359,7 @@ Ext.define('Ext.layout.container.Form', {
 
         if (me.manageOverflow) {
             if (scrollRangeFlags &amp; 5) { // if (loses parent bottom and/or right padding)
-                out.push('&lt;div id=&quot;',owner.id,'-overflowPadderEl&quot; ',
+                out.push('&lt;div id=&quot;',owner.id,'-overflowPadderEl&quot; role=&quot;presentation&quot;',
                     // the padder element must have a height of at least 1px, or its width will be ignored by the container.
                     // The extra height is adjusted for by adding a -1px top margin to the padder element
                     // A side effect of this approach is that click events will not register on bottom 1px of the container's
@@ -509,11 +513,13 @@ Ext.define('Ext.layout.container.Form', {
                 var div = Ext.getBody().createChild({
                         //cls: 'x-border-box x-hide-offsets',
                         cls: Ext.baseCSSPrefix + 'border-box',
+                        role: 'presentation',
                         style: {
                             width: '100px', height: '100px', padding: '10px',
                             overflow: 'auto'
                         },
                         children: [{
+                            role: 'presentation',
                             style: {
                                 border: '1px solid red',
                                 width: '150px', height: '150px',

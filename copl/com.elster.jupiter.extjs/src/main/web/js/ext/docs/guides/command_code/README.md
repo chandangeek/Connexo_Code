@@ -1,37 +1,33 @@
 # Compiler-Friendly Code Guidelines
 
-One of the major components new to V3 of Sencha Cmd is the compiler. This guide tells you
-all about how to write code that gets the most out of the compiler today, but also to help
-your code base immediately benefit from the framework-aware optimizations that we have
-planned for future releases.
-
-{@img ../command/sencha-command-128.png}
+One of the major components in [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) 
+is its compiler. This guide describes how to write code that gets the most out of the compiler
+and prepares for future framework-aware optimizations.
 
 ## What The Compiler Is Not
 
-For starters, it is important to explain that th Sencha Cmd compiler is **not** a replacement
-for tools like these:
+Sencha Cmd compiler is **not** a replacement for tools like these:
 
  * [YUI Compressor](http://developer.yahoo.com/yui/compressor/).
  * [Google Closure Compiler](https://developers.google.com/closure/compiler/).
  * [UglifyJS](https://github.com/mishoo/UglifyJS/).
 
-These tools solve different problems for JavaScript developers in general. These tools are
-very good at the world of JavaScript but have no understanding of Sencha framework features
+These tools solve different problems for JavaScript developers and are
+very good at the world of JavaScript, but have no understanding of Sencha framework features
 such as `Ext.define` for declaring classes.
 
 ## Framework Awareness
 
-The role of the Sencha Cmd compiler is then to provide framework-aware optimizations and
-diagnostics. Once code has passed through the Sencha Cmd compiler, it is ready to go on
-to more general tools like the above.
+The role of the Sencha Cmd compiler is to provide framework-aware optimizations and
+diagnostics. Once code has passed through the Sencha Cmd compiler, it is ready 
+for more general tools.
 
 In early testing, these kinds of optimizations have shown to significantly improve "ingest"
-time of JavaScript code by the browser... especially on legacy browsers.
+time of JavaScript code by the browser, especially on legacy browsers.
 
-In order for the compiler to provide these benefits, however, it is now important to look
-at coding conventions that it can "understand" and therefore optimize for you. Following
-the conventions described in this guide will ensure that your code is positioned to get
+For the compiler to provide these benefits, however, it is now important to look
+at coding conventions that the compiler can "understand" and therefore optimize for you. Following
+the conventions described in this guide ensure that your code is positioned to get
 the most from Sencha Cmd today and in the future.
 
 ## Code Organization
@@ -43,12 +39,12 @@ guidelines. These guidelines are very similar to Java.
 To recap, these guidelines are:
 
  * Each JavaScript source file should contain one `Ext.define` statement at global scope.
- * The name of a source file matches the last segment of the name of the defined type (e.g.,
- the name of the source file containing `Ext.define("MyApp.foo.bar.Thing", ...` would be
+ * The name of a source file matches the last segment of the name of the defined type such as
+ the name of the source file containing `Ext.define("MyApp.foo.bar.Thing", ...` is
  "Thing.js".
  * All source files are stored in a folder structure that is based on the namespace of the
  defined type. For example, given `Ext.define("MyApp.foo.bar.Thing", ...`, the source file
- would be in a path ending with "/foo/bar".
+ is in a path ending with "/foo/bar".
 
 Internally, the compiler views source files and classes as basically synonymous. It makes
 no attempt to split up files to remove classes that are not required. Only complete files
@@ -67,11 +63,11 @@ oriented programming. The compiler takes the view that `Ext.define` is really a 
 Clearly if `Ext.define` is understood as a declaration, the content of the class body cannot
 be constructed dynamically in code. While this practice is rare, it is valid JavaScript.
 But as we shall see below in the code forms, this is antithetical to the compiler's
-ability to understand the code is parses. Dynamic class declarations are often used to do
-things that can better be handled by other features of the compiler. For more on these
-features, see the [Sencha Compiler Reference](#/guide/command_compiler).
+ability to understand the code it parses. Dynamic class declarations are often used to do
+things that are better handled by other features of the compiler. For more on these
+features, see the [Sencha Compiler Reference](#!/guide/command_compiler).
 
-The compiler understands the "keywords" of this declarative language:
+The compiler understands these "keywords" of this declarative language:
 
  * `requires`
  * `uses`
@@ -79,12 +75,12 @@ The compiler understands the "keywords" of this declarative language:
  * `mixins`
  * `statics`
  * `alias`
- * `singleton
+ * `singleton`
  * `override`
  * `alternateClassName`
  * `xtype`
 
-In order for the compiler to recognize your class declarations, they need to follow one of
+For the compiler to recognize your class declarations, they need to follow one of
 the following forms.
 
 ### Standard Form
@@ -102,7 +98,7 @@ Most classes use simple declarations like this:
 The second argument is the class body which is processed by the compiler as the class
 "declaration".
 
-** In all forms, `Ext.define` should be called at global scope. **
+**Note** In all forms, call `Ext.define` at global scope. 
 
 ### Wrapped Function Forms
 
@@ -130,7 +126,7 @@ this was the most common reason for the closure scope.
         };
     });
 
-**NOTE:** This form is only supported in Ext JS 4.1.2 and Sencha Touch 2.1 (or newer).
+**NOTE:** This form is only supported in Ext JS 4.1.2 and later and Sencha Touch 2.1 and later.
 
 #### Called Function Form
 
@@ -231,7 +227,7 @@ Mixins can also be specified as a String[]:
 
 #### The `statics` Keyword
 
-This keyword is used to place properties or methods on the class as opposed to on each of
+This keyword places properties or methods on the class, as opposed to on each of
 the instances. This must be an object literal.
 
     statics: {
@@ -255,21 +251,21 @@ In Ext JS 4.1.0 and Sencha Touch 2.0, `Ext.define` gained the ability to manage 
 Historically, overrides have been used to patch code to work around bugs or add
 enhancements. This use was complicated with the introduction of the dynamic loader because
 of the timing required to execute the `Ext.override` method. Also, in large applications
-with many overrides, not all overrides in the code base were need by all pages or builds
-(e.g., if the target class was not required).
+with many overrides, not all overrides in the code base were needed by all pages or builds
+(for example, if the target class was not required).
 
 All this changed once the class system and loader understood overrides. This trend only
 continues with Sencha Cmd. The compiler understands overrides and their dependency effects
 and load-sequence issues.
 
 In the future, the compiler will become even more aggressive at dead-code elimination of
-methods replaced by an override. Using managed overrides as described below will enable
-this optimization of your code once available in Sencha Cmd.
+methods replaced by an override. Using managed overrides as described below enables
+this optimization of your code once it's available in Sencha Cmd.
 
 ### Standard Override Form
 
 Below is the standard form of an override. The choice of namespace is somewhat arbitrary,
-but see below for some suggestions.
+but see below for suggestions.
 
     Ext.define('MyApp.patches.grid.Panel', {
         override: 'Ext.grid.Panel',
@@ -280,13 +276,13 @@ but see below for some suggestions.
 ### Use Cases
 
 With the ability to use `Ext.define` to manage overrides, new idioms have opened up and
-are actively being leveraged. For exampled in the code generators of
+are actively being leveraged. For example in the code generators of
 [Sencha Architect](http://www.sencha.com/products/architect/) and internal to the framework,
-to break apart large classes like `Ext.Element` into more manageable and cohesive pieces.
+that break apart large classes like `Ext.Element` into more manageable and cohesive pieces.
 
 #### Overrides as Patches
 
-This is the historical use case and hence the most common in practice today.
+Overrides as patches are the historical use case and hence the most common in practice today.
 
 **CAUTION:** Care should be taken when patching code. While the use of override itself is
 supported, the end result of overriding framework methods is not supported. All overrides
@@ -295,7 +291,7 @@ should be carefully reviewed whenever upgrading to a new framework version.
 That said, it is, at times, necessary to override framework methods. The most common case
 for this to fix a bug. The Standard Override Form is ideal in this case. In fact, Sencha
 Support will at times provide customer with patches in this form. Once provided, however,
-managing such patches and removing them when no longer needed is a matter for the review
+managing such patches and removing them when no longer needed, is a matter for the review
 process previously mentioned.
 
 Naming Recommendation:
@@ -304,7 +300,7 @@ Naming Recommendation:
  For example, "MyApp.patches" targets the "Ext" namespace. If third party code is involved
  then perhaps another level or namespace should be chosen to correspond to its top-level
  namespace. From there, name the override using a matching name and sub-namespace. In the
- above example:
+ previous example:
 
     (Ext -> MyApp.patches).grid.Panel
 
@@ -348,8 +344,8 @@ In ./foo/bar/custom/Thing.js:
 Naming Recommendations:
 
  * Organize generated vs. hand-edited code by namespace.
- * If not by namespace, consider a common base name with a suffix on one or the other
- (e.g., "Foo.bar.ThingOverride" or "Foo.bar.ThingGenerated") so that the parts of a class
+ * If not by namespace, consider a common base name with a suffix on one or the other, such
+ as "Foo.bar.ThingOverride" or "Foo.bar.ThingGenerated" so that the parts of a class
  collate together in listings.
 
 #### Overrides as Aspects
@@ -389,8 +385,8 @@ This feature can be used now by requiring it:
         'Foo.feature.grid.Panel'
     ]
 
-Or with a proper "bootstrap" file (see [Workspaces in Sencha Cmd](#/guide/command_workspace)
-or [Single-Page Ext JS Apps](#/guide/command_app_single)):
+Or with a proper "bootstrap" file (see [Workspaces in Sencha Cmd](#!/guide/command_workspace)
+or [Single-Page Ext JS Apps](#!/guide/command_app_single)):
 
     ...
     requires: [
@@ -417,15 +413,15 @@ Another way to view this is that `callParent` works the same for all forms of `E
 be they classes or overrides.
 
 While this helped in some areas, it unfortunately made bypassing the original method (as a
-patch or bug fix) more difficult. So in Ext JS 4.1.1a, Ext JS 4.1.2a and Sencha Touch 2.1,
-there is now a method named `callSuper` that can be used to bypass an overridden method.
+patch or bug fix) more difficult. Ext JS 4.1 and later and Sencha Touch 2.1 and later
+provides a method named `callSuper` that can bypass an overridden method.
 
 In future releases, the compiler will use this semantic difference to perform dead-code
 elimination of overridden methods.
 
 ## Conclusion
 
-As Sencha Cmd continues to evolve, it will continue to introduce new diagnostic messages
+As Sencha Cmd continues to evolve, it continues to introduce new diagnostic messages
 to help point out deviations from these guidelines.
 
 A good place to start is to see how this information can help inform your own internal

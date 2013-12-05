@@ -747,8 +747,9 @@ Ext.define('Ext.dom.AbstractElement_style', {
             }
 
             mask = me.createChild({
+                role: 'presentation',
                 cls: prefix + 'mask' + ((transparent !== false) ? '' : (' ' + prefix + 'mask-gray')),
-                html: msg ? ('&lt;div class=&quot;' + (msgCls || (prefix + 'mask-message')) + '&quot;&gt;' + msg + '&lt;/div&gt;') : ''
+                html: msg ? ('&lt;div class=&quot;' + (msgCls || (prefix + 'mask-message')) + '&quot; role=&quot;presentation&quot;&gt;' + msg + '&lt;/div&gt;') : ''
             });
 
             size = me.getSize();

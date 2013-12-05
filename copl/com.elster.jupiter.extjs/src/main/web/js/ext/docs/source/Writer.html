@@ -161,6 +161,8 @@ Ext.define('Ext.data.writer.Writer', {
                     this.writeValue(data, field, record);
                 }
             }
+        } else if (operation.action === 'destroy') {
+            this.writeValue(data, record.idField, record);
         } else {
             // Only write the changes
             changes = record.getChanges();

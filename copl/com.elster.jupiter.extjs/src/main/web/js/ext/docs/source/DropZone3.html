@@ -21,9 +21,12 @@
 Ext.define('Ext.view.DropZone', {
     extend: 'Ext.dd.DropZone',
 
-<span id='Ext-view-DropZone-property-indicatorHtml'>    indicatorHtml: '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-drop-indicator-left&quot;&gt;&lt;/div&gt;&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-drop-indicator-right&quot;&gt;&lt;/div&gt;',
-</span><span id='Ext-view-DropZone-property-indicatorCls'>    indicatorCls: Ext.baseCSSPrefix + 'grid-drop-indicator',
-</span>
+<span id='Ext-view-DropZone-property-indicatorCls'>    indicatorCls: Ext.baseCSSPrefix + 'grid-drop-indicator',
+</span><span id='Ext-view-DropZone-property-indicatorHtml'>    indicatorHtml: [
+</span>        '&lt;div class=&quot;', Ext.baseCSSPrefix, 'grid-drop-indicator-left&quot; role=&quot;presentation&quot;&gt;&lt;/div&gt;',
+        '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-drop-indicator-right&quot; role=&quot;presentation&quot;&gt;&lt;/div&gt;'
+    ].join(''),
+
 <span id='Ext-view-DropZone-method-constructor'>    constructor: function(config) {
 </span>        var me = this;
         Ext.apply(me, config);
@@ -79,6 +82,7 @@ Ext.define('Ext.view.DropZone', {
 
         if (!me.indicator) {
             me.indicator = new Ext.Component({
+                ariaRole: 'presentation',
                 html: me.indicatorHtml,
                 cls: me.indicatorCls,
                 ownerCt: me.view,

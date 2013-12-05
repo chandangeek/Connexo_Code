@@ -37,9 +37,9 @@ Ext.define('Ext.grid.feature.RowWrap', {
     },
 
 <span id='Ext-grid-feature-RowWrap-property-wrapTpl'>    wrapTpl: [
-</span>        '&lt;tr data-boundView=&quot;{view.id}&quot; data-recordId=&quot;{record.internalId}&quot; data-recordIndex=&quot;{recordIndex}&quot; class=&quot;{[values.itemClasses.join(&quot; &quot;)]} ' + Ext.baseCSSPrefix + 'grid-wrap-row&quot;&gt;',
-            '&lt;td class=&quot;' + Ext.baseCSSPrefix + 'grid-rowwrap ' + Ext.baseCSSPrefix + 'grid-td&quot; colSpan=&quot;{columns.length}&quot;&gt;',
-                '&lt;table class=&quot;' + Ext.baseCSSPrefix + '{view.id}-table ' + Ext.baseCSSPrefix + 'grid-table&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;',
+</span>        '&lt;tr data-boundView=&quot;{view.id}&quot; data-recordId=&quot;{record.internalId}&quot; data-recordIndex=&quot;{recordIndex}&quot; class=&quot;{[values.itemClasses.join(&quot; &quot;)]} ', Ext.baseCSSPrefix, 'grid-wrap-row&quot; {ariaRowAttr}&gt;',
+            '&lt;td class=&quot;', Ext.baseCSSPrefix, 'grid-rowwrap ', Ext.baseCSSPrefix, 'grid-td&quot; colSpan=&quot;{columns.length}&quot; {ariaCellAttr}&gt;',
+                '&lt;table class=&quot;', Ext.baseCSSPrefix, '{view.id}-table ', Ext.baseCSSPrefix, 'grid-table&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; style=&quot;width:100%&quot; {ariaCellInnerTableAttr}&gt;',
                     '{[values.view.renderColumnSizer(out)]}',
                     '{%',
                         'values.itemClasses.length = 0;',

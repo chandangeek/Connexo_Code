@@ -9,6 +9,12 @@
 $form-trigger-width: 22px !default;
 
 /**
+ * @var {color}
+ * The color of the trigger field background
+ */
+$form-trigger-background-color: $form-field-background-color !default;
+
+/**
  * @var {number/list}
  * The width of the trigger's border
  */

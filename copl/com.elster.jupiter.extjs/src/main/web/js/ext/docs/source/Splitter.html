@@ -39,7 +39,7 @@ Ext.define('Ext.resizer.Splitter', {
 
 <span id='Ext-resizer-Splitter-cfg-renderTpl'>    renderTpl: [
 </span>        '&lt;tpl if=&quot;collapsible===true&quot;&gt;',
-            '&lt;div id=&quot;{id}-collapseEl&quot; class=&quot;', Ext.baseCSSPrefix, 'collapse-el ',
+            '&lt;div id=&quot;{id}-collapseEl&quot; role=&quot;presentation&quot; class=&quot;', Ext.baseCSSPrefix, 'collapse-el ',
                 Ext.baseCSSPrefix, 'layout-split-{collapseDir}{childElCls}&quot;&gt;&amp;#160;',
             '&lt;/div&gt;',
         '&lt;/tpl&gt;'
@@ -116,7 +116,9 @@ Ext.define('Ext.resizer.Splitter', {
      * width for horizontal splitters.
      */
     size: 5,
-
+    
+<span id='Ext-resizer-Splitter-property-ariaRole'>    ariaRole: 'separator',
+</span>
 <span id='Ext-resizer-Splitter-method-getTrackerConfig'>    /**
 </span>     * Returns the config object (with an `xclass` property) for the splitter tracker. This
      * is overridden by {@link Ext.resizer.BorderSplitter BorderSplitter} to create a

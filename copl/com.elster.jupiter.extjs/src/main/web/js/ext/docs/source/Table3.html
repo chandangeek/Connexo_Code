@@ -19,8 +19,8 @@
     override: 'Ext.view.Table',
 
     rtlCellTpl: [
-        '&lt;td class=&quot;' + Ext.baseCSSPrefix + 'rtl {tdCls}&quot; {tdAttr}&gt;',
-            '&lt;div {unselectableAttr} class=&quot;' + Ext.baseCSSPrefix + 'rtl ' + Ext.baseCSSPrefix + 'grid-cell-inner {innerCls}&quot;',
+        '&lt;td class=&quot;' + Ext.baseCSSPrefix + 'rtl {tdCls}&quot; {tdAttr} {ariaCellAttr}&gt;',
+            '&lt;div {unselectableAttr} {ariaCellInnerAttr} class=&quot;' + Ext.baseCSSPrefix + 'rtl ' + Ext.baseCSSPrefix + 'grid-cell-inner {innerCls}&quot;',
                 ' style=&quot;text-align:{[this.getAlign(values.align)]};&lt;tpl if=&quot;style&quot;&gt;{style}&lt;/tpl&gt;&quot;&gt;{value}&lt;/div&gt;',
         '&lt;/td&gt;',
         {

@@ -71,6 +71,11 @@ Ext.define('Ext.util.TextMetrics', {
     constructor: function(bindTo, fixedWidth){
         var me = this,
             measure = Ext.getBody().createChild({
+                //&lt;debug&gt;
+                // tell the spec runner to ignore this element when checking if the dom is clean 
+                'data-sticky': true,
+                //&lt;/debug&gt;
+                role: 'presentation',
                 cls: Ext.baseCSSPrefix + 'textmetrics'
             });
             

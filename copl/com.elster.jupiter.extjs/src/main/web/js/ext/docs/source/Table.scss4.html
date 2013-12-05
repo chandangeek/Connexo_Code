@@ -23,7 +23,7 @@
 </span> * @var {color}
  * The color of the text in the grid cells
  */
-$grid-row-cell-color: null !default;
+$grid-row-cell-color: 'none' !default;
 
 <span id='Ext-panel-Table-css_var-S-grid-row-cell-font-size'>/**
 </span> * @var {number}
@@ -31,7 +31,7 @@ $grid-row-cell-color: null !default;
  */
 $grid-row-cell-font-size: $font-size !default;
 <span id='Ext-panel-Table-css_var-S-grid-row-cell-line-height'>/**
-</span> * var {number} $grid-row-cell-line-height
+</span> * @var {number}
  * The line-height of the text inside the grid cells.
  */
 $grid-row-cell-line-height: round($grid-row-cell-font-size * 1.15) !default;
@@ -90,7 +90,7 @@ $grid-cell-special-background-color: $grid-row-cell-background-color !default;
  * Ext.grid.RowNumberer RowNumberer}, {@link Ext.selection.CheckboxModel Checkbox Selection
  * Model} and {@link Ext.grid.plugin.RowExpander RowExpander}.
  */
-$grid-cell-special-background-gradient: null !default;
+$grid-cell-special-background-gradient: 'none' !default;
 
 <span id='Ext-panel-Table-css_var-S-grid-cell-special-border-width'>/**
 </span> * @var {number}
@@ -134,7 +134,7 @@ $grid-cell-special-border-style: $grid-row-cell-border-style !default;
 $grid-cell-special-selected-border-color: $grid-row-cell-border-color !default;
 
 <span id='Ext-panel-Table-css_var-S-grid-cell-special-over-background-color'>/**
-</span> * @var {color} 
+</span> * @var {color}
  * The background-color of &quot;special&quot; cells when the row is hovered. Special cells are
  * created by {@link Ext.grid.RowNumberer RowNumberer}, {@link Ext.selection.CheckboxModel
  * Checkbox Selection Model} and {@link Ext.grid.plugin.RowExpander RowExpander}.
@@ -222,20 +222,20 @@ $grid-row-cell-focus-background-color: $grid-row-cell-background-color !default;
 
 <span id='Ext-panel-Table-css_var-S-grid-no-row-lines-show-focus-border'>/**
 </span> * @var {boolean}
- * True to show the focus border when a row is focused even if the grid has no 
- * {@link Ext.panel.Table#rowLines rowLines}.  
+ * True to show the focus border when a row is focused even if the grid has no
+ * {@link Ext.panel.Table#rowLines rowLines}.
  */
 $grid-no-row-lines-show-focus-border: false !default;
 
 <span id='Ext-panel-Table-css_var-S-grid-cell-selected-color'>/**
-</span> * @var {color} 
+</span> * @var {color}
  * The text color of a selected cell when using a {@link Ext.selection.CellModel
  * Cell Selection Model}.
  */
 $grid-cell-selected-color: $grid-row-cell-selected-color !default;
 
 <span id='Ext-panel-Table-css_var-S-grid-cell-selected-background-color'>/**
-</span> * @var {color} 
+</span> * @var {color}
  * The background-color of a selected cell when using a {@link Ext.selection.CellModel
  * Cell Selection Model}.
  */

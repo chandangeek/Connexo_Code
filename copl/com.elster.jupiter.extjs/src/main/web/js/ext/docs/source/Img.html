@@ -86,8 +86,10 @@ Ext.define('Ext.Img', {
      * the `@` symbol. For example '65@My Font Family'.
      */
 
-    initComponent: function() {
-        if (this.glyph) {
+    ariaRole: 'img',
+
+<span id='Ext-Img-method-initComponent'>    initComponent: function() {
+</span>        if (this.glyph) {
             this.autoEl = 'div';
         }
         this.callParent();
@@ -95,6 +97,7 @@ Ext.define('Ext.Img', {
 
 <span id='Ext-Img-method-getElConfig'>    getElConfig: function() {
 </span>        var me = this,
+            autoEl = me.autoEl,
             config = me.callParent(),
             glyphFontFamily = Ext._glyphFontFamily,
             glyph = me.glyph,
@@ -102,7 +105,7 @@ Ext.define('Ext.Img', {
 
         // It is sometimes helpful (like in a panel header icon) to have the img wrapped
         // by a div. If our autoEl is not 'img' then we just add an img child to the el.
-        if (me.autoEl == 'img') {
+        if (autoEl === 'img' || (Ext.isObject(autoEl) &amp;&amp; autoEl.tag === 'img')) {
             img = config;
         } else if (me.glyph) {
             if (typeof glyph === 'string') {
@@ -117,6 +120,7 @@ Ext.define('Ext.Img', {
         } else {
             config.cn = [img = {
                 tag: 'img',
+                role: me.ariaRole,
                 id: me.id + '-img'
             }];
         }
@@ -141,12 +145,19 @@ Ext.define('Ext.Img', {
 
 <span id='Ext-Img-method-onRender'>    onRender: function () {
 </span>        var me = this,
+            autoEl = me.autoEl,
             el;
 
         me.callParent(arguments);
 
         el = me.el;
-        me.imgEl = (me.autoEl == 'img') ? el : el.getById(me.id + '-img');
+        
+        if (autoEl === 'img' || (Ext.isObject(autoEl) &amp;&amp; autoEl.tag === 'img')) {
+            me.imgEl = el;
+        }
+        else {
+            me.imgEl = el.getById(me.id + '-img');
+        }
     },
 
 <span id='Ext-Img-method-onDestroy'>    onDestroy: function () {

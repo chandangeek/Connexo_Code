@@ -15,33 +15,14 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='Ext-app-domain-Component'>/**
-</span> * This class implements the component event domain. All classes extending from
- * {@link Ext.Component} are included in this domain. The matching criteria uses
- * {@link Ext.ComponentQuery}.
- * 
- * @protected
- */
-Ext.define('Ext.app.domain.Component', {
-    extend: 'Ext.app.EventDomain',
-    singleton: true,
-
-    requires: [
-        'Ext.Component'
-    ],
-
-<span id='Ext-app-domain-Component-property-type'>    type: 'component',
-</span>
-<span id='Ext-app-domain-Component-method-constructor'>    constructor: function() {
-</span>        var me = this;
-        
-        me.callParent();
-        me.monitor(Ext.Component);
-    },
-
-<span id='Ext-app-domain-Component-method-match'>    match: function(target, selector) {
-</span>        return target.is(selector);
-    }
+  <pre class="prettyprint lang-js">Ext.define('Ext.rtl.draw.Component', {
+    override: 'Ext.draw.Component',
+    
+    initSurfaceCfg: function(cfg) {
+        if (this.getHierarchyState().rtl) {
+            cfg.isRtl = true;
+        }
+    }    
 });
 </pre>
 </body>

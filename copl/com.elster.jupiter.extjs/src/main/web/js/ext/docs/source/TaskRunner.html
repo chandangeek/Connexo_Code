@@ -28,14 +28,14 @@
  *
  *      // Start a simple clock task that updates a div once per second
  *      var updateClock = function () {
- *          Ext.fly('clock').update(new Date().format('g:i:s A'));
- *      }
+ *          Ext.fly('clock').update(Ext.Date.format(new Date(), 'g:i:s A'));
+ *      };
  *
- *      var runner = new Ext.util.TaskRunner();
- *      var task = runner.start({
- *          run: updateClock,
- *          interval: 1000
- *      }
+ *      var runner = new Ext.util.TaskRunner(),
+ *          task = runner.start({
+ *              run: updateClock,
+ *              interval: 1000
+ *          });
  *
  * The equivalent using TaskManager:
  *

@@ -88,7 +88,7 @@ Ext.define('Ext.util.History', {
     },
 
 <span id='Ext-util-History-method-updateIFrame'>    updateIFrame: function(token) {
-</span>        var html = '&lt;html&gt;&lt;body&gt;&lt;div id=&quot;state&quot;&gt;' +
+</span>        var html = '&lt;html&gt;&lt;body&gt;&lt;div id=&quot;state&quot; role=&quot;presentation&quot;&gt;' +
                     Ext.util.Format.htmlEncode(token) +
                     '&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;',
             doc;
@@ -206,6 +206,7 @@ Ext.define('Ext.util.History', {
             me.hiddenField = Ext.getBody().createChild({
                 id: Ext.id(),
                 tag: 'form',
+                role: 'presentation',
                 cls: Ext.baseCSSPrefix + 'hide-display',
                 children: [{
                     tag: 'input',
@@ -220,6 +221,7 @@ Ext.define('Ext.util.History', {
             if (!me.iframe) {
                 me.iframe = DomHelper.append(me.hiddenField.parentNode, {
                     tag: 'iframe',
+                    role: 'presentation',
                     id: me.iframeId,
                     src: Ext.SSL_SECURE_URL
                 });

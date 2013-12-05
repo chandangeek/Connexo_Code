@@ -30,6 +30,13 @@ $grid-column-header-line-height: round($grid-row-cell-font-size * 1.15) !default
 $grid-column-header-font: $grid-column-header-font-weight #{$grid-column-header-font-size}/#{$grid-column-header-line-height} $grid-column-header-font-family !default;
 
 /**
+ * @var {string}
+ * The text-overflow of grid column headers
+ */
+$grid-column-text-overflow: ellipsis !default;
+
+
+/**
  * @var {color}
  * The text color of grid column headers
  */

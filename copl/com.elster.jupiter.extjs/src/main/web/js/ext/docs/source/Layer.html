@@ -174,9 +174,13 @@ Ext.define('Ext.dom.Layer', {
             me.shadowOffset = 0;
         }
         me.useShim = config.shim !== false &amp;&amp; Ext.useShims;
+
+        // Keep the following only for cases where Ext.Layer would be instantiated
+        // directly.  We don't ever pass hidden in the config in the framework
+        // since this is handled by the Component lifecycle.
         if (config.hidden === true) {
             me.hide();
-        } else {
+        } else if (config.hidden === false) {
             me.show();
         }
     },
@@ -196,6 +200,10 @@ Ext.define('Ext.dom.Layer', {
             shim = me.self.shims.shift();
             if (!shim) {
                 shim = me.createShim();
+                //&lt;debug&gt;
+                // tell the spec runner to ignore this element when checking if the dom is clean 
+                shim.dom.setAttribute('data-sticky', true);
+                //&lt;/debug&gt;
                 shim.enableDisplayMode('block');
                 shim.hide();
             }

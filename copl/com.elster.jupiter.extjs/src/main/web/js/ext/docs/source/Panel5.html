@@ -457,7 +457,7 @@ Ext.define('Ext.tab.Panel', {
 
         // Ensure that the active child's tab is rendered in the active UI state
         if (activeTab) {
-        	me.tabBar.setActiveTab(activeTab.tab, true);
+            me.tabBar.setActiveTab(activeTab.tab, true);
         }
     },
 
@@ -475,7 +475,7 @@ Ext.define('Ext.tab.Panel', {
         if (card) {
             previous = me.getActiveTab();
 
-            if (previous !== card &amp;&amp; me.fireEvent('beforetabchange', me, card, previous) === false) {
+            if (previous === card || me.fireEvent('beforetabchange', me, card, previous) === false) {
                 return false;
             }
 
@@ -563,9 +563,12 @@ Ext.define('Ext.tab.Panel', {
                 hidden: item.hidden &amp;&amp; !item.hiddenByLayout, // only hide if it wasn't hidden by the layout itself
                 tooltip: item.tooltip,
                 tabBar: me.tabBar,
-                position: me.tabPosition,
-                closeText: item.closeText
+                position: me.tabPosition
             };
+        
+        if (item.closeText !== undefined) {
+            defaultConfig.closeText = item.closeText;
+        }
 
         cfg = Ext.applyIf(cfg, defaultConfig);
 

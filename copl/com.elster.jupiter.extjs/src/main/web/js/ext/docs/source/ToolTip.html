@@ -194,9 +194,9 @@ Ext.define('Ext.tip.ToolTip', {
 <span id='Ext-tip-ToolTip-cfg-delegate'>    /**
 </span>     * @cfg {String} delegate
      *
-     * A {@link Ext.DomQuery DomQuery} selector which allows selection of individual elements within the
+     * A {@link Ext.DomQuery DomQuery} simple selector which allows selection of individual elements within the
      * `{@link #target}` element to trigger showing and hiding the ToolTip as the mouse moves within the
-     * target.
+     * target. See {@link Ext.dom.Query} for information about simple selectors.
      *
      * When specified, the child element of the target which caused a show event is placed into the
      * `{@link #triggerElement}` property before the ToolTip is shown.
@@ -210,6 +210,8 @@ Ext.define('Ext.tip.ToolTip', {
 <span id='Ext-tip-ToolTip-property-targetCounter'>    // @private
 </span>    targetCounter: 0,
 <span id='Ext-tip-ToolTip-property-quickShowInterval'>    quickShowInterval: 250,
+</span>
+<span id='Ext-tip-ToolTip-property-ariaRole'>    ariaRole: 'tooltip',
 </span>
 <span id='Ext-tip-ToolTip-method-initComponent'>    // @private
 </span>    initComponent: function() {
@@ -225,7 +227,14 @@ Ext.define('Ext.tip.ToolTip', {
         var me = this;
         me.callParent(arguments);
         me.anchorCls = Ext.baseCSSPrefix + 'tip-anchor-' + me.getAnchorPosition();
+        //&lt;debug&gt;
+        if (me.sticky) {
+            // tell the spec runner to ignore this element when checking if the dom is clean 
+            me.el.dom.setAttribute('data-sticky', true);
+        }
+        //&lt;/debug&gt;
         me.anchorEl = me.el.createChild({
+            role: 'presentation',
             cls: Ext.baseCSSPrefix + 'tip-anchor ' + me.anchorCls
         });
     },

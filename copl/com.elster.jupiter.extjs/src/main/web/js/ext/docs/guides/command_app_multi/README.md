@@ -1,7 +1,5 @@
 # Multi-page and Mixed Apps
 
-{@img ../command/sencha-command-128.png}
-
 ## Large Application Alternatives
 
 [Workspaces in Sencha Cmd](#/guide/command_workspace) describes the new workspace support

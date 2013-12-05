@@ -20,7 +20,7 @@
  */
 Ext.define('Ext.util.Floating', {
 
-    uses: ['Ext.Layer', 'Ext.window.Window'],
+    uses: ['Ext.Layer', 'Ext.ZIndexManager'],
 
 <span id='Ext-util-Floating-cfg-focusOnToFront'>    /**
 </span>     * @cfg {Boolean} focusOnToFront
@@ -69,7 +69,6 @@ Ext.define('Ext.util.Floating', {
         me.el = new Ext.dom.Layer(Ext.apply({
             preventSync  : true,
             hideMode     : me.hideMode,
-            hidden       : me.hidden,
             shadow       : (typeof me.shadow != 'undefined') ? me.shadow : 'sides',
             shadowOffset : me.shadowOffset,
             constrain    : false,
@@ -395,6 +394,10 @@ Ext.define('Ext.util.Floating', {
             this.center();    
         }
         delete this.needsCenter;
+
+        if (this.toFrontOnShow) {
+            this.toFront();
+        }
     },
 
 <span id='Ext-util-Floating-method-fitContainer'>    // @private

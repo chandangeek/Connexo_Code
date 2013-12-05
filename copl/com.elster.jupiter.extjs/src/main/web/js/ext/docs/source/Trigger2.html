@@ -32,6 +32,10 @@ Ext.define('Ext.layout.component.field.Trigger', {
 </span>
     type: 'triggerfield',
 
+<span id='Ext-layout-component-field-Trigger-cfg-setWidthInDom'>    // Private. Forces the width to be set into the DOM when a configured width (See Component layout's beginLayoutCycle).
+</span>    // This is needed because the 100% width in the input element needs a width to be 100% of.
+    setWidthInDom: true,
+
 <span id='Ext-layout-component-field-Trigger-property-borderWidths'>    // Private. Cached extra width values containing width of all a trigger field's &quot;furniture&quot; round the actual input element
 </span>    borderWidths: {},
 

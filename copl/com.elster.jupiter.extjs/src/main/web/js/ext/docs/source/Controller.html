@@ -819,6 +819,7 @@ Ext.define('Ext.app.Controller', {
      *      });
      *
      * @param {Object} to Config object containing domains, selectors and listeners.
+     * @param {Ext.app.Controller} [controller] The controller to add the listeners to. Defaults to the current controller.
      */
     listen: function (to, controller) {
         this.eventbus.listen(to, controller || this);

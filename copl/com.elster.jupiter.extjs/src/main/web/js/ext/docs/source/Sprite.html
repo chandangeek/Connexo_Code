@@ -488,6 +488,7 @@ Ext.define('Ext.draw.Sprite', {
         if ('text' in attrs) {
             me.dirtyFont = true;
             dirtyBBox = true;
+            attrs.text = me.transformText(attrs.text);
         }
 
         for (i = 0; i &lt; fontPropsLength; i++) {
@@ -562,7 +563,9 @@ Ext.define('Ext.draw.Sprite', {
         }
         return this;
     },
-
+    
+<span id='Ext-draw-Sprite-property-transformText'>    transformText: Ext.identityFn,
+</span>
 <span id='Ext-draw-Sprite-method-getBBox'>    /**
 </span>     * Retrieves the bounding box of the sprite.
      * This will be returned as an object with x, y, width, and height properties.
@@ -635,7 +638,21 @@ Ext.define('Ext.draw.Sprite', {
      * @return {Ext.draw.Sprite} this
      */
     redraw: function() {
-        this.surface.renderItem(this);
+        var me = this,
+            changed = !me.el || me.dirty,
+            surface = me.surface,
+            owner;
+            
+        surface.renderItem(me);
+        // This would be better handled higher up in the hierarchy, but
+        // we'll check these properties here for performance reasons
+        // to prevent extraneous function calls
+        if (changed) {
+            owner = surface.owner;
+            if (!me.isBackground &amp;&amp; owner &amp;&amp; (owner.viewBox || owner.autoSize)) {
+                owner.configureSurfaceSize();
+            }
+        }
         return this;
     },
 

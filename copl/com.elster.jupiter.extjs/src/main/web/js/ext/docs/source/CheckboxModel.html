@@ -245,7 +245,7 @@ Ext.define('Ext.selection.CheckboxModel', {
     renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
         var baseCSSPrefix = Ext.baseCSSPrefix;
         metaData.tdCls = baseCSSPrefix + 'grid-cell-special ' + baseCSSPrefix + 'grid-cell-row-checker';
-        return '&lt;div class=&quot;' + baseCSSPrefix + 'grid-row-checker&quot;&gt;&amp;#160;&lt;/div&gt;';
+        return '&lt;div class=&quot;' + baseCSSPrefix + 'grid-row-checker&quot; role=&quot;presentation&quot;&gt;&amp;#160;&lt;/div&gt;';
     },
     
 <span id='Ext-selection-CheckboxModel-method-processSelection'>    processSelection: function(view, record, item, index, e){

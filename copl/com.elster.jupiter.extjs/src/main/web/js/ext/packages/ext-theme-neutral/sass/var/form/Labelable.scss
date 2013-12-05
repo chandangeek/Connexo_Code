@@ -135,7 +135,7 @@ $form-error-msg-line-height: $form-error-icon-height !default;
 $form-exclamation-icon: 'form/exclamation' !default;
 
 /**
- * @var {measurement} $form-item-margin-bottom
+ * @var {number}
  * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
  */
 $form-item-margin-bottom: 5px !default;

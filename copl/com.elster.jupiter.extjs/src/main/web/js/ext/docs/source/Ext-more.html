@@ -288,7 +288,7 @@ Ext.apply(Ext, {
 
         return ret;
     },
-    
+
 <span id='Ext-method-resolveMethod'>    /**
 </span>     * @private
      */
@@ -296,13 +296,13 @@ Ext.apply(Ext, {
         if (Ext.isFunction(fn)) {
             return fn;
         }
-        
+
         //&lt;debug&gt;
         if (!Ext.isObject(scope) || !Ext.isFunction(scope[fn])) {
             Ext.Error.raise('No method named &quot;' + fn + '&quot;');
         }
         //&lt;/debug&gt;
-        
+
         return scope[fn];
     },
 
@@ -380,13 +380,14 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
         isSafari4 = isSafari &amp;&amp; check(/version\/4/),
         isSafari5_0 = isSafari &amp;&amp; check(/version\/5\.0/),
         isSafari5 = isSafari &amp;&amp; check(/version\/5/),
-        isIE = !isOpera &amp;&amp; check(/msie/),
+        isIE = !isOpera &amp;&amp; (check(/msie/) || check(/trident/)),
         isIE7 = isIE &amp;&amp; ((check(/msie 7/) &amp;&amp; docMode != 8 &amp;&amp; docMode != 9 &amp;&amp; docMode != 10) || docMode == 7),
         isIE8 = isIE &amp;&amp; ((check(/msie 8/) &amp;&amp; docMode != 7 &amp;&amp; docMode != 9 &amp;&amp; docMode != 10) || docMode == 8),
         isIE9 = isIE &amp;&amp; ((check(/msie 9/) &amp;&amp; docMode != 7 &amp;&amp; docMode != 8 &amp;&amp; docMode != 10) || docMode == 9),
         isIE10 = isIE &amp;&amp; ((check(/msie 10/) &amp;&amp; docMode != 7 &amp;&amp; docMode != 8 &amp;&amp; docMode != 9) || docMode == 10),
+        isIE11 = isIE &amp;&amp; ((check(/trident\/7\.0/) &amp;&amp; docMode != 7 &amp;&amp; docMode != 8 &amp;&amp; docMode != 9 &amp;&amp; docMode != 10) || docMode == 11),
         isIE6 = isIE &amp;&amp; check(/msie 6/),
-        isGecko = !isWebKit &amp;&amp; check(/gecko/),
+        isGecko = !isWebKit &amp;&amp; !isIE &amp;&amp; check(/gecko/), // IE11 adds &quot;like gecko&quot; into the user agent string
         isGecko3 = isGecko &amp;&amp; check(/rv:1\.9/),
         isGecko4 = isGecko &amp;&amp; check(/rv:2\.0/),
         isGecko5 = isGecko &amp;&amp; check(/rv:5\./),
@@ -406,7 +407,7 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
         webKitVersion = version(isWebKit, /webkit\/(\d+\.\d+)/),
         isSecure = /^https/i.test(window.location.protocol),
         nullLog;
-
+        
     // remove css image flicker
     try {
         document.execCommand(&quot;BackgroundImageCache&quot;, false, true);
@@ -579,6 +580,7 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
     nullLog.info = nullLog.warn = nullLog.error = Ext.emptyFn;
 
     // also update Version.js
+    Ext.setVersion('ext', '4.2.0');
     Ext.setVersion('extjs', '4.2.0');
     Ext.apply(Ext, {
 <span id='Ext-property-SSL_SECURE_URL'>        /**
@@ -594,9 +596,9 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
          * True if the {@link Ext.fx.Anim} Class is available.
          */
 
-        plainTableCls: Ext.buildSettings.baseCSSPrefix + 'table-plain', 
+        plainTableCls: Ext.buildSettings.baseCSSPrefix + 'table-plain',
 
-        plainListCls: Ext.buildSettings.baseCSSPrefix + 'list-plain', 
+        plainListCls: Ext.buildSettings.baseCSSPrefix + 'list-plain',
 
 <span id='Ext-property-enableNestedListenerRemoval'>        /**
 </span>         * @property {Boolean} enableNestedListenerRemoval
@@ -719,7 +721,7 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
 
         isStrict: isStrict,
 
-        // IE10 quirks behaves like Gecko/WebKit quirks, so don't include it here
+        // IE10+ quirks behaves like Gecko/WebKit quirks, so don't include it here
         isIEQuirks: isIE &amp;&amp; (!isStrict &amp;&amp; (isIE6 || isIE7 || isIE8 || isIE9)),
 
 <span id='Ext-property-isOpera'>        /**
@@ -848,24 +850,42 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
          * @type Boolean
          */
         isIE9p : isIE &amp;&amp; !(isIE6 || isIE7 || isIE8),
-        
-<span id='Ext-property-isIE10'>        /**  
+
+<span id='Ext-property-isIE10'>        /**
 </span>         * True if the detected browser is Internet Explorer 10.x.
          * @type Boolean
          */
-        isIE10 : isIE10, 
- 
+        isIE10 : isIE10,
+
 <span id='Ext-property-isIE10m'>        /**
 </span>         * True if the detected browser is Internet Explorer 10.x or lower.
          * @type Boolean
          */
         isIE10m : isIE6 || isIE7 || isIE8 || isIE9 || isIE10,
- 
+
 <span id='Ext-property-isIE10p'>        /**
 </span>         * True if the detected browser is Internet Explorer 10.x or higher.
          * @type Boolean
          */
         isIE10p : isIE &amp;&amp; !(isIE6 || isIE7 || isIE8 || isIE9),
+        
+<span id='Ext-property-isIE11'>        /**  
+</span>         * True if the detected browser is Internet Explorer 11.x.
+         * @type Boolean
+         */
+        isIE11: isIE11, 
+        
+<span id='Ext-property-isIE11m'>        /**
+</span>         * True if the detected browser is Internet Explorer 11.x or lower.
+         * @type Boolean
+         */
+        isIE11m : isIE6 || isIE7 || isIE8 || isIE9 || isIE10 || isIE11,
+ 
+<span id='Ext-property-isIE11p'>        /**
+</span>         * True if the detected browser is Internet Explorer 11.x or higher.
+         * @type Boolean
+         */
+        isIE11p : isIE &amp;&amp; !(isIE6 || isIE7 || isIE8 || isIE9 || isIE10),
 
 <span id='Ext-property-isGecko'>        /**
 </span>         * True if the detected browser uses the Gecko layout engine (e.g. Mozilla, Firefox).
@@ -1400,18 +1420,25 @@ Opera 11.11 - Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11
  * @param {Object/String} config Application config object or name of a class derived from Ext.app.Application.
  */
 Ext.application = function(config) {
-    var App, paths, ns;
-    
+    var App, paths, ns,
+        // this won't be called until App class has been created.
+        createApp = function() {
+            Ext.onReady(function() {
+                Ext.app.Application.instance = new App();
+            });
+        };
+
     if (typeof config === &quot;string&quot;) {
-        Ext.require(config, function(){
+        Ext.require(config, function() {
             App = Ext.ClassManager.get(config);
+            createApp();
         });
     }
     else {
         // We have to process `paths` before creating Application class,
         // or `requires` won't work.
         Ext.Loader.setPath(config.name, config.appFolder || 'app');
-        
+
         if (paths = config.paths) {
             for (ns in paths) {
                 if (paths.hasOwnProperty(ns)) {
@@ -1419,25 +1446,19 @@ Ext.application = function(config) {
                 }
             }
         }
-        
-        config['paths processed'] = true;
-        
-        // Let Ext.define do the hard work but don't assign a class name.
-        //
-        Ext.define(config.name + &quot;.$application&quot;, Ext.apply({
-                extend: 'Ext.app.Application' // can be replaced by config!
-            }, config),
-            // call here when the App class gets full defined
-            function () {
-                App = this;
-            });
-    }
 
-    Ext.onReady(function() {
-        // this won't be called until App has been created and its requires have been
-        // met...
-        Ext.app.Application.instance = new App();
-    });
+        config['paths processed'] = true;
+
+        // Let Ext.define do the hard work but don't assign a class name.
+        Ext.define(config.name + &quot;.$application&quot;, Ext.apply({
+            extend: 'Ext.app.Application' // can be replaced by config!
+        }, config),
+        // call here when the App class gets full defined
+        function () {
+            App = this;
+            createApp();
+        });
+    }
 };
 </pre>
 </body>

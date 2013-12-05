@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /*
  * The dirty implementation in this class is quite naive. The reasoning for this is that the dirty state
@@ -216,7 +216,7 @@ Ext.define('Ext.util.ProtoElement', (function () {
             to[me.clsProp] = classList.join(' ');
 
             if (style) {
-                to[me.styleProp] = me.styleIsText ? Ext.DomHelper.generateStyles(style) : style;
+                to[me.styleProp] = me.styleIsText ? Ext.DomHelper.generateStyles(style, null, true) : style;
             }
             
             if (removedClasses) {

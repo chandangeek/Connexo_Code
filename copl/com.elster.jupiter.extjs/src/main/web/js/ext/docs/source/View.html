@@ -217,6 +217,21 @@ Ext.define('Ext.grid.locking.View', {
 <span id='Ext-grid-locking-View-method-isVisible'>    isVisible: function(deep) {
 </span>        return this.panel.isVisible(deep);
     },
+    
+<span id='Ext-grid-locking-View-method-getCellByPosition'>    getCellByPosition: function(pos, returnDom) {
+</span>        var col = pos.column,
+            lockedSize = this.lockedGrid.getColumnManager().getColumns().length;
+            
+        // Normalize view
+        if (col &gt;= lockedSize) {
+            // Make a copy so we don't mutate the passed object
+            pos = Ext.apply({}, pos);
+            pos.column -= lockedSize;
+            return this.normalView.getCellByPosition(pos, returnDom);
+        } else {
+            return this.lockedView.getCellByPosition(pos, returnDom);
+        }
+    },
 
 <span id='Ext-grid-locking-View-method-getRecord'>    getRecord: function(node) {
 </span>        var result = this.lockedView.getRecord(node);

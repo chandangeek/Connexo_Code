@@ -101,10 +101,23 @@ Ext.define('Ext.layout.container.Border', {
 <span id='Ext-layout-container-Border-property-isBorderLayout'>    isBorderLayout: true,
 </span>
 <span id='Ext-layout-container-Border-cfg-split'>    /**
-</span>     * @cfg {Boolean} split
+</span>     * @cfg {Boolean/Ext.resizer.BorderSplitter} split
      * This configuration option is to be applied to the **child `items`** managed by this layout.
      * Each region with `split:true` will get a {@link Ext.resizer.BorderSplitter Splitter} that
      * allows for manual resizing of the container. Except for the `center` region.
+     *
+     * This option can also accept an object of configurations from the {@link Ext.resizer.BorderSplitter}.
+     * An example of this would be:
+     *
+     *     {
+     *         title: 'North',
+     *         region: 'north',
+     *         height: 100,
+     *         collapsible: true,
+     *         split: {
+     *             size: 20
+     *         }
+     *     }
      */
     
 <span id='Ext-layout-container-Border-cfg-splitterResize'>    /**
@@ -135,7 +148,7 @@ Ext.define('Ext.layout.container.Border', {
 
 <span id='Ext-layout-container-Border-property-percentageRe'>    percentageRe: /(\d+)%/,
 </span>    
-<span id='Ext-layout-container-Border-property-horzMarginProp'>    horzMarginProp: 'left',
+<span id='Ext-layout-container-Border-property-horzPositionProp'>    horzPositionProp: 'left',
 </span><span id='Ext-layout-container-Border-property-padOnContainerProp'>    padOnContainerProp: 'left',
 </span><span id='Ext-layout-container-Border-property-padNotOnContainerProp'>    padNotOnContainerProp: 'right',
 </span>
@@ -560,7 +573,7 @@ Ext.define('Ext.layout.container.Border', {
     finishPositions: function (childItems) {
         var length = childItems.length,
             index, childContext,
-            marginProp = this.horzMarginProp;
+            marginProp = this.horzPositionProp;
 
         for (index = 0; index &lt; length; ++index) {
             childContext = childItems[index];
@@ -731,27 +744,38 @@ Ext.define('Ext.layout.container.Border', {
         this.callParent();
     },
 
-<span id='Ext-layout-container-Border-method-onRemove'>    onRemove: function (item) {
+<span id='Ext-layout-container-Border-method-onRemove'>    onRemove: function (comp, isDestroying) {
 </span>        var me = this,
-            region = item.region,
-            splitter = item.splitter;
+            region = comp.region,
+            splitter = comp.splitter,
+            owner = me.owner,
+            destroying = owner.destroying,
+            el;
 
         if (region) {
-            if (item.isCenter) {
+            if (comp.isCenter) {
                 me.centerRegion = null;
             }
 
-            delete item.isCenter;
-            delete item.isHorz;
-            delete item.isVert;
+            delete comp.isCenter;
+            delete comp.isHorz;
+            delete comp.isVert;
 
-            if (splitter) {
-                me.owner.doRemove(splitter, true); // avoid another layout
-                delete item.splitter;
+            // If the owner is destroying, the splitter will be cleared anyway
+            if (splitter &amp;&amp; !owner.destroying) {
+                owner.doRemove(splitter, true); // avoid another layout
             }
+            delete comp.splitter;
         }
 
         me.callParent(arguments);
+        
+        if (!destroying &amp;&amp; !isDestroying &amp;&amp; comp.rendered) {
+            // Clear top/left styles
+            el = comp.getEl();
+            el.setStyle('top', '');
+            el.setStyle(me.horzPositionProp, '');
+        }
     },
 
 <span id='Ext-layout-container-Border-property-regionMeta'>    //----------------------------------

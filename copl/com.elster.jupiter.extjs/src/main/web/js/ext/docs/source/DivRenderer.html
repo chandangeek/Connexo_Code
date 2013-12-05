@@ -20,7 +20,7 @@
     extend: 'Ext.AbstractPlugin',
 
     tableTpl: [
-        '&lt;div id=&quot;{view.id}-table&quot; class=&quot;' + Ext.baseCSSPrefix + '{view.id}-table ' + Ext.baseCSSPrefix + 'grid-table&quot; style=&quot;{tableStyle}&quot;&gt;',
+        '&lt;div id=&quot;{view.id}-table&quot; class=&quot;', Ext.baseCSSPrefix, '{view.id}-table ', Ext.baseCSSPrefix, 'grid-table&quot; style=&quot;{tableStyle}&quot; {ariaTableAttr}&gt;',
             '{%',
                 'values.view.renderRows(values.rows, values.viewStartIndex, out);',
             '%}',
@@ -40,7 +40,7 @@
             'data-recordIndex=&quot;{recordIndex}&quot; ',
             'class=&quot;{[values.itemClasses.join(&quot; &quot;)]} {[values.rowClasses.join(&quot; &quot;)]}{[dataRowCls]}&quot; ',
             'style=&quot;position:relative&quot; ',
-            '{rowAttr:attributes}&gt;',
+            '{rowAttr:attributes} {ariaRowAttr}&gt;',
             '&lt;tpl for=&quot;columns&quot;&gt;' +
                 '{%',
                     'parent.view.renderCell(values, parent.record, parent.recordIndex, xindex - 1, out, parent)',
@@ -53,9 +53,9 @@
     ],
 
     cellTpl: [
-        '&lt;dt class=&quot;{tdCls}&quot; {tdAttr} data-cellIndex=&quot;{cellIndex}&quot;&gt;',
+        '&lt;dt class=&quot;{tdCls}&quot; {tdAttr} data-cellIndex=&quot;{cellIndex}&quot; {ariaCellAttr}&gt;',
             '&lt;div {unselectableAttr} class=&quot;' + Ext.baseCSSPrefix + 'grid-cell-inner&quot;',
-                'style=&quot;text-align:{align};&lt;tpl if=&quot;style&quot;&gt;{style}&lt;/tpl&gt;&quot;&gt;{value}&lt;/div&gt;',
+                'style=&quot;text-align:{align};&lt;tpl if=&quot;style&quot;&gt;{style}&lt;/tpl&gt;&quot; {ariaCellInnerAttr}&gt;{value}&lt;/div&gt;',
         '&lt;/dt&gt;', {
             priority: 0
         }

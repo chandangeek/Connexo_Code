@@ -835,7 +835,7 @@ Other application actions are provided in the `sencha app` category (e.g.,
   * `--path`, `-p` - The path for the generated application
   * `--starter`, `-s` - Overrides the default Starter App template directory
   * `--theme-name`, `-t` - The name of the defualt Theme
-  * `--view-name`, `-v` - The name of the defalut View
+  * `--view-name`, `-v` - The name of the default View
 
 ### Syntax
 

@@ -168,6 +168,16 @@ Ext.String = (function() {
         htmlDecode: function(value) {
             return (!value) ? value : String(value).replace(entityToCharRegex, htmlDecodeReplaceFn);
         },
+        
+<span id='Ext-String-method-hasHtmlCharacters'>        /**
+</span>         * Checks if a string has values needing to be html encoded.
+         * @private
+         * @param {String} The string to test
+         * @return {Boolean} `true` if the string contains HTML characters
+         */
+        hasHtmlCharacters: function(s) {
+            return charToEntityRegex.test(s);
+        },
 
 <span id='Ext-String-method-addCharacterEntities'>        /**
 </span>         * Adds a set of character entity definitions to the set used by

@@ -103,7 +103,7 @@ Ext.define('Ext.ProgressBar', {
 </span>        '&lt;tpl if=&quot;internalText&quot;&gt;',
             '&lt;div class=&quot;{baseCls}-text {baseCls}-text-back&quot;&gt;{text}&lt;/div&gt;',
         '&lt;/tpl&gt;',
-        '&lt;div id=&quot;{id}-bar&quot; class=&quot;{baseCls}-bar {baseCls}-bar-{ui}&quot; style=&quot;width:{percentage}%&quot;&gt;',
+        '&lt;div id=&quot;{id}-bar&quot; class=&quot;{baseCls}-bar {baseCls}-bar-{ui}&quot; role=&quot;presentation&quot; style=&quot;width:{percentage}%&quot;&gt;',
             '&lt;tpl if=&quot;internalText&quot;&gt;',
                 '&lt;div class=&quot;{baseCls}-text&quot;&gt;',
                     '&lt;div&gt;{text}&lt;/div&gt;',
@@ -113,6 +113,8 @@ Ext.define('Ext.ProgressBar', {
     ],
 
 <span id='Ext-ProgressBar-cfg-componentLayout'>    componentLayout: 'progressbar',
+</span>    
+<span id='Ext-ProgressBar-property-ariaRole'>    ariaRole: 'progressbar',
 </span>
 <span id='Ext-ProgressBar-method-initComponent'>    // private
 </span>    initComponent: function() {

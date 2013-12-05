@@ -62,11 +62,10 @@ Ext.define('Ext.view.DragZone', {
     },
 
 <span id='Ext-view-DragZone-method-init'>    init: function(id, sGroup, config) {
-</span>        this.initTarget(id, sGroup, config);
-        this.view.mon(this.view, {
-            itemmousedown: this.onItemMouseDown,
-            scope: this
-        });
+</span>        var me = this;
+        
+        me.initTarget(id, sGroup, config);
+        me.view.on('itemmousedown', me.onItemMouseDown, me);
     },
 
 <span id='Ext-view-DragZone-method-onValidDrop'>    onValidDrop: function(target, e, id) {
@@ -119,7 +118,7 @@ Ext.define('Ext.view.DragZone', {
         // Update the selection to match what would have been selected if the user had
         // done a full click on the target node rather than starting a drag from it
         if (!selectionModel.isSelected(record)) {
-            selectionModel.select(record, true);
+            selectionModel.selectWithEvent(record, me.DDMInstance.mousedownEvent);
         }
         data.records = selectionModel.getSelection();
 

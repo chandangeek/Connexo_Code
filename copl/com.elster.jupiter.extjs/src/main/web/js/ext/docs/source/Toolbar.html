@@ -256,9 +256,36 @@ Ext.define('Ext.toolbar.Toolbar', {
 
 <span id='Ext-toolbar-Toolbar-cfg-defaultButtonUI'>    /**
 </span>     * @cfg {String} defaultButtonUI
-     * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items
+     * A default {@link Ext.Component#ui ui} to use for {@link Ext.button.Button Button} items. This is a quick and simple
+     * way to change the look of all child {@link Ext.button.Button Buttons}.
+     *
+     * If there is no value for defaultButtonUI, the button's {@link Ext.Component#ui ui} value will get `-toolbar`
+     * appended so the {@link Ext.button.Button Button} has a different look when it's a child of a {@link Ext.toolbar.Toolbar Toolbar}.
+     * To prevent this and have the same look as buttons outside of a toolbar, you can provide a string value to the defaultButtonUI:
+     *
+     *     Ext.create('Ext.panel.Panel', {
+     *         renderTo    : document.body,
+     *         width       : 300,
+     *         title       : 'Panel',
+     *         html        : 'Some Body',
+     *         dockedItems : [
+     *             {
+     *                 xtype           : 'toolbar',
+     *                 dock            : 'top',
+     *                 defaultButtonUI : 'default',
+     *                 items           : [
+     *                     {
+     *                         text : 'Save'
+     *                     },
+     *                     {
+     *                         text : 'Remove'
+     *                     }
+     *                 ]
+     *             }
+     *         ]
+     *     });
      */
-    
+
 <span id='Ext-toolbar-Toolbar-property-trackMenus'>    // @private
 </span>    trackMenus: true,
 
@@ -361,7 +388,7 @@ Ext.define('Ext.toolbar.Toolbar', {
      *
      * @method add
      */
-    
+
 <span id='Ext-toolbar-Toolbar-method-insert'>    /**
 </span>     * Inserts a Component into this Container at a specified index.
      *
@@ -393,7 +420,7 @@ Ext.define('Ext.toolbar.Toolbar', {
             }
 
             this.applyDefaults(c);
-            
+
             // See: EXTJSIV-7578
             args = [c];
         }
@@ -447,15 +474,15 @@ Ext.define('Ext.toolbar.Toolbar', {
         this.callParent(arguments);
         this.trackMenu(component);
     },
-    
+
 <span id='Ext-toolbar-Toolbar-method-onRemove'>    // @private
 </span>    onRemove: function(c) {
         this.callParent(arguments);
         this.trackMenu(c, true);
     },
-    
+
 <span id='Ext-toolbar-Toolbar-method-getChildItemsToDisable'>    getChildItemsToDisable: function() {
-</span>        return this.items.getRange();   
+</span>        return this.items.getRange();
     },
 
 <span id='Ext-toolbar-Toolbar-method-onButtonOver'>    // @private
@@ -476,6 +503,7 @@ Ext.define('Ext.toolbar.Toolbar', {
 </span>    onButtonMenuHide: function(btn) {
         delete this.activeMenuBtn;
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

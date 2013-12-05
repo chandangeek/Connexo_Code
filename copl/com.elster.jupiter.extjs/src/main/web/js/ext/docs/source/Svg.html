@@ -277,21 +277,21 @@ Ext.define('Ext.draw.engine.Svg', {
 
 <span id='Ext-draw-engine-Svg-method-render'>    render: function (container) {
 </span>        var me = this,
-            width,
-            height,
-            el,
-            defs,
-            bgRect,
-            webkitRect;
+            el, defs, bgRect, webkitRect;
+            
         if (!me.el) {
-            width = me.width || 0;
-            height = me.height || 0;
-            el = me.createSvgElement('svg', {
+            cfg = {
                 xmlns: &quot;http:/&quot; + &quot;/www.w3.org/2000/svg&quot;,
                 version: 1.1,
-                width: width,
-                height: height
-            });
+                width: me.width || 0,
+                height: me.height || 0
+            };
+            
+            if (me.forceLtr) {
+                cfg.direction = 'ltr';
+            }
+            
+            el = me.createSvgElement('svg', cfg);
             defs = me.getDefs();
 
             // Create a rect that is always the same size as the svg root; this serves 2 purposes:

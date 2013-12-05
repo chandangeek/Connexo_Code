@@ -37,7 +37,8 @@ Ext.define('Ext.chart.Tip', {
             me.tipConfig = Ext.apply({}, config.tips, {
                 renderer: Ext.emptyFn,
                 constrainPosition: true,
-                autoHide: true
+                autoHide: true,
+                shrinkWrapDock: true
             });
             me.tooltip = new Ext.tip.ToolTip(me.tipConfig);
             me.chart.surface.on('mousemove', me.tooltip.onMouseMove, me.tooltip);
@@ -98,7 +99,7 @@ Ext.define('Ext.chart.Tip', {
         } else {
             tipConfig.renderer.call(tooltip, item.storeItem, item);
         }
-        tooltip.show();
+        tooltip.delayShow();
         tooltip.trackMouse = trackMouse;
     },
 
@@ -109,7 +110,7 @@ Ext.define('Ext.chart.Tip', {
         }
         clearTimeout(this.tipTimeout);
         this.tipTimeout = setTimeout(function() {
-            tooltip.hide();
+            tooltip.delayHide();
         }, 0);
     }
 });</pre>

@@ -18,8 +18,6 @@
   <pre class="prettyprint lang-js"><span id='Ext-tree-Column'>/**
 </span> * Provides indentation and folder structure markup for a Tree taking into account
  * depth and position within the tree hierarchy.
- *
- * @private
  */
 Ext.define('Ext.tree.Column', {
     extend: 'Ext.grid.column.Column',
@@ -43,28 +41,32 @@ Ext.define('Ext.tree.Column', {
 <span id='Ext-tree-Column-property-cellTpl'>    cellTpl: [
 </span>        '&lt;tpl for=&quot;lines&quot;&gt;',
             '&lt;img src=&quot;{parent.blankUrl}&quot; class=&quot;{parent.childCls} {parent.elbowCls}-img ',
-            '{parent.elbowCls}-&lt;tpl if=&quot;.&quot;&gt;line&lt;tpl else&gt;empty&lt;/tpl&gt;&quot;/&gt;',
+            '{parent.elbowCls}-&lt;tpl if=&quot;.&quot;&gt;line&lt;tpl else&gt;empty&lt;/tpl&gt;&quot; role=&quot;presentation&quot;/&gt;',
         '&lt;/tpl&gt;',
         '&lt;img src=&quot;{blankUrl}&quot; class=&quot;{childCls} {elbowCls}-img {elbowCls}',
-            '&lt;tpl if=&quot;isLast&quot;&gt;-end&lt;/tpl&gt;&lt;tpl if=&quot;expandable&quot;&gt;-plus {expanderCls}&lt;/tpl&gt;&quot;/&gt;',
+            '&lt;tpl if=&quot;isLast&quot;&gt;-end&lt;/tpl&gt;&lt;tpl if=&quot;expandable&quot;&gt;-plus {expanderCls}&lt;/tpl&gt;&quot; role=&quot;presentation&quot;/&gt;',
         '&lt;tpl if=&quot;checked !== null&quot;&gt;',
-            '&lt;input type=&quot;button&quot; role=&quot;checkbox&quot; &lt;tpl if=&quot;checked&quot;&gt;aria-checked=&quot;true&quot; &lt;/tpl&gt;',
-                'class=&quot;{childCls} {checkboxCls}&lt;tpl if=&quot;checked&quot;&gt; {checkboxCls}-checked&lt;/tpl&gt;&quot;/&gt;',
+            '&lt;input type=&quot;button&quot; {ariaCellCheckboxAttr}',
+                ' class=&quot;{childCls} {checkboxCls}&lt;tpl if=&quot;checked&quot;&gt; {checkboxCls}-checked&lt;/tpl&gt;&quot;/&gt;',
         '&lt;/tpl&gt;',
-        '&lt;img src=&quot;{blankUrl}&quot; class=&quot;{childCls} {baseIconCls} ',
+        '&lt;img src=&quot;{blankUrl}&quot; role=&quot;presentation&quot; class=&quot;{childCls} {baseIconCls} ',
             '{baseIconCls}-&lt;tpl if=&quot;leaf&quot;&gt;leaf&lt;tpl else&gt;parent&lt;/tpl&gt; {iconCls}&quot;',
             '&lt;tpl if=&quot;icon&quot;&gt;style=&quot;background-image:url({icon})&quot;&lt;/tpl&gt;/&gt;',
         '&lt;tpl if=&quot;href&quot;&gt;',
-            '&lt;a href=&quot;{href}&quot; target=&quot;{hrefTarget}&quot; class=&quot;{textCls} {childCls}&quot;&gt;{value}&lt;/a&gt;',
+            '&lt;a href=&quot;{href}&quot; role=&quot;link&quot; target=&quot;{hrefTarget}&quot; class=&quot;{textCls} {childCls}&quot;&gt;{value}&lt;/a&gt;',
         '&lt;tpl else&gt;',
             '&lt;span class=&quot;{textCls} {childCls}&quot;&gt;{value}&lt;/span&gt;',
         '&lt;/tpl&gt;'
     ],
 
 <span id='Ext-tree-Column-method-initComponent'>    initComponent: function() {
-</span>        var me = this;
+</span>        var me = this,
+            renderer = me.renderer;
 
-        me.origRenderer = me.renderer;
+        if (typeof renderer == 'string') {
+            renderer = Ext.util.Format[renderer];
+        }
+        me.origRenderer = renderer;
         me.origScope = me.scope || window;
 
         me.renderer = me.treeRenderer;
@@ -76,25 +78,34 @@ Ext.define('Ext.tree.Column', {
 <span id='Ext-tree-Column-method-treeRenderer'>    treeRenderer: function(value, metaData, record, rowIdx, colIdx, store, view){
 </span>        var me = this,
             cls = record.get('cls'),
+            rendererData;
+
+        if (cls) {
+            metaData.tdCls += ' ' + cls;
+        }
+
+        rendererData = me.initTemplateRendererData(value, metaData, record, rowIdx, colIdx, store, view);
+        
+        return me.getTpl('cellTpl').apply(rendererData);
+    },
+    
+<span id='Ext-tree-Column-method-initTemplateRendererData'>    initTemplateRendererData: function(value, metaData, record, rowIdx, colIdx, store, view) {
+</span>        var me = this,
             renderer = me.origRenderer,
             data = record.data,
             parent = record.parentNode,
             rootVisible = view.rootVisible,
             lines = [],
             parentData;
-
-        if (cls) {
-            metaData.tdCls += ' ' + cls;
-        }
-
+        
         while (parent &amp;&amp; (rootVisible || parent.data.depth &gt; 0)) {
             parentData = parent.data;
             lines[rootVisible ? parentData.depth : parentData.depth - 1] =
                     parentData.isLast ? 0 : 1;
             parent = parent.parentNode;
         }
-
-        return me.getTpl('cellTpl').apply({
+        
+        return {
             record: record,
             baseIconCls: me.iconCls,
             iconCls: data.iconCls,
@@ -118,7 +129,7 @@ Ext.define('Ext.tree.Column', {
             // &quot;x-rtl&quot; class to these elements.
             childCls: me.getChildCls ? me.getChildCls() + ' ' : '',
             value: renderer ? renderer.apply(me.origScope, arguments) : value
-        });
+        };
     }
 });
 </pre>

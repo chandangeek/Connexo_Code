@@ -130,10 +130,17 @@ Ext.define('Ext.tip.QuickTipManager', {
                 Ext.onReady(function(){
                     Ext.tip.QuickTipManager.init(autoRender, config);
                 });
-                return;
+                return false;
             }
 
-            var tipConfig = Ext.apply({ disabled: me.disabled, id: 'ext-quicktips-tip' }, config),
+            var tipConfig = Ext.apply({
+                //&lt;debug&gt;
+                // tell the spec runner to ignore this element when checking if the dom is clean 
+                sticky: true,
+                //&lt;/debug&gt;
+                disabled: me.disabled,
+                id: 'ext-quicktips-tip'
+            }, config),
                 className = tipConfig.className,
                 xtype = tipConfig.xtype;
 

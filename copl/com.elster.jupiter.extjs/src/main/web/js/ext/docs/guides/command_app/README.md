@@ -1,7 +1,5 @@
 # Using Sencha Cmd with Ext JS 4.2+
 
-{@img ../command/sencha-command-128.png}
-
 This guide walks through the process of using Sencha Cmd with Ext JS 4.2 applications
 starting with the `sencha generate app` command and ending with a running application.
 

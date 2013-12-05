@@ -267,7 +267,7 @@
             
             
                     union
-                        -tag=core
+                        -tag=core,derive
                     and
                     concatenate
                         +append

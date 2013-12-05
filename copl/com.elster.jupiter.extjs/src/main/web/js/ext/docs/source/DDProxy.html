@@ -98,6 +98,7 @@ Ext.define('Ext.dd.DDProxy', {
         if (!div) {
             div    = document.createElement(&quot;div&quot;);
             div.id = this.dragElId;
+            div.setAttribute('role', 'presentation');
             s  = div.style;
 
             s.position   = &quot;absolute&quot;;

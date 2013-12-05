@@ -413,24 +413,26 @@ Ext.define('Ext.button.Button', {
      * An object literal of parameters to pass to the url when the {@link #href} property is specified. Any params
      * override {@link #baseParams}. New params can be set using the {@link #setParams} method.
      */
+    
+    ariaRole: 'button',
 
-    childEls: [
-        'btnEl', 'btnWrap', 'btnInnerEl', 'btnIconEl'
+<span id='Ext-button-Button-property-childEls'>    childEls: [
+</span>        'btnEl', 'btnWrap', 'btnInnerEl', 'btnIconEl'
     ],
 
 <span id='Ext-button-Button-cfg-renderTpl'>    // We have to keep &quot;unselectable&quot; attribute on all elements because it's not inheritable.
 </span>    // Without it, clicking anywhere on a button disrupts current selection and cursor position
     // in HtmlEditor.
     renderTpl: [
-        '&lt;span id=&quot;{id}-btnWrap&quot; class=&quot;{baseCls}-wrap',
+        '&lt;span id=&quot;{id}-btnWrap&quot; role=&quot;presentation&quot; class=&quot;{baseCls}-wrap',
             '&lt;tpl if=&quot;splitCls&quot;&gt; {splitCls}&lt;/tpl&gt;',
             '{childElCls}&quot; unselectable=&quot;on&quot;&gt;',
-            '&lt;span id=&quot;{id}-btnEl&quot; class=&quot;{baseCls}-button&quot;&gt;',
+            '&lt;span id=&quot;{id}-btnEl&quot; class=&quot;{baseCls}-button&quot; role=&quot;presentation&quot;&gt;',
                 '&lt;span id=&quot;{id}-btnInnerEl&quot; class=&quot;{baseCls}-inner {innerCls}',
                     '{childElCls}&quot; unselectable=&quot;on&quot;&gt;',
                     '{text}',
                 '&lt;/span&gt;',
-                '&lt;span role=&quot;img&quot; id=&quot;{id}-btnIconEl&quot; class=&quot;{baseCls}-icon-el {iconCls}',
+                '&lt;span role=&quot;presentation&quot; id=&quot;{id}-btnIconEl&quot; class=&quot;{baseCls}-icon-el {iconCls}',
                     '{childElCls} {glyphCls}&quot; unselectable=&quot;on&quot; style=&quot;',
                     '&lt;tpl if=&quot;iconUrl&quot;&gt;background-image:url({iconUrl});&lt;/tpl&gt;',
                     '&lt;tpl if=&quot;glyph &amp;&amp; glyphFontFamily&quot;&gt;font-family:{glyphFontFamily};&lt;/tpl&gt;&quot;&gt;',
@@ -440,7 +442,13 @@ Ext.define('Ext.button.Button', {
         '&lt;/span&gt;',
         // if &quot;closable&quot; (tab) add a close element icon
         '&lt;tpl if=&quot;closable&quot;&gt;',
-            '&lt;span id=&quot;{id}-closeEl&quot; class=&quot;{baseCls}-close-btn&quot; title=&quot;{closeText}&quot; tabIndex=&quot;0&quot;&gt;&lt;/span&gt;',
+            '&lt;span id=&quot;{id}-closeEl&quot; role=&quot;presentation&quot;',
+                ' class=&quot;{baseCls}-close-btn&quot;',
+                '&lt;tpl if=&quot;closeText&quot;&gt;',
+                    ' title=&quot;{closeText}&quot; aria-label=&quot;{closeText}&quot;',
+                '&lt;/tpl&gt;',
+                '&gt;',
+            '&lt;/span&gt;',
         '&lt;/tpl&gt;'
     ],
 
@@ -518,6 +526,28 @@ Ext.define('Ext.button.Button', {
 </span>
 <span id='Ext-button-Button-cfg-frame'>    frame: true,
 </span>
+<span id='Ext-button-Button-method-hasFrameTable'>    hasFrameTable: function () {
+</span>        // Instead of browser sniffing, it's easier to check for the presence of frameTable.
+        // If present, we know that it's a browser that doesn't support CSS3BorderRadius.
+        return this.href &amp;&amp; this.frameTable;
+    },
+
+<span id='Ext-button-Button-method-frameTableListener'>    frameTableListener: function () {
+</span>        if (!this.disabled) {
+            this.doNavigate();
+        }
+    },
+
+<span id='Ext-button-Button-method-doNavigate'>    doNavigate: function () {
+</span>        // Non-HTML5 browsers don't support a block element inside an A tag.
+        // http://stackoverflow.com/questions/5682048/putting-a-table-inside-a-hyperlink-not-working-in-ie
+        if (this.hrefTarget === '_blank') {
+            window.open(this.href, this.hrefTarget);
+        } else {
+            location.href = this.href;
+        }
+    },
+
 <span id='Ext-button-Button-property-_triggerRegion'>    // A reusable object used by getTriggerRegion to avoid excessive object creation.
 </span>    _triggerRegion: {},
 
@@ -529,13 +559,12 @@ Ext.define('Ext.button.Button', {
         // properties to it conditionally.
         me.autoEl = {
             tag: 'a',
-            role: 'button',
             hidefocus: 'on',
             unselectable: 'on'
         };
 
         // Ensure no selection happens
-        me.addCls('x-unselectable');
+        me.addCls(Ext.baseCSSPrefix + 'unselectable');
 
         me.callParent(arguments);
 
@@ -810,6 +839,10 @@ Ext.define('Ext.button.Button', {
         // Add whatever button listeners we need
         me.mon(btn, btnListeners);
 
+        if (me.hasFrameTable()) {
+            me.mon(me.frameTable, 'click', me.frameTableListener, me);
+        }
+
         // If the listeners object had an entry for our clickEvent, add a listener now
         if (addOnclick) {
             me.mon(btn, me.clickEvent, me.onClick, me);
@@ -858,7 +891,8 @@ Ext.define('Ext.button.Button', {
             glyph: glyph,
             glyphCls: glyph ? me.glyphCls : '', 
             glyphFontFamily: glyphFontFamily,
-            text     : me.text || '&amp;#160;'
+            text     : me.text || '&amp;#160;',
+            closeText: me.closeText
         };
     },
 
@@ -1241,9 +1275,7 @@ Ext.define('Ext.button.Button', {
 <span id='Ext-button-Button-method-onClick'>    // @private
 </span>    onClick: function(e) {
         var me = this;
-        if (me.preventDefault || (me.disabled &amp;&amp; me.getHref()) &amp;&amp; e) {
-            e.preventDefault();
-        }
+        me.doPreventDefault(e);
 
         // Can be triggered by ENTER or SPACE keydown events which set the button property.
         // Only veto event handling if it's a mouse event with an alternative button.
@@ -1254,6 +1286,12 @@ Ext.define('Ext.button.Button', {
             me.doToggle();
             me.maybeShowMenu();
             me.fireHandler(e);
+        }
+    },
+    
+<span id='Ext-button-Button-method-doPreventDefault'>    doPreventDefault: function(e) {
+</span>        if (this.preventDefault || (this.disabled &amp;&amp; this.getHref()) &amp;&amp; e) {
+            e.preventDefault();
         }
     },
 
@@ -1533,7 +1571,9 @@ Ext.define('Ext.button.Button', {
 <span id='Ext-button-Button-method-onMouseUp'>    // @private
 </span>    onMouseUp: function(e) {
         var me = this;
-        if (e.button === 0) {
+
+        // If the external mouseup listener of the ButtonManager fires after the button has been destroyed, ignore.
+        if (!me.isDestroyed &amp;&amp; e.button === 0) {
             if (!me.pressed) {
                 me.removeClsWithUI(me.pressedCls);
             }

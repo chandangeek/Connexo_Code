@@ -168,7 +168,7 @@ Element.override({
         // subpixel measurements so we can force them to always be rounded up. See
         // https://bugzilla.mozilla.org/show_bug.cgi?id=458617
         // Rounding up ensures that the width includes the full width of the text contents.
-        if (preciseWidth &amp;&amp; Ext.supports.BoundingClientRect) {
+        if (Ext.supports.BoundingClientRect) {
             rect = dom.getBoundingClientRect();
             // IE9 is the only browser that supports getBoundingClientRect() and
             // uses a filter to rotate the element vertically.  When a filter
@@ -176,6 +176,7 @@ Element.override({
             // are not inverted (see setVertical).
             width = (me.vertical &amp;&amp; !Ext.isIE9 &amp;&amp; !Ext.supports.RotatedBoundingClientRect) ?
                     (rect.bottom - rect.top) : (rect.right - rect.left);
+            width = preciseWidth ? width : Math.ceil(width);
         } else {
             width = dom.offsetWidth;
         }
@@ -518,7 +519,7 @@ Element.override({
      */
     boxWrap : function(cls) {
         cls = cls || Ext.baseCSSPrefix + 'box';
-        var el = Ext.get(this.insertHtml(&quot;beforeBegin&quot;, &quot;&lt;div class='&quot; + cls + &quot;'&gt;&quot; + Ext.String.format(Element.boxMarkup, cls) + &quot;&lt;/div&gt;&quot;));
+        var el = Ext.get(this.insertHtml(&quot;beforeBegin&quot;, &quot;&lt;div class='&quot; + cls + &quot;' role='presentation'&gt;&quot; + Ext.String.format(Element.boxMarkup, cls) + &quot;&lt;/div&gt;&quot;));
         Ext.DomQuery.selectNode('.' + cls + '-mc', el.dom).appendChild(this.dom);
         return el;
     },

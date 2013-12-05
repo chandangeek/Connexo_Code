@@ -97,12 +97,19 @@ Ext.define('Ext.view.BoundListKeyNav', {
      * the configured SelectionModel.
      */
     selectHighlighted: function(e) {
-        var me = this,
-            boundList = me.boundList,
-            highlighted = boundList.highlightedItem,
-            selModel = boundList.getSelectionModel();
+        var boundList = this.boundList,
+            selModel = boundList.getSelectionModel(),
+            highlighted, highlightedRec;
+
+        highlighted = boundList.highlightedItem;
         if (highlighted) {
-            selModel.selectWithEvent(boundList.getRecord(highlighted), e);
+            highlightedRec = boundList.getRecord(highlighted);    
+
+            // Select if not already selected.
+            // If already selected, selecting with no CTRL flag will deselect the record.
+            if (e.getKey() === e.ENTER || !selModel.isSelected(highlightedRec)) {
+                selModel.selectWithEvent(highlightedRec, e);
+            }
         }
     }
 

@@ -1,3 +1,6 @@
+/** @class Ext.panel.Panel */
+//
+
 $panel-base-color: adjust-color($base-color, $hue: 0deg, $saturation: 0.542%, $lightness: 7.843%) !default; //#DFE8F6
 $panel-border-color: adjust-color($base-color, $hue: 0deg, $saturation: 7.644%, $lightness: -8.627%) !default;
 $panel-header-font-size: ceil($font-size * .9) !default; //11px

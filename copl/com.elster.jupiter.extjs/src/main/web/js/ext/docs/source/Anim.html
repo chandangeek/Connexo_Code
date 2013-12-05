@@ -87,6 +87,12 @@ Ext.define('Ext.fx.Anim', {
 </span>     * @cfg {Function} scope
      * The scope that the {@link #callback} function will be called with
      */
+    
+<span id='Ext-fx-Anim-cfg-remove'>    /**
+</span>     * @cfg {Boolean} remove
+     * `true` to remove the target when the animation is complete, using the appropriate removal
+     * method for the target. For example, a component will be destroyed, elements will be removed.
+     */
 
 <span id='Ext-fx-Anim-cfg-duration'>    /**
 </span>     * @cfg {Number} duration
@@ -197,6 +203,14 @@ Ext.define('Ext.fx.Anim', {
      * Number of times to execute the animation.
      */
     iterations: 1,
+    
+<span id='Ext-fx-Anim-cfg-autoEnd'>    /**
+</span>     * @cfg {Boolean} autoEnd
+     * `true` to immediately force this animation to its final state. This can be useful
+     * in cases where you want the final effect of an animation, but need to the actual
+     * animation dynamically. Also see the {@link #jumpToEnd} method.
+     */
+    autoEnd: false,
 
 <span id='Ext-fx-Anim-cfg-alternate'>    /**
 </span>     * @cfg {Boolean} alternate
@@ -314,6 +328,10 @@ Ext.define('Ext.fx.Anim', {
         );
         me.mixins.observable.constructor.call(me);
         Ext.fx.Manager.addAnim(me);
+        if (config.autoEnd) {
+            me.running = true;
+            me.jumpToEnd();
+        }
     },
 
 <span id='Ext-fx-Anim-method-setAttr'>    /**
@@ -393,6 +411,21 @@ Ext.define('Ext.fx.Anim', {
             me.frameCount = 0;
         }
     },
+    
+<span id='Ext-fx-Anim-method-jumpToEnd'>    /**
+</span>     * Immediately force this animation to its final state.
+     */
+    jumpToEnd: function(){
+        var me = this;
+        
+        if (!me.endWasCalled) {
+            if (!me.currentAttrs) {
+                me.initAttrs();
+            }
+            Ext.fx.Manager.jumpToEnd(me);
+            me.end();
+        }
+    },
 
 <span id='Ext-fx-Anim-method-runAnim'>    /**
 </span>     * @private
@@ -463,16 +496,20 @@ Ext.define('Ext.fx.Anim', {
      * stop and destroy the running animation.
      */
     end: function() {
-        if (this.endWasCalled++) {
+        var me = this;
+        if (me.endWasCalled++) {
             return;
         }
-        var me = this;
+        
         me.startTime = 0;
         me.paused = false;
         me.running = false;
         Ext.fx.Manager.removeAnim(me);
         me.fireEvent('afteranimate', me, me.startTime);
         Ext.callback(me.callback, me.scope, [me, me.startTime]);
+        if (me.remove) {
+            me.target.remove();
+        }
     },
     
 <span id='Ext-fx-Anim-method-isReady'>    isReady: function() {

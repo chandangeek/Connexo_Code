@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
+Build date: 2013-09-18 17:18:59 (940c324ac822b840618a3a8b2b4b873f83a1a9b1)
 */
 /**
  * Greek translation
@@ -24,7 +24,7 @@ Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
  * + added Ext.Date.shortMonthNames
  * + added Ext.Date.getShortMonthName
  * + added Ext.Date.monthNumbers
- * + added Ext.grid.GroupingFeature
+ * + added Ext.grid.feature.Grouping
  */
 Ext.onReady(function() {
 
@@ -256,7 +256,7 @@ Ext.define("Ext.locale.el_GR.grid.header.Container", {
 });
 
 Ext.define("Ext.locale.el_GR.grid.GroupingFeature", {
-    override: "Ext.grid.GroupingFeature",
+    override: "Ext.grid.feature.Grouping",
     emptyGroupText: '(Καμμία)',
     groupByText: 'Ομαδοποίηση βάσει αυτού του πεδίου',
     showGroupsText: 'Να εμφανίζεται στις ομάδες'

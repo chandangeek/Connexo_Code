@@ -25,10 +25,13 @@ Ext.define('Ext.grid.header.DragZone', {
 </span><span id='Ext-grid-header-DragZone-property-maxProxyWidth'>    maxProxyWidth: 120,
 </span>
 <span id='Ext-grid-header-DragZone-method-constructor'>    constructor: function(headerCt) {
-</span>        this.headerCt = headerCt;
-        this.ddGroup =  this.getDDGroup();
-        this.callParent([headerCt.el]);
-        this.proxy.el.addCls(Ext.baseCSSPrefix + 'grid-col-dd');
+</span>        var me = this;
+        
+        me.headerCt = headerCt;
+        me.ddGroup =  me.getDDGroup();
+        me.autoGroup = true;
+        me.callParent([headerCt.el]);
+        me.proxy.el.addCls(Ext.baseCSSPrefix + 'grid-col-dd');
     },
     
 <span id='Ext-grid-header-DragZone-method-getDDGroup'>    getDDGroup: function() {
@@ -45,6 +48,7 @@ Ext.define('Ext.grid.header.DragZone', {
                 headerCmp = Ext.getCmp(header.id);
                 if (!this.headerCt.dragging &amp;&amp; headerCmp.draggable &amp;&amp; !(headerCmp.isOnLeftEdge(e) || headerCmp.isOnRightEdge(e))) {
                     ddel = document.createElement('div');
+                    ddel.role = 'presentation';
                     ddel.innerHTML = Ext.getCmp(header.id).text;
                     return {
                         ddel: ddel,

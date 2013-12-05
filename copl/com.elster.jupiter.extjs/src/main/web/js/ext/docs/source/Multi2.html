@@ -54,9 +54,11 @@ Ext.define('Ext.slider.Multi', {
 
 <span id='Ext-slider-Multi-cfg-fieldSubTpl'>    // note: {id} here is really {inputId}, but {cmpId} is available
 </span>    fieldSubTpl: [
-        '&lt;div id=&quot;{id}&quot; class=&quot;' + Ext.baseCSSPrefix + 'slider {fieldCls} {vertical}',
-        '{childElCls}',
-        '&quot; aria-valuemin=&quot;{minValue}&quot; aria-valuemax=&quot;{maxValue}&quot; aria-valuenow=&quot;{value}&quot; aria-valuetext=&quot;{value}&quot;&gt;',
+        '&lt;div id=&quot;{id}&quot; role=&quot;{role}&quot; {inputAttrTpl} class=&quot;' + Ext.baseCSSPrefix + 'slider {fieldCls} {vertical}',
+        '{childElCls}&quot;',
+        '&lt;tpl if=&quot;tabIdx != null&quot;&gt; tabIndex=&quot;{tabIdx}&quot;&lt;/tpl&gt;',
+        '&lt;tpl if=&quot;isVertical&quot;&gt; aria-orientation=&quot;vertical&quot;&lt;tpl else&gt; aria-orientation=&quot;horizontal&quot;&lt;/tpl&gt;',
+        '&gt;',
             '&lt;div id=&quot;{cmpId}-endEl&quot; class=&quot;' + Ext.baseCSSPrefix + 'slider-end&quot; role=&quot;presentation&quot;&gt;',
                 '&lt;div id=&quot;{cmpId}-innerEl&quot; class=&quot;' + Ext.baseCSSPrefix + 'slider-inner&quot; role=&quot;presentation&quot;&gt;',
                     '{%this.renderThumbs(out, values)%}',
@@ -370,10 +372,12 @@ Ext.define('Ext.slider.Multi', {
 
         return Ext.apply(me.callParent(), {
             $comp: me,
+            isVertical: me.vertical,
             vertical: me.vertical ? Ext.baseCSSPrefix + 'slider-vert' : Ext.baseCSSPrefix + 'slider-horz',
             minValue: me.minValue,
             maxValue: me.maxValue,
             value: me.value,
+            tabIdx: me.tabIndex,
             childElCls: ''
         });
     },
@@ -591,9 +595,6 @@ Ext.define('Ext.slider.Multi', {
             thumb, i;
 
         me.minValue = val;
-        if (me.rendered) {
-            me.inputEl.dom.setAttribute('aria-valuemin', val);
-        }
 
         for (i = 0; i &lt; len; ++i) {
             thumb = thumbs[i];
@@ -616,9 +617,6 @@ Ext.define('Ext.slider.Multi', {
             thumb, i;
 
         me.maxValue = val;
-        if (me.rendered) {
-            me.inputEl.dom.setAttribute('aria-valuemax', val);
-        }
 
         for (i = 0; i &lt; len; ++i) {
             thumb = thumbs[i];
@@ -672,13 +670,6 @@ Ext.define('Ext.slider.Multi', {
         if (value !== thumb.value &amp;&amp; me.fireEvent('beforechange', me, value, thumb.value, thumb) !== false) {
             thumb.value = value;
             if (me.rendered) {
-                // TODO this only handles a single value; need a solution for exposing multiple values to aria.
-                // Perhaps this should go on each thumb element rather than the outer element.
-                me.inputEl.set({
-                    'aria-valuenow': value,
-                    'aria-valuetext': value
-                });
-
                 thumb.move(me.calculateThumbPosition(value), Ext.isDefined(animate) ? animate !== false : me.animate);
 
                 me.fireEvent('change', me, value, thumb);
@@ -778,7 +769,10 @@ Ext.define('Ext.slider.Multi', {
                 me.innerEl.addCls(me.disabledCls).dom.disabled = true;
 
                 if (!me.thumbHolder) {
-                    me.thumbHolder = me.endEl.createChild({cls: Ext.baseCSSPrefix + 'slider-thumb ' + me.disabledCls});
+                    me.thumbHolder = me.endEl.createChild({
+                        role: 'presentation',
+                        cls: Ext.baseCSSPrefix + 'slider-thumb ' + me.disabledCls
+                    });
                 }
 
                 me.thumbHolder.show().setXY(xy);

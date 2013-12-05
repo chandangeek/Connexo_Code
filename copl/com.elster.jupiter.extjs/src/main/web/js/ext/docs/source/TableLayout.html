@@ -81,9 +81,13 @@ Ext.define('Ext.view.TableLayout', {
                 } else {
                     contentHeight = emptyEl.offsetHeight;
                 }
+                // If there is horizontal overflow, and the grid is shrinkwrapping height, then allow the horizontal scrollbar to contibute to contentHeight
+                if (ownerContext.headerContext.state.boxPlan.tooNarrow &amp;&amp; ownerContext.ownerCtContext.sizeModel.height.shrinkWrap) {
+                    contentHeight += Ext.getScrollbarSize().height;
+                }
                 ownerContext.setProp('contentHeight', contentHeight);
             }
-            
+
             // If we are part of a twinned table view set (locking grid)
             // Then only complete when both sides are complete.
             if (lockingPartner &amp;&amp; !lockingPartner.state.columnWidthsSynced) {

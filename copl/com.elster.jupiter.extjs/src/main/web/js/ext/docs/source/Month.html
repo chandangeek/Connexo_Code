@@ -41,7 +41,7 @@ Ext.define('Ext.picker.Month', {
               '&lt;tpl for=&quot;months&quot;&gt;',
                   '&lt;div class=&quot;{parent.baseCls}-item {parent.baseCls}-month&quot;&gt;',
                       // the href attribute is required for the :hover selector to work in IE6/7/quirks
-                      '&lt;a style=&quot;{parent.monthStyle}&quot; hidefocus=&quot;on&quot; class=&quot;{parent.baseCls}-item-inner&quot; href=&quot;#&quot;&gt;{.}&lt;/a&gt;',
+                      '&lt;a style=&quot;{parent.monthStyle}&quot; role=&quot;button&quot; hidefocus=&quot;on&quot; class=&quot;{parent.baseCls}-item-inner&quot; href=&quot;#&quot;&gt;{.}&lt;/a&gt;',
                   '&lt;/div&gt;',
               '&lt;/tpl&gt;',
           '&lt;/div&gt;',
@@ -49,31 +49,31 @@ Ext.define('Ext.picker.Month', {
               '&lt;div class=&quot;{baseCls}-yearnav&quot;&gt;',
                   '&lt;div class=&quot;{baseCls}-yearnav-button-ct&quot;&gt;',
                       // the href attribute is required for the :hover selector to work in IE6/7/quirks
-                      '&lt;a id=&quot;{id}-prevEl&quot; class=&quot;{baseCls}-yearnav-button {baseCls}-yearnav-prev&quot; href=&quot;#&quot; hidefocus=&quot;on&quot; &gt;&lt;/a&gt;',
+                      '&lt;a id=&quot;{id}-prevEl&quot; class=&quot;{baseCls}-yearnav-button {baseCls}-yearnav-prev&quot; href=&quot;#&quot; hidefocus=&quot;on&quot; role=&quot;button&quot;&gt;&lt;/a&gt;',
                   '&lt;/div&gt;',
                   '&lt;div class=&quot;{baseCls}-yearnav-button-ct&quot;&gt;',
                       // the href attribute is required for the :hover selector to work in IE6/7/quirks
-                      '&lt;a id=&quot;{id}-nextEl&quot; class=&quot;{baseCls}-yearnav-button {baseCls}-yearnav-next&quot; href=&quot;#&quot; hidefocus=&quot;on&quot; &gt;&lt;/a&gt;',
+                      '&lt;a id=&quot;{id}-nextEl&quot; class=&quot;{baseCls}-yearnav-button {baseCls}-yearnav-next&quot; href=&quot;#&quot; hidefocus=&quot;on&quot; role=&quot;button&quot;&gt;&lt;/a&gt;',
                   '&lt;/div&gt;',
               '&lt;/div&gt;',
               '&lt;tpl for=&quot;years&quot;&gt;',
                   '&lt;div class=&quot;{parent.baseCls}-item {parent.baseCls}-year&quot;&gt;',
                       // the href attribute is required for the :hover selector to work in IE6/7/quirks
-                      '&lt;a hidefocus=&quot;on&quot; class=&quot;{parent.baseCls}-item-inner&quot; href=&quot;#&quot;&gt;{.}&lt;/a&gt;',
+                      '&lt;a hidefocus=&quot;on&quot; class=&quot;{parent.baseCls}-item-inner&quot; role=&quot;button&quot; href=&quot;#&quot;&gt;{.}&lt;/a&gt;',
                   '&lt;/div&gt;',
               '&lt;/tpl&gt;',
           '&lt;/div&gt;',
           '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'clear&quot;&gt;&lt;/div&gt;',
-        '&lt;/div&gt;',
-        '&lt;tpl if=&quot;showButtons&quot;&gt;',
-            '&lt;div id=&quot;{id}-buttonsEl&quot; class=&quot;{baseCls}-buttons&quot;&gt;{%',
-                'var me=values.$comp, okBtn=me.okBtn, cancelBtn=me.cancelBtn;',
-                'okBtn.ownerLayout = cancelBtn.ownerLayout = me.componentLayout;',
-                'okBtn.ownerCt = cancelBtn.ownerCt = me;',
-                'Ext.DomHelper.generateMarkup(okBtn.getRenderTree(), out);',
-                'Ext.DomHelper.generateMarkup(cancelBtn.getRenderTree(), out);',
-            '%}&lt;/div&gt;',
-        '&lt;/tpl&gt;'
+          '&lt;tpl if=&quot;showButtons&quot;&gt;',
+              '&lt;div id=&quot;{id}-buttonsEl&quot; class=&quot;{baseCls}-buttons&quot;&gt;{%',
+                  'var me=values.$comp, okBtn=me.okBtn, cancelBtn=me.cancelBtn;',
+                  'okBtn.ownerLayout = cancelBtn.ownerLayout = me.componentLayout;',
+                  'okBtn.ownerCt = cancelBtn.ownerCt = me;',
+                  'Ext.DomHelper.generateMarkup(okBtn.getRenderTree(), out);',
+                  'Ext.DomHelper.generateMarkup(cancelBtn.getRenderTree(), out);',
+              '%}&lt;/div&gt;',
+          '&lt;/tpl&gt;',
+        '&lt;/div&gt;'
     ],
 
     //&lt;locale&gt;
@@ -215,6 +215,10 @@ Ext.define('Ext.picker.Month', {
             margin = me.monthMargin,
             style = '';
 
+        if (me.padding &amp;&amp; !me.width) {
+            me.cacheWidth();
+        }
+
         me.callParent();
 
         for (; i &lt; monthLen; ++i) {
@@ -231,6 +235,19 @@ Ext.define('Ext.picker.Month', {
             showButtons: me.showButtons,
             monthStyle: style
         });
+    },
+
+<span id='Ext-picker-Month-method-cacheWidth'>    cacheWidth: function() {
+</span>        var me = this,
+            padding = me.parseBox(me.padding),
+            widthEl = Ext.getBody().createChild({
+                cls: me.baseCls + ' ' + me.borderBoxCls,
+                style: 'position:absolute;top:-1000px;left:-1000px;',
+                html: '&amp;nbsp;' // required for opera 11.64 to measure a width
+            });
+
+        me.self.prototype.width = widthEl.getWidth() + padding.left + padding.right;
+        widthEl.remove();
     },
 
 <span id='Ext-picker-Month-method-afterRender'>    // @private

@@ -19,15 +19,28 @@
 </span> * This is the base class for {@link Ext.ux.event.Recorder} and {@link Ext.ux.event.Player}.
  */
 Ext.define('Ext.ux.event.Driver', {
+    extend: 'Ext.util.Observable',
+
 <span id='Ext-ux-event-Driver-property-active'>    active: null,
-</span>    mixins: {
-        observable: 'Ext.util.Observable'
+</span>
+<span id='Ext-ux-event-Driver-property-specialKeysByName'>    specialKeysByName: {
+</span>        PGUP:  33,
+        PGDN:  34,
+        END:   35,
+        HOME:  36,
+        LEFT:  37,
+        UP:    38,
+        RIGHT: 39,
+        DOWN:  40
     },
 
-<span id='Ext-ux-event-Driver-method-constructor'>    constructor: function (config) {
+<span id='Ext-ux-event-Driver-property-specialKeysByCode'>    specialKeysByCode: {
+</span>    },
+
+<span id='Ext-ux-event-Driver-method-constructor'>    constructor: function () {
 </span>        var me = this;
 
-        me.mixins.observable.constructor.apply(this, arguments);
+        me.callParent(arguments);
 
         me.addEvents(
 <span id='Ext-ux-event-Driver-event-start'>            /**
@@ -44,6 +57,26 @@ Ext.define('Ext.ux.event.Driver', {
              */
             'stop'
         );
+    },
+
+<span id='Ext-ux-event-Driver-method-getTextSelection'>    getTextSelection: function (el) {
+</span>        // See https://code.google.com/p/rangyinputs/source/browse/trunk/rangyinputs_jquery.js
+        var doc = el.ownerDocument,
+            range, range2, start, end;
+
+        if (typeof el.selectionStart === &quot;number&quot;) {
+            start = el.selectionStart;
+            end = el.selectionEnd;
+        } else if (doc.selection) {
+            range = doc.selection.createRange();
+            range2 = el.createTextRange();
+            range2.setEndPoint('EndToStart', range);
+
+            start = range2.text.length;
+            end = start + range.text.length;
+        }
+
+        return [ start, end ];
     },
 
 <span id='Ext-ux-event-Driver-method-getTime'>    getTime: function () {
@@ -88,6 +121,13 @@ Ext.define('Ext.ux.event.Driver', {
             me.fireEvent('stop', me);
         }
     }
+},
+function () {
+    var proto = this.prototype;
+
+    Ext.Object.each(proto.specialKeysByName, function (name, value) {
+        proto.specialKeysByCode[value] = name;
+    });
 });
 </pre>
 </body>

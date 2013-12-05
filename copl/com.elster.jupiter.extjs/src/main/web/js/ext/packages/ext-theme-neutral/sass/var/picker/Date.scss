@@ -67,7 +67,7 @@ $datepicker-arrow-opacity-over: 1 !default;
  * The Date Picker header background gradient. Can be either the name of a predefined gradient
  * or a list of color stops. Used as the `$type` parameter for {@link Global_CSS#background-gradient}.
  */
-$datepicker-header-background-gradient: null !default;
+$datepicker-header-background-gradient: 'none' !default;
 
 /**
  * @var {number/list}
@@ -183,7 +183,7 @@ $datepicker-column-header-font-weight: $datepicker-item-font-weight !default;
  * predefined gradient or a list of color stops. Used as the `$type` parameter for
  * {@link Global_CSS#background-gradient}.
  */
-$datepicker-column-header-background-gradient: null !default;
+$datepicker-column-header-background-gradient: 'none' !default;
 
 /**
  * @var {string}
@@ -287,7 +287,7 @@ $datepicker-footer-background-color: $datepicker-column-header-background-color 
  * predefined gradient or a list of color stops. Used as the `$type` parameter for
  * {@link Global_CSS#background-gradient}.
  */
-$datepicker-footer-background-gradient: null !default;
+$datepicker-footer-background-gradient: 'none' !default;
 
 /**
  * @var {number/list}

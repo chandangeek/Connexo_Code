@@ -13,7 +13,7 @@ $tip-background-color: #fff !default;
  * The background-gradient of the Tip. Can be either the name of a predefined gradient or a
  * list of color stops. Used as the `$type` parameter for {@link Global_CSS#background-gradient}.
  */
-$tip-background-gradient: null !default;
+$tip-background-gradient: 'none' !default;
 
 /**
  * @var {color}

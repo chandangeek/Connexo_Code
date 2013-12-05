@@ -404,10 +404,11 @@
                 var originalFormatString = formatString,
                     comma = UtilFormat.thousandSeparator,
                     decimalSeparator = UtilFormat.decimalSeparator,
+                    precision = 0,
+                    trimPart = '',
                     hasComma,
                     splitFormat,
                     extraChars,
-                    precision = 0,
                     multiplier,
                     trimTrailingZeroes,
                     code;
@@ -444,18 +445,24 @@
 
                     // Formatting ending in .##### means maximum 5 trailing significant digits
                     trimTrailingZeroes = allHashes.test(splitFormat[1]);
+                    if (trimTrailingZeroes) {
+                        // Need to escape, since this will be '.' by default
+                        trimPart = 'trailingZeroes=new RegExp(Ext.String.escapeRegex(utilFormat.decimalSeparator) + &quot;?0+$&quot;)'
+                    }
                 }
                 
                 // The function we create is called immediately and returns a closure which has access to vars and some fixed values; RegExes and the format string.
                 code = [
-                    'var utilFormat=Ext.util.Format,extNumber=Ext.Number,neg,fnum,parts' +
+                    'var utilFormat=Ext.util.Format,extNumber=Ext.Number,neg,absVal,fnum,parts' +
                         (hasComma ? ',thousandSeparator,thousands=[],j,n,i' : '') +
                         (extraChars  ? ',formatString=&quot;' + formatString + '&quot;,formatPattern=/[\\d,\\.#]+/' : '') +
-                        (trimTrailingZeroes ? ',trailingZeroes=/\\.?0+$/;' : ';') +
+                        ',trailingZeroes;' +
                     'return function(v){' +
                     'if(typeof v!==&quot;number&quot;&amp;&amp;isNaN(v=extNumber.from(v,NaN)))return&quot;&quot;;' +
                     'neg=v&lt;0;',
-                    'fnum=Ext.Number.toFixed(Math.abs(v), ' + precision + ');'
+                    'absVal=Math.abs(v);',
+                    'fnum=Ext.Number.toFixed(absVal, ' + precision + ');',
+                    trimPart, ';'
                 ];
 
                 if (hasComma) {
@@ -467,7 +474,7 @@
                         code[code.length] = 'fnum=parts[0];';
                     }
                     code[code.length] =
-                        'if(v&gt;=1000) {';
+                        'if(absVal&gt;=1000) {';
                             code[code.length] = 'thousandSeparator=utilFormat.thousandSeparator;' +
                             'thousands.length=0;' +
                             'j=fnum.length;' +
@@ -541,7 +548,7 @@
                     name;
 
                 for (name in attributes) {
-                    result.push(name, '=&quot;', name === 'style' ? Ext.DomHelper.generateStyles(attributes[name]) : Ext.htmlEncode(attributes[name]), '&quot;');
+                    result.push(name, '=&quot;', name === 'style' ? Ext.DomHelper.generateStyles(attributes[name], null, true) : Ext.htmlEncode(attributes[name]), '&quot;');
                 }
                 attributes = result.join('');
             }

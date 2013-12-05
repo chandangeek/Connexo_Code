@@ -2,10 +2,8 @@
 
 Sencha Cmd v3.1 includes the Sencha Package Manager. There are two basic problems that
 packages are designed to solve: consumption and distribution. This guide focused on these
-topics. See also [Creating Sencha Cmd Packages](#/guide/command_package_authoring) for
+topics. See also [Creating Sencha Cmd Packages](#!/guide/command_package_authoring) for
 information about creating and sharing a package.
-
-{@img ../command/sencha-command-128.png}
 
 ## The `"packages"` Folder
 
@@ -68,7 +66,7 @@ Then add "common" as a requirement to your application's `"app.json"` as describ
     }
 
 For more details, especially regarding how to distribute packages to others, see
-[Creating Sencha Cmd Packages](#/guide/command_package_authoring).
+[Creating Sencha Cmd Packages](#!/guide/command_package_authoring).
 
 ## Remote Packages
 
@@ -79,7 +77,7 @@ we have already used a remote package: `"ext-easy-button"`.
 Packages are shared and distributed using package repositories. Sencha Cmd automatically
 creates a "Local Repository" for caching packages as well as for publishing packages. The
 role of the local repository for package authoring is not discussed in this guide. For
-details on that topic see [Creating Sencha Cmd Packages](#/guide/command_package_authoring).
+details on that topic see [Creating Sencha Cmd Packages](#!/guide/command_package_authoring).
 
 ### Local Repository
 
@@ -110,7 +108,7 @@ Given that install directory, the local repository would be located at:
 This can be changed by editing the `"sencha.cfg"` in the Sencha Cmd install folder.
 
 The contents of the local repository are discussed further in
-[Creating Sencha Cmd Packages](#/guide/command_package_authoring).
+[Creating Sencha Cmd Packages](#!/guide/command_package_authoring).
 
 ### Remote Repositories
 
@@ -129,7 +127,7 @@ To see the list of remote repositories, run the `sencha repository list` command
 You can add and remove repositories from this list using `sencha repository add` and
 `sencha repository remove` commands. Your local repository is in fact a valid remote
 repository for others if you chose to host it. For details on this, see
-[Creating Sencha Cmd Packages](#/guide/command_package_authoring).
+[Creating Sencha Cmd Packages](#!/guide/command_package_authoring).
 
 ## The Package Catalog
 

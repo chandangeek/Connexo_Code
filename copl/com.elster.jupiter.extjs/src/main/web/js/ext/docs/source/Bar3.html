@@ -52,17 +52,22 @@ Ext.define('Ext.tab.Bar', {
      * True to not show the full background on the tabbar
      */
     plain: false,
-
+    
+<span id='Ext-tab-Bar-property-ariaRole'>    ariaRole: 'tablist',
+</span>
 <span id='Ext-tab-Bar-property-childEls'>    childEls: [
 </span>        'body', 'strip'
     ],
 
 <span id='Ext-tab-Bar-cfg-renderTpl'>    // @private
 </span>    renderTpl: [
-        '&lt;div id=&quot;{id}-body&quot; class=&quot;{baseCls}-body {bodyCls} {bodyTargetCls}{childElCls}&lt;tpl if=&quot;ui&quot;&gt; {baseCls}-body-{ui}&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-body-{parent.ui}-{.}&lt;/tpl&gt;&lt;/tpl&gt;&quot;&lt;tpl if=&quot;bodyStyle&quot;&gt; style=&quot;{bodyStyle}&quot;&lt;/tpl&gt;&gt;',
+        '&lt;div id=&quot;{id}-body&quot; role=&quot;presentation&quot; class=&quot;{baseCls}-body {bodyCls} {bodyTargetCls}{childElCls}',
+            '&lt;tpl if=&quot;ui&quot;&gt; {baseCls}-body-{ui}',
+                '&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-body-{parent.ui}-{.}&lt;/tpl&gt;',
+            '&lt;/tpl&gt;&quot;&lt;tpl if=&quot;bodyStyle&quot;&gt; style=&quot;{bodyStyle}&quot;&lt;/tpl&gt;&gt;',
             '{%this.renderContainer(out,values)%}',
         '&lt;/div&gt;',
-        '&lt;div id=&quot;{id}-strip&quot; class=&quot;{baseCls}-strip {baseCls}-strip-{dock}{childElCls}',
+        '&lt;div id=&quot;{id}-strip&quot; role=&quot;presentation&quot; class=&quot;{baseCls}-strip {baseCls}-strip-{dock}{childElCls}',
             '&lt;tpl if=&quot;ui&quot;&gt; {baseCls}-strip-{ui}',
                 '&lt;tpl for=&quot;uiCls&quot;&gt; {parent.baseCls}-strip-{parent.ui}-{.}&lt;/tpl&gt;',
             '&lt;/tpl&gt;&quot;&gt;',
@@ -332,9 +337,6 @@ Ext.define('Ext.tab.Bar', {
                 tab = tabs[i];
                 closeEl = tab.closeEl;
                 if (closeEl) {
-                    closeXY = closeEl.getXY();
-                    closeWidth = closeEl.getWidth();
-                    closeHeight = closeEl.getHeight();
                     // Read the dom to determine if the contents of the tab are reversed
                     // (rotated 180 degrees).  If so, we can cache the result becuase
                     // it's safe to assume all tabs in the tabbar will be the same
@@ -346,15 +348,14 @@ Ext.define('Ext.tab.Bar', {
                     }
 
                     direction = isTabReversed ? this._reverseDockNames[me.dock] : me.dock;
+                    
+                    closeWidth = closeEl.getWidth();
+                    closeHeight = closeEl.getHeight();
+                    closeXY = me.getCloseXY(closeEl, tabX, tabY, tabWidth, tabHeight,
+                        closeWidth, closeHeight, direction);
+                    closeX = closeXY[0];
+                    closeY = closeXY[1];
 
-                    if (direction === 'right') {
-                        closeX = tabX + tabWidth - ((closeXY[1] - tabY) + closeEl.getHeight()); 
-                        closeY = tabY + (closeXY[0] - tabX); 
-                    } else {
-                        closeX = tabX + (closeXY[1] - tabY);
-                        closeY = tabY + tabX + tabHeight - closeXY[0] - closeEl.getWidth();
-                    }
-                        
                     closeRegion = new Ext.util.Region(
                         closeY,
                         closeX + closeWidth,
@@ -372,6 +373,22 @@ Ext.define('Ext.tab.Bar', {
             tab: tab,
             close: close
         };
+    },
+
+<span id='Ext-tab-Bar-method-getCloseXY'>    // @private
+</span>    getCloseXY: function(closeEl, tabX, tabY, tabWidth, tabHeight, closeWidth, closeHeight, direction) {
+        var closeXY = closeEl.getXY(),
+            closeX, closeY;
+
+        if (direction === 'right') {
+            closeX = tabX + tabWidth - ((closeXY[1] - tabY) + closeHeight); 
+            closeY = tabY + (closeXY[0] - tabX); 
+        } else {
+            closeX = tabX + (closeXY[1] - tabY);
+            closeY = tabY + tabX + tabHeight - closeXY[0] - closeWidth;
+        }
+
+        return [closeX, closeY];
     },
 
 <span id='Ext-tab-Bar-method-closeTab'>    /**

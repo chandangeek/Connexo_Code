@@ -887,7 +887,7 @@ Ext.define('Ext.selection.Model', {
             records,
             len, id, i;
 
-        if (record.hasId() &amp;&amp; store.getById(record)) {
+        if (record.hasId() &amp;&amp; store.getById(record.getId())) {
             return true;
         } else {
             records = store.data.items;

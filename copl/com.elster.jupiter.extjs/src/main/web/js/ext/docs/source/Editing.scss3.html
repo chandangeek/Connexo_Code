@@ -20,7 +20,8 @@
  */
 
 <span id='Ext-grid-plugin-Editing-css_var-S-grid-editor-height'>/**
-</span> * The height of grid editor text fields.  Defaults to $form-field-height.  If grid row
+</span> * @var {number}
+ * The height of grid editor text fields.  Defaults to $form-field-height.  If grid row
  * height is smaller than $form-field-height, defaults to the grid row height.  Grid row
  * height is caluclated by adding $grid-row-cell-line-height to the top and bottom values of
  * $grid-cell-inner-padding.
@@ -28,7 +29,8 @@
 $grid-editor-height: if($grid-row-height &lt; $form-field-height, $grid-row-height, $form-field-height) !default;
 
 <span id='Ext-grid-plugin-Editing-css_var-S-grid-editor-padding'>/**
-</span> * The padding of grid editor text fields.
+</span> * @var {number/list}
+ * The padding of grid editor text fields.
  */
 $grid-editor-padding:
     top($form-field-padding)

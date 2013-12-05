@@ -26,11 +26,11 @@ Ext.define('Ext.ux.ajax.JsonSimlet', {
 </span>        var me = this,
             data = me.getData(ctx),
             page = me.getPage(ctx, data),
-            reader = ctx.xhr.options.proxy.reader,
+            reader = ctx.xhr.options.proxy &amp;&amp; ctx.xhr.options.proxy.reader,
             ret = me.callParent(arguments), // pick up status/statusText
             response = {};
 
-        if (reader.root) {
+        if (reader &amp;&amp; reader.root) {
             response[reader.root] = page;
             response[reader.totalProperty] = data.length;
         } else {

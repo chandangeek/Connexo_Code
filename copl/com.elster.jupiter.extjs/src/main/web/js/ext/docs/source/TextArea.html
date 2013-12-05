@@ -70,7 +70,7 @@ Ext.define('Ext.form.field.TextArea', {
     //     &lt;/textarea&gt;
     //
     fieldSubTpl: [
-        '&lt;textarea id=&quot;{id}&quot; {inputAttrTpl}',
+        '&lt;textarea id=&quot;{id}&quot; role=&quot;{role}&quot; {inputAttrTpl}',
             '&lt;tpl if=&quot;name&quot;&gt; name=&quot;{name}&quot;&lt;/tpl&gt;',
             '&lt;tpl if=&quot;rows&quot;&gt; rows=&quot;{rows}&quot; &lt;/tpl&gt;',
             '&lt;tpl if=&quot;cols&quot;&gt; cols=&quot;{cols}&quot; &lt;/tpl&gt;',
@@ -279,12 +279,6 @@ Ext.define('Ext.form.field.TextArea', {
         }
     },
 
-<span id='Ext-form-field-TextArea-method-initAria'>    // private
-</span>    initAria: function() {
-        this.callParent(arguments);
-        this.getActionEl().dom.setAttribute('aria-multiline', true);
-    },
-    
 <span id='Ext-form-field-TextArea-method-beforeDestroy'>    beforeDestroy: function(){
 </span>        var task = this.pasteTask;
         if (task) {

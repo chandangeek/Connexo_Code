@@ -281,13 +281,17 @@ Ext.define('Ext.dom.Element_scroll', {
         if (!this.isScrollable()) {
             return false;
         }
+        
+        // Allow full word, or initial to be sent.
+        // (Ext.dd package uses full word)
+        direction = direction.charAt(0);
         var me = this,
             dom = me.dom,
             side = direction === 'r' || direction === 'l' ? 'left' : 'top',
             scrolled = false,
             currentScroll, constrainedScroll;
 
-        if (direction === 'r') {
+        if (direction === 'l' || direction === 't' || direction === 'u') {
             distance = -distance;
         }
 
