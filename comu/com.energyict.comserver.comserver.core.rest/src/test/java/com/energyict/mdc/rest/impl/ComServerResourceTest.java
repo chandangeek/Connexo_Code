@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
@@ -34,7 +34,7 @@ public class ComServerResourceTest extends JerseyTest {
     private static ComServerService comServerService;
 
     @BeforeClass
-    static public void setUpClass() throws Exception {
+    public static void setUpClass() throws Exception {
         comServerService = mock(ComServerService.class);
     }
 

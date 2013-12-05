@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.HexString;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.dynamic.PropertySpec;
 import com.energyict.mdc.rest.impl.CodeTableResource;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
@@ -47,11 +47,11 @@ public class MdcPropertyReferenceInfoFactory {
      * @return the converted simplePropertyType
      */
     static SimplePropertyType getReferencedSimplePropertyType(PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
-        if (HexString.class.isAssignableFrom(propertySpec.getDomain().getValueType())) {
+        if (HexString.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.TEXT;
-        } else if (TimeZoneInUse.class.isAssignableFrom(propertySpec.getDomain().getValueType())) {
+        } else if (TimeZoneInUse.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.TIMEZONEINUSE;
-        } else if (Code.class.isAssignableFrom(propertySpec.getDomain().getValueType())) {
+        } else if (Code.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.CODETABLE;
         } else {
             return simplePropertyType;
