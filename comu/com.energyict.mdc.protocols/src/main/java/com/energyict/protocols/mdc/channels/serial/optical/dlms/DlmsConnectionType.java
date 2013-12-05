@@ -2,10 +2,10 @@ package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
 import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.BigDecimalFactory;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
-import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.BigDecimalFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;

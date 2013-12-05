@@ -10,9 +10,9 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.ComPortType;
 import com.energyict.mdc.protocol.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.BigDecimalFactory;
-import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
-import com.energyict.mdc.protocol.dynamic.impl.StringFactory;
+import com.energyict.mdc.protocol.dynamic.BigDecimalFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;

@@ -6,7 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.device.data.CollectedData;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;

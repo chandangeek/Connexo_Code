@@ -6,7 +6,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;

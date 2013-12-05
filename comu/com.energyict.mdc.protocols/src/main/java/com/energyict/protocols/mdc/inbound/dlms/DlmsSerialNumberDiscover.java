@@ -12,7 +12,7 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;

@@ -21,7 +21,7 @@ import com.energyict.mdc.protocol.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;

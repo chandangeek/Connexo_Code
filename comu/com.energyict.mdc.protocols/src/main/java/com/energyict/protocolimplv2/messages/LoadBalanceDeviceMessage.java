@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 

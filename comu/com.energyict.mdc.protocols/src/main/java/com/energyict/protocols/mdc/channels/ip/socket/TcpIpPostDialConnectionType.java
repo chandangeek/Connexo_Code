@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.List;

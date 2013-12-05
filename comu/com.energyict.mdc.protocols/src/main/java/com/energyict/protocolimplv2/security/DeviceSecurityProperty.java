@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.BigDecimalFactory;
-import com.energyict.mdc.protocol.dynamic.impl.BooleanFactory;
-import com.energyict.mdc.protocol.dynamic.impl.EncryptedStringFactory;
-import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
-import com.energyict.mdc.protocol.dynamic.impl.StringFactory;
+import com.energyict.mdc.protocol.dynamic.BigDecimalFactory;
+import com.energyict.mdc.protocol.dynamic.BooleanFactory;
+import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.StringFactory;
 
 import java.math.BigDecimal;
 

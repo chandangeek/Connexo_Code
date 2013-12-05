@@ -4,8 +4,8 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdc.protocol.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 

@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.RequiredPropertySpecFactory;
+import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 

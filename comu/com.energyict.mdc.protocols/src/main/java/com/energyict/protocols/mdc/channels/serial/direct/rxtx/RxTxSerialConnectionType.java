@@ -7,8 +7,8 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.impl.PropertySpecBuilder;
-import com.energyict.mdc.protocol.dynamic.impl.StringFactory;
+import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.protocol.dynamic.StringFactory;
 import com.energyict.protocols.mdc.channels.serial.AbstractSerialConnectionType;
 
 import java.math.BigDecimal;
