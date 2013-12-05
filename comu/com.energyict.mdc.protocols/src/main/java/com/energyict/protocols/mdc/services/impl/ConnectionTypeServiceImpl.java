@@ -1,9 +1,9 @@
-package com.energyict.protocols.mdc.services;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.services.ConnectionTypeService;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdw.core.PluggableClass;
+import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.PluggableClass;
+import com.energyict.mdc.protocol.services.ConnectionTypeService;
 import org.osgi.service.component.annotations.Component;
 
 /**

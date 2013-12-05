@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.services;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdw.core.MeteringWarehouse;

@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.services;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.protocol.PluggableClass;

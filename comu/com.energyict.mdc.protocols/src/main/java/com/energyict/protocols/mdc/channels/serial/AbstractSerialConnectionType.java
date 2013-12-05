@@ -181,7 +181,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     public String getComPortNameValue () {
-        return (String) this.getProperty(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME);
+        return (String) this.getProperty(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
     }
 
     @Override

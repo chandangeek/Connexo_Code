@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.services;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.adapters.meterprotocol.MeterProtocolAdapter;
 import com.energyict.comserver.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;

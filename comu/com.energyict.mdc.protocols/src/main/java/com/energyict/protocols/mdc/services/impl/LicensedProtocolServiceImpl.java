@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.services;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;

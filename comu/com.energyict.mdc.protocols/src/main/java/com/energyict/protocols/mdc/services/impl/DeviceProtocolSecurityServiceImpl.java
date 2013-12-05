@@ -1,19 +1,19 @@
-package com.energyict.protocols.mdc.services;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.services.DeviceProtocolMessageService;
+import com.energyict.mdc.services.DeviceProtocolSecurityService;
 import org.osgi.service.component.annotations.Component;
 
 /**
  * Copyrights EnergyICT
  * Date: 08/11/13
- * Time: 16:08
+ * Time: 16:05
  */
-@Component(name = "com.energyict.mdc.service.deviceprotocolmessage", service = DeviceProtocolMessageService.class, immediate = true)
-public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageService {
+@Component(name = "com.energyict.mdc.service.deviceprotocolsecurity", service = DeviceProtocolSecurityService.class, immediate = true)
+public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurityService {
 
     @Override
-    public Object createDeviceProtocolMessagesFor(String javaClassName) {
+    public Object createDeviceProtocolSecurityFor(String javaClassName) {
         try {
             return Class.forName(javaClassName).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
