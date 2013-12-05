@@ -363,9 +363,9 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @param numbers collection of Number objects
      */
-    public void addValues(Collection numbers) {
-        for (Object number : numbers) {
-            intervalValues.add(new IntervalValue((Number) number));
+    public void addValues(Collection<Number> numbers) {
+        for (Number number : numbers) {
+            intervalValues.add(new IntervalValue(number));
         }
     }
 
@@ -394,7 +394,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @return an iterator over the values for the interval
      */
-    public Iterator getValuesIterator() {
+    public Iterator<IntervalValue> getValuesIterator() {
         return intervalValues.iterator();
     }
 
@@ -403,7 +403,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @return List
      */
-    public List getIntervalValues() {
+    public List<IntervalValue> getIntervalValues() {
         return intervalValues;
     }
 
@@ -412,7 +412,7 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
      *
      * @return List Iterator
      */
-    public ListIterator getIntervalValueIterator() {
+    public ListIterator<IntervalValue> getIntervalValueIterator() {
         return intervalValues.listIterator();
     }
 
