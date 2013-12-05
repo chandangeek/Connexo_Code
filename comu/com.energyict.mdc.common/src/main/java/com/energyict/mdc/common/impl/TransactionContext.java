@@ -1,5 +1,11 @@
-package com.energyict.mdc.common;
+package com.energyict.mdc.common.impl;
 
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.JmsSessionContext;
+import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.common.TransactionResource;
+import com.energyict.mdc.common.TransactionSequenceException;
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.sql.DataSource;
@@ -103,7 +109,7 @@ public class TransactionContext {
     }
 
     public Connection getConnection () {
-        if (!this.isFinished()) {
+        if (!this.isFinished() || connection!=null) {
             return this.connection;
         }
         else {
@@ -117,7 +123,7 @@ public class TransactionContext {
         boolean success = false;
         try {
             this.nestCount++;
-            this.doExecute(transaction, transactionService);
+            result = this.doExecute(transaction, transactionService);
             success = true;
         }
         finally {
@@ -176,12 +182,14 @@ public class TransactionContext {
         }
     }
 
-    private void closeConnection () {
+    void closeConnection () {
         try {
-            /* Close the Jupiter connection that was created
-             * for the purpose of this transaction. */
-            this.connection.close();
-            this.connection = null;
+            if (this.connection != null) {
+                /* Close the Jupiter connection that was created
+                 * for the purpose of this transaction. */
+                this.connection.close();
+                this.connection = null;
+            }
         }
         catch (SQLException e) {
             throw new RuntimeSQLException(e);

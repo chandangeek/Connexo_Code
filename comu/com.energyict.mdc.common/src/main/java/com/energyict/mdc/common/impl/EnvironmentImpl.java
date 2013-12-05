@@ -17,7 +17,6 @@ import com.energyict.mdc.common.FormatPreferences;
 import com.energyict.mdc.common.JmsSessionContext;
 import com.energyict.mdc.common.MultiBundleTranslator;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.common.TransactionContext;
 import com.energyict.mdc.common.Translator;
 import oracle.jdbc.OracleConnection;
 import org.osgi.framework.BundleContext;
@@ -188,13 +187,13 @@ public class EnvironmentImpl implements Environment {
     @Override
     public void closeConnection () {
         if (!this.isInTransaction()) {
-            this.getTransactionContext().close(this.getEventManager());
+            this.getTransactionContext().closeConnection();
         }
     }
 
     @Override
     public void close () {
-        this.closeConnection();
+        this.getTransactionContext().close(this.getEventManager());
         this.transactionContextHolder.remove();
         if (this.eventManagerHolder != null) {
             this.eventManagerHolder.remove();
@@ -210,7 +209,7 @@ public class EnvironmentImpl implements Environment {
     @Override
     public Connection getConnection () {
         return this.getTransactionContext().getConnection();
-    }
+        }
 
     @Override
     public Connection getUnwrappedConnection () {
@@ -244,7 +243,7 @@ public class EnvironmentImpl implements Environment {
              * to avoid Connection leakage.
              * In the Jupiter context, a new Connection is created
              * once a transaction context is setup. */
-            this.getConnection().close();
+            getTransactionContext().closeConnection();
         }
         return getTransactionContext().execute(transaction, this.getTransactionService(), this.getEventManager());
     }
