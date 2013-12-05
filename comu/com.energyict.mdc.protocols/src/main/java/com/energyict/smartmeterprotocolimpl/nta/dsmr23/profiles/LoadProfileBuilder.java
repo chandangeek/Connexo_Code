@@ -17,9 +17,9 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.LoadProfileReader;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link com.energyict.mdc.protocol.device.data.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+ * Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
  * <p/>
  * <pre>
  * Copyrights EnergyICT

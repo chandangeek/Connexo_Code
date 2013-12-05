@@ -10,11 +10,11 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.exceptions.SerialPortException;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.ServerComChannel;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -71,7 +71,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     }
 
     /**
-     * Creates a new {@link com.energyict.mdc.protocol.ComChannel}
+     * Creates a new {@link ComChannel}
      * that uses Sockets as the actual connection mechanism.
      *
      * @param host    The host name, or <code>null</code> for the loopback address.
@@ -91,7 +91,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     }
 
     /**
-     * Creates a new {@link com.energyict.mdc.protocol.ComChannel}
+     * Creates a new {@link ComChannel}
      * that uses a {@link RxTxSerialPort} as the interface with the physical ComPort
      *
      * @param serialPortConfiguration the configuration of the serialPort
@@ -110,7 +110,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     }
 
     /**
-     * Creates a new {@link com.energyict.mdc.protocol.ComChannel}
+     * Creates a new {@link ComChannel}
      * that uses a {@link SioSerialPort} as the interface with the physical ComPort
      *
      * @param serialPortConfiguration the configuration of the serialPort
@@ -129,7 +129,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     }
 
     /**
-     * Creates a new {@link com.energyict.mdc.protocol.ComChannel}
+     * Creates a new {@link ComChannel}
      * that uses UDP Datagrams as the actual connection mechanism
      *
      * @param bufferSize the bufferSize of the ByteArray which receives the UDP data

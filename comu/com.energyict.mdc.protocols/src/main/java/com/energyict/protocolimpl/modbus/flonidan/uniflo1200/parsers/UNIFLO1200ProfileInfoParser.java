@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;

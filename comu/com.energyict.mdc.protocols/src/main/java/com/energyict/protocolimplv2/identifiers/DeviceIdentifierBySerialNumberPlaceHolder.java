@@ -4,7 +4,8 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.protocol.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.FindMultipleDevices;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactoryProvider;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface
+ * Provides an implementation for the {@link DeviceIdentifier} interface
  * that uses a PlaceHolder for a {@link com.energyict.mdw.core.Device}'s serial number to uniquely identify it.
  * <b>Be aware that the serialNumber is NOT a unique field in the database.
  * It is possible that multiple devices are found based on the provided SerialNumber.

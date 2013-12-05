@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;

@@ -9,7 +9,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.ApolloEvents;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSMeterEventMapper;
 import com.energyict.protocolimpl.dlms.DefaultDLMSMeterEventMapper;
 

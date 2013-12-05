@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 
 import java.math.BigDecimal;
 import java.util.Date;

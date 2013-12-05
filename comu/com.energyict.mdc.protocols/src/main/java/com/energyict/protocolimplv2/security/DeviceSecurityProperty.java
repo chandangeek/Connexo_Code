@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.BigDecimalFactory;
 import com.energyict.mdc.protocol.dynamic.BooleanFactory;
 import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;

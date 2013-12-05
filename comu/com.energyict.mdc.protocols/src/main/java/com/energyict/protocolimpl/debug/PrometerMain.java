@@ -2,9 +2,9 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.cewe.prometer.Prometer;
 

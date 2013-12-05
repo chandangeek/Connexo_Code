@@ -1,14 +1,13 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
-import com.energyict.mdc.protocol.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
-import com.energyict.mdc.protocol.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;

@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.debug;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMapping;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMappingFactory;

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.elster.a1800;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
 import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
 import com.energyict.protocolimpl.ansi.c12.tables.HistoryLog;

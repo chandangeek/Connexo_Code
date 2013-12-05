@@ -8,8 +8,8 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.PACTProtocolException;

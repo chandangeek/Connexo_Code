@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.prime.events;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 
 import java.io.IOException;

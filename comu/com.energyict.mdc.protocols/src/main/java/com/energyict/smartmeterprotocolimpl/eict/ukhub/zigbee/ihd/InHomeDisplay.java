@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.LoadProfileReader;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.Register;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.UnsupportedException;

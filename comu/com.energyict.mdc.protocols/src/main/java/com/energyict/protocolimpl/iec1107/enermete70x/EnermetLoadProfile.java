@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.IntervalValue;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 

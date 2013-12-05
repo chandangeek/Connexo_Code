@@ -59,14 +59,14 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.LoadProfileReader;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.MessageEntry;
-import com.energyict.mdc.protocol.device.data.MessageResult;
-import com.energyict.mdc.protocol.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.Device;
@@ -76,8 +76,8 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.device.data.MeterData;
-import com.energyict.mdc.protocol.device.data.MeterDataMessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -323,7 +323,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             }
 
             MeterReadingData mrd = new MeterReadingData();
-            for (com.energyict.mdc.protocol.device.data.Register register : builder.getRegisters()) {
+            for (com.energyict.mdc.protocol.api.device.data.Register register : builder.getRegisters()) {
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {

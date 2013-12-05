@@ -3,8 +3,8 @@ package com.energyict.protocolimpl.dlms.prime.messaging;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.mdc.protocol.device.data.MessageEntry;
-import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.prime.PrimeRegisters;
 

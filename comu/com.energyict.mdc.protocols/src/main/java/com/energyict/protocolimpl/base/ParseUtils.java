@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;

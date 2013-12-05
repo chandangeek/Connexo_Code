@@ -7,9 +7,9 @@
 package com.energyict.protocolimpl.sctm.fcl;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FCL;
 
 import java.io.IOException;

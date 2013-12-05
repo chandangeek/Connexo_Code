@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
-import com.energyict.mdc.protocol.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
-import com.energyict.mdc.protocol.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

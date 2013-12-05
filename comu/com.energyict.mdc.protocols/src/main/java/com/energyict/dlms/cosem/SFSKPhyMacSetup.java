@@ -15,7 +15,7 @@ import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
 import com.energyict.dlms.cosem.attributeobjects.Repeater;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 

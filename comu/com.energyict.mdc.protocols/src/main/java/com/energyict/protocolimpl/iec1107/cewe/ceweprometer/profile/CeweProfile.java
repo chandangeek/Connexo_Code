@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.base.FirmwareVersion;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CeweDateFormats;

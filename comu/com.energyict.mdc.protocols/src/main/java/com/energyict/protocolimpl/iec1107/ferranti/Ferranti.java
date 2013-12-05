@@ -14,7 +14,7 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.MeterProtocol;

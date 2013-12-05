@@ -1,7 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.direct.rxtx;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.protocol.ConnectionType;
 import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
 import org.junit.*;
 

@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.iec1107.sdc;
 
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 /**
  *
  * @author  Koen

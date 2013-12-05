@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;

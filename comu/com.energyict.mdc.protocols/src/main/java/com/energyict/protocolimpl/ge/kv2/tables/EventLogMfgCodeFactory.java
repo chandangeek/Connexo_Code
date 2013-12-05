@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCode;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLogCodeFactory;
 /**

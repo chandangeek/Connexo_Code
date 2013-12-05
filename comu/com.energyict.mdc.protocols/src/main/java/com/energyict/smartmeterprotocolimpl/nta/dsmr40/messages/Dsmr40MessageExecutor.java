@@ -22,8 +22,8 @@ import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.MessageEntry;
-import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.utils.ProtocolTools;

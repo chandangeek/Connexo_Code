@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV210;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocol.BubbleUpObject;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.UnsupportedException;

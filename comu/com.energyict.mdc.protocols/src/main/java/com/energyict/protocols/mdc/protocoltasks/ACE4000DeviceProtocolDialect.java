@@ -1,12 +1,11 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.mdc.protocol.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

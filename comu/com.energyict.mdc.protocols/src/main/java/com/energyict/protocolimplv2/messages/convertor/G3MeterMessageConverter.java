@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -60,7 +60,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.speci
 public class G3MeterMessageConverter extends AbstractMessageConverter {
 
     /**
-     * Represents a mapping between {@link com.energyict.mdc.protocol.device.messages.DeviceMessageSpec}s
+     * Represents a mapping between {@link DeviceMessageSpec}s
      * and the corresponding {@link MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();

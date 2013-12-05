@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.CommonEvents;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups.DemandManagementEvents;

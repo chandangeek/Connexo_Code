@@ -11,8 +11,8 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 

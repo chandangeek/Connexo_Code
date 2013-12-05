@@ -7,8 +7,8 @@
 package com.energyict.protocolimpl.emon.ez7.core;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
 

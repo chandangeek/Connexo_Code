@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.events;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 /**
  * Copyrights EnergyICT

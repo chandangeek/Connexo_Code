@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.meterdata.identifiers.CanFindLoadProfile;
-import com.energyict.mdc.protocol.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
 

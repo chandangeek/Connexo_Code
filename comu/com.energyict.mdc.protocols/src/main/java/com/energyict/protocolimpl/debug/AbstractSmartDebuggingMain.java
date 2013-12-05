@@ -7,7 +7,7 @@ import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocol.WakeUpProtocolSupport;

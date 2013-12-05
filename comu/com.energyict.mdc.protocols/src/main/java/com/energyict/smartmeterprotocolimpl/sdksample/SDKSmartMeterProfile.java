@@ -3,10 +3,10 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.LoadProfileReader;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.MultipleLoadProfileSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
@@ -231,7 +231,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * Do the actual reading of the loadProfile data from the Meter
      *
      * @param lpro the identification of which LoadProfile to read
-     * @return a {@link com.energyict.mdc.protocol.device.data.ProfileData} object with the necessary intervals filled in.
+     * @return a {@link com.energyict.mdc.protocol.api.device.data.ProfileData} object with the necessary intervals filled in.
      * @throws IOException when a error happens during parsing
      */
     private ProfileData getRawProfileData(LoadProfileReader lpro) throws IOException {

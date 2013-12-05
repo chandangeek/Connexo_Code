@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220.plc.events;
 
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.LoadProfileDataCommand;
 
 import java.io.IOException;

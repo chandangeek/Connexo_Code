@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Iterator;

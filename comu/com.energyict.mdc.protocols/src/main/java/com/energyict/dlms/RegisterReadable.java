@@ -1,6 +1,6 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 /**
  * @author jme

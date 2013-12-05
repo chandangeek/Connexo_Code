@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.dialects;
 
-import com.energyict.mdc.protocol.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 
 /**
  * Copyrights EnergyICT

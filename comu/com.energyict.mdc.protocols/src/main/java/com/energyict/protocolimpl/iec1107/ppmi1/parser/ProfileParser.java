@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messaging;
 
-import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 
 /**
  * Copyrights EnergyICT

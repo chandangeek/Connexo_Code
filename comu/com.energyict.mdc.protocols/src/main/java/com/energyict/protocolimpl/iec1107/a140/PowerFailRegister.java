@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.survey;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 
@@ -80,7 +80,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
      * @return Value of property profileData.
      *
      */
-    public com.energyict.mdc.protocol.device.data.ProfileData getProfileData() {
+    public com.energyict.mdc.protocol.api.device.data.ProfileData getProfileData() {
         return profileData;
     }
 
@@ -88,7 +88,7 @@ public abstract class LoadSurveyInterpreterImpl implements LoadSurveyInterpreter
      * @param profileData New value of property profileData.
      *
      */
-    public void setProfileData(com.energyict.mdc.protocol.device.data.ProfileData profileData) {
+    public void setProfileData(com.energyict.mdc.protocol.api.device.data.ProfileData profileData) {
         this.profileData = profileData;
     }
 

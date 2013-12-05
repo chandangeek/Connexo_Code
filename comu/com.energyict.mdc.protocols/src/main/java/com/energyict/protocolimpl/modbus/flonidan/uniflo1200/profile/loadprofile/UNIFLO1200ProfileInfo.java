@@ -6,7 +6,7 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile;
 
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileInfoParser;

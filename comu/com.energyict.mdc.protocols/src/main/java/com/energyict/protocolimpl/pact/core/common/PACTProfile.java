@@ -8,8 +8,8 @@ package com.energyict.protocolimpl.pact.core.common;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.pact.core.log.LogInterpreter;
 import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreter;
 

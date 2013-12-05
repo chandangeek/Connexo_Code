@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
 import java.io.IOException;

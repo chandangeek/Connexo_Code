@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;

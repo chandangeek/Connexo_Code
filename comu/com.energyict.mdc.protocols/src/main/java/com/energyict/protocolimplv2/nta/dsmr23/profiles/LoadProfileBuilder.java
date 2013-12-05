@@ -19,14 +19,14 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.identifiers.CanFindLoadProfile;
-import com.energyict.mdc.protocol.LoadProfileReader;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.ResultType;
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
-* Provides functionality to fetch and create {@link com.energyict.mdc.protocol.device.data.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+* Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
 * <p/>
 * <pre>
 * Copyrights EnergyICT
@@ -81,7 +81,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
 
     /**
-     * Keeps track of the link between a {@link LoadProfileReader} and a list of {@link com.energyict.mdc.protocol.device.data.Register} which
+     * Keeps track of the link between a {@link LoadProfileReader} and a list of {@link com.energyict.mdc.protocol.api.device.data.Register} which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
@@ -102,7 +102,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     private Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
-     * Keeps track of the link between a {@link com.energyict.mdc.protocol.device.data.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
+     * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.data.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();
 

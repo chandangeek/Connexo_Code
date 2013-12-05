@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.device.data.CollectedData;
-import com.energyict.mdc.protocol.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdw.core.LogBookTypeFactory;

@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.channels.sms;
 
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ComPortType;
-import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.ConnectionType;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.util.EnumSet;

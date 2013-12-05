@@ -3,8 +3,8 @@ package com.energyict.protocolimpl.coronis.wavetalk.core;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
 
 import java.io.IOException;

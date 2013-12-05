@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.survey;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 
 import java.io.IOException;

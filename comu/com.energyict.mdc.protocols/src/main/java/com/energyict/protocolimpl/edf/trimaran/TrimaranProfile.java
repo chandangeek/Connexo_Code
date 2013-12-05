@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaran;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocolimpl.edf.trimaran.core.DemandData;
 
 import java.io.IOException;

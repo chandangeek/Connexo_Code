@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
 import org.junit.*;

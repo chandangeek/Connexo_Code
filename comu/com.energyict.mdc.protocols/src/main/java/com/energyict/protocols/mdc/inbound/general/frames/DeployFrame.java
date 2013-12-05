@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.mdc.protocol.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;

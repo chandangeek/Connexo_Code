@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
 
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 

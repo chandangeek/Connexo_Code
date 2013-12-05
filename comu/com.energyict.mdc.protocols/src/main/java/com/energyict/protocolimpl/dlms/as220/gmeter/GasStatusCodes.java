@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 
 /**
  * OverView of the

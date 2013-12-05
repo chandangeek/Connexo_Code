@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 
 /**

@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.util.Date;
 

@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.protocol.NoSuchRegisterException;

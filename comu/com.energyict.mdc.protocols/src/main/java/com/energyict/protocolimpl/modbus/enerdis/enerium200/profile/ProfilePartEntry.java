@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;

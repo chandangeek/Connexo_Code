@@ -8,7 +8,7 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.protocol.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.DemandResetProtocol;

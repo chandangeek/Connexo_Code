@@ -1,11 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
-import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Test;

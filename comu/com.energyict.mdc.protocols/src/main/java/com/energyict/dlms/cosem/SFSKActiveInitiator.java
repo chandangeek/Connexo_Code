@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.attributeobjects.MacAddress;
 import com.energyict.dlms.cosem.attributes.SFSKActiveInitiatorAttribute;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 

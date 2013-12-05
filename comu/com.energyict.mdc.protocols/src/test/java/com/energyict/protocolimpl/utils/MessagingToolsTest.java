@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import com.energyict.mdc.protocol.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 
 /**
  * @author jme

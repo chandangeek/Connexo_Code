@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavelog;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.wavelog.core.radiocommand.Event;
 
 import java.io.IOException;

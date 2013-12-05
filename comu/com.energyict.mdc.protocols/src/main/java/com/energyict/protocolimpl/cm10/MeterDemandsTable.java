@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;

@@ -2,10 +2,10 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
-import com.energyict.mdc.protocol.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
-import com.energyict.mdc.protocol.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;

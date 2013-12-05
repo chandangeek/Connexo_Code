@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.io.IOException;
 import java.util.Date;

@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.device.data.Register;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

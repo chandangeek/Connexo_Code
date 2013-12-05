@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.mdc.protocol.device.data.MessageEntry;
-import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MissingPropertyException;

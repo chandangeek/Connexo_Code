@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
-import com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 

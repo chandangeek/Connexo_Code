@@ -1,16 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cbo.Password;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
-import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Test;

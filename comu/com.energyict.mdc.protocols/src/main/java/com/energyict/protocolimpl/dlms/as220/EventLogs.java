@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.as220.plc.events.PLCLog;
 
 import java.io.IOException;

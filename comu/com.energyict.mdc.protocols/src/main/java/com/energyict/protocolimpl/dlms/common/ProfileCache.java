@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.dlms.common;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 
 import java.io.Serializable;
 import java.util.HashMap;

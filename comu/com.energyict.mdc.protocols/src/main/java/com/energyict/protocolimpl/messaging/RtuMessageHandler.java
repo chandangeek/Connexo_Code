@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messaging;
 
-import com.energyict.mdc.protocol.device.data.MessageEntry;
-import com.energyict.mdc.protocol.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

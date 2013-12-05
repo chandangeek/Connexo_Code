@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 
 import java.math.BigDecimal;

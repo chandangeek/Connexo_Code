@@ -3,8 +3,8 @@ package com.energyict.protocolimpl.dlms.as220.plc;
 import com.energyict.dlms.cosem.SFSKMacCounters;
 import com.energyict.dlms.cosem.attributes.SFSKMacCountersAttribute;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractDLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 

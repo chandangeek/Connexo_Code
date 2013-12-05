@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 

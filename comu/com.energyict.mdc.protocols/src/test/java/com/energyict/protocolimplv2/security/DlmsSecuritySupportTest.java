@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.cbo.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
 import org.fest.assertions.core.Condition;

@@ -7,8 +7,8 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 import java.io.IOException;
 import java.util.Date;

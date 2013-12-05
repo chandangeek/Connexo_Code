@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
-import com.energyict.mdc.protocol.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.MeteringWarehouse;
 

@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.serialserviceprovider.SerialPort;
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 
@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 /**
  * Serves as an implementation of a SerialCommunicationChannel wrapped around a
- * {@link com.energyict.mdc.protocol.ComChannel}
+ * {@link ComChannel}
  *
  * Copyrights EnergyICT
  * Date: 14/05/13

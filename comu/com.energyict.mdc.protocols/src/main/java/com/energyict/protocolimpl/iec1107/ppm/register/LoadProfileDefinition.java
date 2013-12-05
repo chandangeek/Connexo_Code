@@ -6,7 +6,7 @@ package com.energyict.protocolimpl.iec1107.ppm.register;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;

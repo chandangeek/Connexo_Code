@@ -12,7 +12,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.LookupResources;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.device.data.MeterDataReadout;
+import com.energyict.mdc.protocol.api.device.data.MeterDataReadout;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterId;

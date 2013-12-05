@@ -8,10 +8,10 @@ package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.edmi.mk10.MK10Push;
-import com.energyict.mdc.protocol.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.device.data.MeterUsageData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.MeterUsageData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;

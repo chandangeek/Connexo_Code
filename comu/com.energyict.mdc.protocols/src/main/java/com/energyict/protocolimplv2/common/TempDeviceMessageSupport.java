@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.Collections;

@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.protocol.LogBookReader;
-import com.energyict.mdc.protocol.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.util.List;

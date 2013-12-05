@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter2;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PowerDownCounter;

@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 import com.energyict.protocolimpl.siemens7ED62.SCTMProfileSingleBuffer;
 /**
  *

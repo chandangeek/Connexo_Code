@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.CM32;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 import java.io.IOException;
 import java.util.Date;

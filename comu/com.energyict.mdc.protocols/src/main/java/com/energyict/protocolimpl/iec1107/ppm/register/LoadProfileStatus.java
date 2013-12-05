@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppm.register;
 
-import com.energyict.mdc.protocol.device.data.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 
 /**
  * can parse a status from a byte, and display itself.

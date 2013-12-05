@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.registermappping;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command.CurrentSeasonCumulativeDemandDataDXCommand;

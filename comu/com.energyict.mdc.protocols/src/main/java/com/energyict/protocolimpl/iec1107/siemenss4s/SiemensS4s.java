@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.iec1107.siemenss4s;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;

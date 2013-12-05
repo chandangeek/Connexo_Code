@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.wavesense.core;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
 import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.ModuleType;

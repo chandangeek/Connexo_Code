@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.channels.ip;
 
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ComPortType;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.protocol.dynamic.ConnectionProperty;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 

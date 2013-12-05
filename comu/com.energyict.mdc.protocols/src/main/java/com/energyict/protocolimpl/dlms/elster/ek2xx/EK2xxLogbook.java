@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Date;

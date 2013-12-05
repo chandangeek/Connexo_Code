@@ -3,19 +3,19 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.LoadProfileReader;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.MessageEntry;
-import com.energyict.mdc.protocol.device.data.MessageResult;
-import com.energyict.mdc.protocol.device.data.MeterData;
-import com.energyict.mdc.protocol.device.data.MeterDataMessageResult;
-import com.energyict.mdc.protocol.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.data.Register;
-import com.energyict.mdc.protocol.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -236,7 +236,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * </p>
      *
      * @param loadProfiles a list of {@link LoadProfileReader}s which have to be read
-     * @return a list of {@link com.energyict.mdc.protocol.device.data.ProfileData}s containing interval records
+     * @return a list of {@link com.energyict.mdc.protocol.api.device.data.ProfileData}s containing interval records
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {

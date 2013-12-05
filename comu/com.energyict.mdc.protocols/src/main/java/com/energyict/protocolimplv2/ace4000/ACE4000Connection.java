@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;

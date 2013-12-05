@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
 

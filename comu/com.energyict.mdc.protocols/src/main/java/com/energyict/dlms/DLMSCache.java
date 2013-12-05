@@ -6,7 +6,7 @@
 
 package com.energyict.dlms;
 
-import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 
 import java.io.Serializable;
 
@@ -22,14 +22,14 @@ public class DLMSCache implements DeviceProtocolCache, Serializable {
     public DLMSCache() {
         this(null,-1);
     }
-    
+
     // constructor for the
     public DLMSCache(UniversalObject[] objectList,int confProgChange,boolean changed) {
         this.objectList=objectList;
         this.confProgChange=confProgChange;
         this.changed=changed;
     }
-    
+
     public DLMSCache(UniversalObject[] objectList,int confProgChange) {
         this.objectList=objectList;
         this.confProgChange=confProgChange;
@@ -43,14 +43,14 @@ public class DLMSCache implements DeviceProtocolCache, Serializable {
         setChanged(true);
     }
     public UniversalObject[] getObjectList () {
-        return objectList;   
+        return objectList;
     }
     public void setConfProgChange(int confProgChange) {
         this.confProgChange=confProgChange;
         setChanged(true);
     }
     public int getConfProgChange() {
-        return confProgChange;   
+        return confProgChange;
     }
     @Override
     public boolean contentChanged() {

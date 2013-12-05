@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.TimeZone;

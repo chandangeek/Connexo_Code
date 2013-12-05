@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.device.data.IntervalData;
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.EventLogUpload;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.EventRecordType;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.MassMemory;

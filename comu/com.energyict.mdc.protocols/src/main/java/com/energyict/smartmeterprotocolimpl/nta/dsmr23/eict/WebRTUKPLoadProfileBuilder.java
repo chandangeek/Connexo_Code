@@ -6,7 +6,7 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;

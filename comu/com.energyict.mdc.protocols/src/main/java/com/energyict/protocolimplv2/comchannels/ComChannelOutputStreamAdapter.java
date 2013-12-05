@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.comchannels;
 
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.api.ComChannel;
 
 import java.io.IOException;
 import java.io.OutputStream;

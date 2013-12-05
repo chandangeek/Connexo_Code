@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.mdc.protocol.device.data.ProfileData;
-import com.energyict.mdc.protocol.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Calendar;
 import java.util.Date;

@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.instromet.v444.tables;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;

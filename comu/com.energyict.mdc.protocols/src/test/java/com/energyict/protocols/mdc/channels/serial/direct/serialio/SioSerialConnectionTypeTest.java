@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.serial.direct.serialio;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.protocol.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
 import org.junit.*;
 

@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.modbus.core;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;

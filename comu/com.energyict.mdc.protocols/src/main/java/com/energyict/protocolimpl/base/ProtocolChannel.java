@@ -8,7 +8,7 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocol.InvalidPropertyException;
 
 import java.math.BigDecimal;

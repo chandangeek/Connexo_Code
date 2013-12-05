@@ -4,13 +4,13 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier} interface
- * that uses a device's {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} and the {@link ObisCode} of the logbook to identify it
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier} interface
+ * that uses a device's {@link DeviceIdentifier} and the {@link ObisCode} of the logbook to identify it
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/05/13
@@ -47,7 +47,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements CanFindLogBook {
 
     /**
      * Check if the given {@link Object} is equal to this {@link LogBookIdentifierByObisCodeAndDevice}. <BR>
-     * WARNING: if comparing with a {@link com.energyict.mdc.protocol.device.data.identifiers.LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
+     * WARNING: if comparing with a {@link com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
      * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdw.core.LogBook}!
      */
     public boolean equals(Object o) {

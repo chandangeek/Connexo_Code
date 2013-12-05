@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import com.energyict.mdc.protocol.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocol.ProtocolUtils;
 
 public class EK2xxEvents {

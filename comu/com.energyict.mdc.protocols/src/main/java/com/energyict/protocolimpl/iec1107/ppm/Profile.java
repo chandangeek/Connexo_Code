@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.iec1107.ppm;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppm.opus.OpusProfileParser;
 import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileParser;
