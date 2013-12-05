@@ -1,5 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.elster.jupiter.ids.FieldType.DATE;
+import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
+import static com.elster.jupiter.ids.FieldType.NUMBER;
+import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.time.MutableDateTime;
+
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -8,14 +19,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
-import org.joda.time.MutableDateTime;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.elster.jupiter.ids.FieldType.*;
-import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 public class InstallerImpl {
 
@@ -134,13 +137,9 @@ public class InstallerImpl {
     }
 
     private void createReadingTypes() {
-        new ReadingTypeImpl("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "15m Active+ kWh").persist();
-        new ReadingTypeImpl("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "15m Active- kWh").persist();
-        new ReadingTypeImpl("0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "15m Active Net kWh").persist();
-        new ReadingTypeImpl("0.0.2.4.2.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive+ kVArh").persist();
-        new ReadingTypeImpl("0.0.2.4.3.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive- kVArh").persist();
-        new ReadingTypeImpl("0.0.2.4.20.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive Total kVArh").persist();
-        new ReadingTypeImpl("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "Total Import kWh").persist();
+    	for (ReadingTypeImpl readingType : ReadingTypeGenerator.generate()) {
+    		readingType.persist();
+    	}
     }
 
     private void createPartyRoles(PartyService partyService) {

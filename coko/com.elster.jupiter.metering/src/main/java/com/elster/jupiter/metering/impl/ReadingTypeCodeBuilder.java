@@ -111,6 +111,10 @@ public class ReadingTypeCodeBuilder {
 		return this;		
 	}
 	
+	public ReadingTypeCodeBuilder in (ReadingTypeUnit unit) {
+		return in(MetricMultiplier.ZERO,unit);
+	}
+	
 	String code() {
 		return 
 			"" +
