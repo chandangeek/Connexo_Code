@@ -1,0 +1,15 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package: com.energyict.mdc.protocol,\
+        com.energyict.mdc.protocol.cim,\
+        com.energyict.mdc.protocol.device,\
+        com.energyict.mdc.protocol.device.data,\
+        com.energyict.mdc.protocol.device.data.identifiers,\
+        com.energyict.mdc.protocol.device.events,\
+        com.energyict.mdc.protocol.device.messages,\
+        com.energyict.mdc.protocol.device.offline,\
+        com.energyict.mdc.protocol.dynamic,\
+        com.energyict.mdc.protocol.inbound,\
+        com.energyict.mdc.protocol.security,\
+        com.energyict.mdc.protocol.tasks,\
+        com.energyict.mdc.protocol.tasks.support
