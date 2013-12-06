@@ -14,8 +14,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -27,12 +25,13 @@ import javax.ws.rs.core.Response;
 @Path("/devicediscoveryprotocols")
 public class DeviceDiscoveryProtocolsResource {
 
-    @Inject
-    private InboundDeviceProtocolService inboundDeviceProtocolService;
-    @Inject
-    private InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
+    private final InboundDeviceProtocolService inboundDeviceProtocolService;
+    private final InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
 
-    public DeviceDiscoveryProtocolsResource(@Context Application application) {
+    @Inject
+    public DeviceDiscoveryProtocolsResource(InboundDeviceProtocolService inboundDeviceProtocolService, InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService) {
+        this.inboundDeviceProtocolService = inboundDeviceProtocolService;
+        this.inboundDeviceProtocolPluggableClassService = inboundDeviceProtocolPluggableClassService;
     }
 
     @GET

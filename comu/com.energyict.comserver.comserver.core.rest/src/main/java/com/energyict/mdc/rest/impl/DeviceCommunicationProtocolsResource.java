@@ -29,14 +29,15 @@ import javax.ws.rs.core.UriInfo;
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 
-    @Inject
-    private DeviceProtocolService deviceProtocolService;
-    @Inject
-    private DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
-    @Inject
-    private LicensedProtocolService licensedProtocolService;
+    private final DeviceProtocolService deviceProtocolService;
+    private final DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
+    private final LicensedProtocolService licensedProtocolService;
 
-    public DeviceCommunicationProtocolsResource() {
+    @Inject
+    public DeviceCommunicationProtocolsResource(DeviceProtocolService deviceProtocolService, DeviceProtocolPluggableClassService deviceProtocolPluggableClassService, LicensedProtocolService licensedProtocolService) {
+        this.deviceProtocolService = deviceProtocolService;
+        this.deviceProtocolPluggableClassService = deviceProtocolPluggableClassService;
+        this.licensedProtocolService = licensedProtocolService;
     }
 
     @GET
