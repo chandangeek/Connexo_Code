@@ -108,7 +108,7 @@ public class FieldResource {
     @GET
     @Path("/nrOfStopBits")
     public Object getNrOfStopBits() {
-        return asJsonArrayObject("noOfStopBits", NrOfStopBits.values());
+        return asJsonArrayObject("nrOfStopBits", NrOfStopBits.values());
     }
 
     @GET
