@@ -5,6 +5,7 @@ Ext.define('Uni.view.navigation.Header', {
     requires: [
         'Uni.view.navigation.AppSwitcher',
         'Uni.view.navigation.Logo',
+        'Uni.view.search.Basic',
         'Uni.view.search.Quick',
         'Uni.view.notifications.Anchor',
         'Uni.view.navigation.Help',
@@ -18,26 +19,37 @@ Ext.define('Uni.view.navigation.Header', {
     cls: 'nav-header',
     height: 40,
 
+    /**
+     * Most items here have been disabled until their respective stories are fully developed.
+     * Also see: http://jira.eict.vpdc/browse/JP-651
+     */
     items: [
-        {
-            xtype: 'navigationAppSwitcher'
-        },
+//        {
+//            xtype: 'navigationAppSwitcher'
+//        },
         {
             xtype: 'navigationLogo'
         },
         {
-            xtype: 'searchQuick',
+            xtype: 'component',
             flex: 1
         },
         {
-            xtype: 'notificationsAnchor'
-        },
-        {
-            xtype: 'navigationHelp'
-        },
-        {
-            xtype: 'userMenu'
+            xtype: 'searchBasic'
         }
+//        {
+//            xtype: 'searchQuick',
+//            flex: 1
+//        }
+//        {
+//            xtype: 'notificationsAnchor'
+//        },
+//        {
+//            xtype: 'navigationHelp'
+//        },
+//        {
+//            xtype: 'userMenu'
+//        }
     ],
 
     initComponent: function () {

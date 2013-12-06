@@ -17,10 +17,17 @@ Ext.define('Uni.controller.Search', {
             'searchQuick #searchButton': {
                 click: this.onClickSearchButton
             },
+            'searchButton': {
+                click: this.onClickBasicSearchButton
+            },
             'searchQuick #searchField': {
                 specialkey: this.onEnterSearchField
             }
         });
+    },
+
+    onClickBasicSearchButton: function () {
+        this.getApplication().fireEvent('showadvancedsearchevent');
     },
 
     onClickSearchButton: function () {
