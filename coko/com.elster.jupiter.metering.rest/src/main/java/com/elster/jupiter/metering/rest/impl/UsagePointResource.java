@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -145,15 +146,15 @@ public class UsagePointResource {
     	if (from == 0 || to == 0) {
     		throw new WebApplicationException(Response.Status.BAD_REQUEST);
     	}
-        return doGetIntervalreadings(id, activationId, channelId, securityContext, new Date(from), new Date(to));
+        return doGetIntervalreadings(id, activationId, channelId, securityContext, new Interval(new Date(from), new Date(to)));
     }
 
-    private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Date fromDate, Date toDate) {
+    private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Interval interval) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannels()) {
             if (channel.getId() == channelId) {
-                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(fromDate, toDate);
+                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(interval);
                 return new ReadingInfos(intervalReadings);
             }
         }
@@ -184,10 +185,10 @@ public class UsagePointResource {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        return doGetReadingTypeReadings(id, mRID, new Date(from), new Date(to), securityContext);
+        return doGetReadingTypeReadings(id, mRID, new Interval(new Date(from), new Date(to)), securityContext);
     }
 
-    private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Date fromDate, Date toDate, SecurityContext securityContext) {
+    private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Interval interval, SecurityContext securityContext) {
         ReadingType readingType = null;
         List<IntervalReadingRecord> readings = new ArrayList<>();
         for (MeterActivation meterActivation : meterActivationsForReadingTypeWithMRID(id, mRID, securityContext)) {
@@ -195,7 +196,7 @@ public class UsagePointResource {
                 readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(mRID)).get();
             }
             for (Channel channel : meterActivation.getChannels()) {
-                readings.addAll(channel.getIntervalReadings(readingType, fromDate, toDate));
+                readings.addAll(channel.getIntervalReadings(readingType, interval));
             }
         }
         return new ReadingInfos(readings);
