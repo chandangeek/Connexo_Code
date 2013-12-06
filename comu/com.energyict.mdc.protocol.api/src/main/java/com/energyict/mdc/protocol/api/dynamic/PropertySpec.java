@@ -30,11 +30,19 @@ public interface PropertySpec<T> {
     public ValueFactory<T> getValueFactory ();
 
     /**
-     * Tests if this a value will be required for this PropertySpec.
+     * Tests if a value will be required for this PropertySpec.
      *
      * @return true iff a value will be required
      */
     public boolean isRequired ();
+
+    /**
+     * Tests if a value for this PropertySpec is actually
+     * a reference to {@link com.energyict.mdc.common.BusinessObject}.
+     *
+     * @return true iff values of this PropertySpec are BusinessObjects
+     */
+    public boolean isReference ();
 
     /**
      * Validates the specified value against this PropertySpec.

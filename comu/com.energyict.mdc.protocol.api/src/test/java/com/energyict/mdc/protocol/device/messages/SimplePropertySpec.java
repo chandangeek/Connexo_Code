@@ -37,6 +37,11 @@ public class SimplePropertySpec<T> implements PropertySpec<T> {
     }
 
     @Override
+    public boolean isReference () {
+        return false;
+    }
+
+    @Override
     public boolean validateValue (T value) throws InvalidValueException {
         return true;
     }
