@@ -1,20 +1,20 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.InboundComPortPool;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.ServletBasedInboundComPort;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
