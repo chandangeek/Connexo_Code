@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
@@ -9,18 +8,19 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,9 +31,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -70,7 +74,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         return new AbstractModemTests.TestableSerialComChannel(serialPort);
     }
 
-    private List<ConnectionTaskProperty> getProperProperties() {
+    private List<ConnectionProperty> getProperProperties (ComPort comPort) {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.COMMAND_TIMEOUT);
@@ -91,9 +95,22 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         phoneNumber.setValue(PHONE_NUMBER);
         ConnectionTaskPropertyImpl modemConfigurationKey = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.MODEM_CONFIGURATION_KEY);
         modemConfigurationKey.setValue(MODEM_CONFIGURATION_KEY);
+        ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
+        when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
+        when(comPortConnectionProperty.getValue()).thenReturn(comPort);
 
-        return Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries, atModemInitStrings,
-                delayAfterConnect, connectTimeOut, dialPrefix, dtrToggleDelay, phoneNumber, modemConfigurationKey);
+        return Arrays.asList(
+                delayBeforeSendProperty,
+                atCommandTimeout,
+                atCommandTries,
+                atModemInitStrings,
+                delayAfterConnect,
+                connectTimeOut,
+                dialPrefix,
+                dtrToggleDelay,
+                phoneNumber,
+                modemConfigurationKey,
+                comPortConnectionProperty);
     }
 
     private ComPort getProperlyMockedComPort(AbstractModemTests.TestableSerialComChannel serialComChannel, SioSerialPort sioSerialPort) throws Exception {
@@ -107,8 +124,6 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFails() throws Exception {
-        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
-        when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "\r\n*\r\n",
                 "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse",
@@ -117,11 +132,13 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
                 "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse", "NotValidResponse"));
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(serialComChannel, sioSerialPort);
+        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(comPort)));
+        when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
 
         SioPEMPModemConnectionType modemConnectionType = new SioPEMPModemConnectionType();
 
         try {
-            modemConnectionType.connect(getProperProperties());
+            modemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-215")) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
@@ -133,17 +150,17 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFailsWithTimeout() throws Exception {
-        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
-        when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "\r\n*\r\n"));
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(serialComChannel, sioSerialPort);
+        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(comPort)));
+        when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
 
         SioPEMPModemConnectionType modemConnectionType = new SioPEMPModemConnectionType();
 
         try {
-            modemConnectionType.connect(getProperProperties());
+            modemConnectionType.connect(getProperProperties(comPort));
         } catch (ModemException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-205")) {
                 fail("Should have gotten exception indicating a timeout, but was " + e.getMessage());
@@ -160,11 +177,11 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties())));
+        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
-        modemConnectionType.connect(getProperProperties());
+        modemConnectionType.connect(getProperProperties(comPort));
 
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);
     }
@@ -176,11 +193,11 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties())));
+        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
-        modemConnectionType.connect(getProperProperties());
+        modemConnectionType.connect(getProperProperties(comPort));
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);
@@ -193,11 +210,11 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties())));
+        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
-        modemConnectionType.connect(getProperProperties());
+        modemConnectionType.connect(getProperProperties(comPort));
 
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);

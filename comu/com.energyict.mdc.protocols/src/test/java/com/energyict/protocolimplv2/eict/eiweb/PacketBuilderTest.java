@@ -3,16 +3,16 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.api.device.data.CollectedAddressProperties;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdw.core.Device;
+import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import org.fest.assertions.core.Condition;
 import org.junit.*;
 import org.junit.runner.*;
@@ -328,7 +328,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
         InputStream is = new ByteArrayInputStream(os.toByteArray());
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
-        when(inboundDAO.getDeviceConnectionTypeProperties(any(DeviceIdentifier.class), eq(comPort))).thenReturn(TypedProperties.empty());
+        when(inboundDAO.getDeviceConnectionTypeProperties(any(CanFindDevice.class), eq(comPort))).thenReturn(TypedProperties.empty());
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(inboundDAO, comPort));
 
         // Business method
@@ -364,7 +364,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
         InputStream is = new ByteArrayInputStream(os.toByteArray());
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
-        when(inboundDAO.getDeviceConnectionTypeProperties(any(DeviceIdentifier.class), eq(comPort))).thenReturn(TypedProperties.empty());
+        when(inboundDAO.getDeviceConnectionTypeProperties(any(CanFindDevice.class), eq(comPort))).thenReturn(TypedProperties.empty());
         PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(inboundDAO, comPort));
 
         // Business method
@@ -402,7 +402,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, "mac-address");
-        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
 
         InboundComPort comPort = mock(InboundComPort.class);

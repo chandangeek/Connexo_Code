@@ -1,12 +1,12 @@
 package com.energyict.protocols.mdc.channels.ip.datagrams;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
- * Tests the properties of the {@link com.energyict.protocols.mdc.channels.ip.datagrams.OutboundUdpConnectionType} component.
+ * Tests the properties of the {@link OutboundUdpConnectionType} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-22 (13:56)
@@ -14,56 +14,19 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class UdpConnectionTypePropertiesTest {
 
     @Test
-    public void testGetOptionalPropertiesIsNotNull () {
+    public void testGetPropertiesisNotNull () {
         OutboundUdpConnectionType connectionType = new OutboundUdpConnectionType();
-        assertThat(connectionType.getOptionalProperties()).isNotNull();
+        assertThat(connectionType.getPropertySpecs()).isNotNull();
     }
 
     @Test
-    public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
+    public void testAllPropertiesAreReturnedByGetPropertySpec () {
         OutboundUdpConnectionType connectionType = new OutboundUdpConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
+        for (PropertySpec optionalPropertySpec : connectionType.getPropertySpecs()) {
             assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).
                     as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
                     isNotNull();
             assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
-        }
-    }
-
-    @Test
-    public void testOptionalPropertiesAreNotRequired () {
-        OutboundUdpConnectionType connectionType = new OutboundUdpConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.isRequiredProperty(optionalPropertySpec.getName())).
-                    as("Optional property " + optionalPropertySpec.getName() + " is not expected to be required").
-                    isFalse();
-        }
-    }
-
-    @Test
-    public void testGetRequiredPropertiesIsNotNull () {
-        OutboundUdpConnectionType connectionType = new OutboundUdpConnectionType();
-        assertThat(connectionType.getRequiredProperties()).isNotNull();
-    }
-
-    @Test
-    public void testAllRequiredPropertiesAreReturnedByGetPropertySpec () {
-        OutboundUdpConnectionType connectionType = new OutboundUdpConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).
-                    as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
-        }
-    }
-
-    @Test
-    public void testRequiredPropertiesAreRequired () {
-        OutboundUdpConnectionType connectionType = new OutboundUdpConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.isRequiredProperty(requiredPropertySpec.getName())).
-                    as("Optional property " + requiredPropertySpec.getName() + " is expected to be required").
-                    isTrue();
         }
     }
 

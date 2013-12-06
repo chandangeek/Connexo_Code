@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.channels.serial.modem.rxtx;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
@@ -8,18 +7,19 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
-import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,9 +31,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link com.energyict.protocols.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType} component
@@ -76,7 +81,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         return new AbstractModemTests.TimeoutSerialComChannel(serialPort, sleepTime);
     }
 
-    private List<ConnectionTaskProperty> getProperProperties() {
+    private List<ConnectionProperty> getProperProperties (ComPort comPort) {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
@@ -97,9 +102,22 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         postDialCommands.setValue("");
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME);
         phoneNumber.setValue(PHONE_NUMBER);
+        ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
+        when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
+        when(comPortConnectionProperty.getValue()).thenReturn(comPort);
 
-        return Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries, atModemInitStrings,
-                delayAfterConnect, connectTimeOut, dialPrefix, addressSelector, postDialCommands, phoneNumber);
+        return Arrays.asList(
+                delayBeforeSendProperty,
+                atCommandTimeout,
+                atCommandTries,
+                atModemInitStrings,
+                delayAfterConnect,
+                connectTimeOut,
+                dialPrefix,
+                addressSelector,
+                postDialCommands,
+                phoneNumber,
+                comPortConnectionProperty);
     }
 
     private ComPort getProperlyMockedComPort(AbstractModemTests.TestableSerialComChannel serialComChannel, RxTxSerialPort rxTxSerialPort) throws Exception {
@@ -116,12 +134,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(serialComChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = new AtModemComponent(new TypedAtModemProperties(getProperProperties()));
+        AtModemComponent atModemComponent = new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort)));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
 
         RxTxAtModemConnectionType atModemConnectionType = new RxTxAtModemConnectionType();
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating the hang up of the modem failed, but was " + e.getMessage());
@@ -137,13 +155,13 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(serialComChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = new AtModemComponent(new TypedAtModemProperties(getProperProperties()));
+        AtModemComponent atModemComponent = new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort)));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
 
         RxTxAtModemConnectionType atModemConnectionType = new RxTxAtModemConnectionType();
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
@@ -160,11 +178,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties(comPort));
 
         verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
     }
@@ -176,11 +194,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties(comPort));
 
         verify(atModemComponent, times(1)).reStoreProfile(comChannel);
     }
@@ -192,13 +210,13 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = new AtModemComponent(new TypedAtModemProperties(getProperProperties()));
+        AtModemComponent atModemComponent = new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort)));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
 
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-206")) {
                 fail("Should have gotten exception indicating that the modem could not restore his default profile, but was " + e.getMessage());
@@ -221,7 +239,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(3));
-        List<ConnectionTaskProperty> properties = Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries);
+        List<ConnectionProperty> properties = Arrays.<ConnectionProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries);
 
         AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(properties)));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
@@ -229,7 +247,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
 
         final int numberOfTries = 3;
         try {
-            atModemConnectionType.connect(comPort, properties);
+            atModemConnectionType.connect(properties);
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
@@ -247,11 +265,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties(comPort));
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
     }
@@ -264,12 +282,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
@@ -286,7 +304,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        List<ConnectionTaskProperty> properProperties = new ArrayList<ConnectionTaskProperty>();
+        List<ConnectionProperty> properProperties = new ArrayList<ConnectionProperty>();
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         properProperties.add(delayBeforeSendProperty);
@@ -323,7 +341,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
 
-        atModemConnectionType.connect(comPort, properProperties);
+        atModemConnectionType.connect(properProperties);
 
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
         verify(atModemComponent, times(3)).writeSingleInitString(any(ComChannel.class), any(String.class));
@@ -336,12 +354,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
                 fail("Should have gotten exception indicating that the modem received a BUSY signal, but was " + e.getMessage());
@@ -361,12 +379,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-209")) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
@@ -386,12 +404,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-210")) {
                 fail("Should have gotten exception indicating that the modem received a NO ANSWER signal, but was " + e.getMessage());
@@ -412,12 +430,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-211")) {
                 fail("Should have gotten exception indicating that the modem received a NO CARRIER signal, but was " + e.getMessage());
@@ -437,12 +455,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-212")) {
                 fail("Should have gotten exception indicating that the modem received a NO DIALTONE signal, but was " + e.getMessage());
@@ -462,11 +480,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties(comPort));
 
         verify(atModemComponent, times(1)).dialModem(comChannel);
     }
@@ -478,12 +496,12 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
         try {
-            atModemConnectionType.connect(comPort, getProperProperties());
+            atModemConnectionType.connect(getProperProperties(comPort));
         } catch (ConnectionException e) {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
                 fail("Should have gotten exception indicating that the connect failed with a busy command, but was " + e.getMessage());
@@ -501,11 +519,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties())));
+        AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(getProperProperties(comPort))));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, getProperProperties());
+        atModemConnectionType.connect(getProperProperties(comPort));
 
         verify(atModemComponent, times(1)).dialModem(comChannel);
         verify(atModemComponent, never()).sendAddressSelector(comChannel);
@@ -518,8 +536,8 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
-        List<ConnectionTaskProperty> properProperties = getProperProperties();
-        for (ConnectionTaskProperty properProperty : properProperties) {
+        List<ConnectionProperty> properProperties = getProperProperties(comPort);
+        for (ConnectionProperty properProperty : properProperties) {
             if (properProperty.getName().equals(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR)) {
                 ((ConnectionTaskPropertyImpl) properProperty).setValue("AddressSelect_01");
             }
@@ -528,7 +546,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
         RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
 
-        atModemConnectionType.connect(comPort, properProperties);
+        atModemConnectionType.connect(properProperties);
 
         verify(atModemComponent, times(1)).dialModem(comChannel);
         verify(atModemComponent, times(1)).sendAddressSelector(comChannel);

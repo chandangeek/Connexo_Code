@@ -1,17 +1,17 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.cryptoimpl.KeyStoreDataVaultProvider;
 import com.energyict.mdw.cryptoimpl.SecureRandomProvider;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -39,16 +39,15 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwe
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -349,7 +348,7 @@ public class EIWebMessageConverterTest extends AbstractEIWebTests{
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             propertyStorage.setProperty(propertySpec.getName(), "1");
-            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), new EIWeb()));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(message, new DeviceMessageAttributeImpl(propertySpec, null, propertyStorage), new EIWeb()));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);
@@ -361,4 +360,5 @@ public class EIWebMessageConverterTest extends AbstractEIWebTests{
         when(mock.getTrackingId()).thenReturn("");
         return mock;
     }
+
 }

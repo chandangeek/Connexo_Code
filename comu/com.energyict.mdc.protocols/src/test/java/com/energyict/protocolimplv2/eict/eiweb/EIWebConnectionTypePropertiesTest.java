@@ -27,54 +27,19 @@ public class EIWebConnectionTypePropertiesTest  extends AbstractEIWebTests{
     }
 
     @Test
-    public void testGetOptionalPropertiesIsNotNull () {
+    public void testGetPropertiesIsNotNull () {
         EIWebConnectionType connectionType = new EIWebConnectionType();
-        assertThat(connectionType.getOptionalProperties()).isNotNull();
+        assertThat(connectionType.getPropertySpecs()).isNotNull();
     }
 
     @Test
-    public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
+    public void testAllPropertiesAreReturnedByGetPropertySpec () {
         EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).
-                    as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
+        for (PropertySpec propertySpec : connectionType.getPropertySpecs()) {
+            assertThat(connectionType.getPropertySpec(propertySpec.getName())).
+                    as("Property " + propertySpec.getName() + " is not returned by getPropertySpec").
                     isNotNull();
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
-        }
-    }
-
-    @Test
-    public void testOptionalPropertiesAreNotRequired () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.isRequiredProperty(optionalPropertySpec.getName())).isFalse();
-        }
-    }
-
-    @Test
-    public void testGetRequiredPropertiesIsNotNull () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        assertThat(connectionType.getRequiredProperties()).isNotNull();
-    }
-
-    @Test
-    public void testAllRequiredPropertiesAreReturnedByGetPropertySpec () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).
-                    as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
-                    isNotNull();
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
-        }
-    }
-
-    @Test
-    public void testRequiredPropertiesAreRequired () {
-        EIWebConnectionType connectionType = new EIWebConnectionType();
-        for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.isRequiredProperty(requiredPropertySpec.getName())).
-                    as("Optional property " + requiredPropertySpec.getName() + " is expected to be required").
-                    isTrue();
+            assertThat(connectionType.getPropertySpec(propertySpec.getName())).isEqualTo(propertySpec);
         }
     }
 

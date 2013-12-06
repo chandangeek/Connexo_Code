@@ -1,22 +1,24 @@
 package com.energyict.protocols.mdc.channels.ip.datagrams;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-import org.junit.Test;
+import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
+import org.junit.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.*;
-import java.util.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Tests for the {@link com.energyict.protocols.mdc.channels.ip.datagrams.OutboundUdpConnectionType} component
@@ -28,17 +30,14 @@ import static org.mockito.Mockito.mock;
 public class OutboundUdpConnectionTypeTest {
 
     public static final int PORT_NUMBER = 8080;
-    public static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 2;
     public static final int BUFFER_SIZE = 1024;
 
 
     @Test(expected = SocketException.class, timeout = 8000)
     public void udpSessionToUnknownHostTest() throws ConnectionException, SocketException {
         OutboundUdpConnectionType udpConnectionType = new OutboundUdpConnectionType();
-        ComPort comPort = getMockedComPort();
 
-
-        ArrayList<ConnectionTaskProperty> properties = new ArrayList<ConnectionTaskProperty>(0);
+        ArrayList<ConnectionProperty> properties = new ArrayList<>(0);
         ConnectionTaskPropertyImpl hostProperty = new ConnectionTaskPropertyImpl(OutboundUdpConnectionType.HOST_PROPERTY_NAME);
         hostProperty.setValue("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet");
         properties.add(hostProperty);
@@ -74,7 +73,7 @@ public class OutboundUdpConnectionTypeTest {
         ComChannel comChannel = null;
         try {
             // Business method
-            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionProperty>(0));
 
             socketCloseLatch.await();
 
@@ -106,7 +105,7 @@ public class OutboundUdpConnectionTypeTest {
         try {
             startLatch.await();
             // Business method
-            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionProperty>(0));
             comChannel.write(firstRequest.getBytes());
 
             comChannel.startReading();
@@ -144,12 +143,8 @@ public class OutboundUdpConnectionTypeTest {
         properties.setProperty(OutboundIpConnectionType.HOST_PROPERTY_NAME, "localhost");
         properties.setProperty(OutboundIpConnectionType.PORT_PROPERTY_NAME, new BigDecimal(PORT_NUMBER));
         properties.setProperty(OutboundUdpConnectionType.BUFFER_SIZE_NAME, new BigDecimal(BUFFER_SIZE));
-        connectionType.addProperties(properties);
+        connectionType.copyProperties(properties);
         return connectionType;
-    }
-
-    private ComPort getMockedComPort() {
-        return mock(ComPort.class);
     }
 
     private void close (ComChannel comChannel) {
@@ -197,8 +192,8 @@ public class OutboundUdpConnectionTypeTest {
         private CountDownLatch finishLatch;
         private CountDownLatch startLatch;
 
-        public UdpServer(CountDownLatch socketCloseLatch, CountDownLatch finishLatch, CountDownLatch startLatch) {
-            this.sendAnswers = new ArrayList<String>();
+        private UdpServer (CountDownLatch socketCloseLatch, CountDownLatch finishLatch, CountDownLatch startLatch) {
+            this.sendAnswers = new ArrayList<>();
             this.socketCloseLatch = socketCloseLatch;
             this.finishLatch = finishLatch;
             this.startLatch = startLatch;

@@ -165,7 +165,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
             this.clientId = clientId;
         }
 
-        private int getAccessLevel () {
+        protected int getAccessLevel () {
             return this.accessLevel;
         }
 

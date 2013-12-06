@@ -1,23 +1,21 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
 import com.energyict.cbo.TimeConstants;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
 import com.energyict.comserver.monitor.EventAPIStatistics;
 import com.energyict.comserver.monitor.ManagementBeanFactory;
 import com.energyict.comserver.monitorimpl.ComServerMonitor;
 import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
 import com.energyict.comserver.scheduling.RunningComServer;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -28,7 +26,6 @@ import java.util.ArrayList;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -58,9 +55,8 @@ public class OutboundTcpIpConnectionTypeTest {
     @Test(expected = UnknownHostException.class)
     public void testConnectToUnknownHost () throws Throwable {
         OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
-        ComPort comPort = getMockedComPort();
 
-        ArrayList<ConnectionTaskProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
+        ArrayList<ConnectionProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
 
         try {
             // Business method
@@ -77,10 +73,9 @@ public class OutboundTcpIpConnectionTypeTest {
     @Test
     public void testTimeoutIsRespected () throws SocketTimeoutException {
         OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
-        ComPort comPort = getMockedComPort();
 
         int timeOut = 1;    // seconds
-        ArrayList<ConnectionTaskProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
+        ArrayList<ConnectionProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
         long timeBeforeConnect = System.currentTimeMillis();
 
         try {
@@ -98,8 +93,8 @@ public class OutboundTcpIpConnectionTypeTest {
         }
     }
 
-    private ArrayList<ConnectionTaskProperty> getConnectionProperties (String hostName, int port, int timeOut) {
-        ArrayList<ConnectionTaskProperty> properties = new ArrayList<>(0);
+    private ArrayList<ConnectionProperty> getConnectionProperties (String hostName, int port, int timeOut) {
+        ArrayList<ConnectionProperty> properties = new ArrayList<>(0);
         ConnectionTaskPropertyImpl hostProperty = new ConnectionTaskPropertyImpl(OutboundIpConnectionType.HOST_PROPERTY_NAME);
         hostProperty.setValue(hostName);
         properties.add(hostProperty);
@@ -112,10 +107,6 @@ public class OutboundTcpIpConnectionTypeTest {
         return properties;
     }
 
-    private ComPort getMockedComPort() {
-        return mock(ComPort.class);
-    }
-
     @Test
     public void testConnectToJira () throws ConnectionException {
         OutboundTcpIpConnectionType connectionType = this.newTcpIpConnectionType();
@@ -123,7 +114,7 @@ public class OutboundTcpIpConnectionTypeTest {
         ComChannel comChannel = null;
         try {
             // Business method
-            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionProperty>(0));
 
             // Asserts
             assertThat(comChannel).isNotNull();
@@ -140,7 +131,7 @@ public class OutboundTcpIpConnectionTypeTest {
         ComChannel comChannel = null;
         try {
             // Business methods
-            comChannel = connectionType.connect(new ArrayList<ConnectionTaskProperty>(0));
+            comChannel = connectionType.connect(new ArrayList<ConnectionProperty>(0));
             comChannel.write("GET / HTTP/1.1\r\n\r\n".getBytes());
             comChannel.startReading();
             byte[] buffer = new byte[100];
@@ -159,7 +150,7 @@ public class OutboundTcpIpConnectionTypeTest {
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(OutboundIpConnectionType.HOST_PROPERTY_NAME, "jira.eict.vpdc");
         properties.setProperty(OutboundIpConnectionType.PORT_PROPERTY_NAME, new BigDecimal(DEFAULT_HTTP_PORT));
-        connectionType.addProperties(properties);
+        connectionType.copyProperties(properties);
         return connectionType;
     }
 
