@@ -1,5 +1,21 @@
 package com.elster.jupiter.metering.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.sql.SQLException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogService;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
@@ -28,26 +44,12 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.units.Unit;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateMidnight;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
 
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointQueryTest {
@@ -135,10 +137,12 @@ public class UsagePointQueryTest {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.setServiceLocation(location);
         usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
+        usagePoint.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
         usagePoint.save();
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
-        Condition condition = Operator.EQUAL.compare("amiBillingReady",AmiBillingReadyKind.AMICAPABLE);
-        condition = condition.and(Operator.EQUAL.compare("serviceLocation.mainAddress.townDetail.country", "BE"));
+        Condition condition = where("amiBillingReady").isEqualTo(AmiBillingReadyKind.AMICAPABLE);
+        condition = condition.and(where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE"));
+        condition = condition.and(where("ratedPower.value").between(BigDecimal.valueOf(999)).and(BigDecimal.valueOf(1001)));
         assertThat(query.select(condition)).hasSize(1);
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
