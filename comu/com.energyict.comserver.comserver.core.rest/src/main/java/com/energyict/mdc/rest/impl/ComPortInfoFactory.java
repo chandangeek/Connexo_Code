@@ -4,6 +4,7 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.ports.OutboundComPort;
+import com.energyict.mdc.ports.ServletBasedInboundComPort;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
@@ -26,6 +27,9 @@ public class ComPortInfoFactory {
         }
         if (UDPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort);
+        }
+        if (ServletBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
+            return new ServletInboundComPortInfo((ServletBasedInboundComPort) comPort);
         }
         throw new IllegalArgumentException("Unsupported InboundComPort type "+comPort.getClass().getSimpleName());
     }
