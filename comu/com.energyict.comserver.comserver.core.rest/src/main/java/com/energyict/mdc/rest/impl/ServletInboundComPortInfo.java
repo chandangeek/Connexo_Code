@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.ServletBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.shadow.ports.KeyStoreShadow;
 import com.energyict.mdc.shadow.ports.ServletBasedInboundComPortShadow;
 
