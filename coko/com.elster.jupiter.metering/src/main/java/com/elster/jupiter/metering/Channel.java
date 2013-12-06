@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import java.util.Date;
@@ -11,15 +12,22 @@ public interface Channel {
 	MeterActivation getMeterActivation();
 	TimeSeries getTimeSeries();
     List<ReadingType> getReadingTypes();
-    List<IntervalReadingRecord> getIntervalReadings(Date from , Date to);
-    List<ReadingRecord> getRegisterReadings(Date from, Date to);
-    List<BaseReadingRecord> getReadings(Date from, Date to);
+    List<IntervalReadingRecord> getIntervalReadings(Interval interval);
+    List<ReadingRecord> getRegisterReadings(Interval interval);
+    List<BaseReadingRecord> getReadings(Interval interval);
 	ReadingType getMainReadingType();
 	ReadingType getCumulativeReadingType();
     long getVersion();
-    List<ReadingRecord> getRegisterReadings(ReadingType readingType, Date from, Date to);
-    List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Date from, Date to);
-    List<BaseReadingRecord> getReadings(ReadingType readingType, Date from, Date to);
+    List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval);
+    List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval);
+    List<BaseReadingRecord> getReadings(ReadingType readingType, Interval interval);
     Optional<BaseReadingRecord> getReading(Date when);
     ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord);
+
+    Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp);
+    List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval);
+
+    List<ReadingQuality> findReadingQuality(Date timestamp);
+    List<ReadingQuality> findReadingQuality(Interval interval);
+
 }

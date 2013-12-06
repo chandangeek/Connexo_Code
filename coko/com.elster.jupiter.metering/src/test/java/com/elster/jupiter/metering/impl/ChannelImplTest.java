@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.joda.time.DateMidnight;
@@ -51,6 +52,7 @@ public class ChannelImplTest extends EqualsContractTest {
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Calcutta");
     private static final Date TO = new DateMidnight(2013, 9, 20, DateTimeZone.forTimeZone(TIME_ZONE)).toDate();
     private static final Date FROM = new DateMidnight(2013, 9, 19, DateTimeZone.forTimeZone(TIME_ZONE)).toDate();
+    private static final Interval INTERVAL = new Interval(FROM, TO);
     private static final long TIMESERIES_ID = 21316L;
     private static final BigDecimal VALUE = BigDecimal.valueOf(3156516, 2);
 
@@ -207,10 +209,10 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetIntervalReadings() {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
-        when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
+        when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(2)).thenReturn(VALUE);
 
-        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(FROM, TO);
+        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(INTERVAL);
 
         assertThat(intervalReadings).hasSize(1);
 
@@ -225,10 +227,10 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetIntervalReadingsForReadingType() {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
-        when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
+        when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
-        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(readingType1, FROM, TO);
+        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(readingType1, INTERVAL);
 
         assertThat(intervalReadings).hasSize(1);
 
@@ -242,10 +244,10 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetRegisterReadings() {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
-        when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
+        when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
-        List<ReadingRecord> registerReadings = channel.getRegisterReadings(FROM, TO);
+        List<ReadingRecord> registerReadings = channel.getRegisterReadings(INTERVAL);
 
         assertThat(registerReadings).hasSize(1);
 

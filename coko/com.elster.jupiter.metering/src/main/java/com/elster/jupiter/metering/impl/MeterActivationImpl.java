@@ -129,15 +129,14 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public List<BaseReadingRecord> getReadings(Date from, Date to,ReadingType readingType) {		 
-		Interval requested = new Interval(from, to);
-        if (!requested.overlaps(interval)) {
+	public List<BaseReadingRecord> getReadings(Interval requested, ReadingType readingType) {
+        if (!requested.overlaps(requested)) {
             return Collections.emptyList();
         }
-        Interval active = requested.intersection(interval);
+        Interval active = requested.intersection(requested);
         for (Channel channel : getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
-                return channel.getReadings(readingType, active.getStart(), active.getEnd());
+                return channel.getReadings(readingType, active);
             }
         }
         return Collections.emptyList();

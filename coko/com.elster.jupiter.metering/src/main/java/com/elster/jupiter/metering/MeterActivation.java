@@ -15,7 +15,7 @@ public interface MeterActivation {
 	Channel createChannel(ReadingType main, ReadingType... readingTypes);
     List<Channel> getChannels();
     List<ReadingType> getReadingTypes();
-    List<? extends BaseReadingRecord> getReadings(Date from , Date to, ReadingType readingType); // TODO signature do we need ? extends BaseReading or can this be IntervalReading?
+    List<? extends BaseReadingRecord> getReadings(Interval interval, ReadingType readingType); // TODO signature do we need ? extends BaseReading or can this be IntervalReading?
 	boolean isCurrent();
     void endAt(Date end);
     long getVersion();

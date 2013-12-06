@@ -4,11 +4,22 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DoesNotExistException;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -19,6 +30,7 @@ import java.util.Objects;
 import java.util.TimeZone;
 
 import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements Channel {
 	
@@ -179,8 +191,8 @@ public final class ChannelImpl implements Channel {
 	}
 
 	@Override
-	public List<IntervalReadingRecord> getIntervalReadings(Date from, Date to) {
-		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+	public List<IntervalReadingRecord> getIntervalReadings(Interval interval) {
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
 		ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
 			builder.add(new IntervalReadingRecordImpl(this, entry));
@@ -193,9 +205,9 @@ public final class ChannelImpl implements Channel {
 	}
 	
 	@Override 
-	public List<BaseReadingRecord> getReadings(Date from, Date to) {
+	public List<BaseReadingRecord> getReadings(Interval interval) {
 		boolean regular = isRegular();
-		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
 		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
 			builder.add(createReading(regular,entry));
@@ -214,8 +226,8 @@ public final class ChannelImpl implements Channel {
 	}
 	
     @Override
-    public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Date from, Date to) {
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+    public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval) {
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             IntervalReadingRecordImpl reading = new IntervalReadingRecordImpl(this, entry);
@@ -225,8 +237,8 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Date from, Date to) {
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+    public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval) {
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<ReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             ReadingRecordImpl reading = new ReadingRecordImpl(this, entry);
@@ -236,10 +248,10 @@ public final class ChannelImpl implements Channel {
     }
 
     @Override
-    public List<BaseReadingRecord> getReadings(ReadingType readingType, Date from, Date to) {
+    public List<BaseReadingRecord> getReadings(ReadingType readingType, Interval interval) {
     	boolean isRegular = isRegular();
     	int index = getReadingTypes().indexOf(readingType);
-        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             builder.add(
@@ -250,8 +262,8 @@ public final class ChannelImpl implements Channel {
         return builder.build();
     }
     @Override
-	public List<ReadingRecord> getRegisterReadings(Date from, Date to) {
-		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+	public List<ReadingRecord> getRegisterReadings(Interval interval) {
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
 		ImmutableList.Builder <ReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
 			builder.add(new ReadingRecordImpl(this, entry));
@@ -286,6 +298,44 @@ public final class ChannelImpl implements Channel {
     @Override
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public List<ReadingQuality> findReadingQuality(Interval interval) {
+        Condition condition = inInterval(interval).and(ofThisChannel());
+        return Bus.getOrmClient().getReadingQualityFactory().with().select(condition, null, true, null);
+    }
+
+    private Condition inInterval(Interval interval) {
+        //TODO make IntervalCondition taking into account boundary interpretations
+        return where("readingTimestamp").between(interval.getStart()).and(interval.getEnd());
+    }
+
+    private Condition ofThisChannel() {
+        return where("channelId").isEqualTo(getId());
+    }
+
+    @Override
+    public Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp) {
+        Condition condition = ofThisChannel().and(withTimestamp(timestamp));
+        List<ReadingQuality> list = Bus.getOrmClient().getReadingQualityFactory().with().select(condition, null, true, null);
+        return FluentIterable.from(list).first();
+    }
+
+    private Condition withTimestamp(Date timestamp) {
+        return where("readingTimestamp").isEqualTo(timestamp);
+    }
+
+    @Override
+    public List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval) {
+        Condition ofTypeAndInInterval = inInterval(interval).and(Operator.EQUAL.compare("typeCode", type.getCode()));
+        return Bus.getOrmClient().getReadingQualityFactory().with().select(ofTypeAndInInterval, null, true, null);
+    }
+
+    @Override
+    public List<ReadingQuality> findReadingQuality(Date timestamp) {
+        Condition atTimestamp = withTimestamp(timestamp);
+        return Bus.getOrmClient().getReadingQualityFactory().with().select(atTimestamp, null, true, null);
     }
 
     @Override
