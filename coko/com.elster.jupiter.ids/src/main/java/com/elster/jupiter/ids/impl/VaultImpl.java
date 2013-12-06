@@ -10,6 +10,7 @@ import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
@@ -425,9 +426,9 @@ public final class VaultImpl implements Vault {
 		}	
 	}
 
-	List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries,Date from, Date to) {
+	List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Interval interval) {
 		try {
-			return doGetEntries(timeSeries,from,to);
+			return doGetEntries(timeSeries, interval);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -453,13 +454,13 @@ public final class VaultImpl implements Vault {
 		return builder.toString();
 	}
 	
-	private List<TimeSeriesEntry> doGetEntries(TimeSeriesImpl timeSeries, Date from , Date to) throws SQLException {
+	private List<TimeSeriesEntry> doGetEntries(TimeSeriesImpl timeSeries, Interval interval) throws SQLException {
 		List<TimeSeriesEntry> result = new ArrayList<>();
 		try (Connection connection = getConnection(false)) {
 			try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries))) {
 				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
-				statement.setLong(FROM_COLUMN_INDEX, from.getTime());
-				statement.setLong(TO_COLUMN_INDEX, to.getTime());
+				statement.setLong(FROM_COLUMN_INDEX, interval.getStart().getTime());
+				statement.setLong(TO_COLUMN_INDEX, interval.getEnd().getTime());
 				try (ResultSet rs = statement.executeQuery()) {
 					while(rs.next()) {
 						result.add(new TimeSeriesEntryImpl(timeSeries,rs));
