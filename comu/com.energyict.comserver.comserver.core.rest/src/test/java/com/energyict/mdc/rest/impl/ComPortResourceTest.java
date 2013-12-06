@@ -11,12 +11,15 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.InboundComPortPool;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
+import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,9 +76,15 @@ public class ComPortResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testCanCreateComPortInfoWithoutReferencedObjects() throws Exception {
+    public void testCanCreateEmptyTcpInboundComPort() throws Exception {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         new TcpInboundComPortInfo(tcpBasedInboundComPort);
+    }
+
+    @Test
+    public void testCanCreateEmptyUdpInboundComPort() throws Exception {
+        UDPBasedInboundComPort udpBasedInboundComPort = mock(UDPBasedInboundComPort.class);
+        new UdpInboundComPortInfo(udpBasedInboundComPort);
     }
 
     @Test
@@ -250,6 +259,95 @@ public class ComPortResourceTest extends JerseyTest {
 
                 MapEntry.entry("direction", "inbound")
         );
+    }
+
+    @Test
+    public void testGetOutboundComPortsWithFilter() throws Exception {
+        setUpComPortFiltering();
+
+        final Map response = target("/comports").queryParam("filter", filter("direction", "outbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        assertThat(response).containsKey("ComPorts");
+        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        Map<String, Object> foundPort = comPorts.get(0);
+        assertThat(foundPort.get("id")).isEqualTo(13);
+    }
+
+    @Test
+    public void testGetInboundComPortsWithFilter() throws Exception {
+        setUpComPortFiltering();
+
+        final Map response = target("/comports").queryParam("filter", filter("direction", "inbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        assertThat(response).containsKey("ComPorts");
+        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        List<Integer> requiredIds = new ArrayList<>(Arrays.asList(10,11,12));
+        for (Map<String, Object> comPort : comPorts) {
+            assertThat(requiredIds.remove(comPort.get("id")));
+        }
+        assertThat(requiredIds).describedAs("A required comport was not return by filter").isEmpty();
+    }
+
+
+    @Test
+    public void testGetComPortsWithComServerAFilter() throws Exception {
+        setUpComPortFiltering();
+
+        final Map response = target("/comports").queryParam("filter", filter("comserver_id", "16")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        assertThat(response).containsKey("ComPorts");
+        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        List<Integer> requiredIds = new ArrayList<>(Arrays.asList(12,11));
+        for (Map<String, Object> comPort : comPorts) {
+            assertThat(requiredIds.remove(comPort.get("id")));
+        }
+        assertThat(requiredIds).describedAs("A required comport was not return by filter").isEmpty();
+    }
+
+    @Test
+    public void testGetComPortsWithComServerBFilter() throws Exception {
+        setUpComPortFiltering();
+
+        final Map response = target("/comports").queryParam("filter", filter("comserver_id", "61")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        assertThat(response).containsKey("ComPorts");
+        List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
+        List<Integer> requiredIds = new ArrayList<>(Arrays.asList(13,10));
+        for (Map<String, Object> comPort : comPorts) {
+            assertThat(requiredIds.remove(comPort.get("id")));
+        }
+        assertThat(requiredIds).describedAs("A required comport was not return by filter").isEmpty();
+    }
+
+    private void setUpComPortFiltering() {
+        ComServer comServerA = mock(ComServer.class);
+        when(comServerA.getId()).thenReturn(61);
+        ComServer comServerB = mock(ComServer.class);
+        when(comServerB.getId()).thenReturn(16);
+        when(comServerService.find(61)).thenReturn(comServerA);
+        when(comServerService.find(16)).thenReturn(comServerB);
+        TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
+        when(tcpBasedInboundComPort.getId()).thenReturn(10);
+        when(tcpBasedInboundComPort.getComServer()).thenReturn(comServerA);
+        UDPBasedInboundComPort udpBasedInboundComPort = mock(UDPBasedInboundComPort.class);
+        when(udpBasedInboundComPort.getId()).thenReturn(11);
+        when(udpBasedInboundComPort.getComServer()).thenReturn(comServerB);
+        ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
+        when(modemBasedInboundComPort.getId()).thenReturn(12);
+        when(modemBasedInboundComPort.getComServer()).thenReturn(comServerB);
+        OutboundComPort outboundComPort = mock(OutboundComPort.class);
+        when(outboundComPort.getId()).thenReturn(13);
+        when(outboundComPort.getComServer()).thenReturn(comServerA);
+        List<ComPort> comPorts = new ArrayList<>();
+        comPorts.add(tcpBasedInboundComPort);
+        comPorts.add(udpBasedInboundComPort);
+        comPorts.add(modemBasedInboundComPort);
+        comPorts.add(outboundComPort);
+        when(comPortService.findAll()).thenReturn(comPorts);
+        when(comPortService.findAllInboundComPorts()).thenReturn(Arrays.asList(tcpBasedInboundComPort, udpBasedInboundComPort, modemBasedInboundComPort));
+        when(comPortService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
+        when(comPortService.findByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));
+        when(comPortService.findByComServer(comServerB)).thenReturn(Arrays.<ComPort>asList(modemBasedInboundComPort, udpBasedInboundComPort));
+    }
+
+    private String filter(String property, String value) throws UnsupportedEncodingException {
+        return URLEncoder.encode(String.format("[{\"property\":\"%s\",\"value\":\"%s\"}]", property, value), "UTF-8");
     }
 
     private Map<String, Object> asMapValue(TimeDuration timeDuration) {
