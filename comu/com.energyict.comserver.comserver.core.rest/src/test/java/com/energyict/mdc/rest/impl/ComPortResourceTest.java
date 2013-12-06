@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 
 public class ComPortResourceTest extends JerseyTest {
 
+    private static final String COMPORTS_RESOURCE_URL = "/comports"; // if you need to change this URL, API changed!!
     private static ComServerService comServerService;
     private static ComPortService comPortService;
 
@@ -97,7 +98,7 @@ public class ComPortResourceTest extends JerseyTest {
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
         when(comPortService.findAll()).thenReturn(comPorts);
-        final Map<String, Object> response = target("/comports").request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map<String, Object> response = target(COMPORTS_RESOURCE_URL).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'ComPorts'").containsKey("ComPorts").hasSize(1);
         List<Map<String, Object>> comports = (List<Map<String, Object>>) response.get("ComPorts");
         Map<String, Object> comport = comports.get(0);
@@ -133,7 +134,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(tcpBasedInboundComPort.getPortNumber()).thenReturn(8);
 
         when(comPortService.find(comPort_id)).thenReturn(tcpBasedInboundComPort);
-        final Map<String, Object> response = target("/comports/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "tcp inbound"),
@@ -174,7 +175,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(servletBasedInboundComPort.getKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/key/store", "keypwd"));
 
         when(comPortService.find(comPort_id)).thenReturn(servletBasedInboundComPort);
-        final Map<String, Object> response = target("/comports/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "servlet inbound"),
@@ -217,7 +218,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(udpBasedInboundComPort.getBufferSize()).thenReturn(9);
 
         when(comPortService.find(comPort_id)).thenReturn(udpBasedInboundComPort);
-        final Map<String, Object> response = target("/comports/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "udp inbound"),
@@ -238,7 +239,7 @@ public class ComPortResourceTest extends JerseyTest {
         int comPort_id = 666;
         ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
         when(comPortService.find(comPort_id)).thenReturn(modemBasedInboundComPort);
-        target("/comports/" + comPort_id).request().get(Map.class);
+        target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class);
     }
 
     @Test
@@ -278,7 +279,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(modemBasedInboundComPort.getSerialPortConfiguration()).thenReturn(new SerialPortConfiguration("port name", BaudrateValue.BAUDRATE_1200, NrOfDataBits.FIVE, NrOfStopBits.TWO, Parities.EVEN, FlowControl.XONXOFF));
 
         when(comPortService.find(comPort_id)).thenReturn(modemBasedInboundComPort);
-        final Map<String, Object> response = target("/comports/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "modem inbound"),
@@ -312,7 +313,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetOutboundComPortsWithFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target("/comports").queryParam("filter", filter("direction", "outbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("direction", "outbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         Map<String, Object> foundPort = comPorts.get(0);
@@ -323,7 +324,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetInboundComPortsWithFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target("/comports").queryParam("filter", filter("direction", "inbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("direction", "inbound")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(10,11,12));
@@ -338,7 +339,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetComPortsWithComServerAFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target("/comports").queryParam("filter", filter("comserver_id", "16")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("comserver_id", "16")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(12,11));
@@ -352,7 +353,7 @@ public class ComPortResourceTest extends JerseyTest {
     public void testGetComPortsWithComServerBFilter() throws Exception {
         setUpComPortFiltering();
 
-        final Map response = target("/comports").queryParam("filter", filter("comserver_id", "61")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        final Map response = target(COMPORTS_RESOURCE_URL).queryParam("filter", filter("comserver_id", "61")).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).containsKey("ComPorts");
         List<Map<String, Object>> comPorts = (List) response.get("ComPorts");
         List<Integer> requiredIds = new ArrayList<>(Arrays.asList(13,10));
