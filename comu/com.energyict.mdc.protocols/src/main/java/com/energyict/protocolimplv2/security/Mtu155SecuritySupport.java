@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cbo.Password;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;

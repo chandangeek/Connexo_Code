@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.LittleEndianOutputStream;
-import com.energyict.cbo.Password;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.ports.InboundComPort;
