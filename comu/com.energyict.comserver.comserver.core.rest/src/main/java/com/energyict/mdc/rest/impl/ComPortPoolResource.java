@@ -19,10 +19,11 @@ import javax.ws.rs.core.Response;
 @Path("/comportpools")
 public class ComPortPoolResource {
 
-    @Inject
-    private ComPortPoolService comPortPoolService;
+    private final ComPortPoolService comPortPoolService;
 
-    public ComPortPoolResource() {
+    @Inject
+    public ComPortPoolResource(ComPortPoolService comPortPoolService) {
+        this.comPortPoolService = comPortPoolService;
     }
 
     @GET

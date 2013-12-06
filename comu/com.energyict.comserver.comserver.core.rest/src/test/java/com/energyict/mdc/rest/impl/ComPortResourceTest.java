@@ -36,11 +36,13 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 public class ComPortResourceTest extends JerseyTest {
@@ -53,6 +55,13 @@ public class ComPortResourceTest extends JerseyTest {
     static public void setUpClass() throws Exception {
         comServerService = mock(ComServerService.class);
         comPortService = mock(ComPortService.class);
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        reset(comServerService, comPortService);
     }
 
     @Override

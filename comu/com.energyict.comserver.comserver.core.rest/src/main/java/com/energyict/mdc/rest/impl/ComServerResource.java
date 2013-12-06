@@ -72,7 +72,11 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteComServer(@PathParam("id") int id) {
         try {
-            comServerService.deleteComServer(id);
+            ComServer<?> comServer = comServerService.find(id);
+            if (comServer == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build();
+            }
+            comServer.delete();
             return Response.ok().build();
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.serverError().build());

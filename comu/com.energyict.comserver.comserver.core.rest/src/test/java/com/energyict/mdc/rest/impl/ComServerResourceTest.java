@@ -20,18 +20,20 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
- * Hardcoding URLS here will be a "gently" reminder
+ * Hard coding URLS here will be a "gently" reminder
  * @author bvn
  */
 public class ComServerResourceTest extends JerseyTest {
@@ -41,6 +43,13 @@ public class ComServerResourceTest extends JerseyTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         comServerService = mock(ComServerService.class);
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        reset(comServerService);
     }
 
     @Override
@@ -216,6 +225,25 @@ public class ComServerResourceTest extends JerseyTest {
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/3").request().put(json); //5 was mocked, there is no ComServer 3
 
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testDeleteComServer() throws Exception {
+        int comServer_id = 5;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+
+        final Response response = target("/comservers/5").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(serverSideComServer).delete();
+    }
+
+    @Test
+    public void testDeleteNonExistingComServerThrows404() throws Exception {
+        final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 }
