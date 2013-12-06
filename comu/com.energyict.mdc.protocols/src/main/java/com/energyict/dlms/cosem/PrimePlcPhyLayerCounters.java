@@ -9,7 +9,7 @@ import com.energyict.mdc.common.ObisCode;
 import java.io.IOException;
 
 /**
- * An instance of the “PRIME PLC physical layer counters” IC stores counters related to the physical
+ * An instance of the "PRIME PLC physical layer counters" IC stores counters related to the physical
  * layers exchanges. The objective of these counters is to provide statistical information for
  * management purposes.
  * <p/>
