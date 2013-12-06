@@ -120,6 +120,43 @@ public class FieldResource {
     private <T extends Enum> HashMap<String, Object> asJsonArrayObject(String fieldName, T[] values) {
         return asJsonArrayObject(fieldName, fieldName, values);
     }
+
+    /**
+     * For JavaScript, values have to be wrapped, for example
+     *
+     * Don't serialize as
+     * {
+     *   [
+     *      "FIVE",
+     *      "SIX",
+     *      "SEVEN",
+     *      "EIGHT"
+     *   ]
+     * }
+     *
+     * But as
+     * {
+     *   "nrOfDataBits": [
+     *       {
+     *           "nrOfDataBits": "FIVE"
+     *       },
+     *       {
+     *           "nrOfDataBits": "SIX"
+     *       },
+     *       {
+     *           "nrOfDataBits": "SEVEN"
+     *       },
+     *       {
+     *           "nrOfDataBits": "EIGHT"
+     *       }
+     *   ]
+     * }
+     * @param fieldName the top level list name, collection name for the values, eg: values
+     * @param valueName value level field name, eg: value
+     * @param values The actual values to enumerate
+     * @param <T> The type of values being listed
+     * @return ExtJS JSON format for listed values
+     */
     private <T extends Enum> HashMap<String, Object> asJsonArrayObject(String fieldName, String valueName, T[] values) {
         HashMap<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
