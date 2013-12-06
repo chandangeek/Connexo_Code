@@ -1,15 +1,18 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.servers.ComServer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -48,18 +51,7 @@ public class FieldResource {
     @GET
     @Path("/logLevel")
     public Object getLogLevelValues() {
-        final List<Object> logLevelStrings = new ArrayList<>();
-        for (ComServer.LogLevel logLevel : ComServer.LogLevel.values()) {
-            final String myLogLevel = logLevel.name();
-            logLevelStrings.add(new Object() {
-                public String logLevel = myLogLevel;
-            });
-        }
-
-        return new Object() {
-            public List<Object> logLevels = logLevelStrings;
-        };
-
+        return asJsonArrayObject("logLevels", "logLevel", ComServer.LogLevel.values());
     }
 
     @GET
@@ -92,79 +84,52 @@ public class FieldResource {
     @GET
     @Path("/comPortType")
     public Object getComPortTypes() {
-        final List<Object> allComPortTypes = new ArrayList<>();
-        final Object wrapper = new Object(){
-            public List<Object> comPortTypes = allComPortTypes;
-        };
-        for (final ComPortType comPortTypeEnum : ComPortType.values()) {
-            allComPortTypes.add(new Object(){
-                public Enum comPortType = comPortTypeEnum;
-            });
-        }
-        return wrapper;
+        return asJsonArrayObject("comPortTypes", "comPortType", ComPortType.values());
     }
 
     @GET
     @Path("/parity")
     public Object getParities() {
-        final List<Object> allParities = new ArrayList<>();
-        final Object wrapper = new Object(){
-            public List<Object> parities = allParities;
-        };
-        for (final Parities parityEnum : Parities.values()) {
-            allParities.add(new Object() {
-                public Enum parity = parityEnum;
-            });
-        }
-        return wrapper;
+        return asJsonArrayObject("parities", "parity", Parities.values());
     }
 
     @GET
     @Path("/flowControl")
     public Object getFlowControls() {
-        final List<Object> allFlowControls = new ArrayList<>();
-        final Object wrapper = new Object(){
-            public List<Object> flowControls = allFlowControls;
-        };
-        for (final FlowControl flowControlEnum : FlowControl.values()) {
-            allFlowControls.add(new Object() {
-                public Enum flowControl = flowControlEnum;
-            });
-        }
-
-        return wrapper;
+        return asJsonArrayObject("flowControls", "flowControl", FlowControl.values());
     }
 
     @GET
-    @Path("/noOfDataBits")
+    @Path("/nrOfDataBits")
     public Object getNrOfDataBits() {
-        final List<Object> allDataBits = new ArrayList<>();
-        final Object wrapper = new Object(){
-            public List<Object> nrOfDataBits = allDataBits;
-        };
-        for (final NrOfDataBits nrOfDataBitsEnum : NrOfDataBits.values()) {
-            allDataBits.add(new Object() {
-                public Enum nrOfDataBits = nrOfDataBitsEnum;
-            });
-        }
-
-        return wrapper;
+        return asJsonArrayObject("nrOfDataBits", NrOfDataBits.values());
     }
 
     @GET
-    @Path("/noOfStopBits")
+    @Path("/nrOfStopBits")
     public Object getNrOfStopBits() {
-        final List<Object> allStopBits = new ArrayList<>();
-        final Object wrapper = new Object(){
-            public List<Object> nrOfStopBits = allStopBits;
-        };
-        for (final NrOfStopBits nrOfStopBitsEnum : NrOfStopBits.values()) {
-            allStopBits.add(new Object() {
-                public Enum nrOfStopBits = nrOfStopBitsEnum;
-            });
-        }
+        return asJsonArrayObject("noOfStopBits", NrOfStopBits.values());
+    }
 
-        return wrapper;
+    @GET
+    @Path("/baudRate")
+    public Object getBaudRate() {
+        return asJsonArrayObject("baudRates", "baudRate", BaudrateValue.values());
+    }
+
+    private <T extends Enum> HashMap<String, Object> asJsonArrayObject(String fieldName, T[] values) {
+        return asJsonArrayObject(fieldName, fieldName, values);
+    }
+    private <T extends Enum> HashMap<String, Object> asJsonArrayObject(String fieldName, String valueName, T[] values) {
+        HashMap<String, Object> map = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        map.put(fieldName, list);
+        for (final T baudRateEnum : values) {
+            HashMap<String, Object> subMap = new HashMap<>();
+            subMap.put(valueName, baudRateEnum.name());
+            list.add(subMap);
+        }
+        return map;
     }
 
 }
