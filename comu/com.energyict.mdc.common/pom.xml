@@ -35,6 +35,11 @@
       <version>1.11.2.03</version>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>util</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <version>4.3.1</version>
