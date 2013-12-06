@@ -11,7 +11,7 @@ public class BigDecimalChecker extends ObjectChecker<BigDecimal> {
         super(bigDecimal);
     }
 
-    public boolean equalToIgnoringScale(BigDecimal other) {
+    public boolean equalValue(BigDecimal other) {
         if (getToCheck() == null) {
             return other == null;
         }

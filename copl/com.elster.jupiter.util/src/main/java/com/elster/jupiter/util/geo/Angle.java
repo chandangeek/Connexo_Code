@@ -27,7 +27,7 @@ public class Angle implements Comparable<Angle> {
             return false;
         }
 		Angle o = (Angle) other;
-		return is(this.value).equalToIgnoringScale(o.value);
+		return is(this.value).equalValue(o.value);
 	}
 
 	public final int hashCode() {
