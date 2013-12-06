@@ -45,6 +45,11 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public Integer comPortPool_id;
     public Integer portNumber;
     public Integer bufferSize;
+    public Boolean useHttps;
+    public String keyStoreFilePath;
+    public String trustStoreFilePath;
+    public String keyStorePassword;
+    public String trustStorePassword;
 
     public ComPortInfo() {
     }

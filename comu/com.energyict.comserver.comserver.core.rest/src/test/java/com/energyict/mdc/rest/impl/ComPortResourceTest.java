@@ -12,11 +12,13 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.InboundComPortPool;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.ports.OutboundComPort;
+import com.energyict.mdc.ports.ServletBasedInboundComPort;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
+import com.energyict.mdc.shadow.ports.KeyStoreShadow;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -141,6 +143,51 @@ public class ComPortResourceTest extends JerseyTest {
                 MapEntry.entry("comPortPool_id", comPortPool_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
                 MapEntry.entry("portNumber", 8),
+
+                MapEntry.entry("direction", "inbound")
+        );
+    }
+
+    @Test
+    public void testGetServletInboundComPort() throws Exception {
+        int comPort_id = 12;
+        int comServer_id = 131;
+        int comPortPool_id = 141;
+
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getId()).thenReturn(comServer_id);
+
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
+        when(comPortPool.getId()).thenReturn(comPortPool_id);
+
+        ServletBasedInboundComPort servletBasedInboundComPort = mock(ServletBasedInboundComPort.class);
+        when(servletBasedInboundComPort.getId()).thenReturn(comPort_id);
+        when(servletBasedInboundComPort.getName()).thenReturn("servlet inbound");
+        when(servletBasedInboundComPort.getComPortType()).thenReturn(ComPortType.SERVLET);
+        when(servletBasedInboundComPort.getDescription()).thenReturn("this is a test port");
+        when(servletBasedInboundComPort.getComServer()).thenReturn(comServer);
+        when(servletBasedInboundComPort.getComPortPool()).thenReturn(comPortPool);
+        when(servletBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
+        when(servletBasedInboundComPort.getPortNumber()).thenReturn(8);
+        when(servletBasedInboundComPort.useHttps()).thenReturn(true);
+        when(servletBasedInboundComPort.getTrustedKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/trust/store", "trustpwd"));
+        when(servletBasedInboundComPort.getKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/key/store", "keypwd"));
+
+        when(comPortService.find(comPort_id)).thenReturn(servletBasedInboundComPort);
+        final Map<String, Object> response = target("/comports/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        assertThat(response).contains(
+                MapEntry.entry("id", comPort_id),
+                MapEntry.entry("name", "servlet inbound"),
+                MapEntry.entry("comPortType", "SERVLET"),
+                MapEntry.entry("description", "this is a test port"),
+                MapEntry.entry("comServer_id", comServer_id),
+                MapEntry.entry("comPortPool_id", comPortPool_id),
+                MapEntry.entry("numberOfSimultaneousConnections", 7),
+                MapEntry.entry("useHttps", true),
+                MapEntry.entry("keyStoreFilePath", "/path/to/key/store"),
+                MapEntry.entry("trustStoreFilePath", "/path/to/trust/store"),
+                MapEntry.entry("trustStorePassword", "trustpwd"),
+                MapEntry.entry("keyStorePassword", "keypwd"),
 
                 MapEntry.entry("direction", "inbound")
         );
