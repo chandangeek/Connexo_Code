@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.mdc.services.LicensedProtocolService;

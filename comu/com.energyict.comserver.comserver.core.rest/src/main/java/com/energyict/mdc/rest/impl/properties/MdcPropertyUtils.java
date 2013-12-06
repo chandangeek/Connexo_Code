@@ -1,14 +1,10 @@
 package com.energyict.mdc.rest.impl.properties;
 
-import com.energyict.cpo.BoundedBigDecimalPropertySpec;
-import com.energyict.cpo.FixedLengthHexStringPropertySpec;
-import com.energyict.cpo.FixedLengthStringPropertySpec;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecPossibleValues;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dynamicattributes.AttributeValueSelectionMode;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.dynamic.PropertySpecPossibleValues;
+import com.energyict.mdc.protocol.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.rest.impl.properties.validators.NumberValidationRules;
-import com.energyict.mdc.rest.impl.properties.validators.StringValidationRules;
 
 import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
@@ -46,7 +42,7 @@ public class MdcPropertyUtils {
     }
 
     private static SimplePropertyType getSimplePropertyType(PropertySpec propertySpec) {
-        SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getDomain().getValueType());
+        SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getValueFactory().getValueType());
         if(simplePropertyType.equals(SimplePropertyType.UNKNOWN)){
             return MdcPropertyReferenceInfoFactory.getReferencedSimplePropertyType(propertySpec, simplePropertyType);
         } else {
@@ -60,39 +56,19 @@ public class MdcPropertyUtils {
 
     private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
         if(simplePropertyType.isReference()){
-            return MdcPropertyReferenceInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getDomain().getValueType());
+            return MdcPropertyReferenceInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getValueFactory().getValueType());
         } else {
             return null;
         }
     }
 
     private static PropertyValidationRule getPropertyValidationRule(PropertySpec propertySpec) {
-        if(BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
+        if (BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
             BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec = (BoundedBigDecimalPropertySpec) propertySpec;
             return createBoundedBigDecimalValidationRules(boundedBigDecimalPropertySpec);
-        } else if (FixedLengthStringPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
-            FixedLengthStringPropertySpec fixedLengthStringPropertySpec = (FixedLengthStringPropertySpec) propertySpec;
-            return createFixedLengthStringValidationRules(fixedLengthStringPropertySpec);
-        } else if(FixedLengthHexStringPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
-            FixedLengthHexStringPropertySpec fixedLengthHexStringPropertySpec = (FixedLengthHexStringPropertySpec) propertySpec;
-            return createFixedLengthHexStringValidationRules(fixedLengthHexStringPropertySpec);
+        } else {
+            return null;
         }
-        return null;
-    }
-
-    private static PropertyValidationRule createFixedLengthHexStringValidationRules(FixedLengthHexStringPropertySpec fixedLengthHexStringPropertySpec) {
-        StringValidationRules stringValidationRules = new StringValidationRules();
-        stringValidationRules.setEnforceMaxLength(Boolean.TRUE);
-        stringValidationRules.setMaxLength(fixedLengthHexStringPropertySpec.getLength() * 2); // the given length is the number of bytes
-        stringValidationRules.setRegex(StringValidationRules.HEX_CHARACTERS_REGEX);
-        return stringValidationRules;
-    }
-
-    private static PropertyValidationRule createFixedLengthStringValidationRules(FixedLengthStringPropertySpec fixedLengthStringPropertySpec) {
-        StringValidationRules stringValidationRules = new StringValidationRules();
-        stringValidationRules.setEnforceMaxLength(Boolean.TRUE);
-        stringValidationRules.setMaxLength(fixedLengthStringPropertySpec.getLength());
-        return stringValidationRules;
     }
 
     private static PropertyValidationRule createBoundedBigDecimalValidationRules(BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec) {
@@ -116,8 +92,8 @@ public class MdcPropertyUtils {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
             }
-            PropertySelectionMode selectionMode = mapPropertySelectionMode(propertySpec.getSelectionMode());
-            if(selectionMode.equals(PropertySelectionMode.UNSPECIFIED) && possibleObjects.length > 1){
+            PropertySelectionMode selectionMode = PropertySelectionMode.SEARCH_AND_SELECT;
+            if (possibleObjects.length > 1) {
                 /*
                 We set the selectionMode to ComboBox if we have more than 1 possible value (otherwise it can be it is the default value)
                 and the current selectionMode is not specified (otherwise the frontEnd will not be able to show them)
@@ -147,7 +123,4 @@ public class MdcPropertyUtils {
         return getPropertyValue(inheritedProperties, propertySpec);
     }
 
-    private static  PropertySelectionMode mapPropertySelectionMode(AttributeValueSelectionMode selectionMode) {
-        return PropertySelectionMode.values()[selectionMode.ordinal()];
-    }
 }
