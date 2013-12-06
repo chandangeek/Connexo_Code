@@ -52,7 +52,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
                 DeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS.name());
 
         // asserts
-        assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(DeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageTestSpec");
+        assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(DeviceMessageTestSpec.TEST_SPEC_WITHOUT_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.protocol.device.messages.DeviceMessageTestSpec");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
         DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = this.primaryKeyForExtendedClassNameCleanupTestingPurposes();
 
         // asserts
-        assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageSpecPrimaryKeyTest$ExtendedDeviceMessageTestWithoutOverriddenMethodSpec");
+        assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(ExtendedDeviceMessageTestWithoutOverriddenMethodSpec.TEST_SPEC_WITHOUT_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKeyTest$ExtendedDeviceMessageTestWithoutOverriddenMethodSpec");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class DeviceMessageSpecPrimaryKeyTest {
         DeviceMessageSpecPrimaryKey deviceMessageSpecPrimaryKey = this.primaryKeyForExtendedClassNameCleanupTestingPurposes();
 
         // asserts
-        assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageSpecPrimaryKeyTest$ExtendedDeviceMessageTestWithOverriddenMethodSpec");
+        assertThat(deviceMessageSpecPrimaryKey.cleanUpClassName(ExtendedDeviceMessageTestWithOverriddenMethodSpec.TEST_SPEC_WITH_SIMPLE_SPECS.getClass().getName())).isEqualTo("com.energyict.mdc.protocol.device.messages.DeviceMessageSpecPrimaryKeyTest$ExtendedDeviceMessageTestWithOverriddenMethodSpec");
     }
 
     private DeviceMessageSpecPrimaryKey primaryKeyForNumericTestingPurposes () {

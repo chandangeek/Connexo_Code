@@ -50,7 +50,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
         DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(DeviceMessageTestCategories.SECURITY, DeviceMessageTestCategories.SECURITY.name());
 
         // asserts
-        assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(DeviceMessageTestCategories.SECURITY.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageTestCategories");
+        assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(DeviceMessageTestCategories.SECURITY.getClass().getName())).isEqualTo("com.energyict.mdc.protocol.device.messages.DeviceMessageTestCategories");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
         DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING, ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING.name());
 
         // asserts
-        assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKeyTest$ExtendedCategoriesForTestingWithOverriddenMethod");
+        assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedCategoriesForTestingWithOverriddenMethod.ACTIVITY_CALENDAR_FOR_TESTING.getClass().getName())).isEqualTo("com.energyict.mdc.protocol.device.messages.DeviceMessageCategoryPrimaryKeyTest$ExtendedCategoriesForTestingWithOverriddenMethod");
     }
 
     @Test
@@ -66,7 +66,7 @@ public class DeviceMessageCategoryPrimaryKeyTest {
         DeviceMessageCategoryPrimaryKey deviceMessageCategoryPrimaryKey = new DeviceMessageCategoryPrimaryKey(ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY, ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY.name());
 
         // asserts
-        assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY.getClass().getName())).isEqualTo("com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKeyTest$ExtendedCategoriesForTestingWithoutOverriddenMethod");
+        assertThat(deviceMessageCategoryPrimaryKey.cleanUpClassName(ExtendedCategoriesForTestingWithoutOverriddenMethod.THIRD_TEST_CATEGORY.getClass().getName())).isEqualTo("com.energyict.mdc.protocol.device.messages.DeviceMessageCategoryPrimaryKeyTest$ExtendedCategoriesForTestingWithoutOverriddenMethod");
     }
 
     private enum ExtendedCategoriesForTestingWithOverriddenMethod implements DeviceMessageCategory {
