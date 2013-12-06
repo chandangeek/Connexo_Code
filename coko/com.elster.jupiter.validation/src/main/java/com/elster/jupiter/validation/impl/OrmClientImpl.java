@@ -1,15 +1,10 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.impl.ReadingTypeImpl;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
 
 class OrmClientImpl implements OrmClient {
 
@@ -48,6 +43,8 @@ class OrmClientImpl implements OrmClient {
     public DataMapper<MeterActivationValidation> getMeterActivationValidationFactory() {
         return dataModel.getDataMapper(MeterActivationValidation.class, MeterActivationValidationImpl.class, TableSpecs.VAL_MA_VALIDATION.name());
     }
+
+
 
     @Override
     public void install(boolean executeDdl, boolean saveMappings) {

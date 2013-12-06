@@ -1,6 +1,10 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQuality;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.cache.TypeCache;
@@ -8,10 +12,10 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationStats;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.ImmutableList;
@@ -41,7 +45,6 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @SuppressWarnings("unused")
     private int position;
     private transient ValidationRuleSet ruleSet;
-    private transient Validator validator;
 
     private List<ValidationRuleProperties> properties;
 
@@ -157,13 +160,10 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         return ruleSet;
     }
 
-    @Override
-    public Validator getValidator() {
+    private Validator createNewValidator() {
+        Validator validator = Bus.getValidator(this.implementation, getProps());
         if (validator == null) {
-            validator = Bus.getValidator(this.implementation, getProps());
-            if (validator == null) {
-                throw new ValidatorNotFoundException(implementation);
-            }
+            throw new ValidatorNotFoundException(implementation);
         }
         return validator;
     }
@@ -231,14 +231,41 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     @Override
     public Date validateChannel(Channel channel, Interval interval) {
+        if (!active) {
+            return null;
+        }
         Date earliestLastChecked = null;
         for (ReadingType channelReadingType : channel.getReadingTypes()) {
             if (getReadingTypes().contains(channelReadingType)) {
-                ValidationStats stats = getValidator().validate(channel, channelReadingType, interval);
-                earliestLastChecked = earliestLastChecked == null ? stats.getLastChecked() : Ordering.natural().min(earliestLastChecked, stats.getLastChecked());
+                Validator validator = createNewValidator();
+                validator.init(channel, channelReadingType, interval);
+
+               // ValidationStats stats = validator.validate(channel, channelReadingType, interval);
+
+                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
+                for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, interval)) {
+                    ValidationResult result = validator.validate(intervalReading);
+                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, intervalReading.getTimeStamp()).isPresent()) {
+                        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, intervalReading);
+                        readingQuality.save();
+                    }
+                    earliestLastChecked = earliestLastChecked == null ? intervalReading.getTimeStamp() : Ordering.natural().min(earliestLastChecked, intervalReading.getTimeStamp());
+                }
+                for (ReadingRecord readingRecord : channel.getRegisterReadings(channelReadingType, interval)) {
+                    ValidationResult result = validator.validate(readingRecord);
+                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, readingRecord.getTimeStamp()).isPresent()) {
+                        ReadingQuality readingQuality = channel.createReadingQuality(defaultReadingQualityType(), readingRecord);
+                        readingQuality.save();
+                    }
+                    earliestLastChecked = earliestLastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().min(earliestLastChecked, readingRecord.getTimeStamp());
+                }
             }
         }
         return earliestLastChecked;
+    }
+
+    private ReadingQualityType defaultReadingQualityType() {
+        return new ReadingQualityType("3.6." + getId());
     }
 
     void setRuleSetId(long ruleSetId) {

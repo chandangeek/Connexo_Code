@@ -4,8 +4,10 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
@@ -20,6 +22,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -47,11 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -127,6 +126,8 @@ public class ValidationIT {
     private LocalEvent localEvent;
     @Mock
     private ReadingStorer readingStorer;
+    @Mock
+    private IntervalReadingRecord reading1_1, reading1_2, reading1_3, reading1_4, reading1_5, reading2_1, reading2_2, reading2_3, reading2_4, reading2_5;
 
     @Before
     public void setUp() {
@@ -142,9 +143,11 @@ public class ValidationIT {
         when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), anyMap())).thenReturn(consecutiveZeroesValidator);
         when(validatorFactory.create(eq(MIN_MAX), anyMap())).thenReturn(minMaxValidator);
         when(consecutiveZeroesValidator.getRequiredKeys()).thenReturn(Arrays.asList(MAX_NUMBER_IN_SEQUENCE));
-        when(consecutiveZeroesValidator.validate(any(Channel.class), any(ReadingType.class), eq(interval(date1, date5)))).thenReturn(validationStats);
+        when(consecutiveZeroesValidator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.PASS);
+        when(consecutiveZeroesValidator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
         when(minMaxValidator.getRequiredKeys()).thenReturn(Arrays.asList(MIN, MAX));
-        when(minMaxValidator.validate(any(Channel.class), any(ReadingType.class), eq(interval(date1, date5)))).thenReturn(validationStats);
+        when(minMaxValidator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.PASS);
+        when(minMaxValidator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
 
         when(ormService.newDataModel(Bus.COMPONENTNAME, "Validation")).thenReturn(dataModel);
         when(cacheService.createComponentCache(dataModel)).thenReturn(componentCache);
@@ -193,6 +196,11 @@ public class ValidationIT {
 
     @Test
     public void testValidation() {
+        when(channel1.getIntervalReadings(readingType1, interval(date1, date5))).thenReturn(Arrays.asList(reading1_1, reading1_2, reading1_3, reading1_4, reading1_5));
+        when(channel1.getIntervalReadings(readingType2, interval(date1, date5))).thenReturn(Arrays.asList(reading1_1, reading1_2, reading1_3, reading1_4, reading1_5));
+        when(channel2.getIntervalReadings(readingType1, interval(date1, date5))).thenReturn(Arrays.asList(reading2_1, reading2_2, reading2_3, reading2_4, reading2_5));
+        when(channel2.getIntervalReadings(readingType3, interval(date1, date5))).thenReturn(Arrays.asList(reading2_1, reading2_2, reading2_3, reading2_4, reading2_5));
+
         ValidationServiceImpl validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);
         validationService.setCacheService(cacheService);
@@ -212,11 +220,13 @@ public class ValidationIT {
         zeroesRule.addReadingType(readingType1);
         zeroesRule.addReadingType(readingType2);
         zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
+        zeroesRule.activate();
         ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX);
         minMaxRule.addReadingType(readingType3);
         minMaxRule.addReadingType(readingType2);
         minMaxRule.addProperty(MIN, Unit.WATT_HOUR.amount(BigDecimal.valueOf(1), 3));
         minMaxRule.addProperty(MAX, Unit.WATT_HOUR.amount(BigDecimal.valueOf(100), 3));
+        minMaxRule.activate();
         validationRuleSet.save();
 
         assertThat(validationRuleSet.getId()).isNotEqualTo(0L);
@@ -225,11 +235,26 @@ public class ValidationIT {
 
         validationEventHandler.handle(localEvent);
 
-        verify(consecutiveZeroesValidator).validate(channel1, readingType1, interval(date1, date5));
-        verify(consecutiveZeroesValidator).validate(channel1, readingType2, interval(date1, date5));
-        verify(consecutiveZeroesValidator).validate(channel2, readingType1, interval(date1, date5));
-        verify(minMaxValidator).validate(channel1, readingType2, interval(date1, date5));
-        verify(minMaxValidator).validate(channel2, readingType3, interval(date1, date5));
+        verify(consecutiveZeroesValidator, times(2)).validate(reading1_1);
+        verify(consecutiveZeroesValidator, times(2)).validate(reading1_2);
+        verify(consecutiveZeroesValidator, times(2)).validate(reading1_3);
+        verify(consecutiveZeroesValidator, times(2)).validate(reading1_4);
+        verify(consecutiveZeroesValidator, times(2)).validate(reading1_5);
+        verify(consecutiveZeroesValidator).validate(reading2_1);
+        verify(consecutiveZeroesValidator).validate(reading2_2);
+        verify(consecutiveZeroesValidator).validate(reading2_3);
+        verify(consecutiveZeroesValidator).validate(reading2_4);
+        verify(consecutiveZeroesValidator).validate(reading2_5);
+        verify(minMaxValidator).validate(reading1_1);
+        verify(minMaxValidator).validate(reading1_2);
+        verify(minMaxValidator).validate(reading1_3);
+        verify(minMaxValidator).validate(reading1_4);
+        verify(minMaxValidator).validate(reading1_5);
+        verify(minMaxValidator).validate(reading2_1);
+        verify(minMaxValidator).validate(reading2_2);
+        verify(minMaxValidator).validate(reading2_3);
+        verify(minMaxValidator).validate(reading2_4);
+        verify(minMaxValidator).validate(reading2_5);
     }
 
     private class AssignId implements Answer<Void> {

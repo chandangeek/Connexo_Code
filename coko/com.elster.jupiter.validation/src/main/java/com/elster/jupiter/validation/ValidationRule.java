@@ -22,8 +22,6 @@ public interface ValidationRule {
 
     ValidationRuleSet getRuleSet();
 
-    Validator getValidator();
-
     void setAction(ValidationAction action);
 
     void setImplementation(String implementation);
