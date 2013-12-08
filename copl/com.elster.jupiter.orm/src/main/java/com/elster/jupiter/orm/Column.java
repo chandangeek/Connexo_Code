@@ -1,4 +1,5 @@
 package com.elster.jupiter.orm;
+
 /**
  * 
  * Describes a column mapping
@@ -28,4 +29,19 @@ public interface Column {
 	boolean isEnum();
 	boolean isNotNull();
 	boolean isDiscriminator();
+	
+	interface Builder {
+		Builder type(String type);
+		Builder map(String field);
+		Builder conversion(ColumnConversion conversion);
+		Builder notNull();
+		Builder sequence(String name);
+		Builder insert(String pseudoLiteral);
+		Builder update(String pseudoLiteral);
+		Builder version();
+		Builder skipOnUpdate();
+		Builder bool();
+		Column add();
+		Builder number();
+	}
 }

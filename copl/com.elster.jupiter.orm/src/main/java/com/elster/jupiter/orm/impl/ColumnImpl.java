@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.internal.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class ColumnImpl implements Column  {
 	// persistent fields
@@ -33,8 +34,7 @@ public class ColumnImpl implements Column  {
 	private ColumnImpl() {		
 	}
 
-	ColumnImpl(Table table, String name, String dbType , boolean notNull , ColumnConversion conversion , 
-			String fieldName , String sequenceName , boolean versionCount, String insertValue , String updateValue , boolean skipOnUpdate) {
+	private ColumnImpl(Table table, String name) {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -42,6 +42,11 @@ public class ColumnImpl implements Column  {
 		this.componentName = table.getComponentName();
 		this.tableName = table.getName();
 		this.name = name;
+	}
+	
+	ColumnImpl(Table table, String name, String dbType , boolean notNull , ColumnConversion conversion , 
+			String fieldName , String sequenceName , boolean versionCount, String insertValue , String updateValue , boolean skipOnUpdate) {
+		this(table,name);
 		this.dbType = dbType;
 		this.notNull = notNull;
 		this.conversion = ColumnConversionImpl.valueOf(conversion.name());
@@ -51,6 +56,18 @@ public class ColumnImpl implements Column  {
 		this.insertValue = insertValue;
 		this.updateValue = updateValue;
 		this.skipOnUpdate = skipOnUpdate;
+	}
+	
+	private void validate() {
+		Objects.requireNonNull(componentName);
+		Objects.requireNonNull(tableName);
+		Objects.requireNonNull(name);
+		Objects.requireNonNull(dbType);
+		Objects.requireNonNull(fieldName);
+		Objects.requireNonNull(conversion);
+		if (skipOnUpdate && updateValue != null) {
+			throw new IllegalArgumentException("updateValue must be null if skipOnUpdate");
+		}
 	}
 	
 	@Override
@@ -208,6 +225,85 @@ public class ColumnImpl implements Column  {
 	@Override
 	public boolean isDiscriminator() {
 		return TYPEFIELDNAME.equals(fieldName);
+	}
+	
+	static class BuilderImpl implements Column.Builder {
+		private final ColumnImpl column;
+		
+		BuilderImpl(Table table , String name) {
+			this.column = new ColumnImpl(table,name);
+			column.conversion = ColumnConversionImpl.NOCONVERSION;
+		}
+
+		@Override
+		public Builder type(String type) {
+			column.dbType = type;
+			return this;
+		}
+
+		@Override
+		public Builder map(String field) {
+			column.fieldName = field;
+			return this;
+		}
+
+		@Override
+		public Builder conversion(ColumnConversion conversion) {
+			column.conversion = ColumnConversionImpl.valueOf(conversion.name());
+			return this;
+		}
+
+		@Override
+		public Builder notNull() {
+			column.notNull = true;
+			return this;
+		}
+
+		@Override
+		public Builder sequence(String name) {
+			column.sequenceName = name;
+			return this;
+		}
+
+		@Override
+		public Builder insert(String pseudoLiteral) {
+			column.insertValue = pseudoLiteral;
+			return this;
+		}
+
+		@Override
+		public Builder update(String pseudoLiteral) {
+			column.updateValue = pseudoLiteral;
+			return this;
+		}
+
+		@Override
+		public Builder version() {
+			column.versionCount = true;
+			return this;
+		}
+
+		@Override
+		public Builder skipOnUpdate() {
+			column.skipOnUpdate = true;
+			return this;
+		}
+		
+		@Override
+		public Builder bool() {
+			return this.type("CHAR(1)").notNull().conversion(ColumnConversion.CHAR2BOOLEAN);
+		}
+		
+		@Override
+		public Builder number() {
+			return this.type("NUMBER");
+		}
+
+		@Override
+		public Column add() {
+			column.validate();
+			return ((TableImpl) column.table).add(column);
+		}
 	}
 }
 

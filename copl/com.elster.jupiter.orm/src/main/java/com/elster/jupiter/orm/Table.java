@@ -215,4 +215,10 @@ public interface Table {
     List<Column> addIntervalColumns(String fieldName);
 
     List<String> getDdl();
+    
+    // fluent api
+    Column.Builder column(String name);
+    PrimaryKeyConstraint.Builder primaryKey(String name);
+    UniqueConstraint.Builder unique(String name);
+    ForeignKeyConstraint.Builder foreignKey(String name);
 }

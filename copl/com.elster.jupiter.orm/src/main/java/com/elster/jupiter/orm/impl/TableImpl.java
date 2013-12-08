@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.UniqueConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
@@ -41,6 +42,9 @@ public class TableImpl implements Table , PersistenceAware  {
 	private DataModel component;
 	private List<Column> columns;
 	private List<TableConstraint> constraints;
+	
+	// transient, protection against forgetting to call add() on a builder
+	private transient boolean activeBuilder;
 		
 	TableImpl(DataModel component, String schema, String name) {
         assert component != null;
@@ -129,6 +133,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	Column add(ColumnImpl column) {
+		activeBuilder = false;
 		doGetColumns().add(column);
 		column.setPosition(doGetColumns().size());
 		return column;
@@ -266,31 +271,37 @@ public class TableImpl implements Table , PersistenceAware  {
 		if (sequence.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + sequence + " too long");
 		}
+		checkActiveBuilder();
 		return add(new ColumnImpl(this,name,dbType, true, conversion,fieldName,sequence,false,null,null, skipOnUpdate));
 	}
 	
 	@Override
 	public Column addVersionCountColumn(String name, String dbType , String fieldName) {
+		checkActiveBuilder();
 		return add(new ColumnImpl(this,name,dbType, true , NUMBER2LONG,fieldName, null, true,null,null,false));
 	}
 
 	@Override
-	public Column addDiscriminatorColumn(String name, String dbType) {		
+	public Column addDiscriminatorColumn(String name, String dbType) {
+		checkActiveBuilder();
 		return add(new ColumnImpl(this,name,dbType,true,NOCONVERSION,Column.TYPEFIELDNAME,null,false,null,null,false));
 	}
 
 	@Override
 	public Column addCreateTimeColumn(String name , String fieldName) {
+		checkActiveBuilder();
 		return add(new ColumnImpl(this,name,"number", true , NUMBER2NOW, fieldName, null, false, null , null , true));
 	}
 	
 	@Override
 	public Column addModTimeColumn(String name , String fieldName) {
+		checkActiveBuilder();
 		return add(new ColumnImpl(this,name,"number", true , NUMBER2NOW, fieldName, null, false, null , null , false));
 	}
 	
 	@Override
 	public Column addUserNameColumn(String name , String fieldName) {
+		checkActiveBuilder();
 		return add(new ColumnImpl(this,name,"varchar2(80)", true , CHAR2PRINCIPAL, fieldName, null, false, null , null , false));
 	}
 	
@@ -304,28 +315,33 @@ public class TableImpl implements Table , PersistenceAware  {
 		return builder.build();
 	}
 	
-	@Override
-	public TableConstraint addPrimaryKeyConstraint(String name, Column... columns) {
-		TableConstraintImpl constraint = new PrimaryKeyConstraintImpl(this, name );
-		constraint.add(columns);
+	TableConstraint add(TableConstraint constraint) {
+		activeBuilder = false;
 		doGetConstraints().add(constraint);
 		return constraint;
+	}
+	@Override
+	public TableConstraint addPrimaryKeyConstraint(String name, Column... columns) {
+		checkActiveBuilder();
+		TableConstraintImpl constraint = new PrimaryKeyConstraintImpl(this, name );
+		constraint.add(columns);
+		return add(constraint);
 	}
 
 	@Override
 	public TableConstraint addUniqueConstraint(String name, Column... columns) {
+		checkActiveBuilder();
 		TableConstraintImpl constraint = new UniqueConstraintImpl(this,  name);
 		constraint.add(columns);
-		doGetConstraints().add(constraint);
-		return constraint;	
+		return add(constraint);	
 	}
 
 	@Override
 	public TableConstraint addForeignKeyConstraint(String name, Table referencedTable, DeleteRule deleteRule , AssociationMapping mapping , Column... columns) {
+		checkActiveBuilder();
 		TableConstraintImpl constraint = new ForeignKeyConstraintImpl(this , name, referencedTable , deleteRule, mapping );
 		constraint.add(columns);
-		doGetConstraints().add(constraint);
-		return constraint;	
+		return add(constraint);	
 	}
 
 	@Override
@@ -416,6 +432,39 @@ public class TableImpl implements Table , PersistenceAware  {
 		return builder.build();
 	}
 
+	void checkActiveBuilder() {
+		if (activeBuilder) {
+			throw new IllegalStateException("Builder in progress. Invoke add() first");
+		}
+	}
+	
+	@Override
+	public Column.Builder column(String name) {
+		checkActiveBuilder();
+		activeBuilder = true;
+		return new ColumnImpl.BuilderImpl(this,name);
+	}
+	@Override
+	public PrimaryKeyConstraint.Builder primaryKey(String name) {
+		checkActiveBuilder();
+		activeBuilder = true;
+		return new PrimaryKeyConstraintImpl.BuilderImpl(this,name);		
+	}
+	
+	@Override
+	public UniqueConstraint.Builder unique(String name) {
+		checkActiveBuilder();
+		activeBuilder = true;
+		return new UniqueConstraintImpl.BuilderImpl(this,name);		
+	}
+	
+	@Override
+	public ForeignKeyConstraint.Builder foreignKey(String name) {
+		checkActiveBuilder();
+		activeBuilder = true;
+		return new ForeignKeyConstraintImpl.BuilderImpl(this,name);		
+	}
+	
     @Override
     public boolean equals(Object o) {
         if (this == o) {

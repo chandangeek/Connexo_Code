@@ -77,6 +77,9 @@ public class DataModelImpl implements DataModel, PersistenceAware {
 
     @Override
     public Table addTable(String schema, String tableName) {
+    	if (!getTables().isEmpty()) {
+        	((TableImpl) getTables().get(getTables().size() - 1)).checkActiveBuilder();
+        }
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
         }
