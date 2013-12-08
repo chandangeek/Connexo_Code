@@ -31,4 +31,13 @@ public class Membership extends Leaf {
 		return subquery;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(fieldNames.toString());
+		sb.append(" ");
+		sb.append(operator.getSymbol());
+		sb.append(" ");
+		sb.append(subquery);
+		return sb.toString();
+	}
 }

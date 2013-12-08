@@ -18,4 +18,9 @@ public class FragmentExpression extends Leaf {
 	public void visit(Visitor visitor) {
 		visitor.visitFragmentExpression(this);		
 	}
+	
+	@Override
+	public String toString() {
+		return "Fragment: " + fragment;
+	}
 }

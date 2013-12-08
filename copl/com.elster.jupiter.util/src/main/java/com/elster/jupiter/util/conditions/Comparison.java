@@ -37,4 +37,9 @@ public final class Comparison extends Leaf {
 		return MessageFormat.format(getOperator().getFormat(),fieldText);
 	}
 	
+	@Override
+	public String toString() {
+		return getText(fieldName);
+	}
+	
 }

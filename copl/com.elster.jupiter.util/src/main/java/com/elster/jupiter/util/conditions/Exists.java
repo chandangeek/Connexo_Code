@@ -21,4 +21,8 @@ public class Exists extends Leaf {
 		return subquery;
 	}
 
+	@Override
+	public String toString() {
+		return " EXISTS " + "(" + subquery + ")";
+	}
 }

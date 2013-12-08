@@ -24,6 +24,11 @@ public enum Constant implements Condition {
 		public void visit(Visitor visitor) {
 			visitor.visitTrue(this);
 		}		
+		
+		@Override
+		public String toString() {
+			return "TRUE";
+		}
 	},
 	FALSE {
 		@Override
@@ -44,7 +49,12 @@ public enum Constant implements Condition {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visitFalse(this);
-		}		
+		}	
+		
+		@Override
+		public String toString() {
+			return "FALSE";
+		}
 
 	}
 }

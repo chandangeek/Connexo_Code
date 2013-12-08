@@ -30,4 +30,13 @@ public class Contains extends Leaf {
 		visitor.visitContains(this);		
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(fieldName);
+		sb.append(" ");
+		sb.append(operator.getSymbol());
+		sb.append(" ");
+		sb.append(collection);
+		return sb.toString();
+	}
 }

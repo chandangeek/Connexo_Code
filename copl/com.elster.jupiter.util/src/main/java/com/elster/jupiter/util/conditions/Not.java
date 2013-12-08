@@ -35,4 +35,8 @@ public class Not implements Condition {
 		visitor.visitNot(this);		
 	}
 
+	@Override
+	public String toString() {
+		return "NOT " + negated.toString();
+	}
 }

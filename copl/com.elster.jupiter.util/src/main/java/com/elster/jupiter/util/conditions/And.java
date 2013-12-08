@@ -24,5 +24,18 @@ public class And extends Composite {
 	public void visit(Visitor visitor) {
 		visitor.visitAnd(this);		
 	}
+	
+	@Override 
+	public String toString() {
+		StringBuilder sb = new StringBuilder("(");
+		String separator = "";
+		for (Condition condition : getConditions()) {
+			sb.append(separator);
+			sb.append(condition);
+			separator = " AND ";
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 
 }

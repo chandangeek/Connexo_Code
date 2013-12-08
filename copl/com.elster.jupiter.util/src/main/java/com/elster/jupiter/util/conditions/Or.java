@@ -25,4 +25,16 @@ public class Or extends Composite {
 		visitor.visitOr(this);		
 	}
 
+	@Override 
+	public String toString() {
+		StringBuilder sb = new StringBuilder("(");
+		String separator = "";
+		for (Condition condition : getConditions()) {
+			sb.append(separator);
+			sb.append(condition);
+			separator = " OR ";
+		}
+		sb.append(")");
+		return sb.toString();
+	}
 }

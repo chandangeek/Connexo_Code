@@ -1,5 +1,9 @@
 package com.elster.jupiter.util.conditions;
 
+import java.util.Date;
+
+import com.elster.jupiter.util.time.Interval;
+
 public final class Where {
 	
 	private final String field;
@@ -70,6 +74,41 @@ public final class Where {
 	
 	public Condition soundsAs(Object value) {
 		return Operator.SOUNDSAS.compare(field, value);
+	}
+	
+	private Condition compare(Date date , Operator operator) {
+		return date == null ? Condition.TRUE : operator.compare(field,date);
+	}
+	private Condition after (Date date) {
+		return compare(date,Operator.GREATERTHAN);
+	}
+	
+	private Condition afterOrEqual(Date date) {
+		return compare(date,Operator.GREATERTHANOREQUAL);
+	}
+	
+	private Condition before(Date date) {
+		return compare(date,Operator.LESSTHAN);
+	}
+	
+	private Condition beforeOrEqual(Date date) {
+		return compare(date,Operator.LESSTHANOREQUAL);
+	}
+	
+	public Condition inOpen(Interval interval) {
+		return after(interval.getStart()).and(before(interval.getEnd()));
+	}
+	
+	public Condition inClosed(Interval interval) {
+		return afterOrEqual(interval.getStart()).and(beforeOrEqual(interval.getEnd()));
+	}
+	
+	public Condition inOpenClosed(Interval interval) {
+		return after(interval.getStart()).and(beforeOrEqual(interval.getEnd()));
+	}
+	
+	public Condition inClosedOpen(Interval interval) {
+		return afterOrEqual(interval.getStart()).and(before(interval.getEnd()));
 	}
 	
 	public class BetweenBuilder {

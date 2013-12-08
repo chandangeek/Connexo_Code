@@ -16,4 +16,9 @@ public class Text extends Leaf {
 	public void visit(Visitor visitor) {
 		visitor.visitText(this);		
 	}
+	
+	@Override 
+	public String toString() {
+		return "Text: " + text;
+	}
 }
