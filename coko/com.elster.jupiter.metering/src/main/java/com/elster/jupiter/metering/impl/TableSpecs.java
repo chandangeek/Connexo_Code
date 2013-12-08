@@ -17,11 +17,11 @@ public enum TableSpecs {
 	MTR_SERVICECATEGORY {
 		void describeTable(Table table) {
 			table.setJournalTableName("MTR_SERVICECATEGORYJRNL");
-			Column idColumn = table.addColumn("ID","number", true,NUMBER2ENUMPLUSONE,"kind");
-			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
+			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
+			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.addAuditColumns();			
-			table.addPrimaryKeyConstraint("MTR_PK_SERVICECATEGORY", idColumn);
+			table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
 		}
 	},
 	MTR_SERVICELOCATION {
@@ -105,45 +105,45 @@ public enum TableSpecs {
 	},
 	MTR_AMRSYSTEM {
 		void describeTable(Table table) {
-			Column idColumn = table.addColumn("ID", "number", true, NUMBER2INT, "id");
-			Column nameColumn = table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION , "name");
+			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2INT).map("id").add();
+			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_AMRSYSTEM", idColumn);
-			table.addUniqueConstraint("MTR_U_AMRSYSTEM", nameColumn);
+			table.primaryKey("MTR_PK_AMRSYSTEM").on(idColumn).add();
+			table.unique("MTR_U_AMRSYSTEM").on(nameColumn).add();
 		}
 	},
 	MTR_USAGEPOINT {
 		void describeTable(Table table) {
 			table.setJournalTableName("MTR_USAGEPOINTJRNL");
 			Column idColumn = table.addAutoIdColumn();
-			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION , "mRID");
-			Column serviceKindColumn = table.addColumn("SERVICEKIND", "number", true, NUMBER2ENUMPLUSONE, "serviceKind");
-			Column serviceLocationIdColumn = table.addColumn("SERVICELOCATIONID", "number", false, NUMBER2LONGNULLZERO, "serviceLocationId");
-			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
-			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-			table.addColumn("AMIBILLINGREADY", "number", true , NUMBER2ENUM, "amiBillingReady");
-			table.addColumn("CHECKBILLING", "char(1)", true, CHAR2BOOLEAN, "checkBilling");
-			table.addColumn("CONNECTIONSTATE", "number", true , NUMBER2ENUM, "connectionState");
+			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
+			Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("serviceKind").add();
+			Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).map("serviceLocationId").add();
+			table.column("NAME").type("varchar2(80)").map("name").add();
+			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
+			table.column("CHECKBILLING").bool().map("checkBilling").add();
+			table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
 			table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
-			table.addColumn("GROUNDED", "char(1)", true, CHAR2BOOLEAN, "grounded");
-			table.addColumn("ISSDP", "char(1)", true, CHAR2BOOLEAN, "isSdp");
-			table.addColumn("ISVIRTUAL", "char(1)", true, CHAR2BOOLEAN, "isVirtual");
-			table.addColumn("MINIMALUSAGEEXPECTED", "char(1)", true, CHAR2BOOLEAN, "minimalUsageExpected");
+			table.column("GROUNDED").bool().map("grounded").add();
+			table.column("ISSDP").bool().map("isSdp").add();
+			table.column("ISVIRTUAL").bool().map("isVirtual").add();
+			table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
 			table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
-			table.addColumn("OUTAGEREGION", "varchar2(80)", false, NOCONVERSION , "outageRegion");
-			table.addColumn("PHASECODE", "varchar2(7)", false,CHAR2ENUM , "phaseCode");
+			table.column("OUTAGEREGION").type("varchar2(80)").map("outageRegion").add();
+			table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
 			table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
 			table.addQuantityColumns("RATEDPOWER", false , "ratedPower");
-			table.addColumn("READCYCLE", "varchar2(80)", false, NOCONVERSION , "readCycle");
-			table.addColumn("READROUTE", "varchar2(80)", false, NOCONVERSION , "readRoute");
-			table.addColumn("SERVICEDELIVERYREMARK", "varchar2(80)", false, NOCONVERSION , "serviceDeliveryRemark");
-			table.addColumn("SERVICEPRIORITY", "varchar2(80)", false, NOCONVERSION , "servicePriority");
+			table.column("READCYCLE").type("varchar2(80)").map("readCycle").add();
+			table.column("READROUTE").type("varchar2(80)").map("readRoute").add();
+			table.column("SERVICEDELIVERYREMARK").type("varchar2(80)").map("serviceDeliveryRemark").add();
+			table.column("SERVICEPRIORITY").type("varchar2(80)").map("servicePriority").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_USAGEPOINT", idColumn);
-			table.addUniqueConstraint("MTR_U_USAGEPOINT", mRIDColumn);
-			table.addForeignKeyConstraint("MTR_FK_USAGEPOINTSERVICECAT",MTR_SERVICECATEGORY.name(),RESTRICT, new AssociationMapping("serviceCategory"), serviceKindColumn);
-			table.addForeignKeyConstraint("MTR_FK_USAGEPOINTSERVICELOC",MTR_SERVICELOCATION.name(),RESTRICT, new AssociationMapping("serviceLocation", "usagePoints") , serviceLocationIdColumn);
+			table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
+			table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
+			table.foreignKey("MTR_FK_USAGEPOINTSERVICECAT").on(serviceKindColumn).references(MTR_SERVICECATEGORY.name()).onDelete(RESTRICT).map("serviceCategory").add();
+			table.foreignKey("MTR_FK_USAGEPOINTSERVICELOC").on(serviceLocationIdColumn).references(MTR_SERVICELOCATION.name()).onDelete(RESTRICT).map("serviceLocation").reverseMap("usagePoints").add();
 		}
 	},
 	MTR_READINGTYPE {
@@ -206,7 +206,7 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MTR_FK_CHANNELMAINTYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("mainReadingType"), mainReadingTypeMRIDColumn);
 			table.addForeignKeyConstraint("MTR_FK_CHANNELCUMULATIVETYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("cumulativeReadingType"), cumulativeReadingTypeMRIDColumn);
 			// TODO: How to document dependency on id of IDS TIMESERIES table)
-			table.addForeignKeyConstraint("MTR_FK_CHANNELTIMESERIES","IDS","IDS_TIMESERIES",DeleteRule.RESTRICT,"timeSeries",timeSeriesIdColumn);
+			table.foreignKey("MTR_FK_CHANNELTIMESERIES").on(timeSeriesIdColumn).references("IDS","IDS_TIMESERIES").onDelete(RESTRICT).map("timeSeries").add();
 		}
 	},		
 	MTR_READINGTYPEINCHANNEL {
@@ -229,8 +229,8 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_UPACCOUNTABILITY", usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0));
 			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTUP", MTR_USAGEPOINT.name(),CASCADE,new AssociationMapping("usagePoint","accountabilities"),usagePointIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTY", "PRT" , "PRT_PARTY", RESTRICT , "party" , partyIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTYROLE", "PRT" , "PRT_PARTYROLE", RESTRICT , "role" , roleMRIDColumn);
+			table.foreignKey("MTR_FK_UPACCOUNTPARTY").on(partyIdColumn).references("PRT", "PRT_PARTY").onDelete(RESTRICT).map("party").add();
+			table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE").on(roleMRIDColumn).references("PRT", "PRT_PARTYROLE").onDelete(RESTRICT).map("role").add();
  		}
 	},
     MTR_UP_GROUP {
