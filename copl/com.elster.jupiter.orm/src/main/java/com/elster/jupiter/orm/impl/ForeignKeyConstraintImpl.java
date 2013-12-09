@@ -184,11 +184,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
 		@Override
 		public Builder references(String component, String name) {
-			Optional<Table> tableHolder = Bus.getOrmClient().getTableFactory().get(component,name);
-			if (!tableHolder.isPresent()) {
-				throw new IllegalArgumentException("Table " + name + " not found in component " + component);
-			}
-			constraint.setReferencedTable(tableHolder.get());
+			Table table = Bus.getTable(component, name);
+			constraint.setReferencedTable(table);
 			return this;
 		}
 		
