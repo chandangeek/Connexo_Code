@@ -29,7 +29,4 @@ public interface OrmService {
 	 * Only for applications that need to document the data model 
 	 */
 	List<DataModel> getDataModels();
-	Optional<Table> getTable(Class<?> clazz);
-	String serialize(Object [] key);
-	Object[] deserialize(String in);
 }

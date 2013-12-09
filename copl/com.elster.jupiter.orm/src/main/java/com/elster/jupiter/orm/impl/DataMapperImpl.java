@@ -1,17 +1,20 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
@@ -115,30 +118,18 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"XS",                                                                              
 		"YES" }; 
 	private final TableSqlGenerator sqlGenerator;
-	private final DomainMapper mapper;
-	private final Collection<Class<? extends T>> implementations;
+	private final DataMapperType mapperType;
 	private final String alias;
 	private final DataMapperReader<T> reader;
 	private final DataMapperWriter<T> writer;
 	
-	DataMapperImpl(Class<T> api, Class<? extends T> implementation ,  Table table) {
-		this.mapper = DomainMapper.FIELDSTRICT;
+	DataMapperImpl(Class<T> api, DataMapperType mapperType ,  Table table) {
 		this.sqlGenerator = new TableSqlGenerator((TableImpl) table);
 		this.alias = createAlias(api.getName());
-		this.implementations = new ArrayList<>(1);
-		this.implementations.add(implementation);
-		this.reader = new DataMapperReader<>(this,implementation);
+		this.mapperType = mapperType;
+		this.reader = new DataMapperReader<>(this,mapperType);
 		this.writer = new DataMapperWriter<>(this);
 	}	
-	
-	DataMapperImpl(Class<T> api , Map<String,Class<? extends T>> implementations , Table table) {
-		this.mapper = DomainMapper.FIELDLENIENT;
-		this.sqlGenerator = new TableSqlGenerator((TableImpl) table);
-		this.alias = createAlias(api.getName());
-		this.implementations = implementations.values(); 
-		this.reader = new DataMapperReader<>(this, implementations);
-		this.writer = new DataMapperWriter<>(this, implementations);
-	}
 	
 	private String createAlias(String apiName) {
 		StringBuilder builder = new StringBuilder();
@@ -325,13 +316,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	private Object getEnum(Column column, String value) {
-		for (Class<? extends T> implementation : implementations) {
-			Object result = mapper.getEnum(implementation, column.getFieldName(),value);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;			
+		return mapperType.getEnum(column.getFieldName(), value);			
 	}
 	
 	private ColumnImpl[] getColumns() {
@@ -386,16 +371,14 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	public Class<?> getType(String fieldName) {
-		for (Class<? extends T> implementation : implementations) {
-			Class<?> result = mapper.getType(implementation, fieldName);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
+		return mapperType.getType(fieldName);
 	}
 	
 	public List<T> select(Condition condition, String ... orderBy) {
 		return with().select(condition, orderBy, false,null);
+	}
+	
+	DataMapperType getMapperType() {
+		return mapperType;
 	}
 }

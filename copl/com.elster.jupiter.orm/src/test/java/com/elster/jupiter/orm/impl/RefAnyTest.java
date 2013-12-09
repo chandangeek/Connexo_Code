@@ -66,11 +66,11 @@ public class RefAnyTest {
     }
 
     @Test
-    public void testDataModel() {    	
+    public void testRefAny() {    	
     	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");
     	assertThat(tableHolder).isPresent();
-    	RefAny refAny = RefAny.of(tableHolder.get());
-    	assertThat(refAny.get()).isPresent();
+    	RefAny refAny = RefAnyImpl.of(tableHolder.get());
+    	assertThat(refAny.isPresent()).isTrue();
     }
 
 

@@ -15,7 +15,6 @@ import org.osgi.service.log.LogService;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.RefAny;
 import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -75,10 +74,6 @@ public class OrmTest {
     	assertThat(Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLES")).isAbsent();
     	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");
     	assertThat(tableHolder).isPresent();
-    	RefAny refAny = RefAny.of(tableHolder.get());
-    	System.out.println(refAny);
-    	assertThat(refAny.get()).isPresent();
-    	
     }
 
 

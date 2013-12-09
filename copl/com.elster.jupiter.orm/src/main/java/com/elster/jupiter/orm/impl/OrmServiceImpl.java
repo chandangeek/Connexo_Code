@@ -127,13 +127,11 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public void activate() {
     	this.ormClient = new OrmClientImpl(createDataModel());
 		Bus.setServiceLocator(this);
-		RefAny.setOrmService(this);
 	}
 	
 	@Deactivate
 	public void deactivate() {
 		Bus.clearServiceLocator(this);
-		RefAny.clearOrmService(this);
 	}
 	
 	@Override
@@ -163,28 +161,5 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public OrmService getOrmService() {
 		return this;
 	}
-
-	@Override
-	public Optional<Table> getTable(Class<?> clazz) {
-		Optional<Table> result;
-		for (DataModel dataModel : getDataModels()) {
-			result = dataModel.getTable(clazz);
-			if (result.isPresent()) {
-				return result;
-			}
-		}			
-		return Optional.absent();
-	}
-	
-	@Override
-	public String serialize(Object[] key) {
-		return jsonService.serialize(key);
-	}
-	
-	@Override
-	public Object[] deserialize(String json) {
-		return jsonService.deserialize(json, Object[].class);
-	}
-	
 
 }

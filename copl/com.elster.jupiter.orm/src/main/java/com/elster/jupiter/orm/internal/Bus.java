@@ -65,7 +65,7 @@ public class Bus {
 		return getLocator().getTable(component, tableName);
 	}
 
-    private static ServiceLocator getLocator() {
+    public static ServiceLocator getLocator() {
         return locatorHolder.get();
     }
 

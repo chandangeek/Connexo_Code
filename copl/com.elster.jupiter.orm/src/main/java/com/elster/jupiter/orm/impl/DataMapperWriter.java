@@ -2,7 +2,6 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.internal.Bus;
@@ -20,18 +19,12 @@ import java.util.Map;
 import static com.elster.jupiter.orm.internal.Bus.getConnection;
 
 public class DataMapperWriter<T> {
-	private final DomainMapper fieldMapper;
+	private final DataMapperType mapperType;
 	private final TableSqlGenerator sqlGenerator;
-	private final Map<String,Class<? extends T>> implementations;
 	
-	DataMapperWriter(DataMapperImpl<T> dataMapper , Map<String,Class<? extends T>> implementations) {
+	DataMapperWriter(DataMapperImpl<T> dataMapper) {
+		this.mapperType = dataMapper.getMapperType();
 		this.sqlGenerator = dataMapper.getSqlGenerator();
-		this.implementations = implementations;
-		fieldMapper = implementations == null ? DomainMapper.FIELDSTRICT : DomainMapper.FIELDLENIENT;
-	}
-	
-	DataMapperWriter(DataMapperImpl<T> dataMapper)  {
-		this(dataMapper,null);
 	}
 	
 	private long getNext(Connection connection , String sequence) throws SQLException {
@@ -66,7 +59,7 @@ public class DataMapperWriter<T> {
 			if (((ColumnImpl) entry.getKey()).hasIntValue()) {
 				value = value.intValue();
 			}
-			fieldMapper.set(object,entry.getKey().getFieldName(), value);
+			mapperType.getDomainMapper().set(object,entry.getKey().getFieldName(), value);
 		}
 		refresh(object,true);
 	}
@@ -159,7 +152,7 @@ public class DataMapperWriter<T> {
 		} 	
 		for (Map.Entry<Column, Long> entry : versionCounts.entrySet()) {
 			// version count must have integer mapping
-			fieldMapper.set(object,entry.getKey().getFieldName(), entry.getValue() + 1);
+			mapperType.getDomainMapper().set(object,entry.getKey().getFieldName(), entry.getValue() + 1);
 		}
 		refresh(object,false);
 	}
@@ -257,10 +250,10 @@ public class DataMapperWriter<T> {
 	private void prepare(Object target, boolean update, UtcInstant now) {
 		for (Column each : getColumns()) {
 			if (each.getConversion() == ColumnConversion.NUMBER2NOW && !(update && each.skipOnUpdate())) {				
-				fieldMapper.set(target,each.getFieldName(),now);
+				mapperType.getDomainMapper().set(target,each.getFieldName(),now);
 			}
 			if (each.getConversion() == ColumnConversion.CHAR2PRINCIPAL && !(update && each.skipOnUpdate())) {
-				fieldMapper.set(target,each.getFieldName(),getCurrentUserName());
+				mapperType.getDomainMapper().set(target,each.getFieldName(),getCurrentUserName());
 			}
 		}
 	}
@@ -272,19 +265,14 @@ public class DataMapperWriter<T> {
 
 	private Object getValue(Object target , Column column) {
 		if (column.isDiscriminator()) {
-			for (Map.Entry<String,Class<? extends T>> entry : implementations.entrySet()) {
-				if (entry.getValue() == target.getClass()) {
-					return entry.getKey();
-				}
-			}
-			throw new MappingException(target.getClass());
+			return mapperType.getDiscriminator(target.getClass());
 		} else {			
-			return ((ColumnImpl) column).convertToDb(fieldMapper.get(target , column.getFieldName()));
+			return ((ColumnImpl) column).convertToDb(mapperType.getDomainMapper().get(target , column.getFieldName()));
 		}
 	}
 	
 	private void setValue(Object target , Column column , ResultSet rs, int index) throws SQLException {
-		fieldMapper.set(target, column.getFieldName() , ((ColumnImpl) column).convertFromDb(rs, index));
+		mapperType.getDomainMapper().set(target, column.getFieldName() , ((ColumnImpl) column).convertFromDb(rs, index));
 	}	
 
 		

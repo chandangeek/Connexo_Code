@@ -2,9 +2,11 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.RefAny;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+
 
 public enum DomainMapper {
 	FIELDSTRICT(true),
@@ -35,6 +37,15 @@ public enum DomainMapper {
 			}
 		}
 	}
+	
+	private Object create(Class<?> clazz) throws ReflectiveOperationException {
+		if (clazz == RefAny.class) {
+			return new RefAnyImpl();
+		}
+		Constructor<?> constructor = clazz.getDeclaredConstructor();
+		constructor.setAccessible(true);
+		return constructor.newInstance();		
+	}
 
 	private Object getOrCreate(Object target, String fieldName) {
 		Field field = getField(target.getClass(), fieldName);
@@ -44,9 +55,7 @@ public enum DomainMapper {
 			try {
 				Object result = field.get(target);
 				if (result == null) {
-					Constructor<?> constructor = field.getType().getDeclaredConstructor();
-					constructor.setAccessible(true);
-					result = constructor.newInstance();
+					result = create(field.getType());
 					field.set(target, result);
 				}
 				return result;

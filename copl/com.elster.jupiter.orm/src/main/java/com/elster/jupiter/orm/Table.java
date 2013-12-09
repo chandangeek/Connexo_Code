@@ -221,6 +221,7 @@ public interface Table {
      * @return
      */
     List<Column> addIntervalColumns(String fieldName);
+    List<Column> addRefAnyColumns(String name , boolean notNull, String fieldName);
 
     List<String> getDdl();
     

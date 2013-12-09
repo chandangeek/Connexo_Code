@@ -55,4 +55,5 @@ public interface DataModel {
     SqlDialect getSqlDialect();
     
     Optional<Table> getTable(Class<?> clazz);
+    RefAny asRefAny(Object object);
 }

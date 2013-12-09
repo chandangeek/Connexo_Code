@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.RefAny;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -200,5 +201,10 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     		}
     	}
     	return Optional.absent();
+    }
+    
+    @Override
+    public RefAny asRefAny(Object reference) {
+    	return RefAnyImpl.of(reference);
     }
 }

@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.util.Checks.is;
@@ -46,8 +45,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	private List<TableConstraint> constraints;
 	
 	// mapping
-	private Class<?> implementation;
-	private Map<String,Class<?>> implementations;
+	private DataMapperType mapperType;
 	
 	// transient, protection against forgetting to call add() on a builder
 	private transient boolean activeBuilder;
@@ -362,27 +360,22 @@ public class TableImpl implements Table , PersistenceAware  {
 		return addForeignKeyConstraint(name, referencedTable, deleteRule , new AssociationMapping(fieldName), columns); 					
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> DataMapper<T> getDataMapper(Class<T> api) {
-		if (implementation != null) {
-			return getDataMapper(api, (Class<? extends T>) implementation);
+		if (mapperType == null) {
+			throw new IllegalStateException("Implementation not specified");
 		}
-		if (implementations != null) {
-			return getDataMapper(api, (Map<String,Class<? extends T>>) ((Map<?,?>) implementations));
-		}
-		throw new IllegalStateException("Implementation not specified");
+		return new DataMapperImpl<>(api,mapperType,this);
 	}
 		
-
 	@Override
 	public <T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation) {
-		return new DataMapperImpl<>(api, implementation,this);
+		return new DataMapperImpl<>(api, new SingleDataMapperType(implementation) ,this);
 	}
 		
 	@Override
 	public <T> DataMapper<T> getDataMapper(Class<T> api , Map<String, Class<? extends T>> implementations) {
-		return new DataMapperImpl<>(api, implementations,this);
+		return new DataMapperImpl<>(api, new InheritanceDataMapperType<>(implementations), this);
 	}
 	
 	void persist() {
@@ -450,6 +443,16 @@ public class TableImpl implements Table , PersistenceAware  {
 		return builder.build();
 	}
 
+
+	@Override
+	public List<Column> addRefAnyColumns(String name , boolean notNull , String fieldName) {
+        ImmutableList.Builder<Column> builder = ImmutableList.builder();
+		builder.add(addColumn(name + "CMP", "varchar2(3)", notNull, NOCONVERSION, fieldName + ".component"));
+		builder.add(addColumn(name + "TABLE", "varchar2(28)", notNull, NOCONVERSION , fieldName + ".table"));
+		builder.add(addColumn(name + "KEY", "varchar2(4000)", notNull, NOCONVERSION , fieldName + ".key"));
+		builder.add(addColumn(name + "ID", "number", notNull, NUMBER2LONGNULLZERO, fieldName + ".id"));
+		return builder.build();
+	}
 	void checkActiveBuilder() {
 		if (activeBuilder) {
 			throw new IllegalStateException("Builder in progress. Invoke add() first");
@@ -593,24 +596,23 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public void map(Class<?> implementation) {
-		if (this.implementations != null || this.implementation != null) {
+		if (this.mapperType != null) {
 			throw new IllegalStateException("Implementer(s) already specified");
 		}
-		this.implementation = Objects.requireNonNull(implementation);
+		this.mapperType = new SingleDataMapperType(implementation);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> void map(Map<String, Class<? extends T>> implementations) {
-		if (this.implementations != null || this.implementation != null) {
+		if (this.mapperType != null) {
 			throw new IllegalStateException("Implementer(s) already specified");
 		}
-		this.implementations = (Map<String,Class<?>>) ((Map<?,?>) Objects.requireNonNull(implementations));
+		this.mapperType = new InheritanceDataMapperType<>(implementations);
 	}
 
 	@Override
 	public boolean maps(Class<?> clazz) {
-		return (implementation == clazz) || (implementations != null && implementations.containsValue(clazz));
+		return mapperType != null && mapperType.maps(clazz);
 	}
 }
 	

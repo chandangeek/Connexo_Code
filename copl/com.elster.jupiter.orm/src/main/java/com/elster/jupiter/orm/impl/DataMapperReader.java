@@ -9,51 +9,25 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
-import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.elster.jupiter.orm.internal.Bus.getConnection;
 
 public class DataMapperReader<T> {
 	private final TableSqlGenerator sqlGenerator;
 	private final String alias;
-	private final Map<String,Constructor<? extends T>> constructors;
-	private final Constructor<? extends T> constructor;
+	private final DataMapperType mapperType;
 	
-	DataMapperReader(DataMapperImpl<T> dataMapper, Class<? extends T> implementation) {
+	DataMapperReader(DataMapperImpl<T> dataMapper, DataMapperType mapperType) {
 		this.sqlGenerator = dataMapper.getSqlGenerator();	
 		this.alias = dataMapper.getAlias();
-		this.constructors = null;
-		try {
-			constructor = implementation.getDeclaredConstructor();
-			constructor.setAccessible(true);			
-		} catch (ReflectiveOperationException ex) {
-			throw new MappingException(ex);
-		}
-	}
-	
-	DataMapperReader(DataMapperImpl<T> dataMapper, Map<String, Class<? extends T>> implementations) {
-		this.sqlGenerator = dataMapper.getSqlGenerator();	
-		this.alias = dataMapper.getAlias();
-		this.constructor = null;
-		this.constructors = new HashMap<>();
-		try {
-			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
-				Constructor<? extends T> constructor = entry.getValue().getDeclaredConstructor();
-				constructor.setAccessible(true);
-				constructors.put(entry.getKey(),constructor);
-			}
-		} catch (ReflectiveOperationException ex) {
-			throw new MappingException(ex);
-		}
+		this.mapperType = mapperType;
 	}
 	
 	private Table getTable() {
@@ -208,32 +182,19 @@ public class DataMapperReader<T> {
     }
 
 
-    private T newInstance(Constructor <? extends T> factory) {
-		try {			
-			return factory.newInstance();
-		} catch (ReflectiveOperationException e) {
-			throw new MappingException(e);
-		}
-	}
-	
+    	
 	private T newInstance(ResultSet rs , int startIndex) throws SQLException {
 		for (int i = 0 ; i < getColumns().length ; i++) {
 			if (getColumns()[i].isDiscriminator()) {
-				String typeString = rs.getString(startIndex + i);
-				Constructor<? extends T> factory = constructors.get(typeString);
-				if (factory == null) {
-					throw MappingException.noMappingForSqlType(typeString);
-				} else {
-					return newInstance(factory);				
-				}
+				return mapperType.newInstance(rs.getString(startIndex + i));
 			}
 		}
 		throw MappingException.noDiscriminatorColumn();
 	}
 	
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
-		T result = constructors == null ? newInstance(constructor) : newInstance(rs,startIndex);
-		DomainMapper mapper = constructors == null ? DomainMapper.FIELDSTRICT : DomainMapper.FIELDLENIENT;
+		T result = mapperType.hasMultiple() ? newInstance(rs,startIndex) : mapperType.<T>newInstance(null);
+		DomainMapper mapper = mapperType.getDomainMapper();
 		for (Column column : getSqlGenerator().getColumns()) {
 			mapper.set(result, column.getFieldName(), ((ColumnImpl) column).convertFromDb(rs, startIndex++));
 		}					
