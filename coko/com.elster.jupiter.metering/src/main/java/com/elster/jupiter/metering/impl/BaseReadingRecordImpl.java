@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
@@ -43,7 +44,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 	abstract int getReadingTypeOffset();
 	
 	@Override
-	public BigDecimal getValue() {
+	public Quantity getValue() {
 		return getValue(0);
 	}
 
@@ -57,16 +58,21 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
     }
 
     @Override
-	public BigDecimal getValue(int offset) {
-		return entry.getBigDecimal(getReadingTypeOffset() + offset);
+	public Quantity getValue(int offset) {
+        ReadingType readingType = channel.getReadingTypes().get(offset);
+        return readingType.getUnit().getUnit().amount(doGetValue(offset));
 	}
 
-	@Override
-	public BigDecimal getValue(ReadingType readingType) {
+    private BigDecimal doGetValue(int offset) {
+        return entry.getBigDecimal(getReadingTypeOffset() + offset);
+    }
+
+    @Override
+	public Quantity getValue(ReadingType readingType) {
 		int i = 0;
 		for (ReadingType each : channel.getReadingTypes()) {
 			if (each.equals(readingType)) {
-				return getValue(i);
+				return readingType.getUnit().getUnit().amount(doGetValue(i));
             }
             i++;
         }
