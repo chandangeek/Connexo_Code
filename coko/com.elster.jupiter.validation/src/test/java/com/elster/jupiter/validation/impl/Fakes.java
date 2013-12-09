@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -231,6 +232,11 @@ public enum Fakes {
             }
 
         }
+
+		@Override
+		public List<T> select(Condition condition, String... orderBy) {
+			return null;
+		}
     }
 
     public static Object getFieldValue(Object object, String fieldName) {
