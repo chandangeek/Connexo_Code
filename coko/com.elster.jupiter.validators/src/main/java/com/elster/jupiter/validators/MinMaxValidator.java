@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.MissingRequiredProperty;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
@@ -21,7 +22,23 @@ public class MinMaxValidator implements Validator {
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
 
-    public MinMaxValidator(Map<String, Quantity> props) {
+    private Quantity minimum;
+    private Quantity maximum;
+    private ReadingType readingType;
+
+    public MinMaxValidator(Map<String, Quantity> properties) {
+        Quantity min = getRequiredQuantity(properties, MIN);
+        Quantity max = getRequiredQuantity(properties, MAX);
+        minimum = min;
+        maximum = max;
+    }
+
+    private Quantity getRequiredQuantity(Map<String, Quantity> properties, String key) {
+        Quantity min = properties.get(key);
+        if (min == null) {
+            throw new MissingRequiredProperty(key);
+        }
+        return min;
     }
 
     @Override
@@ -36,24 +53,32 @@ public class MinMaxValidator implements Validator {
 
     @Override
     public Optional<ReadingQualityType> getReadingQualityTypeCode() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return Optional.absent();
     }
 
     @Override
     public void init(Channel channel, ReadingType readingType, Interval interval) {
-        //TODO automatically generated method body, provide implementation.
-
+        this.readingType = readingType;
     }
+
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        Quantity toValidate = intervalReadingRecord.getValue(readingType);
+        boolean withinBounds = isWithinBounds(toValidate);
+        return withinBounds ? ValidationResult.PASS : ValidationResult.SUSPECT;
     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return validateQuantity(readingRecord.getValue(readingType));
+    }
+
+    private ValidationResult validateQuantity(Quantity toValidate) {
+        return isWithinBounds(toValidate) ? ValidationResult.PASS : ValidationResult.SUSPECT;
+    }
+
+    private boolean isWithinBounds(Quantity toValidate) {
+        return minimum.compareTo(toValidate) <= 0 && maximum.compareTo(toValidate) >= 0;
     }
 }

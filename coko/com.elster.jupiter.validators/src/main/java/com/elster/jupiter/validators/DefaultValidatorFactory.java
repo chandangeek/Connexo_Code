@@ -6,7 +6,6 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,40 +17,61 @@ public class DefaultValidatorFactory implements ValidatorFactory {
     static final String MinMaxValidator = "com.elster.jupiter.validators.MinMaxValidator";
     static final String ConsecutiveZerosValidator = "com.elster.jupiter.validators.ConsecutiveZerosValidator";
 
+    private enum ValidatorDefinition {
+        RATED_POWER(RatedPowerValidator) {
+            @Override
+            Validator create(Map<String, Quantity> props) {
+                return new RatedPowerValidator(props);
+            }
+        },
+        MINIMAL_USAGE(MinimalUsageExpectedValidator) {
+            @Override
+            Validator create(Map<String, Quantity> props) {
+                return new MinimalUsageExpectedValidator(props);
+            }
+        },
+        MIN_MAX(MinMaxValidator) {
+            @Override
+            Validator create(Map<String, Quantity> props) {
+                return new MinMaxValidator(props);
+            }
+        },
+        CONSECUTIVE_ZEROES(ConsecutiveZerosValidator) {
+            @Override
+            Validator create(Map<String, Quantity> props) {
+                return new ConsecutiveZerosValidator(props);
+            }
+        };
+
+        private final String implementation;
+
+        String getImplementation() {
+            return implementation;
+        }
+
+        ValidatorDefinition(String implementation) {
+            this.implementation = implementation;
+        }
+
+        abstract Validator create(Map<String, Quantity> props);
+    }
+
     @Override
     public List<String> available() {
-        List<String> result = new ArrayList<String>();
-        result.add(RatedPowerValidator);
-        result.add(MinimalUsageExpectedValidator);
-        result.add(MinMaxValidator);
-        result.add(ConsecutiveZerosValidator);
+        List<String> result = new ArrayList<>();
+        for (ValidatorDefinition definition : ValidatorDefinition.values()) {
+            result.add(definition.getImplementation());
+        }
         return result;
     }
-
-    @Override
-    public List<Validator> availableValidators() {
-        List<Validator> result = new ArrayList<Validator>();
-        result.add(create(RatedPowerValidator, new HashMap()));
-        result.add(create(MinimalUsageExpectedValidator, new HashMap()));
-        result.add(create(MinMaxValidator, new HashMap()));
-        result.add(create(ConsecutiveZerosValidator, new HashMap()));
-        return result;
-    }
-
-
 
     @Override
     public Validator create(String implementation, Map<String, Quantity> props) {
-        if (implementation.equals(RatedPowerValidator)) {
-            return new RatedPowerValidator(props);
-        } else if (implementation.equals(MinimalUsageExpectedValidator)) {
-            return new MinimalUsageExpectedValidator(props);
-        } else if (implementation.equals(MinMaxValidator)) {
-            return new MinMaxValidator(props);
-        } else if (implementation.equals(ConsecutiveZerosValidator)) {
-            return new ConsecutiveZerosValidator(props);
-        } else {
-            return null;
+        for (ValidatorDefinition definition : ValidatorDefinition.values()) {
+            if (definition.getImplementation().equals(implementation)) {
+                return definition.create(props);
+            }
         }
+        return null;
     }
 }
