@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -67,5 +68,7 @@ public interface Finder<T> {
 	Optional<T> getUnique(String fieldName, Object value);
 	Optional<T> getUnique(String fieldName1, Object value1, String fieldName2,Object value2);
 	Optional<T> getUnique(String[] fieldNames , Object[] values);
+	
+	List<T> select(Condition condition, String ... orderBy);
 	
 }

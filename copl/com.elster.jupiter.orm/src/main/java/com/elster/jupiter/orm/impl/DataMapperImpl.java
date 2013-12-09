@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
 import java.sql.ResultSet;
@@ -392,5 +393,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
 		return null;
+	}
+	
+	public List<T> select(Condition condition, String ... orderBy) {
+		return with().select(condition, orderBy, false,null);
 	}
 }
