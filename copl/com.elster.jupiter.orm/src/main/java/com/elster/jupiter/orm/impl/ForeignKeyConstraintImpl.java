@@ -141,6 +141,15 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		return false;
 	}
 	
+	@Override
+	void validate() {
+		super.validate();
+		Objects.requireNonNull(referencedComponentName);
+		Objects.requireNonNull(referencedTableName);
+		Objects.requireNonNull(deleteRule);
+		Objects.requireNonNull(fieldName);
+	}
+	
 	static class BuilderImpl implements ForeignKeyConstraint.Builder {
 		private final ForeignKeyConstraintImpl constraint;
 		
@@ -203,6 +212,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		
 		@Override
 		public ForeignKeyConstraint add() {
+			constraint.validate();
 			((TableImpl) constraint.getTable()).add(constraint);
 			return constraint;		
 		}

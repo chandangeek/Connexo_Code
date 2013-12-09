@@ -39,6 +39,7 @@ public class UniqueConstraintImpl extends TableConstraintImpl implements UniqueC
 
 		@Override
 		public UniqueConstraint add() {
+			constraint.validate();
 			((TableImpl) constraint.getTable()).add(constraint);
 			return constraint;
 		}

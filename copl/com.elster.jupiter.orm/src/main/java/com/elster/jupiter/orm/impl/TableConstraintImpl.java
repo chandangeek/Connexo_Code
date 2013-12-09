@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	
@@ -173,5 +174,12 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 		appendDdlTrailer(sb);
 		return sb.toString();			
 	}
-	
+
+	void validate() {
+		Objects.requireNonNull(componentName);
+		Objects.requireNonNull(name);
+		if (this.getColumns().isEmpty()) {
+			throw new IllegalArgumentException("Column list should not be emty");
+		}
+	}
 }

@@ -39,6 +39,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 
 		@Override
 		public PrimaryKeyConstraint add() {
+			constraint.validate();
 			((TableImpl) constraint.getTable()).add(constraint);
 			return constraint;
 		}
