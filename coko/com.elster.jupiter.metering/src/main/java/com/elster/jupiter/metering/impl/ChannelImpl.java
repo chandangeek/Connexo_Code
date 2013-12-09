@@ -306,9 +306,8 @@ public final class ChannelImpl implements Channel {
         return Bus.getOrmClient().getReadingQualityFactory().with().select(condition, null, true, null);
     }
 
-    private Condition inInterval(Interval interval) {
-        //TODO make IntervalCondition taking into account boundary interpretations
-        return where("readingTimestamp").between(interval.getStart()).and(interval.getEnd());
+    private Condition inInterval(Interval interval) {        
+        return where("readingTimestamp").inClosed(interval);
     }
 
     private Condition ofThisChannel() {
@@ -318,7 +317,7 @@ public final class ChannelImpl implements Channel {
     @Override
     public Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp) {
         Condition condition = ofThisChannel().and(withTimestamp(timestamp));
-        List<ReadingQuality> list = Bus.getOrmClient().getReadingQualityFactory().with().select(condition, null, true, null);
+        List<ReadingQuality> list = Bus.getOrmClient().getReadingQualityFactory().select(condition);
         return FluentIterable.from(list).first();
     }
 
@@ -329,13 +328,13 @@ public final class ChannelImpl implements Channel {
     @Override
     public List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval) {
         Condition ofTypeAndInInterval = inInterval(interval).and(Operator.EQUAL.compare("typeCode", type.getCode()));
-        return Bus.getOrmClient().getReadingQualityFactory().with().select(ofTypeAndInInterval, null, true, null);
+        return Bus.getOrmClient().getReadingQualityFactory().select(ofTypeAndInInterval,"readingTimestamp");
     }
 
     @Override
     public List<ReadingQuality> findReadingQuality(Date timestamp) {
         Condition atTimestamp = withTimestamp(timestamp);
-        return Bus.getOrmClient().getReadingQualityFactory().with().select(atTimestamp, null, true, null);
+        return Bus.getOrmClient().getReadingQualityFactory().select(atTimestamp, "readingTimestamp");
     }
 
     @Override
