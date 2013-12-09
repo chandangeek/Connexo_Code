@@ -180,6 +180,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(servletBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(servletBasedInboundComPort.getPortNumber()).thenReturn(8);
         when(servletBasedInboundComPort.useHttps()).thenReturn(true);
+        when(servletBasedInboundComPort.getContextPath()).thenReturn("/context/path");
         when(servletBasedInboundComPort.getTrustedKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/trust/store", "trustpwd"));
         when(servletBasedInboundComPort.getKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/key/store", "keypwd"));
 
@@ -198,7 +199,8 @@ public class ComPortResourceTest extends JerseyTest {
                 MapEntry.entry("trustStoreFilePath", "/path/to/trust/store"),
                 MapEntry.entry("trustStorePassword", "trustpwd"),
                 MapEntry.entry("keyStorePassword", "keypwd"),
-
+                MapEntry.entry("portNumber", 8),
+                MapEntry.entry("contextPath", "/context/path"),
                 MapEntry.entry("direction", "inbound")
         );
     }

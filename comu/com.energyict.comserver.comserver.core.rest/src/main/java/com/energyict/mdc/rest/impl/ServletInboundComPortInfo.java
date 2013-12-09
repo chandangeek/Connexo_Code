@@ -24,6 +24,8 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
             this.trustStoreFilePath = trustedKeyStoreSpecifications.getFilePath();
             this.trustStorePassword = trustedKeyStoreSpecifications.getPassword();
         }
+        this.portNumber = comPort.getPortNumber();
+        this.contextPath = comPort.getContextPath();
     }
 
     protected void writeToShadow(ServletBasedInboundComPortShadow shadow) {
@@ -32,6 +34,8 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
 
         shadow.setKeyStoreSpecs(new KeyStoreShadow(this.keyStoreFilePath, this.keyStorePassword));
         shadow.setTrustStoreSpecs(new KeyStoreShadow(this.trustStoreFilePath, this.trustStorePassword));
+        shadow.setPortNumber(this.portNumber);
+        shadow.setContextPath(this.contextPath);
     }
 
     public ServletBasedInboundComPortShadow asShadow() {

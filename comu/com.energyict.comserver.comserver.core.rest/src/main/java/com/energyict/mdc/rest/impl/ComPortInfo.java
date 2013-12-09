@@ -50,6 +50,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public String trustStoreFilePath;
     public String keyStorePassword;
     public String trustStorePassword;
+    public String contextPath;
 
     public ComPortInfo() {
     }
