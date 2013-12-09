@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Immutable class representing a quantity in one unit.
  */
-public final class Quantity {
+public final class Quantity implements Comparable<Quantity> {
 
     private static final int PICO = -12;
     private static final int NANO = -9;
@@ -125,5 +125,12 @@ public final class Quantity {
 	public static Quantity create(BigDecimal value , String unitSymbol) {
 		return create(value, 0, unitSymbol);
 	}
-	
+
+    @Override
+    public int compareTo(Quantity o) {
+        if (!unit.equals(o.unit)) {
+            throw new IllegalArgumentException();
+        }
+        return asSi().getValue().compareTo(o.asSi().getValue());
+    }
 }
