@@ -185,6 +185,13 @@ public class LIS200 extends AbstractIEC1107Protocol {
             throws MissingPropertyException, InvalidPropertyException {
 
         try {
+            securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());  // Use 0 as default security level
+        } catch (Exception e) {
+            throw new InvalidPropertyException(
+                    String.format("Incorrect %s property. If the value is not empty, then only numeric values greater 0 are allowed.", "SecurityLevel"));
+        }
+
+        try {
             this.profileRequestBlockSize = Integer.parseInt(properties.getProperty(
                     PROFILE_REQUEST_BLOCK_SIZE, "10"));
         } catch (Exception e) {
