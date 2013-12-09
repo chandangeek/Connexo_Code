@@ -11,5 +11,4 @@ public interface ValidatorFactory {
 
     Validator create(String implementation, Map<String, Quantity> props);
 
-    List<Validator> availableValidators();
 }

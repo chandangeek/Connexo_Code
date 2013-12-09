@@ -21,6 +21,4 @@ public interface ValidationService {
     void validate(MeterActivation meterActivation, Interval interval);
 
     Optional<ValidationRule> getValidationRule(long id);
-
-    List<Validator> getAvailableValidators();
 }
