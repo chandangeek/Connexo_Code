@@ -23,8 +23,13 @@ import com.google.common.base.Optional;
 public interface OrmService {
 	Optional<DataModel> getDataModel(String name);
 	DataModel newDataModel(String name, String description);
+	void register(DataModel dataModel);
+	
 	/*
 	 * Only for applications that need to document the data model 
 	 */
 	List<DataModel> getDataModels();
+	Optional<Table> getTable(Class<?> clazz);
+	String serialize(Object [] key);
+	Object[] deserialize(String in);
 }

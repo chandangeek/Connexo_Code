@@ -6,12 +6,15 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Optional;
+
 /**
  * @author kha
  * DataModel is a container for a component's table description objects.
  *
  */
 public interface DataModel {
+	<T> DataMapper<T> getDataMapper(Class<T> api,String tableName);
 	/** 
 	 * Create a DataMapper for the given arguments. Used when all tuples in the table are mapped to instances of the same class
 	 */
@@ -50,4 +53,6 @@ public interface DataModel {
 	void install(boolean executeDdl, boolean store);
 
     SqlDialect getSqlDialect();
+    
+    Optional<Table> getTable(Class<?> clazz);
 }

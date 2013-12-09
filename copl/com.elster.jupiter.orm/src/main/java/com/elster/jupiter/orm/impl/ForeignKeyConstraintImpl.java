@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.internal.Bus;
-import com.google.common.base.Optional;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
 	// persistent fields

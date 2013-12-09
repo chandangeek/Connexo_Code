@@ -1,53 +1,49 @@
 package com.elster.jupiter.orm.internal;
 
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.impl.ColumnImpl;
-import com.elster.jupiter.orm.impl.ColumnInConstraintImpl;
-import com.elster.jupiter.orm.impl.DataModelImpl;
-import com.elster.jupiter.orm.impl.TableConstraintImpl;
-import com.elster.jupiter.orm.impl.TableImpl;
+import static com.elster.jupiter.orm.internal.TableSpecs.ORM_COLUMN;
+import static com.elster.jupiter.orm.internal.TableSpecs.ORM_COLUMNINCONSTRAINT;
+import static com.elster.jupiter.orm.internal.TableSpecs.ORM_DATAMODEL;
+import static com.elster.jupiter.orm.internal.TableSpecs.ORM_TABLE;
+import static com.elster.jupiter.orm.internal.TableSpecs.ORM_TABLECONSTRAINT;
 
-import static com.elster.jupiter.orm.internal.TableSpecs.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.impl.ColumnInConstraintImpl;
 
 public class OrmClientImpl implements OrmClient  {
 	
 	private final DataModel dataModel;
 	
-	public OrmClientImpl() {	
-		this.dataModel = createDataModel();		
+	public OrmClientImpl(DataModel dataModel) {	
+		this.dataModel = dataModel;	
 	}
 	
 	@Override
 	public DataMapper<DataModel> getDataModelFactory() {
-		return dataModel.getDataMapper(DataModel.class,DataModelImpl.class,ORM_DATAMODEL.name());
+		return dataModel.getDataMapper(DataModel.class,ORM_DATAMODEL.name());
 	}
 	@Override
 	public DataMapper<Table> getTableFactory() {
-		return dataModel.getDataMapper(Table.class,TableImpl.class,ORM_TABLE.name());
+		return dataModel.getDataMapper(Table.class,ORM_TABLE.name());
 	}
 	
 	@Override
 	public DataMapper<Column> getColumnFactory() {
-		return dataModel.getDataMapper(Column.class,ColumnImpl.class,ORM_COLUMN.name());
+		return dataModel.getDataMapper(Column.class,ORM_COLUMN.name());
 	}
 	@Override
 	public DataMapper<TableConstraint> getTableConstraintFactory() {
-		return dataModel.getDataMapper(TableConstraint.class,TableConstraintImpl.implementers,ORM_TABLECONSTRAINT.name());
+		return dataModel.getDataMapper(TableConstraint.class,ORM_TABLECONSTRAINT.name());
 	}
 	
 	@Override
 	public DataMapper<ColumnInConstraintImpl> getColumnInConstraintFactory() {
-		return dataModel.getDataMapper(ColumnInConstraintImpl.class,ColumnInConstraintImpl.class,ORM_COLUMNINCONSTRAINT.name());
+		return dataModel.getDataMapper(ColumnInConstraintImpl.class,ORM_COLUMNINCONSTRAINT.name());
 	}
 	
-	private DataModel createDataModel() {
-		DataModel result =  new DataModelImpl(Bus.COMPONENTNAME,"Object Relational Mapper");
-		for (TableSpecs spec : TableSpecs.values()) {
-			spec.addTo(result);			
-		}
-		return result;
-	}
-
 	@Override
 	public void install(boolean executeDdl, boolean storeMappings) {
 		dataModel.install(executeDdl, storeMappings);

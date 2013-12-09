@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrmTest {
+public class RefAnyTest {
 
     private Injector injector;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -66,19 +66,11 @@ public class OrmTest {
     }
 
     @Test
-    public void testDataModel() {
-    	assertThat(Bus.getOrmClient().getDataModelFactory().find()).hasSize(1);
-    	assertThat(Bus.getOrmClient().getTableFactory().find().size()).isGreaterThan(4);
-    	assertThat(Bus.getOrmClient().getColumnFactory().find().size()).isGreaterThan(10);
-    	assertThat(Bus.getOrmClient().getTableConstraintFactory().find()).isNotEmpty();
-    	assertThat(Bus.getOrmClient().getColumnInConstraintFactory().find()).isNotEmpty();
-    	assertThat(Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLES")).isAbsent();
+    public void testDataModel() {    	
     	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");
     	assertThat(tableHolder).isPresent();
     	RefAny refAny = RefAny.of(tableHolder.get());
-    	System.out.println(refAny);
     	assertThat(refAny.get()).isPresent();
-    	
     }
 
 

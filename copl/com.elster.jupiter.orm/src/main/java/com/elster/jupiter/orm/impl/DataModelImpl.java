@@ -7,7 +7,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.internal.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
 import oracle.jdbc.OracleConnection;
 
 import java.security.Principal;
@@ -114,6 +116,11 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     }
 
     @Override
+    public <T> DataMapper<T> getDataMapper(Class<T> api, String tableName) {
+    	return getTable(tableName).getDataMapper(api);
+    }
+    
+    @Override
     public <T> DataMapper<T> getDataMapper(Class<T> api, Class<? extends T> implementation, String tableName) {
         return getTable(tableName).getDataMapper(api, implementation);
     }
@@ -183,5 +190,15 @@ public class DataModelImpl implements DataModel, PersistenceAware {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+    
+    @Override
+    public Optional<Table> getTable(Class<?> clazz) {
+    	for (Table table : getTables()) {
+    		if (table.maps(clazz)) {
+    			return Optional.of(table);
+    		}
+    	}
+    	return Optional.absent();
     }
 }

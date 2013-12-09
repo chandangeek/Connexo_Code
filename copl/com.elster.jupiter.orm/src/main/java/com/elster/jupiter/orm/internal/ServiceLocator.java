@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public interface ServiceLocator {
+	OrmService getOrmService();
 	OrmClient getOrmClient();
 	Connection getConnection(boolean transactionRequired) throws SQLException;
 	Principal getPrincipal();

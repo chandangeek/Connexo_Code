@@ -7,10 +7,12 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -51,26 +53,21 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	
 	@Override
 	public Optional<DataModel> getDataModel(String name) {
-		try {
-			Optional<DataModel> modelHolder = getOrmClient().getDataModelFactory().get(name);
-			if (modelHolder.isPresent()) {
-				dataModels.put(name,modelHolder.get());
-			}
-			return modelHolder;
-		} catch (PersistenceException ex) {
-			return Optional.absent();
-		}
+		return Optional.fromNullable(dataModels.get(name));
 	}
 	
 	// install time api
 	
 	@Override
 	public DataModel newDataModel(String name,String description) {		
-		DataModel result = new DataModelImpl(name, description);
-		dataModels.put(name, result);
-		return result;
+		return new DataModelImpl(name, description);
 	}
 
+	@Override
+	public void register(DataModel dataModel) {
+		dataModels.put(dataModel.getName(), dataModel);
+	}
+	
 	 @Override
 	public void install() {
 		 getOrmClient().install(true,true);
@@ -117,15 +114,26 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
         return jsonService;
     }
 
+    private DataModel createDataModel() {
+		DataModel result =  newDataModel(Bus.COMPONENTNAME,"Object Relational Mapper");
+		for (TableSpecs spec : TableSpecs.values()) {
+			spec.addTo(result);			
+		}
+		register(result);
+		return result;
+	}
+
     @Activate
 	public void activate() {
-        this.ormClient = new OrmClientImpl();
+    	this.ormClient = new OrmClientImpl(createDataModel());
 		Bus.setServiceLocator(this);
+		RefAny.setOrmService(this);
 	}
 	
 	@Deactivate
 	public void deactivate() {
 		Bus.clearServiceLocator(this);
+		RefAny.clearOrmService(this);
 	}
 	
 	@Override
@@ -146,8 +154,37 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 
 	@Override
 	public List<DataModel> getDataModels() {
-		return  getOrmClient().getDataModelFactory().find();
+		synchronized (dataModels) {
+			return new ArrayList<>(dataModels.values());
+		}
+	}
+	
+	@Override
+	public OrmService getOrmService() {
+		return this;
 	}
 
+	@Override
+	public Optional<Table> getTable(Class<?> clazz) {
+		Optional<Table> result;
+		for (DataModel dataModel : getDataModels()) {
+			result = dataModel.getTable(clazz);
+			if (result.isPresent()) {
+				return result;
+			}
+		}			
+		return Optional.absent();
+	}
+	
+	@Override
+	public String serialize(Object[] key) {
+		return jsonService.serialize(key);
+	}
+	
+	@Override
+	public Object[] deserialize(String json) {
+		return jsonService.deserialize(json, Object[].class);
+	}
+	
 
 }

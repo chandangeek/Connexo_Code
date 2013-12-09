@@ -3,6 +3,11 @@ package com.elster.jupiter.orm.internal;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.impl.ColumnImpl;
+import com.elster.jupiter.orm.impl.ColumnInConstraintImpl;
+import com.elster.jupiter.orm.impl.DataModelImpl;
+import com.elster.jupiter.orm.impl.TableConstraintImpl;
+import com.elster.jupiter.orm.impl.TableImpl;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -12,6 +17,7 @@ public enum TableSpecs {
 	
 	ORM_DATAMODEL {		
 		void describeTable(Table table) {
+			table.map(DataModelImpl.class);
 			Column nameColumn = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
 			table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
 			table.primaryKey("ORM_PK_COMPONENT").on(nameColumn).add();
@@ -19,6 +25,7 @@ public enum TableSpecs {
 	},
 	ORM_TABLE {
 		void describeTable(Table table) {
+			table.map(TableImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().map("componentName").add();
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column schemaColumn = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
@@ -31,6 +38,7 @@ public enum TableSpecs {
 	},
 	ORM_COLUMN {	
 		void describeTable(Table table) {
+			table.map(ColumnImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().map("componentName").add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().map("tableName").add();		
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
@@ -52,6 +60,7 @@ public enum TableSpecs {
 	},
 	ORM_TABLECONSTRAINT {	
 		void describeTable(Table table) {
+			table.map(TableConstraintImpl.implementers);
 			Column componentName = table.addColumn("COMPONENT", COMPONENTDBTYPE , true , NOCONVERSION , "componentName");
 			Column tableName = table.addColumn("TABLEID", CATALOGDBTYPE, true , NOCONVERSION , "tableName");
 			Column nameColumn = table.addColumn("NAME", CATALOGDBTYPE , true , NOCONVERSION , "name");
@@ -71,6 +80,7 @@ public enum TableSpecs {
 	},
 	ORM_COLUMNINCONSTRAINT {
 		void describeTable(Table table) {
+			table.map(ColumnInConstraintImpl.class);
 			Column componentName = table.addColumn("COMPONENT", COMPONENTDBTYPE , true , NOCONVERSION , "componentName");
 			Column tableName = table.addColumn("TABLENAME", CATALOGDBTYPE , true , NOCONVERSION , "tableName");
 			Column constraintNameColumn = table.addColumn("CONSTRAINTNAME", CATALOGDBTYPE , true , NOCONVERSION , "constraintName");
@@ -86,7 +96,7 @@ public enum TableSpecs {
 	private static final String COMPONENTDBTYPE = "varchar2(3)";
 	private static final String CATALOGDBTYPE = "varchar2(30)";
 
-	void addTo(DataModel component) {
+	public void addTo(DataModel component) {
 		Table table = component.addTable(name());
 		describeTable(table);
 	}

@@ -18,11 +18,13 @@ import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.internal.Bus;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.util.Checks.is;
@@ -42,6 +44,10 @@ public class TableImpl implements Table , PersistenceAware  {
 	private DataModel component;
 	private List<Column> columns;
 	private List<TableConstraint> constraints;
+	
+	// mapping
+	private Class<?> implementation;
+	private Map<String,Class<?>> implementations;
 	
 	// transient, protection against forgetting to call add() on a builder
 	private transient boolean activeBuilder;
@@ -356,6 +362,18 @@ public class TableImpl implements Table , PersistenceAware  {
 		return addForeignKeyConstraint(name, referencedTable, deleteRule , new AssociationMapping(fieldName), columns); 					
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> DataMapper<T> getDataMapper(Class<T> api) {
+		if (implementation != null) {
+			return getDataMapper(api, (Class<? extends T>) implementation);
+		}
+		if (implementations != null) {
+			return getDataMapper(api, (Map<String,Class<? extends T>>) ((Map<?,?>) implementations));
+		}
+		throw new IllegalStateException("Implementation not specified");
+	}
+		
 
 	@Override
 	public <T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation) {
@@ -567,6 +585,33 @@ public class TableImpl implements Table , PersistenceAware  {
 		return indexOrganized;
 	}
 
+	@Override
+	public Optional<Object> get(Object... primaryKeyValues) {
+		return getDataMapper(Object.class).get(primaryKeyValues);
+	}
+
+
+	@Override
+	public void map(Class<?> implementation) {
+		if (this.implementations != null || this.implementation != null) {
+			throw new IllegalStateException("Implementer(s) already specified");
+		}
+		this.implementation = Objects.requireNonNull(implementation);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> void map(Map<String, Class<? extends T>> implementations) {
+		if (this.implementations != null || this.implementation != null) {
+			throw new IllegalStateException("Implementer(s) already specified");
+		}
+		this.implementations = (Map<String,Class<?>>) ((Map<?,?>) Objects.requireNonNull(implementations));
+	}
+
+	@Override
+	public boolean maps(Class<?> clazz) {
+		return (implementation == clazz) || (implementations != null && implementations.containsValue(clazz));
+	}
 }
 	
 

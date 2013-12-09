@@ -3,6 +3,8 @@ package com.elster.jupiter.orm;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Optional;
+
 /**
  * Describes a relational table, and its mapping to objects.
  * For all methods, name typically refers to the database name, 
@@ -30,8 +32,14 @@ public interface Table {
 	Column getColumn(String name);
 	Column getColumnForField(String fieldName);
     List<Column> getPrimaryKeyColumns();
+    <T> DataMapper<T> getDataMapper(Class<T> api);
 	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation);
 	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class<? extends T>> implementations);
+	Optional<Object> get(Object... primaryKey);
+	void map(Class<?> implementer);
+	<T> void map(Map<String,Class<? extends T>> implementers);
+	boolean maps(Class<?> implementer);
+	
 	/**
 	 * Extracts the primary key fields from the given object
 	 * @return an object array  
