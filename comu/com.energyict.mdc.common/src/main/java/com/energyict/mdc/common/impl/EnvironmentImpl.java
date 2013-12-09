@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -45,9 +46,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 @Component(name="com.energyict.mdc.environment", service = Environment.class)
 public class EnvironmentImpl implements Environment {
+
+    private static final Logger LOGGER = Logger.getLogger(EnvironmentImpl.class.getName());
 
     /**
      * The name of the key that will be used to find the {@link ApplicationContext}
@@ -93,6 +97,15 @@ public class EnvironmentImpl implements Environment {
         this.startEventManager();
     }
 
+    @Inject
+    public EnvironmentImpl(DataSource dataSource, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, BundleContext bundleContext) {
+        this();
+        this.dataSource = dataSource;
+        this.transactionService = transactionService;
+        this.threadPrincipalService = threadPrincipalService;
+        this.activate(bundleContext);
+    }
+
     private void startEventManager () {
         this.eventManagerHolder = new ThreadLocal<BusinessEventManager>() {
             protected BusinessEventManager initialValue () {
@@ -107,7 +120,7 @@ public class EnvironmentImpl implements Environment {
 
     @Reference
     public void setDataSource (DataSource dataSource) {
-        System.out.println("DataSource is being injected into the MDC environment: " + dataSource);
+        LOGGER.fine("DataSource is being injected into the MDC environment: " + dataSource);
         this.dataSource = dataSource;
     }
 
@@ -117,7 +130,7 @@ public class EnvironmentImpl implements Environment {
 
     @Reference
     public void setTransactionService (TransactionService transactionService) {
-        System.out.println("Transaction service is being injected into the MDC environment: " + transactionService);
+        LOGGER.fine("Transaction service is being injected into the MDC environment: " + transactionService);
         this.transactionService = transactionService;
     }
 
@@ -127,7 +140,7 @@ public class EnvironmentImpl implements Environment {
 
     @Reference
     public void setThreadPrincipalService (ThreadPrincipalService threadPrincipalService) {
-        System.out.println("Thread principle service is being injected into the MDC environment: " + threadPrincipalService);
+        LOGGER.fine("Thread principle service is being injected into the MDC environment: " + threadPrincipalService);
         this.threadPrincipalService = threadPrincipalService;
     }
 
@@ -136,7 +149,7 @@ public class EnvironmentImpl implements Environment {
         try {
             this.context = context;
             Environment.DEFAULT.set(this);
-            System.out.println("MDC environment is actived");
+            LOGGER.fine("MDC environment is actived");
         }
         catch (Exception e) {
             e.printStackTrace(System.err);
@@ -147,7 +160,7 @@ public class EnvironmentImpl implements Environment {
     public void deactivate () {
         Environment.DEFAULT.set(null);
         this.context = null;
-        System.out.println("MDC environment is deactived");
+        LOGGER.fine("MDC environment is deactived");
     }
 
     @Override
