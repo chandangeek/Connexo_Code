@@ -291,6 +291,10 @@ public class ComPortResourceTest extends JerseyTest {
 
         when(comPortService.find(comPort_id)).thenReturn(modemBasedInboundComPort);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map2 = new HashMap<String, String>();
+        map.put("modemInitString", "comme ci");
+        map2.put("modemInitString", "comme ca");
         assertThat(response).contains(
                 MapEntry.entry("id", comPort_id),
                 MapEntry.entry("name", "modem inbound"),
@@ -308,7 +312,7 @@ public class ComPortResourceTest extends JerseyTest {
                 MapEntry.entry("maximumNumberOfDialErrors", 10),
                 MapEntry.entry("postDialCommands", "byebye"),
                 MapEntry.entry("ringCount", 11),
-                MapEntry.entry("modemInitStrings", Arrays.asList("comme ci", "comme ca")),
+                MapEntry.entry("modemInitStrings", Arrays.asList(map, map2)),
                 MapEntry.entry("comPortName", "port name"),
                 MapEntry.entry("baudrate", "BAUDRATE_1200"),
                 MapEntry.entry("nrOfDataBits", "FIVE"),

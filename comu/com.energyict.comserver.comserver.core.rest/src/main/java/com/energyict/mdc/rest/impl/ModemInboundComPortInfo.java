@@ -1,12 +1,18 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPortShadow> {
 
+
+    public static final String MAP_KEY = "modemInitString";
 
     public ModemInboundComPortInfo() {
         this.comPortType = ComPortType.SERIAL;
@@ -21,7 +27,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         this.delayBeforeSend = comPort.getDelayBeforeSend()!=null?new TimeDurationInfo(comPort.getDelayBeforeSend()):null;
         this.atCommandTimeout = comPort.getAtCommandTimeout()!=null?new TimeDurationInfo(comPort.getAtCommandTimeout()):null;
         this.atCommandTry = comPort.getAtCommandTry();
-        this.modemInitStrings = comPort.getModemInitStrings();
+        this.modemInitStrings = asMap(MAP_KEY, comPort.getModemInitStrings());
         this.addressSelector = comPort.getAddressSelector();
         this.postDialCommands = comPort.getPostDialCommands();
         if (comPort.getSerialPortConfiguration()!=null) {
@@ -52,7 +58,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
             shadow.setAtCommandTimeout(this.atCommandTimeout.asTimeDuration());
         }
         shadow.setAtCommandTry(this.atCommandTry);
-        shadow.setModemInitStrings(this.modemInitStrings);
+        shadow.setModemInitStrings(fromMaps(MAP_KEY,this.modemInitStrings));
         shadow.setAddressSelector(this.addressSelector);
         shadow.setPostDialCommands(this.postDialCommands);
         shadow.setSerialPortConfiguration(new SerialPortConfiguration(
@@ -69,5 +75,23 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         ModemBasedInboundComPortShadow shadow = new ModemBasedInboundComPortShadow();
         this.writeToShadow(shadow);
         return shadow;
+    }
+
+    private List<Map<String, String>> asMap(String key, List<String> strings) {
+        List<Map<String, String>> maps = new ArrayList<Map<String, String>>();
+        for (String string : strings) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put(key, string);
+            maps.add(map);
+        }
+        return maps;
+    }
+
+    private List<String> fromMaps(String key, List<Map<String, String>> maps) {
+        List<String> strings = new ArrayList<String>();
+        for (Map<String, String> map : maps) {
+            strings.add(map.get(key));
+        }
+        return strings;
     }
 }

@@ -11,6 +11,7 @@ import com.energyict.mdc.shadow.ports.ComPortShadow;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -33,7 +34,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public TimeDurationInfo delayBeforeSend;
     public TimeDurationInfo atCommandTimeout;
     public BigDecimal atCommandTry;
-    public List<String> modemInitStrings;
+    public List<Map<String, String>> modemInitStrings;
     public String addressSelector;
     public String postDialCommands;
     public String comPortName;
