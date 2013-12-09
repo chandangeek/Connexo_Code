@@ -2,3 +2,4 @@
 Private-Package: com.elster.jupiter.pubsub.impl
 Export-Package: com.elster.jupiter.pubsub
 -dsannotations: *
+Include-Resource: OSGI-INF/metatype/metatype.xml=OSGI-INF/metatype/metatype.xml

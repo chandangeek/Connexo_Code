@@ -21,7 +21,7 @@ public class LogHandlerTest {
 
     @Test
     public void testPropagationToOsgiLogService() {
-        LogHandler logHandler = new LogHandler(logService);
+        LogHandler logHandler = new LogHandler(logService, "%5$s");
 
         logHandler.publish(new LogRecord(Level.INFO, "message"));
 
@@ -30,7 +30,7 @@ public class LogHandlerTest {
 
     @Test
     public void testPropagationToOsgiLogServiceWithException() {
-        LogHandler logHandler = new LogHandler(logService);
+        LogHandler logHandler = new LogHandler(logService, "%5$s");
 
         LogRecord logRecord = new LogRecord(Level.INFO, "message");
         logRecord.setThrown(runtimeException);

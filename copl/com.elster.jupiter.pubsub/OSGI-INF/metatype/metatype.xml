@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+  <OCD description="Java util logging" name="Logging" id="com.elster.jupiter.pubsub">
+    <AD name="Log format string"  id="com.elster.jupiter.logging.format" required="true" type="String" default="%5$s" description="Format string for log records."/>
+  </OCD>
+  <Designate pid="com.elster.jupiter.pubsub">
+   	<Object ocdref="com.elster.jupiter.pubsub"/>
+  </Designate>
+</metatype:MetaData>

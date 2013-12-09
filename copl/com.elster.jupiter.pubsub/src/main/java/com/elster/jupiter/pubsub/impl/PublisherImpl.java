@@ -2,24 +2,30 @@ package com.elster.jupiter.pubsub.impl;
 
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 @Component (name="com.elster.jupiter.pubsub", immediate = true )
 public class PublisherImpl implements Publisher {
-	
-	private final List<Subscription> subscriptions = new CopyOnWriteArrayList<>();
+
+    private static final String FORMAT_KEY = "com.elster.jupiter.logging.format";
+    private static final String DEFAULT_FORMAT = "%5$s";
+    private final List<Subscription> subscriptions = new CopyOnWriteArrayList<>();
 	private final ThreadLocal<List<Subscription>> threadSubscriptionsHolder = new ThreadLocal<>();
+    private volatile LogService logService;
+    private volatile LogHandler handler;
 
     public PublisherImpl() {
     }
@@ -28,6 +34,20 @@ public class PublisherImpl implements Publisher {
         setLogService(logService);
     }
 
+    @Activate
+    public void activate(Map<String, Object> props) {
+        String format = DEFAULT_FORMAT;
+        if (props != null && props.containsKey(FORMAT_KEY)) {
+            format = (String) props.get(FORMAT_KEY);
+        }
+        handler = new LogHandler(logService, format);
+        Logger.getLogger("").addHandler(handler);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Logger.getLogger("").removeHandler(handler);
+    }
 
     @Override
 	public void publish(Object event, Object... eventDetails) {
@@ -83,6 +103,6 @@ public class PublisherImpl implements Publisher {
 	
 	@Reference
 	public void setLogService(LogService logService) {
-		Logger.getLogger("").addHandler(new LogHandler(logService));
+        this.logService = logService;
 	}
 }
