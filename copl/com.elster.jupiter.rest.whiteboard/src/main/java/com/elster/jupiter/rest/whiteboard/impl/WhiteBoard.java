@@ -1,22 +1,25 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Application;
+
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.*;
-import org.glassfish.jersey.server.filter.*;
-import org.glassfish.jersey.servlet.*;
-
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.*;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+import com.elster.jupiter.rest.util.BinderProvider;
 import com.google.common.base.Strings;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.*;
-import javax.ws.rs.core.Application;
 
 public class WhiteBoard {
 	
@@ -57,6 +60,9 @@ public class WhiteBoard {
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(RoleFilter.class);
         secureConfig.register(RolesAllowedDynamicFeature.class);
+        if (application instanceof BinderProvider) {
+        	secureConfig.register(((BinderProvider) application).getBinder());
+        }
         if (debug) {        	       
         	secureConfig.register(LoggingFilter.class);
         }
