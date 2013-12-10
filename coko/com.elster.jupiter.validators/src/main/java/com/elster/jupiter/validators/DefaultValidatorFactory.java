@@ -12,31 +12,26 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.validators.DefaultValidatorFactory", service = ValidatorFactory.class, immediate = true)
 public class DefaultValidatorFactory implements ValidatorFactory {
 
-    static final String RatedPowerValidator = "com.elster.jupiter.validators.RatedPowerValidator";
-    static final String MinimalUsageExpectedValidator = "com.elster.jupiter.validators.MinimalUsageExpectedValidator";
-    static final String MinMaxValidator = "com.elster.jupiter.validators.MinMaxValidator";
-    static final String ConsecutiveZerosValidator = "com.elster.jupiter.validators.ConsecutiveZerosValidator";
-
     private enum ValidatorDefinition {
-        RATED_POWER(RatedPowerValidator) {
+        RATED_POWER("com.elster.jupiter.validators.RatedPowerValidator") {
             @Override
             Validator create(Map<String, Quantity> props) {
                 return new RatedPowerValidator(props);
             }
         },
-        MINIMAL_USAGE(MinimalUsageExpectedValidator) {
+        MINIMAL_USAGE("com.elster.jupiter.validators.MinimalUsageExpectedValidator") {
             @Override
             Validator create(Map<String, Quantity> props) {
                 return new MinimalUsageExpectedValidator(props);
             }
         },
-        MIN_MAX(MinMaxValidator) {
+        MIN_MAX("com.elster.jupiter.validators.MinMaxValidator") {
             @Override
             Validator create(Map<String, Quantity> props) {
                 return new MinMaxValidator(props);
             }
         },
-        CONSECUTIVE_ZEROES(ConsecutiveZerosValidator) {
+        CONSECUTIVE_ZEROES("com.elster.jupiter.validators.ConsecutiveZerosValidator") {
             @Override
             Validator create(Map<String, Quantity> props) {
                 return new ConsecutiveZerosValidator(props);
