@@ -86,6 +86,7 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        ormService.register(dataModel);
         ormClient = new OrmClientImpl(dataModel);
     }
 

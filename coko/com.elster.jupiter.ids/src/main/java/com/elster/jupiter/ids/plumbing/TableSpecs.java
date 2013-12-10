@@ -3,11 +3,16 @@ package com.elster.jupiter.ids.plumbing;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.*;
 
+import com.elster.jupiter.ids.impl.FieldSpecImpl;
+import com.elster.jupiter.ids.impl.RecordSpecImpl;
+import com.elster.jupiter.ids.impl.TimeSeriesImpl;
+import com.elster.jupiter.ids.impl.VaultImpl;
 import com.elster.jupiter.orm.*;
 
 public enum TableSpecs {
 	IDS_VAULT {
 		void  describeTable(Table table) {
+			table.map(VaultImpl.class);
 			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
 			Column idColumn = table.addColumn("ID", "number" , true, NUMBER2LONG , "id");
 			table.addColumn("DESCRIPTION", "varchar2(80)" , true , NOCONVERSION , "description");
@@ -24,6 +29,7 @@ public enum TableSpecs {
 	},
 	IDS_RECORDSPEC {
 		void describeTable(Table table) {
+			table.map(RecordSpecImpl.class);
 			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
 			Column idColumn = table.addColumn("ID", "number" , true, NUMBER2LONG , "id");
 			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
@@ -34,6 +40,7 @@ public enum TableSpecs {
 	},	
 	IDS_FIELDSPEC { 
 		void describeTable(Table table) {
+			table.map(FieldSpecImpl.class);
 			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
 			Column recordSpecIdColumn = table.addColumn("RECORDSPECID", "number" , true, NUMBER2LONG , "recordSpecId");
 			Column positionColumn = table.addColumn("POSITION", "number" , true, NUMBER2INT , "position");
@@ -49,6 +56,7 @@ public enum TableSpecs {
 	},
 	IDS_TIMESERIES {
 		void describeTable(Table table) {
+			table.map(TimeSeriesImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column vaultComponent = table.addColumn("VAULTCOMPONENT","varchar2(3)",true,NOCONVERSION,"vaultComponentName");
 			Column vaultIdColumn = table.addColumn("VAULTID" , "number", true , NUMBER2LONG , "vaultId");
