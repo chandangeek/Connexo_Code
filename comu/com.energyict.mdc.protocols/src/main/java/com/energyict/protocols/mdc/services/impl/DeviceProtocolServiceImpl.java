@@ -29,13 +29,12 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
     public DeviceProtocol createDeviceProtocolFor(String javaClassName) {
         try {
             Class<?> pluggableClass = this.getClass().getClassLoader().loadClass(javaClassName);
-            if (pluggableClass.isAssignableFrom(DeviceProtocol)) {
+            if (pluggableClass.isAssignableFrom(DeviceProtocol.class)) {
                 return (DeviceProtocol) pluggableClass.newInstance();
             }
             else {
                 // Must be a lecagy pluggable class
-                com.energyict.mdw.core.Pluggable pluggable = (com.energyict.mdw.core.Pluggable) pluggableClass.newInstance();
-                return checkForProtocolWrappers(pluggable);
+                return checkForProtocolWrappers((Pluggable) pluggableClass.newInstance());
             }
         }
         catch (BusinessException e) {
