@@ -36,10 +36,7 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
                 return checkForProtocolWrappers((com.energyict.mdw.core.Pluggable) pluggableClass.newInstance());
             }
         }
-        catch (BusinessException e) {
-            throw CodingException.genericReflectionError(e, javaClassName);
-        }
-        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        catch (BusinessException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw CodingException.genericReflectionError(e, javaClassName);
         }
     }
