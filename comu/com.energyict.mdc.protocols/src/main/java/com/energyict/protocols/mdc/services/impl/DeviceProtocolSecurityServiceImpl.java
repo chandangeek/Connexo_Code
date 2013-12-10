@@ -1,10 +1,8 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.comserver.exceptions.DeviceProtocolAdapterCodingExceptions;
-import com.energyict.mdc.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import org.osgi.service.component.annotations.Component;
 
 /**
