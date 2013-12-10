@@ -11,16 +11,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 
+import org.glassfish.hk2.utilities.Binder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.*;
 
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.StartPage;
+import com.elster.jupiter.rest.util.BinderProvider;
 import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.jupiter.http.whiteboard", service=Application.class, property = {"alias=/apps"})
-@Path("/pages")
-public class WhiteBoard extends Application {
+public class WhiteBoard extends Application implements BinderProvider {
 	private volatile HttpService httpService;
 	private List<HttpResource> resources = Collections.synchronizedList(new ArrayList<HttpResource>());
 	
@@ -49,35 +51,30 @@ public class WhiteBoard extends Application {
 		resources.remove(resource);
 	}
 	
-	private String getAlias(String name) {
+	String getAlias(String name) {
 		return "/js" + name;
 	}
 	
 	@Override
-	public Set<Object> getSingletons() {
-		return ImmutableSet.<Object>of(this);
+	public Set<Class<?>> getClasses() {
+		return ImmutableSet.<Class<?>>of(PageResource.class);
 	}
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public List<PageInfo> getPages() {
-		List<PageInfo> result = new ArrayList<>();
-		synchronized (resources) {
-			for (HttpResource each : resources) {
-				StartPage startPage = each.getStartPage();
-				if (startPage != null) {
-					PageInfo info = new PageInfo();
-					info.name = startPage.getName();
-					info.url = "/js" + each.getAlias() + startPage.getHtmlPath();
-					if (startPage.getIconPath() != null) {
-						info.icon = "/js" + each.getAlias() + startPage.getIconPath();
-					}
-					result.add(info);
-				}				
-			}
-		}
-		return result;
-	}
-	
 
+	List<HttpResource> getResources() {
+		synchronized (resources) {
+			return new ArrayList<>(resources);
+		}
+	}
+
+	@Override
+	public Binder getBinder() {
+		return new AbstractBinder() {	
+			@Override
+			protected void configure() {
+				this.bind(WhiteBoard.this).to(WhiteBoard.class);
+			}
+		};
+	}
 }
+
+	
