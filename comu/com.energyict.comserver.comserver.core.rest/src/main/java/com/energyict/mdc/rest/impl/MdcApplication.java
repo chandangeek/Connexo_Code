@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -19,6 +20,8 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
 public class MdcApplication extends Application {
+
+    private static final Logger LOGGER = Logger.getLogger(MdcApplication.class.getSimpleName());
 
     private volatile DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
     private volatile DeviceProtocolService deviceProtocolService;
@@ -95,7 +98,7 @@ public class MdcApplication extends Application {
 
         @Override
         protected void configure() {
-            System.out.println("Binding services using HK2");
+            LOGGER.fine("Binding services using HK2");
             bind(comServerService).to(ComServerService.class);
             bind(comPortService).to(ComPortService.class);
             bind(deviceProtocolPluggableClassService).to(DeviceProtocolPluggableClassService.class);
