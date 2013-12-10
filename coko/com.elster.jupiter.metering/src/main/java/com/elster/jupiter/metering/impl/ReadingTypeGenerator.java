@@ -1,27 +1,27 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.cbo.FlowDirection.*;
-import static com.elster.jupiter.cbo.Commodity.*;
-import static com.elster.jupiter.cbo.MeasurementKind.*;
-import static com.elster.jupiter.cbo.MetricMultiplier.*;
-import static com.elster.jupiter.cbo.ReadingTypeUnit.*;
-import static com.elster.jupiter.cbo.TimeAttribute.*;
-import static com.elster.jupiter.cbo.Accumulation.*;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.ReadingType;
+import static com.elster.jupiter.cbo.Accumulation.DELTADELTA;
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
+import static com.elster.jupiter.cbo.FlowDirection.*;
+import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.VOLTAMPEREHOUR;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+import static com.elster.jupiter.cbo.TimeAttribute.*;
 
 
 public class ReadingTypeGenerator {
 
-	private final static TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
-	private final static String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
+	private static final TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
+	private static final String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
 	
-	private static enum Root {
+	private enum Root {
 		FORWARDENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO,WATTHOUR),"Forward Energy"),
 		REVERSEENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO,WATTHOUR),"Reverse Energy"),
 		NETENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(NET).measure(ENERGY).in(KILO,WATTHOUR),"Net Energy"),
