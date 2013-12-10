@@ -30,4 +30,5 @@ public interface Channel {
     List<ReadingQuality> findReadingQuality(Date timestamp);
     List<ReadingQuality> findReadingQuality(Interval interval);
 
+    boolean isRegular();
 }

@@ -353,7 +353,7 @@ public final class ChannelImpl implements Channel {
         return Objects.hash(id);
     }
     
-    private boolean isRegular() {
+    public boolean isRegular() {
     	return getIntervalLength() != null;
     }
    
