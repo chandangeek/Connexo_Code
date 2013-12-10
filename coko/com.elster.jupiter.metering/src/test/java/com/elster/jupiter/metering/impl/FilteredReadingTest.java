@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +21,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FilteredReadingTest {
 
-    private static final BigDecimal VALUE1 = BigDecimal.valueOf(1, 0);
-    private static final BigDecimal VALUE2 = BigDecimal.valueOf(2, 0);
-    private static final BigDecimal VALUE3 = BigDecimal.valueOf(3, 0);
-    private static final BigDecimal VALUE4 = BigDecimal.valueOf(4, 0);
+    private static final Quantity VALUE1 = Unit.WATT_HOUR.amount(BigDecimal.valueOf(1, 0), 3);
+    private static final Quantity VALUE2 = Unit.WATT_HOUR.amount(BigDecimal.valueOf(2, 0), 3);
+    private static final Quantity VALUE3 = Unit.WATT_HOUR.amount(BigDecimal.valueOf(3, 0), 3);
+    private static final Quantity VALUE4 = Unit.WATT_HOUR.amount(BigDecimal.valueOf(4, 0), 3);
     private FilteredIntervalReadingRecord filteredReading;
 
     @Mock
@@ -39,13 +41,13 @@ public class FilteredReadingTest {
         when(source.getReadingType(3)).thenReturn(readingType3);
         when(source.getReadingType(4)).thenReturn(readingType4);
 
-        when(source.getValue(1)).thenReturn(VALUE1);
-        when(source.getValue(2)).thenReturn(VALUE2);
-        when(source.getValue(3)).thenReturn(VALUE3);
-        when(source.getValue(4)).thenReturn(VALUE4);
+        when(source.getQuantity(1)).thenReturn(VALUE1);
+        when(source.getQuantity(2)).thenReturn(VALUE2);
+        when(source.getQuantity(3)).thenReturn(VALUE3);
+        when(source.getQuantity(4)).thenReturn(VALUE4);
 
         when(source.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2, readingType3, readingType4));
-        when(source.getValues()).thenReturn(Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4));
+        when(source.getQuantities()).thenReturn(Arrays.asList(VALUE1, VALUE2, VALUE3, VALUE4));
         when(source.getReadingType()).thenReturn(readingType1);
     }
 
@@ -71,9 +73,9 @@ public class FilteredReadingTest {
 
     @Test
     public void testGetValueIsMappedProperly() {
-        assertThat(filteredReading.getValue(0)).isEqualTo(VALUE2);
-        assertThat(filteredReading.getValue(1)).isEqualTo(VALUE4);
-        assertThat(filteredReading.getValue(2)).isEqualTo(VALUE1);
+        assertThat(filteredReading.getQuantity(0)).isEqualTo(VALUE2);
+        assertThat(filteredReading.getQuantity(1)).isEqualTo(VALUE4);
+        assertThat(filteredReading.getQuantity(2)).isEqualTo(VALUE1);
     }
 
     @Test
@@ -104,21 +106,21 @@ public class FilteredReadingTest {
 
     @Test
     public void testGetValue() {
-        when(source.getValue()).thenReturn(VALUE1);
+        when(source.getValue()).thenReturn(VALUE1.getValue());
 
-        assertThat(filteredReading.getValue()).isEqualTo(VALUE1);
+        assertThat(filteredReading.getValue()).isEqualTo(VALUE1.getValue());
     }
 
     @Test
     public void testGetValueForReadingType() {
-        when(source.getValue(readingType2)).thenReturn(VALUE2);
+        when(source.getQuantity(readingType2)).thenReturn(VALUE2);
 
-        assertThat(filteredReading.getValue(readingType2)).isEqualTo(VALUE2);
+        assertThat(filteredReading.getQuantity(readingType2)).isEqualTo(VALUE2);
     }
 
     @Test
     public void testGetValues() {
-        assertThat(filteredReading.getValues()).isEqualTo(Arrays.asList(VALUE2, VALUE4, VALUE1));
+        assertThat(filteredReading.getQuantities()).isEqualTo(Arrays.asList(VALUE2, VALUE4, VALUE1));
     }
 
     @Test

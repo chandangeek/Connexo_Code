@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -57,18 +58,18 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord   {
     }
 
     @Override
-    public BigDecimal getValue(int offset) {
-        return view.perform(filtered.getValues()).get(offset);
+    public Quantity getQuantity(int offset) {
+        return view.perform(filtered.getQuantities()).get(offset);
     }
 
     @Override
-    public BigDecimal getValue(ReadingType readingType) {
-        return filtered.getValue(readingType);
+    public Quantity getQuantity(ReadingType readingType) {
+        return filtered.getQuantity(readingType);
     }
 
     @Override
-    public List<BigDecimal> getValues() {
-        return view.perform(filtered.getValues());
+    public List<Quantity> getQuantities() {
+        return view.perform(filtered.getQuantities());
     }
 
 	@Override
@@ -86,7 +87,4 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord   {
 		return null;
 	}
    
-	BaseReadingRecord getFiltered() {
-		return filtered;
-	}
 }

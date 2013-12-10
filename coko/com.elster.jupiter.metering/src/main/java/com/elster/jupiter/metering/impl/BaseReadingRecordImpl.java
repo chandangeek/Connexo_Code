@@ -44,21 +44,21 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 	abstract int getReadingTypeOffset();
 	
 	@Override
-	public Quantity getValue() {
-		return getValue(0);
+	public BigDecimal getValue() {
+		return doGetValue(0);
 	}
 
     @Override
-    public List<BigDecimal> getValues() {
-        ImmutableList.Builder<BigDecimal> builder = ImmutableList.builder();
-        for (int i = getReadingTypeOffset(); i < entry.size(); i++) {
-            builder.add(entry.getBigDecimal(i));
+    public List<Quantity> getQuantities() {
+        ImmutableList.Builder<Quantity> builder = ImmutableList.builder();
+        for (int i = 0; i < entry.size() -  getReadingTypeOffset(); i++) {
+            builder.add(getQuantity(i));
         }
         return builder.build();
     }
 
     @Override
-	public Quantity getValue(int offset) {
+	public Quantity getQuantity(int offset) {
         ReadingType readingType = channel.getReadingTypes().get(offset);
         return readingType.getUnit().getUnit().amount(doGetValue(offset));
 	}
@@ -68,7 +68,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
     }
 
     @Override
-	public Quantity getValue(ReadingType readingType) {
+	public Quantity getQuantity(ReadingType readingType) {
 		int i = 0;
 		for (ReadingType each : channel.getReadingTypes()) {
 			if (each.equals(readingType)) {

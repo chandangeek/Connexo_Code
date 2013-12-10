@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
@@ -43,14 +44,19 @@ public abstract class AbstractBaseReadingImplTest {
         when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return BigDecimal.valueOf((long)(int) invocationOnMock.getArguments()[0]);
+                return BigDecimal.valueOf((long) (int) invocationOnMock.getArguments()[0]);
             }
         });
-        when(entry.size()).thenReturn(100);
         when(channel.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2, readingType));
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType1.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType2.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(entry.getLong(0)).thenReturn(7L);
 
         baseReading = createInstanceToTest(channel, entry);
+
+        when(entry.size()).thenReturn(3 + baseReading.getReadingTypeOffset());
+
     }
 
     @After
@@ -87,17 +93,17 @@ public abstract class AbstractBaseReadingImplTest {
 
     @Test
     public void testGetValues() {
-        assertThat(baseReading.getValues()).hasSize(100 - baseReading.getReadingTypeOffset());
+        assertThat(baseReading.getQuantities()).hasSize(3);
     }
 
     @Test
-    public void testGetValueForReadingType() {
-        assertThat(baseReading.getValue(readingType)).isEqualTo(BigDecimal.valueOf(baseReading.getReadingTypeOffset() + 2));
+    public void testGetQuantityForReadingType() {
+        assertThat(baseReading.getQuantity(readingType).getValue()).isEqualTo(BigDecimal.valueOf(baseReading.getReadingTypeOffset() + 2));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testGetValueForUnknownReadingType() {
-        baseReading.getValue(unknownReadingType);
+    public void testGetQuantityForUnknownReadingType() {
+        baseReading.getQuantity(unknownReadingType);
     }
 
     @Test
