@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.services.LicensedProtocolService;
-import com.energyict.mdw.core.LicensedProtocol;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

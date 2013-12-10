@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdw.core.LicensedProtocol;
-import com.energyict.mdw.core.ProtocolFamily;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.ProtocolFamily;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

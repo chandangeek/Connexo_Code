@@ -1,11 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.DeviceProtocolService;
-import com.energyict.mdc.services.LicensedProtocolService;
-import com.energyict.mdw.core.LicensedProtocol;
-import com.energyict.mdw.core.PluggableClass;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -20,6 +20,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.sql.SQLException;
 
 /**
  * Copyrights EnergyICT
@@ -29,13 +30,11 @@ import javax.ws.rs.core.UriInfo;
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 
-    private final DeviceProtocolService deviceProtocolService;
     private final DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
     private final LicensedProtocolService licensedProtocolService;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(DeviceProtocolService deviceProtocolService, DeviceProtocolPluggableClassService deviceProtocolPluggableClassService, LicensedProtocolService licensedProtocolService) {
-        this.deviceProtocolService = deviceProtocolService;
+    public DeviceCommunicationProtocolsResource(DeviceProtocolPluggableClassService deviceProtocolPluggableClassService, LicensedProtocolService licensedProtocolService) {
         this.deviceProtocolPluggableClassService = deviceProtocolPluggableClassService;
         this.licensedProtocolService = licensedProtocolService;
     }
@@ -65,12 +64,12 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDeviceCommunicationProtocol(@PathParam("id") int id) {
         try {
-            this.deviceProtocolService.delete(id);
-        } catch (Exception e) {
+            this.deviceProtocolPluggableClassService.delete(id);
+        }
+        catch (Exception e) {
             throw new WebApplicationException(Response.serverError().build());
         }
         return Response.ok().build();
-
     }
 
     @POST
@@ -78,12 +77,11 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context UriInfo uriInfo, DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
         try {
-            PluggableClass pluggableClass = deviceProtocolService.create(deviceCommunicationProtocolInfo.asShadow());
-            //TODO check if we just can't return the object we received
-            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.deviceProtocolPluggableClassService.find(pluggableClass.getId());
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.deviceProtocolPluggableClassService.create(deviceCommunicationProtocolInfo.asShadow());
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -94,13 +92,13 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") int id, DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
         try {
-            PluggableClass pluggableClass = deviceProtocolService.update(id, deviceCommunicationProtocolInfo.asShadow());
-            //TODO check if we just can't return the object we received
-            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.deviceProtocolPluggableClassService.find(pluggableClass.getId());
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceProtocolPluggableClassService.update(id, deviceCommunicationProtocolInfo.asShadow());
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
             return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
-        } catch (Exception e) {
-            throw new WebApplicationException(e);
+        }
+        catch (Exception e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

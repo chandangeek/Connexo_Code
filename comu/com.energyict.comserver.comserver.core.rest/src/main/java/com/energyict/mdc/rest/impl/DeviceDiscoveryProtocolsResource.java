@@ -1,9 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.InboundDeviceProtocolService;
-import com.energyict.mdw.core.PluggableClass;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -16,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 
 /**
  * Copyrights EnergyICT
@@ -25,12 +25,10 @@ import javax.ws.rs.core.Response;
 @Path("/devicediscoveryprotocols")
 public class DeviceDiscoveryProtocolsResource {
 
-    private final InboundDeviceProtocolService inboundDeviceProtocolService;
     private final InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
 
     @Inject
-    public DeviceDiscoveryProtocolsResource(InboundDeviceProtocolService inboundDeviceProtocolService, InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService) {
-        this.inboundDeviceProtocolService = inboundDeviceProtocolService;
+    public DeviceDiscoveryProtocolsResource(InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService) {
         this.inboundDeviceProtocolPluggableClassService = inboundDeviceProtocolPluggableClassService;
     }
 
@@ -56,9 +54,10 @@ public class DeviceDiscoveryProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDeviceDiscoveryProtocol(@PathParam("id") int id) {
         try {
-            this.inboundDeviceProtocolService.delete(id);
-        } catch (Exception e) {
-            throw new WebApplicationException(Response.serverError().build());
+            this.inboundDeviceProtocolPluggableClassService.delete(id);
+        }
+        catch (Exception e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         return Response.ok().build();
     }
@@ -68,10 +67,10 @@ public class DeviceDiscoveryProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceDiscoveryProtocolInfo createDeviceDiscoveryProtocol(DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
-            PluggableClass pluggableClass = inboundDeviceProtocolService.create(deviceDiscoveryProtocolInfo.asShadow());
-            //TODO check if we just can't return the object we received
+            InboundDeviceProtocolPluggableClass pluggableClass = inboundDeviceProtocolPluggableClassService.create(deviceDiscoveryProtocolInfo.asShadow());
             return new DeviceDiscoveryProtocolInfo(this.inboundDeviceProtocolPluggableClassService.find(pluggableClass.getId()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -82,10 +81,10 @@ public class DeviceDiscoveryProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceDiscoveryProtocolInfo updateDeviceDiscoveryProtocol(@PathParam("id") int id, DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
-            PluggableClass pluggableClass = inboundDeviceProtocolService.update(id, deviceDiscoveryProtocolInfo.asShadow());
-            //TODO check if we just can't return the object we received
+            InboundDeviceProtocolPluggableClass pluggableClass = inboundDeviceProtocolPluggableClassService.update(id, deviceDiscoveryProtocolInfo.asShadow());
             return new DeviceDiscoveryProtocolInfo(this.inboundDeviceProtocolPluggableClassService.find(pluggableClass.getId()));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }

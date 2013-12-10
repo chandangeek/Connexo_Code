@@ -4,10 +4,10 @@ import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
-import com.energyict.mdc.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -73,7 +73,7 @@ public class MdcApplication extends Application {
     public void setComServerService(ComServerService comServerService) {
         this.comServerService = comServerService;
     }
-    
+
     @Reference
     public void setComPortService(ComPortService comPortService) {
         this.comPortService = comPortService;

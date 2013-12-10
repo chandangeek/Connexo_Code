@@ -2,14 +2,14 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.PluggableClassType;
 import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.pluggable.PluggableClassShadow;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
 import com.energyict.mdc.rest.impl.properties.PropertyValueInfo;
-import com.energyict.mdw.core.LicensedProtocol;
-import com.energyict.mdw.core.PluggableClassType;
-import com.energyict.mdw.shadow.PluggableClassShadow;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -59,10 +59,9 @@ public class DeviceCommunicationProtocolInfo {
     }
 
     public PluggableClassShadow asShadow() {
-        PluggableClassShadow shadow = new PluggableClassShadow();
+        PluggableClassShadow shadow = new PluggableClassShadow(PluggableClassType.DeviceProtocol);
         shadow.setName(this.name);
         shadow.setJavaClassName(this.licensedProtocol.protocolJavaClassName);
-        shadow.setPluggableType(PluggableClassType.DEVICEPROTOCOL);
         shadow.setProperties(getTypedProperties());
         return shadow;
     }
