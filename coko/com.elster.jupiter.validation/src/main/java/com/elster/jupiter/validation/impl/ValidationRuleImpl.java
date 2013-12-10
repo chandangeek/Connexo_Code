@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQuality;
@@ -139,6 +140,15 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         return builder.build();
     }
 
+    public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
+        for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
+            if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
+                return readingTypeInValidationRule;
+            }
+        }
+        return null;
+    }
+
     @Override
     public Set<ReadingType> getReadingTypes() {
         Set<ReadingType> result = new HashSet<>();
@@ -158,14 +168,6 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
             ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().get(ruleSetId).get();
         }
         return ruleSet;
-    }
-
-    private Validator createNewValidator() {
-        Validator validator = Bus.getValidator(this.implementation, getProps());
-        if (validator == null) {
-            throw new ValidatorNotFoundException(implementation);
-        }
-        return validator;
     }
 
     @Override
@@ -234,38 +236,10 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         if (!active) {
             return null;
         }
-        Date earliestLastChecked = null;
-        for (ReadingType channelReadingType : channel.getReadingTypes()) {
-            if (getReadingTypes().contains(channelReadingType)) {
-                Validator validator = createNewValidator();
-                validator.init(channel, channelReadingType, interval);
-
-               // ValidationStats stats = validator.validate(channel, channelReadingType, interval);
-
-                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
-                for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, interval)) {
-                    ValidationResult result = validator.validate(intervalReading);
-                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, intervalReading.getTimeStamp()).isPresent()) {
-                        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, intervalReading);
-                        readingQuality.save();
-                    }
-                    earliestLastChecked = earliestLastChecked == null ? intervalReading.getTimeStamp() : Ordering.natural().min(earliestLastChecked, intervalReading.getTimeStamp());
-                }
-                for (ReadingRecord readingRecord : channel.getRegisterReadings(channelReadingType, interval)) {
-                    ValidationResult result = validator.validate(readingRecord);
-                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, readingRecord.getTimeStamp()).isPresent()) {
-                        ReadingQuality readingQuality = channel.createReadingQuality(defaultReadingQualityType(), readingRecord);
-                        readingQuality.save();
-                    }
-                    earliestLastChecked = earliestLastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().min(earliestLastChecked, readingRecord.getTimeStamp());
-                }
-            }
+        if (channel.isRegular()) {
+            return validateIntervalReadings(channel, interval);
         }
-        return earliestLastChecked;
-    }
-
-    private ReadingQualityType defaultReadingQualityType() {
-        return new ReadingQualityType("3.6." + getId());
+        return validateRegisterReadings(channel, interval);
     }
 
     void setRuleSetId(long ruleSetId) {
@@ -274,6 +248,18 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     private ValidationRuleImpl() {
         //for persistence
+    }
+
+    private Validator createNewValidator() {
+        Validator validator = Bus.getValidator(this.implementation, getProps());
+        if (validator == null) {
+            throw new ValidatorNotFoundException(implementation);
+        }
+        return validator;
+    }
+
+    private ReadingQualityType defaultReadingQualityType() {
+        return new ReadingQualityType("3.6." + getId());
     }
 
     private List<ValidationRuleProperties> doGetProperties() {
@@ -298,15 +284,6 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         ruleFactory().update(this);
     }
 
-    public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
-        for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
-            if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
-                return readingTypeInValidationRule;
-            }
-        }
-        return null;
-    }
-
     private List<ValidationRuleProperties> loadProperties() {
         ArrayList<ValidationRuleProperties> validationRulesProperties = new ArrayList<>();
         for (ValidationRuleProperties property : rulePropertiesFactory().find()) {
@@ -319,6 +296,12 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
         return readingTypesInRuleFactory().find("ruleId",this.getId());
+    }
+
+    private Validator newValidator(Channel channel, Interval interval, ReadingType channelReadingType) {
+        Validator validator = createNewValidator();
+        validator.init(channel, channelReadingType, interval);
+        return validator;
     }
 
     private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory() {
@@ -335,5 +318,48 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     private void setActive(boolean active) {
         this.active = active;
+    }
+
+    private Date validateIntervalReadings(Channel channel, Interval interval) {
+        Date earliestLastChecked = null;
+        for (ReadingType channelReadingType : channel.getReadingTypes()) {
+            if (getReadingTypes().contains(channelReadingType)) {
+                Validator validator = newValidator(channel, interval, channelReadingType);
+
+                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
+                for (IntervalReadingRecord intervalReading : channel.getIntervalReadings(channelReadingType, interval)) {
+                    ValidationResult result = validator.validate(intervalReading);
+                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, intervalReading.getTimeStamp()).isPresent()) {
+                        saveNewReadingQuality(channel, intervalReading, readingQualityType);
+                    }
+                    earliestLastChecked = earliestLastChecked == null ? intervalReading.getTimeStamp() : Ordering.natural().min(earliestLastChecked, intervalReading.getTimeStamp());
+                }
+            }
+        }
+        return earliestLastChecked;
+    }
+
+    private void saveNewReadingQuality(Channel channel, BaseReadingRecord reading, ReadingQualityType readingQualityType) {
+        ReadingQuality readingQuality = channel.createReadingQuality(readingQualityType, reading);
+        readingQuality.save();
+    }
+
+    private Date validateRegisterReadings(Channel channel, Interval interval) {
+        Date earliestLastChecked = null;
+        for (ReadingType channelReadingType : channel.getReadingTypes()) {
+            if (getReadingTypes().contains(channelReadingType)) {
+                Validator validator = newValidator(channel, interval, channelReadingType);
+
+                ReadingQualityType readingQualityType = validator.getReadingQualityTypeCode().or(defaultReadingQualityType());
+                for (ReadingRecord readingRecord : channel.getRegisterReadings(channelReadingType, interval)) {
+                    ValidationResult result = validator.validate(readingRecord);
+                    if (ValidationResult.SUSPECT.equals(result) && !channel.findReadingQuality(readingQualityType, readingRecord.getTimeStamp()).isPresent()) {
+                        saveNewReadingQuality(channel, readingRecord, readingQualityType);
+                    }
+                    earliestLastChecked = earliestLastChecked == null ? readingRecord.getTimeStamp() : Ordering.natural().min(earliestLastChecked, readingRecord.getTimeStamp());
+                }
+            }
+        }
+        return earliestLastChecked;
     }
 }

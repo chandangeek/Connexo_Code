@@ -37,6 +37,9 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     @Override
     public MeterActivation getMeterActivation() {
+        if (meterActivation == null) {
+            meterActivation = Bus.getMeteringService().findMeterActivation(id).get();
+        }
         return meterActivation;
     }
 
