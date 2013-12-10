@@ -11,6 +11,7 @@ import static com.elster.jupiter.cbo.Accumulation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 
