@@ -104,7 +104,8 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         phoneNumber.setValue(PHONE_NUMBER);
         ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
         when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
-        when(comPortConnectionProperty.getValue()).thenReturn(comPort);
+        String comPortName = comPort.getName();
+        when(comPortConnectionProperty.getValue()).thenReturn(comPortName);
 
         return Arrays.asList(
                 delayBeforeSendProperty,
@@ -239,11 +240,15 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(3));
-        List<ConnectionProperty> properties = Arrays.<ConnectionProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries);
+        ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
+        when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
+        String comPortName = comPort.getName();
+        when(comPortConnectionProperty.getValue()).thenReturn(comPortName);
+        List<ConnectionProperty> properties = Arrays.asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries, comPortConnectionProperty);
 
         AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(properties)));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
-        RxTxAtModemConnectionType atModemConnectionType = spy(new RxTxAtModemConnectionType());
+        RxTxAtModemConnectionType atModemConnectionType = new RxTxAtModemConnectionType();
 
         final int numberOfTries = 3;
         try {

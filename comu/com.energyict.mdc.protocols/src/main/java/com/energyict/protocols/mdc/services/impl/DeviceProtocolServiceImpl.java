@@ -22,47 +22,48 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
 
     @Override
     public DeviceProtocol createDeviceProtocolFor(DeviceProtocolPluggableClass pluggableClass) {
-        try {
-            Pluggable pluggable = (Pluggable) (Class.forName(pluggableClass.getJavaClassName())).newInstance();
-            return checkForProtocolWrappers(pluggable);
-        } catch (BusinessException e) {
-            throw CodingException.reflectionError(e, pluggableClass);
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw CodingException.genericReflectionError(e, pluggableClass.getJavaClassName());
-        }
+        return createDeviceProtocolFor(pluggableClass.getJavaClassName());
     }
 
     @Override
     public DeviceProtocol createDeviceProtocolFor(String javaClassName) {
         try {
-            Pluggable pluggable = (Pluggable) (this.getClass().getClassLoader().loadClass(javaClassName)).newInstance();
-            return checkForProtocolWrappers(pluggable);
-        } catch (BusinessException e) {
+            Class<?> pluggableClass = this.getClass().getClassLoader().loadClass(javaClassName);
+            if (pluggableClass.isAssignableFrom(DeviceProtocol)) {
+                return (DeviceProtocol) pluggableClass.newInstance();
+            }
+            else {
+                // Must be a lecagy pluggable class
+                com.energyict.mdw.core.Pluggable pluggable = (com.energyict.mdw.core.Pluggable) pluggableClass.newInstance();
+                return checkForProtocolWrappers(pluggable);
+            }
+        }
+        catch (BusinessException e) {
             throw CodingException.genericReflectionError(e, javaClassName);
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        }
+        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw CodingException.genericReflectionError(e, javaClassName);
         }
     }
 
     /**
-     * Check if the given {@link Pluggable} needs a Protocol adapter to create a {@link DeviceProtocol}
+     * Check if the given {@link Pluggable} needs a Protocol adapter to create a {@link DeviceProtocol}.
      *
      * @param protocolInstance the instantiated protocol
      * @throws BusinessException if and only if the given Pluggable does not implement: <ul>
-     *                           <li>{@link com.energyict.protocol.SmartMeterProtocol}</li>
-     *                           <li>{@link com.energyict.protocol.MeterProtocol}</li>
-     *                           <li>{@link DeviceProtocol}</li>
-     *                           </ul>
+     * <li>{@link com.energyict.protocol.SmartMeterProtocol}</li>
+     * <li>{@link com.energyict.protocol.MeterProtocol}</li>
+     * </ul>
      */
     protected DeviceProtocol checkForProtocolWrappers(Pluggable protocolInstance) throws BusinessException {
         if (protocolInstance instanceof SmartMeterProtocol) {
             return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocolInstance);
-        } else if (protocolInstance instanceof MeterProtocol) {
+        }
+        else if (protocolInstance instanceof MeterProtocol) {
             return new MeterProtocolAdapter((MeterProtocol) protocolInstance);
-        } else if (protocolInstance instanceof DeviceProtocol) {
-            return (DeviceProtocol) protocolInstance;
-        } else {
-            throw new BusinessException("protocolInterfaceNotSupported", "A DeviceProtocol must implement one of the following interfaces : MeterProtocol, SmartMeterProtocol or DeviceProtocol");
+        }
+        else {
+            throw new BusinessException("protocolInterfaceNotSupported", "A lecagy DeviceProtocol must implement one of the following interfaces : MeterProtocol or SmartMeterProtocol");
         }
     }
 
