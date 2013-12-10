@@ -7,12 +7,15 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import org.osgi.service.component.annotations.Component;
 
 /**
+ * Provides an implementation for the {@link ConnectionTypeService} interface
+ * and registers as a OSGi component.
+ *
  * Copyrights EnergyICT
  * Date: 28/11/13
  * Time: 16:27
  */
 @Component(name = "com.energyict.protocols.mdc.services.connectiontypeservice", service = ConnectionTypeService.class, immediate = true)
-public class ConnectionTypeServiceImpl extends AbstractPluggableClassServiceImpl implements ConnectionTypeService {
+public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     @Override
     public ConnectionType createConnectionType(PluggableClass pluggableClass) {

@@ -2,8 +2,8 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.services.LicensedProtocolService;
-import com.energyict.mdw.core.LicensedProtocol;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
 import org.osgi.service.component.annotations.Component;
 
