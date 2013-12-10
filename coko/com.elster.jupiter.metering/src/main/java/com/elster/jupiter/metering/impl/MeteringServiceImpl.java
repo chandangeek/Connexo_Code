@@ -203,6 +203,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        ormService.register(dataModel);
         this.ormClient = new OrmClientImpl(dataModel);
     }
 
