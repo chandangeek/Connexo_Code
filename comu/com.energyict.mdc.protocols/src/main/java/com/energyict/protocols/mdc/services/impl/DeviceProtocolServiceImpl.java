@@ -29,7 +29,7 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
     public DeviceProtocol createDeviceProtocolFor(String javaClassName) {
         try {
             Class<?> pluggableClass = this.getClass().getClassLoader().loadClass(javaClassName);
-            if (pluggableClass.isAssignableFrom(DeviceProtocol)) {
+            if (pluggableClass.isAssignableFrom(DeviceProtocol.class)) {
                 return (DeviceProtocol) pluggableClass.newInstance();
             }
             else {
@@ -47,7 +47,8 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
     }
 
     /**
-     * Check if the given {@link Pluggable} needs a Protocol adapter to create a {@link DeviceProtocol}.
+     * Check if the given {@link com.energyict.mdw.core.Pluggable}
+     * needs a Protocol adapter to create a {@link DeviceProtocol}.
      *
      * @param protocolInstance the instantiated protocol
      * @throws BusinessException if and only if the given Pluggable does not implement: <ul>
@@ -55,7 +56,7 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
      * <li>{@link com.energyict.protocol.MeterProtocol}</li>
      * </ul>
      */
-    protected DeviceProtocol checkForProtocolWrappers(Pluggable protocolInstance) throws BusinessException {
+    protected DeviceProtocol checkForProtocolWrappers(com.energyict.mdw.core.Pluggable protocolInstance) throws BusinessException {
         if (protocolInstance instanceof SmartMeterProtocol) {
             return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocolInstance);
         }
