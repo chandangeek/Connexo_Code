@@ -6,7 +6,6 @@ import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.Pluggable;
 import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.SmartMeterProtocol;
@@ -34,7 +33,7 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
             }
             else {
                 // Must be a lecagy pluggable class
-                return checkForProtocolWrappers((Pluggable) pluggableClass.newInstance());
+                return checkForProtocolWrappers((com.energyict.mdw.core.Pluggable) pluggableClass.newInstance());
             }
         }
         catch (BusinessException e) {
