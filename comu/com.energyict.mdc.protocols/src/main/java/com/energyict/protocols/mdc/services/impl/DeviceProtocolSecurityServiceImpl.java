@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.comserver.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.services.DeviceProtocolSecurityService;
 import org.osgi.service.component.annotations.Component;
 
@@ -16,8 +17,10 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     public Object createDeviceProtocolSecurityFor(String javaClassName) {
         try {
             return Class.forName(javaClassName).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw CodingException.genericReflectionError(e, javaClassName);
+        } catch (ClassNotFoundException e) {
+            throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(e, javaClassName);
         }
     }
 }
