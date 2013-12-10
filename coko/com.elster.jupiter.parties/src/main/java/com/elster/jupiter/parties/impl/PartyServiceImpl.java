@@ -218,6 +218,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        ormService.register(dataModel);
         ormClient = new OrmClientImpl(dataModel);
     }
 }

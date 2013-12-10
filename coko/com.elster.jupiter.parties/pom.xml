@@ -33,11 +33,6 @@
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <dependency>
@@ -83,9 +78,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
