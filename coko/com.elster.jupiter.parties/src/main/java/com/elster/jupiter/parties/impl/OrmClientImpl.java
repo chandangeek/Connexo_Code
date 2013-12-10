@@ -26,22 +26,22 @@ class OrmClientImpl implements OrmClient {
 
 	@Override
 	public DataMapper<Party> getPartyFactory() {
-		return dataModel.getDataMapper(Party.class, PartyImpl.IMPLEMENTERS, PRT_PARTY.name());
+		return dataModel.getDataMapper(Party.class, PRT_PARTY.name());
 	}
 	
 	@Override
 	public DataMapper<PartyRepresentation> getPartyRepresentationFactory() {
-		return dataModel.getDataMapper(PartyRepresentation.class, PartyRepresentationImpl.class, PRT_PARTYREP.name());
+		return dataModel.getDataMapper(PartyRepresentation.class, PRT_PARTYREP.name());
 	}
 
 	@Override
 	public DataMapper<PartyInRole> getPartyInRoleFactory() {
-		return dataModel.getDataMapper(PartyInRole.class, PartyInRoleImpl.class,PRT_PARTYINROLE.name());
+		return dataModel.getDataMapper(PartyInRole.class, PRT_PARTYINROLE.name());
 	}
 
 	@Override
 	public TypeCache<PartyRole> getPartyRoleFactory() {
-		return Bus.getCache().getTypeCache(PartyRole.class, PartyRoleImpl.class , PRT_PARTYROLE.name());
+		return Bus.getCache().getTypeCache(PartyRole.class, PRT_PARTYROLE.name());
 	}
 	
 	@Override

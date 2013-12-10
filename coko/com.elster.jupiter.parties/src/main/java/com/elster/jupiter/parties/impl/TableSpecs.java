@@ -13,6 +13,7 @@ import static com.elster.jupiter.orm.ColumnConversion.*;
 public enum TableSpecs {
 	PRT_PARTY {
 		void describeTable(Table table) {
+			table.map(PartyImpl.IMPLEMENTERS);
 			table.setJournalTableName("PRT_PARTYJRNL");
 			Column idColumn = table.addAutoIdColumn();
 			table.addDiscriminatorColumn("PARTYTYPE", "char(1)");
@@ -87,6 +88,7 @@ public enum TableSpecs {
 	},
 	PRT_PARTYREP {
 		void describeTable(Table table) {
+			table.map(PartyRepresentationImpl.class);
 			Column delegateColumn = table.addColumn("DELEGATE", "varchar2(256)", true, NOCONVERSION, "delegate");
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			Column partyIdColumn = table.addColumn("PARTYID", "number", true , NUMBER2LONG, "partyId");			
@@ -97,6 +99,7 @@ public enum TableSpecs {
 	},
 	PRT_PARTYROLE {
 		void describeTable(Table table) {
+			table.map(PartyRoleImpl.class);
 			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", true, NOCONVERSION, "mRID");
 			table.addColumn("COMPONENT", "varchar2(3)", true, NOCONVERSION, "componentName");
 			table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
@@ -108,6 +111,7 @@ public enum TableSpecs {
 	},
 	PRT_PARTYINROLE {
 		void describeTable(Table table) {
+			table.map(PartyInRoleImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column partyIdColumn = table.addColumn("PARTYID", "number", true, NUMBER2LONG, "partyId");
 			Column roleMRIDColumn = table.addColumn("PARTYROLEMRID","varchar2(80)",true,NOCONVERSION,"roleMRID");
