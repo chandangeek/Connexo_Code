@@ -4,10 +4,6 @@ import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.impl.FieldSpecImpl;
-import com.elster.jupiter.ids.impl.RecordSpecImpl;
-import com.elster.jupiter.ids.impl.TimeSeriesImpl;
-import com.elster.jupiter.ids.impl.VaultImpl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.SqlDialect;
@@ -27,22 +23,22 @@ public class OrmClientImpl implements OrmClient {
 
 	@Override
 	public DataMapper<Vault> getVaultFactory() {
-		return dataModel.getDataMapper(Vault.class, VaultImpl.class, IDS_VAULT.name());
+		return dataModel.getDataMapper(Vault.class, IDS_VAULT.name());
 	}
 
 	@Override
 	public DataMapper<RecordSpec> getRecordSpecFactory() {
-		return dataModel.getDataMapper(RecordSpec.class, RecordSpecImpl.class, IDS_RECORDSPEC.name());
+		return dataModel.getDataMapper(RecordSpec.class, IDS_RECORDSPEC.name());
 	}
 	
 	@Override
 	public DataMapper<FieldSpec> getFieldSpecFactory() {
-		return dataModel.getDataMapper(FieldSpec.class, FieldSpecImpl.class, IDS_FIELDSPEC.name());
+		return dataModel.getDataMapper(FieldSpec.class, IDS_FIELDSPEC.name());
 	}
 	
 	@Override
 	public DataMapper<TimeSeries> getTimeSeriesFactory() {	
-		return dataModel.getDataMapper(TimeSeries.class , TimeSeriesImpl.class, IDS_TIMESERIES.name());
+		return dataModel.getDataMapper(TimeSeries.class , IDS_TIMESERIES.name());
 	}
 	
 	@Override
