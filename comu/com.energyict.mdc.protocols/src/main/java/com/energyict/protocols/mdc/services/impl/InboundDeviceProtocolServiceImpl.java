@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Component;
  * Time: 12:03
  */
 @Component(name = "com.energyict.mdc.service.inbounddeviceprotocols", service = InboundDeviceProtocolService.class, immediate = true)
-public class InboundDeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl implements InboundDeviceProtocolService {
+public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 
     @Override
     public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {

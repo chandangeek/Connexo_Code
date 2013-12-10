@@ -6,18 +6,21 @@ import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.SmartMeterProtocol;
 import org.osgi.service.component.annotations.Component;
 
 /**
+ * Provides an implementation for the {@link DeviceProtocolService} interface
+ * and registers as a OSGi component.
+ *
  * Copyrights EnergyICT
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name = "com.energyict.mdc.service.deviceprotocols", service = DeviceProtocolService.class, immediate = true)
-public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl implements DeviceProtocolService {
+@Component(name = "com.energyict.mdc.service.deviceprotocols", service = DeviceProtocolService.class)
+public class DeviceProtocolServiceImpl implements DeviceProtocolService {
 
     @Override
     public DeviceProtocol createDeviceProtocolFor(DeviceProtocolPluggableClass pluggableClass) {
