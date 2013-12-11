@@ -449,6 +449,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.12.4</version>
                 <configuration>
+                    <enableAssertions>true</enableAssertions>
                     <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=512m -XX:-UseSplitVerifier</argLine>
                     <systemProperties>
                         <property>
