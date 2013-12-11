@@ -344,7 +344,7 @@ public class EnvironmentImpl implements Environment {
     @Override
     public boolean useOraLobs () {
         // Use configuration support for OSGi services
-        return true;
+        return false;
     }
 
     @Override
