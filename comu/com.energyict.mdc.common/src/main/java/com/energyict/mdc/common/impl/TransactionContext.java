@@ -141,11 +141,11 @@ public class TransactionContext {
         if (this.nestCount == 1) {
             // Top level transaction
             try {
-                this.obtainConnection();
                 return transactionService.execute(new com.elster.jupiter.transaction.Transaction<T>() {
                     @Override
                     public T perform () {
                         try {
+                            obtainConnection();
                             return transaction.doExecute();
                         }
                         catch (BusinessException e) {
