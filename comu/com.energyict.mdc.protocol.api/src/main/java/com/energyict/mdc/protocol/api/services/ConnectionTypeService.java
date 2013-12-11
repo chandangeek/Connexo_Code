@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.api.services;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionTypePluggableClassDefinition;
 import com.energyict.mdc.protocol.api.PluggableClass;
+import java.util.Collection;
 
 /**
  * OSGI Service wrapper for a {@link ConnectionType}.
@@ -13,5 +15,7 @@ import com.energyict.mdc.protocol.api.PluggableClass;
 public interface ConnectionTypeService {
 
     public ConnectionType createConnectionType(PluggableClass pluggableClass);
+
+    public Collection<ConnectionTypePluggableClassDefinition> getExistingConnectionTypePluggableClasses();
 
 }
