@@ -2,8 +2,12 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionTypePluggableClassDefinition;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.protocols.mdc.ConnectionTypeRule;
+import java.util.Arrays;
+import java.util.Collection;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -25,4 +29,9 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
             throw CodingException.genericReflectionError(e, pluggableClass.getJavaClassName());
         }
     }
+
+    @Override
+    public Collection<ConnectionTypePluggableClassDefinition> getExistingConnectionTypePluggableClasses() {
+        return Arrays.asList((ConnectionTypePluggableClassDefinition[])ConnectionTypeRule.values());
+   }
 }
