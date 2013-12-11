@@ -12,7 +12,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         @JsonSubTypes.Type(value = TcpInboundComPortInfo.class, name = "TCP"),
         @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "MODEM"),
         @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP"),
-        @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "SERVLET") })
+        @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "SERVLET"),
+        @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "SERIAL") })
 public abstract class InboundComPortInfo<T extends InboundComPortShadow> extends ComPortInfo<T> {
 
     protected InboundComPortInfo() {
