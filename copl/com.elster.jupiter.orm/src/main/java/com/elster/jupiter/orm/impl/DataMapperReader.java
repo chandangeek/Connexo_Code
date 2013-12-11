@@ -4,11 +4,14 @@ import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import com.elster.jupiter.orm.proxy.impl.ProxyHandler;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -197,8 +200,31 @@ public class DataMapperReader<T> {
 		DomainMapper mapper = mapperType.getDomainMapper();
 		for (Column column : getSqlGenerator().getColumns()) {
 			mapper.set(result, column.getFieldName(), ((ColumnImpl) column).convertFromDb(rs, startIndex++));
-		}					
+		}
+		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
+			mapper.set(result, constraint.getFieldName(), createProxy(constraint,result));
+		}
 		return result;
+	}
+	
+	Object createProxy(ForeignKeyConstraint constraint , Object source) {
+		try {
+			Object[] key = constraint.getColumnValues(source);
+			for (Object keyPart : key) {
+				if (keyPart == null) {
+					return null;
+				}
+			}
+			Class<?> iface = DomainMapper.FIELDLENIENT.getType(source.getClass(),constraint.getFieldName());
+			if (iface == null) {
+				return null;
+			}
+			DataMapper<?> dataMapper = constraint.getReferencedTable().getDataMapper(iface);
+			InvocationHandler handler = new ProxyHandler<>(key, dataMapper);
+			return Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface} , handler);
+		} catch (MappingException ex) {
+			return null;
+		}
 	}
 	
 	T construct(ResultSet rs, List<Setter> setters) throws SQLException {

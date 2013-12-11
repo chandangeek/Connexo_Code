@@ -13,6 +13,7 @@ public class ColumnInConstraintImpl {
 	
 	// associations
 	private TableConstraint constraint;
+	private Column column;
 	
 	@SuppressWarnings("unused")
 	private ColumnInConstraintImpl() {		

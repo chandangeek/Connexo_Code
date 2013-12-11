@@ -614,6 +614,11 @@ public class TableImpl implements Table , PersistenceAware  {
 	public boolean maps(Class<?> clazz) {
 		return mapperType != null && mapperType.maps(clazz);
 	}
+
+	@Override
+	public Table yourself() {
+		return this;
+	}
 }
 	
 
