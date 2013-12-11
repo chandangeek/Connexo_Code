@@ -10,7 +10,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comPortType")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = TcpInboundComPortInfo.class, name = "TCP"),
-        @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "MODEM"),
         @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP"),
         @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "SERVLET"),
         @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "SERIAL") })
@@ -30,6 +29,5 @@ public abstract class InboundComPortInfo<T extends InboundComPortShadow> extends
     protected void writeToShadow(T shadow) {
         super.writeToShadow(shadow);
         shadow.setInboundComPortPoolId(this.comPortPool_id);
-
     }
 }

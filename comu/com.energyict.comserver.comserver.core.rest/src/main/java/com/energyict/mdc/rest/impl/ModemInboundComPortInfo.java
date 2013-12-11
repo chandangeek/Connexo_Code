@@ -89,8 +89,10 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
 
     private List<String> fromMaps(String key, List<Map<String, String>> maps) {
         List<String> strings = new ArrayList<String>();
-        for (Map<String, String> map : maps) {
-            strings.add(map.get(key));
+        if (maps!=null) {
+            for (Map<String, String> map : maps) {
+                strings.add(map.get(key));
+            }
         }
         return strings;
     }

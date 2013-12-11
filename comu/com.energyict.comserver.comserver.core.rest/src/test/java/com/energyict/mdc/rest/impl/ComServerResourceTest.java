@@ -1,9 +1,13 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComServerService;
+import com.energyict.mdc.shadow.ports.ComPortShadow;
+import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.ArrayList;
@@ -39,10 +43,12 @@ import static org.mockito.Mockito.when;
 public class ComServerResourceTest extends JerseyTest {
 
     private static ComServerService comServerService;
+    private static ComPortPoolService comPortPoolService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         comServerService = mock(ComServerService.class);
+        comPortPoolService = mock(ComPortPoolService.class);
     }
 
     @Override
@@ -182,6 +188,53 @@ public class ComServerResourceTest extends JerseyTest {
         assertThat(updatingValue.getStoreTaskQueueSize()).isEqualTo(7);
         assertThat(updatingValue.getStoreTaskThreadPriority()).isEqualTo(8);
         assertThat(updatingValue.getNumberOfStoreTaskThreads()).isEqualTo(9);
+    }
+
+    @Test
+    public void testUpdateExistingComServerAddSerialInboundComPort() throws Exception {
+        int comServer_id = 3;
+        int comPortPool_id = 16;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
+        onlineComServerShadow.setId(comServer_id);
+        when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
+        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+
+        ComPortPool comPortPool = mock(ComPortPool.class);
+        when(comPortPool.getId()).thenReturn(comPortPool_id);
+        when(comPortPoolService.find(comPortPool_id)).thenReturn(comPortPool);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        ModemInboundComPortInfo modemInboundComPortInfo = new ModemInboundComPortInfo();
+        modemInboundComPortInfo.ringCount = 100;
+        modemInboundComPortInfo.maximumNumberOfDialErrors = 101;
+        TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
+        timeDurationInfo.count=2;
+        timeDurationInfo.timeUnit="seconds";
+        modemInboundComPortInfo.atCommandTimeout = timeDurationInfo;
+        modemInboundComPortInfo.comServer_id = comServer_id;
+        modemInboundComPortInfo.comPortPool_id = comPortPool_id;
+        List<InboundComPortInfo<? extends ComPortShadow>> inboundPorts = new ArrayList<>();
+        inboundPorts.add(modemInboundComPortInfo);
+        onlineComServerInfo.inboundComPorts=inboundPorts;
+        onlineComServerInfo.outboundComPorts=new ArrayList<>();
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
+        final Response response = target("/comservers/3").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<OnlineComServerShadow> onlineComServerShadowArgumentCaptor = ArgumentCaptor.forClass(OnlineComServerShadow.class);
+        verify(serverSideComServer).update(onlineComServerShadowArgumentCaptor.capture());
+        OnlineComServerShadow updatingValue = onlineComServerShadowArgumentCaptor.getValue();
+        assertThat(updatingValue.getInboundComPortShadows()).hasSize(1);
+        ModemBasedInboundComPortShadow inboundComPortShadow = (ModemBasedInboundComPortShadow) updatingValue.getInboundComPortShadows().get(0);
+        assertThat(inboundComPortShadow.getInboundComPortPoolId()).isEqualTo(comPortPool_id);
+        assertThat(inboundComPortShadow.getRingCount()).isEqualTo(100);
+        assertThat(inboundComPortShadow.getMaximumNumberOfDialErrors()).isEqualTo(101);
+        assertThat(inboundComPortShadow.getAtCommandTimeout().getSeconds()).isEqualTo(2);
     }
 
     @Test
