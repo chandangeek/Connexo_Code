@@ -266,6 +266,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(readingRecord.getTimeStamp()).thenReturn(DATE1);
         when(validator.validate(intervalReadingRecord)).thenReturn(ValidationResult.SUSPECT);
         when(channel.createReadingQuality(new ReadingQualityType("3.6."+ID), intervalReadingRecord)).thenReturn(readingQuality);
+        when(channel.isRegular()).thenReturn(true);
         validationRule.addReadingType(readingType1);
         validationRule.addReadingType(readingType2);
         validationRule.activate();
