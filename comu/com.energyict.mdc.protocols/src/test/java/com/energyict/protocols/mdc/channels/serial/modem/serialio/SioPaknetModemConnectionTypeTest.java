@@ -15,6 +15,7 @@ import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
@@ -237,7 +238,10 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         commandTries.setValue(new BigDecimal(3));
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DTR_TOGGLE_DELAY);
         dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
-        List<ConnectionProperty> properties = Arrays.<ConnectionProperty>asList(delayBeforeSendProperty, commandTimeout, commandTries, dtrToggleDelay);
+        ConnectionProperty comPortName = mock(ConnectionProperty.class);
+        when(comPortName.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
+        when(comPortName.getValue()).thenReturn(this.comPortName);
+        List<ConnectionProperty> properties = Arrays.asList(comPortName, delayBeforeSendProperty, commandTimeout, commandTries, dtrToggleDelay);
 
         PaknetModemComponent modemComponent = spy(new PaknetModemComponent(new TypedPaknetModemProperties(properties)));
         when(this.serialComponentFactory.newPaknetModemComponent(any(AbstractPaknetModemProperties.class))).thenReturn(modemComponent);
@@ -250,7 +254,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-215")) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
             }
-            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(this.comPortName);
             verify(modemComponent, times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(Long.class));
             throw e;
         }
