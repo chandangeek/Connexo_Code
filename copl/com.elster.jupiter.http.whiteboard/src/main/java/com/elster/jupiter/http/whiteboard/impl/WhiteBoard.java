@@ -1,30 +1,30 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
 
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.*;
-import org.osgi.service.http.*;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 
 import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.http.whiteboard.StartPage;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.jupiter.http.whiteboard", service=Application.class, property = {"alias=/apps"})
 public class WhiteBoard extends Application implements BinderProvider {
 	private volatile HttpService httpService;
-	private List<HttpResource> resources = Collections.synchronizedList(new ArrayList<HttpResource>());
+	private List<HttpResource> resources = new CopyOnWriteArrayList<>();
 	
 	public WhiteBoard() {
 	}
@@ -61,9 +61,7 @@ public class WhiteBoard extends Application implements BinderProvider {
 	}
 
 	List<HttpResource> getResources() {
-		synchronized (resources) {
-			return new ArrayList<>(resources);
-		}
+		return new ArrayList<>(resources);
 	}
 
 	@Override
