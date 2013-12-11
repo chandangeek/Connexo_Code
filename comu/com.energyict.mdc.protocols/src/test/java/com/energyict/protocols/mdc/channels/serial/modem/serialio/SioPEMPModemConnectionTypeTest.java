@@ -97,7 +97,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         modemConfigurationKey.setValue(MODEM_CONFIGURATION_KEY);
         ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
         when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
-        when(comPortConnectionProperty.getValue()).thenReturn(comPort);
+        when(comPortConnectionProperty.getValue()).thenReturn(this.comPortName);
 
         return Arrays.asList(
                 delayBeforeSendProperty,

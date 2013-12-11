@@ -106,7 +106,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         phoneNumber.setValue(PHONE_NUMBER);
         ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
         when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
-        when(comPortConnectionProperty.getValue()).thenReturn(comPort);
+        when(comPortConnectionProperty.getValue()).thenReturn(this.comPortName);
 
         return Arrays.asList(
                 delayBeforeSendProperty,

@@ -110,7 +110,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         phoneNumber.setValue(PHONE_NUMBER);
         ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
         when(comPortConnectionProperty.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
-        when(comPortConnectionProperty.getValue()).thenReturn(comPort);
+        when(comPortConnectionProperty.getValue()).thenReturn(this.comPortName);
 
         return Arrays.asList(
                 delayBeforeSendProperty,
@@ -243,7 +243,10 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(3));
-        List<ConnectionProperty> properties = Arrays.<ConnectionProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries);
+        ConnectionProperty comPortName = mock(ConnectionProperty.class);
+        when(comPortName.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
+        when(comPortName.getValue()).thenReturn(this.comPortName);
+        List<ConnectionProperty> properties = Arrays.asList(comPortName, delayBeforeSendProperty, atCommandTimeout, atCommandTries);
 
         AtModemComponent atModemComponent = spy(new AtModemComponent(new TypedAtModemProperties(properties)));
         when(this.serialComponentFactory.newAtModemComponent(any(AbstractAtModemProperties.class))).thenReturn(atModemComponent);
@@ -256,7 +259,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
             if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
-            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(this.comPortName);
             verify(atModemComponent, times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(Long.class));
             throw e;
         }

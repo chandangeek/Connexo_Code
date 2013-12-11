@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  * Time: 12:19
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AbstractModemTests {
+public abstract class AbstractModemTests {
 
     @Mock
     private ManagementBeanFactory managementBeanFactory;
