@@ -1,5 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.Date;
+
+import org.joda.time.DateMidnight;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -30,22 +43,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateMidnight;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
 
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Date;
-
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingQualityImplTest {
@@ -53,13 +51,10 @@ public class ReadingQualityImplTest {
     private Injector injector;
 
     @Mock
-    private LogService logService;
-    @Mock
     private BundleContext bundleContext;
     @Mock
     private UserService userService;
-    @Mock
-    private Principal principal;
+  
     
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -86,11 +81,10 @@ public class ReadingQualityImplTest {
         			new DomainUtilModule(), 
         			new OrmModule(),
         			new UtilModule(), 
-        			new ThreadSecurityModule(principal), 
-        			new PubSubModule(logService), 
+        			new ThreadSecurityModule(), 
+        			new PubSubModule(), 
         			new TransactionModule(),
         			new OrmCacheModule());
-        when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {

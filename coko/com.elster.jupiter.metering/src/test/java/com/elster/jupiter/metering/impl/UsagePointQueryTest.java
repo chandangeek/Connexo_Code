@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -49,8 +49,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointQueryTest {
 
@@ -90,11 +88,10 @@ public class UsagePointQueryTest {
         			new DomainUtilModule(), 
         			new OrmModule(),
         			new UtilModule(), 
-        			new ThreadSecurityModule(principal), 
-        			new PubSubModule(logService), 
+        			new ThreadSecurityModule(), 
+        			new PubSubModule(), 
         			new TransactionModule(),
         			new OrmCacheModule());
-        when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {
