@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.services.ComPortPoolService;

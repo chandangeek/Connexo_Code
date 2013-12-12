@@ -1,7 +1,8 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.InboundComPort;
+import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.servers.ComServerShadow;

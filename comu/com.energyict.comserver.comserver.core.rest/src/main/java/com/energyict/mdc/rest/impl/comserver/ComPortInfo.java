@@ -1,18 +1,18 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @XmlRootElement
 public abstract class ComPortInfo<T extends ComPortShadow> {
@@ -38,9 +38,11 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public String addressSelector;
     public String postDialCommands;
     public String comPortName;
-    public BaudrateValue baudrate;
-    public NrOfDataBits nrOfDataBits;
-    public NrOfStopBits nrOfStopBits;
+    public String baudrate;
+    public String nrOfDataBits;
+    public String nrOfStopBits;
+    @JsonDeserialize(using = FlowControlDeserializer.class)
+    @JsonSerialize(using = FlowControlSerializer.class)
     public FlowControl flowControl;
     public Parities parity;
     public Integer comPortPool_id;

@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;

@@ -1,6 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
+import com.energyict.mdc.rest.impl.comserver.ComPortResource;
+import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;

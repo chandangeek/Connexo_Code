@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
 import java.util.ArrayList;
 import java.util.Collection;

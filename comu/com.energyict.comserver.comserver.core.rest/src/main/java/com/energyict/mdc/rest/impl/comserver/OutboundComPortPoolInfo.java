@@ -1,7 +1,8 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.OutboundComPortPool;
+import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import com.energyict.mdc.shadow.ports.OutboundComPortPoolShadow;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.ports.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;

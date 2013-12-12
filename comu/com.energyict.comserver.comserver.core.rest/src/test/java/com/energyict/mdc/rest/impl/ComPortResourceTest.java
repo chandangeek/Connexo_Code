@@ -15,6 +15,9 @@ import com.energyict.mdc.ports.ServletBasedInboundComPort;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.rest.impl.comserver.ComPortResource;
+import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
@@ -314,11 +317,11 @@ public class ComPortResourceTest extends JerseyTest {
                 MapEntry.entry("ringCount", 11),
                 MapEntry.entry("modemInitStrings", Arrays.asList(map, map2)),
                 MapEntry.entry("comPortName", "port name"),
-                MapEntry.entry("baudrate", "BAUDRATE_1200"),
-                MapEntry.entry("nrOfDataBits", "FIVE"),
-                MapEntry.entry("nrOfStopBits", "TWO"),
+                MapEntry.entry("baudrate", "1200"),
+                MapEntry.entry("nrOfDataBits", "5"),
+                MapEntry.entry("nrOfStopBits", "2"),
                 MapEntry.entry("parity", "EVEN"),
-                MapEntry.entry("flowControl", "XONXOFF"),
+                MapEntry.entry("flowControl", "Xon/Xoff"),
 
                 MapEntry.entry("direction", "inbound")
         );
