@@ -55,4 +55,15 @@ public enum EndDeviceDomain {
     public boolean isApplicable() {
         return NA != this;
     }
+
+    public static EndDeviceDomain get(int value) {
+        for (EndDeviceDomain endDeviceDomain : EndDeviceDomain.values()) {
+            if (endDeviceDomain.getValue() == value) {
+                return endDeviceDomain;
+            }
+        }
+        throw new IllegalEnumValueException(EndDeviceDomain.class, value);
+    }
+
+
 }

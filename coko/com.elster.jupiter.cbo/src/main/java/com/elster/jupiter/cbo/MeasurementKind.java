@@ -130,7 +130,7 @@ public enum MeasurementKind {
 	private final int id;
 	private final String description;
 	
-	private MeasurementKind(int id , String description) {
+	MeasurementKind(int id , String description) {
 		this.id = id;
 		this.description = description;
 	}
@@ -142,7 +142,7 @@ public enum MeasurementKind {
 				return each;
 			}
 		}
-		throw new IllegalArgumentException("" + id);
+        throw new IllegalEnumValueException(MeasurementKind.class, id);
 	}
 	
 	public String getDescription() {

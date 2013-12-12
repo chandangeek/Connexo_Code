@@ -65,7 +65,7 @@ public enum TimeAttribute {
                 return each;
             }
 		}
-		throw new IllegalArgumentException("" + id);
+        throw new IllegalEnumValueException(TimeAttribute.class, id);
 	}
 	
 	public static TimeAttribute getInterval(int interval) {

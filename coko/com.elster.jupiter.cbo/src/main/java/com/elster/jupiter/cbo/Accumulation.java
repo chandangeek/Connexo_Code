@@ -27,7 +27,7 @@ public enum Accumulation {
                 return each;
             }
 		}
-		throw new IllegalArgumentException("" + id);
+        throw new IllegalEnumValueException(Accumulation.class, id);
 	}
 	
 	@Override

@@ -153,4 +153,15 @@ public enum EndDeviceEventorAction {
     public boolean isApplicable() {
         return NA != this;
     }
+
+    public static EndDeviceEventorAction get(int value) {
+        for (EndDeviceEventorAction endDeviceEventorAction : EndDeviceEventorAction.values()) {
+            if (endDeviceEventorAction.getValue() == value) {
+                return endDeviceEventorAction;
+            }
+        }
+        throw new IllegalEnumValueException(EndDeviceEventorAction.class, value);
+    }
+
+
 }

@@ -21,7 +21,7 @@ public enum Aggregate {
 	private final int id;
 	private final String description;
 	
-	private Aggregate(int id , String description) {
+	Aggregate(int id , String description) {
 		this.id = id;
 		this.description = description;
 	}	
@@ -32,7 +32,7 @@ public enum Aggregate {
 				return each;
 			}
 		}
-		throw new IllegalArgumentException("Invalid id " + id);
+		throw new IllegalEnumValueException(Aggregate.class, id);
 	}
 	
 	@Override

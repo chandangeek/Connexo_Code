@@ -33,7 +33,7 @@ public enum MetricMultiplier {
                 return each;
             }
 		}
-		throw new IllegalArgumentException("" + multiplier);
+        throw new IllegalEnumValueException(MetricMultiplier.class, multiplier);
 	}
 	
 	public int getId() {

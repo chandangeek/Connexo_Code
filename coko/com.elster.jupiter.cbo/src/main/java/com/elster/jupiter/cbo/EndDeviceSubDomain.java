@@ -181,4 +181,14 @@ public enum EndDeviceSubDomain {
     public boolean isApplicable() {
         return NA != this;
     }
+
+    public static EndDeviceSubDomain get(int value) {
+        for (EndDeviceSubDomain endDeviceSubDomain : EndDeviceSubDomain.values()) {
+            if (endDeviceSubDomain.getValue() == value) {
+                return endDeviceSubDomain;
+            }
+        }
+        throw new IllegalEnumValueException(EndDeviceSubDomain.class, value);
+    }
+
 }

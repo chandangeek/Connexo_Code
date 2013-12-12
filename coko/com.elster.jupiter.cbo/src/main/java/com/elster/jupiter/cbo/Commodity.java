@@ -42,7 +42,7 @@ public enum Commodity {
                 return each;
             }
 		}
-		throw new IllegalArgumentException("" + id);
+        throw new IllegalEnumValueException(Commodity.class, id);
 	}
 	
 	@Override

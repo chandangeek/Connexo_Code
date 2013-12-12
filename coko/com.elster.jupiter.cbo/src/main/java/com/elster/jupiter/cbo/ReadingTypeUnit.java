@@ -133,7 +133,7 @@ public enum ReadingTypeUnit {
 	private final int id;
 	private final Unit unit;
 	
-	private ReadingTypeUnit(int id , Unit unit) {
+	ReadingTypeUnit(int id , Unit unit) {
 		this.id = id;
 		this.unit = unit;
 	}
@@ -165,7 +165,7 @@ public enum ReadingTypeUnit {
 				return each;
 			}
 		}
-		throw new IllegalArgumentException("" + id);
+        throw new IllegalEnumValueException(ReadingTypeUnit.class, id);
 	}
 	
 

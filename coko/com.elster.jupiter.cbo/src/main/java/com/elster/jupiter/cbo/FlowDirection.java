@@ -39,7 +39,7 @@ public enum FlowDirection {
                 return each;
             }
 		}
-		throw new IllegalArgumentException("" + id);
+        throw new IllegalEnumValueException(FlowDirection.class, id);
 	}
 	
 	

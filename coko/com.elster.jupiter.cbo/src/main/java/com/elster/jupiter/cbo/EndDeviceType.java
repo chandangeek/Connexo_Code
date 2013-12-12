@@ -57,4 +57,13 @@ public enum EndDeviceType {
     public boolean isApplicable() {
         return NA != this;
     }
+
+    public static EndDeviceType get(int value) {
+        for (EndDeviceType endDeviceType : EndDeviceType.values()) {
+            if (endDeviceType.getValue() == value) {
+                return endDeviceType;
+            }
+        }
+        throw new IllegalEnumValueException(EndDeviceType.class, value);
+    }
 }

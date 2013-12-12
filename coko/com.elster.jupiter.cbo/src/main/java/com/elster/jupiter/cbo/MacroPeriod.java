@@ -23,7 +23,7 @@ public enum MacroPeriod {
 				return each;
 			}
 		}
-		throw new IllegalArgumentException("Invalid id " + id);
+		throw new IllegalEnumValueException(MacroPeriod.class, id);
 	}
 	
 
