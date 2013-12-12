@@ -1,12 +1,28 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Currency;
-
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.IllegalEnumValueException;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.IllegalCurrencyCodeException;
+import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.cbo.*;
 import com.google.common.base.Optional;
+
+import java.util.Currency;
+
+import static com.elster.jupiter.util.HolderBuilder.first;
 
 public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
@@ -78,7 +94,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 				return each;
 			}
 		}
-		throw new IllegalArgumentException("Invalid currency code " + isoCode);		
+		throw new IllegalCurrencyCodeException(isoCode);
 	}
 	
 	static int getCurrencyId(Currency currency) {
@@ -104,25 +120,29 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
-			throw new IllegalArgumentException(mRID);
+			throw new IllegalMRIDFormatException(mRID);
 		}
-		macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));
-		aggregate = Aggregate.get(parse(parts[AGGREGATE]));
-		measuringPeriod = TimeAttribute.get(parse(parts[MEASURING_PERIOD]));
-		accumulation = Accumulation.get(parse(parts[ACCUMULATION]));
-		flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION]));
-		commodity = Commodity.get(parse(parts[COMMODITY]));
-		measurementKind = MeasurementKind.get(parse(parts[MEASUREMENT_KIND]));
-		interharmonic = asRational(parts,INTERHARMONIC_NUMERATOR,INTERHARMONIC_DENOMINATOR);
-		argument = asRational(parts,ARGUMENT_NUMERATOR,ARGUMENT_DENOMINATOR);
-		tou = parse(parts[TOU]);
-		cpp = parse(parts[CPP]);
-		consumptionTier = parse(parts[CONSUMPTION_TIER]);
-		phases = Phase.get(parse(parts[PHASES]));
-		multiplier = MetricMultiplier.get(parse(parts[MULTIPLIER]));
-		unit = ReadingTypeUnit.get(parse(parts[UNIT]));
-		currency = getCurrency(parse(parts[CURRENCY]));
-	}
+        try {
+            macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));
+            aggregate = Aggregate.get(parse(parts[AGGREGATE]));
+            measuringPeriod = TimeAttribute.get(parse(parts[MEASURING_PERIOD]));
+            accumulation = Accumulation.get(parse(parts[ACCUMULATION]));
+            flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION]));
+            commodity = Commodity.get(parse(parts[COMMODITY]));
+            measurementKind = MeasurementKind.get(parse(parts[MEASUREMENT_KIND]));
+            interharmonic = asRational(parts,INTERHARMONIC_NUMERATOR,INTERHARMONIC_DENOMINATOR);
+            argument = asRational(parts,ARGUMENT_NUMERATOR,ARGUMENT_DENOMINATOR);
+            tou = parse(parts[TOU]);
+            cpp = parse(parts[CPP]);
+            consumptionTier = parse(parts[CONSUMPTION_TIER]);
+            phases = Phase.get(parse(parts[PHASES]));
+            multiplier = MetricMultiplier.get(parse(parts[MULTIPLIER]));
+            unit = ReadingTypeUnit.get(parse(parts[UNIT]));
+            currency = getCurrency(parse(parts[CURRENCY]));
+        } catch (IllegalEnumValueException | IllegalCurrencyCodeException e) {
+            throw new IllegalMRIDFormatException(mRID, e);
+        }
+    }
 		
 	private int parse(String intString) {
 		return Integer.parseInt(intString);
@@ -140,87 +160,57 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	
 	public String getName() {
 		StringBuilder builder = new StringBuilder();
-		String connector = "";
+		Holder<String> connector = first("").andThen(" ");
 		if (macroPeriod.isApplicable()) {
-			builder.append(connector);
-			builder.append(macroPeriod.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(macroPeriod.getDescription());
 		}
 		if (aggregate.isApplicable()) {
-			builder.append(connector);
-			builder.append(aggregate.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(aggregate.getDescription());
 		}
 		if (measuringPeriod.isApplicable()) {
-			builder.append(connector);
-			builder.append(measuringPeriod.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(measuringPeriod.getDescription());
 		}
 		if (accumulation.isApplicable()) {
-			builder.append(connector);
-			builder.append(accumulation.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(accumulation.getDescription());
 		}
 		if (flowDirection.isApplicable()) {
-			builder.append(connector);
-			builder.append(flowDirection.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(flowDirection.getDescription());
 		}
 		if (commodity.isApplicable()) {
-			builder.append(connector);
-			builder.append(commodity.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(commodity.getDescription());
 		}
 		if (measurementKind.isApplicable()) {
-			builder.append(connector);
-			builder.append(measurementKind.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(measurementKind.getDescription());
 		}
 		if (interharmonic.getDenominator() != 0) {
-			builder.append(connector);
-			builder.append("Interharmonic: ");
-			builder.append(interharmonic);
-			connector = " ";
+			builder.append(connector.get()).append("Interharmonic: ").append(interharmonic);
 		}
 		if (argument.getDenominator() != 0) {
-			builder.append(connector);
-			builder.append("Argument: ");
-			builder.append(argument);
-			connector = " ";
+			builder.append(connector.get()).append("Argument: ").append(argument);
 		}
 		if (tou > 0) {
-			builder.append(connector);
-			builder.append("Tou: ");
-			builder.append(tou);
-			connector = " ";
+			builder.append(connector.get()).append("Tou: ").append(tou);
 		}
 		if (cpp > 0) {
-			builder.append(connector);
-			builder.append("Cpp: ");
-			builder.append(cpp);
-				connector = " ";
+			builder.append(connector.get()).append("Cpp: ").append(cpp);
 		}
 		if (consumptionTier > 0) {
-			builder.append(connector);
-			builder.append("Consumption Tier: ");
-			builder.append(consumptionTier);
-			connector = " ";
+			builder.append(connector.get()).append("Consumption Tier: ").append(consumptionTier);
 		}
 		if (phases.isApplicable()) {
-			builder.append(connector);
-			builder.append(phases.getDescription());
-			connector = " ";
+			builder.append(connector.get()).append(phases.getDescription());
 		}
 		if (unit.isApplicable()) {
-			builder.append(" (");
+			builder.append(connector.get()).append('(');
 			builder.append(multiplier.getSymbol());
 			builder.append(unit.getSymbol());
-			builder.append(")");
+			builder.append(')');
 		}
 		if (getCurrencyId(currency) != 0) {
-			builder.append(" (");
+            builder.append(connector.get());
+			builder.append('(');
 			builder.append(currency.getCurrencyCode());
-			builder.append(")");	
+			builder.append(')');
 		}
 		return builder.toString();
 	}
