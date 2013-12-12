@@ -7,9 +7,11 @@ import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;
+import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
+import com.energyict.mdc.servers.ComServer;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.junit.Test;
 
@@ -40,6 +42,11 @@ public class AdapterTest {
     @Test
     public void testParitiesHasValueForEveryServerValue() throws Exception {
         testAdapter(new ParitiesAdapter(), Parities.values());
+    }
+
+    @Test
+    public void testLogLevelAdapterHasValueForEveryServerValue() throws Exception {
+        testAdapter(new LogLevelAdapter(), ComServer.LogLevel.values());
     }
 
     private void testAdapter(XmlAdapter adapter, Object[] values) throws Exception {

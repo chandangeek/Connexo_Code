@@ -1,13 +1,13 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.ComPortTypeAdapter;
 import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;
+import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
-import com.energyict.mdc.servers.ComServer;
+import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +52,7 @@ public class FieldResource {
     @GET
     @Path("/logLevel")
     public Object getLogLevelValues() {
-        return asJsonArrayObject("logLevels", "logLevel", ComServer.LogLevel.values());
+        return asJsonArrayObject("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }
 
     @GET
@@ -91,7 +91,7 @@ public class FieldResource {
     @GET
     @Path("/parity")
     public Object getParities() {
-        return asJsonArrayObject("parities", "parity", Parities.values());
+        return asJsonArrayObject("parities", "parity", new ParitiesAdapter().getClientSideValues());
     }
 
     @GET
