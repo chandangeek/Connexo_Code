@@ -16,6 +16,8 @@ public interface ConnectionTypeService {
 
     public ConnectionType createConnectionType(PluggableClass pluggableClass);
 
+    public ConnectionType createConnectionType(String javaClassName);
+
     public Collection<ConnectionTypePluggableClassDefinition> getExistingConnectionTypePluggableClasses();
 
 }
