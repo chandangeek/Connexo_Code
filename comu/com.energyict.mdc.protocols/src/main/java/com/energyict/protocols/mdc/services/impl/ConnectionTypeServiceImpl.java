@@ -23,10 +23,15 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     @Override
     public ConnectionType createConnectionType(PluggableClass pluggableClass) {
+        return createConnectionType(pluggableClass.getJavaClassName());
+    }
+
+    @Override
+    public ConnectionType createConnectionType(String javaClassName) {
         try {
-            return (ConnectionType) (Class.forName(pluggableClass.getJavaClassName())).newInstance();
+            return (ConnectionType) (getClass().getClassLoader().loadClass(javaClassName)).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw CodingException.genericReflectionError(e, pluggableClass.getJavaClassName());
+            throw CodingException.genericReflectionError(e, javaClassName);
         }
     }
 
@@ -34,4 +39,5 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     public Collection<ConnectionTypePluggableClassDefinition> getExistingConnectionTypePluggableClasses() {
         return Arrays.asList((ConnectionTypePluggableClassDefinition[])ConnectionTypeRule.values());
    }
+
 }
