@@ -10,10 +10,10 @@ import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.servers.ComServer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -170,7 +170,7 @@ public class FieldResource {
         return map;
     }
 
-    private <T> HashMap<String, Object> asJsonArrayObject(String fieldName, String valueName, Set<T> values) {
+    private <T> HashMap<String, Object> asJsonArrayObject(String fieldName, String valueName, Collection<T> values) {
         HashMap<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);

@@ -1,9 +1,14 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import static java.lang.Integer.*;
 
 /**
  * Provides simple one on one translation of javascript value to server values
@@ -17,8 +22,10 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
         map.put(displayValue, serverValue);
     }
 
-    public final Set<String> getClientSideValues() {
-        return map.keySet();
+    public final List<String> getClientSideValues() {
+        List<String> list = new ArrayList<>(map.keySet());
+        Collections.sort(list, new SmartComparator());
+        return list;
     }
 
     @Override
@@ -41,4 +48,17 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
         throw new IllegalStateException(value+" is not a known server value ");
     }
 
+    private class SmartComparator implements Comparator<String> {
+
+        @Override
+        public int compare(String mine, String other) {
+            try {
+                Integer mineInt = parseInt(mine);
+                Integer otherInt = parseInt(other);
+                return mineInt.compareTo(otherInt);
+            } catch (NumberFormatException e) {
+                return mine.compareTo(other);
+            }
+        }
+    }
 }
