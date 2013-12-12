@@ -17,6 +17,7 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector();
 	    AnnotationIntrospector pair = new AnnotationIntrospector.Pair(primary, secondary);
 		mapper.setSerializationInclusion(Inclusion.NON_NULL);
+		mapper.setDeserializationConfig(mapper.getDeserializationConfig().with(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
 		mapper.setAnnotationIntrospector(pair);
 	}
 

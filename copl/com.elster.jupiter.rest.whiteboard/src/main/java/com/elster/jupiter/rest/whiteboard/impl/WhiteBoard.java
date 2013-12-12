@@ -1,10 +1,11 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.google.common.base.Strings;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Application;
-
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -17,9 +18,6 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-
-import com.elster.jupiter.rest.util.BinderProvider;
-import com.google.common.base.Strings;
 
 public class WhiteBoard {
 	
