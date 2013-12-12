@@ -45,15 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PartyCrudTest {
 
     private Injector injector;
-
-    @Mock
-    private LogService logService;
     @Mock
     private BundleContext bundleContext;
     @Mock
     private UserService userService;
-    @Mock
-    private Principal principal;
     
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -78,11 +73,10 @@ public class PartyCrudTest {
         			new DomainUtilModule(), 
         			new OrmModule(),
         			new UtilModule(), 
-        			new ThreadSecurityModule(principal), 
-        			new PubSubModule(logService), 
+        			new ThreadSecurityModule(), 
+        			new PubSubModule(), 
         			new TransactionModule(),
         			new OrmCacheModule());
-        when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {
