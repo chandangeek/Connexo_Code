@@ -49,5 +49,6 @@ public class ComPortInfoTest {
         json = json.replace("'","\"");
         ComPortInfo response = objectMapper.readValue(json, InboundComPortInfo.class);
         assertThat(response.flowControl).isNull();
+
     }
 }
