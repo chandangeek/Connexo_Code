@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.licensedprotocol.List', {
     itemId: 'licensedprotocolgrid',
     overflowY: 'auto',
     layout: 'fit',
-    requires: ['Ext.ux.PreviewPlugin'],
     initComponent: function () {
         this.columns = [
             {

@@ -62,22 +62,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                                 uncheckedValue: 'false',
                                 name: 'active',
                                 fieldLabel: 'active'
-                            },
-                            {
-                                xtype: 'textfield',
-                                name: 'portNumber',
-                                fieldLabel: 'portNumber'
-                            },
-                            {
-                                xtype: 'combobox',
-                                name: 'comPortPool_id',
-                                fieldLabel: 'Communication port pool',
-                                store: comportpools,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id'
                             }
-
                         ]}
                 ]
             }
@@ -85,8 +70,8 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
 
         this.buttons = [
             {
-                text: 'Save',
-                action: 'save'
+                text: 'Back',
+                action: 'back'
             },
             {
                 text: 'Cancel',

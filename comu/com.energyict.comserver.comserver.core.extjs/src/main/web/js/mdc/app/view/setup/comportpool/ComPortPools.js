@@ -20,10 +20,10 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPools', {
                         '{name} - <tpl if="active==true"{active}><span style="color:lightgreen">active</span><tpl else><span style="color:#ff0000">not active</span></tpl>' +
                     '</caption>' +
                     '<tr>' +
-                        '<td>direction: </td>' +
-                        '<td>{direction}</td>' +
-                        '<td>type: </td>' +
-                        '<td>{type}</td>' +
+                        '<td width="25%">direction: </td>' +
+                        '<td width="25%">{direction}</td>' +
+                        '<td width="25%">type: </td>' +
+                        '<td width="25%">{type}</td>' +
                     '</tr>'+
                     '</table>',
                 flex:1

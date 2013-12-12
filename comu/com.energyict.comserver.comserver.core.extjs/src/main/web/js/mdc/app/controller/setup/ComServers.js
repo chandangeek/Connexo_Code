@@ -25,7 +25,10 @@ Ext.define('Mdc.controller.setup.ComServers', {
     refs: [
         {ref: 'comServerGrid',selector: 'viewport #comservergrid'},
         {ref: 'comServerEdit',selector:'comServerEdit'},
-        {ref: 'remoteComServerEdit',selector:'remoteComServerEdit'}
+        {ref: 'remoteComServerEdit',selector:'remoteComServerEdit'},
+        {ref: 'serialFieldSet',selector:'viewport #serialFieldSet'},
+        {ref: 'servletFieldSet',selector:'viewport #servletFieldSet'},
+        {ref: 'modemInitStringGrid',selector:'viewport #modeminitstringgrid'}
     ],
 
     outboundComPortStore: null,
@@ -75,23 +78,43 @@ Ext.define('Mdc.controller.setup.ComServers', {
             'inboundComPorts button[action=delete]': {
                 click: this.deleteComPort
             },
-            'outboundComPortEdit button[action=save]': {
+            'outboundComPortEdit button[action=back]': {
                 click: this.updateOutboundComPort
             },
             'outboundComPortEdit button[action=cancel]': {
                 click: this.cancelComPort
             },
-            'inboundComPortEdit button[action=save]': {
+            'inboundComPortEdit button[action=back]': {
                 click: this.updateInboundComPort
             },
             'inboundComPortEdit button[action=cancel]': {
                 click: this.cancelComPort
+            },
+            '#comPortTypeComboBox':{
+                change: this.changeInboundComPortViewAccordingToComPortType
+            },
+            'modemInitStrings button[action=add]':{
+                click: this.addModemInitString
+            },
+            'modemInitStrings button[action=delete]':{
+                click: this.deleteModemInitString
             }
-
         });
     },
 
     comServerEditView: null,
+
+    changeInboundComPortViewAccordingToComPortType: function(field,newValue,oldValue){
+        if(newValue!==oldValue){
+            var fieldSets = [
+                {id:'SERIAL',field:this.getSerialFieldSet()},
+                {id:'SERVLET',field:this.getServletFieldSet()}
+            ];
+            for(var i = 0;i<fieldSets.length;i++){
+                fieldSets[i].field && fieldSets[i].field.setVisible(fieldSets[i].id===newValue);
+            }
+        }
+    },
 
     editComServer: function (grid, record) {
         var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers', record.getId());
@@ -186,10 +209,15 @@ Ext.define('Mdc.controller.setup.ComServers', {
     editComPort: function (grid, record) {
         if(record instanceof Mdc.model.InboundComPort){
             var view = Ext.widget('inboundComPortEdit');
+            view.down('#serialFieldSet').setVisible(record.get('comPortType')==='SERIAL');
+            view.down('#servletFieldSet').setVisible(record.get('comPortType')==='SERVLET');
+            view.down('#modeminitstringgrid').reconfigure(record.modemInitStrings());
         } else if (record instanceof Mdc.model.OutboundComPort){
             var view = Ext.widget('outboundComPortEdit');
         }
         view.down('form').loadRecord(record);
+
+
         Mdc.getApplication().getMainController().showContent(view);
     },
 
@@ -246,5 +274,15 @@ Ext.define('Mdc.controller.setup.ComServers', {
             record = grid.getSelectionModel().getSelection()[0];
         grid.store.removeAt(grid.store.indexOf(record));
 
+    },
+
+    addModemInitString: function(button){
+        this.getModemInitStringGrid().store.add(Ext.create(Mdc.model.ModemInitString));
+    },
+
+    deleteModemInitString: function(button){
+        var grid = this.getModemInitStringGrid();
+        var record = grid.getSelectionModel().getSelection()[0];
+        grid.store.removeAt(grid.store.indexOf(record));
     }
 });

@@ -80,17 +80,20 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                             {
                                 xtype: 'numberfield',
                                 name: 'storeTaskQueueSize',
-                                fieldLabel: 'storeTaskQueueSize'
+                                fieldLabel: 'storeTaskQueueSize',
+                                minValue: 0
                             },
                             {
                                 xtype: 'numberfield',
                                 name: 'numberOfStoreTaskThreads',
-                                fieldLabel: 'numberOfStoreTaskThreads'
+                                fieldLabel: 'numberOfStoreTaskThreads',
+                                minValue: 0
                             },
                             {
                                 xtype: 'numberfield',
                                 name: 'storeTaskThreadPriority',
-                                fieldLabel: 'storeTaskThreadPriority'
+                                fieldLabel: 'storeTaskThreadPriority',
+                                minValue: 0
                             }
                         ]},
                     {

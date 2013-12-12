@@ -25,9 +25,5 @@ Ext.define('Mdc.Application', {
     ],
 
     stores: [
-        'ComServers',
-        'LogLevels',
-        'DeviceCommunicationProtocols',
-        'LicensedProtocols',
     ]
 });

@@ -4,7 +4,6 @@ Ext.define('Mdc.view.setup.protocolfamily.List', {
     itemId: 'protocolfamilygrid',
     overflowY: 'auto',
     layout: 'fit',
-    requires: ['Ext.ux.PreviewPlugin'],
     initComponent: function () {
         this.columns = [
             {

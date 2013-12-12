@@ -3,7 +3,7 @@ Ext.define('Mdc.store.ComPorts',{
     requires: [
         'Mdc.model.ComPort'
     ],
-    autoLoad: true,
+//    autoLoad: true,
     model: 'Mdc.model.ComPort',
     storeId: 'ComPorts',
 

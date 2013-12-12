@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.List', {
     itemId: 'devicecommunicationprotocolgrid',
     overflowY: 'auto',
     layout: 'fit',
-    requires: ['Ext.ux.PreviewPlugin'],
     initComponent: function () {
         this.columns = [
             {

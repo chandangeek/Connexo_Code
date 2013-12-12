@@ -1,0 +1,19 @@
+Ext.define('Mdc.store.Parities',{
+    extend: 'Ext.data.Store',
+    requires: [
+        'Mdc.model.field.Parity'
+    ],
+    model: 'Mdc.model.field.Parity',
+    autoLoad: true,
+    storeId: 'Parities',
+
+    proxy: {
+        type: 'rest',
+        url: '../../api/mdc/field/parity',
+        reader: {
+            type: 'json',
+            root: 'parities'
+        }
+    }
+});
+

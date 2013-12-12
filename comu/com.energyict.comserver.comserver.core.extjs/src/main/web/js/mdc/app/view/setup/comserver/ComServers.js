@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.comserver.ComServers', {
     itemId: 'comservergrid',
 
     store: 'ComServers',
-    requires: ['Ext.ux.PreviewPlugin'],
     initComponent: function () {
         this.columns = [
             {
@@ -21,10 +20,10 @@ Ext.define('Mdc.view.setup.comserver.ComServers', {
                         '{name} - {comServerDescriptor} - <tpl if="active==true"{active}><span style="color:lightgreen">active</span><tpl else><span style="color:#ff0000">not active</span></tpl>' +
                     '</caption>' +
                     '<tr>' +
-                        '<td>serverLogLevel: </td>' +
-                        '<td>{serverLogLevel}</td>' +
-                        '<td>changesInterPollDelay: </td>' +
-                        '<td>{changesInterPollDelay.count} {changesInterPollDelay.timeUnit}</td>' +
+                        '<td width="25%">serverLogLevel: </td>' +
+                        '<td width="25%">{serverLogLevel}</td>' +
+                        '<td width="25%">changesInterPollDelay: </td>' +
+                        '<td width="25%">{changesInterPollDelay.count} {changesInterPollDelay.timeUnit}</td>' +
                     '</tr>'+
                     '<tr>' +
                         '<td>communicationLogLevel: </td>' +

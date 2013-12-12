@@ -159,13 +159,30 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     },
 
     addOutboundComPort: function(){
-        this.outboundComPortSelectionWindow = Ext.widget('outboundComPortSelectionWindow');
+        var store = this.outboundComPortStore;
+        var popupStore = Ext.data.StoreManager.lookup('ComPorts');
+        popupStore.filter('direction','outbound');
+        popupStore.load({
+            scope: this,
+            callback: function(){
+                store.each(function(rec){
+                    var toRemove;
+                    popupStore.each(function(s2rec,idx){
+                      if(s2rec.get('id')===rec.get('id')){
+                          toRemove=idx;
+                      }
+                   },this);
+                    popupStore.removeAt(toRemove);
+                },this);
+                this.outboundComPortSelectionWindow = Ext.widget('outboundComPortSelectionWindow');
+                this.getOutboundComPortSelectionGrid().reconfigure(popupStore)
+            }
+        });
     },
 
     removeOutboundComPort: function(){
         var comport = this.getOutboundComPortGrid().getSelectionModel().getSelection()[0];
         this.outboundComPortStore.removeAt(this.outboundComPortStore.indexOf(comport));
-        console.log(comport);
     },
 
     selectComPort: function(){

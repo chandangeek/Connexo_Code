@@ -760,7 +760,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.ux.GroupTabRenderer": [],
   "Ext.ux.IFrame": [],
   "Ext.ux.LiveSearchGridPanel": [],
-  "Ext.ux.PreviewPlugin": [],
   "Ext.ux.ProgressBarPager": [],
   "Ext.ux.RowExpander": [],
   "Ext.ux.SlidingPager": [],
@@ -1708,9 +1707,6 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.uxiframe"
   ],
   "Ext.ux.LiveSearchGridPanel": [],
-  "Ext.ux.PreviewPlugin": [
-    "plugin.preview"
-  ],
   "Ext.ux.ProgressBarPager": [],
   "Ext.ux.RowExpander": [],
   "Ext.ux.SlidingPager": [],
