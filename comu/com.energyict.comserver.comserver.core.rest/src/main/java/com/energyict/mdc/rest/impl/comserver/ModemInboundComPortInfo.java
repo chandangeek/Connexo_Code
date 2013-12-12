@@ -12,10 +12,6 @@ import java.util.Map;
 
 public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPortShadow> {
 
-    private static final BaudRateValueConverter baudrateValueConverter = new BaudRateValueConverter();
-    private static final NrOfDataBitsConverter nrOfDataBitsConverter = new NrOfDataBitsConverter();
-    private static final NrOfStopBitsConverter nrOfStopBitsConverter = new NrOfStopBitsConverter();
-
     public static final String MAP_KEY = "modemInitString";
 
     public ModemInboundComPortInfo() {
@@ -36,9 +32,9 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         this.postDialCommands = comPort.getPostDialCommands();
         if (comPort.getSerialPortConfiguration()!=null) {
             this.comPortName = comPort.getSerialPortConfiguration().getComPortName();
-            this.baudrate = baudrateValueConverter.fromServerValue(comPort.getSerialPortConfiguration().getBaudrate());
-            this.nrOfDataBits = nrOfDataBitsConverter.fromServerValue(comPort.getSerialPortConfiguration().getNrOfDataBits());
-            this.nrOfStopBits = nrOfStopBitsConverter.fromServerValue(comPort.getSerialPortConfiguration().getNrOfStopBits());
+            this.baudrate = comPort.getSerialPortConfiguration().getBaudrate();
+            this.nrOfDataBits = comPort.getSerialPortConfiguration().getNrOfDataBits();
+            this.nrOfStopBits = comPort.getSerialPortConfiguration().getNrOfStopBits();
             this.flowControl = comPort.getSerialPortConfiguration().getFlowControl();
             this.parity = comPort.getSerialPortConfiguration().getParity();
         }
@@ -67,9 +63,9 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         shadow.setPostDialCommands(this.postDialCommands);
         shadow.setSerialPortConfiguration(new SerialPortConfiguration(
                 this.comPortName,
-                baudrateValueConverter.toServerValue(this.baudrate),
-                nrOfDataBitsConverter.toServerValue(this.nrOfDataBits),
-                nrOfStopBitsConverter.toServerValue(this.nrOfStopBits),
+                this.baudrate,
+                this.nrOfDataBits,
+                this.nrOfStopBits,
                 this.parity,
                 this.flowControl));
     }

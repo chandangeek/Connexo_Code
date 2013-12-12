@@ -1,18 +1,19 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
+import com.energyict.mdc.rest.impl.comserver.ComPortTypeAdapter;
+import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;
+import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
+import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.servers.ComServer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -84,7 +85,7 @@ public class FieldResource {
     @GET
     @Path("/comPortType")
     public Object getComPortTypes() {
-        return asJsonArrayObject("comPortTypes", "comPortType", ComPortType.values());
+        return asJsonArrayObject("comPortTypes", "comPortType", new ComPortTypeAdapter().getClientSideValues());
     }
 
     @GET
@@ -96,25 +97,25 @@ public class FieldResource {
     @GET
     @Path("/flowControl")
     public Object getFlowControls() {
-        return asJsonArrayObject("flowControls", "flowControl", FlowControl.values());
+        return asJsonArrayObject("flowControls", "flowControl", new FlowControlAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/nrOfDataBits")
     public Object getNrOfDataBits() {
-        return asJsonArrayObject("nrOfDataBits", NrOfDataBits.values());
+        return asJsonArrayObject("nrOfDataBits", "nrOfDataBits", new NrOfDataBitsAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/nrOfStopBits")
     public Object getNrOfStopBits() {
-        return asJsonArrayObject("nrOfStopBits", NrOfStopBits.values());
+        return asJsonArrayObject("nrOfStopBits", "nrOfStopBits", new NrOfStopBitsAdapter().getClientSideValues());
     }
 
     @GET
     @Path("/baudRate")
     public Object getBaudRate() {
-        return asJsonArrayObject("baudRates", "baudRate", BaudrateValue.values());
+        return asJsonArrayObject("baudRates", "baudRate", new BaudrateAdapter().getClientSideValues());
     }
 
     private <T extends Enum> HashMap<String, Object> asJsonArrayObject(String fieldName, T[] values) {
@@ -161,12 +162,25 @@ public class FieldResource {
         HashMap<String, Object> map = new HashMap<>();
         List<Map<String, Object>> list = new ArrayList<>();
         map.put(fieldName, list);
-        for (final T baudRateEnum : values) {
+        for (final T someEnum : values) {
             HashMap<String, Object> subMap = new HashMap<>();
-            subMap.put(valueName, baudRateEnum.name());
+            subMap.put(valueName, someEnum.name());
             list.add(subMap);
         }
         return map;
     }
+
+    private <T> HashMap<String, Object> asJsonArrayObject(String fieldName, String valueName, Set<T> values) {
+        HashMap<String, Object> map = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        map.put(fieldName, list);
+        for (final T value: values) {
+            HashMap<String, Object> subMap = new HashMap<>();
+            subMap.put(valueName, value);
+            list.add(subMap);
+        }
+        return map;
+    }
+
 
 }

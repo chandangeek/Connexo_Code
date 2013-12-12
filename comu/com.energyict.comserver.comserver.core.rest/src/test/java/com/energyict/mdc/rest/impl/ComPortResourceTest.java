@@ -320,7 +320,7 @@ public class ComPortResourceTest extends JerseyTest {
                 MapEntry.entry("baudrate", "1200"),
                 MapEntry.entry("nrOfDataBits", "5"),
                 MapEntry.entry("nrOfStopBits", "2"),
-                MapEntry.entry("parity", "EVEN"),
+                MapEntry.entry("parity", "Even"),
                 MapEntry.entry("flowControl", "Xon/Xoff"),
 
                 MapEntry.entry("direction", "inbound")

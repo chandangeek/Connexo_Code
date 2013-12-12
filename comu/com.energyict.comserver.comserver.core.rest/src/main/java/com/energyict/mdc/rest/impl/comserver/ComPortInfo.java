@@ -1,6 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -11,8 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 public abstract class ComPortInfo<T extends ComPortShadow> {
@@ -23,6 +25,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public String description;
     public boolean active;
     public boolean bound;
+    @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType comPortType;
     public int comServer_id;
     public int numberOfSimultaneousConnections;
@@ -38,12 +41,15 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public String addressSelector;
     public String postDialCommands;
     public String comPortName;
-    public String baudrate;
-    public String nrOfDataBits;
-    public String nrOfStopBits;
-    @JsonDeserialize(using = FlowControlDeserializer.class)
-    @JsonSerialize(using = FlowControlSerializer.class)
+    @XmlJavaTypeAdapter(BaudrateAdapter.class)
+    public BaudrateValue baudrate;
+    @XmlJavaTypeAdapter(NrOfDataBitsAdapter.class)
+    public NrOfDataBits nrOfDataBits;
+    @XmlJavaTypeAdapter(NrOfStopBitsAdapter.class)
+    public NrOfStopBits nrOfStopBits;
+    @XmlJavaTypeAdapter(value = FlowControlAdapter.class)
     public FlowControl flowControl;
+    @XmlJavaTypeAdapter(ParitiesAdapter.class)
     public Parities parity;
     public Integer comPortPool_id;
     public Integer portNumber;
