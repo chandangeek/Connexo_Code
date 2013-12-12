@@ -150,6 +150,7 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column mRidColumn = table.addColumn("MRID","varchar2(80)",true,NOCONVERSION,"mRID");
 			table.addColumn("ALIASNAME", "varchar2(256)", false, NOCONVERSION , "aliasName");
+            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPE", mRidColumn);
 		}
@@ -285,6 +286,16 @@ public enum TableSpecs {
             table.addPrimaryKeyConstraint("MTR_PK_READINGQUALITY", idColumn);
             table.addForeignKeyConstraint("MTR_FK_RQ_CHANNEL", MTR_CHANNEL.name(), DeleteRule.CASCADE, new AssociationMapping("channel"), channelColumn);
             table.addUniqueConstraint("MTR_U_READINGQUALITY", channelColumn, timestampColumn, typeColumn);
+        }
+    },
+    MTR_ENDDEVICEEVENTTYPE {
+        @Override
+        void describeTable(Table table) {
+            Column mRidColumn = table.addColumn("MRID","varchar2(80)",true,NOCONVERSION,"mRID");
+            table.addColumn("ALIASNAME", "varchar2(256)", false, NOCONVERSION , "aliasName");
+            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
+            table.addAuditColumns();
+            table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTTYPE", mRidColumn);
         }
     };
 	

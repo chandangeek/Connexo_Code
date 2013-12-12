@@ -11,9 +11,11 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import java.util.Objects;
+
 import static com.elster.jupiter.util.HolderBuilder.first;
 
-public class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAware {
+public final class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAware {
 
     private static final int MRID_FIELD_COUNT = 4;
     private String mRID;
@@ -24,6 +26,7 @@ public class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAw
     private transient EndDeviceSubDomain subDomain;
     private transient EndDeviceEventorAction eventOrAction;
 
+    private long version;
     @SuppressWarnings("unused")
     private UtcInstant createTime;
     @SuppressWarnings("unused")
@@ -36,7 +39,7 @@ public class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAw
 
     public EndDeviceEventTypeImpl(String mRID) {
         this.mRID = mRID;
-
+        setTransientFields();
     }
 
     @Override
@@ -106,6 +109,10 @@ public class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAw
 
     @Override
     public void postLoad() {
+        setTransientFields();
+    }
+
+    private void setTransientFields() {
         String[] parts = mRID.split("\\.");
         if (parts.length != MRID_FIELD_COUNT) {
             throw new IllegalMRIDFormatException(mRID);
@@ -118,6 +125,34 @@ public class EndDeviceEventTypeImpl implements EndDeviceEventType, PersistenceAw
         } catch (IllegalEnumValueException e) {
             throw new IllegalMRIDFormatException(mRID, e);
         }
+    }
 
+    public void persist() {
+        Bus.getOrmClient().getEndDeviceEventTypeFactory().persist(this);
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        EndDeviceEventTypeImpl that = (EndDeviceEventTypeImpl) o;
+
+        return mRID.equals(that.mRID);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mRID);
     }
 }

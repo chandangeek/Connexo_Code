@@ -37,4 +37,5 @@ public interface ReadingType extends IdentifiedObject {
 	boolean isRegular();
     long getVersion();
 
+    void setDescription(String description);
 }

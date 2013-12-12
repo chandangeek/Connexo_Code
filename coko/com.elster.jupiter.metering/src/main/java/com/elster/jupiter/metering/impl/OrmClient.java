@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointGroup;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
@@ -54,4 +55,6 @@ public interface OrmClient {
     DataMapper<EnumeratedUsagePointGroup> getEnumeratedUsagePointGroupFactory();
 
     DataMapper<ReadingQuality> getReadingQualityFactory();
+
+    TypeCache<EndDeviceEventType> getEndDeviceEventTypeFactory();
 }
