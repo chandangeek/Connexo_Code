@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: * 
-Private-Package: com.elster.jupiter.bootstrap.oracle.impl
-Export-Package:
-
+Private-Package: com.elster.jupiter.bootstrap.oracle.impl,\
+	com.elster.jupiter.bootstrap.logging.impl
+Include-Resource: OSGI-INF/metatype/metatype.xml=OSGI-INF/metatype/metatype.xml
