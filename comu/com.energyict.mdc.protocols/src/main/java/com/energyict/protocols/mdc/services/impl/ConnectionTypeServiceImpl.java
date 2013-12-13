@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionTypePluggableClassDefinition;
+import com.energyict.mdc.protocol.api.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
@@ -36,8 +36,8 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     }
 
     @Override
-    public Collection<ConnectionTypePluggableClassDefinition> getExistingConnectionTypePluggableClasses() {
-        return Arrays.asList((ConnectionTypePluggableClassDefinition[])ConnectionTypeRule.values());
+    public Collection<PluggableClassDefinition> getExistingConnectionTypePluggableClasses() {
+        return Arrays.asList((PluggableClassDefinition[])ConnectionTypeRule.values());
    }
 
 }

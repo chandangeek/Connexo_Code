@@ -2,8 +2,12 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.protocol.api.PluggableClass;
+import com.energyict.mdc.protocol.api.PluggableClassDefinition;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
+import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
+import java.util.Arrays;
+import java.util.Collection;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -30,5 +34,10 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw CodingException.genericReflectionError(e, javaClassName);
         }
+    }
+
+    @Override
+    public Collection<PluggableClassDefinition> getExistingInboundDeviceProtocolPluggableClasses() {
+        return Arrays.asList((PluggableClassDefinition[])InboundDeviceProtocolRule.values());
     }
 }

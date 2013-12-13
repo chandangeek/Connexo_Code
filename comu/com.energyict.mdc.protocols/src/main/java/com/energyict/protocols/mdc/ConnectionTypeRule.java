@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionTypePluggableClassDefinition;
+import com.energyict.mdc.protocol.api.PluggableClassDefinition;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.mdc.channels.ip.InboundIpConnectionType;
@@ -24,7 +24,7 @@ import com.energyict.protocols.mdc.channels.sms.OutboundProximusSmsConnectionTyp
 /**
  * List all existing ConnectionType pluggable classes
  */
-public enum ConnectionTypeRule implements ConnectionTypePluggableClassDefinition {
+public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionType> {
     OutboundProximusSms(OutboundProximusSmsConnectionType.class),
     OutboundUdp(OutboundUdpConnectionType.class),
     OutboundTcpIp(OutboundTcpIpConnectionType.class),
@@ -55,7 +55,7 @@ public enum ConnectionTypeRule implements ConnectionTypePluggableClassDefinition
         return this.name();
     }
 
-    public Class<? extends ConnectionType> getConnectionTypeClass() {
+    public Class<? extends ConnectionType> getProtocolTypeClass() {
         return connectionTypeClass;
     }
 
