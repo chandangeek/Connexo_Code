@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.services;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionTypePluggableClassDefinition;
+import com.energyict.mdc.protocol.api.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import java.util.Collection;
 
@@ -16,6 +16,6 @@ public interface ConnectionTypeService {
 
     public ConnectionType createConnectionType(String javaClassName);
 
-    public Collection<ConnectionTypePluggableClassDefinition> getExistingConnectionTypePluggableClasses();
+    public Collection<PluggableClassDefinition> getExistingConnectionTypePluggableClasses();
 
 }
