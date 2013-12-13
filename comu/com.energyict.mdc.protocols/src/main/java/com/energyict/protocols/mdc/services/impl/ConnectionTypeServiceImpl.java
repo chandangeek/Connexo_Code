@@ -22,11 +22,6 @@ import org.osgi.service.component.annotations.Component;
 public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     @Override
-    public ConnectionType createConnectionType(PluggableClass pluggableClass) {
-        return createConnectionType(pluggableClass.getJavaClassName());
-    }
-
-    @Override
     public ConnectionType createConnectionType(String javaClassName) {
         try {
             return (ConnectionType) (getClass().getClassLoader().loadClass(javaClassName)).newInstance();
