@@ -23,15 +23,10 @@ import org.osgi.service.component.annotations.Component;
 public class DeviceProtocolServiceImpl implements DeviceProtocolService {
 
     @Override
-    public DeviceProtocol createDeviceProtocolFor(DeviceProtocolPluggableClass pluggableClass) {
-        return createDeviceProtocolFor(pluggableClass.getJavaClassName());
-    }
-
-    @Override
     public DeviceProtocol createDeviceProtocolFor(String javaClassName) {
         try {
             Class<?> pluggableClass = this.getClass().getClassLoader().loadClass(javaClassName);
-            if (pluggableClass.isAssignableFrom(DeviceProtocol.class)) {
+            if (DeviceProtocol.class.isAssignableFrom(pluggableClass)) {
                 return (DeviceProtocol) pluggableClass.newInstance();
             }
             else {
