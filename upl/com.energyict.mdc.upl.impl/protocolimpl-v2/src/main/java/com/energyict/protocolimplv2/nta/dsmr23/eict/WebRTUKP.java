@@ -63,6 +63,7 @@ public class WebRTUKP extends AbstractNtaProtocol {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
 
         HHUSignOnV2 hhuSignOn = null;

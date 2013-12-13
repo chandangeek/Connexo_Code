@@ -7,6 +7,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -48,6 +49,7 @@ public abstract class AbstractNtaProtocol implements DeviceProtocol {
     private MeterTopology meterTopology;
     private Dsmr23LogBookFactory logBookFactory;
     private Dsmr23Messaging dsmr23Messaging;
+    protected OfflineDevice offlineDevice;
 
     /**
      * Connect to the device, check the cached object lost and discover its MBus slaves.
@@ -277,5 +279,9 @@ public abstract class AbstractNtaProtocol implements DeviceProtocol {
 
     public Logger getLogger() { //TODO: usage of old logger should be prevented -> refactor/remove this
         return Logger.getLogger(this.getClass().getName());
+    }
+
+    public OfflineDevice getOfflineDevice() {
+        return offlineDevice;
     }
 }

@@ -13,6 +13,7 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
@@ -118,7 +119,7 @@ public class MeterTopology {
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
         mbusMap = new ArrayList<>();
-        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getDlmsSession().getProperties().getSerialNumber()));
+        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -211,7 +212,7 @@ public class MeterTopology {
 
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
-            deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getDlmsSession().getProperties().getSerialNumber()));
+            deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
             deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("devicetopologynotsupported"));
         }
         return deviceTopology;

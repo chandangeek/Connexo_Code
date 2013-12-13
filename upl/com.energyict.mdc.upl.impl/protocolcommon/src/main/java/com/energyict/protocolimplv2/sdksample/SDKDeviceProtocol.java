@@ -1,46 +1,26 @@
 package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.cpo.*;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdw.offline.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -303,7 +283,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
+        final CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(this.offlineDevice.getId()));
         if(!getSlaveOneSerialNumber().equals("")){
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
