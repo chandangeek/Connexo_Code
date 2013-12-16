@@ -65,6 +65,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 
 	@Override
 	public void register(DataModel dataModel) {
+		((DataModelImpl) dataModel).prepare();
 		dataModels.put(dataModel.getName(), dataModel);
 	}
 	

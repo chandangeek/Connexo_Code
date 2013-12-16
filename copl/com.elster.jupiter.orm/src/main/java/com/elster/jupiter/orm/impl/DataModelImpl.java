@@ -77,12 +77,16 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     public Table addTable(String tableName) {
         return addTable(null, tableName);
     }
+    
+    private void checkActiveBuilder() {
+    	if (!getTables().isEmpty()) {
+    		downCast(getTables().get(getTables().size()-1)).checkActiveBuilder();
+    	}
+    }
 
     @Override
     public Table addTable(String schema, String tableName) {
-    	if (!getTables().isEmpty()) {
-        	((TableImpl) getTables().get(getTables().size() - 1)).checkActiveBuilder();
-        }
+    	checkActiveBuilder();
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
         }
@@ -103,7 +107,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     public void persist() {
         getOrmClient().getDataModelFactory().persist(this);
         for (Table table : doGetTables()) {
-            ((TableImpl) table).persist();
+            downCast(table).persist();
         }
     }
 
@@ -161,7 +165,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
 
     private void doExecuteDdl(Statement statement) throws SQLException {
         for (Table table : getTables()) {
-            executeTableDdl(statement, (TableImpl) table);
+            executeTableDdl(statement, downCast(table));
         }
     }
 
@@ -206,5 +210,16 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     @Override
     public RefAny asRefAny(Object reference) {
     	return RefAnyImpl.of(reference);
+    }
+    
+    private TableImpl downCast(Table table) {
+    	return (TableImpl) table;
+    }
+    
+    void prepare() {
+    	checkActiveBuilder();
+    	for (Table each : getTables()) {
+    		downCast(each).prepare();
+    	}
     }
 }

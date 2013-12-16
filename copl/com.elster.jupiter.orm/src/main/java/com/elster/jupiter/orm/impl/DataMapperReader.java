@@ -18,7 +18,6 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.NotUniqueException;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
@@ -42,7 +41,7 @@ public class DataMapperReader<T> {
 		this.mapperType = mapperType;
 	}
 	
-	private Table getTable() {
+	private TableImpl getTable() {
 		return sqlGenerator.getTable();
 	}
 	
@@ -217,7 +216,7 @@ public class DataMapperReader<T> {
 				mapper.set(result, column.getFieldName(), value);
 			}
 		}
-		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
+		for (ForeignKeyConstraint constraint : getTable().getReferenceConstraints()) {
 			Field field = mapper.getField(result.getClass(), constraint.getFieldName());
 			if (field != null && Reference.class.isAssignableFrom(field.getType())) {
 				Object[] key = createKey(constraint,columnValues);
@@ -334,7 +333,7 @@ public class DataMapperReader<T> {
 	}
 	
 	void addFragments(List<SqlFragment> fragments, String fieldName , Object value) {
-		FieldMapping mapping = ((TableImpl) getTable()).getFieldMapping(fieldName);
+		FieldMapping mapping = getTable().getFieldMapping(fieldName);
 		if (mapping == null) {
 			throw new IllegalArgumentException("Invalid field " + fieldName);
 		} else {

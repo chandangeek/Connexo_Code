@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.associations.Reference;
 
 public class InheritanceDataMapperType<T> implements DataMapperType {
 	private final Map<String,Class<? extends T>> implementations;
@@ -80,4 +81,12 @@ public class InheritanceDataMapperType<T> implements DataMapperType {
 		}
 		throw new MappingException(clazz);
 	}
+
+	@Override
+	public boolean isReference(String fieldName) {
+		Class<?> clazz = getType(fieldName);
+		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
+	}
+	
+	
 }

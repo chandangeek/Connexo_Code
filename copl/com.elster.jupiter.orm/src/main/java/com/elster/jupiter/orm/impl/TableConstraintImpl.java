@@ -6,24 +6,19 @@ import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.internal.Bus;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public abstract class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	
-	public static final Map<String,Class<? extends TableConstraint>> implementers =  createImplementers();
-	
-	static Map<String,Class<? extends TableConstraint>> createImplementers() {
-		Map<String,Class<? extends TableConstraint>> result = new HashMap<>();
-		result.put("PRIMARYKEY",PrimaryKeyConstraintImpl.class);
-		result.put("UNIQUE",  UniqueConstraintImpl.class);
-		result.put("FOREIGNKEY" , ForeignKeyConstraintImpl.class);
-		return result;
-	}
+	public static final Map<String,Class<? extends TableConstraint>> implementers =  ImmutableMap.<String,Class<? extends TableConstraint>>of(
+			"PRIMARYKEY",PrimaryKeyConstraintImpl.class,
+			"UNIQUE",  UniqueConstraintImpl.class,
+			"FOREIGNKEY" , ForeignKeyConstraintImpl.class);
 	
 	// persistent fields
 	private String componentName;
@@ -119,6 +114,11 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 	@Override
 	public boolean isForeignKey() {
 		return false;
+	}
+	
+	@Override
+	public boolean hasColumn(Column column) {
+		return getColumns().contains(column);
 	}
 
 	void persist() {

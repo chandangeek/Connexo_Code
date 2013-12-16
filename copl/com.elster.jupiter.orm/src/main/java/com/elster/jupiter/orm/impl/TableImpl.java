@@ -49,6 +49,10 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	// transient, protection against forgetting to call add() on a builder
 	private transient boolean activeBuilder;
+	
+	// cached fields , initialized when the table's datamodel is registered with the orm service.
+	private List<ForeignKeyConstraint> referenceConstraints = ImmutableList.of();
+	private List<ForeignKeyConstraint> reverseConstraints = ImmutableList.of();
 		
 	TableImpl(DataModel component, String schema, String name) {
         assert component != null;
@@ -545,19 +549,12 @@ public class TableImpl implements Table , PersistenceAware  {
 		return null;
 	}
 	
-	@Override
-	public List<ForeignKeyConstraint> getReverseConstraints() {
-		List<ForeignKeyConstraint> result = new ArrayList<>();
-		for (Table table : getDataModel().getTables()) {
-			if (!table.equals(this)) {
-				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
-					if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
-						result.add(each);
-					}
-				}
-			}
-		}
-		return result;
+	List<ForeignKeyConstraint> getReferenceConstraints() {
+		return referenceConstraints;
+	}
+	
+	List<ForeignKeyConstraint> getReverseConstraints() {
+		return reverseConstraints;
 	}
 	
 	public FieldMapping getFieldMapping(String fieldName) {
@@ -629,6 +626,52 @@ public class TableImpl implements Table , PersistenceAware  {
 		return mapperType != null && mapperType.maps(clazz);
 	}
 
+	void prepare() {
+		checkActiveBuilder();
+		if (mapperType != null) {
+			buildReferenceConstraints();
+			buildReverseConstraints();
+		}
+		for (Column column : getColumns()) {
+			checkMapped(column);
+		}
+	}
+	
+	private void checkMapped (Column column) {
+		if (column.getFieldName() != null) {
+			return;
+		}
+		for (ForeignKeyConstraint constraint : getReferenceConstraints()) {
+			if (constraint.hasColumn(column)) {
+				return;
+			}
+		}
+		throw new IllegalStateException("Column " + column.getName() + " is not mapped");
+	}
+	
+	private void buildReferenceConstraints() {
+		ImmutableList.Builder<ForeignKeyConstraint> builder = new ImmutableList.Builder<>();
+		for (ForeignKeyConstraint constraint : getForeignKeyConstraints()) {
+			if (mapperType.isReference(constraint.getFieldName())) {
+				builder.add(constraint);
+			}
+		}
+		this.referenceConstraints = builder.build();		
+	}
+
+	private void buildReverseConstraints() {
+		ImmutableList.Builder<ForeignKeyConstraint> builder = new ImmutableList.Builder<>();
+		for (Table table : getDataModel().getTables()) {
+			if (!table.equals(this)) {
+				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
+					if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
+						builder.add(each);
+					}
+				}
+			}
+		}
+		this.reverseConstraints = builder.build();	
+	}
 }
 	
 

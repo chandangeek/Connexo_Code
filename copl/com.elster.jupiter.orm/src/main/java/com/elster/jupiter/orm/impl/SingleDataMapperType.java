@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import java.lang.reflect.Constructor;
 
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.associations.Reference;
 
 public class SingleDataMapperType implements DataMapperType {
 	private final Class<?> implementation;
@@ -59,5 +60,11 @@ public class SingleDataMapperType implements DataMapperType {
 	@Override
 	public Object getDiscriminator(Class<?> clazz) {
 		throw new IllegalStateException("Should not implement");
+	}
+	
+	@Override
+	public boolean isReference(String fieldName) {
+		Class<?> clazz = getType(fieldName);
+		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
 	}
 }

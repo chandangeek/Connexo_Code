@@ -23,7 +23,6 @@ public interface Table {
     List<TableConstraint> getConstraints();
 	TableConstraint getPrimaryKeyConstraint();
     List<ForeignKeyConstraint> getForeignKeyConstraints();
-    List<ForeignKeyConstraint> getReverseConstraints();
     /**
      * 
      * @param fieldName Name of the field that holds the reference to the object mapped to the corresponding tuple in the referenced (parent) table 
