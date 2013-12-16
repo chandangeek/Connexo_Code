@@ -5,7 +5,9 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -44,7 +46,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
             return this.dlmsSession.getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw new IOException("Could not retrieve the Clock object." + e);
+            throw new IOException("Could not retrieve the Clock object. " + e);
         }
     }
 
