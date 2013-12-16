@@ -3,18 +3,24 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +35,10 @@ public class DataMapperWriter<T> {
 		this.mapperType = dataMapper.getMapperType();
 		this.sqlGenerator = dataMapper.getSqlGenerator();
 	}
+
+	private TableImpl getTable() {
+		return sqlGenerator.getTable();
+	}
 	
 	private long getNext(Connection connection , String sequence) throws SQLException {
 		try (PreparedStatement statement = connection.prepareStatement("select " + sequence + ".nextval from dual")) {
@@ -39,7 +49,8 @@ public class DataMapperWriter<T> {
 		}
 	}
 	
-	void persist(T object) throws SQLException {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void persist(T object) throws SQLException {
 		prepare(object,false,new UtcInstant(Bus.getClock()));
 		Map<Column, Long> autoIncrements = new HashMap<>();
 		try (Connection connection = getConnection(true)) {			
@@ -65,10 +76,50 @@ public class DataMapperWriter<T> {
 			mapperType.getDomainMapper().set(object,entry.getKey().getFieldName(), value);
 		}
 		refresh(object,true);
+		if (getTable().hasChildren()) {
+			for (ForeignKeyConstraint constraint : getTable().getReverseConstraints()) {
+				if (constraint.isComposition()) {
+					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
+					if (field != null) {
+						if (!Modifier.isFinal(field.getModifiers())) {
+							throw new IllegalStateException("Owner collections must be final");
+						}
+						try {
+							List parts =(List) field.get(object);
+							Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+							DataMapperImpl<?> mapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(clazz);
+							mapper.getWriter().persist(parts);
+							if (mapper.getWriter().needsRefreshAfterBatchInsert()) {						
+								field.set(object, new ManagedPersistentList<>(constraint, mapper, object));
+							} else {
+								field.set(object, new ManagedPersistentList<>(constraint, mapper, object, parts));
+							}
+						} catch (ReflectiveOperationException ex) {
+							throw new MappingException(ex);
+						}
+					}
+				}
+			}
+		}
 	}
-		
-	void persist(List<T> objects) throws SQLException {
+	
+	boolean needsRefreshAfterBatchInsert() {
+		return 
+			getTable().hasAutoIncrementColumns() && !getTable().hasChildren();
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void persist(List<T> objects) throws SQLException {
+		if (objects.isEmpty()) {
+			return;
+		}
 		UtcInstant now = new UtcInstant(Bus.getClock());
+		if (getTable().hasAutoIncrementColumns() && getTable().hasChildren()) {
+			for (T tuple : objects) {
+				persist(tuple);
+			}
+			return;
+		}
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.insertSql(true))) {
 				for (T tuple : objects) {
@@ -84,6 +135,39 @@ public class DataMapperWriter<T> {
 				statement.executeBatch();
 			}							
 		} 	
+		if (!getTable().hasChildren()) {
+			return;
+		}
+		for (ForeignKeyConstraint constraint : getTable().getReverseConstraints()) {
+			if (constraint.isComposition()) {
+				List allParts = new ArrayList<>();
+				DataMapperImpl<?> mapper = null;
+				for (Object object : objects) {
+					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
+					if (field != null) {
+						if (mapper == null) {
+							if (!Modifier.isFinal(field.getModifiers())) {
+								throw new IllegalStateException("Owner collections must be final");
+							}
+							Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+							mapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(clazz);
+						}
+						try {
+							List parts =(List) field.get(object);
+							allParts.addAll(parts);
+							if (mapper.getWriter().needsRefreshAfterBatchInsert()) {
+								field.set(object, new ManagedPersistentList<>(constraint, mapper, object));
+							} else {
+								field.set(object, new ManagedPersistentList<>(constraint, mapper, object, parts));
+							}
+						} catch (ReflectiveOperationException ex) {
+							throw new MappingException(ex);
+						}
+					}
+				}
+				mapper.getWriter().persist(allParts);
+			}
+		} 
 	}
 		
 	private void journal(Object object,UtcInstant now) throws SQLException {
@@ -117,13 +201,13 @@ public class DataMapperWriter<T> {
 		}
 	}
 	
-	void update(T object,Column[] columns) throws SQLException {
+	void update(T object,List<Column> columns) throws SQLException {
 		UtcInstant now = new UtcInstant(Bus.getClock());
-		if (sqlGenerator.getTable().hasJournal()) {
+		if (getTable().hasJournal()) {
 			journal(object,now);
 		}
 		prepare(object,true,now);
-		Column[] versionCountColumns = sqlGenerator.getTable().getVersionColumns();
+		Column[] versionCountColumns = getTable().getVersionColumns();
 		Map<Column,Long> versionCounts = new HashMap<>();
 		try (Connection connection = getConnection(true)) {			
 			String sql = sqlGenerator.updateSql(columns);
@@ -132,13 +216,13 @@ public class DataMapperWriter<T> {
 				for (Column column : columns)  {
 					statement.setObject(index++, getValue(object,column));
 				}
-				for (Column column : sqlGenerator.getTable().getAutoUpdateColumns()) {
+				for (Column column : getTable().getAutoUpdateColumns()) {
 					statement.setObject(index++, getValue(object,column));
 				}
 				for (Column column : getPrimaryKeyColumns()) {
 					statement.setObject(index++, getValue(object,column));
 				}
-				for (Column column : sqlGenerator.getTable().getVersionColumns()) {
+				for (Column column : getTable().getVersionColumns()) {
 					Long value = (Long) getValue(object , column);
 					versionCounts.put(column, value);
 					statement.setObject(index++, value);
@@ -161,9 +245,9 @@ public class DataMapperWriter<T> {
 	}
 	
 	
-	void update(List<T> objects,Column[] columns) throws SQLException {	
+	void update(List<T> objects,List<Column> columns) throws SQLException {	
 		UtcInstant now = new UtcInstant(Bus.getClock());
-		if (sqlGenerator.getTable().hasJournal()) {
+		if (getTable().hasJournal()) {
 			journal(objects,now);
 		}
 		try (Connection connection = getConnection(true)) {							
@@ -174,7 +258,7 @@ public class DataMapperWriter<T> {
 					for (Column column : columns)  {
 						statement.setObject(index++, getValue(tuple,column));
 					}
-					for (Column column : sqlGenerator.getTable().getAutoUpdateColumns()) {
+					for (Column column : getTable().getAutoUpdateColumns()) {
 						statement.setObject(index++, getValue(tuple,column));
 					}
 					for (Column column : getPrimaryKeyColumns()) {
@@ -188,7 +272,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	void remove(T object) throws SQLException {		
-		if (sqlGenerator.getTable().hasJournal()) {
+		if (getTable().hasJournal()) {
 			journal(object,new UtcInstant(Bus.getClock()));
 		}
 		try (Connection connection = getConnection(true)) {			
@@ -207,7 +291,7 @@ public class DataMapperWriter<T> {
 	
 	void remove(List<T> objects) throws SQLException {
 		UtcInstant now = new UtcInstant(Bus.getClock());
-		if (sqlGenerator.getTable().hasJournal()) {
+		if (getTable().hasJournal()) {
 			journal(objects,now);
 		}
 		try (Connection connection = getConnection(true)) {
@@ -225,13 +309,13 @@ public class DataMapperWriter<T> {
 	}
 	
 	private void refresh(T object, boolean afterInsert) throws SQLException {
-		Column[] columns = afterInsert ? sqlGenerator.getTable().getInsertValueColumns() : sqlGenerator.getTable().getUpdateValueColumns();
-		if (columns.length == 0)
+		List<Column> columns = afterInsert ? getTable().getInsertValueColumns() : getTable().getUpdateValueColumns();
+		if (columns.size() == 0)
 			return;		
 		refresh(object,columns);
 	}
 	
-	private void refresh(T object , Column[] columns) throws SQLException {
+	private void refresh(T object , List<Column> columns) throws SQLException {
 		try (Connection connection = getConnection(false)) {
 			String sql = sqlGenerator.refreshSql(columns);
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -301,12 +385,13 @@ public class DataMapperWriter<T> {
 	}	
 
 		
-	private ColumnImpl[] getColumns() {
+	private List<Column> getColumns() {
 		return sqlGenerator.getColumns();
 	}
 	
-	private Column[] getPrimaryKeyColumns() {
+	private List<Column> getPrimaryKeyColumns() {
 		return sqlGenerator.getPrimaryKeyColumns();
 	}
 	
+		
 }

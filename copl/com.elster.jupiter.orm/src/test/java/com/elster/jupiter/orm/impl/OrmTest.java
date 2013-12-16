@@ -57,10 +57,15 @@ public class OrmTest {
 
     @Test
     public void testDataModel() {
+    	System.out.println("In test");
     	assertThat(Bus.getOrmClient().getDataModelFactory().find()).hasSize(1);
+    	System.out.println("In test 2");
     	assertThat(Bus.getOrmClient().getTableFactory().find().size()).isGreaterThan(4);
+    	System.out.println("In test 3");
     	assertThat(Bus.getOrmClient().getColumnFactory().find().size()).isGreaterThan(10);
+    	System.out.println("In test 4");
     	assertThat(Bus.getOrmClient().getTableConstraintFactory().find()).isNotEmpty();
+    	System.out.println("In test 5");
     	assertThat(Bus.getOrmClient().getColumnInConstraintFactory().find()).isNotEmpty();
     	assertThat(Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLES")).isAbsent();
     	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");

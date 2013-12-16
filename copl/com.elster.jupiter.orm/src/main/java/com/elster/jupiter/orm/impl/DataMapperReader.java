@@ -22,7 +22,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.orm.associations.impl.PersistentList;
+import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
+import com.elster.jupiter.orm.associations.impl.UnManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -50,13 +51,13 @@ public class DataMapperReader<T> {
 	}
 	
 	private List<SqlFragment> getPrimaryKeyFragments(Object[] values) {
-		Column[] pkColumns = getPrimaryKeyColumns();
-		if (pkColumns.length != values.length) {
-			throw new IllegalArgumentException("Argument array length does not match Primary Key Field count of " + pkColumns.length);
+		List<Column> pkColumns = getPrimaryKeyColumns();
+		if (pkColumns.size() != values.length) {
+			throw new IllegalArgumentException("Argument array length does not match Primary Key Field count of " + pkColumns.size());
 		}
-		List<SqlFragment> fragments = new ArrayList<>(pkColumns.length);
+		List<SqlFragment> fragments = new ArrayList<>(pkColumns.size());
 		for (int i = 0 ; i < values.length ; i++) {
-			fragments.add(new ColumnEqualsFragment(pkColumns[i] , values[i] , alias));
+			fragments.add(new ColumnEqualsFragment(pkColumns.get(i) , values[i] , alias));
 		}
 		return fragments;		
 	}
@@ -74,7 +75,7 @@ public class DataMapperReader<T> {
     }
 	
 	int getPrimaryKeyLength() {
-		return getPrimaryKeyColumns().length;
+		return getPrimaryKeyColumns().size();
 	}
 	
 	public T lock(Object... values)  throws SQLException {
@@ -195,8 +196,8 @@ public class DataMapperReader<T> {
 
     	
 	private T newInstance(ResultSet rs , int startIndex) throws SQLException {
-		for (int i = 0 ; i < getColumns().length ; i++) {
-			if (getColumns()[i].isDiscriminator()) {
+		for (int i = 0 ; i < getColumns().size() ; i++) {
+			if (getColumns().get(i).isDiscriminator()) {
 				return mapperType.newInstance(rs.getString(startIndex + i));
 			}
 		}
@@ -232,8 +233,10 @@ public class DataMapperReader<T> {
 		for (ForeignKeyConstraint constraint : getTable().getReverseConstraints()) {
 			Field field = mapper.getField(result.getClass(), constraint.getReverseFieldName());
 			if (field != null && List.class.isAssignableFrom(field.getType())) {
-				DataMapper<?> dataMapper = constraint.getTable().getDataMapper(getTypeArgument(field));
-				List<?> value = new PersistentList<>(constraint, dataMapper, result);
+				DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(getTypeArgument(field));
+				List<?> value = (constraint.isComposition()) ?
+						new ManagedPersistentList<>(constraint, dataMapper, result) :
+						new UnManagedPersistentList<>(constraint, dataMapper, result);
 				try {
 					field.set(result, value);
 				} catch (ReflectiveOperationException ex) {
@@ -278,11 +281,11 @@ public class DataMapperReader<T> {
 		return result;
 	}
 	
-	private ColumnImpl[] getColumns() {
+	private List<Column> getColumns() {
 		return getSqlGenerator().getColumns();
 	}
 	
-	private Column[] getPrimaryKeyColumns() {
+	private List<Column> getPrimaryKeyColumns() {
 		return getSqlGenerator().getPrimaryKeyColumns();
 	}
 	
@@ -291,12 +294,11 @@ public class DataMapperReader<T> {
 	}
 	
 	private int getIndex(Column column) {
-		for (int i = 0 ; i < getColumns().length ; i++) {
-			if (column.equals(getColumns()[i])) { 
-				return i;
-			}
+		int result = getColumns().indexOf(column);
+		if (result < 0) {
+			throw new IllegalArgumentException();
 		}
-		throw new IllegalArgumentException();
+		return result;
 	}
 	
 	private Object getValue(Column column , ResultSet rs , int startIndex ) throws SQLException {
@@ -305,17 +307,17 @@ public class DataMapperReader<T> {
 	}
 	
 	Object getPrimaryKey(ResultSet rs , int index) throws SQLException {
-		Column[] primaryKeyColumns = getPrimaryKeyColumns();		
-		if (primaryKeyColumns.length == 0) {
+		List<Column> primaryKeyColumns = getPrimaryKeyColumns();		
+		if (primaryKeyColumns.size() == 0) {
 			return null;
 		}
-		if (primaryKeyColumns.length == 1) {		
-			Object result = getValue(primaryKeyColumns[0],rs,index);
+		if (primaryKeyColumns.size() == 1) {		
+			Object result = getValue(primaryKeyColumns.get(0),rs,index);
 			return rs.wasNull() ? null : result;
 		}
-		Object[] values = new Object[primaryKeyColumns.length];
-		for (int i = 0 ; i < primaryKeyColumns.length ; i++) {
-			values[i] = getValue(primaryKeyColumns[i],rs,index);
+		Object[] values = new Object[primaryKeyColumns.size()];
+		for (int i = 0 ; i < values.length ; i++) {
+			values[i] = getValue(primaryKeyColumns.get(i),rs,index);
 			if (rs.wasNull()) {
 				return null;
 			}
@@ -343,6 +345,3 @@ public class DataMapperReader<T> {
 	
 	
 }
-
-	
-

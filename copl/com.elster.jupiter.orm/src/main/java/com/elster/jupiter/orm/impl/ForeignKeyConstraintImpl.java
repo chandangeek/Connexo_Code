@@ -14,6 +14,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	private String reverseFieldName;
 	private String reverseOrderFieldName;
 	private String reverseCurrentFieldName;
+	private boolean composition;
 	
 	private Reference<Table> referencedTable;
 	
@@ -70,9 +71,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	}
 
 	@Override
-	public void postLoad() {	
-		super.postLoad();
-		getReferencedTable();
+	public boolean isComposition() {
+		return composition;
 	}
 	
 	@Override
@@ -188,6 +188,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		@Override
 		public Builder reverseMapCurrent(String field) {
 			constraint.reverseCurrentFieldName = field;
+			return this;
+		}
+		
+		@Override
+		public Builder composition() {
+			constraint.composition = true;
 			return this;
 		}
 		

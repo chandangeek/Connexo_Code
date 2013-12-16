@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.PersistentReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.internal.Bus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class TableConstraintImpl implements TableConstraint , PersistenceAware {
+public abstract class TableConstraintImpl implements TableConstraint {
 	
 	public static final Map<String,Class<? extends TableConstraint>> implementers =  ImmutableMap.<String,Class<? extends TableConstraint>>of(
 			"PRIMARYKEY",PrimaryKeyConstraintImpl.class,
@@ -28,7 +27,7 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 	
 	// associations
 	private Reference<Table> table;
-	private List<ColumnInConstraintImpl> columnHolders;
+	private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 	
 	TableConstraintImpl() {	
 	}
@@ -39,7 +38,6 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 		}
 		this.table = ValueReference.of(table);
 		this.name = name;
-		this.columnHolders = new ArrayList<>();
 	}
 
 	@Override
@@ -61,12 +59,6 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 		return table.get();
 	}
 
-	@Override
-	public void postLoad() {	
-		// do eager initialization in order to be thread safe
-		getColumns();
-	}
-	
 	void add(Column column) {
 		columnHolders.add(new ColumnInConstraintImpl(this, column, columnHolders.size() + 1));
 	}
@@ -104,11 +96,6 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 	@Override
 	public boolean hasColumn(Column column) {
 		return getColumns().contains(column);
-	}
-
-	void persist() {
-		Bus.getOrmClient().getTableConstraintFactory().persist(this);
-		Bus.getOrmClient().getColumnInConstraintFactory().persist(columnHolders);
 	}
 	
 	@Override

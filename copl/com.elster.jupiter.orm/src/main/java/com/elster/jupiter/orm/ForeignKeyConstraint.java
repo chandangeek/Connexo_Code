@@ -7,6 +7,7 @@ public interface ForeignKeyConstraint extends TableConstraint {
 	String getReverseFieldName();
 	String getReverseOrderFieldName();
 	String getReverseCurrentFieldName();
+	boolean isComposition();
 	/*
 	 * returns true if this is one to one relation,
 	 * instead of the usual 1 to n
@@ -22,6 +23,8 @@ public interface ForeignKeyConstraint extends TableConstraint {
 		Builder reverseMap(String field);
 		Builder reverseMapOrder(String field);
 		Builder reverseMapCurrent(String field);
+		Builder composition();
 		ForeignKeyConstraint add();
 	}
+
 }

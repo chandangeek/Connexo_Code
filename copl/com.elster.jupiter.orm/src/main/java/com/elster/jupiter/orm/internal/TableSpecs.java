@@ -28,12 +28,15 @@ public enum TableSpecs {
 			table.map(TableImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
+			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
 			Column schemaColumn = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
 			table.column("JOURNALTABLENAME").type(CATALOGDBTYPE).map("journalTableName").add();
 			table.column("INDEXORGANIZED").bool().map("indexOrganized").add();
-			table.primaryKey("ORM_PK_TABLES").on(componentName , nameColumn).add();
-			table.unique("ORM_U_TABLES").on(schemaColumn , nameColumn).add();
-			table.foreignKey("ORM_FK_TABLESCOMPONENTS").on(componentName).references(ORM_DATAMODEL.name()).onDelete(CASCADE).map("dataModel").reverseMap("tables").add();
+			table.primaryKey("ORM_PK_TABLE").on(componentName , nameColumn).add();
+			table.unique("ORM_U_TABLE").on(schemaColumn , nameColumn).add();
+			table.unique("ORM_U_TABLEPOSITION").on(componentName , positionColumn).add();
+			table.foreignKey("ORM_FK_TABLEDATAMODEL").on(componentName).references(ORM_DATAMODEL.name()).onDelete(CASCADE).
+				map("dataModel").reverseMap("tables").composition().add();
 		}
 	},
 	ORM_COLUMN {	
@@ -53,9 +56,10 @@ public enum TableSpecs {
 			table.column("INSERTVALUE").type("varchar2(256)").map("insertValue").add();
 			table.column("UPDATEVALUE").type("varchar2(256)").map("updateValue").add();
 			table.primaryKey("ORM_PK_COLUMNS").on(componentName, tableName, nameColumn).add();
-			table.unique("ORM_U_COLUMNSPOSITION").on(componentName , tableName , positionColumn).add();
-			table.unique("ORM_U_COLUMNSFIELDNAME").on(componentName , tableName , fieldNameColumn).add();
-			table.foreignKey("ORM_FK_COLUMNSTABLES").on(componentName,tableName).references(ORM_TABLE.name()).onDelete(CASCADE).map("table").reverseMap("columns").reverseMapOrder("position").add();
+			table.unique("ORM_U_COLUMNPOSITION").on(componentName , tableName , positionColumn).add();
+			table.unique("ORM_U_COLUMNFIELDNAME").on(componentName , tableName , fieldNameColumn).add();
+			table.foreignKey("ORM_FK_COLUMNTABLE").on(componentName,tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
+				map("table").reverseMap("columns").reverseMapOrder("position").composition().add();
 		}
 	},
 	ORM_TABLECONSTRAINT {	
@@ -72,10 +76,12 @@ public enum TableSpecs {
 			table.column("REVERSEFIELDNAME").type("VARCHAR2(80)").map("reverseFieldName").add();
 			table.column("REVERSEORDERFIELDNAME").type("VARCHAR2(80)").map("reverseOrderFieldName").add();
 			table.column("REVERSECURRENTFIELDNAME").type("VARCHAR2(80)").map("reverseCurrentFieldName").add();
-			table.primaryKey("ORM_PK_CONSTRAINTS").on(componentName , tableName , nameColumn).add();
-			table.unique("ORM_U_CONSTRAINTS").on(nameColumn).add();
-			table.foreignKey("ORM_FK_CONSTRAINTSTABLES").on(componentName , tableName).references(ORM_TABLE.name()).onDelete(CASCADE).map("table").reverseMap("constraints").add();	
-			table.foreignKey("ORM_FK_CONSTRAINTSTABLES2").on(referencedComponentName, referencedTableName).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
+			table.column("COMPOSITION").type("CHAR(1)").conversion(CHAR2BOOLEAN).map("composition").add();
+			table.primaryKey("ORM_PK_CONSTRAINT").on(componentName , tableName , nameColumn).add();
+			table.unique("ORM_U_CONSTRAINT").on(nameColumn).add();
+			table.foreignKey("ORM_FK_CONSTRAINTTABLE").on(componentName , tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
+				map("table").reverseMap("constraints").composition().add();	
+			table.foreignKey("ORM_FK_CONSTRAINTTABLE2").on(referencedComponentName, referencedTableName).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
 		}
 	},
 	ORM_COLUMNINCONSTRAINT {
@@ -89,7 +95,7 @@ public enum TableSpecs {
 			table.primaryKey("ORM_PK_COLUMNINCONSTRAINT").on(componentName , tableName , constraintNameColumn , columnNameColumn).add();
 			table.unique("ORM_U_COLUMNINCONSTRAINT").on(componentName , tableName , constraintNameColumn , positionColumn).add();
 			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT1").on(componentName, tableName, constraintNameColumn).references(ORM_TABLECONSTRAINT.name()).onDelete(CASCADE).
-				map("constraint").reverseMap("columnHolders").reverseMapOrder("position").add();		
+				map("constraint").reverseMap("columnHolders").reverseMapOrder("position").composition().add();		
 			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT2").on(componentName, tableName, columnNameColumn ).references(ORM_COLUMN.name()).onDelete(RESTRICT).map("column").add();
 		}
 	};
