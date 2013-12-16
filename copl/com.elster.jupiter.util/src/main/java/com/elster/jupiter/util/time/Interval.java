@@ -150,28 +150,28 @@ public final class Interval {
         return !(startsAfter(other.getStart()) || endsBefore(other.getEnd()));
     }
 
-    private boolean startsAfter(Date date) {
+    public boolean startsAfter(Date testDate) {
         if (getStart() == null) {
             return false;
         }
-        return date == null || getStart().after(date);
+        return testDate == null || getStart().after(testDate);
     }
 
-    private boolean endsBefore(Date testDate) {
+    public boolean endsBefore(Date testDate) {
         if (getEnd() == null) {
             return false;
         }
         return testDate == null || getEnd().before(testDate);
     }
 
-    private boolean startsBefore(Date testDate) {
+    public boolean startsBefore(Date testDate) {
         if (getStart() == null) {
             return  testDate != null;
         }
         return testDate != null && getStart().before(testDate);
     }
 
-    private boolean endsAfter(Date testDate) {
+    public boolean endsAfter(Date testDate) {
         if (getEnd() == null) {
             return testDate != null;
         }
