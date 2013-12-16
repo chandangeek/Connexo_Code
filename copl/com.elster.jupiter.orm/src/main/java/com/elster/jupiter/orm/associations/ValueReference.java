@@ -49,4 +49,22 @@ public final class ValueReference<T> implements Reference<T> {
 	public boolean isPresent() {
 		return value != null;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Reference)) {
+			return false;
+		}
+		Reference<?> other  = (Reference<?>) o;
+		return Objects.equals(value,other.orNull());
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(value);
+	}
+	
 }

@@ -1,6 +1,8 @@
 package com.elster.jupiter.orm.associations.impl;
 
 
+import java.util.Objects;
+
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
 import com.google.common.base.Optional;
@@ -58,6 +60,23 @@ public class PersistentReference<T> implements Reference<T> {
 	
 	public Object getKeyPart(int index) {
 		return primaryKey[index];
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Reference)) {
+			return false;
+		}
+		Reference<?> other  = (Reference<?>) o;
+		return Objects.equals(this.orNull(),other.orNull());
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(orNull());
 	}
  
 }
