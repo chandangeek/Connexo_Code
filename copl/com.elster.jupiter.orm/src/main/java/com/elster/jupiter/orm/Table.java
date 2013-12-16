@@ -3,7 +3,6 @@ package com.elster.jupiter.orm;
 import java.util.List;
 import java.util.Map;
 
-import com.elster.jupiter.orm.callback.Proxyable;
 import com.google.common.base.Optional;
 
 /**
@@ -11,7 +10,7 @@ import com.google.common.base.Optional;
  * For all methods, name typically refers to the database name, 
  * while fieldName refers to an java instance field.
  */
-public interface Table extends Proxyable<Table> {	
+public interface Table {	
 	DataModel getDataModel();
 	String getSchema();	
 	String getName();

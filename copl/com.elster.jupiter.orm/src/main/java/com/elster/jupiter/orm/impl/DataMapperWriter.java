@@ -2,9 +2,12 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.Reference;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.internal.Bus;
+import com.elster.jupiter.orm.proxy.impl.PersistentReference;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.security.Principal;
@@ -266,11 +269,33 @@ public class DataMapperWriter<T> {
 	private Object getValue(Object target , Column column) {
 		if (column.isDiscriminator()) {
 			return mapperType.getDiscriminator(target.getClass());
-		} else {			
+		} 
+		if (column.getFieldName() == null) {
+			return  getValue(target, column , ((ColumnImpl) column).getForeignKeyConstraint());
+		}
+		else {			
 			return ((ColumnImpl) column).convertToDb(mapperType.getDomainMapper().get(target , column.getFieldName()));
 		}
 	}
 	
+	private Object convertToDb(Column column , Object value) {
+		return ((ColumnImpl) column).convertToDb(value);
+	}
+	
+	private Object getValue(Object target , Column column , ForeignKeyConstraint constraint) {
+		Reference<?> reference = (Reference<?>) mapperType.getDomainMapper().get(target, constraint.getFieldName());
+		if (reference == null || !reference.isPresent()) {
+			return null;
+		}
+		int index = constraint.getColumns().indexOf(column);
+		if (reference instanceof PersistentReference<?>) {
+			Object value = ((PersistentReference<?>) reference).getKeyPart(index);
+			return value == null ? null : convertToDb(column,value);
+		}
+		Object value = constraint.getReferencedTable().getPrimaryKey(reference.get())[index];
+		return convertToDb(column,value);
+	}
+
 	private void setValue(Object target , Column column , ResultSet rs, int index) throws SQLException {
 		mapperType.getDomainMapper().set(target, column.getFieldName() , ((ColumnImpl) column).convertFromDb(rs, index));
 	}	

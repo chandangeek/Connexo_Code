@@ -548,16 +548,32 @@ public class TableImpl implements Table , PersistenceAware  {
 		return null;
 	}
 	
+	List<ForeignKeyConstraint> getReverseConstraints() {
+		List<ForeignKeyConstraint> result = new ArrayList<>();
+		for (Table table : getDataModel().getTables()) {
+			if (!table.equals(this)) {
+				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
+					if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
+						result.add(each);
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
 	public FieldMapping getFieldMapping(String fieldName) {
 		if (fieldName == null) {
 			return null;
 		}
 		for (Column each : doGetColumns()) {
-			if (fieldName.equals(each.getFieldName())) {
-				return new ColumnMapping(each);
-			}
-			if (each.getFieldName().startsWith(fieldName + ".")) {
-				return new MultiColumnMapping(fieldName, getColumns());
+			if (each.getFieldName() != null) {
+				if (fieldName.equals(each.getFieldName())) {
+					return new ColumnMapping(each);
+				}
+				if (each.getFieldName().startsWith(fieldName + ".")) {
+					return new MultiColumnMapping(fieldName, getColumns());
+				}
 			}
 		}
 		for (ForeignKeyConstraint each : getForeignKeyConstraints()) {
@@ -615,10 +631,6 @@ public class TableImpl implements Table , PersistenceAware  {
 		return mapperType != null && mapperType.maps(clazz);
 	}
 
-	@Override
-	public Table yourself() {
-		return this;
-	}
 }
 	
 

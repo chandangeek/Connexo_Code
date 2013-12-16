@@ -1,17 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
-import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.orm.proxy.impl.ProxyHandler;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
+import static com.elster.jupiter.orm.internal.Bus.getConnection;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +12,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.elster.jupiter.orm.internal.Bus.getConnection;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.NotUniqueException;
+import com.elster.jupiter.orm.Reference;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
+import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import com.elster.jupiter.orm.proxy.impl.PersistentReference;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
 public class DataMapperReader<T> {
 	private final TableSqlGenerator sqlGenerator;
@@ -197,34 +205,50 @@ public class DataMapperReader<T> {
 	
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
 		T result = mapperType.hasMultiple() ? newInstance(rs,startIndex) : mapperType.<T>newInstance(null);
+		List<Pair<Column, Object>> columnValues = new ArrayList<>();
 		DomainMapper mapper = mapperType.getDomainMapper();
 		for (Column column : getSqlGenerator().getColumns()) {
-			mapper.set(result, column.getFieldName(), ((ColumnImpl) column).convertFromDb(rs, startIndex++));
+			Object value = ((ColumnImpl) column).convertFromDb(rs, startIndex++);
+			if (((ColumnImpl) column).isForeignKeyPart()) {
+				columnValues.add(Pair.of(column,rs.wasNull() ? null : value));
+			}
+			if (column.getFieldName() != null) {
+				mapper.set(result, column.getFieldName(), value);
+			}
 		}
 		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
-			mapper.set(result, constraint.getFieldName(), createProxy(constraint,result));
+			Field field = mapper.getField(result.getClass(), constraint.getFieldName());
+			if (field != null && Reference.class.isAssignableFrom(field.getType())) {
+				Object[] key = createKey(constraint,columnValues);
+				ParameterizedType type = (ParameterizedType) field.getGenericType();
+				DataMapper<?> dataMapper = constraint.getReferencedTable().getDataMapper((Class<?>) type.getActualTypeArguments()[0]);
+				Reference<?> reference = new PersistentReference<>(key, dataMapper);
+				try {
+					field.set(result, reference);
+				} catch (ReflectiveOperationException ex) {
+					throw new MappingException(ex);
+				}
+			}
 		}
 		return result;
 	}
 	
-	Object createProxy(ForeignKeyConstraint constraint , Object source) {
-		try {
-			Object[] key = constraint.getColumnValues(source);
-			for (Object keyPart : key) {
-				if (keyPart == null) {
-					return null;
-				}
+	private Object getValue(Column column , List<Pair<Column,Object>> columnValues) {
+		for (Pair<Column,Object> pair : columnValues) {
+			if (column.equals(pair.getFirst())) {
+				return pair.getLast();
 			}
-			Class<?> iface = DomainMapper.FIELDLENIENT.getType(source.getClass(),constraint.getFieldName());
-			if (iface == null) {
-				return null;
-			}
-			DataMapper<?> dataMapper = constraint.getReferencedTable().getDataMapper(iface);
-			InvocationHandler handler = new ProxyHandler<>(key, dataMapper);
-			return Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface} , handler);
-		} catch (MappingException ex) {
-			return null;
 		}
+		throw new IllegalArgumentException();
+	}
+	
+	private Object[] createKey(ForeignKeyConstraint constraint , List<Pair<Column,Object>> columnValues) {
+		List<Column> columns = constraint.getColumns();
+		Object[] result = new Object[columns.size()];
+		for (int i = 0 ; i < result.length ; i++) {
+			result[i] = getValue(columns.get(i),columnValues);
+		}
+		return result;
 	}
 	
 	T construct(ResultSet rs, List<Setter> setters) throws SQLException {
@@ -300,6 +324,7 @@ public class DataMapperReader<T> {
 			fragments.add(mapping.asEqualFragment(value, alias));
 		}
 	}
+	
 	
 }
 

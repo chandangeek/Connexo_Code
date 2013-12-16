@@ -3,7 +3,6 @@ package com.elster.jupiter.orm.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
-import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 
 import org.junit.After;
@@ -56,7 +55,7 @@ public class OrmTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    @Test(expected=ClassCastException.class)
+    @Test
     public void testDataModel() {
     	assertThat(Bus.getOrmClient().getDataModelFactory().find()).hasSize(1);
     	assertThat(Bus.getOrmClient().getTableFactory().find().size()).isGreaterThan(4);
@@ -67,11 +66,7 @@ public class OrmTest {
     	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");
     	assertThat(tableHolder).isPresent();
     	Column column = Bus.getOrmClient().getColumnFactory().find().get(0);
-    	assertThat(Proxy.isProxyClass(column.getTable().getClass())).isTrue();
     	assertThat(column.getTable().getName()).isNotEmpty();
-    	assertThat(Proxy.isProxyClass(column.getTable().yourself().getClass())).isFalse();
-    	TableImpl tableImpl = (TableImpl) column.getTable().yourself();
-    	tableImpl = (TableImpl) column.getTable();
     }
 
 

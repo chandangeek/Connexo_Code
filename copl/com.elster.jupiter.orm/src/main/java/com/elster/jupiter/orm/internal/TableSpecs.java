@@ -39,11 +39,11 @@ public enum TableSpecs {
 	ORM_COLUMN {	
 		void describeTable(Table table) {
 			table.map(ColumnImpl.class);
-			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().map("componentName").add();
-			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().map("tableName").add();		
+			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
+			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();		
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-			Column fieldNameColumn = table.column("FIELDNAME").type("varchar2(80)").notNull().map("fieldName").add();
+			Column fieldNameColumn = table.column("FIELDNAME").type("varchar2(80)").map("fieldName").add();
 			table.column("DBTYPE").type(CATALOGDBTYPE).notNull().map("dbType").add();
 			table.column("NOTNULL").bool().map("notNull").add();
 			table.column("VERSIONCOUNT").bool().map("versionCount").add();
