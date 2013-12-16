@@ -17,11 +17,16 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
+
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
+
 import java.util.List;
 
 @Component(
@@ -35,7 +40,21 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
 
-	public void activate(ComponentContext context) {
+    public UserServiceImpl() {
+    }
+    
+    @Inject
+    public UserServiceImpl(OrmService ormService, CacheService cacheService, TransactionService transactionService, QueryService queryService) {
+    	setOrmService(ormService);
+    	setCacheService(cacheService);
+    	setTransactionService(transactionService);
+    	setQueryService(queryService);
+    	activate();
+    	install();
+    }
+    
+    @Activate
+	public void activate() {
 		Bus.setServiceLocator(this);
 	}
 
@@ -74,7 +93,8 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 		return result;
 	}
 	
-	public void deactivate(ComponentContext context) {
+	@Deactivate
+	public void deactivate() {
 		Bus.clearServiceLocator(this);
 	}
 
