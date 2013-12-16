@@ -88,7 +88,6 @@ public class UsagePointCrudTest {
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {
-				injector.getInstance(EventService.class);
 				injector.getInstance(MeteringService.class);
 				return null;
 			}
