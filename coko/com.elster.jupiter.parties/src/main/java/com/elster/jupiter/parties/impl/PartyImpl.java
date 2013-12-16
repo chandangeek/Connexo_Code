@@ -15,6 +15,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ abstract class PartyImpl implements Party {
 
     // associations
 	private List<PartyInRole> partyInRoles;
+	private List<PartyRepresentation> representations;
 	
 	private long id;
 	private String mRID;
@@ -46,7 +48,8 @@ abstract class PartyImpl implements Party {
         Interval interval = Interval.startAt(start);
         validateAddingDelegate(user, interval);
         PartyRepresentationImpl representation = new PartyRepresentationImpl(this, user, interval);
-        partyRepresentationFactory().persist(representation);
+        representations.add(representation);
+        Bus.getOrmClient().getPartyRepresentationFactory().persist(representation);
         return representation;
     }
 
@@ -72,9 +75,7 @@ abstract class PartyImpl implements Party {
         if (!(o instanceof Party)) {
             return false;
         }
-
         Party party = (Party) o;
-
         return id == party.getId();
     }
 
@@ -113,15 +114,8 @@ abstract class PartyImpl implements Party {
 
 	@Override
     public List<PartyInRole> getPartyInRoles() {
-        return ImmutableList.copyOf(doGetPartyInRoles());
+        return ImmutableList.copyOf(partyInRoles);
 	}
-
-    private List<PartyInRole> doGetPartyInRoles() {
-        if (partyInRoles == null) {
-            partyInRoles = Bus.getOrmClient().getPartyInRoleFactory().find("party",this);
-        }
-        return partyInRoles;
-    }
 
     public TelephoneNumber getPhone1() {
 		return phone1 == null ? null : phone1.copy();
@@ -236,6 +230,8 @@ abstract class PartyImpl implements Party {
     }
 
     PartyImpl() {
+    	this.partyInRoles = new ArrayList<>();
+    	this.representations = new ArrayList<>();
 	}
 
     UtcInstant getCreateTime() {
@@ -247,7 +243,7 @@ abstract class PartyImpl implements Party {
     }
 
     List<PartyRepresentation> getRepresentations() {
-        return Bus.getOrmClient().getPartyRepresentationFactory().find("party", this);
+        return representations;
     }
 
     String getUserName() {
@@ -258,20 +254,16 @@ abstract class PartyImpl implements Party {
         return Bus.getOrmClient().getPartyFactory();
     }
 
-    private DataMapper<PartyRepresentation> partyRepresentationFactory() {
-        return Bus.getOrmClient().getPartyRepresentationFactory();
-    }
-
     private void validateAddingDelegate(User user, Interval interval) {
         for (PartyRepresentation representation : getRepresentations()) {
-            if (representation.getDelegate().equals(user) && interval.overlaps(representation.getInterval())) {
+            if (representation.getDelegate().getName().equals(user.getName()) && interval.overlaps(representation.getInterval())) {
                 throw new IllegalArgumentException();
             }
         }
     }
 
     private void validateAddingRole(PartyInRoleImpl candidate) {
-        for (PartyInRole partyInRole : doGetPartyInRoles()) {
+        for (PartyInRole partyInRole : partyInRoles) {
             if (candidate.conflictsWith(partyInRole)) {
                 throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
             }

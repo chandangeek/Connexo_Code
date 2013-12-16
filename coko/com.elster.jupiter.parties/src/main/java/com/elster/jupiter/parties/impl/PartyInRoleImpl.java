@@ -1,5 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
@@ -12,11 +14,10 @@ import java.util.Objects;
 public class PartyInRoleImpl implements PartyInRole {
 	
 	private long id;
-	private long partyId;
 	private String roleMRID;
 	private Interval interval;
 	
-	private Party party;
+	private Reference<Party> party;
 	private PartyRole role;
 
     private long version;
@@ -29,14 +30,12 @@ public class PartyInRoleImpl implements PartyInRole {
 	}
 	
 	PartyInRoleImpl(Party party , PartyRole role , Interval interval) {
-		this.party = party;
-		this.partyId = party.getId();
+		this.party = ValueReference.of(party);
 		this.role = role;
 		this.roleMRID = role.getMRID();
 		this.interval = interval;
 	}
 	
-
 	@Override
 	public long getId() {
 		return id;
@@ -44,10 +43,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	
 	@Override
 	public Party getParty() {
-		if (party == null) {
-			party = Bus.getOrmClient().getPartyFactory().getExisting(partyId);
-		}
-		return party;
+		return party.get();
 	}
 		
 	@Override
@@ -70,7 +66,7 @@ public class PartyInRoleImpl implements PartyInRole {
 
     @Override
     public boolean conflictsWith(PartyInRole other) {
-        return role.equals(other.getRole()) && party.equals(other.getParty()) && interval.overlaps(other.getInterval());
+        return role.equals(other.getRole()) && getParty().equals(other.getParty()) && interval.overlaps(other.getInterval());
     }
 
     void terminate(Date date) {

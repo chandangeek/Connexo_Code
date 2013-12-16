@@ -1,6 +1,5 @@
 package com.elster.jupiter.parties.impl;
 
-import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -89,38 +88,39 @@ public enum TableSpecs {
 	PRT_PARTYREP {
 		void describeTable(Table table) {
 			table.map(PartyRepresentationImpl.class);
-			Column delegateColumn = table.addColumn("DELEGATE", "varchar2(256)", true, NOCONVERSION, "delegate");
-			List<Column> intervalColumns = table.addIntervalColumns("interval");
-			Column partyIdColumn = table.addColumn("PARTYID", "number", true , NUMBER2LONG, "partyId");			
+			Column delegateColumn = table.column("DELEGATE").type("varchar2(256)").notNull().map("delegate").add();
+			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
+			List<Column> intervalColumns = table.addIntervalColumns("interval");			
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("PRT_PK_PARTYREP", delegateColumn , partyIdColumn , intervalColumns.get(0));
-			table.addForeignKeyConstraint("PRT_FKPARTYREP", PRT_PARTY.name(), DeleteRule.CASCADE, new AssociationMapping("party"),partyIdColumn);
+			table.primaryKey("PRT_PK_PARTYREP").on(delegateColumn , partyIdColumn , intervalColumns.get(0)).add();
+			table.foreignKey("PRT_FKPARTYREP").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).
+				map("party").reverseMap("representations").reverseMapOrder("delegate").add();
 		}		
 	},
 	PRT_PARTYROLE {
 		void describeTable(Table table) {
 			table.map(PartyRoleImpl.class);
-			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", true, NOCONVERSION, "mRID");
-			table.addColumn("COMPONENT", "varchar2(3)", true, NOCONVERSION, "componentName");
-			table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
-			table.addColumn("ALIASNAME", "varchar2(80)" , false , NOCONVERSION , "aliasName");
-			table.addColumn("DESCRIPTION", "varchar2(256)",false,NOCONVERSION,"description");
+			Column mRIDColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
+			table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("PTR_PK_PARTYROLE", mRIDColumn);			
+			table.primaryKey("PTR_PK_PARTYROLE").on(mRIDColumn).add();			
 		}
 	},
 	PRT_PARTYINROLE {
 		void describeTable(Table table) {
 			table.map(PartyInRoleImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column partyIdColumn = table.addColumn("PARTYID", "number", true, NUMBER2LONG, "partyId");
-			Column roleMRIDColumn = table.addColumn("PARTYROLEMRID","varchar2(80)",true,NOCONVERSION,"roleMRID");
+			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
+			Column roleMRIDColumn = table.column("PARTYROLEMRID").type("varchar2(80)").notNull().map("roleMRID").add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("PTR_PK_PARTYINROLE", idColumn);
-			table.addUniqueConstraint("PTR_U_PARTYINROLE", partyIdColumn , roleMRIDColumn , intervalColumns.get(0));
-			table.addForeignKeyConstraint("PRT_FKPARTYINROLEPARTY", PRT_PARTY.name(), DeleteRule.CASCADE, new AssociationMapping("party", "partyInRoles"),partyIdColumn);
-			table.addForeignKeyConstraint("PRT_FKPARTYINROLEROLE", PRT_PARTYROLE.name(), DeleteRule.RESTRICT, new AssociationMapping("role"),roleMRIDColumn);
+			table.primaryKey("PTR_PK_PARTYINROLE").on(idColumn).add();
+			table.unique("PTR_U_PARTYINROLE").on(partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
+			table.foreignKey("PRT_FKPARTYINROLEPARTY").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).map("party").reverseMap("partyInRoles").add();
+			table.foreignKey("PRT_FKPARTYINROLEROLE").on(roleMRIDColumn).references(PRT_PARTYROLE.name()).onDelete(DeleteRule.RESTRICT).map("role").add();
 		}
 	};
 		

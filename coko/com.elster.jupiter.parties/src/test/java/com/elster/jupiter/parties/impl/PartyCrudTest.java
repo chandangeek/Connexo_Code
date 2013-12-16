@@ -1,19 +1,20 @@
 package com.elster.jupiter.parties.impl;
 
-import static org.mockito.Mockito.when;
-
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Date;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+
+import static org.mockito.Mockito.mock;
+
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.Query;
@@ -26,13 +27,16 @@ import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
@@ -44,30 +48,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class PartyCrudTest {
 
-    private Injector injector;
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {       
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);           
+           bind(BundleContext.class).toInstance(mock(BundleContext.class));          
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
+    @BeforeClass
+    public static void setUp() throws SQLException {
         injector = Guice.createInjector(
         			new MockModule(), 
         			inMemoryBootstrapModule,  
         			new PartyModule(), 
+        			new UserModule(),
         			new EventsModule(),
         			new InMemoryMessagingModule(),
         			new DomainUtilModule(), 
@@ -86,22 +83,9 @@ public class PartyCrudTest {
 		});
     }
 
-    @After
-    public void tearDown() throws SQLException {
-       inMemoryBootstrapModule.deactivate();
-    }
-
-    @Test
-    public void test() throws SQLException {
-
-        getTransactionService().execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                doTest(getPartyService());
-
-            }
-        });
-
+    @AfterClass
+    public static void tearDown() throws SQLException {
+    	inMemoryBootstrapModule.deactivate();
     }
 
     private PartyService getPartyService() {
@@ -112,7 +96,38 @@ public class PartyCrudTest {
         return injector.getInstance(TransactionService.class);
     }
 
-    private void doTest(PartyService partyService) {
+    @Test
+    public void testCrud()  {
+        getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                doTestCrud(getPartyService());
+
+            }
+        });
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testDuplicateRepresentation() {
+    	getTransactionService().execute(new VoidTransaction() {
+    		@Override
+        	protected void doPerform() {
+            	doTestDuplicateRepresentation(getPartyService());
+        	}
+        });
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testDuplicateRole() {
+    	getTransactionService().execute(new VoidTransaction() {
+    		@Override
+        	protected void doPerform() {
+            	doTestDuplicateRole(getPartyService());
+        	}
+        });
+    }
+
+    private void doTestCrud(PartyService partyService) {
     	Organization organization = partyService.newOrganization("EICT");
     	organization.save();
     	Query<Party> query = partyService.getPartyQuery();
@@ -129,6 +144,30 @@ public class PartyCrudTest {
     	query.setLazy();
     	party = query.select(Condition.TRUE).get(0);
     	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+    	UserService userService = injector.getInstance(UserService.class);
+    	User user = userService.findUser("admin").get();
+    	party.appointDelegate(user, new Date(0));
+    	party.save();
+    	party = query.select(Condition.TRUE).get(0);
+    	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
+    	//party.appointDelegate(user,new Date(0));
     }
 
+    private void doTestDuplicateRepresentation(PartyService partyService) {
+    	Person person = partyService.newPerson("Frank", "Hyldmar");
+    	person.save();
+    	UserService userService = injector.getInstance(UserService.class);
+    	User user = userService.findUser("admin").get();
+    	person.appointDelegate(user, new Date(0));
+    	person.appointDelegate(user,new Date());
+    }
+    
+    private void doTestDuplicateRole(PartyService partyService) {
+    	Organization organization = partyService.newOrganization("Elster");
+    	organization.save();
+    	PartyRole role = partyService.createRole("111", "222", "333", "444", "555");
+    	organization.assumeRole(role, new Date(0));
+    	organization.assumeRole(role, new Date());
+
+    }
 }

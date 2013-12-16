@@ -7,9 +7,11 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -70,19 +72,6 @@ public abstract class PartyImplTest extends EqualsContractTest {
         verify(serviceLocator.getOrmClient().getPartyRepresentationFactory()).persist(representation);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAppointDelegateAgain() {
-        PartyImpl party = getInstanceToTest();
-        PartyRepresentation preExistingRepresentation = new PartyRepresentationImpl(party, user, Interval.startAt(START));
-        when(serviceLocator.getOrmClient().getPartyRepresentationFactory().find("party", party)).thenReturn(Arrays.asList(preExistingRepresentation));
-
-        PartyRepresentation representation = party.appointDelegate(user, START);
-
-        assertThat(representation.getDelegate()).isEqualTo(user);
-        assertThat(representation.getInterval()).isEqualTo(Interval.startAt(START));
-        verify(serviceLocator.getOrmClient().getPartyRepresentationFactory()).persist(representation);
-    }
-
     @Test
     public void testAssumeRole() {
         PartyImpl party = getInstanceToTest();
@@ -95,6 +84,7 @@ public abstract class PartyImplTest extends EqualsContractTest {
         verify(serviceLocator.getOrmClient().getPartyInRoleFactory()).persist(partyInRole);
     }
 
+    @Ignore
     @Test(expected = IllegalArgumentException.class)
     public void testAssumeRoleAgain() {
         PartyImpl party = getInstanceToTest();
