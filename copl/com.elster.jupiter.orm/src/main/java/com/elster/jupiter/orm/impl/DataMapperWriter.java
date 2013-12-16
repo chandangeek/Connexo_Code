@@ -4,10 +4,10 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OptimisticLockException;
-import com.elster.jupiter.orm.Reference;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.orm.internal.Bus;
-import com.elster.jupiter.orm.proxy.impl.PersistentReference;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.security.Principal;

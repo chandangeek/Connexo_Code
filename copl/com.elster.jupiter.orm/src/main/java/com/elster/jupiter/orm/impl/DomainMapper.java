@@ -3,8 +3,8 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.RefAny;
-import com.elster.jupiter.orm.Reference;
-import com.elster.jupiter.orm.ValueReference;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

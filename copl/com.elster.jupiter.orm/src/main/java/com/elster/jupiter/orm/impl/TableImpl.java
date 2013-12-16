@@ -93,9 +93,6 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	private List<Column> doGetColumns() {
-		if (columns ==  null) {
-			columns = Bus.getOrmClient().getColumnFactory().find("table",this);				
-		}
 		return columns;
 	}
 	
@@ -548,7 +545,8 @@ public class TableImpl implements Table , PersistenceAware  {
 		return null;
 	}
 	
-	List<ForeignKeyConstraint> getReverseConstraints() {
+	@Override
+	public List<ForeignKeyConstraint> getReverseConstraints() {
 		List<ForeignKeyConstraint> result = new ArrayList<>();
 		for (Table table : getDataModel().getTables()) {
 			if (!table.equals(this)) {

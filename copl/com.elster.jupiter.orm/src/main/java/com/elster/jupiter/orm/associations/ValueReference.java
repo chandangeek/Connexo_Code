@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm;
+package com.elster.jupiter.orm.associations;
 
 import java.util.Objects;
 

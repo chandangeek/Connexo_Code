@@ -18,12 +18,13 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.NotUniqueException;
-import com.elster.jupiter.orm.Reference;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.orm.proxy.impl.PersistentReference;
+import com.elster.jupiter.orm.associations.impl.PersistentList;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -220,8 +221,7 @@ public class DataMapperReader<T> {
 			Field field = mapper.getField(result.getClass(), constraint.getFieldName());
 			if (field != null && Reference.class.isAssignableFrom(field.getType())) {
 				Object[] key = createKey(constraint,columnValues);
-				ParameterizedType type = (ParameterizedType) field.getGenericType();
-				DataMapper<?> dataMapper = constraint.getReferencedTable().getDataMapper((Class<?>) type.getActualTypeArguments()[0]);
+				DataMapper<?> dataMapper = constraint.getReferencedTable().getDataMapper(getTypeArgument(field));
 				Reference<?> reference = new PersistentReference<>(key, dataMapper);
 				try {
 					field.set(result, reference);
@@ -230,7 +230,24 @@ public class DataMapperReader<T> {
 				}
 			}
 		}
+		for (ForeignKeyConstraint constraint : getTable().getReverseConstraints()) {
+			Field field = mapper.getField(result.getClass(), constraint.getReverseFieldName());
+			if (field != null && List.class.isAssignableFrom(field.getType())) {
+				DataMapper<?> dataMapper = constraint.getTable().getDataMapper(getTypeArgument(field));
+				List<?> value = new PersistentList<>(constraint, dataMapper, result);
+				try {
+					field.set(result, value);
+				} catch (ReflectiveOperationException ex) {
+					throw new MappingException(ex);
+				}
+			}
+		}
 		return result;
+	}
+	
+	private Class<?> getTypeArgument(Field field) {
+		ParameterizedType type = (ParameterizedType) field.getGenericType();
+		return (Class<?>) type.getActualTypeArguments()[0];
 	}
 	
 	private Object getValue(Column column , List<Pair<Column,Object>> columnValues) {

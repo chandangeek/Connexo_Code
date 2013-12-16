@@ -1,8 +1,8 @@
-package com.elster.jupiter.orm.proxy.impl;
+package com.elster.jupiter.orm.associations.impl;
 
 
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.Reference;
+import com.elster.jupiter.orm.associations.Reference;
 import com.google.common.base.Optional;
 
 public class PersistentReference<T> implements Reference<T> {

@@ -3,9 +3,9 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.Reference;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.ValueReference;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.internal.*;
 

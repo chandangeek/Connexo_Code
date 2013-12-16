@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm.proxy.impl;
+package com.elster.jupiter.orm.associations.impl;
 
 import java.util.AbstractList;
 import java.util.List;
