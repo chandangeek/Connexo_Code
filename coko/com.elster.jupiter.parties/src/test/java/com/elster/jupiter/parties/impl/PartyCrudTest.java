@@ -31,6 +31,7 @@ import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -98,77 +99,58 @@ public class PartyCrudTest {
 
     @Test
     public void testCrud()  {
-        getTransactionService().execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                doTestCrud(getPartyService());
-
-            }
-        });
+        try (TransactionContext context = getTransactionService().getContext()) {
+        	PartyService partyService = getPartyService();
+         	Organization organization = partyService.newOrganization("EICT");
+        	organization.save();
+        	Query<Party> query = partyService.getPartyQuery();
+        	query.setLazy();
+        	assertThat(query.select(Condition.TRUE)).hasSize(1);
+        	query.setEager();
+        	assertThat(query.select(Condition.TRUE)).hasSize(1);
+        	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
+        	PartyRole role = partyService.getPartyRoles().get(0);
+        	organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
+        	assertThat(organization.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+        	Party party = query.select(Condition.TRUE).get(0);
+        	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+        	query.setLazy();
+        	party = query.select(Condition.TRUE).get(0);
+        	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+        	UserService userService = injector.getInstance(UserService.class);
+        	User user = userService.findUser("admin").get();
+        	party.appointDelegate(user, new Date(0));
+        	party.save();
+        	party = query.select(Condition.TRUE).get(0);
+        	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
+        	context.commit();
+        }
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testDuplicateRepresentation() {
-    	getTransactionService().execute(new VoidTransaction() {
-    		@Override
-        	protected void doPerform() {
-            	doTestDuplicateRepresentation(getPartyService());
-        	}
-        });
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		Person person = getPartyService().newPerson("Frank", "Hyldmar");
+        	UserService userService = injector.getInstance(UserService.class);
+        	User user = userService.findUser("admin").get();
+        	person.appointDelegate(user, new Date(0));
+        	person.save();
+        	assertThat(person.getCurrentDelegates()).hasSize(1);
+        	person.appointDelegate(user,new Date());
+    		context.commit();
+        }
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testDuplicateRole() {
-    	getTransactionService().execute(new VoidTransaction() {
-    		@Override
-        	protected void doPerform() {
-            	doTestDuplicateRole(getPartyService());
-        	}
-        });
-    }
-
-    private void doTestCrud(PartyService partyService) {
-    	Organization organization = partyService.newOrganization("EICT");
-    	organization.save();
-    	Query<Party> query = partyService.getPartyQuery();
-    	query.setLazy();
-    	assertThat(query.select(Condition.TRUE)).hasSize(1);
-    	query.setEager();
-    	assertThat(query.select(Condition.TRUE)).hasSize(1);
-    	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
-    	PartyRole role = partyService.getPartyRoles().get(0);
-    	organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
-    	assertThat(organization.getPartyInRoles().get(0).getRole()).isEqualTo(role);
-    	Party party = query.select(Condition.TRUE).get(0);
-    	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
-    	query.setLazy();
-    	party = query.select(Condition.TRUE).get(0);
-    	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
-    	UserService userService = injector.getInstance(UserService.class);
-    	User user = userService.findUser("admin").get();
-    	party.appointDelegate(user, new Date(0));
-    	party.save();
-    	party = query.select(Condition.TRUE).get(0);
-    	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
-    }
-
-    private void doTestDuplicateRepresentation(PartyService partyService) {
-    	Person person = partyService.newPerson("Frank", "Hyldmar");
-    	UserService userService = injector.getInstance(UserService.class);
-    	User user = userService.findUser("admin").get();
-    	person.appointDelegate(user, new Date(0));
-    	person.save();
-    	assertThat(person.getCurrentDelegates()).hasSize(1);
-    	person.appointDelegate(user,new Date());
-    }
-    
-    private void doTestDuplicateRole(PartyService partyService) {
-    	Organization organization = partyService.newOrganization("Elster");
-    	PartyRole role = partyService.createRole("111", "222", "333", "444", "555");
-    	organization.assumeRole(role, new Date(0));
-    	organization.save();
-    	assertThat(organization.getPartyInRoles()).hasSize(1);
-    	organization.assumeRole(role, new Date());
-
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		Organization organization = getPartyService().newOrganization("Elster");
+    		PartyRole role = getPartyService().createRole("111", "222", "333", "444", "555");
+    		organization.assumeRole(role, new Date(0));
+    		organization.save();
+    		assertThat(organization.getPartyInRoles()).hasSize(1);
+    		organization.assumeRole(role, new Date());
+    		context.commit();
+    	}
     }
 }
