@@ -150,23 +150,24 @@ public class PartyCrudTest {
     	party.save();
     	party = query.select(Condition.TRUE).get(0);
     	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
-    	//party.appointDelegate(user,new Date(0));
     }
 
     private void doTestDuplicateRepresentation(PartyService partyService) {
     	Person person = partyService.newPerson("Frank", "Hyldmar");
-    	person.save();
     	UserService userService = injector.getInstance(UserService.class);
     	User user = userService.findUser("admin").get();
     	person.appointDelegate(user, new Date(0));
+    	person.save();
+    	assertThat(person.getCurrentDelegates()).hasSize(1);
     	person.appointDelegate(user,new Date());
     }
     
     private void doTestDuplicateRole(PartyService partyService) {
     	Organization organization = partyService.newOrganization("Elster");
-    	organization.save();
     	PartyRole role = partyService.createRole("111", "222", "333", "444", "555");
     	organization.assumeRole(role, new Date(0));
+    	organization.save();
+    	assertThat(organization.getPartyInRoles()).hasSize(1);
     	organization.assumeRole(role, new Date());
 
     }

@@ -25,10 +25,6 @@ abstract class PartyImpl implements Party {
     // ORM inheritance map
 	static final Map<String, Class<? extends Party>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
 
-    // associations
-	private List<PartyInRole> partyInRoles;
-	private List<PartyRepresentation> representations;
-	
 	private long id;
 	private String mRID;
 	private String name;
@@ -43,13 +39,19 @@ abstract class PartyImpl implements Party {
     private UtcInstant modTime;
     private String userName;
 
+    // associations
+   	private final List<PartyInRole> partyInRoles = new ArrayList<>();
+   	private final List<PartyRepresentation> representations = new ArrayList<>();
+   	
+    PartyImpl() {
+	}
+
     @Override
     public PartyRepresentation appointDelegate(User user, Date start) {
         Interval interval = Interval.startAt(start);
         validateAddingDelegate(user, interval);
         PartyRepresentationImpl representation = new PartyRepresentationImpl(this, user, interval);
         representations.add(representation);
-        Bus.getOrmClient().getPartyRepresentationFactory().persist(representation);
         return representation;
     }
 
@@ -58,7 +60,6 @@ abstract class PartyImpl implements Party {
         PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, Interval.startAt(start));
         validateAddingRole(candidate);
         partyInRoles.add(candidate);
-        Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
         return candidate;
     }
 
@@ -228,11 +229,6 @@ abstract class PartyImpl implements Party {
         }
         return current.build();
     }
-
-    PartyImpl() {
-    	this.partyInRoles = new ArrayList<>();
-    	this.representations = new ArrayList<>();
-	}
 
     UtcInstant getCreateTime() {
         return createTime;

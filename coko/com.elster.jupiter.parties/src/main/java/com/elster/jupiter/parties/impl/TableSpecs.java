@@ -94,7 +94,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.primaryKey("PRT_PK_PARTYREP").on(delegateColumn , partyIdColumn , intervalColumns.get(0)).add();
 			table.foreignKey("PRT_FKPARTYREP").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).
-				map("party").reverseMap("representations").reverseMapOrder("delegate").add();
+				map("party").reverseMap("representations").reverseMapOrder("delegate").composition().add();
 		}		
 	},
 	PRT_PARTYROLE {
@@ -119,7 +119,8 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.primaryKey("PTR_PK_PARTYINROLE").on(idColumn).add();
 			table.unique("PTR_U_PARTYINROLE").on(partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
-			table.foreignKey("PRT_FKPARTYINROLEPARTY").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).map("party").reverseMap("partyInRoles").add();
+			table.foreignKey("PRT_FKPARTYINROLEPARTY").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).
+				map("party").reverseMap("partyInRoles").composition().add();
 			table.foreignKey("PRT_FKPARTYINROLEROLE").on(roleMRIDColumn).references(PRT_PARTYROLE.name()).onDelete(DeleteRule.RESTRICT).map("role").add();
 		}
 	};

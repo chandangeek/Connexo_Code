@@ -69,7 +69,6 @@ public abstract class PartyImplTest extends EqualsContractTest {
 
         assertThat(representation.getDelegate()).isEqualTo(user);
         assertThat(representation.getInterval()).isEqualTo(Interval.startAt(START));
-        verify(serviceLocator.getOrmClient().getPartyRepresentationFactory()).persist(representation);
     }
 
     @Test
@@ -81,7 +80,6 @@ public abstract class PartyImplTest extends EqualsContractTest {
 
         assertThat(partyInRole.getInterval()).isEqualTo(Interval.startAt(START));
         assertThat(partyInRole.getRole()).isEqualTo(role);
-        verify(serviceLocator.getOrmClient().getPartyInRoleFactory()).persist(partyInRole);
     }
 
     @Ignore
