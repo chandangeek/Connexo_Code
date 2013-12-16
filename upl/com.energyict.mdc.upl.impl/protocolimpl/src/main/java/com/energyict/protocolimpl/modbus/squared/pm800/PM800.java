@@ -73,7 +73,7 @@ public class PM800 extends Modbus  {
 
     @Override
     public String getProtocolDescription() {
-        return "Scheider Electric SquareD PM800";
+        return "Schneider Electric SquareD PM800";
     }
 
     public String getProtocolVersion() {

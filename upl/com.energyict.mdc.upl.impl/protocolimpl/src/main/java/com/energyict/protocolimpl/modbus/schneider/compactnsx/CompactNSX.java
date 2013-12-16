@@ -59,7 +59,7 @@ public class CompactNSX extends Modbus {
 
     @Override
     public String getProtocolDescription() {
-        return "Scheider Electric Compact NSX";
+        return "Schneider Electric Compact NSX";
     }
 
     /** Protocol version **/
