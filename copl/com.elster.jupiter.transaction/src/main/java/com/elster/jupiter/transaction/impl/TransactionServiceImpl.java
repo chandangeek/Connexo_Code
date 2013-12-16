@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -18,7 +19,7 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile DataSource dataSource;
 	private volatile Publisher publisher;
-	private final ThreadLocal<TransactionContextImpl> transactionContextHolder = new ThreadLocal<>();
+	private final ThreadLocal<TransactionState> transactionStateHolder = new ThreadLocal<>();
 	
 	public TransactionServiceImpl() {		
 	}
@@ -33,16 +34,40 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 
     @Override
 	public <T> T execute(Transaction<T> transaction) {
-        if (isInTransaction()) {
-            throw new NestedTransactionException();
-        }
-        try {
-            return doExecute(transaction);
-        } catch (SQLException ex) {
-            throw new CommitException(ex);
-        }
+    	try (TransactionContext context = getContext()) {
+    		T result = transaction.perform();
+    		context.commit();
+    		return result;
+    	} 
     }
 	
+    public TransactionContext getContext() {
+    	if (isInTransaction()) {
+    		throw new NestedTransactionException();
+    	}
+    	TransactionState transactionState = new TransactionState(this);
+		transactionStateHolder.set(transactionState);
+		return new TransactionContextImpl(this);
+    }
+    
+    private void terminate(boolean commit) {
+    	try {
+    		transactionStateHolder.get().terminate(commit);
+    	} catch (SQLException ex) {
+    		throw new CommitException(ex);
+    	} finally {
+    		transactionStateHolder.remove();
+    	}
+    }
+    
+    void commit() {
+    	terminate(true);
+    }
+    
+    void rollback() {
+    	terminate(false);
+    }
+    
 	@Reference
 	public void setBootstrapService(BootstrapService bootStrapService) {
         doSetBootstrapService(bootStrapService);
@@ -73,7 +98,7 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 
     public void setRollbackOnly() {
         if (isInTransaction()) {
-            transactionContextHolder.get().setRollbackOnly();
+            transactionStateHolder.get().setRollbackOnly();
         } else {
             throw new NotInTransactionException();
         }
@@ -82,7 +107,7 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 	
 	
 	Connection getConnection() throws SQLException {
-        return isInTransaction() ? transactionContextHolder.get().getConnection() : newConnection(true);
+        return isInTransaction() ? transactionStateHolder.get().getConnection() : newConnection(true);
 	}
 	
 	DataSource getDataSource() {
@@ -99,18 +124,9 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
         return result;
     }
 
-    private <T> T doExecute(Transaction<T> transaction) throws SQLException {
-		TransactionContextImpl transactionContext = new TransactionContextImpl(this);
-		transactionContextHolder.set(transactionContext);
-		try {
-			return transactionContext.execute(transaction);			
-		} finally {
-			transactionContextHolder.remove();						
-		}
-	}
 
     private boolean isInTransaction() {
-        return transactionContextHolder.get() != null;
+        return transactionStateHolder.get() != null;
     }
     
     @Override 
