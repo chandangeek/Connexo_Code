@@ -26,14 +26,14 @@ public enum TableSpecs {
 	ORM_TABLE {
 		void describeTable(Table table) {
 			table.map(TableImpl.class);
-			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().map("componentName").add();
+			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column schemaColumn = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
 			table.column("JOURNALTABLENAME").type(CATALOGDBTYPE).map("journalTableName").add();
 			table.column("INDEXORGANIZED").bool().map("indexOrganized").add();
 			table.primaryKey("ORM_PK_TABLES").on(componentName , nameColumn).add();
 			table.unique("ORM_U_TABLES").on(schemaColumn , nameColumn).add();
-			table.foreignKey("ORM_FK_TABLESCOMPONENTS").on(componentName).references(ORM_DATAMODEL.name()).onDelete(CASCADE).map("component").reverseMap("tables").add();
+			table.foreignKey("ORM_FK_TABLESCOMPONENTS").on(componentName).references(ORM_DATAMODEL.name()).onDelete(CASCADE).map("dataModel").reverseMap("tables").add();
 		}
 	},
 	ORM_COLUMN {	
@@ -61,17 +61,17 @@ public enum TableSpecs {
 	ORM_TABLECONSTRAINT {	
 		void describeTable(Table table) {
 			table.map(TableConstraintImpl.implementers);
-			Column componentName = table.addColumn("COMPONENT", COMPONENTDBTYPE , true , NOCONVERSION , "componentName");
-			Column tableName = table.addColumn("TABLEID", CATALOGDBTYPE, true , NOCONVERSION , "tableName");
-			Column nameColumn = table.addColumn("NAME", CATALOGDBTYPE , true , NOCONVERSION , "name");
+			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
+			Column tableName = table.column("TABLEID").type(CATALOGDBTYPE).notNull().add();
+			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			table.addDiscriminatorColumn("CONSTRAINTTYPE", CATALOGDBTYPE);
-			Column referencedComponentName = table.addColumn("REFERENCEDCOMPONENT", COMPONENTDBTYPE , false , NOCONVERSION , "referencedComponentName");
-			Column referencedTableName = table.addColumn("REFERENCEDTABLENAME", CATALOGDBTYPE , false , NOCONVERSION , "referencedTableName");
-			table.addColumn("DELETERULE", CATALOGDBTYPE , false , CHAR2ENUM , "deleteRule");
-			table.addColumn("FIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "fieldName");
-			table.addColumn("REVERSEFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseFieldName");
-			table.addColumn("REVERSEORDERFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseOrderFieldName");
-			table.addColumn("REVERSECURRENTFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseCurrentFieldName");
+			Column referencedComponentName = table.column("REFERENCEDCOMPONENT").type(COMPONENTDBTYPE).add();
+			Column referencedTableName = table.column("REFERENCEDTABLENAME").type(CATALOGDBTYPE).add();
+			table.column("DELETERULE").type(CATALOGDBTYPE).conversion(CHAR2ENUM).map("deleteRule").add();
+			table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
+			table.column("REVERSEFIELDNAME").type("VARCHAR2(80)").map("reverseFieldName").add();
+			table.column("REVERSEORDERFIELDNAME").type("VARCHAR2(80)").map("reverseOrderFieldName").add();
+			table.column("REVERSECURRENTFIELDNAME").type("VARCHAR2(80)").map("reverseCurrentFieldName").add();
 			table.primaryKey("ORM_PK_CONSTRAINTS").on(componentName , tableName , nameColumn).add();
 			table.unique("ORM_U_CONSTRAINTS").on(nameColumn).add();
 			table.foreignKey("ORM_FK_CONSTRAINTSTABLES").on(componentName , tableName).references(ORM_TABLE.name()).onDelete(CASCADE).map("table").reverseMap("constraints").add();	
@@ -81,14 +81,15 @@ public enum TableSpecs {
 	ORM_COLUMNINCONSTRAINT {
 		void describeTable(Table table) {
 			table.map(ColumnInConstraintImpl.class);
-			Column componentName = table.addColumn("COMPONENT", COMPONENTDBTYPE , true , NOCONVERSION , "componentName");
-			Column tableName = table.addColumn("TABLENAME", CATALOGDBTYPE , true , NOCONVERSION , "tableName");
-			Column constraintNameColumn = table.addColumn("CONSTRAINTNAME", CATALOGDBTYPE , true , NOCONVERSION , "constraintName");
-			Column columnNameColumn = table.addColumn("COLUMNNAME", CATALOGDBTYPE , true , NOCONVERSION , "columnName");
-			Column positionColumn = table.addColumn("POSITION", "number" , true , NUMBER2INT , "position");
+			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
+			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();
+			Column constraintNameColumn = table.column("CONSTRAINTNAME").type(CATALOGDBTYPE).notNull().add();
+			Column columnNameColumn = table.column("COLUMNNAME").type(CATALOGDBTYPE).notNull().map("columnName").add();
+			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
 			table.primaryKey("ORM_PK_COLUMNINCONSTRAINT").on(componentName , tableName , constraintNameColumn , columnNameColumn).add();
 			table.unique("ORM_U_COLUMNINCONSTRAINT").on(componentName , tableName , constraintNameColumn , positionColumn).add();
-			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT1").on(componentName, tableName, constraintNameColumn).references(ORM_TABLECONSTRAINT.name()).onDelete(CASCADE).map("constraint").add();		
+			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT1").on(componentName, tableName, constraintNameColumn).references(ORM_TABLECONSTRAINT.name()).onDelete(CASCADE).
+				map("constraint").reverseMap("columnHolders").reverseMapOrder("position").add();		
 			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT2").on(componentName, tableName, columnNameColumn ).references(ORM_COLUMN.name()).onDelete(RESTRICT).map("column").add();
 		}
 	};

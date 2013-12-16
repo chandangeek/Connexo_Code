@@ -64,7 +64,7 @@ public class SingleDataMapperType implements DataMapperType {
 	
 	@Override
 	public boolean isReference(String fieldName) {
-		Class<?> clazz = getType(fieldName);
+		Class<?> clazz = DomainMapper.FIELDLENIENT.getType(implementation,fieldName);
 		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
 	}
 }

@@ -3,19 +3,19 @@ package com.elster.jupiter.orm.impl;
 import java.util.Objects;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.internal.Bus;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
 	// persistent fields
 	private DeleteRule deleteRule;
-	private String referencedComponentName;
-	private String referencedTableName;	
 	private String fieldName;
 	private String reverseFieldName;
 	private String reverseOrderFieldName;
 	private String reverseCurrentFieldName;
 	
-	private Table referencedTable;
+	private Reference<Table> referencedTable;
 	
 	@SuppressWarnings("unused")
 	private ForeignKeyConstraintImpl() {	
@@ -27,7 +27,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
 	ForeignKeyConstraintImpl(Table table, String name, Table referencedTable, DeleteRule deleteRule,AssociationMapping mapping) {
 		this(table,name);
-		setReferencedTable(referencedTable);
+		this.setReferencedTable(referencedTable);
 		this.deleteRule = deleteRule;
 		this.fieldName = mapping.getFieldName();	
 		this.reverseFieldName = mapping.getReverseFieldName();
@@ -36,24 +36,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	}
 
 	private final void setReferencedTable(Table table) {
-		this.referencedTable = Objects.requireNonNull(table);
-		this.referencedComponentName = table.getComponentName();
-		this.referencedTableName = table.getName();
+		this.referencedTable = ValueReference.of(table);
 	}
 	
 	@Override
 	public Table getReferencedTable() {
-		if (referencedTableName == null || referencedComponentName == null) {
-			return null;
-		}
-		if (referencedTable == null) {
-			if (referencedComponentName.equals(getComponentName())) {
-				referencedTable = getTable().getDataModel().getTable(referencedTableName);
-			} else {
-				referencedTable = Bus.getOrmClient().getTableFactory().getExisting(referencedComponentName, referencedTableName);
-			}
-		}
-		return referencedTable;
+		return referencedTable.get();
 	}
 	
 	@Override
@@ -84,9 +72,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	@Override
 	public void postLoad() {	
 		super.postLoad();
-		if (referencedComponentName != null && !referencedComponentName.equals(getComponentName())) {
-			getReferencedTable();
-		}
+		getReferencedTable();
 	}
 	
 	@Override
@@ -143,8 +129,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	@Override
 	void validate() {
 		super.validate();
-		Objects.requireNonNull(referencedComponentName);
-		Objects.requireNonNull(referencedTableName);
+		Objects.requireNonNull(getReferencedTable());
 		Objects.requireNonNull(deleteRule);
 		Objects.requireNonNull(fieldName);
 	}

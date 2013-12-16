@@ -1,50 +1,38 @@
 package com.elster.jupiter.orm.impl;
 
+import java.util.Objects;
+
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.internal.*;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 
 public class ColumnInConstraintImpl {
-	// persistent fields	
-	private String componentName;
-	private String tableName;
-	private String constraintName;
 	private String columnName;
 	private int position;
 	
 	// associations
-	private TableConstraint constraint;
-	private Column column;
+	private Reference<TableConstraint> constraint;
 	
 	@SuppressWarnings("unused")
 	private ColumnInConstraintImpl() {		
 	}
 
 	ColumnInConstraintImpl(TableConstraintImpl constraint, Column column, int position) {
-		this.componentName = constraint.getComponentName();
-		this.tableName = constraint.getTableName();
-		this.constraintName = constraint.getName();
-		this.columnName = column.getName();
 		this.position = position;
-		this.constraint = constraint;		
+		this.constraint = ValueReference.<TableConstraint>of(constraint);
+		this.columnName = column.getName();
 	}
 
 	void doSetConstraint(TableConstraint constraint) {
-		this.constraint = constraint;		
+		this.constraint.set(constraint);		
 	}		
 	
 	TableConstraint getConstraint() {
-		if (constraint == null) {
-			constraint = getOrmClient().getTableConstraintFactory().getExisting(componentName,tableName,constraintName);
-		}
-		return constraint;
+		return constraint.get();
 	}
 		
 	Column getColumn() {
-		return getConstraint().getTable().getColumn(columnName);						
-	}
-	
-	void persist() {
-		getOrmClient().getColumnInConstraintFactory().persist(this);
+		return Objects.requireNonNull(getConstraint().getTable().getColumn(columnName));						
 	}
 	
 	@Override
@@ -53,7 +41,4 @@ public class ColumnInConstraintImpl {
 				+ " is column " + position + " in " + getConstraint();
 	}
 	
-	private OrmClient getOrmClient() {
-		return Bus.getOrmClient();
-	}
 }

@@ -57,9 +57,6 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     }
 
     public List<Table> doGetTables() {
-        if (tables == null) {
-            tables = getOrmClient().getTableFactory().find("component", this);
-        }
         return tables;
     }
 
@@ -217,7 +214,6 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     }
     
     void prepare() {
-    	checkActiveBuilder();
     	for (Table each : getTables()) {
     		downCast(each).prepare();
     	}

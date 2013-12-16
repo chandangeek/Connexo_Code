@@ -12,6 +12,8 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.UniqueConstraint;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
@@ -33,14 +35,13 @@ public class TableImpl implements Table , PersistenceAware  {
 	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
 	
 	// persistent fields
-	private String componentName;
 	private String schema;
 	private String name;
 	private String journalTableName;
 	private boolean indexOrganized;
 	
 	// associations
-	private DataModel component;
+	private Reference<DataModel> dataModel;
 	private List<Column> columns;
 	private List<TableConstraint> constraints;
 	
@@ -54,14 +55,12 @@ public class TableImpl implements Table , PersistenceAware  {
 	private List<ForeignKeyConstraint> referenceConstraints = ImmutableList.of();
 	private List<ForeignKeyConstraint> reverseConstraints = ImmutableList.of();
 		
-	TableImpl(DataModel component, String schema, String name) {
-        assert component != null;
+	TableImpl(DataModel dataModel, String schema, String name) {
         assert !is(name).emptyOrOnlyWhiteSpace();
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.component = component;
-		this.componentName = component.getName();
+		this.dataModel = ValueReference.of(dataModel);
 		this.schema = schema;
 		this.name = name;
 		this.columns = new ArrayList<>();
@@ -119,15 +118,12 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public DataModel getDataModel() {
-		if (component == null) {
-			component = Bus.getOrmClient().getDataModelFactory().getExisting(componentName);
-		}
-		return component;
+		return dataModel.get();
 	}
 
 	@Override
 	public String getComponentName() {		
-		return componentName;
+		return getDataModel().getName();
 	}
 
 	@Override
@@ -498,13 +494,13 @@ public class TableImpl implements Table , PersistenceAware  {
 
         TableImpl table = (TableImpl) o;
 
-        return componentName.equals(table.componentName) && name.equals(table.name);
+        return name.equals(table.name) && this.getDataModel().equals(table.getDataModel());
 
     }
 
   	@Override
 	public int hashCode() {
-		return componentName.hashCode() ^ name.hashCode();
+		return name.hashCode();
 	}
 
 	@Override
