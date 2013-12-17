@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
@@ -28,76 +27,76 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			table.setJournalTableName("MTR_SERVICELOCATIONJRNL");
 			Column idColumn = table.addAutoIdColumn();
-			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION , "mRID");
-			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
-			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-			table.addColumn("DIRECTION", "varchar2(80)", false, NOCONVERSION , "direction");
-			table.addColumn("EAEMAIL1", "varchar2(80)", false, NOCONVERSION , "electronicAddress.email1");
-			table.addColumn("EAEMAIL2", "varchar2(80)", false, NOCONVERSION , "electronicAddress.email2");
-			table.addColumn("EALAN", "varchar2(80)", false, NOCONVERSION , "electronicAddress.lan");
-			table.addColumn("EAEMAC", "varchar2(80)", false, NOCONVERSION , "electronicAddress.mac");
-			table.addColumn("EAPASSWORD", "varchar2(80)", false, NOCONVERSION , "electronicAddress.password");
-			table.addColumn("EARADIO", "varchar2(80)", false, NOCONVERSION , "electronicAddress.radio");
-			table.addColumn("EAUSERID", "varchar2(80)", false, NOCONVERSION , "electronicAddress.userID");
-			table.addColumn("EAWEB", "varchar2(80)", false, NOCONVERSION , "electronicAddress.web");
-			table.addColumn("GEOINFOREFERENCE", "varchar2(80)", false, NOCONVERSION , "geoInfoReference");
-			table.addColumn("MASTATUSDATETIME", "number", false, NUMBER2UTCINSTANT , "mainAddress.status.dateTime");
-			table.addColumn("MASTATUSREASON", "varchar2(80)", false, NOCONVERSION , "mainAddress.status.reason");
-			table.addColumn("MASTATUSREMARK", "varchar2(80)", false, NOCONVERSION , "mainAddress.status.remark");
-			table.addColumn("MASTATUSVALUE", "varchar2(80)", false, NOCONVERSION , "mainAddress.status.value");
-			table.addColumn("MASTREETADDRESSGENERAL", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.addressGeneral");
-			table.addColumn("MASTREETBUILDINGNAME", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.buildingName");
-			table.addColumn("MASTREETCODE", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.code");
-			table.addColumn("MASTREETNAME", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.name");
-			table.addColumn("MASTREETNUMBER", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.number");
-			table.addColumn("MASTREETPREFIX", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.prefix");
-			table.addColumn("MASTREETSUFFIX", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.suffix");
-			table.addColumn("MASTREETSUITENUMBER", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.suiteNumber");
-			table.addColumn("MASTREETTYPE", "varchar2(80)", false, NOCONVERSION , "mainAddress.streetDetail.type");
-			table.addColumn("MASTREETWITHINTOWN", "char(1)", false, CHAR2BOOLEAN , "mainAddress.streetDetail.withinTownLimits");
-			table.addColumn("MATOWNCODE", "varchar2(80)", false, NOCONVERSION , "mainAddress.townDetail.code");
-			table.addColumn("MATOWNCOUNTRY", "varchar2(80)", false, NOCONVERSION , "mainAddress.townDetail.country");
-			table.addColumn("MATOWNNAME", "varchar2(80)", false, NOCONVERSION , "mainAddress.townDetail.name");
-			table.addColumn("MATOWNSECTION", "varchar2(80)", false, NOCONVERSION , "mainAddress.townDetail.section");
-			table.addColumn("MATOWNSTATE", "varchar2(80)", false, NOCONVERSION , "mainAddress.townDetail.stateOrProvince");
-			table.addColumn("PHONE1AREA", "varchar2(80)", false, NOCONVERSION , "phone1.areaCode");
-			table.addColumn("PHONE1CITY", "varchar2(80)", false, NOCONVERSION , "phone1.cityCode");
-			table.addColumn("PHONE1COUNTRY", "varchar2(80)", false, NOCONVERSION , "phone1.countryCode");
-			table.addColumn("PHONE1EXTENSION", "varchar2(80)", false, NOCONVERSION , "phone1.extension");
-			table.addColumn("PHONE1LOCALNUMBER", "varchar2(80)", false, NOCONVERSION , "phone1.localNumber");
-			table.addColumn("PHONE2AREA", "varchar2(80)", false, NOCONVERSION , "phone2.areaCode");
-			table.addColumn("PHONE2CITY", "varchar2(80)", false, NOCONVERSION , "phone2.cityCode");
-			table.addColumn("PHONE2COUNTRY", "varchar2(80)", false, NOCONVERSION , "phone2.countryCode");
-			table.addColumn("PHONE2EXTENSION", "varchar2(80)", false, NOCONVERSION , "phone2.extension");
-			table.addColumn("PHONE2LOCALNUMBER", "varchar2(80)", false, NOCONVERSION , "phone2.localNumber");
-			table.addColumn("SASTATUSDATETIME", "number", false, NUMBER2UTCINSTANT, "secondaryAddress.status.dateTime");
-			table.addColumn("SASTATUSREASON", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.status.reason");
-			table.addColumn("SASTATUSREMARK", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.status.remark");
-			table.addColumn("SASTATUSVALUE", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.status.value");
-			table.addColumn("SASTREETADDRESSGENERAL", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.addressGeneral");
-			table.addColumn("SASTREETBUILDINGNAME", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.buildingName");
-			table.addColumn("SASTREETCODE", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.code");
-			table.addColumn("SASTREETNAME", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.name");
-			table.addColumn("SASTREETNUMBER", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.number");
-			table.addColumn("SASTREETPREFIX", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.prefix");
-			table.addColumn("SASTREETSUFFIX", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.suffix");
-			table.addColumn("SASTREETSUITENUMBER", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.suiteNumber");
-			table.addColumn("SASTREETTYPE", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.streetDetail.type");
-			table.addColumn("SASTREETWITHINTOWN", "char(1)", false, CHAR2BOOLEAN , "secondaryAddress.streetDetail.withinTownLimits");
-			table.addColumn("SATOWNCODE", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.townDetail.code");
-			table.addColumn("SATOWNCOUNTRY", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.townDetail.country");
-			table.addColumn("SATOWNNAME", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.townDetail.name");
-			table.addColumn("SATOWNSECTION", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.townDetail.section");
-			table.addColumn("SATOWNSTATE", "varchar2(80)", false, NOCONVERSION , "secondaryAddress.townDetail.stateOrProvince");
-			table.addColumn("STATUSDATETIME", "number", false, NUMBER2UTCINSTANT , "status.dateTime");
-			table.addColumn("STATUSREASON", "varchar2(80)", false, NOCONVERSION , "status.reason");
-			table.addColumn("STATUSREMARK", "varchar2(80)", false, NOCONVERSION , "status.remark");
-			table.addColumn("STATUSVALUE", "varchar2(80)", false, NOCONVERSION , "status.value");
-			table.addColumn("SERVICELOCATIONTYPE", "varchar2(80)", false, NOCONVERSION , "type");
-			table.addColumn("ACCESSMETHOD", "varchar2(80)", false, NOCONVERSION , "accessMethod");
-			table.addColumn("NEEDSINSPECTION", "char(1)", true, CHAR2BOOLEAN , "needsInspection");
-			table.addColumn("SITEACCESSPROBLEM", "varchar2(80)", false, NOCONVERSION , "siteAccessProblem");
+			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
+			table.column("NAME").type("varchar2(80)").map("name").add();
+			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			table.column("DIRECTION").type("varchar2(80)").map("direction").add();
+			table.column("EAEMAIL1").type("varchar2(80)").map("electronicAddress.email1").add();
+			table.column("EAEMAIL2").type("varchar2(80)").map("electronicAddress.email2").add();
+			table.column("EALAN").type("varchar2(80)").map("electronicAddress.lan").add();
+			table.column("EAEMAC").type("varchar2(80)").map("electronicAddress.mac").add();
+			table.column("EAPASSWORD").type("varchar2(80)").map("electronicAddress.password").add();
+			table.column("EARADIO").type("varchar2(80)").map("electronicAddress.radio").add();
+			table.column("EAUSERID").type("varchar2(80)").map("electronicAddress.userID").add();
+			table.column("EAWEB").type("varchar2(80)").map("electronicAddress.web").add();
+			table.column("GEOINFOREFERENCE").type("varchar2(80)").map("geoInfoReference").add();
+			table.column("MASTATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("mainAddress.status.dateTime").add();
+			table.column("MASTATUSREASON").type("varchar2(80)").map("mainAddress.status.reason").add();
+			table.column("MASTATUSREMARK").type("varchar2(80)").map("mainAddress.status.remark").add();
+			table.column("MASTATUSVALUE").type("varchar2(80)").map("mainAddress.status.value").add();
+			table.column("MASTREETADDRESSGENERAL").type("varchar2(80)").map("mainAddress.streetDetail.addressGeneral").add();
+			table.column("MASTREETBUILDINGNAME").type("varchar2(80)").map("mainAddress.streetDetail.buildingName").add();
+			table.column("MASTREETCODE").type("varchar2(80)").map("mainAddress.streetDetail.code").add();
+			table.column("MASTREETNAME").type("varchar2(80)").map("mainAddress.streetDetail.name").add();
+			table.column("MASTREETNUMBER").type("varchar2(80)").map("mainAddress.streetDetail.number").add();
+			table.column("MASTREETPREFIX").type("varchar2(80)").map("mainAddress.streetDetail.prefix").add();
+			table.column("MASTREETSUFFIX").type("varchar2(80)").map("mainAddress.streetDetail.suffix").add();
+			table.column("MASTREETSUITENUMBER").type("varchar2(80)").map("mainAddress.streetDetail.suiteNumber").add();
+			table.column("MASTREETTYPE").type("varchar2(80)").map("mainAddress.streetDetail.type").add();
+			table.column("MASTREETWITHINTOWN").type("char(1)").conversion(CHAR2BOOLEAN).map("mainAddress.streetDetail.withinTownLimits").add();
+			table.column("MATOWNCODE").type("varchar2(80)").map("mainAddress.townDetail.code").add();
+			table.column("MATOWNCOUNTRY").type("varchar2(80)").map("mainAddress.townDetail.country").add();
+			table.column("MATOWNNAME").type("varchar2(80)").map("mainAddress.townDetail.name").add();
+			table.column("MATOWNSECTION").type("varchar2(80)").map("mainAddress.townDetail.section").add();
+			table.column("MATOWNSTATE").type("varchar2(80)").map("mainAddress.townDetail.stateOrProvince").add();
+			table.column("PHONE1AREA").type("varchar2(80)").map("phone1.areaCode").add();
+			table.column("PHONE1CITY").type("varchar2(80)").map("phone1.cityCode").add();
+			table.column("PHONE1COUNTRY").type("varchar2(80)").map("phone1.countryCode").add();
+			table.column("PHONE1EXTENSION").type("varchar2(80)").map("phone1.extension").add();
+			table.column("PHONE1LOCALNUMBER").type("varchar2(80)").map("phone1.localNumber").add();
+			table.column("PHONE2AREA").type("varchar2(80)").map("phone2.areaCode").add();
+			table.column("PHONE2CITY").type("varchar2(80)").map("phone2.cityCode").add();
+			table.column("PHONE2COUNTRY").type("varchar2(80)").map("phone2.countryCode").add();
+			table.column("PHONE2EXTENSION").type("varchar2(80)").map("phone2.extension").add();
+			table.column("PHONE2LOCALNUMBER").type("varchar2(80)").map("phone2.localNumber").add();
+			table.column("SASTATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("secondaryAddress.status.dateTime").add();
+			table.column("SASTATUSREASON").type("varchar2(80)").map("secondaryAddress.status.reason").add();
+			table.column("SASTATUSREMARK").type("varchar2(80)").map("secondaryAddress.status.remark").add();
+			table.column("SASTATUSVALUE").type("varchar2(80)").map("secondaryAddress.status.value").add();
+			table.column("SASTREETADDRESSGENERAL").type("varchar2(80)").map("secondaryAddress.streetDetail.addressGeneral").add();
+			table.column("SASTREETBUILDINGNAME").type("varchar2(80)").map("secondaryAddress.streetDetail.buildingName").add();
+			table.column("SASTREETCODE").type("varchar2(80)").map("secondaryAddress.streetDetail.code").add();
+			table.column("SASTREETNAME").type("varchar2(80)").map("secondaryAddress.streetDetail.name").add();
+			table.column("SASTREETNUMBER").type("varchar2(80)").map("secondaryAddress.streetDetail.number").add();
+			table.column("SASTREETPREFIX").type("varchar2(80)").map("secondaryAddress.streetDetail.prefix").add();
+			table.column("SASTREETSUFFIX").type("varchar2(80)").map("secondaryAddress.streetDetail.suffix").add();
+			table.column("SASTREETSUITENUMBER").type("varchar2(80)").map("secondaryAddress.streetDetail.suiteNumber").add();
+			table.column("SASTREETTYPE").type("varchar2(80)").map("secondaryAddress.streetDetail.type").add();
+			table.column("SASTREETWITHINTOWN").type("char(1)").conversion(CHAR2BOOLEAN).map("secondaryAddress.streetDetail.withinTownLimits").add();
+			table.column("SATOWNCODE").type("varchar2(80)").map("secondaryAddress.townDetail.code").add();
+			table.column("SATOWNCOUNTRY").type("varchar2(80)").map("secondaryAddress.townDetail.country").add();
+			table.column("SATOWNNAME").type("varchar2(80)").map("secondaryAddress.townDetail.name").add();
+			table.column("SATOWNSECTION").type("varchar2(80)").map("secondaryAddress.townDetail.section").add();
+			table.column("SATOWNSTATE").type("varchar2(80)").map("secondaryAddress.townDetail.stateOrProvince").add();
+			table.column("STATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("status.dateTime").add();
+			table.column("STATUSREASON").type("varchar2(80)").map("status.reason").add();
+			table.column("STATUSREMARK").type("varchar2(80)").map("status.remark").add();
+			table.column("STATUSVALUE").type("varchar2(80)").map("status.value").add();
+			table.column("SERVICELOCATIONTYPE").type("varchar2(80)").map("type").add();
+			table.column("ACCESSMETHOD").type("varchar2(80)").map("accessMethod").add();
+			table.column("NEEDSINSPECTION").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("needsInspection").add();
+			table.column("SITEACCESSPROBLEM").type("varchar2(80)").map("siteAccessProblem").add();
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_SERVICELOCATION", idColumn);
 			table.addUniqueConstraint("MTR_U_SERVICELOCATION", mRIDColumn);
@@ -148,9 +147,9 @@ public enum TableSpecs {
 	},
 	MTR_READINGTYPE {
 		void describeTable(Table table) {
-			Column mRidColumn = table.addColumn("MRID","varchar2(80)",true,NOCONVERSION,"mRID");
-			table.addColumn("ALIASNAME", "varchar2(256)", false, NOCONVERSION , "aliasName");
-            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
+			Column mRidColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
+			table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
+            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPE", mRidColumn);
 		}
@@ -159,22 +158,22 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
 			table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
-			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION , "mRID");
-			Column amrSystemIdColumn = table.addColumn("AMRSYSTEMID", "number", true, NUMBER2INT, "amrSystemId");
-			Column amrIdColumn = table.addColumn("AMRID", "varchar2(256)" , true , NOCONVERSION, "amrId");
-			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
-			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-			table.addColumn("SERIALNUMBER", "varchar2(80)", false, NOCONVERSION , "serialNumber");
-			table.addColumn("UTCNUMBER", "varchar2(80)", false, NOCONVERSION , "utcNumber");
-			table.addColumn("EAEMAIL1", "varchar2(80)", false, NOCONVERSION , "electronicAddress.email1");
-			table.addColumn("EAEMAIL2", "varchar2(80)", false, NOCONVERSION , "electronicAddress.email2");
-			table.addColumn("EALAN", "varchar2(80)", false, NOCONVERSION , "electronicAddress.lan");
-			table.addColumn("EAEMAC", "varchar2(80)", false, NOCONVERSION , "electronicAddress.mac");
-			table.addColumn("EAPASSWORD", "varchar2(80)", false, NOCONVERSION , "electronicAddress.password");
-			table.addColumn("EARADIO", "varchar2(80)", false, NOCONVERSION , "electronicAddress.radio");
-			table.addColumn("EAUSERID", "varchar2(80)", false, NOCONVERSION , "electronicAddress.userID");
-			table.addColumn("EAWEB", "varchar2(80)", false, NOCONVERSION , "electronicAddress.web");
+			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
+			Column amrSystemIdColumn = table.column("AMRSYSTEMID").type("number").notNull().conversion(NUMBER2INT).map("amrSystemId").add();
+			Column amrIdColumn = table.column("AMRID").type("varchar2(256)").notNull().map("amrId").add();
+			table.column("NAME").type("varchar2(80)").map("name").add();
+			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			table.column("SERIALNUMBER").type("varchar2(80)").map("serialNumber").add();
+			table.column("UTCNUMBER").type("varchar2(80)").map("utcNumber").add();
+			table.column("EAEMAIL1").type("varchar2(80)").map("electronicAddress.email1").add();
+			table.column("EAEMAIL2").type("varchar2(80)").map("electronicAddress.email2").add();
+			table.column("EALAN").type("varchar2(80)").map("electronicAddress.lan").add();
+			table.column("EAEMAC").type("varchar2(80)").map("electronicAddress.mac").add();
+			table.column("EAPASSWORD").type("varchar2(80)").map("electronicAddress.password").add();
+			table.column("EARADIO").type("varchar2(80)").map("electronicAddress.radio").add();
+			table.column("EAUSERID").type("varchar2(80)").map("electronicAddress.userID").add();
+			table.column("EAWEB").type("varchar2(80)").map("electronicAddress.web").add();
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METER", idColumn);
 			table.addUniqueConstraint("MTR_U_METER", mRIDColumn);
@@ -185,8 +184,8 @@ public enum TableSpecs {
 	MTR_METERACTIVATION {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
-			Column usagePointIdColumn = table.addColumn("USAGEPOINTID", "number", false, NUMBER2LONGNULLZERO, "usagePointId");
-			Column meterIdColumn = table.addColumn("METERID", "number", false, NUMBER2LONGNULLZERO, "meterId");
+			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).map("usagePointId").add();
+			Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).map("meterId").add();
 			table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
@@ -197,8 +196,8 @@ public enum TableSpecs {
 	MTR_CHANNEL {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
-			Column meterActivationIdColumn = table.addColumn("METERACTIVATIONID","number",true,NUMBER2LONG,"meterActivationId");
-			Column timeSeriesIdColumn = table.addColumn("TIMESERIESID","number",true,NUMBER2LONG,"timeSeriesId");
+			Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).map("meterActivationId").add();
+			Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).map("timeSeriesId").add();
 			Column mainReadingTypeMRIDColumn = table.addColumn("MAINREADINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"mainReadingTypeMRID");
 			Column cumulativeReadingTypeMRIDColumn = table.addColumn("CUMULATIVEREADINGTYPEMRID","varchar2(80)",false,NOCONVERSION,"cumulativeReadingTypeMRID");
 			table.addAuditColumns();
@@ -206,15 +205,14 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MTR_FK_CHANNELACTIVATION", MTR_METERACTIVATION.name(), RESTRICT, new AssociationMapping("meterActivation" , "channels"), meterActivationIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_CHANNELMAINTYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("mainReadingType"), mainReadingTypeMRIDColumn);
 			table.addForeignKeyConstraint("MTR_FK_CHANNELCUMULATIVETYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("cumulativeReadingType"), cumulativeReadingTypeMRIDColumn);
-			// TODO: How to document dependency on id of IDS TIMESERIES table)
 			table.foreignKey("MTR_FK_CHANNELTIMESERIES").on(timeSeriesIdColumn).references("IDS","IDS_TIMESERIES").onDelete(RESTRICT).map("timeSeries").add();
 		}
 	},		
 	MTR_READINGTYPEINCHANNEL {
 		void describeTable(Table table) {
-			Column channelIdColumn = table.addColumn("CHANNNELID","number",true,NUMBER2LONG,"channelId");
-			Column positionColumn = table.addColumn("POSITION","number",true,NUMBER2INT,"position");
-			Column readingTypeMRidColumn = table.addColumn("READINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"readingTypeMRID");
+			Column channelIdColumn = table.addColumn("CHANNNELID", "number", true, NUMBER2LONG," channelId");
+			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+			Column readingTypeMRidColumn = table.column("READINGTYPEMRID").type("varchar2(80)").notNull().map("readingTypeMRID").add();
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPEINCHANNEL", channelIdColumn , positionColumn);
 			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,new AssociationMapping("channel"),channelIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL2", MTR_READINGTYPE.name(),RESTRICT,new AssociationMapping(null),readingTypeMRidColumn);
@@ -223,9 +221,9 @@ public enum TableSpecs {
 	MTR_UPACCOUNTABILITY {
 		void describeTable(Table table) {
 			table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
-			Column usagePointIdColumn = table.addColumn("USAGEPOINTID", "number", true , NUMBER2LONG , "usagePointId");
-			Column partyIdColumn = table.addColumn("PARTYID", "number", true , NUMBER2LONG, "partyId");			
-			Column roleMRIDColumn = table.addColumn("ROLEMRID", "varchar2(80)",  true,  NOCONVERSION, "roleMRID");
+			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
+			Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).map("partyId").add();
+			Column roleMRIDColumn = table.column("ROLEMRID").type("varchar2(80)").notNull().map("roleMRID").add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_UPACCOUNTABILITY", usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0));
@@ -238,10 +236,10 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
-            Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION, "mRID");
-            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-            table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
+            table.column("NAME").type("varchar2(80)").map("name").add();
+            Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
+            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+            table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
             table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP", idColumn);
@@ -251,8 +249,8 @@ public enum TableSpecs {
     MTR_ENUM_UP_IN_GROUP {
         @Override
         void describeTable(Table table) {
-            Column groupColumn = table.addColumn("GROUP_ID", "number", true, NUMBER2LONG, "groupId");
-            Column usagePointColumn = table.addColumn("USAGEPOINT_ID", "number", true, NUMBER2LONG, "usagePointId");
+            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
+            Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP_ENTRY", groupColumn, usagePointColumn, intervalColumns.get(0));
             table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
@@ -262,12 +260,12 @@ public enum TableSpecs {
     MTR_QUERY_UP_GROUP_OP {
         @Override
         void describeTable(Table table) {
-            Column groupColumn = table.addColumn("GROUP_ID", "number", true, NUMBER2LONG, "groupId");
-            Column positionColumn = table.addColumn("POSITION", "number" , true , NUMBER2INT , "position");
+            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
+            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.addColumn("OPERATOR", "VARCHAR2(80)", false, NOCONVERSION, "operator");
-            table.addColumn("FIELDNAME", "VARCHAR2(80)", false, NOCONVERSION, "fieldName");
-            table.addColumn("BINDVALUES", "VARCHAR2(256)", false, CHAR2JSON, "values");
+            table.column("OPERATOR").type("VARCHAR2(80)").map("operator").add();
+            table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
+            table.column("BINDVALUES").type("VARCHAR2(256)").conversion(CHAR2JSON).map("values").add();
 
             table.addPrimaryKeyConstraint("MTR_PK_QUPGOP", groupColumn, positionColumn);
             table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
@@ -278,11 +276,11 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            Column channelColumn = table.addColumn("CHANNELID", "number", true, NUMBER2LONG, "channelId");
-            Column timestampColumn = table.addColumn("READINGTIMESTAMP", "number", true, NUMBER2UTCINSTANT, "readingTimestamp");
-            Column typeColumn = table.addColumn("TYPE", "varchar(64)", true, NOCONVERSION, "typeCode");
+            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
+            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("readingTimestamp").add();
+            Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             table.addAuditColumns();
-            table.addColumn("COMMENTS", "varchar(4000)", false, ColumnConversion.NOCONVERSION, "comment");
+            table.column("COMMENTS").type("varchar(4000)").notNull().map("comment").add();
             table.addPrimaryKeyConstraint("MTR_PK_READINGQUALITY", idColumn);
             table.addForeignKeyConstraint("MTR_FK_RQ_CHANNEL", MTR_CHANNEL.name(), DeleteRule.CASCADE, new AssociationMapping("channel"), channelColumn);
             table.addUniqueConstraint("MTR_U_READINGQUALITY", channelColumn, timestampColumn, typeColumn);
@@ -291,11 +289,37 @@ public enum TableSpecs {
     MTR_ENDDEVICEEVENTTYPE {
         @Override
         void describeTable(Table table) {
-            Column mRidColumn = table.addColumn("MRID","varchar2(80)",true,NOCONVERSION,"mRID");
-            table.addColumn("ALIASNAME", "varchar2(256)", false, NOCONVERSION , "aliasName");
-            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
+            Column mRidColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
+            table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
+            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
             table.addAuditColumns();
             table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTTYPE", mRidColumn);
+        }
+    }, MTR_ENDDEVICEEVENTRECORD {
+        @Override
+        void describeTable(Table table) {
+
+            table.column("NAME").type("varchar2(80)").map("name").add();
+            table.column("MRID").type("varchar2(80)").map("mRID").add();
+            table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
+            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+            table.column("REASON").type("varchar2(256)").map("reason").add();
+            table.column("SEVERITY").type("varchar2(80)").map("severity").add();
+            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();
+            table.column("ISSUERID").type("varchar2(80)").map("issuerID").add();
+            table.column("ISSUERTRACKINGID").type("varchar2(80)").map("issuerTrackingID").add();
+            table.column("STATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("status.dateTime").add();
+            table.column("STATUSREASON").type("varchar2(80)").map("status.reason").add();
+            table.column("STATUSREMARK").type("varchar2(80)").map("status.remark").add();
+            table.column("STATUSVALUE").type("varchar2(80)").map("status.value").add();
+            table.column("PROCESSINGFLAGS").type("number").map("processingFlags").add();
+            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").add();
+            table.column("LOGBOOKID").type("number").map("logBookId").add();
+            table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
+            table.addAuditColumns();
+            table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTRECORD", endDeviceColumn, eventTypeColumn, createdDateTimeColumn);
+            table.addForeignKeyConstraint("MTR_FK_EVENT_ENDDEVICE", MTR_ENDDEVICE.name(), DeleteRule.CASCADE, new AssociationMapping("endDevice"), endDeviceColumn);
         }
     };
 	

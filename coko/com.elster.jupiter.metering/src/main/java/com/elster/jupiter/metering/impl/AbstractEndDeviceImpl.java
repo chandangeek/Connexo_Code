@@ -1,16 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-import java.util.Map;
-
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
-abstract public class AbstractEndDeviceImpl implements EndDevice {
+import java.util.Date;
+import java.util.Map;
+
+public abstract class AbstractEndDeviceImpl implements EndDevice {
 	static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
 	// persistent fields
 	private long id;
@@ -127,4 +129,8 @@ abstract public class AbstractEndDeviceImpl implements EndDevice {
         return version;
     }
 
+    @Override
+    public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date) {
+        return new EndDeviceEventRecordImpl(this, type, date);
+    }
 }

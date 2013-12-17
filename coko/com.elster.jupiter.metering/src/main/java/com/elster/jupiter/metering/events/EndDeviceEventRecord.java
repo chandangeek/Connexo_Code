@@ -10,4 +10,6 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
     EndDevice getEndDevice();
 
     EndDeviceEventType getEventType();
+
+    void save();
 }

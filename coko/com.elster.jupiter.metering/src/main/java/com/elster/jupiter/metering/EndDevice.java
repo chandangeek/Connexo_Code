@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering;
 
-import java.util.Date;
-
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+
+import java.util.Date;
 
 public interface EndDevice extends IdentifiedObject {
 	String TYPE_IDENTIFIER = "E";
@@ -18,4 +20,6 @@ public interface EndDevice extends IdentifiedObject {
     Date getModTime();
     long getVersion();
     void delete();
+
+    EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date);
 }

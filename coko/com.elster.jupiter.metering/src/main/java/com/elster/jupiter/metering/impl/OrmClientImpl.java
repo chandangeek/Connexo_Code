@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointGroup;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -120,6 +121,10 @@ public class OrmClientImpl implements OrmClient {
     @Override
     public TypeCache<EndDeviceEventType> getEndDeviceEventTypeFactory() {
         return Bus.getComponentCache().getTypeCache(EndDeviceEventType.class, EndDeviceEventTypeImpl.class, TableSpecs.MTR_ENDDEVICEEVENTTYPE.name());
+    }
 
+    @Override
+    public DataMapper<EndDeviceEventRecord> getEndDeviceEventRecordFactory() {
+        return dataModel.getDataMapper(EndDeviceEventRecord.class, EndDeviceEventRecordImpl.class, TableSpecs.MTR_ENDDEVICEEVENTRECORD.name());
     }
 }

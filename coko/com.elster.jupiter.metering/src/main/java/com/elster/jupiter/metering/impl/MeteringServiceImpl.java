@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -114,6 +115,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     @Override
     public ReadingStorer createNonOverrulingStorer() {
         return new ReadingStorerImpl(false);
+    }
+
+    @Override
+    public EndDevice createEndDevice(AmrSystem amrSystem, String amrId, String mRID) {
+        return new EndDeviceImpl(amrSystem, amrId, mRID);
     }
 
     @Override
