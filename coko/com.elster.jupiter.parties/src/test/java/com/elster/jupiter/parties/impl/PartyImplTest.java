@@ -7,11 +7,9 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
-
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -19,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -82,12 +79,12 @@ public abstract class PartyImplTest extends EqualsContractTest {
         assertThat(partyInRole.getRole()).isEqualTo(role);
     }
 
-    @Ignore
     @Test(expected = IllegalArgumentException.class)
     public void testAssumeRoleAgain() {
         PartyImpl party = getInstanceToTest();
-        PartyInRole preExists = new PartyInRoleImpl(party, role, Interval.startAt(START));
-        when(serviceLocator.getOrmClient().getPartyInRoleFactory().find("party", party)).thenReturn(Arrays.asList(preExists));
+//        PartyInRole preExists = new PartyInRoleImpl(party, role, Interval.startAt(START));
+        party.assumeRole(role, START);
+//        when(serviceLocator.getOrmClient().getPartyInRoleFactory().find("party", party)).thenReturn(Arrays.asList(preExists));
 
         PartyInRole partyInRole = party.assumeRole(role, START);
 
