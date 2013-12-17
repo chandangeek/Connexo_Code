@@ -5,13 +5,14 @@ import java.sql.SQLException;
 import java.util.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class ChildDataMapper<T> extends JoinDataMapper <T> {
 	private final ForeignKeyConstraint constraint;
-	private Map<Object, List<?>> targetCache;
+	private Map<Object, List<T>> targetCache;
 	
 	public ChildDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {
 		super(dataMapper, alias);
@@ -48,17 +49,16 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 	}
 		
 	private void addTarget(Object target) {
-		List<?> values = targetCache.get(target);
+		List<T> values = targetCache.get(target);
 		if (values == null) {
 			values = new ArrayList<>();
 			targetCache.put(target, values);
 		}				
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void addTargetEntry(Object target, Object value) {
-		List<?> values = targetCache.get(target);
-		((List<Object>) values).add(value);
+	private void addTargetEntry(Object target, T value) {
+		List<T> values = targetCache.get(target);
+		values.add(value);
 	}
 
 
@@ -87,7 +87,7 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		super.completeFind();
 		String fieldName = constraint.getReverseFieldName();
 		if (fieldName != null) {		
-			for (Map.Entry<Object,List<?>> entry : targetCache.entrySet()) {
+			for (Map.Entry<Object,List<T>> entry : targetCache.entrySet()) {
 				if (constraint.isOneToOne()) {
 					if (entry.getValue().size() > 1) {
 						throw new NotUniqueException(fieldName);
@@ -97,7 +97,11 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 					}
 				} else {
 					sort(entry.getValue());
-					DomainMapper.FIELDSTRICT.set(entry.getKey(), fieldName , entry.getValue());
+					List<T> values = entry.getValue();
+					if (constraint.isComposition()) {
+						values = new ManagedPersistentList<>(constraint, getMapper(), entry.getKey(),values);
+					}
+					DomainMapper.FIELDSTRICT.set(entry.getKey(), fieldName , values);
 				}
 			}
 		}
