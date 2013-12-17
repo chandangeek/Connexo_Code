@@ -41,13 +41,15 @@ public class EndDeviceEventRecordImpl implements EndDeviceEventRecord {
     private String userName;
 
     private EndDeviceEventRecordImpl() {
-        // for persietence
+        // for persistence
     }
 
     EndDeviceEventRecordImpl(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
         this.endDevice = endDevice;
+        this.endDeviceId = endDevice.getId();
         this.createdDateTime = new UtcInstant(createdDateTime);
         this.eventType = eventType;
+        this.eventTypeCode = eventType.getMRID();
     }
 
     @Override

@@ -124,7 +124,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
 
-                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice, eventType, date));
+                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice, eventType, date)).isEqualTo(endDeviceEventRecord);
             }
         });
 
