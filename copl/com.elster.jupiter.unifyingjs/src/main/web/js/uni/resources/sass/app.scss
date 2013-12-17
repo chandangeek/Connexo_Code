@@ -247,10 +247,9 @@ $navigation-color: $elster-blue-75;
             top: 10px;
             bottom: 10px;
         }
-
     }
 
-    .nav-menu-main, .nav-menu-sub {
+    .nav-menu-main {
         .x-panel-body-default {
             background-color: transparent;
         }
@@ -263,7 +262,7 @@ $navigation-color: $elster-blue-75;
                 height: $item-height;
 
                 .x-btn-inner, .x-btn-glyph {
-                    line-height: $item-height;
+                    line-height: $item-height - 3;
                     text-align: left;
                     margin-top: 3px;
                 }
@@ -277,21 +276,52 @@ $navigation-color: $elster-blue-75;
                 }
             }
         }
-    }
 
-    .nav-menu-main .x-pressed {
-        background-color: $elster-blue-50;
+        .highlighted {
+            background-color: $sky-blue;
+        }
+
+        .x-pressed {
+            background-color: $sky-blue-25;
+
+            .x-btn-glyph {
+                color: $navigation-color;
+            }
+
+            .x-btn-button:hover {
+                background-color: $sky-blue-25;
+            }
+        }
     }
 
     .nav-menu-sub {
-        background-color: $elster-blue-50;
+        background-color: $sky-blue-25;
 
-        .x-pressed .x-btn-button .x-btn-inner {
-            color: $elster-blue-75;
+        h2 {
+            margin: {
+                bottom: 8px;
+                left: 10px;
+            }
         }
 
-        .x-btn-inner {
-            padding-left: 8px;
+        .x-panel-body-default {
+            background-color: transparent;
+        }
+
+        .menu-item {
+            @include transparent-button;
+
+            .x-btn-button {
+                .x-btn-inner, .x-btn-glyph {
+                    color: $ocean-blue;
+                    text-align: left;
+                    padding: 0;
+                }
+
+                &:hover {
+                    background-color: $sky-blue;
+                }
+            }
         }
     }
 }
