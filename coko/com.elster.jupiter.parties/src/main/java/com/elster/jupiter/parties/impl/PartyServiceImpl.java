@@ -127,7 +127,9 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Override
     public Query<Party> getPartyQuery() {
-        return getQueryService().wrap(getOrmClient().getPartyFactory().with());
+        return getQueryService().wrap(getOrmClient().getPartyFactory().with(
+        		getOrmClient().getPartyInRoleFactory(),
+        		getOrmClient().getPartyRepresentationFactory()));
     }
 
     @Override

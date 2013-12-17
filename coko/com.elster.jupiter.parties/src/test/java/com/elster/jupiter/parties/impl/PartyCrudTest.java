@@ -58,6 +58,8 @@ public class PartyCrudTest {
            bind(BundleContext.class).toInstance(mock(BundleContext.class));          
         }
     }
+    
+    private static final boolean printSql = false;
 
     @BeforeClass
     public static void setUp() throws SQLException {
@@ -73,7 +75,7 @@ public class PartyCrudTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(),
+        			new TransactionModule(printSql),
         			new OrmCacheModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
@@ -124,6 +126,7 @@ public class PartyCrudTest {
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
         	context.commit();
+        	assertThat(context.getStats().getSqlCount()).isLessThan(25);
         }
     }
     
