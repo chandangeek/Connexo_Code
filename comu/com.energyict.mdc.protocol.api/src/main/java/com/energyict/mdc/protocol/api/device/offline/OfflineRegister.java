@@ -18,7 +18,8 @@ public interface OfflineRegister extends Offline {
     public int getRegisterId ();
 
     /**
-     * Returns the ObisCode for this Register.<br/>
+     * Returns the ObisCode for this Register, known by the Device. The will be the overruled ObisCode,
+     * or if no overrule was defined, this will return the same ObisCode as {@link #getAmrRegisterObisCode()}<br/>
      * (actually the ObisCode from the RegisterMapping)
      *
      * @return the ObisCode
@@ -55,4 +56,10 @@ public interface OfflineRegister extends Offline {
      */
     public String getSerialNumber();
 
+    /**
+     * The ObisCode of the Register, known by the HeadEnd system.
+     *
+     * @return the obisCode of the Register, known by the HeadEnd system
+     */
+    public ObisCode getAmrRegisterObisCode();
 }
