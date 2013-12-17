@@ -30,26 +30,28 @@ class TransactionState implements Subscriber {
 		return new ConnectionInTransaction(connection);
 	}
 
-	void terminate(boolean commit) throws SQLException {
+	TransactionEvent terminate(boolean commit) throws SQLException {
+		TransactionEvent event = null;
 		try {
-			if (connection == null) {
-				return;
-			}
-			try {
-				if (commit && !rollback) {
-					connection.commit();
-				} else {
-					rollback = true;
-					connection.rollback();
+			if (connection != null) {
+				try {
+					if (commit && !rollback) {
+						connection.commit();
+					} else {
+						rollback = true;
+						connection.rollback();
+					}
+				} finally {        	        
+					connection.close();
 				}
-			} finally {        	        
-				connection.close();
 			}
 		} finally {
 			stopWatch.stop();
 			Bus.removeThreadSubscriber(this);
-			Bus.publish(new TransactionEvent(rollback,stopWatch,statementCount,fetchCount));
+			event = new TransactionEvent(rollback,stopWatch,statementCount,fetchCount);
+			Bus.publish(event);
 		}
+		return event;
 	}
 
 	void setRollbackOnly() {

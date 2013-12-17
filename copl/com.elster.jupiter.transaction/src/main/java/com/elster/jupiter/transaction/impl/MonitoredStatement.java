@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.logging.Logger;
 
 class MonitoredStatement implements PreparedStatement {
 
@@ -88,6 +89,13 @@ class MonitoredStatement implements PreparedStatement {
         stopWatch.stop();
         statement.close();
         Bus.publish(new SqlEvent(stopWatch, text, parameters, resultSet == null ? -1 : resultSet.getFetchCount()));
+        if (Bus.printSql()) {
+        	if (resultSet == null) {
+        		System.out.println("Executed Sql: " + text );
+        	} else {
+        		System.out.println("Fetched " + resultSet.getFetchCount() + " tuples from " + text);
+        	} 
+        }
     }
 
     @Override

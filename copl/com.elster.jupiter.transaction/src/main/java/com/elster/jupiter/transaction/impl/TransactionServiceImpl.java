@@ -50,9 +50,9 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 		return new TransactionContextImpl(this);
     }
     
-    private void terminate(boolean commit) {
+    private TransactionEvent terminate(boolean commit) {
     	try {
-    		transactionStateHolder.get().terminate(commit);
+    		return transactionStateHolder.get().terminate(commit);
     	} catch (SQLException ex) {
     		throw new CommitException(ex);
     	} finally {
@@ -60,12 +60,12 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
     	}
     }
     
-    void commit() {
-    	terminate(true);
+    TransactionEvent commit() {
+    	return terminate(true);
     }
     
-    void rollback() {
-    	terminate(false);
+    TransactionEvent rollback() {
+    	return terminate(false);
     }
     
 	@Reference

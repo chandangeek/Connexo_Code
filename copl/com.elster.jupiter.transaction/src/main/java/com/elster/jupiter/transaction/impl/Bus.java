@@ -9,6 +9,7 @@ enum Bus {
     ;
 
     private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
+    private static volatile boolean printSql = false;
 
     public static void setServiceLocator(ServiceLocator locator) {
         Bus.locatorHolder.set(Objects.requireNonNull(locator));
@@ -32,4 +33,11 @@ enum Bus {
         locatorHolder.get().removeThreadSubscriber(subscriber);
     }
 
+    static boolean printSql() {
+    	return printSql;
+    }
+    
+    static void printSql(boolean value) {
+    	printSql = value;
+    }
 }

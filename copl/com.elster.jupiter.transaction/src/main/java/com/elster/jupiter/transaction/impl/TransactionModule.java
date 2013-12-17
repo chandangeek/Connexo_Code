@@ -9,6 +9,13 @@ import com.google.inject.Scopes;
 import javax.sql.DataSource;
 
 public class TransactionModule extends AbstractModule {
+	
+	public TransactionModule() {
+	}
+	
+	public TransactionModule(boolean printSql) {
+		Bus.printSql(printSql);
+	}
 
     @Override
     protected void configure() {

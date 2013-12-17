@@ -4,10 +4,12 @@ import java.sql.SQLException;
 
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionEvent;
 
 public class TransactionContextImpl implements TransactionContext {
 
 	private TransactionServiceImpl service;
+	private TransactionEvent stats;
 	
 	public TransactionContextImpl(TransactionServiceImpl service) {
 		this.service = service;
@@ -23,10 +25,18 @@ public class TransactionContextImpl implements TransactionContext {
 	@Override
 	public void commit() {
 		try {
-			service.commit();
+			stats = service.commit();
 		} finally {
 			service = null;
 		}
+	}
+
+	@Override
+	public TransactionEvent getStats() {
+		if (service != null) {
+			throw new IllegalStateException("Transaction not finished");
+		}
+		return stats;
 	}
 
 }

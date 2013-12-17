@@ -29,6 +29,10 @@ public final class TransactionEvent {
         return MessageFormat.format(base, operation, (stopWatch.getElapsed() / NANOS_PER_MICRO), sqlCount, fetchCount);
     }
 
+    public int getSqlCount() {
+    	return sqlCount;
+    }
+    
     public int getFetchCount() {
         return fetchCount;
     }
