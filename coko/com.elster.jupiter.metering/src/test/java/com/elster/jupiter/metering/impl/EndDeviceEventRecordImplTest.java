@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -31,6 +32,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,22 +40,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Date;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
+    private static final long END_DEVICE_ID = 185L;
     private Injector injector;
 
-    @Mock
-    private LogService logService;
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -63,7 +63,12 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    private EndDeviceEventTypeImpl instanceA;
+    private EndDeviceEventRecordImpl instanceA;
+
+    @Mock
+    private EndDevice endDevice, endDevice2;
+    @Mock
+    private EndDeviceEventType endDeviceEventType, endDeviceEventType2;
 
 
     private class MockModule extends AbstractModule {
@@ -89,7 +94,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new DomainUtilModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(principal),
-                new PubSubModule(logService),
+                new PubSubModule(),
                 new TransactionModule(),
                 new OrmCacheModule());
         when(principal.getName()).thenReturn("Test");
@@ -124,7 +129,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
 
-                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice, eventType, date)).isEqualTo(endDeviceEventRecord);
+                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
             }
         });
 
@@ -147,23 +152,26 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+            when(endDevice.getId()).thenReturn(END_DEVICE_ID);
+            when(endDevice2.getId()).thenReturn(END_DEVICE_ID + 1);
+            when(endDeviceEventType.getMRID()).thenReturn("A");
+            when(endDeviceEventType2.getMRID()).thenReturn("B");
+            instanceA = new EndDeviceEventRecordImpl(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
         }
         return instanceA;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+        return new EndDeviceEventRecordImpl(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.INCREASED).toCode())
+                new EndDeviceEventRecordImpl(endDevice2, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
+                new EndDeviceEventRecordImpl(endDevice, endDeviceEventType2, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
+                new EndDeviceEventRecordImpl(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 42, 0).toDate())
         );
     }
 

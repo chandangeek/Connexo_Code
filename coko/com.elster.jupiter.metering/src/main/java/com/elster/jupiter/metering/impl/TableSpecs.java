@@ -280,7 +280,7 @@ public enum TableSpecs {
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             table.addAuditColumns();
-            table.column("COMMENTS").type("varchar(4000)").notNull().map("comment").add();
+            table.column("COMMENTS").type("varchar(4000)").map("comment").add();
             table.addPrimaryKeyConstraint("MTR_PK_READINGQUALITY", idColumn);
             table.addForeignKeyConstraint("MTR_FK_RQ_CHANNEL", MTR_CHANNEL.name(), DeleteRule.CASCADE, new AssociationMapping("channel"), channelColumn);
             table.addUniqueConstraint("MTR_U_READINGQUALITY", channelColumn, timestampColumn, typeColumn);
@@ -312,10 +312,10 @@ public enum TableSpecs {
             table.column("STATUSREASON").type("varchar2(80)").map("status.reason").add();
             table.column("STATUSREMARK").type("varchar2(80)").map("status.remark").add();
             table.column("STATUSVALUE").type("varchar2(80)").map("status.value").add();
-            table.column("PROCESSINGFLAGS").type("number").map("processingFlags").add();
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").add();
-            table.column("LOGBOOKID").type("number").map("logBookId").add();
-            table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").add();
+            table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2INT).add();
+            table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
             Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             table.addAuditColumns();
             table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTRECORD", endDeviceColumn, eventTypeColumn, createdDateTimeColumn);

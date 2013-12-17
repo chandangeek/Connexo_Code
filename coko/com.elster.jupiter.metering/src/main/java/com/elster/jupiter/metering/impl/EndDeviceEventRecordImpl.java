@@ -9,8 +9,9 @@ import com.elster.jupiter.util.time.UtcInstant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 
-public class EndDeviceEventRecordImpl implements EndDeviceEventRecord {
+public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord {
 
     private String name;
     private String mRID;
@@ -151,6 +152,25 @@ public class EndDeviceEventRecordImpl implements EndDeviceEventRecord {
     @Override
     public void save() {
         Bus.getOrmClient().getEndDeviceEventRecordFactory().persist(this);
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        EndDeviceEventRecordImpl that = (EndDeviceEventRecordImpl) o;
+
+        return endDeviceId == that.endDeviceId && createdDateTime.equals(that.createdDateTime) && eventTypeCode.equals(that.eventTypeCode);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(endDeviceId, createdDateTime, eventTypeCode);
     }
 }

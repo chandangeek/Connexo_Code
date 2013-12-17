@@ -17,12 +17,11 @@ import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -34,7 +33,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class MeteringServiceImplTest {
 
@@ -44,7 +42,7 @@ public class MeteringServiceImplTest {
     private OrmService ormService;
     @Mock
     private DataModel dataModel;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
     private DataMapper<ReadingType> readingTypeFactory;

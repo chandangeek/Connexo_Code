@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -51,8 +50,6 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
 
     private Injector injector;
 
-    @Mock
-    private LogService logService;
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -88,7 +85,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 new OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(principal),
-                new PubSubModule(logService),
+                new PubSubModule(),
                 new TransactionModule(),
                 new OrmCacheModule());
         when(principal.getName()).thenReturn("Test");
