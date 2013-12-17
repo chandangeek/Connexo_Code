@@ -104,7 +104,7 @@ public enum Unit {
     USGALLON("us gallon","USGal",Dimension.VOLUME,Constants.CUBIC_METER_PER_USGALLON),
     USGALLON_PER_HOUR("us gallon per hour","USGal/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_USGALLON,Constants.BD3600),
     IMPERIALGALLON("imperial gallon","ImperialGal",Dimension.VOLUME,Constants.CUBIC_METER_PER_IMPERIALGALLON),
-    IMPERIALGALLON_PER_HOUR("imperial gallon per hour","ImperarialGal/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_IMPERIALGALLON,Constants.BD3600),
+    IMPERIALGALLON_PER_HOUR("imperial gallon per hour","ImperialGal/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_IMPERIALGALLON,Constants.BD3600),
     BRITISH_THERMAL_UNIT("british thermal unit","BTU",Dimension.ENERGY,Constants.JOULE_PER_BTU),
     BRITISH_THERMAL_UNIT_PER_HOUR("british thermal unit per hour","BTU/h",Dimension.POWER,Constants.JOULE_PER_BTU,Constants.BD3600),
     LITRE("litre","L",Dimension.VOLUME,ONE,Constants.BD1000),
