@@ -31,6 +31,9 @@ public class DeviceCommunicationProtocolInfo {
     public String deviceProtocolVersion;
     public PropertyInfo[] propertyInfos;
 
+    public DeviceCommunicationProtocolInfo() {
+    }
+
     public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
