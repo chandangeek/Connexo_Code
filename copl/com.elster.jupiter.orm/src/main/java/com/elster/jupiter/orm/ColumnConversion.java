@@ -18,5 +18,7 @@ public enum ColumnConversion {
 	CHAR2UNIT,
 	CHAR2CURRENCY,
     CHAR2FILE,
-    CHAR2JSON
+    CHAR2JSON,
+    DATE2DATE,
+    TIMESTAMP2DATE
 }

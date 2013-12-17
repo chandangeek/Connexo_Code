@@ -319,6 +319,40 @@ public enum ColumnConversionImpl {
             String jsonString = rs.getString(index);
             return jsonString == null ? null : convert(jsonString);
         }
+    },
+    DATE2DATE {
+    	@Override
+        public Object convert(String in) {
+            return new java.util.Date(Long.parseLong(in));
+        }
+
+        @Override
+        public Object convertToDb(Object value) {
+        	return value == null ? null : new java.sql.Date(((java.util.Date) value).getTime());
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            java.sql.Date date = rs.getDate(index);
+            return date == null ? null : new java.util.Date(date.getTime());
+        }
+    	
+    }, TIMESTAMP2DATE {
+    	@Override
+        public Object convert(String in) {
+            return new java.util.Date(Long.parseLong(in));
+        }
+
+        @Override
+        public Object convertToDb(Object value) {
+        	return value == null ? null : new java.sql.Timestamp(((java.util.Date) value).getTime());
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            java.sql.Timestamp timestamp = rs.getTimestamp(index);
+            return timestamp == null ? null : new java.util.Date(timestamp.getTime());
+        }    	
     };
 
 	public abstract Object convertToDb(Object value);
