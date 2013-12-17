@@ -82,9 +82,7 @@ public abstract class PartyImplTest extends EqualsContractTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAssumeRoleAgain() {
         PartyImpl party = getInstanceToTest();
-//        PartyInRole preExists = new PartyInRoleImpl(party, role, Interval.startAt(START));
         party.assumeRole(role, START);
-//        when(serviceLocator.getOrmClient().getPartyInRoleFactory().find("party", party)).thenReturn(Arrays.asList(preExists));
 
         PartyInRole partyInRole = party.assumeRole(role, START);
 
