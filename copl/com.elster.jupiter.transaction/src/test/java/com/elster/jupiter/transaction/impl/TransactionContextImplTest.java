@@ -2,7 +2,6 @@ package com.elster.jupiter.transaction.impl;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -11,12 +10,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class TransactionContextImplTest {
 
     private TransactionState transactionContext;
@@ -25,9 +21,13 @@ public class TransactionContextImplTest {
     private TransactionServiceImpl transactionService;
     @Mock
     private Connection connection;
+    @Mock
+    private ServiceLocator serviceLocator;
 
     @Before
     public void setUp() throws SQLException {
+        Bus.setServiceLocator(serviceLocator);
+
         doReturn(connection).when(transactionService).newConnection(false);
 
         transactionContext = new TransactionState(transactionService);
@@ -35,7 +35,7 @@ public class TransactionContextImplTest {
 
     @After
     public void tearDown() {
-
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
