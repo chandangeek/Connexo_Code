@@ -1,16 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-
-import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.internal.Bus;
@@ -23,6 +12,19 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.log.LogService;
+
+import java.security.Principal;
+import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,13 +33,18 @@ public class OrmTest {
     private Injector injector;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
+    @Mock
+    private Principal principal;
+    @Mock
+    private LogService logService;
+
     @Before
     public void setUp() {   
 		injector = Guice.createInjector(
 					inMemoryBootstrapModule,
         			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(),
+        			new ThreadSecurityModule(principal),
+        			new PubSubModule(logService),
         			new TransactionModule(),        			        		
         			new OrmModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {

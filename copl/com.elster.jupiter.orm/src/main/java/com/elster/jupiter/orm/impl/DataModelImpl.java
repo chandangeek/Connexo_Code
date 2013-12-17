@@ -105,6 +105,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
         for (Table table : doGetTables()) {
             ((TableImpl) table).persist();
         }
+        Bus.getOrmService().register(this);
     }
 
     private OrmClient getOrmClient() {
