@@ -3,6 +3,8 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.RefAny;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -90,6 +92,9 @@ public enum DomainMapper {
 				value = getEnum((Class<? extends Enum<?>>) field.getType(),value);
 			}
 			try {
+				if (Reference.class.isAssignableFrom(field.getType()) && !(value instanceof Reference)) {
+					value = ValueReference.of(value);
+				}
 				field.set(target, value);
 			} catch (IllegalAccessException e) {
 				throw new MappingException(e);
@@ -123,7 +128,7 @@ public enum DomainMapper {
 		}
 	}
 	
-	private Field getField(Class<?> clazz, String fieldName) {	
+	Field getField(Class<?> clazz, String fieldName) {	
 		Class<?> current = clazz;
 	    do {
 	        for ( Field field : current.getDeclaredFields() ) {

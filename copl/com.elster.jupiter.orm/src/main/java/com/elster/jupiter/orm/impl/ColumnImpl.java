@@ -2,7 +2,10 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.internal.*;
 
@@ -13,8 +16,6 @@ import java.util.Objects;
 public class ColumnImpl implements Column  {
 	// persistent fields
 	
-	private String componentName;
-	private String tableName;
 	private String name;
 	private int position;
 	private String dbType;
@@ -28,7 +29,7 @@ public class ColumnImpl implements Column  {
 	private boolean skipOnUpdate;
 	
 	// associations
-	private Table table;
+	private Reference<Table> table;
 
 	@SuppressWarnings("unused")
 	private ColumnImpl() {		
@@ -38,9 +39,7 @@ public class ColumnImpl implements Column  {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.table = table;
-		this.componentName = table.getComponentName();
-		this.tableName = table.getName();
+		this.table = ValueReference.of(table);
 		this.name = name;
 	}
 	
@@ -59,11 +58,11 @@ public class ColumnImpl implements Column  {
 	}
 	
 	private void validate() {
-		Objects.requireNonNull(componentName);
-		Objects.requireNonNull(tableName);
+		if (!table.isPresent()) {
+			throw new IllegalArgumentException("table must be present");
+		}
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(dbType);
-		Objects.requireNonNull(fieldName);
 		Objects.requireNonNull(conversion);
 		if (skipOnUpdate && updateValue != null) {
 			throw new IllegalArgumentException("updateValue must be null if skipOnUpdate");
@@ -72,10 +71,7 @@ public class ColumnImpl implements Column  {
 	
 	@Override
 	public Table getTable() {
-		if (table == null) {
-			return getOrmClient().getTableFactory().getExisting(componentName,tableName);
-		}
-		return table;
+		return table.get();
 	}
 	
 	@Override
@@ -227,6 +223,21 @@ public class ColumnImpl implements Column  {
 		return TYPEFIELDNAME.equals(fieldName);
 	}
 	
+	boolean isForeignKeyPart() {
+		return getForeignKeyConstraint() != null;
+	}
+	
+	ForeignKeyConstraint getForeignKeyConstraint() {
+		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
+			for (Column column : constraint.getColumns()) {
+				if (this.equals(column)) {
+					return constraint;
+				}
+			}
+		}
+		return null;
+	}
+	
 	static class BuilderImpl implements Column.Builder {
 		private final ColumnImpl column;
 		
@@ -302,8 +313,9 @@ public class ColumnImpl implements Column  {
 		@Override
 		public Column add() {
 			column.validate();
-			return ((TableImpl) column.table).add(column);
+			return ((TableImpl) column.getTable()).add(column);
 		}
+		
 	}
 }
 

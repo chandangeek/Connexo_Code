@@ -65,12 +65,13 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 
 	@Override
 	public void register(DataModel dataModel) {
+		((DataModelImpl) dataModel).prepare();
 		dataModels.put(dataModel.getName(), dataModel);
 	}
 	
 	 @Override
 	public void install() {
-		 getOrmClient().install(true,true);
+		 createDataModel(false).install(true,true);
 	}
 	 
 	
@@ -114,18 +115,20 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
         return jsonService;
     }
 
-    private DataModel createDataModel() {
+    private DataModel createDataModel(boolean register) {
 		DataModel result =  newDataModel(Bus.COMPONENTNAME,"Object Relational Mapper");
 		for (TableSpecs spec : TableSpecs.values()) {
 			spec.addTo(result);			
 		}
-		register(result);
+		if (register) {
+			register(result);
+		}
 		return result;
 	}
 
     @Activate
 	public void activate() {
-    	this.ormClient = new OrmClientImpl(createDataModel());
+    	this.ormClient = new OrmClientImpl(createDataModel(true));
 		Bus.setServiceLocator(this);
 	}
 	

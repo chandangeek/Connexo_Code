@@ -12,7 +12,8 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.UniqueConstraint;
-import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
@@ -28,40 +29,42 @@ import java.util.Map;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.util.Checks.is;
 
-public class TableImpl implements Table , PersistenceAware  {
+public class TableImpl implements Table {
 	
 	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
 	
 	// persistent fields
-	private String componentName;
 	private String schema;
 	private String name;
+	@SuppressWarnings("unused")
+	private int position;
 	private String journalTableName;
 	private boolean indexOrganized;
 	
 	// associations
-	private DataModel component;
-	private List<Column> columns;
-	private List<TableConstraint> constraints;
+	private Reference<DataModel> dataModel;
+	private final List<Column> columns = new ArrayList<>();
+	private final List<TableConstraint> constraints = new ArrayList<>();
 	
 	// mapping
 	private DataMapperType mapperType;
 	
 	// transient, protection against forgetting to call add() on a builder
 	private transient boolean activeBuilder;
+	
+	// cached fields , initialized when the table's datamodel is registered with the orm service.
+	private List<ForeignKeyConstraint> referenceConstraints = ImmutableList.of();
+	private List<ForeignKeyConstraint> reverseConstraints = ImmutableList.of();
 		
-	TableImpl(DataModel component, String schema, String name) {
-        assert component != null;
+	TableImpl(DataModel dataModel, String schema, String name, int position) {
         assert !is(name).emptyOrOnlyWhiteSpace();
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.component = component;
-		this.componentName = component.getName();
+		this.dataModel = ValueReference.of(dataModel);
 		this.schema = schema;
 		this.name = name;
-		this.columns = new ArrayList<>();
-		this.constraints = new ArrayList<>();
+		this.position = position;
 	}
 	
 	@SuppressWarnings("unused")
@@ -93,9 +96,6 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	private List<Column> doGetColumns() {
-		if (columns ==  null) {
-			columns = Bus.getOrmClient().getColumnFactory().find("table",this);				
-		}
 		return columns;
 	}
 	
@@ -105,9 +105,6 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	private List<TableConstraint> doGetConstraints() {
-		if (constraints ==  null) {
-			constraints = Bus.getOrmClient().getTableConstraintFactory().find("table",this);			
-		}
 		return constraints;
 	}
 	
@@ -118,24 +115,14 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public DataModel getDataModel() {
-		if (component == null) {
-			component = Bus.getOrmClient().getDataModelFactory().getExisting(componentName);
-		}
-		return component;
+		return dataModel.get();
 	}
 
 	@Override
 	public String getComponentName() {		
-		return componentName;
+		return getDataModel().getName();
 	}
 
-	@Override
-	public void postLoad() {
-		// do eager initialization in order to be thread safe
-		doGetColumns();
-		doGetConstraints();
-	}
-	
 	Column add(ColumnImpl column) {
 		activeBuilder = false;
 		doGetColumns().add(column);
@@ -205,34 +192,34 @@ public class TableImpl implements Table , PersistenceAware  {
 		return result.toArray(new Column[result.size()]);		
 	}
 
-	Column[] getInsertValueColumns() {
+	List<Column> getInsertValueColumns() {
 		List<Column> result = new ArrayList<>();
 		for (Column column : doGetColumns()) {
 			if (column.hasInsertValue()) {
 				result.add(column);
 			}
 		}		
-		return result.toArray(new Column[result.size()]);		
+		return result;		
 	}
 	
-	Column[] getUpdateValueColumns() {
+	List<Column> getUpdateValueColumns() {
 		List<Column> result = new ArrayList<>();
 		for (Column column : doGetColumns()) {
 			if (column.hasUpdateValue()) {
 				result.add(column);
 			}
 		}		
-		return result.toArray(new Column[result.size()]);		
+		return result;		
 	}
 	
-	Column[] getStandardColumns() {
+	List<Column> getStandardColumns() {
 		List<Column> result = new ArrayList<>();
 		for (Column column : doGetColumns()) {
 			if (((ColumnImpl) column).isStandard()) {
 				result.add(column);
 			}
 		}		
-		return result.toArray(new Column[result.size()]);		
+		return result;		
 	}		
 		
 	Column[] getAutoUpdateColumns() {
@@ -377,16 +364,6 @@ public class TableImpl implements Table , PersistenceAware  {
 	public <T> DataMapper<T> getDataMapper(Class<T> api , Map<String, Class<? extends T>> implementations) {
 		return new DataMapperImpl<>(api, new InheritanceDataMapperType<>(implementations), this);
 	}
-	
-	void persist() {
-		Bus.getOrmClient().getTableFactory().persist(this);
-		for (Column column : doGetColumns()) {
-			((ColumnImpl) column).persist();
-		}
-		for (TableConstraint tableConstraint : doGetConstraints()) {
-			((TableConstraintImpl) tableConstraint).persist();
-		}
-	}
 
 	@Override
 	public Column getColumnForField(String name) {
@@ -497,13 +474,13 @@ public class TableImpl implements Table , PersistenceAware  {
 
         TableImpl table = (TableImpl) o;
 
-        return componentName.equals(table.componentName) && name.equals(table.name);
+        return name.equals(table.name) && this.getDataModel().equals(table.getDataModel());
 
     }
 
   	@Override
 	public int hashCode() {
-		return componentName.hashCode() ^ name.hashCode();
+		return name.hashCode();
 	}
 
 	@Override
@@ -548,16 +525,26 @@ public class TableImpl implements Table , PersistenceAware  {
 		return null;
 	}
 	
+	List<ForeignKeyConstraint> getReferenceConstraints() {
+		return referenceConstraints;
+	}
+	
+	List<ForeignKeyConstraint> getReverseConstraints() {
+		return reverseConstraints;
+	}
+	
 	public FieldMapping getFieldMapping(String fieldName) {
 		if (fieldName == null) {
 			return null;
 		}
 		for (Column each : doGetColumns()) {
-			if (fieldName.equals(each.getFieldName())) {
-				return new ColumnMapping(each);
-			}
-			if (each.getFieldName().startsWith(fieldName + ".")) {
-				return new MultiColumnMapping(fieldName, getColumns());
+			if (each.getFieldName() != null) {
+				if (fieldName.equals(each.getFieldName())) {
+					return new ColumnMapping(each);
+				}
+				if (each.getFieldName().startsWith(fieldName + ".")) {
+					return new MultiColumnMapping(fieldName, getColumns());
+				}
 			}
 		}
 		for (ForeignKeyConstraint each : getForeignKeyConstraints()) {
@@ -613,6 +600,80 @@ public class TableImpl implements Table , PersistenceAware  {
 	@Override
 	public boolean maps(Class<?> clazz) {
 		return mapperType != null && mapperType.maps(clazz);
+	}
+
+	void prepare() {
+		checkActiveBuilder();
+		if (mapperType != null) {
+			buildReferenceConstraints();
+			buildReverseConstraints();
+		}
+		for (Column column : getColumns()) {
+			checkMapped(column);
+		}
+	}
+	
+	private void checkMapped (Column column) {
+		if (column.getFieldName() != null) {
+			return;
+		}
+		for (ForeignKeyConstraint constraint : getReferenceConstraints()) {
+			if (constraint.hasColumn(column)) {
+				return;
+			}
+		}
+		throw new IllegalStateException("Column " + column.getName() + " is not mapped");
+	}
+	
+	private void buildReferenceConstraints() {
+		ImmutableList.Builder<ForeignKeyConstraint> builder = new ImmutableList.Builder<>();
+		for (ForeignKeyConstraint constraint : getForeignKeyConstraints()) {
+			if (mapperType.isReference(constraint.getFieldName())) {
+				builder.add(constraint);
+			}
+		}
+		this.referenceConstraints = builder.build();		
+	}
+
+	private void buildReverseConstraints() {
+		ImmutableList.Builder<ForeignKeyConstraint> builder = new ImmutableList.Builder<>();
+		for (Table table : getDataModel().getTables()) {
+			if (!table.equals(this)) {
+				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
+					if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
+						builder.add(each);
+					}
+				}
+			}
+		}
+		this.reverseConstraints = builder.build();	
+	}
+	
+	boolean hasChildren() {
+		for (ForeignKeyConstraint constraint : reverseConstraints) {
+			if (constraint.isComposition()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	boolean isChild() {
+		for (ForeignKeyConstraint constraint : getForeignKeyConstraints()) {
+			if (constraint.isComposition()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	boolean hasAutoIncrementColumns() {
+		for (Column column : getColumns()) {
+			if (column.isAutoIncrement()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 	

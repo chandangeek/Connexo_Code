@@ -12,6 +12,7 @@ public interface TableConstraint {
 	boolean isPrimaryKey();
 	boolean isUnique();
 	boolean isForeignKey();
+	boolean hasColumn(Column column);
 	/**
 	 * 
 	 * @return false if at least one of the columns is nullable, true otherwise

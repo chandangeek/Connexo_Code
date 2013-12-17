@@ -8,5 +8,6 @@ interface  DataMapperType {
 	Class<?> getType(String fieldName);
 	Object getEnum(String fieldName, String value);
 	Object getDiscriminator(Class<?> clazz);
+	boolean isReference(String fieldName);
 	
 }

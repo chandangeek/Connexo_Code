@@ -1,38 +1,33 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.orm.internal.Bus;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class TableConstraintImpl implements TableConstraint , PersistenceAware {
+public abstract class TableConstraintImpl implements TableConstraint {
 	
-	public static final Map<String,Class<? extends TableConstraint>> implementers =  createImplementers();
+	public static final Map<String,Class<? extends TableConstraint>> implementers =  ImmutableMap.<String,Class<? extends TableConstraint>>of(
+			"PRIMARYKEY",PrimaryKeyConstraintImpl.class,
+			"UNIQUE",  UniqueConstraintImpl.class,
+			"FOREIGNKEY" , ForeignKeyConstraintImpl.class);
 	
-	static Map<String,Class<? extends TableConstraint>> createImplementers() {
-		Map<String,Class<? extends TableConstraint>> result = new HashMap<>();
-		result.put("PRIMARYKEY",PrimaryKeyConstraintImpl.class);
-		result.put("UNIQUE",  UniqueConstraintImpl.class);
-		result.put("FOREIGNKEY" , ForeignKeyConstraintImpl.class);
-		return result;
-	}
-	
-	// persistent fields
-	private String componentName;
-	private String tableName;	
 	private String name;
 	
 	// associations
-	private Table table;
-	private List<Column> columns;
+	private Reference<Table> table;
+	private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 	
 	TableConstraintImpl() {	
 	}
@@ -41,11 +36,8 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.table = table;
-		this.componentName = table.getComponentName();
-		this.tableName = table.getName();
+		this.table = ValueReference.of(table);
 		this.name = name;
-		this.columns = new ArrayList<>();
 	}
 
 	@Override
@@ -55,55 +47,35 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 
 	@Override
 	public List<Column> getColumns() {
-		return ImmutableList.copyOf(doGetColumns());
-	}
-	
-	private List<Column> doGetColumns() {
-		if (columns == null) {
-			List<ColumnInConstraintImpl> columnsInConstraint = Bus.getOrmClient().getColumnInConstraintFactory().find(
-					new String[] {"componentName","tableName","constraintName"} ,
-					new Object[] { getComponentName(), getTableName() , getName() } ,
-					"position");
-			columns = new ArrayList<>();
-			for (ColumnInConstraintImpl columnInConstraint : columnsInConstraint) {
-				columnInConstraint.doSetConstraint(this);
-				columns.add(columnInConstraint.getColumn());
-			}
+		ImmutableList.Builder<Column> builder = new ImmutableList.Builder<>();
+		for (ColumnInConstraintImpl each : columnHolders) {
+			builder.add(each.getColumn());
 		}
-		return columns;
+		return builder.build();
 	}
 
 	@Override
 	public Table getTable() {
-		if (table == null) {
-			table = Bus.getOrmClient().getTableFactory().getExisting(componentName, tableName);
-		}
-		return table;
+		return table.get();
 	}
 
-	@Override
-	public void postLoad() {	
-		// do eager initialization in order to be thread safe
-		doGetColumns();
-	}
-	
 	void add(Column column) {
-		doGetColumns().add(column);
+		columnHolders.add(new ColumnInConstraintImpl(this, column, columnHolders.size() + 1));
 	}
 
 	void add(Column[] columns) {
 		for (Column column : columns) {
-			doGetColumns().add(column);
+			add(column);
 		}
 	}
 	
 	String getComponentName() {
-		return componentName;
+		return getTable().getComponentName();
 	}
 
 
 	String getTableName() {
-		return tableName;
+		return getTable().getName();
 	}
 
 	@Override
@@ -120,18 +92,15 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 	public boolean isForeignKey() {
 		return false;
 	}
-
-	void persist() {
-		Bus.getOrmClient().getTableConstraintFactory().persist(this);		
-		int position = 1;
-		for (Column column : doGetColumns()) {
-			new ColumnInConstraintImpl(this, column, position++).persist();
-		}
+	
+	@Override
+	public boolean hasColumn(Column column) {
+		return getColumns().contains(column);
 	}
 	
 	@Override
 	public boolean isNotNull() {
-		for (Column each : doGetColumns()) {
+		for (Column each : getColumns()) {
 			if (!each.isNotNull())
 				return false;
 		}
@@ -140,10 +109,32 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 
 	@Override
 	public Object[] getColumnValues(Object value) {
-		int columnCount = getColumns().size();		
+		List<Column> columns = getColumns();
+		int columnCount = columns.size();		
 		Object[] result = new Object[columnCount]; 
 		for (int i = 0 ; i < columnCount ; i++) {
-			result[i] = DomainMapper.FIELDSTRICT.get(value, getColumns().get(i).getFieldName());
+			Column column = columns.get(i);
+			String fieldName = columns.get(i).getFieldName();
+			if (fieldName == null) {
+				for (ForeignKeyConstraint constraint : ((TableImpl) getTable()).getReferenceConstraints()) {
+					if (constraint.hasColumn(column)) {
+						Reference<?> reference = (Reference<?>) DomainMapper.FIELDSTRICT.get(value, constraint.getFieldName());
+						if (reference == null || !reference.isPresent()) {
+							result[i] = null;
+						}
+						int index = constraint.getColumns().indexOf(column);
+						if (reference instanceof PersistentReference<?>) {
+							result[i] = ((PersistentReference<?>) reference).getKeyPart(index);
+						} else {
+							result[i] = constraint.getReferencedTable().getPrimaryKey(reference.get())[index];
+						}
+						break;
+					}
+					throw new IllegalStateException("No mapping for Column " + column.getName());
+				}
+			} else {
+				result[i] = DomainMapper.FIELDSTRICT.get(value, columns.get(i).getFieldName());
+			}
 		}
 		return result;		
 	}
@@ -176,7 +167,7 @@ public abstract class TableConstraintImpl implements TableConstraint , Persisten
 	}
 
 	void validate() {
-		Objects.requireNonNull(componentName);
+		Objects.requireNonNull(getTable());
 		Objects.requireNonNull(name);
 		if (this.getColumns().isEmpty()) {
 			throw new IllegalArgumentException("Column list should not be emty");

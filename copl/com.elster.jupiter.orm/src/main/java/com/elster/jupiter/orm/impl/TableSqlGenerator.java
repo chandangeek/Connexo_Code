@@ -1,25 +1,23 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.Table;
 
 import java.util.List;
 
 public class TableSqlGenerator {
 	private final TableImpl table;
-	private final ColumnImpl[] allColumns;
+	//private final ColumnImpl[] allColumns;
 	
-	TableSqlGenerator(TableImpl table) {
-		this.table = table;
-		List<Column> columnList = table.getColumns();
-		allColumns = new ColumnImpl[columnList.size()];
-		columnList.toArray(allColumns);		
+	TableSqlGenerator(Table table) {
+		this.table = (TableImpl) table;		
 	}
 	
 	void appendColumns(StringBuilder sb , String separator , String alias) {
-		appendColumns(sb,separator,alias,allColumns);		
+		appendColumns(sb,separator,alias,table.getColumns());		
 	}
 	
-	void appendColumns(StringBuilder sb, String separator , String alias , Column[] columns) {
+	void appendColumns(StringBuilder sb, String separator , String alias , List<Column> columns) {
 		if (alias == null) {
 			alias = "";
 		}			
@@ -49,14 +47,14 @@ public class TableSqlGenerator {
     }
 
     String getSelectFromClause(String alias) {
-		return getSelectFromClause(allColumns,alias);
+		return getSelectFromClause(table.getColumns(),alias);
 	}
 
     String getSelectFromJournalClause(String alias) {
-        return getSelectFromJournalClause(allColumns,alias);
+        return getSelectFromJournalClause(table.getColumns(),alias);
     }
 
-    String getSelectFromClause(Column[] columns , String alias) {
+    String getSelectFromClause(List<Column> columns , String alias) {
 		StringBuilder sb = new StringBuilder("select");
 		appendColumns(sb, " " , alias , columns);		
 		sb.append(" from ");
@@ -64,7 +62,7 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 
-    String getSelectFromJournalClause(Column[] columns , String alias) {
+    String getSelectFromJournalClause(List<Column> columns , String alias) {
         StringBuilder sb = new StringBuilder("select ");
         if (alias != null && alias.length() > 0) {
         	sb.append(alias);
@@ -77,7 +75,7 @@ public class TableSqlGenerator {
         return sb.toString();
     }
 
-    String refreshSql(Column[] columnsToRefresh) {
+    String refreshSql(List<Column> columnsToRefresh) {
 		StringBuilder sb = new StringBuilder(getSelectFromClause(columnsToRefresh, null));
 		sb.append(" where ");
 		String separator = "";
@@ -95,14 +93,14 @@ public class TableSqlGenerator {
 		sb.append(table.getQualifiedName());
 		sb.append(" (");
 		String separator = "";
-		for (Column each : allColumns) {
+		for (Column each : table.getColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
 		}
 		sb.append(") values(");
 		separator = "";
-		for (Column each : allColumns) {		
+		for (Column each : table.getColumns()) {		
 			sb.append(separator);
 			if (useNextVal && each.isAutoIncrement()) {
 				sb.append(each.getQualifiedSequenceName());
@@ -134,7 +132,7 @@ public class TableSqlGenerator {
 		sb.append(" (");
 		sb.append(" select ");
 		String separator = "";
-		for (Column each : allColumns) {
+		for (Column each : table.getColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
@@ -158,7 +156,7 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 	
-	String updateSql(Column[] columns) {
+	String updateSql(List<Column> columns) {
 		StringBuilder sb = new StringBuilder("update ");
 		sb.append(table.getQualifiedName());
 		sb.append(" set ");
@@ -204,13 +202,12 @@ public class TableSqlGenerator {
 		return table;
 	}	
 	
-	ColumnImpl[] getColumns() {
-		return allColumns;
+	List<Column> getColumns() {
+		return table.getColumns();
 	}
 	
-	Column[] getPrimaryKeyColumns() {
-		List<Column> primaryKeyColumns = table.getPrimaryKeyColumns();
-		return primaryKeyColumns.toArray(new Column[primaryKeyColumns.size()]);
+	List<Column> getPrimaryKeyColumns() {
+		return table.getPrimaryKeyColumns();
 	}
 	
 	

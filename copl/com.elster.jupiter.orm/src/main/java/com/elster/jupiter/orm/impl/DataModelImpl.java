@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.RefAny;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.internal.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -22,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 
-public class DataModelImpl implements DataModel, PersistenceAware {
+public class DataModelImpl implements DataModel {
 
     // persistent fields
     private String name;
     private String description;
 
     // associations
-    private List<Table> tables;
+    private final List<Table> tables = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private DataModelImpl() {
@@ -38,7 +37,6 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     public DataModelImpl(String name, String description) {
         this.name = name;
         this.description = description;
-        this.tables = new ArrayList<>();
     }
 
     @Override
@@ -57,9 +55,6 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     }
 
     public List<Table> doGetTables() {
-        if (tables == null) {
-            tables = getOrmClient().getTableFactory().find("component", this);
-        }
         return tables;
     }
 
@@ -77,16 +72,20 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     public Table addTable(String tableName) {
         return addTable(null, tableName);
     }
+    
+    private void checkActiveBuilder() {
+    	if (!getTables().isEmpty()) {
+    		downCast(getTables().get(getTables().size()-1)).checkActiveBuilder();
+    	}
+    }
 
     @Override
     public Table addTable(String schema, String tableName) {
-    	if (!getTables().isEmpty()) {
-        	((TableImpl) getTables().get(getTables().size() - 1)).checkActiveBuilder();
-        }
+    	checkActiveBuilder();
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
         }
-        Table table = new TableImpl(this, schema, tableName);
+        Table table = new TableImpl(this, schema, tableName,getTables().size() + 1);
         add(table);
         return table;
     }
@@ -102,19 +101,10 @@ public class DataModelImpl implements DataModel, PersistenceAware {
 
     public void persist() {
         getOrmClient().getDataModelFactory().persist(this);
-        for (Table table : doGetTables()) {
-            ((TableImpl) table).persist();
-        }
-        Bus.getOrmService().register(this);
     }
 
     private OrmClient getOrmClient() {
         return Bus.getOrmClient();
-    }
-
-    @Override
-    public void postLoad() {
-        doGetTables();
     }
 
     @Override
@@ -162,7 +152,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
 
     private void doExecuteDdl(Statement statement) throws SQLException {
         for (Table table : getTables()) {
-            executeTableDdl(statement, (TableImpl) table);
+            executeTableDdl(statement, downCast(table));
         }
     }
 
@@ -207,5 +197,15 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     @Override
     public RefAny asRefAny(Object reference) {
     	return RefAnyImpl.of(reference);
+    }
+    
+    private TableImpl downCast(Table table) {
+    	return (TableImpl) table;
+    }
+    
+    void prepare() {
+    	for (Table each : getTables()) {
+    		downCast(each).prepare();
+    	}
     }
 }
