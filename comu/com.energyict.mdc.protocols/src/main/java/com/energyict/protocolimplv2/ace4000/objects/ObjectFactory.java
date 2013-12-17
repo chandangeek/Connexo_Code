@@ -923,14 +923,16 @@ public class ObjectFactory {
 
     private CollectedRegister createCommonRegister(RegisterValue registerValue, CanFindDevice deviceIdentifier) {
         //TODO should this be max demand register?
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), deviceIdentifier));
+        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(
+                new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), registerValue.getObisCode(), deviceIdentifier));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
     }
 
     private CollectedRegister createBillingRegister(RegisterValue registerValue) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
+        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(
+                new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;

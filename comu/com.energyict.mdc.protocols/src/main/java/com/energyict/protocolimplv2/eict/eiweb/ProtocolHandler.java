@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.comserver.exceptions.DeviceConfigurationException;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
@@ -20,9 +21,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdw.core.LogBookTypeFactory;
@@ -145,7 +146,13 @@ public class ProtocolHandler {
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
             ChannelInfo channelInfo = profileBuilder.getProfileData().getChannel(i);
-            PrimeRegisterForChannelIdentifier registerIdentifier = new PrimeRegisterForChannelIdentifier(this.getDeviceIdentifier(), channelInfo.getChannelId());
+            PrimeRegisterForChannelIdentifier registerIdentifier = null;
+            try {
+                registerIdentifier = new PrimeRegisterForChannelIdentifier(
+                        this.getDeviceIdentifier(), channelInfo.getChannelObisCode(), channelInfo.getChannelObisCode(), channelInfo.getChannelId());
+            } catch (IOException e) {
+                throw DeviceConfigurationException.channelNameNotAnObisCode(channelInfo.getName());
+            }
             DefaultDeviceRegister reading = new DefaultDeviceRegister(registerIdentifier);
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");

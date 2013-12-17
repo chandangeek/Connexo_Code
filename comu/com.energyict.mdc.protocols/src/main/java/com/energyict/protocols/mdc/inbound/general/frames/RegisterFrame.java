@@ -99,7 +99,7 @@ public class RegisterFrame extends AbstractInboundFrame {
     }
 
     private CanFindRegister getRegisterIdentifier(ObisCode registerObisCode){
-        return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifier());
+        return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, registerObisCode, getDeviceIdentifier());
     }
 
     private DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifier() {

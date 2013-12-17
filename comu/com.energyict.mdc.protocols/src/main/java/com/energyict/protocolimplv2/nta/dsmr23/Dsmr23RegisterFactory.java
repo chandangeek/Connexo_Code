@@ -313,7 +313,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CanFindRegister getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {

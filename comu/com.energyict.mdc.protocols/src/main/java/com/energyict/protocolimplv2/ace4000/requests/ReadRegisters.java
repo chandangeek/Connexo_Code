@@ -157,7 +157,8 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
                 }
             }
             if (!receivedRegister) {
-                CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
+                CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(
+                        new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
                 defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, MdcManager.getIssueCollector().addProblem(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
                 result.add(defaultDeviceRegister);
             }
