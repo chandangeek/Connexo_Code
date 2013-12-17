@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -36,8 +35,6 @@ public class RefAnyTest {
 
     @Mock
     private Principal principal;
-    @Mock
-    private LogService logService;
 
     @Before
     public void setUp() {   
@@ -45,7 +42,7 @@ public class RefAnyTest {
 					inMemoryBootstrapModule,
         			new UtilModule(), 
         			new ThreadSecurityModule(principal),
-        			new PubSubModule(logService),
+        			new PubSubModule(),
         			new TransactionModule(),        			        		
         			new OrmModule());	
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
