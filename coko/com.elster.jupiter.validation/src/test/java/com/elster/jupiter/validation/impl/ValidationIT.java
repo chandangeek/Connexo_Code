@@ -196,6 +196,8 @@ public class ValidationIT {
 
     @Test
     public void testValidation() {
+        when(channel1.isRegular()).thenReturn(true);
+        when(channel2.isRegular()).thenReturn(true);
         when(channel1.getIntervalReadings(readingType1, interval(date1, date5))).thenReturn(Arrays.asList(reading1_1, reading1_2, reading1_3, reading1_4, reading1_5));
         when(channel1.getIntervalReadings(readingType2, interval(date1, date5))).thenReturn(Arrays.asList(reading1_1, reading1_2, reading1_3, reading1_4, reading1_5));
         when(channel2.getIntervalReadings(readingType1, interval(date1, date5))).thenReturn(Arrays.asList(reading2_1, reading2_2, reading2_3, reading2_4, reading2_5));
