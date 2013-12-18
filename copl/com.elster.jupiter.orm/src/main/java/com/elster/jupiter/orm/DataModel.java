@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Optional;
+import com.google.inject.Injector;
 
 /**
  * @author kha
@@ -56,4 +57,7 @@ public interface DataModel {
     
     Optional<Table> getTable(Class<?> clazz);
     RefAny asRefAny(Object object);
+    void setInjector(Injector injector);
+    Optional<Injector> getInjector();
+    
 }

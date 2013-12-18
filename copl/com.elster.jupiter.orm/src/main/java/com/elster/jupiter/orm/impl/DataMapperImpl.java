@@ -393,4 +393,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public DataMapperWriter<T> getWriter() {
 		return writer;
 	}
+	
+	public T newInstance() {
+		return mapperType.newInstance((String) null);
+	}
+	
+	public <S extends T> S newInstance(Class<S> clazz) {
+		return mapperType.newInstance(clazz);
+	}
 }

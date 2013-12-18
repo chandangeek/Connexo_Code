@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.internal.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
 
 import oracle.jdbc.OracleConnection;
 
@@ -29,6 +30,9 @@ public class DataModelImpl implements DataModel {
 
     // associations
     private final List<Table> tables = new ArrayList<>();
+    
+    // transient fields
+    Optional<Injector> injector = Optional.absent();
 
     @SuppressWarnings("unused")
     private DataModelImpl() {
@@ -208,4 +212,15 @@ public class DataModelImpl implements DataModel {
     		downCast(each).prepare();
     	}
     }
+    
+    @Override
+    public void setInjector(Injector injector) {
+    	this.injector = Optional.of(injector);
+    }
+    
+    @Override
+    public Optional<Injector> getInjector() {
+    	return injector;
+    }
+    
 }

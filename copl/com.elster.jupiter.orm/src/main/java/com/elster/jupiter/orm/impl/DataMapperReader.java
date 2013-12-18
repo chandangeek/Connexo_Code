@@ -205,7 +205,7 @@ public class DataMapperReader<T> {
 	}
 	
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
-		T result = mapperType.hasMultiple() ? newInstance(rs,startIndex) : mapperType.<T>newInstance(null);
+		T result = mapperType.hasMultiple() ? newInstance(rs,startIndex) : mapperType.<T>newInstance();
 		List<Pair<Column, Object>> columnValues = new ArrayList<>();
 		DomainMapper mapper = mapperType.getDomainMapper();
 		for (Column column : getSqlGenerator().getColumns()) {

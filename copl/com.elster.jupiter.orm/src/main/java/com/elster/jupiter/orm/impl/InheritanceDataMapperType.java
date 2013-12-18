@@ -6,20 +6,29 @@ import java.util.Map;
 
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.google.common.base.Optional;
+import com.google.inject.Injector;
 
 public class InheritanceDataMapperType<T> implements DataMapperType {
 	private final Map<String,Class<? extends T>> implementations;
-	private final Map<String,Constructor<? extends T>> constructors = new HashMap<>();
+	private Map<String,Constructor<? extends T>> constructors = new HashMap<>();
+	private Optional<Injector> injector;
 	
 	public InheritanceDataMapperType(Map<String,Class<? extends T>> implementations) {
 		this.implementations = implementations;
-		for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
-			try {
-				Constructor<? extends T> constructor = entry.getValue().getDeclaredConstructor();
-				constructor.setAccessible(true);
-				constructors.put(entry.getKey(),constructor);
-			} catch (ReflectiveOperationException e) {
-				throw new MappingException(e);
+	}
+	
+	public void init(Optional<Injector> injector) {
+		this.injector = injector;
+		if (!injector.isPresent()) {
+			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
+				try {
+					Constructor<? extends T> constructor = entry.getValue().getDeclaredConstructor();
+					constructor.setAccessible(true);
+					constructors.put(entry.getKey(),constructor);
+				} catch (ReflectiveOperationException e) {
+					throw new MappingException(e);
+				}
 			}
 		}
 	}
@@ -39,18 +48,41 @@ public class InheritanceDataMapperType<T> implements DataMapperType {
 		return true;
 	}
 
+	@Override
+	public <S> S newInstance() {
+		throw new UnsupportedOperationException();
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public T newInstance(String discriminator) {
-		Constructor<? extends T> constructor = constructors.get(discriminator);
-		try {
-			return constructor == null ? null : constructor.newInstance();
-		} catch (ReflectiveOperationException ex) {
-			throw new MappingException(ex);
+		if (injector.isPresent()) {
+			return injector.get().getInstance(implementations.get(discriminator));
+		} else {
+			Constructor<? extends T> constructor = constructors.get(discriminator);
+			try {
+				return constructor == null ? null : constructor.newInstance();
+			} catch (ReflectiveOperationException ex) {
+				throw new MappingException(ex);
+			}
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
+	public <S> S newInstance(Class<S> clazz) {
+		if (injector.isPresent()) {
+			return injector.get().getInstance(clazz);
+		} else {
+			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
+				if (entry.getValue().equals(clazz)) {
+					return (S) newInstance(entry.getKey());
+				}
+			}
+			throw new IllegalArgumentException("" + clazz);
+		}
+	}
+	@Override 
 	public Class<?> getType(String fieldName) {
 		for (Class<?> implementation : implementations.values()) {
 			Class<?> result = getDomainMapper().getType(implementation, fieldName);

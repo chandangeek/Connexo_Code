@@ -357,12 +357,16 @@ public class TableImpl implements Table {
 		
 	@Override
 	public <T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation) {
-		return new DataMapperImpl<>(api, new SingleDataMapperType(implementation) ,this);
+		DataMapperType dmt = new SingleDataMapperType(implementation);
+		dmt.init(getDataModel().getInjector());
+		return new DataMapperImpl<>(api, dmt ,this);
 	}
 		
 	@Override
 	public <T> DataMapper<T> getDataMapper(Class<T> api , Map<String, Class<? extends T>> implementations) {
-		return new DataMapperImpl<>(api, new InheritanceDataMapperType<>(implementations), this);
+		DataMapperType dmt = new InheritanceDataMapperType<>(implementations);
+		dmt.init(getDataModel().getInjector());
+		return new DataMapperImpl<>(api, dmt, this);
 	}
 
 	@Override
@@ -605,6 +609,7 @@ public class TableImpl implements Table {
 	void prepare() {
 		checkActiveBuilder();
 		if (mapperType != null) {
+			mapperType.init(getDataModel().getInjector());
 			buildReferenceConstraints();
 			buildReverseConstraints();
 		}

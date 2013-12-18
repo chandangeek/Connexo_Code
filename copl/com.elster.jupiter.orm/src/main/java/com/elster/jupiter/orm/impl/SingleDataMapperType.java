@@ -4,19 +4,32 @@ import java.lang.reflect.Constructor;
 
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.google.common.base.Optional;
+import com.google.inject.Injector;
 
 public class SingleDataMapperType implements DataMapperType {
 	private final Class<?> implementation;
-	private final Constructor<?> constructor;
+	private Constructor<?> constructor;
+	private Optional<Injector> injector;
 	
 	public SingleDataMapperType(Class<?> clazz) {
 		this.implementation = clazz;
-		try {
-			constructor = clazz.getDeclaredConstructor();
-		} catch (ReflectiveOperationException e) {
-			throw new MappingException(e);
+		
+	}
+	
+	@Override
+	public void init(Optional<Injector> injector) {
+		this.injector = injector;
+		if (injector.isPresent()) {
+			constructor = null;
+		} else {
+			try {
+				constructor = implementation.getDeclaredConstructor();
+			} catch (ReflectiveOperationException e) {
+				throw new MappingException(e);
+			}
+			constructor.setAccessible(true);
 		}
-		constructor.setAccessible(true);
 	}
 
 	@Override
@@ -36,17 +49,32 @@ public class SingleDataMapperType implements DataMapperType {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T newInstance(String discriminator) {
-		if (discriminator != null) {
-			throw new IllegalArgumentException();
-		}
-		try {
-			return (T) constructor.newInstance();
-		} catch (ReflectiveOperationException ex) {
-			throw new MappingException(ex);
+	public <T> T newInstance() {
+		if (injector.isPresent()) {
+			return (T) injector.get().getInstance(implementation);
+		} else {
+			try {
+				return (T) constructor.newInstance();
+			} catch (ReflectiveOperationException ex) {
+				throw new MappingException(ex);
+			}
 		}
 	}
+	
+	@Override
+	public <T> T newInstance(String discriminator) {
+		throw new UnsupportedOperationException();
+	}
 
+	@Override
+	public <T> T newInstance(Class<T> clazz) {
+		if (clazz.equals(implementation)) {
+			return newInstance();
+		} else {
+			throw new IllegalArgumentException("" + clazz);
+		}
+	}
+	
 	@Override
 	public Class<?> getType(String fieldName) {
 		return getDomainMapper().getType(implementation, fieldName);
