@@ -19,66 +19,95 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.security.Principal;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
-public class PartyServiceImpl implements PartyService, InstallService, ServiceLocator {
+@Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
+public class PartyServiceImpl implements PartyService, InstallService {
+	
+	private volatile OrmService ormService;
+	private volatile CacheService cacheService;
     private volatile OrmClient ormClient;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile ComponentCache cache;
     private volatile Clock clock;
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile EventService eventService;
-
+    
     public PartyServiceImpl() {
     }
 
     @Inject
     public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, CacheService cacheService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
-        this.clock = clock;
-        initOrmClient(ormService);
-        this.queryService = queryService;
-        this.userService = userService;
-        initComponentCache(cacheService);
-        this.eventService = eventService;
-        this.threadPrincipalService = threadPrincipalService;
+        setClock(clock);
+        setOrmService(ormService);
+        setQueryService(queryService);
+        setUserService(userService);
+        setCacheService(cacheService);
+        setEventService(eventService);
+        setThreadPrincipalService(threadPrincipalService);
         activate();
         install();
     }
 
+    Module getModule() {
+    	return new AbstractModule() {	
+			@Override
+			public void configure() {
+				bind(OrmClient.class).toInstance(ormClient);
+				bind(EventService.class).toInstance(eventService);
+				bind(Clock.class).toInstance(clock);
+				bind(UserService.class).toInstance(userService);
+			}
+		}; 	
+    }
+    
     @Activate
     public void activate() {
-        Bus.setServiceLocator(this);
+    	DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "Party Management");
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
+        ComponentCache cache = cacheService.createComponentCache(dataModel);
+        ormClient = new OrmClientImpl(dataModel,cache);
+        dataModel.setInjector(Guice.createInjector(getModule()));
+        ormService.register(dataModel);
     }
 
 	@Override
 	public PartyRole createRole(String componentName, String mRID, String name, String aliasName , String description) {
-		PartyRoleImpl result = new PartyRoleImpl(componentName, mRID, name, aliasName, description);
+		PartyRoleImpl result = ormClient.getPartyRoleFactory().newInstance(PartyRoleImpl.class).init(componentName, mRID, name, aliasName, description);
 		ormClient.getPartyRoleFactory().persist(result);
 		return result;
 	}
 
-    @Deactivate
-	public void deactivate() {
-		Bus.clearServiceLocator(this);
+	void clearRoleCache() {
+		cacheService.refresh(COMPONENTNAME, TableSpecs.PRT_PARTYROLE.name());
+	}
+	
+	@Override
+	public Optional<PartyRole> getRole(String mRID) {
+		return ormClient.getPartyRoleFactory().get(mRID);
 	}
 
     @Override
     public void deletePartyRole(PartyRole partyRole) {
-        getOrmClient().getPartyRoleFactory().remove(partyRole);
+        ormClient.getPartyRoleFactory().remove(partyRole);
     }
 
     @Override
     public Optional<Party> findParty(long id) {
-        return getOrmClient().getPartyFactory().get(id);
+        return ormClient.getPartyFactory().get(id);
     }
 
     public Optional<PartyRole> findPartyRoleByMRID(String mRID) {
@@ -88,24 +117,6 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
             }
         }
         return Optional.absent();
-    }
-
-    @Override
-    public ComponentCache getCache() {
-        return cache;
-    }
-
-    public Clock getClock() {
-        return clock;
-    }
-
-    public EventService getEventService() {
-        return eventService;
-    }
-
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
     }
 
     @Override
@@ -127,18 +138,15 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Override
     public Query<Party> getPartyQuery() {
-        return getQueryService().wrap(getOrmClient().getPartyFactory().with(
-        		getOrmClient().getPartyInRoleFactory(),
-        		getOrmClient().getPartyRepresentationFactory()));
+    	return queryService.wrap(ormClient.getPartyQuery());
     }
 
     @Override
     public List<PartyRole> getPartyRoles() {
-        return getOrmClient().getPartyRoleFactory().find();
+        return ormClient.getPartyRoleFactory().find();
     }
-
-    @Override
-    public Principal getPrincipal() {
+    
+    private Principal getPrincipal() {
         return threadPrincipalService.getPrincipal();
     }
 
@@ -147,28 +155,25 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     }
 
     @Override
-    public UserService getUserService() {
-        return userService;
-    }
-
-    @Override
     public void install() {
-        new InstallerImpl().install(true, true, true);
+        new InstallerImpl(ormClient,eventService).install(true, true, true);
     }
 
     @Override
     public Organization newOrganization(String mRID) {
-        return new OrganizationImpl(mRID);
+    	return ormClient.getPartyFactory().newInstance(OrganizationImpl.class).init(mRID);
     }
 
     @Override
     public Person newPerson(String firstName, String lastName) {
-        return new PersonImpl(firstName, lastName);
+    	PersonImpl result = ormClient.getPartyFactory().newInstance(PersonImpl.class);
+        result.init(firstName,lastName);
+        return result;
     }
 
-    @Reference(name = "ZCacheService")
+    @Reference
     public void setCacheService(CacheService cacheService) {
-        initComponentCache(cacheService);
+    	this.cacheService = cacheService;
     }
 
     @Reference
@@ -183,7 +188,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        initOrmClient(ormService);
+        this.ormService = ormService;
     }
 
     @Reference
@@ -203,24 +208,13 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Override
     public void updateRepresentation(PartyRepresentation representation) {
-        getOrmClient().getPartyRepresentationFactory().update(representation);
+        ormClient.getPartyRepresentationFactory().update(representation);
     }
 
     @Override
     public void updateRole(PartyRole partyRole) {
-        getOrmClient().getPartyRoleFactory().update(partyRole);
+        ormClient.getPartyRoleFactory().update(partyRole);
     }
 
-    private void initComponentCache(CacheService cacheService) {
-        this.cache = cacheService.createComponentCache(ormClient.getDataModel());
-    }
 
-    private void initOrmClient(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Party Management");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
-        ormService.register(dataModel);
-        ormClient = new OrmClientImpl(dataModel);
-    }
 }

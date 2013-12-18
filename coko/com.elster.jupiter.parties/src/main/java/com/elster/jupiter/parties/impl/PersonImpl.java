@@ -1,6 +1,9 @@
 package com.elster.jupiter.parties.impl;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.parties.Person;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -14,19 +17,20 @@ public final class PersonImpl extends PartyImpl implements Person {
 	private String suffix;
 	private String specialNeed;
 
-    @SuppressWarnings("unused")
-    private PersonImpl() {
+    @Inject 
+    PersonImpl(OrmClient client, EventService eventService) {
+    	super(client,eventService);
     }
 
     /**
      * @param firstName should not be null nor empty
      * @param lastName should not be null nor empty
      */
-	PersonImpl(String firstName, String lastName) {
-        super();
+	PersonImpl init(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
         validate();
+        return this;
     }
 
     private void validate() {

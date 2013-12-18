@@ -1,5 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -19,8 +21,8 @@ class PartyRoleImpl implements PartyRole {
 	@SuppressWarnings("unused")
 	private String userName;
 	
-	@SuppressWarnings("unused")
-	private PartyRoleImpl() {		
+	@Inject
+	PartyRoleImpl() {		
 	}
 
     /**
@@ -30,13 +32,14 @@ class PartyRoleImpl implements PartyRole {
      * @param aliasName
      * @param description
      */
-	PartyRoleImpl(String componentName , String mRID , String name , String aliasName , String description) {
+	PartyRoleImpl init(String componentName , String mRID , String name , String aliasName , String description) {
         validate(mRID);
 		this.componentName = componentName;
 		this.mRID = mRID;
 		this.name = name;
 		this.aliasName = aliasName;
 		this.description = description;
+		return this;
 	}
 
     private void validate(String mRID) {

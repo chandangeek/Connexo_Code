@@ -1,27 +1,29 @@
 package com.elster.jupiter.parties.impl;
 
+import static com.elster.jupiter.parties.impl.TableSpecs.PRT_PARTY;
+import static com.elster.jupiter.parties.impl.TableSpecs.PRT_PARTYINROLE;
+import static com.elster.jupiter.parties.impl.TableSpecs.PRT_PARTYREP;
+import static com.elster.jupiter.parties.impl.TableSpecs.PRT_PARTYROLE;
+
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 
-import static com.elster.jupiter.parties.impl.TableSpecs.*;
-
 
 class OrmClientImpl implements OrmClient {
 	
 	private final DataModel dataModel;
+	private final ComponentCache cache;
 	
-	OrmClientImpl(DataModel dataModel) {
+	OrmClientImpl(DataModel dataModel, ComponentCache cache) {
 		this.dataModel = dataModel;
-	}
-	
-	@Override
-	public DataModel getDataModel() {
-		return dataModel;
+		this.cache = cache;
 	}
 
 	@Override
@@ -41,11 +43,17 @@ class OrmClientImpl implements OrmClient {
 
 	@Override
 	public TypeCache<PartyRole> getPartyRoleFactory() {
-		return Bus.getCache().getTypeCache(PartyRole.class, PRT_PARTYROLE.name());
+		return cache.getTypeCache(PartyRole.class, PRT_PARTYROLE.name());
 	}
 	
 	@Override
 	public void install(boolean executeDdl,boolean saveMappings) {
 		dataModel.install(executeDdl,saveMappings);		
 	}
+
+	@Override
+	public QueryExecutor<Party> getPartyQuery() {
+		return getPartyFactory().with(getPartyInRoleFactory(),getPartyRepresentationFactory());
+	}
+	
 }

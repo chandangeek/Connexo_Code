@@ -1,7 +1,10 @@
 package com.elster.jupiter.parties.impl;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.cbo.PostalAddress;
 import com.elster.jupiter.cbo.StreetAddress;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.parties.Organization;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -11,15 +14,15 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
 	private PostalAddress postalAddress;
 	private StreetAddress streetAddress;
 	
-	@SuppressWarnings("unused")
-	private OrganizationImpl() {
-		super();
+	@Inject
+	private OrganizationImpl(OrmClient ormClient, EventService eventService) {
+		super(ormClient,eventService);
 	}
 
-    OrganizationImpl(String mRID) {
-        super();
+    OrganizationImpl init(String mRID) {
         validateMRID(mRID);
         setMRID(mRID);
+        return this;
     }
 
     private void validateMRID(String mRID) {

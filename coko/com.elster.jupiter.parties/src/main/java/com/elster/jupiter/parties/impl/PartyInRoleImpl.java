@@ -5,11 +5,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
@@ -24,16 +27,22 @@ public class PartyInRoleImpl implements PartyInRole {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String userName;
+    
+    private final OrmClient ormClient;
+    private final Clock clock;
 
-	@SuppressWarnings("unused")
-	private PartyInRoleImpl() {
+	@Inject
+	PartyInRoleImpl(OrmClient ormClient, Clock clock) {
+		this.ormClient = ormClient;
+		this.clock = clock;
 	}
 	
-	PartyInRoleImpl(Party party , PartyRole role , Interval interval) {
+	PartyInRoleImpl init(Party party , PartyRole role , Interval interval) {
 		this.party = ValueReference.of(party);
 		this.role = role;
 		this.roleMRID = role.getMRID();
 		this.interval = interval;
+		return this;
 	}
 	
 	@Override
@@ -49,14 +58,14 @@ public class PartyInRoleImpl implements PartyInRole {
 	@Override
 	public PartyRole getRole() {
 		if (role == null) {
-			role = Bus.getOrmClient().getPartyRoleFactory().getExisting(roleMRID);
+			role = ormClient.getPartyRoleFactory().getExisting(roleMRID);
 		}
 		return role;
 	}
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent(Bus.getClock());
+		return interval.isCurrent(clock);
 	}
 
 	@Override

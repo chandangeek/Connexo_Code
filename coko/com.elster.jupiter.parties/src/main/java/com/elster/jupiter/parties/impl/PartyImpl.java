@@ -2,6 +2,7 @@ package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
@@ -20,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 abstract class PartyImpl implements Party {
     // ORM inheritance map
@@ -43,21 +46,28 @@ abstract class PartyImpl implements Party {
    	private final List<PartyInRole> partyInRoles = new ArrayList<>();
    	private final List<PartyRepresentation> representations = new ArrayList<>();
    	
-    PartyImpl() {
+   	// transient
+   	private final OrmClient ormClient;
+   	private final EventService eventService;
+   	
+   	@Inject
+    PartyImpl(OrmClient ormClient , EventService eventService) {
+    	this.ormClient = ormClient;
+    	this.eventService = eventService;
 	}
 
     @Override
     public PartyRepresentation appointDelegate(User user, Date start) {
         Interval interval = Interval.startAt(start);
         validateAddingDelegate(user, interval);
-        PartyRepresentationImpl representation = new PartyRepresentationImpl(this, user, interval);
+        PartyRepresentationImpl representation = ormClient.getPartyRepresentationFactory().newInstance(PartyRepresentationImpl.class).init(this, user, interval);
         representations.add(representation);
         return representation;
     }
 
     @Override
     public PartyInRole assumeRole(PartyRole role, Date start) {
-        PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, Interval.startAt(start));
+        PartyInRoleImpl candidate = ormClient.getPartyInRoleFactory().newInstance(PartyInRoleImpl.class).init(this, role, Interval.startAt(start));
         validateAddingRole(candidate);
         partyInRoles.add(candidate);
         return candidate;
@@ -65,7 +75,7 @@ abstract class PartyImpl implements Party {
 
     public void delete() {
         partyFactory().remove(this);
-        Bus.getEventService().postEvent(EventType.PARTY_DELETED.topic(), this);
+        eventService.postEvent(EventType.PARTY_DELETED.topic(), this);
     }
 
     @Override
@@ -140,10 +150,10 @@ abstract class PartyImpl implements Party {
     public void save() {
         if (getId() == 0) {
             partyFactory().persist(this);
-            Bus.getEventService().postEvent(EventType.PARTY_CREATED.topic(), this);
+            eventService.postEvent(EventType.PARTY_CREATED.topic(), this);
         } else {
             partyFactory().update(this);
-            Bus.getEventService().postEvent(EventType.PARTY_UPDATED.topic(), this);
+            eventService.postEvent(EventType.PARTY_UPDATED.topic(), this);
         }
     }
 
@@ -192,7 +202,7 @@ abstract class PartyImpl implements Party {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);
-        Bus.getOrmClient().getPartyInRoleFactory().update(toUpdate);
+        ormClient.getPartyInRoleFactory().update(toUpdate);
         return toUpdate;
     }
 
@@ -211,7 +221,7 @@ abstract class PartyImpl implements Party {
         for (PartyRepresentation representation : representations) {
             if (representation.getDelegate().equals(user) && representation.getInterval().contains(end,Interval.EndpointBehavior.CLOSED_OPEN)) {
                 representation.setInterval(representation.getInterval().withEnd(end));
-                Bus.getOrmClient().getPartyRepresentationFactory().update(representation);
+                ormClient.getPartyRepresentationFactory().update(representation);
                 save();
                 return;
             }
@@ -247,7 +257,7 @@ abstract class PartyImpl implements Party {
     }
 
     private DataMapper<Party> partyFactory() {
-        return Bus.getOrmClient().getPartyFactory();
+        return ormClient.getPartyFactory();
     }
 
     private void validateAddingDelegate(User user, Interval interval) {

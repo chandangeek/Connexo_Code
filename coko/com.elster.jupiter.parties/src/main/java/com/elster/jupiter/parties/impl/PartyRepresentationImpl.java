@@ -5,10 +5,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 final class PartyRepresentationImpl implements PartyRepresentation {
 
@@ -27,21 +31,28 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private Reference<Party> party;
     private User delegateUser;
 
-	@SuppressWarnings("unused")
-	private PartyRepresentationImpl() {	
+    //
+    private final UserService userService;
+    private final Clock clock;
+    
+	@Inject
+	private PartyRepresentationImpl(UserService userService,Clock clock) {
+		this.userService = userService;
+		this.clock = clock;
 	}
 	
-	PartyRepresentationImpl(Party party, User delegate, Interval interval) {
+	PartyRepresentationImpl init(Party party, User delegate, Interval interval) {
 		this.party = ValueReference.of(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
         this.interval = interval;
+        return this;
 	}
 
     @Override
     public User getDelegate() {
         if (delegateUser == null) {
-            delegateUser = Bus.getUserService().findUser(delegate).orNull();
+            delegateUser = userService.findUser(delegate).orNull();
         }
 		return delegateUser;
 	}
@@ -58,7 +69,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 
     @Override
     public boolean isCurrent() {
-		return interval.isCurrent(Bus.getClock());
+		return interval.isCurrent(clock);
 	}
 
     @Override

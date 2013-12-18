@@ -1,18 +1,16 @@
 package com.elster.jupiter.parties.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import java.sql.SQLException;
 import java.util.Date;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.mockito.Mockito.mock;
-
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
@@ -33,7 +31,6 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -43,8 +40,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyCrudTest {
@@ -155,5 +150,25 @@ public class PartyCrudTest {
     		organization.assumeRole(role, new Date());
     		context.commit();
     	}
+    }
+    
+    @Test
+    public void testPartyRoleCache() {
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		for (int i = 10 ; i < 20 ; i++) {
+    			String name = "M" + i;
+    			getPartyService().createRole("XAZ", name , name , name , name);
+    		}
+    		context.commit();
+    	}
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10);
+    		assertThat(getPartyService().getRole("M15")).isPresent();
+    		assertThat(getPartyService().getRole("M1599")).isAbsent();
+    		context.commit();
+    		assertThat(context.getStats().getSqlCount()).isEqualTo(1);
+    	}
+    	((PartyServiceImpl) getPartyService()).clearRoleCache();
+    	assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10);
     }
 }

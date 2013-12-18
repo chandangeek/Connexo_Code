@@ -1,8 +1,10 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.parties.PartyService;
 
 public enum EventType {
 
@@ -28,10 +30,10 @@ public enum EventType {
     }
 
     @TransactionRequired
-    public void install() {
-        EventTypeBuilder builder = Bus.getEventService().buildEventTypeWithTopic(topic())
+    public void install(EventService eventService) {
+        EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(Bus.COMPONENTNAME)
+                .component(PartyService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
                 .shouldPublish()

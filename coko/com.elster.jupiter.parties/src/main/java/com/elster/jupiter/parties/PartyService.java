@@ -6,7 +6,9 @@ import com.google.common.base.Optional;
 import java.util.List;
 
 public interface PartyService {
-
+	
+	static String COMPONENTNAME = "PRT";
+	
     Optional<Party> getParty(String mRID);
 
     List<Party> getParties();
@@ -30,4 +32,6 @@ public interface PartyService {
     void updateRole(PartyRole partyRole);
 
     void updateRepresentation(PartyRepresentation representation);
+
+	Optional<PartyRole> getRole(String mRID);
 }
