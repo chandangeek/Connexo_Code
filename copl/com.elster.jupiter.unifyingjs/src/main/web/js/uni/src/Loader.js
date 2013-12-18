@@ -44,6 +44,7 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.override.ApplicationOverride');
         Ext.require('Uni.override.CheckboxOverride');
         Ext.require('Uni.override.FieldBaseOverride');
+        Ext.require('Uni.override.LabelableOverride');
         Ext.require('Uni.override.JsonWriterOverride');
         Ext.require('Uni.override.RestOverride');
         Ext.require('Uni.override.StoreOverride');
