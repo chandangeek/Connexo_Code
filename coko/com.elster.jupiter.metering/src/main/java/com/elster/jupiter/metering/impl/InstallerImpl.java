@@ -1,5 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -8,10 +13,16 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.streams.BufferedReaderIterable;
 import org.joda.time.MutableDateTime;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.elster.jupiter.ids.FieldType.*;
@@ -21,6 +32,7 @@ public class InstallerImpl {
 
     private static final int SLOT_COUNT = 8;
     private static final int MONTHS_PER_YEAR = 12;
+    private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
 
     public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
         try {
@@ -53,8 +65,51 @@ public class InstallerImpl {
     }
 
     private void createEndDeviceEventTypes() {
-        //TODO automatically generated method body, provide implementation.
+        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_FILE_NAME)) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+            for (String line : new BufferedReaderIterable(reader)) {
+                String[] fields = line.split(",");
 
+                for (EndDeviceType deviceType : endDeviceTypes(fields[0])) {
+                    for (EndDeviceDomain domain : domains(fields[1])) {
+                        for (EndDeviceSubDomain subDomain : subDomains(fields[2])) {
+                            for (EndDeviceEventorAction eventOrAction : eventOrActions(fields[3])) {
+                                String code = EndDeviceEventTypeCodeBuilder
+                                        .type(deviceType)
+                                        .domain(domain)
+                                        .subDomain(subDomain)
+                                        .eventOrAction(eventOrAction)
+                                        .toCode();
+                                Bus.getOrmClient().getEndDeviceEventTypeFactory().persist(new EndDeviceEventTypeImpl(code));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Iterable<EndDeviceEventorAction> eventOrActions(String field) {
+        return "*".equals(field) ? Arrays.asList(EndDeviceEventorAction.values()) : "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceEventorAction.NA) : Arrays.asList(EndDeviceEventorAction.valueOf(sanitized(field)));
+    }
+
+    private String sanitized(String field) {
+        return field.toUpperCase().replaceAll("[\\-%]", "");
+    }
+
+    private Iterable<EndDeviceSubDomain> subDomains(String field) {
+        Iterable<EndDeviceSubDomain> result = "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceSubDomain.NA) : Arrays.asList(EndDeviceSubDomain.valueOf(sanitized(field)));
+        return "*".equals(field) ? Arrays.asList(EndDeviceSubDomain.values()) : result;
+    }
+
+    private Iterable<EndDeviceDomain> domains(String field) {
+        return "*".equals(field) ? Arrays.asList(EndDeviceDomain.values()) : "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceDomain.NA) : Arrays.asList(EndDeviceDomain.valueOf(sanitized(field)));
+    }
+
+    private Iterable<EndDeviceType> endDeviceTypes(String field) {
+        return "*".equals(field) ? Arrays.asList(EndDeviceType.values()) : "n/a".equalsIgnoreCase(field) ? Arrays.asList(EndDeviceType.NA) : Arrays.asList(EndDeviceType.valueOf(sanitized(field)));
     }
 
     private void createAmrSystems() {
@@ -140,9 +195,9 @@ public class InstallerImpl {
     }
 
     private void createReadingTypes() {
-    	for (ReadingTypeImpl readingType : ReadingTypeGenerator.generate()) {
-    		readingType.persist();
-    	}
+        for (ReadingTypeImpl readingType : ReadingTypeGenerator.generate()) {
+            readingType.persist();
+        }
     }
 
     private void createPartyRoles(PartyService partyService) {
