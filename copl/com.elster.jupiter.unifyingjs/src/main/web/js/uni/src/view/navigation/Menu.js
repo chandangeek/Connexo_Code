@@ -1,31 +1,30 @@
 Ext.define('Uni.view.navigation.Menu', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.navigationMenu',
     requires: [
         'Ext.layout.container.Card'
     ],
-    title: 'Menu',
-    cls: 'nav-menu',
-    layout: {
-        type: 'hbox',
-        align: 'stretch'
-    },
 
-    collapsed: false,
-    collapsedWidth: 55,
-    expandedWidth: 220,
+    layout: 'fit',
 
-    initComponent: function () {
-        var me = this;
+    items: [
+        {
+            xtype: 'panel',
+            itemId: 'menu-main',
+            cls: 'nav-menu',
+            headerPosition: 'left',
+//            collapsed: true,
+//            collapsible: true,
+//            collapseMode: 'header',
+//            titleCollapse: false,
+//            floatable: true,
 
-        me.setWidth(me.expandedWidth);
+            layout: 'card',
 
-        me.items = [
-            {
+            header: {
                 xtype: 'container',
-                itemId: 'menu-main',
                 cls: 'nav-menu-main',
-                width: me.expandedWidth,
+                width: 55,
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -34,67 +33,45 @@ Ext.define('Uni.view.navigation.Menu', {
                     xtype: 'button',
                     hrefTarget: '_self',
                     toggleGroup: 'menu-items',
+                    action: 'menu-main',
                     enableToggle: true,
                     allowDepress: false,
                     cls: 'menu-item',
                     tooltipType: 'title',
                     scale: 'large'
                 }
-            },
-            {
-                xtype: 'container',
-                itemId: 'menu-sub',
-                cls: 'nav-menu-sub',
-                flex: 1,
-                layout: {
-                    type: 'card',
-                    deferredRender: true
-                }
             }
-        ];
-
-        this.callParent(arguments);
-    },
+        }
+    ],
 
     removeAllMenuItems: function () {
-        var mainMenu = this.getComponent('menu-main');
-        mainMenu.removeAll();
+        var menu = this.getComponent('menu-main');
+        menu.removeAll();
     },
 
     addMenuItem: function (model) {
         var me = this,
-            item = me.createMenuItemFromModel(model),
-            mainMenu = me.getComponent('menu-main'),
-            subMenu = me.getComponent('menu-sub');
+            item = me.createMainItemFromModel(model),
+            menu = me.getComponent('menu-main'),
+            menuHeader = menu.getHeader();
 
-        // TODO Support adding child menu items.
+        var card = me.createMenu(model);
+        model.children().data.items.forEach(function (child) {
+            card.add(me.createMenuItemFromModel(child));
+        });
 
-        var children = model.children().data.items;
-        if (children.length > 0) {
-            var card = me.createSubMenu();
-
-            for (var i = 0; i < model.children().data.length; i++) {
-                var child = model.children().data.items[i];
-                card.add(me.createMenuItemFromModel(child));
-            }
-
-            subMenu.add(card);
-            // TODO Show an icon that indicates there is a sub menu.
-        } else {
-            // TODO
-        }
+        menu.add(card);
 
         // TODO Sort the buttons on their model's index value, instead of relying on insert.
-        if (model.data.index == '' || model.data.index == null || model.data.index === undefined) {
-            mainMenu.add(item);
+        if (model.data.index === '' || model.data.index === null || model.data.index === undefined) {
+            menuHeader.add(item);
         } else {
-            mainMenu.insert(model.data.index, item);
+            menuHeader.insert(model.data.index, item);
         }
     },
 
-    createMenuItemFromModel: function (model) {
+    createMainItemFromModel: function (model) {
         return {
-            text: model.data.text,
             tooltip: model.data.text,
             href: model.data.href,
             glyph: model.data.glyph,
@@ -102,12 +79,22 @@ Ext.define('Uni.view.navigation.Menu', {
         };
     },
 
-    createSubMenu: function () {
+    createMenuItemFromModel: function (model) {
+        return {
+            text: model.data.text,
+            href: model.data.href,
+            data: model
+        };
+    },
+
+    createMenu: function (model) {
         return Ext.create('Ext.container.Container', {
+            cls: 'nav-menu-sub',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
+            width: 190,
             defaults: {
                 xtype: 'button',
                 hrefTarget: '_self',
@@ -117,44 +104,79 @@ Ext.define('Uni.view.navigation.Menu', {
                 cls: 'menu-item',
                 tooltipType: 'title',
                 scale: 'large'
-            }
+            },
+            items: [
+                {
+                    xtype: 'component',
+                    html: '<h2>' + model.data.text + '</h2>'
+                }
+            ]
         });
-    },
-
-    // TODO Use CSS classes to expand/collapse the menu.
-
-    collapse: function () {
-        this.collapsed = true;
-        this.setWidth(this.collapsedWidth);
-    },
-
-    expand: function () {
-        this.collapsed = false;
-        this.setWidth(this.expandedWidth);
-    },
-
-    collapseSub: function () {
-        var mainMenu = this.getComponent('menu-main');
-        mainMenu.setWidth(this.expandedWidth);
-    },
-
-    expandSub: function () {
-        var mainMenu = this.getComponent('menu-main');
-        mainMenu.setWidth(this.collapsedWidth);
     },
 
     selectMenuItem: function (model) {
         var me = this,
             itemId = model.id,
-            mainMenu = me.getComponent('menu-main');
+            menu = me.getComponent('menu-main'),
+            menuHeader = me.getComponent('menu-main').getHeader();
 
-        // TODO Support selecting a sub menu.
-        for (var i = 0; i < mainMenu.items.items.length; i++) {
-            var menuItem = mainMenu.items.items[i];
-            if (itemId == menuItem.data.id) {
-                menuItem.toggle(true, false);
-                break;
+        menuHeader.items.items.forEach(function (item, index) {
+            if (itemId === item.data.id) {
+                item.toggle(true, false);
+                menu.getLayout().setActiveItem(index);
+                return;
             }
-        }
+        });
+    },
+
+    showActiveMenu: function () {
+        var me = this,
+            menu = me.getComponent('menu-main'),
+            menuHeader = menu.getHeader();
+
+        menuHeader.items.items.forEach(function (item, index) {
+            if (item.pressed) {
+                menu.getLayout().setActiveItem(index);
+                return;
+            }
+        });
+    },
+
+    peekMenuItem: function (itemId) {
+        var me = this,
+            menu = me.getComponent('menu-main'),
+            menuHeader = menu.getHeader();
+
+        menuHeader.items.items.forEach(function (item, index) {
+            if (itemId === item.data.id) {
+                menu.getLayout().setActiveItem(index);
+                return;
+            }
+        });
+    },
+
+    floatCollapsedMenu: function () {
+        this.getPlaceholder();
+        this.floatCollapsedPanel();
+    },
+
+    highlightActiveMenu: function () {
+        var me = this,
+            menu = me.getComponent('menu-main'),
+            menuHeader = menu.getHeader(),
+            itemId = menu.items.indexOf(menu.getLayout().getActiveItem());
+
+        menuHeader.items.items.forEach(function (item, index) {
+            if (itemId === index && !item.pressed) {
+                item.addCls('highlighted');
+            } else {
+                item.removeCls('highlighted');
+            }
+        });
+    },
+
+    collapseMenu: function () {
+        // TODO Make this a more visually fluent action.
+//        this.getComponent('menu-main').collapse();
     }
 });

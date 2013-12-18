@@ -12,10 +12,6 @@ Ext.define('Uni.controller.Navigation', {
 
     refs: [
         {
-            ref: 'appSwitcher',
-            selector: 'navigationAppSwitcher'
-        },
-        {
             ref: 'navigationMenu',
             selector: 'viewport > navigationMenu'
         },
@@ -29,6 +25,10 @@ Ext.define('Uni.controller.Navigation', {
         }
     ],
 
+    config: {
+        menuTask: undefined
+    },
+
     init: function () {
         var me = this,
             eventBus = this.getController('Uni.controller.history.EventBus');
@@ -38,20 +38,27 @@ Ext.define('Uni.controller.Navigation', {
         }, undefined);
 
         this.initMenuItems();
-        this.initAppItems();
+//        this.initAppItems();
 
         this.control({
             'navigationMenu #menu-main': {
-                beforerender: this.refreshNavigationMenu
+                afterrender: this.refreshNavigationMenu
             },
-            'navigationMenu #menu-main button': {
-                click: this.showSubMenu,
-                mouseover: this.peekSubMenu
+            'navigationMenu button[action=menu-main]': {
+                mouseover: this.peekCollapsedMenu
             },
             'navigationAppSwitcher': {
                 afterrender: this.resetAppSwitcherState
+            },
+            'navigationMenu': {
+                afterrender: this.initNavigationEvents
             }
         });
+    },
+
+    initNavigationEvents: function (panel) {
+        panel.body.on('mouseover', this.highlightMenu, this);
+        panel.body.on('mouseout', this.collapseMenu, this);
     },
 
     initMenuItems: function () {
@@ -97,6 +104,9 @@ Ext.define('Uni.controller.Navigation', {
                 menu.addMenuItem(record);
             });
         }
+
+//        this.getNavigationMenu().body.on('mouseover', this.cancelCurrentTask);
+//        this.getNavigationMenu().body.on('mouseout', this.collapseMenu);
     },
 
     addMenuItem: function (title, href, glyph) {
@@ -107,7 +117,7 @@ Ext.define('Uni.controller.Navigation', {
             glyph: glyph
         };
 
-        this.getMainMenu().add(item);
+        this.getMainMenu().getHeader().add(item);
     },
 
     selectMenuItemByTokens: function (tokens, delimiter) {
@@ -126,16 +136,45 @@ Ext.define('Uni.controller.Navigation', {
         }
     },
 
-    showSubMenu: function (button) {
-        var model = button.data;
-        if (model.children().data.length > 0) {
-            this.getNavigationMenu().expandSub();
-        } else {
-            this.getNavigationMenu().collapseSub();
+    peekCollapsedMenu: function (button) {
+        // TODO Also force the 'hover state' appearance.
+        this.getNavigationMenu().peekMenuItem(button.data.id);
+    },
+
+    showActiveMenu: function () {
+        var me = this;
+        console.log('showActiveMenu');
+        me.cancelCurrentTask();
+
+        var task = new Ext.util.DelayedTask(function () {
+            me.getNavigationMenu().showActiveMenu();
+        });
+        task.delay(100);
+
+        me.setMenuTask(task);
+    },
+
+    cancelCurrentTask: function () {
+        if (this.getMenuTask() !== undefined) {
+            this.getMenuTask().cancel();
+            this.setMenuTask(undefined);
         }
     },
 
-    peekSubMenu: function (button) {
-        // TODO Show the sub menu.
+    highlightMenu: function() {
+        this.cancelCurrentTask();
+        this.getNavigationMenu().highlightActiveMenu();
+    },
+
+    collapseMenu: function () {
+        var me = this;
+        var task = new Ext.util.DelayedTask(function () {
+            me.getNavigationMenu().collapseMenu();
+            me.getNavigationMenu().showActiveMenu();
+            me.getNavigationMenu().highlightActiveMenu();
+        });
+
+        task.delay(100);
+        me.setMenuTask(task);
     }
 });
