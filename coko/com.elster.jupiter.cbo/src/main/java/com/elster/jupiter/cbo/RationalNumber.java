@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import java.util.Objects;
+
 public final class RationalNumber {
 	private final long numerator;
 	private final long denominator;
@@ -35,5 +37,24 @@ public final class RationalNumber {
 	public String toString() {
 		return "" + numerator + "/" + denominator;
 	}
-	
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RationalNumber that = (RationalNumber) o;
+
+        return denominator == that.denominator && numerator == that.numerator;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(numerator, denominator);
+    }
 }
