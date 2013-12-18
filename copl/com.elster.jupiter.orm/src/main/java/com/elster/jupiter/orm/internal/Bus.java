@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.internal;
 
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
@@ -69,4 +70,7 @@ public class Bus {
         return locatorHolder.get();
     }
 
+    public static OrmService getOrmService() {
+        return getLocator().getOrmService();
+    }
 }
