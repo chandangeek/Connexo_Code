@@ -298,7 +298,7 @@ public enum TableSpecs {
     }, MTR_ENDDEVICEEVENTRECORD {
         @Override
         void describeTable(Table table) {
-
+            table.map(EndDeviceEventRecordImpl.class);
             table.column("NAME").type("varchar2(80)").map("name").add();
             table.column("MRID").type("varchar2(80)").map("mRID").add();
             table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
@@ -320,6 +320,20 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTRECORD", endDeviceColumn, eventTypeColumn, createdDateTimeColumn);
             table.addForeignKeyConstraint("MTR_FK_EVENT_ENDDEVICE", MTR_ENDDEVICE.name(), DeleteRule.CASCADE, new AssociationMapping("endDevice"), endDeviceColumn);
+        }
+    },
+    MTR_ENDDEVICEEVENTDETAIL {
+        @Override
+        void describeTable(Table table) {
+            table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
+            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();
+            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
+            Column keyColumn = table.column("KEY").type("varchar2(80)").notNull().map("key").add();
+            table.column("VALUE").type("varchar2(256)").notNull().map("value").add();
+            table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn).add();
+            table.foreignKey("MTR_FK_ENDDEVICEEVENT_DETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).references(MTR_ENDDEVICEEVENTRECORD.name())
+                    .onDelete(DeleteRule.CASCADE).map("eventRecord").reverseMap("detailRecords").composition().add();
         }
     };
 	

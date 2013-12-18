@@ -1,16 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.ids.FieldType.DATE;
-import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
-import static com.elster.jupiter.ids.FieldType.NUMBER;
-import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.joda.time.MutableDateTime;
-
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
@@ -19,6 +8,14 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+import org.joda.time.MutableDateTime;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.elster.jupiter.ids.FieldType.*;
+import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 public class InstallerImpl {
 
@@ -52,6 +49,12 @@ public class InstallerImpl {
         createPartyRoles(Bus.getPartyService());
         createPrivileges(Bus.getUserService());
         createAmrSystems();
+        createEndDeviceEventTypes();
+    }
+
+    private void createEndDeviceEventTypes() {
+        //TODO automatically generated method body, provide implementation.
+
     }
 
     private void createAmrSystems() {

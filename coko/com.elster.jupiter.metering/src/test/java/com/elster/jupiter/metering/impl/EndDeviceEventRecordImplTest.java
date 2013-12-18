@@ -27,6 +27,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -45,6 +46,8 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -130,6 +133,33 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 endDeviceEventRecord.save();
 
                 assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
+            }
+        });
+
+    }
+
+    @Test
+    public void testPersistWithProperties() throws SQLException {
+
+        getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                Date date = new DateMidnight(2001, 1, 1).toDate();
+                String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
+                EndDeviceEventTypeImpl eventType = new EndDeviceEventTypeImpl(code);
+                eventType.persist();
+
+                AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
+                EndDevice endDevice = getMeteringService().createEndDevice(amrSystem, "amrID", "mRID");
+                endDevice.save();
+                EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
+                endDeviceEventRecord.addProperty("A", "C");
+                endDeviceEventRecord.addProperty("D", "C");
+                endDeviceEventRecord.save();
+
+                Optional<EndDeviceEventRecord> found = Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice.getId(), eventType.getMRID(), date);
+                assertThat(found).contains(endDeviceEventRecord);
+                assertThat(found.get().getProperties()).contains(entry("A", "C"), entry("D", "C"));
             }
         });
 
