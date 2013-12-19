@@ -13,7 +13,7 @@ import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.exceptions.ModemException;
-import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;

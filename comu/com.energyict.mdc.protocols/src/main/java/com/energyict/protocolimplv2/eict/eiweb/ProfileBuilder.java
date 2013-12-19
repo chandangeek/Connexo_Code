@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 
 import java.io.ByteArrayInputStream;

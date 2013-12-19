@@ -13,7 +13,6 @@ import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 
 import java.io.IOException;

@@ -16,7 +16,7 @@ import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
 import com.energyict.mdc.exceptions.ModemException;
-import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import org.junit.Before;

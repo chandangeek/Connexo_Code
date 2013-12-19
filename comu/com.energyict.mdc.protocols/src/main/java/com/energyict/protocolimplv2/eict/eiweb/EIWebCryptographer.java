@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;

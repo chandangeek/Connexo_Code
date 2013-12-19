@@ -5,7 +5,7 @@ import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.mdc.meterdata.DeviceIpAddress;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;

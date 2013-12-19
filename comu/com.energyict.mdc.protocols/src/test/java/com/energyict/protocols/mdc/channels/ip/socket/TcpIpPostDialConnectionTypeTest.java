@@ -4,7 +4,6 @@ package com.energyict.protocols.mdc.channels.ip.socket;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.ServerComChannel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
