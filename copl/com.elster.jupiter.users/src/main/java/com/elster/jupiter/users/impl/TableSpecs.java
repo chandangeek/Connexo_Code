@@ -1,56 +1,54 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.NOCONVERSION;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
 	USR_PRIVILEGE {
 		void describeTable(Table table) {
-			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
-			table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
-			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION, "description");
+			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+			table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGES",nameColumn);			
+			table.primaryKey("USR_PK_PRIVILEGES").on(nameColumn).add();
 		}
 	},
 	USR_GROUP {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
-			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
+			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
-			table.addPrimaryKeyConstraint("USR_PK_GROUP", idColumn);
-			table.addUniqueConstraint("IDS_U_GROUP", nameColumn);
+			table.primaryKey("USR_PK_GROUP").on(idColumn).add();
+			table.unique("IDS_U_GROUP").on(nameColumn).add();
 		}
 	},
 	USR_USER {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
-			Column authenticationNameColumn = table.addColumn("AUTHNAME", "varchar2(80)" , true , NOCONVERSION , "authenticationName");
-			table.addColumn("DESCRIPTION", "varchar2(256)" , false , NOCONVERSION , "description");
-			table.addColumn("HA1","varchar2(32)",false,NOCONVERSION,"ha1");
+			Column authenticationNameColumn = table.column("AUTHNAME").type("varchar2(80)").notNull().map("authenticationName").add();
+			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
+			table.column("HA1").type("varchar2(32)").map("ha1").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
-			table.addPrimaryKeyConstraint("USR_PK_USER", idColumn);
-			table.addUniqueConstraint("USR_U_USERAUTHNAME" , authenticationNameColumn);			
+			table.primaryKey("USR_PK_USER").on(idColumn).add();
+			table.unique("USR_U_USERAUTHNAME").on(authenticationNameColumn).add();
 		}
 	},
 	USR_PRIVILEGEINGROUP {
 		void describeTable(Table table) {
 			Column groupIdColumn = table.addColumn("GROUPID", "number" , true, NUMBER2LONG , "groupId");
-			Column privilegeNameColumn = table.addColumn("PRIVILEGENAME", "varchar2(80)" , true, NOCONVERSION , "privilegeName");
+			Column privilegeNameColumn = table.column("PRIVILEGENAME").type("varchar2(80)").notNull().map("privilegeName").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGEINGROUP", groupIdColumn , privilegeNameColumn);		
-			table.addForeignKeyConstraint("FK_PRIVINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group","privilegeInGroups"),groupIdColumn);
-			table.addForeignKeyConstraint("FK_PRIVINGROUP2PRIV", USR_PRIVILEGE.name(), CASCADE, new AssociationMapping("privilege"), privilegeNameColumn);
+			table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn , privilegeNameColumn).add();
+			table.foreignKey("FK_PRIVINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("privilegeInGroups").on(groupIdColumn).add();
+			table.foreignKey("FK_PRIVINGROUP2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeNameColumn).add();
 		}
 	},
 	USR_USERINGROUP {
@@ -58,9 +56,9 @@ public enum TableSpecs {
 			Column userIdColumn = table.addColumn("USERID", "number" , true, NUMBER2LONG , "userId");
 			Column groupIdColumn = table.addColumn("GROUPID", "number" , true, NUMBER2LONG, "groupId");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.addPrimaryKeyConstraint("USR_PK_USERINGROUP", groupIdColumn , userIdColumn);		
-			table.addForeignKeyConstraint("FK_USERINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group"), groupIdColumn);
-			table.addForeignKeyConstraint("FK_USERINGROUP2USER", USR_USER.name(), CASCADE, new AssociationMapping("user","memberships"), userIdColumn);
+			table.primaryKey("USR_PK_USERINGROUP").on(groupIdColumn , userIdColumn).add();
+			table.foreignKey("FK_USERINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").on(groupIdColumn).add();
+			table.foreignKey("FK_USERINGROUP2USER").references(USR_USER.name()).onDelete(CASCADE).map("user").reverseMap("memberships").on(userIdColumn).add();
 		}
 	};
 	
