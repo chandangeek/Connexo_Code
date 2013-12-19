@@ -25,9 +25,6 @@ import java.util.Map;
 @XmlRootElement
 public class DeviceCommunicationProtocolInfo {
 
-    public DeviceCommunicationProtocolInfo() {
-    }
-
     public int id;
     public String name;
     public LicensedProtocolInfo licensedProtocol;
