@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.Event;
@@ -39,7 +40,7 @@ public class EventServiceImplTest {
     private OrmService ormService;
     @Mock
     private DataModel dataModel;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
     private ComponentCache componentCache;
