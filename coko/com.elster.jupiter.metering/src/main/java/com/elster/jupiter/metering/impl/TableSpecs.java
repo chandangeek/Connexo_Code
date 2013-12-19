@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -98,8 +97,8 @@ public enum TableSpecs {
 			table.column("NEEDSINSPECTION").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("needsInspection").add();
 			table.column("SITEACCESSPROBLEM").type("varchar2(80)").map("siteAccessProblem").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_SERVICELOCATION", idColumn);
-			table.addUniqueConstraint("MTR_U_SERVICELOCATION", mRIDColumn);
+			table.primaryKey("MTR_PK_SERVICELOCATION").on(idColumn).add();
+			table.unique("MTR_U_SERVICELOCATION").on(mRIDColumn).add();
 		}
 	},
 	MTR_AMRSYSTEM {
@@ -151,7 +150,7 @@ public enum TableSpecs {
 			table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPE", mRidColumn);
+			table.primaryKey("MTR_PK_READINGTYPE").on(mRidColumn).add();
 		}
 	},
 	MTR_ENDDEVICE {
@@ -175,10 +174,10 @@ public enum TableSpecs {
 			table.column("EAUSERID").type("varchar2(80)").map("electronicAddress.userID").add();
 			table.column("EAWEB").type("varchar2(80)").map("electronicAddress.web").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_METER", idColumn);
-			table.addUniqueConstraint("MTR_U_METER", mRIDColumn);
-			table.addUniqueConstraint("MTR_U_METERAMR",amrSystemIdColumn,amrIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERAMRSYSTEM",MTR_AMRSYSTEM.name(),RESTRICT,new AssociationMapping("amrSystem"), amrSystemIdColumn);
+			table.primaryKey("MTR_PK_METER").on(idColumn).add();
+			table.unique("MTR_U_METER").on(mRIDColumn).add();
+			table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
+			table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
 		}
 	},	
 	MTR_METERACTIVATION {
@@ -188,9 +187,9 @@ public enum TableSpecs {
 			Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).map("meterId").add();
 			table.addIntervalColumns("interval");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT, new AssociationMapping("usagePoint", "meterActivations", "interval.start", "currentMeterActivation") , usagePointIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_ENDDEVICE.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivation") , meterIdColumn);
+			table.primaryKey("MTR_PK_METERACTIVATION").on(idColumn).add();
+			table.foreignKey("MTR_FK_METERACTUSAGEPOINT").references(MTR_USAGEPOINT.name()).onDelete(RESTRICT).map("usagePoint").reverseMap("meterActivations").reverseMapOrder("interval.start").reverseMapCurrent("currentMeterActivation").on(usagePointIdColumn).add();
+			table.foreignKey("MTR_FK_METERACTMETER").references(MTR_ENDDEVICE.name()).onDelete(RESTRICT).map("meter").reverseMap("meterActivations").reverseMapOrder("interval.start").reverseMapCurrent("currentMeterActivation").on(meterIdColumn).add();
 		}
 	},
 	MTR_CHANNEL {
@@ -198,24 +197,25 @@ public enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).map("meterActivationId").add();
 			Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).map("timeSeriesId").add();
-			Column mainReadingTypeMRIDColumn = table.addColumn("MAINREADINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"mainReadingTypeMRID");
+			Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").type("varchar2(80)").notNull().map("mainReadingTypeMRID").add();
 			Column cumulativeReadingTypeMRIDColumn = table.addColumn("CUMULATIVEREADINGTYPEMRID","varchar2(80)",false,NOCONVERSION,"cumulativeReadingTypeMRID");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_CHANNEL", idColumn);
-			table.addForeignKeyConstraint("MTR_FK_CHANNELACTIVATION", MTR_METERACTIVATION.name(), RESTRICT, new AssociationMapping("meterActivation" , "channels"), meterActivationIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_CHANNELMAINTYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("mainReadingType"), mainReadingTypeMRIDColumn);
-			table.addForeignKeyConstraint("MTR_FK_CHANNELCUMULATIVETYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("cumulativeReadingType"), cumulativeReadingTypeMRIDColumn);
+			table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
+			table.foreignKey("MTR_FK_CHANNELACTIVATION").references(MTR_METERACTIVATION.name()).onDelete(RESTRICT).map("meterActivation").reverseMap("channels").on(meterActivationIdColumn).add();
+			table.foreignKey("MTR_FK_CHANNELMAINTYPE").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("mainReadingType").on(mainReadingTypeMRIDColumn).add();
+			table.foreignKey("MTR_FK_CHANNELCUMULATIVETYPE").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("cumulativeReadingType").on(cumulativeReadingTypeMRIDColumn).add();
 			table.foreignKey("MTR_FK_CHANNELTIMESERIES").on(timeSeriesIdColumn).references("IDS","IDS_TIMESERIES").onDelete(RESTRICT).map("timeSeries").add();
 		}
 	},		
 	MTR_READINGTYPEINCHANNEL {
 		void describeTable(Table table) {
-			Column channelIdColumn = table.addColumn("CHANNNELID", "number", true, NUMBER2LONG," channelId");
+            table.map(ReadingTypeInChannel.class);
+			Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
 			Column readingTypeMRidColumn = table.column("READINGTYPEMRID").type("varchar2(80)").notNull().map("readingTypeMRID").add();
-			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPEINCHANNEL", channelIdColumn , positionColumn);
-			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,new AssociationMapping("channel"),channelIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL2", MTR_READINGTYPE.name(),RESTRICT,new AssociationMapping(null),readingTypeMRidColumn);
+			table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn , positionColumn).add();
+			table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1").references(MTR_CHANNEL.name()).onDelete(CASCADE).map("channel").on(channelIdColumn).add();
+            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("readingType").on(readingTypeMRidColumn).add();
 		}
 	},
 	MTR_UPACCOUNTABILITY {
@@ -226,8 +226,8 @@ public enum TableSpecs {
 			Column roleMRIDColumn = table.column("ROLEMRID").type("varchar2(80)").notNull().map("roleMRID").add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MTR_PK_UPACCOUNTABILITY", usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0));
-			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTUP", MTR_USAGEPOINT.name(),CASCADE,new AssociationMapping("usagePoint","accountabilities"),usagePointIdColumn);
+			table.primaryKey("MTR_PK_UPACCOUNTABILITY").on(usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
+			table.foreignKey("MTR_FK_UPACCOUNTUP").references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("accountabilities").on(usagePointIdColumn).add();
 			table.foreignKey("MTR_FK_UPACCOUNTPARTY").on(partyIdColumn).references("PRT", "PRT_PARTY").onDelete(RESTRICT).map("party").add();
 			table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE").on(roleMRIDColumn).references("PRT", "PRT_PARTYROLE").onDelete(RESTRICT).map("role").add();
  		}
@@ -242,8 +242,8 @@ public enum TableSpecs {
             table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
-            table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP", idColumn);
-            table.addUniqueConstraint("MTR_U_ENUM_UP_GROUP", mRIDColumn);
+            table.primaryKey("MTR_PK_ENUM_UP_GROUP").on(idColumn).add();
+            table.unique("MTR_U_ENUM_UP_GROUP").on(mRIDColumn).add();
         }
     },
     MTR_ENUM_UP_IN_GROUP {
@@ -252,9 +252,9 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP_ENTRY", groupColumn, usagePointColumn, intervalColumns.get(0));
-            table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
-            table.addForeignKeyConstraint("MTR_FK_UPGE_UP", MTR_USAGEPOINT.name(), DeleteRule.RESTRICT, new AssociationMapping("usagePoint"), usagePointColumn);
+            table.primaryKey("MTR_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_UPGE_UPG").references(MTR_UP_GROUP.name()).onDelete(DeleteRule.CASCADE).map("usagePointGroup").on(groupColumn).add();
+            table.foreignKey("MTR_FK_UPGE_UP").references(MTR_USAGEPOINT.name()).onDelete(DeleteRule.RESTRICT).map("usagePoint").on(usagePointColumn).add();
         }
     },
     MTR_QUERY_UP_GROUP_OP {
@@ -267,8 +267,8 @@ public enum TableSpecs {
             table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
             table.column("BINDVALUES").type("VARCHAR2(256)").conversion(CHAR2JSON).map("values").add();
 
-            table.addPrimaryKeyConstraint("MTR_PK_QUPGOP", groupColumn, positionColumn);
-            table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
+            table.primaryKey("MTR_PK_QUPGOP").on(groupColumn, positionColumn).add();
+            table.foreignKey("MTR_FK_QUPG_QUPGOP").references(MTR_UP_GROUP.name()).onDelete(DeleteRule.CASCADE).map("usagePointGroup").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
 
         }
     },
@@ -281,9 +281,9 @@ public enum TableSpecs {
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             table.addAuditColumns();
             table.column("COMMENTS").type("varchar(4000)").map("comment").add();
-            table.addPrimaryKeyConstraint("MTR_PK_READINGQUALITY", idColumn);
-            table.addForeignKeyConstraint("MTR_FK_RQ_CHANNEL", MTR_CHANNEL.name(), DeleteRule.CASCADE, new AssociationMapping("channel"), channelColumn);
-            table.addUniqueConstraint("MTR_U_READINGQUALITY", channelColumn, timestampColumn, typeColumn);
+            table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
+            table.foreignKey("MTR_FK_RQ_CHANNEL").references(MTR_CHANNEL.name()).onDelete(DeleteRule.CASCADE).map("channel").on(channelColumn).add();
+            table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn).add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
@@ -293,7 +293,7 @@ public enum TableSpecs {
             table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
             table.addAuditColumns();
-            table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTTYPE", mRidColumn);
+            table.primaryKey("MTR_PK_ENDDEVICEEVENTTYPE").on(mRidColumn).add();
         }
     }, MTR_ENDDEVICEEVENTRECORD {
         @Override
@@ -318,8 +318,8 @@ public enum TableSpecs {
             table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
             Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             table.addAuditColumns();
-            table.addPrimaryKeyConstraint("MTR_PK_ENDDEVICEEVENTRECORD", endDeviceColumn, eventTypeColumn, createdDateTimeColumn);
-            table.addForeignKeyConstraint("MTR_FK_EVENT_ENDDEVICE", MTR_ENDDEVICE.name(), DeleteRule.CASCADE, new AssociationMapping("endDevice"), endDeviceColumn);
+            table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
+            table.foreignKey("MTR_FK_EVENT_ENDDEVICE").references(MTR_ENDDEVICE.name()).onDelete(DeleteRule.CASCADE).map("endDevice").on(endDeviceColumn).add();
         }
     },
     MTR_ENDDEVICEEVENTDETAIL {
