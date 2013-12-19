@@ -1,5 +1,15 @@
 package com.elster.jupiter.parties.impl;
 
+import java.security.Principal;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.ValidatorFactory;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -23,15 +33,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Module;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-
-import java.security.Principal;
-import java.util.List;
-
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService, InstallService {
 	
@@ -43,12 +44,13 @@ public class PartyServiceImpl implements PartyService, InstallService {
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile EventService eventService;
+    private volatile ValidatorFactory validatorFactory;
     
     public PartyServiceImpl() {
     }
 
     @Inject
-    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, CacheService cacheService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
+    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, CacheService cacheService, EventService eventService, ThreadPrincipalService threadPrincipalService, ValidatorFactory validatorFactory) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -56,6 +58,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
         setCacheService(cacheService);
         setEventService(eventService);
         setThreadPrincipalService(threadPrincipalService);
+        setValidatorFactory(validatorFactory);
         activate();
         install();
     }
@@ -68,8 +71,14 @@ public class PartyServiceImpl implements PartyService, InstallService {
 				bind(EventService.class).toInstance(eventService);
 				bind(Clock.class).toInstance(clock);
 				bind(UserService.class).toInstance(userService);
+				bind(ValidatorFactory.class).toInstance(validatorFactory);
 			}
 		}; 	
+    }
+    
+    @Reference
+    public void setValidatorFactory(ValidatorFactory validatorFactory) {
+    	this.validatorFactory = validatorFactory;
     }
     
     @Activate

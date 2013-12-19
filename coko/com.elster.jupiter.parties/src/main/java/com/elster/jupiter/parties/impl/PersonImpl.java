@@ -1,16 +1,20 @@
 package com.elster.jupiter.parties.impl;
 
+import static com.elster.jupiter.util.Checks.is;
+
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.parties.Person;
-
-import static com.elster.jupiter.util.Checks.is;
+import static com.google.common.base.Objects.toStringHelper;
 
 public final class PersonImpl extends PartyImpl implements Person {
 
+	@NotNull
 	private String firstName;
+	@NotNull
 	private String lastName;
 	private String mName;
 	private String prefix;
@@ -29,13 +33,9 @@ public final class PersonImpl extends PartyImpl implements Person {
 	PersonImpl init(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        validate();
-        return this;
-    }
-
-    private void validate() {
         validateFirstName(firstName);
         validateLastName(lastName);
+        return this;
     }
 
     private void validateLastName(String name) {
@@ -139,15 +139,11 @@ public final class PersonImpl extends PartyImpl implements Person {
 
     @Override
     public String toString() {
-        return "Person{" +
-                "id=" + getId() +
-                ", mRID='" + getMRID() + '\'' +
-                ", name='" + getName() + '\'' +
-                '}';
+        return toStringHelper(this).omitNullValues().add("id",getId()).add("mRID",getMRID()).add("name", getName()).toString();        
     }
 
     @Override
-    public String getType() {
-        return Person.class.getSimpleName();
+    public Class<Person> getType() {
+        return Person.class;
     }
 }

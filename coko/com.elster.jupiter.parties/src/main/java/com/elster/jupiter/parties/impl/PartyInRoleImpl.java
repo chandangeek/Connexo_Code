@@ -8,6 +8,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import static com.google.common.base.Objects.*;
 
 import java.util.Date;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	private String roleMRID;
 	private Interval interval;
 	
-	private Reference<Party> party;
+	private final Reference<Party> party = ValueReference.absent();
 	private PartyRole role;
 
     private long version;
@@ -38,7 +39,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	}
 	
 	PartyInRoleImpl init(Party party , PartyRole role , Interval interval) {
-		this.party = ValueReference.of(party);
+		this.party.set(party);
 		this.role = role;
 		this.roleMRID = role.getMRID();
 		this.interval = interval;
@@ -87,11 +88,7 @@ public class PartyInRoleImpl implements PartyInRole {
 
     @Override
     public String toString() {
-        return "PartyInRole{" +
-                "party=" + party +
-                ", role=" + role +
-                ", interval=" + interval +
-                '}';
+    	return toStringHelper(this).add("party", party).add("role", role).add("interval", interval).toString();
     }
 
     @Override

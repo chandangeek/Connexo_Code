@@ -28,10 +28,10 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private String userName;
 	
 	// associations
-	private Reference<Party> party;
+	private final Reference<Party> party = ValueReference.absent();
     private User delegateUser;
 
-    //
+    // transient 
     private final UserService userService;
     private final Clock clock;
     
@@ -42,10 +42,10 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	}
 	
 	PartyRepresentationImpl init(Party party, User delegate, Interval interval) {
-		this.party = ValueReference.of(party);
+		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
-        this.interval = interval;
+        this.interval = Objects.requireNonNull(interval);
         return this;
 	}
 
@@ -72,7 +72,6 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 		return interval.isCurrent(clock);
 	}
 
-    @Override
     public void setInterval(Interval interval) {
         this.interval = interval;
     }
