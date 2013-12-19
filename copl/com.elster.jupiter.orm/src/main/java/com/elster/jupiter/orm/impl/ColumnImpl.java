@@ -29,17 +29,17 @@ public class ColumnImpl implements Column  {
 	private boolean skipOnUpdate;
 	
 	// associations
-	private Reference<Table> table;
+	private final Reference<Table> table = ValueReference.absent();
 
 	@SuppressWarnings("unused")
-	private ColumnImpl() {		
+	private ColumnImpl() {
 	}
 
 	private ColumnImpl(Table table, String name) {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.table = ValueReference.of(table);
+		this.table.set(table);
 		this.name = name;
 	}
 	

@@ -8,16 +8,16 @@ public final class ValueReference<T> implements Reference<T> {
 	
 	private T value;
 
+	private ValueReference() {
+		this.value = null;
+	}
+	
 	private ValueReference(T value) {
 		this.value = value;
 	}
 	
-	public static <T> Reference<T> of(T value) {
-		return new ValueReference<>(Objects.requireNonNull(value));
-	}
-	
-	public static <T> Reference<T> fromNullable(T value) {
-		return new ValueReference<>(value);
+	public static <T> Reference<T> absent() {
+		return new ValueReference<>();
 	}
 	
 	@Override

@@ -11,20 +11,16 @@ public class ColumnInConstraintImpl {
 	private int position;
 	
 	// associations
-	private Reference<TableConstraint> constraint;
+	private final Reference<TableConstraint> constraint = ValueReference.absent();
 	
 	@SuppressWarnings("unused")
-	private ColumnInConstraintImpl() {		
+	private ColumnInConstraintImpl() {	
 	}
 
 	ColumnInConstraintImpl(TableConstraintImpl constraint, Column column, int position) {
 		this.position = position;
-		this.constraint = ValueReference.<TableConstraint>of(constraint);
+		this.constraint.set(constraint);
 		this.columnName = column.getName();
-	}
-
-	void doSetConstraint(TableConstraint constraint) {
-		this.constraint.set(constraint);		
 	}		
 	
 	TableConstraint getConstraint() {

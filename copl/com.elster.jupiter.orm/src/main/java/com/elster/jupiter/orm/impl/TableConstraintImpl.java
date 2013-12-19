@@ -26,7 +26,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	private String name;
 	
 	// associations
-	private Reference<Table> table;
+	private final Reference<Table> table = ValueReference.absent();
 	private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 	
 	TableConstraintImpl() {	
@@ -36,7 +36,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.table = ValueReference.of(table);
+		this.table.set(table);
 		this.name = name;
 	}
 

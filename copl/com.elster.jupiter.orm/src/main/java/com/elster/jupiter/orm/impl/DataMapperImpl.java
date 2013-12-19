@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.validation.ValidatorFactory;
+
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
@@ -401,4 +403,5 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public <S extends T> S newInstance(Class<S> clazz) {
 		return mapperType.newInstance(clazz);
 	}
+	
 }

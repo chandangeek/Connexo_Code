@@ -16,7 +16,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	private String reverseCurrentFieldName;
 	private boolean composition;
 	
-	private Reference<Table> referencedTable;
+	private final Reference<Table> referencedTable = ValueReference.absent();
 	
 	@SuppressWarnings("unused")
 	private ForeignKeyConstraintImpl() {	
@@ -37,7 +37,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	}
 
 	private final void setReferencedTable(Table table) {
-		this.referencedTable = ValueReference.of(table);
+		this.referencedTable.set(table);
 	}
 	
 	@Override

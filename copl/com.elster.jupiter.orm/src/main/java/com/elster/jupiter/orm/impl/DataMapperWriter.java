@@ -367,6 +367,13 @@ public class DataMapperWriter<T> {
 	}
 	
 	private Object getValue(Object target , Column column , ForeignKeyConstraint constraint) {
+		Field field = mapperType.getDomainMapper().getField(target.getClass(),constraint.getFieldName());
+		if (field == null) {
+			return null;
+		}
+		if (!Modifier.isFinal(field.getModifiers())) {
+			throw new IllegalStateException("Reference field " + field.getName() + " in class " + target.getClass() + " + is not final");
+		}
 		Reference<?> reference = (Reference<?>) mapperType.getDomainMapper().get(target, constraint.getFieldName());
 		if (reference == null || !reference.isPresent()) {
 			return null;

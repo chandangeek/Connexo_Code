@@ -42,7 +42,7 @@ public class TableImpl implements Table {
 	private boolean indexOrganized;
 	
 	// associations
-	private Reference<DataModel> dataModel;
+	private final Reference<DataModel> dataModel = ValueReference.absent();
 	private final List<Column> columns = new ArrayList<>();
 	private final List<TableConstraint> constraints = new ArrayList<>();
 	
@@ -61,7 +61,7 @@ public class TableImpl implements Table {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
-		this.dataModel = ValueReference.of(dataModel);
+		this.dataModel.set(dataModel);
 		this.schema = schema;
 		this.name = name;
 		this.position = position;
