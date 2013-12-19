@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.shadow.ports.InboundComPortShadow;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;

@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
 
 public class OutboundComPortInfo extends ComPortInfo<OutboundComPortShadow> {

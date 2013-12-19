@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.shadow.ports.KeyStoreShadow;
 import com.energyict.mdc.shadow.ports.ServletBasedInboundComPortShadow;

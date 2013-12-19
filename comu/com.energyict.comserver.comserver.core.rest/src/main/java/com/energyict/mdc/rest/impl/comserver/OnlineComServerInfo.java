@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;

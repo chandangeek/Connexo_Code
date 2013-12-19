@@ -11,7 +11,7 @@ import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
-import com.energyict.mdc.servers.ComServer;
+import com.energyict.mdc.engine.model.ComServer;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.junit.Test;
 

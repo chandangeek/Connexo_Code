@@ -1,10 +1,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.servers.ComServer;
-import com.energyict.mdc.servers.OfflineComServer;
-import com.energyict.mdc.servers.OnlineComServer;
-import com.energyict.mdc.servers.RemoteComServer;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OfflineComServer;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.RemoteComServer;
 import java.util.List;
 
 public class ComServerInfoFactory {

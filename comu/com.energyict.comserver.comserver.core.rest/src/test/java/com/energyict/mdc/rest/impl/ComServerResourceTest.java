@@ -2,13 +2,13 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.ports.ComPortPool;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
-import com.energyict.mdc.servers.ComServer;
-import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.ports.ComPortShadow;

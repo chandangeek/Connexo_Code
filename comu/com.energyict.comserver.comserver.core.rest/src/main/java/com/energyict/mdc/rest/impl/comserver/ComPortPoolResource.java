@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.ComPortPool;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
 import javax.inject.Inject;

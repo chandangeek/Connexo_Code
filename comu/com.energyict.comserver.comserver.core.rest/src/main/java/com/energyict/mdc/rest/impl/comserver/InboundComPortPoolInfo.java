@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.ports.InboundComPortPool;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.shadow.ports.InboundComPortPoolShadow;
 import java.util.ArrayList;
 import java.util.List;

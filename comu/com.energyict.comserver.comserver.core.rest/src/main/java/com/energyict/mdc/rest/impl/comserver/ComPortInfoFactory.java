@@ -1,12 +1,12 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.ports.ModemBasedInboundComPort;
-import com.energyict.mdc.ports.OutboundComPort;
-import com.energyict.mdc.ports.ServletBasedInboundComPort;
-import com.energyict.mdc.ports.TCPBasedInboundComPort;
-import com.energyict.mdc.ports.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 
 public class ComPortInfoFactory {

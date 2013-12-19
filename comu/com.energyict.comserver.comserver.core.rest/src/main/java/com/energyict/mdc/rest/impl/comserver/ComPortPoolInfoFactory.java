@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.ports.ComPortPool;
-import com.energyict.mdc.ports.InboundComPortPool;
-import com.energyict.mdc.ports.OutboundComPortPool;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
 
 public class ComPortPoolInfoFactory {

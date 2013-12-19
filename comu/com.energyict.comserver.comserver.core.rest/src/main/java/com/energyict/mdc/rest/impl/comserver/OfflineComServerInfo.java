@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.cpo.ShadowList;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.servers.OfflineComServer;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
 import com.energyict.mdc.shadow.servers.OfflineComServerShadow;

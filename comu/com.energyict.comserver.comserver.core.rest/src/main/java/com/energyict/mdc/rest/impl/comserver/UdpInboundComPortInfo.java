@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.ports.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.UDPBasedInboundComPortShadow;
 
 public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPortShadow> {

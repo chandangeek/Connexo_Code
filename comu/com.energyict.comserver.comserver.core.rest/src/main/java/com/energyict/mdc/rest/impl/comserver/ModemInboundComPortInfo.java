@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.ports.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
@@ -21,7 +21,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     public ModemInboundComPortInfo(ModemBasedInboundComPort comPort) {
         super(comPort);
         this.ringCount = comPort.getRingCount();
-        this.maximumNumberOfDialErrors = comPort.getMaximumNumberOfDialErrors();
+        this.maximumNumberOfDialErrors = comPort.getMaximumDialErrors();
         this.connectTimeout = comPort.getConnectTimeout()!=null?new TimeDurationInfo(comPort.getConnectTimeout()):null;
         this.delayAfterConnect = comPort.getDelayAfterConnect()!=null?new TimeDurationInfo(comPort.getDelayAfterConnect()):null;
         this.delayBeforeSend = comPort.getDelayBeforeSend()!=null?new TimeDurationInfo(comPort.getDelayBeforeSend()):null;

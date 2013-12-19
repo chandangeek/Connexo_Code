@@ -5,7 +5,7 @@ import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import com.energyict.mdc.shadow.ports.ComPortShadow;

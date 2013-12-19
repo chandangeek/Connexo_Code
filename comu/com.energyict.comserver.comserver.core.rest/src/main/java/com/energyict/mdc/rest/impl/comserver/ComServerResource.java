@@ -1,8 +1,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.servers.ComServer;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
 import java.sql.SQLException;
