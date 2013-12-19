@@ -237,6 +237,16 @@ public enum Fakes {
 		public List<T> select(Condition condition, String... orderBy) {
 			return null;
 		}
+
+        @Override
+        public T newInstance() {
+            return null;
+        }
+
+        @Override
+        public <S extends T> S newInstance(Class<S> clazz) {
+            return null;
+        }
     }
 
     public static Object getFieldValue(Object object, String fieldName) {
