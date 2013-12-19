@@ -4,6 +4,6 @@ Ext.define('Uni.override.NumberFieldOverride', {
     /**
      * Changes the default alignment of numberfields.
      */
-    fieldStyle: "text-align:right;"
+    fieldStyle: 'text-align:right;'
 
 });
