@@ -1,12 +1,10 @@
 package com.elster.jupiter.tasks.impl;
 
-import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.NOCONVERSION;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
 
@@ -16,12 +14,12 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION, "name");
-            table.addColumn("CRONSTRING", "varchar2(80)", true, NOCONVERSION, "cronString");
-            table.addColumn("NEXTEXECUTION", "number", false, NUMBER2UTCINSTANT, "nextExecution");
-            table.addColumn("PAYLOAD", "varchar2(80)", true, NOCONVERSION, "payload");
-            table.addColumn("DESTINATION", "varchar2(30)", true, NOCONVERSION, "destination");
-            table.addPrimaryKeyConstraint("TSK_PK_RECURRENTTASK", idColumn);
+            table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+            table.column("CRONSTRING").type("varchar2(80)").notNull().map("cronString").add();
+            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2UTCINSTANT).map("nextExecution").add();
+            table.column("PAYLOAD").type("varchar2(80)").notNull().map("payload").add();
+            table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
+            table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
         }
     },
     TSK_TASK_OCCURRENCE {
@@ -29,9 +27,9 @@ enum TableSpecs {
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
             Column recurrentIdColumn = table.addColumn("RECURRENTTASKID", "number", true, NUMBER2LONG, "recurrentTaskId");
-            table.addColumn("TRIGGERTIME", "number", false, NUMBER2UTCINSTANT, "triggerTime");
-            table.addForeignKeyConstraint("TSK_FKOCCURRENCE_TASK", TSK_RECURRENT_TASK.name(), DeleteRule.CASCADE, new AssociationMapping("recurrentTask"), recurrentIdColumn);
-            table.addPrimaryKeyConstraint("TSK_PK_TASK_OCCURRENCE", idColumn);
+            table.column("TRIGGERTIME").type("number").conversion(NUMBER2UTCINSTANT).map("triggerTime").add();
+            table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
+            table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
         }
     };
 
