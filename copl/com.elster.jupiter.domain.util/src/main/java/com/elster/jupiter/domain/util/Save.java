@@ -40,11 +40,13 @@ public enum Save {
 		for (int i = 0 ; i < groups.length ; i++) {
 			interfaces[2+i] = groups[i];
 		}
+		/*
 		Validator validator = mapper.getValidatorFactory().getValidator();
 		Set<ConstraintViolation<T>> failures = validator.validate(object, interfaces);
 		if (!failures.isEmpty()) {
 			throw new ConstraintViolationException(failures);
 		}
+		*/
 	}
 	
 	public final <T> void save(DataMapper<T> mapper , T object, Class<?> ... groups) {
