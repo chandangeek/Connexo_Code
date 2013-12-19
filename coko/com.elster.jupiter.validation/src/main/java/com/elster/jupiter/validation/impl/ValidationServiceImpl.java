@@ -109,6 +109,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
+    public ValidationRuleSet createValidationRuleSet(String name, String description) {
+        return new ValidationRuleSetImpl(name, description);
+    }
+
+    @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
         return getOrmClient().getValidationRuleSetFactory().get(id).transform(UPCAST);
     }

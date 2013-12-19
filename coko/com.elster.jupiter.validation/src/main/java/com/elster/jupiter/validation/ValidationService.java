@@ -10,6 +10,8 @@ public interface ValidationService {
 
     ValidationRuleSet createValidationRuleSet(String name);
 
+    ValidationRuleSet createValidationRuleSet(String name, String description);
+
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
 
     void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation);

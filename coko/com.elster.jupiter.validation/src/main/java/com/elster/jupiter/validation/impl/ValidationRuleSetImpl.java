@@ -36,6 +36,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         this.name = name;
     }
 
+    public ValidationRuleSetImpl(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
 
     @Override
     public String getAliasName() {
