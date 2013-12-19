@@ -13,6 +13,7 @@ public final class StopWatch {
     private State state = new Running();
 	private long cpu;
 	private long elapsed;
+	private long lap;
 
     private interface State {
         long getElapsed();
@@ -59,6 +60,7 @@ public final class StopWatch {
 	public StopWatch(boolean measureCpu) {
 		this.measureCpu = measureCpu;
 		this.elapsed = System.nanoTime();	
+		this.lap = elapsed;
 		if (measureCpu) {
 			this.cpu = THREAD_MX_BEAN.getCurrentThreadCpuTime();
 		}
@@ -86,6 +88,12 @@ public final class StopWatch {
 	
 	public long getCpu() {
 		return state.getCpu();
+	}
+	
+	public long lap() {
+		long previousLap = lap;
+		this.lap = System.nanoTime();
+		return lap - previousLap;
 	}
 	
 }
