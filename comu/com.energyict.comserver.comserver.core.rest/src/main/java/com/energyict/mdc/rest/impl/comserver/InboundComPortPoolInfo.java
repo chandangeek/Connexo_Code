@@ -13,7 +13,7 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPoolSh
 
     public InboundComPortPoolInfo(InboundComPortPool comPortPool) {
         super(comPortPool);
-        this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClass().getId();
+        this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClassId().getId();
         if (comPortPool.getComPorts()!=null) {
             this.inboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
             for (InboundComPort inboundComPort : comPortPool.getComPorts()) {
