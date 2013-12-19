@@ -2,8 +2,6 @@ package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.PluggableClass;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.shadow.ports.InboundComPortPoolShadow;
 import java.util.List;
 
 /**
@@ -13,7 +11,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (09:17)
  */
-public interface InboundComPortPool extends ComPortPool<InboundComPortPoolShadow> {
+public interface InboundComPortPool extends ComPortPool {
 
     /**
      * Gets the list of {@link com.energyict.mdc.engine.model.InboundComPort} available through this pool.
@@ -31,14 +29,7 @@ public interface InboundComPortPool extends ComPortPool<InboundComPortPoolShadow
      *
      * @return The discovery pluggable class
      */
-    public PluggableClass<InboundDeviceProtocol> getDiscoveryProtocolPluggableClass();
+    public Long getDiscoveryProtocolPluggableClassId();
 
-    /**
-     * Gets a {@link InboundComPortPoolShadow shadow}
-     * that allows to make to this InboundComPortPool.
-     *
-     * @return The InboundComPortPoolShadow
-     */
-    public InboundComPortPoolShadow getShadow();
-
+    void setDiscoveryProtocolPluggableClassId(long discoveryProtocolPluggableClassId);
 }

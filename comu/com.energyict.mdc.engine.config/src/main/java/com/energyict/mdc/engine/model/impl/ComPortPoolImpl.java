@@ -1,33 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.cbo.DuplicateException;
-import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.cbo.Utils;
-import com.energyict.cpo.AuditTrail;
-import com.energyict.cpo.AuditTrailFactory;
-import com.energyict.mdc.common.Environment;
-import com.energyict.cpo.IdObjectShadow;
-import com.energyict.cpo.PersistentNamedObject;
-import com.energyict.cpo.ResultSetIterator;
-import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.MdwInterface;
+import com.elster.jupiter.orm.DataMapper;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.cpo.Discriminator;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.journal.ComSession;
-import com.energyict.mdc.journal.ComSessionFactory;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
-import com.energyict.mdc.tasks.ConnectionTask;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
+import com.google.common.collect.Iterables;
 import java.util.Date;
 import java.util.List;
 
@@ -39,108 +17,33 @@ import java.util.List;
  */
 public abstract class ComPortPoolImpl implements ComPortPool {
 
+    private long id;
+    private String name;
     private boolean active;
     private String description;
     private boolean obsoleteFlag;
     private Date obsoleteDate;
     private ComPortType comPortType;
 
-
-    protected void validate (ComPortPoolShadow shadow) throws BusinessException {
-        this.validateNotNull(shadow.getType(), "comportpool.comporttype");
-    }
-
-    protected void validateConstraint (String name) {
-        ComPortPool comPortPool = factory.find(name);
-        if (comPortPool != null && !comPortPool.isObsolete()) {
-            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
-        }
-    }
-
-    protected void validateNotNull (Object propertyValue, String propertyName) throws InvalidValueException {
-        if (propertyValue == null) {
-            throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
-        }
+    protected ComPortPoolImpl() {
     }
 
     @Override
-    protected void deleteDependents() {
-        super.deleteDependents();
-        this.deleteComSessions();
-    }
-
-    private void deleteComSessions() {
-        for (ComSession comSession : this.getComSessionFactory().findByPool(this)) {
-            comSession.delete();
-        }
+    public long getId() {
+        return id;
     }
 
     @Override
-    public void makeObsolete() {
-        this.validateMakeObsolete();
-        this.makeMembersObsolete();
-        this.obsoleteFlag = true;
-        this.post();
-        this.updateAuditInfo(AuditTrail.ACTION_DELETE);
-        this.deleted();
-    }
-
-    protected abstract void makeMembersObsolete () throws BusinessException, SQLException;
-
-    protected void validateMakeObsolete () throws BusinessException {
-        if (this.isObsolete()) {
-            throw new BusinessException(
-                    "comPortPoolIsAlreadyObsolete",
-                    "The ComPortPool with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
-                    this.getId(),
-                    this.getObsoleteDate());
-        }
-    }
-
-    protected ComPortPoolFactory factoryInstance () {
-        return ManagerFactory.getCurrent().getComPortPoolFactory();
+    public String getName() {
+        return name;
     }
 
     @Override
-    protected void doUpdateAuditInfo (char action) throws SQLException, BusinessException {
-        this.getAuditTrailFactory().create(this.getShadow(), ComPortPoolFactoryImpl.ID, action);
-    }
-
-    private AuditTrailFactory getAuditTrailFactory () {
-        return this.getMdwInterface().getAuditTrailFactory();
-    }
-
-    private MdwInterface getMdwInterface () {
-        return ManagerFactory.getCurrent().getMdwInterface();
-    }
-
-    protected abstract IdObjectShadow getShadow ();
-
-    @Override
-    public String toString () {
-        if (this.isObsolete()) {
-            String pattern = this.getName() + " " + Environment.DEFAULT.get().getTranslation("deleted.on");
-            return Utils.format(pattern, new Object[]{getObsoleteDate()});
-        }
-        else {
-            return this.getName();
-        }
-    }
-
-    @Override
-    protected String[] getColumns () {
-        return getDiscriminator().getColumns();
-    }
-
-    @Override
-    protected String getTableName () {
-        return ComPortPoolFactoryImpl.TABLENAME;
-    }
-
     public boolean isActive () {
         return active;
     }
 
+    @Override
     public String getDescription () {
         return description;
     }
@@ -150,12 +53,31 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         return obsoleteFlag;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public void setComPortType(ComPortType comPortType) {
+        this.comPortType = comPortType;
+    }
+
     @Override
     public Date getObsoleteDate () {
         if (this.obsoleteFlag && this.obsoleteDate == null) {
-            ComPortPool reloadedPool = this.factoryInstance().find(this.getId());
-            if (reloadedPool != null) {
-                this.obsoleteDate = reloadedPool.getObsoleteDate();
+            List<ComPortPool> comPortPools = getComPortPoolFactory().find("id", this.getId());
+            if (comPortPools != null && !comPortPools.isEmpty()) {
+                this.obsoleteDate = Iterables.getOnlyElement(comPortPools).getObsoleteDate();
             }
             else {
                 this.obsoleteDate = null;
@@ -169,34 +91,78 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         return comPortType;
     }
 
-    protected void validateComPortForComPortType(ComPort comPort, ComPortType comPortType) throws BusinessException {
+    protected void validate() {
+        this.validateNotNull(this.getComPortType(), "comportpool.comporttype");
+    }
+
+    protected void validateConstraint (String name) {
+        List<ComPortPool> comPortPools = getComPortPoolFactory().find("name", this.getName());
+        if (comPortPools != null && !comPortPools.isEmpty()) {
+            for (ComPortPool comPortPool : comPortPools) {
+                if (!comPortPool.isObsolete()) {
+                    throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
+                }
+            }
+        }
+    }
+
+    private DataMapper<ComPortPool> getComPortPoolFactory() {
+        return Bus.getServiceLocator().getOrmClient().getComPortPoolFactory();
+    }
+
+    protected void validateNotNull (Object propertyValue, String propertyName) {
+        if (propertyValue == null) {
+            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
+        }
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.validateMakeObsolete();
+        this.makeMembersObsolete();
+        this.obsoleteFlag = true;
+        this.save();
+    }
+
+    protected abstract void makeMembersObsolete ();
+
+    protected void validateUpdateAllowed () {
+        if (this.obsoleteFlag) {
+            throw new TranslatableApplicationException("comportpool.noUpdateAllowed", "This comport pool is marked as deleted, no updates allowed.");
+        }
+    }
+
+    protected void validateMakeObsolete () {
+        if (this.isObsolete()) {
+            throw new TranslatableApplicationException(
+                    "comPortPoolIsAlreadyObsolete",
+                    "The ComPortPool with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
+                    this.getId(),
+                    this.getObsoleteDate());
+        }
+    }
+
+    protected void validateComPortForComPortType(ComPort comPort, ComPortType comPortType) {
         if (!comPort.getComPortType().equals(comPortType)) {
             Object[] messageArguments = new Object[2];
             messageArguments[0] = comPort.getComPortType();
             messageArguments[1] = comPortType;
-            throw new BusinessException("comPortTypeOfComPortXDoesNotMatchWithComPortPoolY", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
+            throw new TranslatableApplicationException("comPortTypeOfComPortXDoesNotMatchWithComPortPoolY", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}", messageArguments);
         }
-    }
-
-    /**
-     * Converts the Collection of {@link com.energyict.mdc.tasks.ConnectionTask} to
-     * the Collection of each of the names of the ConnectionTasks.
-     * The order of the names is the same as the order in which
-     * the ConnectionTasks where produced by the provided Collection
-     *
-     * @param connectionTasks The Collection of ConnectionTasks
-     * @return The Collection of each name of the ConnectionTasks
-     */
-    protected <E extends ConnectionTask> List<String> toNames(Collection<E> connectionTasks) {
-        List<String> names = new ArrayList<>(connectionTasks.size());
-        for (ConnectionTask connectionTask : connectionTasks) {
-            names.add(connectionTask.getName());
-        }
-        return names;
     }
 
     @Override
-    public boolean isExportAllowed() {
-        return true;
+    public void save() {
+        validate();
+        if (this.getId()==0) {
+            getComPortPoolFactory().persist(this);
+        } else {
+            validateUpdateAllowed();
+            getComPortPoolFactory().update(this);
+        }
+    }
+
+    protected void validateDelete() {
+        // NO-OP so far
     }
 }

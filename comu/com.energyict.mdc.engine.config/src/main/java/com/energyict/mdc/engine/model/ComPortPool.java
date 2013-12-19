@@ -34,6 +34,7 @@ public interface ComPortPool {
      * @return A flag that indicates if this ComPortPool is active (<code>true</code>) or inactive (<code>false</code>).
      */
     public boolean isActive();
+    public void setActive(boolean active);
 
     /**
      * Gets the description that serves as documentation.
@@ -71,5 +72,7 @@ public interface ComPortPool {
      */
     public ComPortType getComPortType();
     public void setComPortType(ComPortType comPortType);
+
+    public void save();
 
 }
