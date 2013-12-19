@@ -1,10 +1,17 @@
 package com.elster.jupiter.cbo;
 
+import java.util.Objects;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlTransient;
 
 public final class StreetAddress implements Cloneable {
+	@Valid
 	private Status status;
+	@Valid
 	private StreetDetail streetDetail;
+	@Valid
 	private TownDetail townDetail;
 	
 	public StreetAddress(StreetDetail streetDetail , TownDetail townDetail , Status status) {
@@ -26,7 +33,7 @@ public final class StreetAddress implements Cloneable {
 	}
 
 	public void setStatus(Status status) {
-		this.status = status;
+		this.status = Objects.requireNonNull(status);
 	}
 
 	public StreetDetail getStreetDetail() {
@@ -34,7 +41,7 @@ public final class StreetAddress implements Cloneable {
 	}
 
 	public void setStreetDetail(StreetDetail streetDetail) {
-		this.streetDetail = streetDetail;
+		this.streetDetail = Objects.requireNonNull(streetDetail);
 	}
 
 	public TownDetail getTownDetail() {
@@ -42,7 +49,7 @@ public final class StreetAddress implements Cloneable {
 	}
 
 	public void setTownDetail(TownDetail townDetail) {
-		this.townDetail = townDetail;
+		this.townDetail = Objects.requireNonNull(townDetail);
 	}
 	
 	public StreetAddress copy() {

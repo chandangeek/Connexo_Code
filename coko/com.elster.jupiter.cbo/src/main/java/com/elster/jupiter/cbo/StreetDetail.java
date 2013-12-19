@@ -2,7 +2,11 @@ package com.elster.jupiter.cbo;
 
 import com.elster.jupiter.util.HasName;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlTransient;
+
 import java.util.Objects;
 
 public final class StreetDetail implements Cloneable, HasName {
@@ -10,7 +14,11 @@ public final class StreetDetail implements Cloneable, HasName {
     private String addressGeneral;
 	private String buildingName;
 	private String code;
+	@NotNull
+	@Size(min=1)
 	private String name;
+	@NotNull
+	@Pattern(regexp=".*[0-9].*")  // at least one digit
 	private String number;
 	private String prefix;
 	private String suffix;
