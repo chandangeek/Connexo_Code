@@ -35,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -102,7 +103,7 @@ public class ValidationIT {
     private ReadingType readingType1, readingType2, readingType3;
     @Mock
     private DataModel dataModel;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
     private BundleContext bundleContext;
