@@ -24,7 +24,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private String userName;
 	
 	// associations
-	private Reference<Party> party;
+	private final Reference<Party> party = ValueReference.absent();
     private User delegateUser;
 
 	@SuppressWarnings("unused")
@@ -32,7 +32,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	}
 	
 	PartyRepresentationImpl(Party party, User delegate, Interval interval) {
-		this.party = ValueReference.of(party);
+		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
         this.interval = interval;

@@ -17,7 +17,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	private String roleMRID;
 	private Interval interval;
 	
-	private Reference<Party> party;
+	private final Reference<Party> party = ValueReference.absent();
 	private PartyRole role;
 
     private long version;
@@ -30,7 +30,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	}
 	
 	PartyInRoleImpl(Party party , PartyRole role , Interval interval) {
-		this.party = ValueReference.of(party);
+		this.party.set(party);
 		this.role = role;
 		this.roleMRID = role.getMRID();
 		this.interval = interval;
