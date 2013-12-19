@@ -3,7 +3,9 @@ Ext.define('Cfg.model.ValidationRuleSet', {
     fields: [
         'id',
         'name',
-        'description'
+        'description',
+        'numberOfActiveRules',
+        'numberOfRules'
     ],
     associations: [
         {
