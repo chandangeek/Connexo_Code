@@ -1,6 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -14,13 +13,13 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            table.addColumn("DESTINATION", "varchar2(80)", true, NOCONVERSION, "destinationName");
-            table.addColumn("CRONSTRING", "varchar2(80)", true, NOCONVERSION, "cronString");
-            table.addColumn("IMPORTDIR", "varchar2(80)", true, CHAR2FILE, "importDirectory");
-            table.addColumn("INPROCESSDIR", "varchar2(80)", true, CHAR2FILE, "inProcessDirectory");
-            table.addColumn("SUCCESSDIR", "varchar2(80)", true, CHAR2FILE, "successDirectory");
-            table.addColumn("FAILDIR", "varchar2(80)", true, CHAR2FILE, "failureDirectory");
-            table.addPrimaryKeyConstraint("FIM_PK_IMPORT_SCHEDULE", idColumn);
+            table.column("DESTINATION").type("varchar2(80)").notNull().map("destinationName").add();
+            table.column("CRONSTRING").type("varchar2(80)").notNull().map("cronString").add();
+            table.column("IMPORTDIR").type("varchar2(80)").notNull().conversion(CHAR2FILE).map("importDirectory").add();
+            table.column("INPROCESSDIR").type("varchar2(80)").notNull().conversion(CHAR2FILE).map("inProcessDirectory").add();
+            table.column("SUCCESSDIR").type("varchar2(80)").notNull().conversion(CHAR2FILE).map("successDirectory").add();
+            table.column("FAILDIR").type("varchar2(80)").notNull().conversion(CHAR2FILE).map("failureDirectory").add();
+            table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
         }
 
     },
@@ -28,11 +27,11 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            Column importScheduleColumn = table.addColumn("IMPORTSCHEDULE", "number", true, NUMBER2LONG, "importScheduleId");
-            table.addColumn("FILENAME", "varchar2(80)", true, CHAR2FILE, "file");
-            table.addColumn("STATE", "number", true, NUMBER2ENUM, "state");
-            table.addPrimaryKeyConstraint("FIM_PK_FILE_IMPORT", idColumn);
-            table.addForeignKeyConstraint("FIM_FKFILEIMPORT_SCHEDULE", FIM_IMPORT_SCHEDULE.name(), DeleteRule.CASCADE, new AssociationMapping("importSchedule"), importScheduleColumn);
+            Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
+            table.column("FILENAME").type("varchar2(80)").notNull().conversion(CHAR2FILE).map("file").add();
+            table.column("STATE").type("number").notNull().conversion(NUMBER2ENUM).map("state").add();
+            table.primaryKey("FIM_PK_FILE_IMPORT").on(idColumn).add();
+            table.foreignKey("FIM_FKFILEIMPORT_SCHEDULE").references(FIM_IMPORT_SCHEDULE.name()).onDelete(DeleteRule.CASCADE).map("importSchedule").on(importScheduleColumn).add();
         }
     };
 
