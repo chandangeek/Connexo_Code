@@ -237,90 +237,50 @@ $navigation-color: $elster-blue-75;
     border-right: $navigation-color 1px solid;
     background-color: $navigation-color;
     $item-height: 50px;
+    padding-top: 12px;
 
-    .menu-item .x-btn-inner {
-        padding-left: 45px;
+    .x-panel-body-default {
+        background-color: transparent;
     }
 
-    .nav-menu-main, .nav-menu-sub {
-        padding: {
-            top: 10px;
-            bottom: 10px;
-        }
-    }
+    .menu-item {
+        @include transparent-button;
+        text-align: left;
 
-    .nav-menu-main {
-        .x-panel-body-default {
-            background-color: transparent;
-        }
+        .x-btn-button {
+            height: $item-height;
 
-        .menu-item {
-            @include transparent-button;
-            text-align: left;
+            .x-btn-inner, .x-btn-glyph {
+                line-height: $item-height - 3;
+                text-align: left;
+                margin-top: 3px;
+            }
 
-            .x-btn-button {
-                height: $item-height;
+            .x-btn-inner {
+                margin-left: 10px;
+            }
 
-                .x-btn-inner, .x-btn-glyph {
-                    line-height: $item-height - 3;
-                    text-align: left;
-                    margin-top: 3px;
-                }
+            .x-btn-glyph {
+                margin-left: 12px;
+            }
 
-                .x-btn-glyph {
-                    margin-left: 12px;
-                }
-
-                &:hover {
-                    background-color: $sky-blue;
-                }
+            &:hover {
+                background-color: $sky-blue;
             }
         }
 
-        .highlighted {
-            background-color: $sky-blue;
-        }
+    }
 
-        .x-pressed {
-            background-color: $sky-blue-25;
+    .x-pressed {
+        background-color: $sky-blue-25;
 
-            .x-btn-glyph {
+        .x-btn-button {
+            .x-btn-inner, .x-btn-glyph {
                 color: $navigation-color;
             }
 
-            .x-btn-button:hover {
+            &:hover {
                 background-color: $sky-blue-25;
-            }
-        }
-    }
-
-    .nav-menu-sub {
-        background-color: $sky-blue-25;
-
-        h2 {
-            margin: {
-                bottom: 8px;
-                left: 10px;
-            }
-        }
-
-        .x-panel-body-default {
-            background-color: transparent;
-        }
-
-        .menu-item {
-            @include transparent-button;
-
-            .x-btn-button {
-                .x-btn-inner, .x-btn-glyph {
-                    color: $ocean-blue;
-                    text-align: left;
-                    padding: 0;
-                }
-
-                &:hover {
-                    background-color: $sky-blue;
-                }
             }
         }
     }
