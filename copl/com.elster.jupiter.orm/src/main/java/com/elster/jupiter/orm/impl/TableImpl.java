@@ -19,9 +19,12 @@ import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.internal.Bus;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -619,22 +622,37 @@ public class TableImpl implements Table {
 	}
 	
 	private void checkMapped (Column column) {
-		if (column.getFieldName() != null) {
-			return;
-		}
-		for (ForeignKeyConstraint constraint : getReferenceConstraints()) {
-			if (constraint.hasColumn(column)) {
+		if (column.getFieldName() == null) {
+			for (ForeignKeyConstraint constraint : getReferenceConstraints()) {
+				if (constraint.hasColumn(column)) {
+					return;
+				}
+			}
+		} else {
+			if (mapperType.getType(column.getFieldName()) == null) {
+				throw new IllegalStateException(
+					Joiner.on(" ").
+						join("No field available for column",column.getName(),"mapped by",column.getFieldName()));
+			} else {
 				return;
 			}
 		}
-		throw new IllegalStateException("Column " + column.getName() + " is not mapped");
+		throw new IllegalStateException("Column " + column.getName() + " has no mapping");
 	}
 	
 	private void buildReferenceConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraint> builder = new ImmutableList.Builder<>();
 		for (ForeignKeyConstraint constraint : getForeignKeyConstraints()) {
 			if (mapperType.isReference(constraint.getFieldName())) {
-				builder.add(constraint);
+				Field field = mapperType.getField(constraint.getFieldName());
+				if (Modifier.isFinal(field.getModifiers())) {
+					builder.add(constraint);
+				} else {
+					throw new IllegalStateException(
+						Joiner.on(" ").join(
+								"Reference field", constraint.getFieldName(), 
+								"for constraint", constraint.getName() , "is not final"));
+				}
 			}
 		}
 		this.referenceConstraints = builder.build();		
@@ -646,6 +664,15 @@ public class TableImpl implements Table {
 			if (!table.equals(this)) {
 				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
 					if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
+						if (each.isComposition()) {
+							Field field = mapperType.getField(each.getReverseFieldName());
+							if (!Modifier.isFinal(field.getModifiers())) {
+								throw new IllegalStateException(
+									Joiner.on(" ").join(
+											"Reverse Field", each.getReverseFieldName(), 
+											"for composition constraint", each.getName() , "is not final"));
+							}
+						}
 						builder.add(each);
 					}
 				}

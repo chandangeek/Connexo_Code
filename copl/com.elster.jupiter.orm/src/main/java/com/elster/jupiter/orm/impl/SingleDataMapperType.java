@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -94,5 +95,10 @@ public class SingleDataMapperType implements DataMapperType {
 	public boolean isReference(String fieldName) {
 		Class<?> clazz = DomainMapper.FIELDLENIENT.getType(implementation,fieldName);
 		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
+	}
+	
+	@Override
+	public Field getField(String fieldName) {
+		return DomainMapper.FIELDLENIENT.getField(implementation,fieldName);
 	}
 }

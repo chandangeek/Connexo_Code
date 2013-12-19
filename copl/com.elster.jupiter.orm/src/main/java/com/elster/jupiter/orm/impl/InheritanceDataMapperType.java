@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -120,5 +121,14 @@ public class InheritanceDataMapperType<T> implements DataMapperType {
 		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
 	}
 	
-	
+	@Override
+	public Field getField(String fieldName) {
+		for (Class<?> implementation : implementations.values()) {
+			Field result = getDomainMapper().getField(implementation, fieldName);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
 }

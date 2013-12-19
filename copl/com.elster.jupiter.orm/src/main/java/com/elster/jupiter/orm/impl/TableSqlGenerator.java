@@ -83,7 +83,7 @@ public class TableSqlGenerator {
 			sb.append(separator);
 			sb.append(each.getName());
 			sb.append(" = ? ");
-			separator = ", ";
+			separator = " and ";
 		}
 		return sb.toString();
 	}

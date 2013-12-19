@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
+import java.lang.reflect.Field;
+
 import com.google.common.base.Optional;
 import com.google.inject.Injector;
 
@@ -15,4 +17,5 @@ interface  DataMapperType {
 	Object getDiscriminator(Class<?> clazz);
 	boolean isReference(String fieldName);
 	void init(Optional<Injector> injector);
+	Field getField(String fieldName);
 }

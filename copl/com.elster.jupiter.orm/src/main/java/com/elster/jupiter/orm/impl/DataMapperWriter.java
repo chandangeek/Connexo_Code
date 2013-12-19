@@ -310,8 +310,9 @@ public class DataMapperWriter<T> {
 	
 	private void refresh(T object, boolean afterInsert) throws SQLException {
 		List<Column> columns = afterInsert ? getTable().getInsertValueColumns() : getTable().getUpdateValueColumns();
-		if (columns.size() == 0)
+		if (columns.size() == 0) {
 			return;		
+		}
 		refresh(object,columns);
 	}
 	
