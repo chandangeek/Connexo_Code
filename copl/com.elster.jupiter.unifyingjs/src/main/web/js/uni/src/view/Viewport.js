@@ -15,8 +15,16 @@ Ext.define('Uni.view.Viewport', {
             region: 'north'
         },
         {
-            xtype: 'navigationMenu',
-            region: 'west'
+            xtype: 'container',
+            cls: 'nav-wrapper',
+            region: 'west',
+            layout: 'absolute',
+            width: 55,
+            items: [
+                {
+                    xtype: 'navigationMenu'
+                }
+            ]
         },
         {
             xtype: 'container',

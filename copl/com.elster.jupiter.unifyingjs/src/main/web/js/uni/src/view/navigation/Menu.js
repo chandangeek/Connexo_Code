@@ -55,36 +55,5 @@ Ext.define('Uni.view.navigation.Menu', {
                 return;
             }
         });
-    },
-
-    floatMenu: function () {
-//        this.floatCollapsedPanel();
-        var me = this;
-
-        Ext.create('Ext.fx.Anim', {
-            target: me,
-            duration: 500,
-//            from: {
-//                width: 55
-//            },
-            to: {
-                width: 200
-            }
-        });
-    },
-
-    collapseMenu: function () {
-        var me = this;
-
-        Ext.create('Ext.fx.Anim', {
-            target: me,
-            duration: 500,
-//            from: {
-//                width: 200
-//            },
-            to: {
-                width: 55
-            }
-        });
     }
 });

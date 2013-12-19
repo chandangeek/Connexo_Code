@@ -13,10 +13,6 @@ Ext.define('Uni.controller.Navigation', {
     refs: [
         {
             ref: 'navigationMenu',
-            selector: 'viewport > navigationMenu'
-        },
-        {
-            ref: 'mainMenu',
             selector: 'navigationMenu'
         },
         {
@@ -24,10 +20,6 @@ Ext.define('Uni.controller.Navigation', {
             selector: 'viewport > #contentPanel'
         }
     ],
-
-    config: {
-        menuTask: undefined
-    },
 
     init: function () {
         var me = this,
@@ -43,9 +35,6 @@ Ext.define('Uni.controller.Navigation', {
         this.control({
             'navigationMenu': {
                 afterrender: this.refreshNavigationMenu
-            },
-            'navigationMenu button[action=menu-main]': {
-
             },
             'navigationAppSwitcher': {
                 afterrender: this.resetAppSwitcherState
@@ -96,13 +85,6 @@ Ext.define('Uni.controller.Navigation', {
                 menu.addMenuItem(record);
             });
         }
-
-        container.addListener({
-            element: 'el',
-            mouseover: this.floatMenu,
-            mouseout: this.collapseMenu,
-            scope: this
-        });
     },
 
     addMenuItem: function (title, href, glyph) {
@@ -113,7 +95,7 @@ Ext.define('Uni.controller.Navigation', {
             glyph: glyph
         };
 
-        this.getMainMenu().getHeader().add(item);
+        this.getNavigationMenu().addMenuItem(item);
     },
 
     selectMenuItemByTokens: function (tokens, delimiter) {
@@ -130,20 +112,5 @@ Ext.define('Uni.controller.Navigation', {
                 me.getNavigationMenu().selectMenuItem(result);
             }
         }
-    },
-
-    cancelCurrentTask: function () {
-        if (this.getMenuTask() !== undefined) {
-            this.getMenuTask().cancel();
-            this.setMenuTask(undefined);
-        }
-    },
-
-    floatMenu: function () {
-//        this.getNavigationMenu().floatMenu();
-    },
-
-    collapseMenu: function () {
-//        this.getNavigationMenu().collapseMenu();
     }
 });
