@@ -140,6 +140,11 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
+    public String getEventTypeCode() {
+        return eventTypeCode;
+    }
+
+    @Override
     public String getMRID() {
         return mRID;
     }

@@ -18,4 +18,9 @@ public interface EndDeviceEvent extends IdentifiedObject {
     Map<String, String> getEventData();
     int getLogBookId();
     int getLogBookPosition();
+
+    /**
+     * @return CIM EndDeviceEvent code.
+     */
+    String getEventTypeCode();
 }

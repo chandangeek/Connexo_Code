@@ -330,7 +330,7 @@ public enum TableSpecs {
             Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
             Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             Column keyColumn = table.column("KEY").type("varchar2(80)").notNull().map("key").add();
-            table.column("VALUE").type("varchar2(256)").notNull().map("value").add();
+            table.column("DETAIL_VALUE").type("varchar2(256)").notNull().map("value").add();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn).add();
             table.foreignKey("MTR_FK_ENDDEVICEEVENT_DETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).references(MTR_ENDDEVICEEVENTRECORD.name())
                     .onDelete(DeleteRule.CASCADE).map("eventRecord").reverseMap("detailRecords").composition().add();
