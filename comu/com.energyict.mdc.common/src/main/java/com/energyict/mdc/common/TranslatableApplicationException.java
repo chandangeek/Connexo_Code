@@ -6,7 +6,7 @@ import java.text.MessageFormat;
  * This is the new base class of Jupiter server side exceptions
  * Application exception that facilitates translation by means of externalized strings and Java properties
  */
-public class TranslatableApplicationException extends Exception {
+public class TranslatableApplicationException extends RuntimeException {
 
     protected String messageId;
     protected Object[] arguments;
