@@ -1,79 +1,82 @@
 package com.elster.jupiter.ids.plumbing;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.DeleteRule.*;
-
 import com.elster.jupiter.ids.impl.FieldSpecImpl;
 import com.elster.jupiter.ids.impl.RecordSpecImpl;
 import com.elster.jupiter.ids.impl.TimeSeriesImpl;
 import com.elster.jupiter.ids.impl.VaultImpl;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	IDS_VAULT {
 		void  describeTable(Table table) {
 			table.map(VaultImpl.class);
-			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
-			Column idColumn = table.addColumn("ID", "number" , true, NUMBER2LONG , "id");
-			table.addColumn("DESCRIPTION", "varchar2(80)" , true , NOCONVERSION , "description");
-			table.addColumn("MINTIME", "number", true, NUMBER2UTCINSTANT , "minTime");
-			table.addColumn("MAXTIME", "number", false, NUMBER2UTCINSTANT, "maxTime");
-			table.addColumn("SLOTCOUNT", "number", false, NUMBER2INT, "slotCount");
-			table.addColumn("LOCALTIME", "char(1)", true, CHAR2BOOLEAN, "localTime");
-			table.addColumn("REGULAR", "char(1)", true, CHAR2BOOLEAN, "regular");
-			table.addColumn("JOURNAL", "char(1)", true, CHAR2BOOLEAN, "journal");
-			table.addColumn("ACTIVE", "char(1)", true, CHAR2BOOLEAN, "active");
+			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
+			table.column("DESCRIPTION").type("varchar2(80)").notNull().map("description").add();
+			table.column("MINTIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("minTime").add();
+			table.column("MAXTIME").type("number").conversion(NUMBER2UTCINSTANT).map("maxTime").add();
+			table.column("SLOTCOUNT").type("number").conversion(NUMBER2INT).map("slotCount").add();
+			table.column("LOCALTIME").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("localTime").add();
+			table.column("REGULAR").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
+			table.column("JOURNAL").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("journal").add();
+			table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("IDS_PK_VAULTS", componentName, idColumn);
+			table.primaryKey("IDS_PK_VAULTS").on(componentName, idColumn).add();
 		}
 	},
 	IDS_RECORDSPEC {
 		void describeTable(Table table) {
 			table.map(RecordSpecImpl.class);
-			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
-			Column idColumn = table.addColumn("ID", "number" , true, NUMBER2LONG , "id");
-			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
+			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
+			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("IDS_PKRECORDSPECS", componentName, idColumn);
-			table.addUniqueConstraint("IDS_U_RECORDSPECS",componentName, nameColumn);
+			table.primaryKey("IDS_PKRECORDSPECS").on(componentName, idColumn).add();
+			table.unique("IDS_U_RECORDSPECS").on(componentName, nameColumn).add();
 		}
 	},	
 	IDS_FIELDSPEC { 
 		void describeTable(Table table) {
 			table.map(FieldSpecImpl.class);
-			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
-			Column recordSpecIdColumn = table.addColumn("RECORDSPECID", "number" , true, NUMBER2LONG , "recordSpecId");
-			Column positionColumn = table.addColumn("POSITION", "number" , true, NUMBER2INT , "position");
-			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
-			table.addColumn("FIELDTYPE", "number" , true, NUMBER2ENUM , "fieldType");
-			table.addColumn("DERIVATIONRULE", "number" , true, NUMBER2ENUM , "derivationRule");
+			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).map("recordSpecId").add();
+			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
+			table.column("FIELDTYPE").type("number").notNull().conversion(NUMBER2ENUM).map("fieldType").add();
+			table.column("DERIVATIONRULE").type("number").notNull().conversion(NUMBER2ENUM).map("derivationRule").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
-			table.addPrimaryKeyConstraint("IDS_PK_FIELDSPECS", componentName, recordSpecIdColumn , positionColumn );
+			table.primaryKey("IDS_PK_FIELDSPECS").on(componentName, recordSpecIdColumn , positionColumn ).add();
 			table.addUniqueConstraint("IDS_U_FIELDSPECS", componentName, recordSpecIdColumn , nameColumn );	
-			table.addForeignKeyConstraint("IDS_FK_FIELDSPECS", IDS_RECORDSPEC.name(), CASCADE, new AssociationMapping("recordSpec" ,"fieldSpecs", "position"), componentName, recordSpecIdColumn);
+			table.foreignKey("IDS_FK_FIELDSPECS").references(IDS_RECORDSPEC.name()).onDelete(CASCADE).map("recordSpec").reverseMap("fieldSpecs").reverseMapOrder("position").on(componentName, recordSpecIdColumn).add();
 		}
 	},
 	IDS_TIMESERIES {
 		void describeTable(Table table) {
 			table.map(TimeSeriesImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column vaultComponent = table.addColumn("VAULTCOMPONENT","varchar2(3)",true,NOCONVERSION,"vaultComponentName");
-			Column vaultIdColumn = table.addColumn("VAULTID" , "number", true , NUMBER2LONG , "vaultId");
-			Column recordSpecComponent = table.addColumn("RECORDSPECCOMPONENT","varchar2(3)",true,NOCONVERSION,"recordSpecComponentName");
-			Column recordSpecIdColumn = table.addColumn("RECORDSPECID" , "number", true , NUMBER2LONG , "recordSpecId");
-			table.addColumn("FIRSTTIME","number",false,NUMBER2UTCINSTANT,"firstTime");
-			table.addColumn("LASTTIME","number",false,NUMBER2UTCINSTANT,"lastTime");
-			table.addColumn("LOCKTIME","number",false,NUMBER2UTCINSTANT,"lockTime");
-			table.addColumn("TIMEZONENAME", "varchar2(80)" , true , NOCONVERSION , "timeZoneName");
-			table.addColumn("REGULAR", "CHAR(1)", true, CHAR2BOOLEAN, "regular");
-			table.addColumn("INTERVALLENGTH", "number" , false, NUMBER2INTNULLZERO , "intervalLength");
-			table.addColumn("INTERVALLENGTHUNIT", "number" , false, NUMBER2ENUMPLUSONE , "intervalLengthUnit");
-			table.addColumn("HOUROFFSET", "number" , false, NUMBER2INTNULLZERO , "offset");
+			Column vaultComponent = table.column("VAULTCOMPONENT").type("varchar2(3)").notNull().map("vaultComponentName").add();
+			Column vaultIdColumn = table.column("VAULTID").type("number").notNull().conversion(NUMBER2LONG).map("vaultId").add();
+			Column recordSpecComponent = table.column("RECORDSPECCOMPONENT").type("varchar2(3)").notNull().map("recordSpecComponentName").add();
+			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).map("recordSpecId").add();
+			table.column("FIRSTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("firstTime").add();
+			table.column("LASTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lastTime").add();
+			table.column("LOCKTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lockTime").add();
+			table.column("TIMEZONENAME").type("varchar2(80)").notNull().map("timeZoneName").add();
+			table.column("REGULAR").type("CHAR(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
+			table.column("INTERVALLENGTH").type("number").conversion(NUMBER2INTNULLZERO).map("intervalLength").add();
+			table.column("INTERVALLENGTHUNIT").type("number").conversion(NUMBER2ENUMPLUSONE).map("intervalLengthUnit").add();
+			table.column("HOUROFFSET").type("number").conversion(NUMBER2INTNULLZERO).map("offset").add();
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("IDS_PK_TIMESERIES", idColumn);
-			table.addForeignKeyConstraint("IDS_FK_TIMESERIESVAULT", IDS_VAULT.name() , RESTRICT, new AssociationMapping("vault") , vaultComponent , vaultIdColumn);	
-			table.addForeignKeyConstraint("IDS_FK_TIMESERIESRECORDSPEC", IDS_RECORDSPEC.name(), RESTRICT, new AssociationMapping("recordSpec") , recordSpecComponent, recordSpecIdColumn);
+			table.primaryKey("IDS_PK_TIMESERIES").on(idColumn).add();
+			table.foreignKey("IDS_FK_TIMESERIESVAULT").references(IDS_VAULT.name()).onDelete(RESTRICT).map("vault").on(vaultComponent , vaultIdColumn).add();
+			table.foreignKey("IDS_FK_TIMESERIESRECORDSPEC").references(IDS_RECORDSPEC.name()).onDelete(RESTRICT).map("recordSpec").on(recordSpecComponent, recordSpecIdColumn).add();
 		}
 	};
 	
