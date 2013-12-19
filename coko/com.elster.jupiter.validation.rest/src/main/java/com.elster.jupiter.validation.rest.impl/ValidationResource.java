@@ -2,6 +2,8 @@ package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -9,9 +11,7 @@ import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +46,61 @@ public class ValidationResource {
         }
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ValidationRuleSetInfos createValidationRuleSet(final ValidationRuleSetInfo info) {
+        ValidationRuleSetInfos result = new ValidationRuleSetInfos();
+        result.add(
+            Bus.getTransactionService().execute(new Transaction<ValidationRuleSet>() {
+                @Override
+                public ValidationRuleSet perform() {
+                    return Bus.getValidationService().createValidationRuleSet(info.name, info.description);
+                }
+            }));
+        return result;
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidationRuleSetInfos updateValidationRuleSet(@PathParam("id") long id, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
+        info.id = id;
+        Bus.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                Optional<ValidationRuleSet> optional =
+                        Bus.getValidationService().getValidationRuleSet(info.id);
+                if (optional.isPresent()) {
+                    ValidationRuleSet set = optional.get();
+                    set.setName(info.name);
+                    set.setDescription(info.description);
+                    set.save();
+                }
+            }
+        });
+        return getValidationRuleSet(info.id, securityContext);
+    }
+
     @GET
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidationRuleSetInfos getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
+        ValidationRuleSetInfos result = new ValidationRuleSetInfos(validationRuleSet);
+        return result;
+    }
+
+    private ValidationRuleSet fetchValidationRuleSet(long id, SecurityContext securityContext) {
+        Optional<ValidationRuleSet> found =
+                Bus.getValidationService().getValidationRuleSet(id);
+        if (!found.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        ValidationRuleSet validationRuleSet = found.get();
+        return validationRuleSet;
+    }
+
+    /*@GET
      @Path("/propertyspecsforrule/{id}")
      @Produces(MediaType.APPLICATION_JSON)
      public ValidationRulePropertySpecInfos getAvailableProperties(@PathParam("id") String id) {
@@ -68,9 +122,9 @@ public class ValidationResource {
         else {
             return infos;
         }
-    }
+    }     */
 
-    @GET
+    /*@GET
     @Path("/propertyspecs")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRulePropertySpecInfos getAllAvailableProperties(@Context UriInfo uriInfo) {
@@ -85,57 +139,53 @@ public class ValidationResource {
             }
         }
         return infos;
-    }
+    }    */
 
-    @GET
-    @Path("/actions")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ValidationActionInfos getAvailableValidationActions(@Context UriInfo uriInfo) {
-        ValidationActionInfos infos = new ValidationActionInfos();
-        ValidationAction[] actions = ValidationAction.values();
-        for (ValidationAction action : actions) {
-            infos.add(action);
-        }
-        infos.total = actions.length;
-        return infos;
-    }
-
-    @GET
-    @Path("/readingtypes/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("id") String id) {
-        ReadingTypeInfos infos = new ReadingTypeInfos();
-        Optional<ValidationRule> optional =
-                Bus.getValidationService().getValidationRule(Long.parseLong(id));
-        if (optional.isPresent()) {
-            ValidationRule rule = optional.get();
-            Set<ReadingType> readingTypes = rule.getReadingTypes();
-            for (ReadingType readingType : readingTypes) {
-                infos.add(readingType);
+            @GET
+            @Path("/actions")
+            @Produces(MediaType.APPLICATION_JSON)
+            public ValidationActionInfos getAvailableValidationActions(@Context UriInfo uriInfo) {
+                ValidationActionInfos infos = new ValidationActionInfos();
+                ValidationAction[] actions = ValidationAction.values();
+                for (ValidationAction action : actions) {
+                    infos.add(action);
+                }
+                infos.total = actions.length;
+                return infos;
             }
-            infos.total = readingTypes.size();
-            return infos;
-        } else {
-            return infos;
+
+            @GET
+            @Path("/readingtypes/{id}")
+            @Produces(MediaType.APPLICATION_JSON)
+            public ReadingTypeInfos getReadingTypesForRule(@PathParam("id") String id) {
+                ReadingTypeInfos infos = new ReadingTypeInfos();
+                Optional<ValidationRule> optional =
+                        Bus.getValidationService().getValidationRule(Long.parseLong(id));
+                if (optional.isPresent()) {
+                    ValidationRule rule = optional.get();
+                    Set<ReadingType> readingTypes = rule.getReadingTypes();
+                    for (ReadingType readingType : readingTypes) {
+                        infos.add(readingType);
+                    }
+                    infos.total = readingTypes.size();
+                    return infos;
+                } else {
+                    return infos;
+                }
+            }
+
+            @GET
+            @Path("/validators")
+            @Produces(MediaType.APPLICATION_JSON)
+            public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
+                ValidatorInfos infos = new ValidatorInfos();
+                List<String> toAdd = Bus.getValidationService().getAvailableValidatorNames();
+                for (String implementation : toAdd) {
+                    infos.add(implementation);
+                }
+                infos.total = toAdd.size();
+                return infos;
+            }
+
+
         }
-    }
-
-    @GET
-    @Path("/validators")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
-        ValidatorInfos infos = new ValidatorInfos();
-        List<String> toAdd = Bus.getValidationService().getAvailableValidatorNames();
-        for (String implementation : toAdd) {
-            infos.add(implementation);
-        }
-        infos.total = toAdd.size();
-        return infos;
-    }
-
-	
-
-
-
-
-}
