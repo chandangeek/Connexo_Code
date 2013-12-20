@@ -43,7 +43,7 @@ public class EventFrame extends AbstractInboundFrame {
 
 
         if (!device.getLogBooks().isEmpty()) {
-            logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId());
+            logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId(), genericLogBook.getLogBookSpec().getDeviceObisCode());
         } else {
             getCollectedDatas().add(MdcManager.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
             return;

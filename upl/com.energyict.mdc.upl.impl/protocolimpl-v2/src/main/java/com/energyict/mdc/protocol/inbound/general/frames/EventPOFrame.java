@@ -48,7 +48,7 @@ public class EventPOFrame extends AbstractInboundFrame {
         LogBook genericLogBook = LogBookFactoryProvider.instance.get().getLogBookFactory().findGenericLogBook(device);
 
         if (!device.getLogBooks().isEmpty()) {
-            logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId());
+            logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId(), genericLogBook.getLogBookSpec().getDeviceObisCode());
         } else {
             getCollectedDatas().add(MdcManager.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
             return;

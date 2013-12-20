@@ -4,6 +4,7 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactoryProvider;
+import com.energyict.obis.ObisCode;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -16,10 +17,12 @@ import com.energyict.mdw.core.LogBookFactoryProvider;
 public class LogBookIdentifierById implements LogBookIdentifier {
 
     private final int logBookId;
+    private final ObisCode logBookObisCode;
 
-    public LogBookIdentifierById(int logBookId) {
+    public LogBookIdentifierById(int logBookId, ObisCode logBookDeviceObisCode) {
         super();
         this.logBookId = logBookId;
+        this.logBookObisCode = logBookDeviceObisCode;
     }
 
     @Override
@@ -39,6 +42,10 @@ public class LogBookIdentifierById implements LogBookIdentifier {
      */
     public int getLogBookId() {
         return logBookId;
+    }
+
+    public ObisCode getLogBookObisCode() {
+        return logBookObisCode;
     }
 
     /**

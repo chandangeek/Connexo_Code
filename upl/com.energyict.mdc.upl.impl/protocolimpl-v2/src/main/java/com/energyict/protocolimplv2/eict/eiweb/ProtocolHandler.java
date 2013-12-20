@@ -1,10 +1,18 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.DeviceLogBook;
+import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCodeImpl;
 import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
@@ -14,14 +22,22 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -128,7 +144,7 @@ public class ProtocolHandler {
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
             ChannelInfo channelInfo = profileBuilder.getProfileData().getChannel(i);
-            PrimeRegisterForChannelIdentifier registerIdentifier = new PrimeRegisterForChannelIdentifier(this.getDeviceIdentifier(), channelInfo.getChannelId());
+            PrimeRegisterForChannelIdentifier registerIdentifier = new PrimeRegisterForChannelIdentifier(this.getDeviceIdentifier(), channelInfo.getChannelId(), null);
             DefaultDeviceRegister reading = new DefaultDeviceRegister(registerIdentifier);
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");
