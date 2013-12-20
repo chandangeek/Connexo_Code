@@ -12,6 +12,7 @@ public enum TableSpecs {
     EVT_EVENTTYPE {
         @Override
         void describeTable(Table table) {
+            table.map(EventTypeImpl.class);
             Column topicColumn = table.column("TOPIC").type("varchar(80)").notNull().map("topic").add();
             table.column("COMPONENT").type("varchar(3)").notNull().map("component").add();
             table.column("SCOPE").type("varchar(80)").notNull().map("scope").add();
@@ -25,6 +26,7 @@ public enum TableSpecs {
     EVT_EVENTPROPERTYTYPE {
         @Override
         void describeTable(Table table) {
+            table.map(EventPropertyTypeImpl.class);
             Column topicColumn = table.column("TOPIC").type("varchar(80)").notNull().map("eventTypeTopic").add();
             Column nameColumn = table.column("NAME").type("varchar(80)").notNull().map("name").add();
             table.column("TYPE").type("number").notNull().conversion(NUMBER2ENUM).map("valueType").add();
@@ -33,7 +35,7 @@ public enum TableSpecs {
 
             table.primaryKey("EVT_PK_EVENTPROPERTYTYPE").on(topicColumn, nameColumn).add();
             table.unique("EVT_UK_EVENTPROPERTYTYPE").on(topicColumn, positionColumn).add();
-            table.foreignKey("EVT_FK_EVENTTYPE_PROPERY").references(EVT_EVENTTYPE.name()).onDelete(DeleteRule.CASCADE).map("eventType").reverseMap("eventPropertyTypes").on(topicColumn).add();
+            table.foreignKey("EVT_FK_EVENTTYPE_PROPERY").references(EVT_EVENTTYPE.name()).onDelete(DeleteRule.CASCADE).map("eventType").reverseMap("eventPropertyTypes").on(topicColumn).composition().add();
         }
     };
 

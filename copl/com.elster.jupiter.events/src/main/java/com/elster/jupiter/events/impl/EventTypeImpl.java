@@ -6,8 +6,6 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.collections.ArrayDiffList;
-import com.elster.jupiter.util.collections.DiffList;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -130,18 +128,8 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     public void save() {
         if (fromDB) {
             Bus.getOrmClient().getEventTypeFactory().update(this);
-            DiffList<EventPropertyType> diffList = new ArrayDiffList<>(loadPropertyTypes(), eventPropertyTypes);
-            for (EventPropertyType eventPropertyType : diffList.getRemovals()) {
-                propertyFactory().remove(eventPropertyType);
-            }
-            for (EventPropertyType eventPropertyType : diffList.getAdditions()) {
-                propertyFactory().persist(eventPropertyType);
-            }
         } else {
             Bus.getOrmClient().getEventTypeFactory().persist(this);
-            for (EventPropertyType eventPropertyType : propertyTypes()) {
-                propertyFactory().persist(eventPropertyType);
-            }
             fromDB = true;
         }
     }
