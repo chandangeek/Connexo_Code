@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 public class ReadingTypeInChannel {
-    private Reference<Channel> channel;
+    private final Reference<Channel> channel = ValueReference.absent();
 	@SuppressWarnings("unused")
 	private int position;
     private transient ReadingType readingType;
@@ -15,8 +15,8 @@ public class ReadingTypeInChannel {
 	private ReadingTypeInChannel() {		
 	}
 	
-	ReadingTypeInChannel(Channel channel,ReadingType readingType, int position) {
-        this.channel = ValueReference.of(channel);
+	ReadingTypeInChannel(Channel channel, ReadingType readingType, int position) {
+        this.channel.set(channel);
 		this.position = position;
 		this.readingTypeMRID = readingType.getMRID();
         this.readingType = readingType;
