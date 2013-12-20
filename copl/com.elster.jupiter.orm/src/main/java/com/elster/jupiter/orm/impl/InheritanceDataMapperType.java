@@ -21,7 +21,11 @@ public class InheritanceDataMapperType<T> implements DataMapperType {
 	
 	public void init(Optional<Injector> injector) {
 		this.injector = injector;
-		if (!injector.isPresent()) {
+		if (injector.isPresent()) {
+			for (Class<? extends T> value : implementations.values()) {
+				injector.get().getInstance(value);
+			}
+		} else {
 			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
 				try {
 					Constructor<? extends T> constructor = entry.getValue().getDeclaredConstructor();

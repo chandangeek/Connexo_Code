@@ -22,7 +22,7 @@ public class SingleDataMapperType implements DataMapperType {
 	public void init(Optional<Injector> injector) {
 		this.injector = injector;
 		if (injector.isPresent()) {
-			constructor = null;
+			injector.get().getInstance(implementation);
 		} else {
 			try {
 				constructor = implementation.getDeclaredConstructor();
