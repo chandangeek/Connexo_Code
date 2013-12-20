@@ -27,12 +27,17 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc-issues</artifactId>
-      <version>${jupiter.version}</version>
+      <version>${comserver.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.dynamic</artifactId>
+      <version>${comserver.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc-common</artifactId>
-      <version>${jupiter.version}</version>
+      <version>${comserver.version}</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
