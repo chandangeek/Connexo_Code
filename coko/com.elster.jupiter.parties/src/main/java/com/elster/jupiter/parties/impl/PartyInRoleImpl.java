@@ -79,7 +79,7 @@ public class PartyInRoleImpl implements PartyInRole {
     @Override
     public String toString() {
         return "PartyInRole{" +
-                "party=" + party +
+                "party=" + party.get() +
                 ", role=" + role +
                 ", interval=" + interval +
                 '}';
