@@ -52,6 +52,13 @@
         </dependency>
         
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
         	<groupId>javax.validation</groupId>
         	<artifactId>validation-api</artifactId>
         </dependency>
