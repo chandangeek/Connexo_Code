@@ -21,7 +21,8 @@
   <dependencies>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc.relation</artifactId>
+      <artifactId>mdc.dynamic</artifactId>
+      <version>${comserver.version}</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
