@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 
 /**
  * Adds behavior to {@link com.energyict.mdc.engine.model.OnlineComServer} that is private
@@ -10,5 +9,5 @@ import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (15:39)
  */
-public interface ServerOnlineComServer extends OnlineComServer, ServerComServer<OnlineComServerShadow> {
+public interface ServerOnlineComServer extends OnlineComServer, ServerComServer {
 }

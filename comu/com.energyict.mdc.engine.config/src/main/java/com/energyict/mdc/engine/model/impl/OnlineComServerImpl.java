@@ -1,26 +1,16 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.cbo.ValueOutOfRangeException;
-import com.energyict.comserver.tools.Numbers;
-import com.energyict.comserver.tools.Strings;
-import com.energyict.cpo.ResultSetIterator;
-import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.IPBasedInboundComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.ports.OutboundComPort;
-import com.energyict.mdc.shadow.ports.IPBasedInboundComPortShadow;
-import com.energyict.mdc.shadow.ports.InboundComPortShadow;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
-
-import javax.xml.bind.annotation.XmlElement;
+import com.google.common.collect.Range;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +20,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:36)
  */
-public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> implements ServerOnlineComServer {
+public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineComServer {
 
     private String queryAPIPostUri;
-    private boolean usesDefaultQueryAPIPostUri;
     private String eventRegistrationUri;
+    private boolean usesDefaultQueryAPIPostUri;
     private boolean usesDefaultEventRegistrationUri;
     private int storeTaskQueueSize;
     private int numberOfStoreTaskThreads;
@@ -44,74 +34,28 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
         super();
     }
 
-    protected OnlineComServerImpl (int id) {
-        super(id);
-    }
-
-    protected OnlineComServerImpl (ResultSet resultSet, ResultSetIterator resultSetIterator) throws SQLException {
-        super(resultSet, resultSetIterator);
-    }
-
-    @Override
-    protected ComServerFactoryImpl.ComServerDiscriminator getDiscriminator () {
-        return ComServerFactoryImpl.ComServerDiscriminator.ONLINE;
-    }
-
     @Override
     public String getType () {
         return OnlineComServer.class.getName();
     }
 
-    @Override
-    public OnlineComServerShadow getShadow () {
-        return new OnlineComServerShadow(this);
+    protected void validate() {
+        super.validate();
+        this.validateQueryAPIPostUri();
+        this.validateEventRegistrationUri();
+        this.validateValueInRange(this.getStoreTaskQueueSize(), 1, MAXIMUM_STORE_TASK_QUEUE_SIZE, "onlineComServer.storeTaskQueueSize");
+        this.validateValueInRange(this.getNumberOfStoreTaskThreads(), 1, MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, "onlineComServer.numberOfStoreTaskThreads");
+        this.validateValueInRange(this.getStoreTaskThreadPriority(), MINIMUM_STORE_TASK_THREAD_PRIORITY, MAXIMUM_STORE_TASK_THREAD_PRIORITY, "onlineComServer.storeTaskThreadPriority");
+        this.validateInboundComPortDuplicateComPorts();
     }
 
-    public void init (final OnlineComServerShadow shadow) throws SQLException, BusinessException {
-        this.validateNew(shadow);
-        this.copyNew(shadow);
-        this.applyDefaultURIsIfEmpty();
-        this.postNew();
-        this.processInboundComPorts(shadow);
-        this.processOutboundComPorts(shadow);
-        this.created();
-    }
-
-    private void applyDefaultURIsIfEmpty () {
-        if (this.usesDefaultEventRegistrationUri) {
-            this.eventRegistrationUri = this.defaultEventRegistrationUri();
-        }
-        if (this.usesDefaultQueryAPIPostUri) {
-            this.queryAPIPostUri = this.defaultQueryApiPostUri();
-        }
-    }
-
-    private void validateNew (OnlineComServerShadow shadow) throws BusinessException {
-        this.validate(shadow);
-    }
-
-    private void validateUpdate (OnlineComServerShadow shadow) throws BusinessException {
-        this.validateUpdateAllowed();
-        this.validate(shadow);
-    }
-
-    protected void validate (OnlineComServerShadow shadow) throws BusinessException {
-        super.validate(shadow);
-        this.validateQueryAPIPostUri(shadow);
-        this.validateEventRegistrationUri(shadow);
-        this.validateValueInRange(shadow.getStoreTaskQueueSize(), 1, OnlineComServerShadow.MAXIMUM_STORE_TASK_QUEUE_SIZE, "onlineComServer.storeTaskQueueSize");
-        this.validateValueInRange(shadow.getNumberOfStoreTaskThreads(), 1, OnlineComServerShadow.MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, "onlineComServer.numberOfStoreTaskThreads");
-        this.validateValueInRange(shadow.getStoreTaskThreadPriority(), OnlineComServerShadow.MINIMUM_STORE_TASK_THREAD_PRIORITY, OnlineComServerShadow.MAXIMUM_STORE_TASK_THREAD_PRIORITY, "onlineComServer.storeTaskThreadPriority");
-        this.validateInboundComPortDuplicateComPorts(shadow);
-    }
-
-    private void validateInboundComPortDuplicateComPorts(OnlineComServerShadow shadow) throws InvalidValueException {
+    private void validateInboundComPortDuplicateComPorts() {
         List<Integer> portNumbers = new ArrayList<>();
-        for (InboundComPortShadow inboundComPortShadow : shadow.getInboundComPortShadows()) {
-            if(IPBasedInboundComPortShadow.class.isAssignableFrom(inboundComPortShadow.getClass())){
-                int portNumber = ((IPBasedInboundComPortShadow) inboundComPortShadow).getPortNumber();
+        for (InboundComPort inboundComPort : this.getInboundComPorts()) {
+            if(IPBasedInboundComPort.class.isAssignableFrom(inboundComPort.getClass())){
+                int portNumber = ((IPBasedInboundComPort) inboundComPort).getPortNumber();
                 if(portNumbers.contains(portNumber)){
-                    throw new InvalidValueException("duplicatecomportpercomserver", "'{0}' should be unique per comserver (duplicate: {1})", "comport.portnumber", portNumber);
+                    throw new TranslatableApplicationException("duplicatecomportpercomserver", "'{0}' should be unique per comserver (duplicate: {1})", "comport.portnumber", portNumber);
                 } else {
                     portNumbers.add(portNumber);
                 }
@@ -119,35 +63,34 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
         }
     }
 
-    private void validateQueryAPIPostUri (OnlineComServerShadow shadow) throws BusinessException {
-        String uri = shadow.getQueryAPIPostUri();
-        if (!Strings.isEmpty(uri)) {
-            this.validateUri(uri, "queryAPIPostURI");
+    private void validateQueryAPIPostUri() {
+        if (!Checks.is(this.queryAPIPostUri).emptyOrOnlyWhiteSpace()) {
+            this.validateUri(this.queryAPIPostUri, "queryAPIPostURI");
         }
     }
 
-    private void validateEventRegistrationUri (OnlineComServerShadow shadow) throws BusinessException {
-        String uri = shadow.getEventRegistrationUri();
-        if (!Strings.isEmpty(uri)) {
+    private void validateEventRegistrationUri() {
+        String uri = this.eventRegistrationUri;
+        if (!Checks.is(uri).emptyOrOnlyWhiteSpace()) {
             this.validateUri(uri, "eventRegistrationURI");
         }
     }
 
-    private void validateValueInRange (int value, int lowerBoundary, int upperBoundary, String propertyName) throws ValueOutOfRangeException {
-        if (!Numbers.between(value, lowerBoundary, upperBoundary)) {
-            throw new ValueOutOfRangeException(
+    private void validateValueInRange(int value, int lowerBoundary, int upperBoundary, String propertyName) {
+        if (!Range.closed(lowerBoundary, upperBoundary).contains(value)) {
+            throw new TranslatableApplicationException(
                     "valueXforPropertyshouldBeInRangeFromYandZ",
                     "The value {0} for property {1} should be in the range from {2} to {3}",
                     propertyName, value, lowerBoundary, upperBoundary);
         }
     }
 
-    private void validateUri (String uri, String propertyName) throws BusinessException {
+    private void validateUri(String uri, String propertyName)  {
         try {
             new URI(uri);
         }
         catch (URISyntaxException e) {
-            throw new BusinessException(
+            throw new TranslatableApplicationException(
                     "XisNotAValidURI",
                     "\"{0}\" is not a valid URI for property {1} of {2}",
                     new Object[] {uri, "onlineComServer." + propertyName, "onlineComServer"},
@@ -155,105 +98,27 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
         }
     }
 
-    private void copyNew (OnlineComServerShadow shadow) {
-        this.copy(shadow);
-    }
-
-    private void copy (OnlineComServerShadow shadow) {
-        super.copy(shadow);
-        this.usesDefaultQueryAPIPostUri = Strings.isEmpty(shadow.getQueryAPIPostUri());
-        if (!this.usesDefaultQueryApiPostUri()) {
-            this.queryAPIPostUri = shadow.getQueryAPIPostUri();
-        } else {
-            this.queryAPIPostUri = null;
-        }
-        this.usesDefaultEventRegistrationUri = Strings.isEmpty(shadow.getEventRegistrationUri());
-        if (!this.usesDefaultEventRegistrationUri) {
-            this.eventRegistrationUri = shadow.getEventRegistrationUri();
-        } else {
-            this.eventRegistrationUri = null;
-        }
-        this.numberOfStoreTaskThreads = shadow.getNumberOfStoreTaskThreads();
-        this.storeTaskThreadPriority = shadow.getStoreTaskThreadPriority();
-        this.storeTaskQueueSize = shadow.getStoreTaskQueueSize();
-    }
-
     @Override
-    protected void validateDelete() throws SQLException, BusinessException {
+    protected void validateDelete() {
         super.validateDelete();
         this.validateNotUsedByRemoteComServers();
     }
 
     @Override
-    protected void validateMakeObsolete () throws BusinessException {
+    protected void validateMakeObsolete() {
         super.validateMakeObsolete();
         this.validateNotUsedByRemoteComServers();
     }
 
-    private void validateNotUsedByRemoteComServers () throws BusinessException {
-        List<RemoteComServer> remoteComServersWithOnlineComServer = getComServerFactory().findRemoteComServersWithOnlineComServer(this);
+    private void validateNotUsedByRemoteComServers() {
+        List<ComServer> remoteComServersWithOnlineComServer = getComServerFactory().find("onlineComServer", this, "class", REMOTE_COMSERVER_DISCRIMINATOR);
         if (!remoteComServersWithOnlineComServer.isEmpty()) {
-            throw new BusinessException("onlineComServerXStillReferenced", "Online Comserver {0} is still referenced by {1} remote comserver(s)", this.getName(), remoteComServersWithOnlineComServer.size());
+            throw new TranslatableApplicationException("onlineComServerXStillReferenced", "Online Comserver {0} is still referenced by {1} remote comserver(s)", this.getName(), remoteComServersWithOnlineComServer.size());
         }
     }
 
-    @Override
-    protected int bindBody (PreparedStatement preparedStatement, int firstParameterNumber) throws SQLException {
-        int parameterNumber = super.bindBody(preparedStatement, firstParameterNumber);
-        preparedStatement.setString(parameterNumber++, this.eventRegistrationUri);
-        preparedStatement.setInt(parameterNumber++, this.toBoolean(this.usesDefaultEventRegistrationUri));
-        preparedStatement.setString(parameterNumber++, this.queryAPIPostUri);
-        preparedStatement.setInt(parameterNumber++, this.toBoolean(this.usesDefaultQueryAPIPostUri));
-        preparedStatement.setInt(parameterNumber++, this.storeTaskQueueSize);
-        preparedStatement.setInt(parameterNumber++, this.storeTaskThreadPriority);
-        preparedStatement.setInt(parameterNumber++, this.numberOfStoreTaskThreads);
-        return parameterNumber;
-    }
-
-    private int toBoolean (boolean flag) {
-        if (flag) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-
-    @Override
-    protected void doLoad (ResultSetIterator resultSet) throws SQLException {
-        super.doLoad(resultSet);
-        this.eventRegistrationUri = resultSet.nextString();
-        this.usesDefaultEventRegistrationUri = resultSet.nextBoolean();
-        this.queryAPIPostUri = resultSet.nextString();
-        this.usesDefaultQueryAPIPostUri = resultSet.nextBoolean();
-        this.storeTaskQueueSize = resultSet.nextInt();
-        this.storeTaskThreadPriority = resultSet.nextInt();
-        this.numberOfStoreTaskThreads = resultSet.nextInt();
-    }
-
-    @Override
-    public void update (final OnlineComServerShadow shadow) throws BusinessException, SQLException {
-        this.execute(new Transaction<Void>() {
-            public Void doExecute () throws BusinessException, SQLException {
-                doUpdate(shadow);
-                return null;
-            }
-        });
-    }
-
-    protected void doUpdate(OnlineComServerShadow shadow) throws BusinessException, SQLException {
-        String oldName = this.getName();
-        this.validateUpdate(shadow);
-        this.copyUpdate(shadow);
-        this.applyDefaultURIsIfEmpty();
-        this.post();
-        this.processInboundComPorts(shadow);
-        this.processOutboundComPorts(shadow);
-        this.updated();
-    }
-
-    private void copyUpdate (OnlineComServerShadow shadow) {
-        this.copy(shadow);
+    private DataMapper<ComServer> getComServerFactory() {
+        return Bus.getServiceLocator().getOrmClient().getComServerFactory();
     }
 
     @Override
@@ -262,17 +127,6 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
     }
 
     @Override
-    public List<InboundComPort> getInboundComPorts () {
-        return super.getInboundComPorts();
-    }
-
-    @Override
-    public List<OutboundComPort> getOutboundComPorts () {
-        return super.getOutboundComPorts();
-    }
-
-    @Override
-    @XmlElement
     public String getQueryApiPostUri () {
         return queryAPIPostUri;
     }
@@ -283,7 +137,14 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
     }
 
     @Override
-    @XmlElement
+    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri) {
+        this.usesDefaultQueryAPIPostUri = usesDefaultQueryAPIPostUri;
+        if (this.usesDefaultQueryAPIPostUri) {
+            this.queryAPIPostUri = this.defaultQueryApiPostUri();
+        }
+    }
+
+    @Override
     public String getEventRegistrationUri () {
         return eventRegistrationUri;
     }
@@ -294,8 +155,16 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
     }
 
     @Override
+    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
+        this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
+        if (this.usesDefaultEventRegistrationUri) {
+            this.eventRegistrationUri = this.defaultEventRegistrationUri();
+        }
+    }
+
+    @Override
     public String getEventRegistrationUriIfSupported () throws BusinessException {
-        if (Strings.isEmpty(this.getEventRegistrationUri())) {
+        if (Checks.is(this.getEventRegistrationUri()).emptyOrOnlyWhiteSpace()) {
             return super.getEventRegistrationUriIfSupported();
         }
         else {
@@ -305,7 +174,7 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
 
     @Override
     public String getQueryApiPostUriIfSupported () throws BusinessException {
-        if (Strings.isEmpty(this.getQueryApiPostUri())) {
+        if (Checks.is(this.getQueryApiPostUri()).emptyOrOnlyWhiteSpace()) {
             return super.getQueryApiPostUriIfSupported();
         }
         else {
@@ -314,21 +183,42 @@ public class OnlineComServerImpl extends ComServerImpl<OnlineComServerShadow> im
     }
 
     @Override
-    @XmlElement
     public int getStoreTaskQueueSize () {
         return storeTaskQueueSize;
     }
 
     @Override
-    @XmlElement
     public int getNumberOfStoreTaskThreads () {
         return numberOfStoreTaskThreads;
     }
 
     @Override
-    @XmlElement
     public int getStoreTaskThreadPriority () {
         return storeTaskThreadPriority;
     }
 
+    @Override
+    public void setQueryAPIPostUri(String queryAPIPostUri) {
+        this.queryAPIPostUri = queryAPIPostUri;
+    }
+
+    @Override
+    public void setEventRegistrationUri(String eventRegistrationUri) {
+        this.eventRegistrationUri = eventRegistrationUri;
+    }
+
+    @Override
+    public void setStoreTaskQueueSize(int storeTaskQueueSize) {
+        this.storeTaskQueueSize = storeTaskQueueSize;
+    }
+
+    @Override
+    public void setNumberOfStoreTaskThreads(int numberOfStoreTaskThreads) {
+        this.numberOfStoreTaskThreads = numberOfStoreTaskThreads;
+    }
+
+    @Override
+    public void setStoreTaskThreadPriority(int storeTaskThreadPriority) {
+        this.storeTaskThreadPriority = storeTaskThreadPriority;
+    }
 }

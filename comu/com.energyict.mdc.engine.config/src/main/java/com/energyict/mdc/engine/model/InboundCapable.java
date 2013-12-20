@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.ports.InboundComPort;
-
 import java.util.List;
 
 /**

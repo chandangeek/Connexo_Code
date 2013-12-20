@@ -3,19 +3,14 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,16 +26,20 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public abstract class ComServerImpl implements ServerComServer {
+
+    protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
+    protected static final String OFFLINE_COMSERVER_DISCRIMINATOR = "1";
+    protected static final String REMOTE_COMSERVER_DISCRIMINATOR = "2";
+
     static final Map<String, Class<? extends ServerComServer>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ServerComServer>>of(
-                    "0", OnlineComServerImpl.class,
-                    "1", OfflineComServerImpl.class,
-                    "2", RemoteComServerImpl.class);
+                    ONLINE_COMSERVER_DISCRIMINATOR, OnlineComServerImpl.class,
+                    OFFLINE_COMSERVER_DISCRIMINATOR, OfflineComServerImpl.class,
+                    REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);
 
     public static final int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
     public static final int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
-    private static final String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
-    private static final String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
+
 
     private long id;
     private String name;
@@ -62,7 +61,7 @@ public abstract class ComServerImpl implements ServerComServer {
         return ImmutableList.copyOf(this.comPorts);
     }
 
-    protected void validate() throws BusinessException {
+    protected void validate(){
         this.validate(name);
         if (!name.equals(this.getName())) {
             this.validateConstraint(name);
@@ -73,19 +72,19 @@ public abstract class ComServerImpl implements ServerComServer {
         this.validateSchedulingInterPollDelay();
     }
 
-    private void validateChangesInterPollDelay () throws InvalidValueException {
+    private void validateChangesInterPollDelay() {
         this.validateNotNull(this.getChangesInterPollDelay(), CHANGES_INTER_POLL_DELAY_RESOURCE_KEY);
-//        this.validateBigger(this.getChangesInterPollDelay(), ComServerShadow.MINIMUM_INTERPOLL_DELAY, CHANGES_INTER_POLL_DELAY_RESOURCE_KEY);
+        this.validateBigger(this.getChangesInterPollDelay(), MINIMUM_INTERPOLL_DELAY, CHANGES_INTER_POLL_DELAY_RESOURCE_KEY);
     }
 
-    private void validateSchedulingInterPollDelay () throws InvalidValueException {
+    private void validateSchedulingInterPollDelay()  {
         this.validateNotNull(this.getSchedulingInterPollDelay(), SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY);
-//        this.validateBigger(this.getSchedulingInterPollDelay(), ComServerShadow.MINIMUM_INTERPOLL_DELAY, SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY);
+        this.validateBigger(this.getSchedulingInterPollDelay(), MINIMUM_INTERPOLL_DELAY, SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY);
     }
 
-    protected void validateUpdateAllowed () throws BusinessException {
+    protected void validateUpdateAllowed() {
         if (this.obsoleteFlag) {
-            throw new BusinessException("comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated");
+            throw new TranslatableApplicationException("comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated");
         }
     }
 
@@ -100,15 +99,15 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
-    protected void validateNotNull (Object propertyValue, String propertyName) throws InvalidValueException {
+    protected void validateNotNull (Object propertyValue, String propertyName) {
         if (propertyValue == null) {
-            throw new InvalidValueException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
+            throw new TranslatableApplicationException("XcannotBeEmpty", "\"{0}\" is a required property", propertyName);
         }
     }
 
-    protected void validateBigger (TimeDuration propertyValue, TimeDuration minimum, String propertyName) throws InvalidValueException {
+    protected void validateBigger (TimeDuration propertyValue, TimeDuration minimum, String propertyName) {
         if (minimum.compareTo(propertyValue) > 0) {
-            throw new InvalidValueException("XshouldBeAtLeast", "Minimal acceptable value for \"{0}\" is \"{1}\"", propertyName, minimum);
+            throw new TranslatableApplicationException("XshouldBeAtLeast", "Minimal acceptable value for \"{0}\" is \"{1}\"", propertyName, minimum);
         }
     }
 
@@ -140,9 +139,15 @@ public abstract class ComServerImpl implements ServerComServer {
 
     @Override
     public void delete() {
+        validateDelete();
         this.comPorts.clear();
         getComServerFactory().remove(this);
     }
+
+    protected void validateDelete() {
+
+    }
+
 
     @Override
     public List<ComPort> getComPorts () {
@@ -153,7 +158,7 @@ public abstract class ComServerImpl implements ServerComServer {
         return comPorts;
     }
 
-    protected List<InboundComPort> getInboundComPorts () {
+    public final  List<InboundComPort> getInboundComPorts () {
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.getServerComPorts()) {
             if (comPort.isInbound()) {
@@ -164,7 +169,7 @@ public abstract class ComServerImpl implements ServerComServer {
         return inboundComPorts;
     }
 
-    protected List<OutboundComPort> getOutboundComPorts () {
+    public final List<OutboundComPort> getOutboundComPorts() {
         List<OutboundComPort> outboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.getServerComPorts()) {
             if (!comPort.isInbound()) {
@@ -175,68 +180,72 @@ public abstract class ComServerImpl implements ServerComServer {
         return outboundComPorts;
     }
 
-    private void addToComPortCache (ServerComPort comPort) {
-        if (this.comPorts != null) {
-            this.comPorts.add(comPort);
+    @Override
+    public OutboundComPort.OutboundComPortBuilder newOutbound() {
+        return new OutboundBuilder();
+    }
+
+    class OutboundBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
+
+        private OutboundBuilder() {
+            super();
+        }
+
+        @Override
+        public OutboundComPort add() {
+            ServerOutboundComPort comPort = (ServerOutboundComPort) super.add();
+            ComServerImpl.this.comPorts.add(comPort);
+            return comPort;
         }
     }
 
-    public class Builder {
-        public OutboundComPortBuilder newOutboundComPort() {
-            OutboundComPort
-        }
-    }
-    private void addComPort(ComPort comPort) {
-        comPorts.add(comPort);
-    }
-
-            @Override
-            public OutboundComPort createOutbound (final OutboundComPortShadow shadow) throws BusinessException, SQLException {
-                shadow.setComServerId(this.getId());
-                ServerOutboundComPort comPort = this.getComPortFactory().createOutbound(this, shadow);
-                if (isPersistent) {
-                    this.post();
-                }
-                this.addToComPortCache(comPort);
-                return comPort;
-            }
-
-            @Override
-            public ModemBasedInboundComPort createModemBasedInbound (final ModemBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-                shadow.setComServerId(this.getId());
-                ServerModemBasedInboundComPort comPort = this.getComPortFactory().createModemBasedInbound(this, shadow);
-                this.post();
-                this.addToComPortCache(comPort);
-                return comPort;
-            }
-
-            @Override
-            public TCPBasedInboundComPort createTCPBasedInbound (final TCPBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-                shadow.setComServerId(this.getId());
-                ServerTCPBasedInboundComPort comPort = this.getComPortFactory().createTCPBasedInbound(this, shadow);
-                this.post();
-                this.addToComPortCache(comPort);
-                return comPort;
-            }
-
-            @Override
-            public UDPBasedInboundComPort createUDPBasedInbound (final UDPBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-                shadow.setComServerId(this.getId());
-                ServerUDPBasedInboundComPort comPort = this.getComPortFactory().createUDPBasedInbound(this, shadow);
-                this.post();
-                this.addToComPortCache(comPort);
-                return comPort;
-            }
-
-            @Override
-            public ServletBasedInboundComPort createServletBasedInbound (final ServletBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-                shadow.setComServerId(this.getId());
-                ServerServletBasedInboundComPort comPort = this.getComPortFactory().createServletBasedInbound(this, shadow);
-                this.post();
-                this.addToComPortCache(comPort);
-                return comPort;
-            }
-    protected void validate (String newName) throws BusinessException {
+//            @Override
+//            public OutboundComPort createOutbound (final OutboundComPortShadow shadow) throws BusinessException, SQLException {
+//                shadow.setComServerId(this.getId());
+//                ServerOutboundComPort comPort = this.getComPortFactory().createOutbound(this, shadow);
+//                if (isPersistent) {
+//                    this.post();
+//                }
+//                this.addToComPortCache(comPort);
+//                return comPort;
+//            }
+//
+//            @Override
+//            public ModemBasedInboundComPort createModemBasedInbound (final ModemBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
+//                shadow.setComServerId(this.getId());
+//                ServerModemBasedInboundComPort comPort = this.getComPortFactory().createModemBasedInbound(this, shadow);
+//                this.post();
+//                this.addToComPortCache(comPort);
+//                return comPort;
+//            }
+//
+//            @Override
+//            public TCPBasedInboundComPort createTCPBasedInbound (final TCPBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
+//                shadow.setComServerId(this.getId());
+//                ServerTCPBasedInboundComPort comPort = this.getComPortFactory().createTCPBasedInbound(this, shadow);
+//                this.post();
+//                this.addToComPortCache(comPort);
+//                return comPort;
+//            }
+//
+//            @Override
+//            public UDPBasedInboundComPort createUDPBasedInbound (final UDPBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
+//                shadow.setComServerId(this.getId());
+//                ServerUDPBasedInboundComPort comPort = this.getComPortFactory().createUDPBasedInbound(this, shadow);
+//                this.post();
+//                this.addToComPortCache(comPort);
+//                return comPort;
+//            }
+//
+//            @Override
+//            public ServletBasedInboundComPort createServletBasedInbound (final ServletBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
+//                shadow.setComServerId(this.getId());
+//                ServerServletBasedInboundComPort comPort = this.getComPortFactory().createServletBasedInbound(this, shadow);
+//                this.post();
+//                this.addToComPortCache(comPort);
+//                return comPort;
+//            }
+    protected void validate (String newName) {
         /* Validation provided by superclass work with a set of invalid
          * characters (see getInvalidCharacters()) but actually,
          * a set of valid chars works a lot better in this case.
@@ -252,12 +261,11 @@ public abstract class ComServerImpl implements ServerComServer {
      * of a ComServer will be used as a hostname in URLs later on.
      *
      * @param name The name to be verified
-     * @throws BusinessException Thrown when the name contains characters that are NOT accepted by the RFC 1035 spec
      */
-    private void checkContainsOnlyRFC1035Chars (String name) throws BusinessException {
+    private void checkContainsOnlyRFC1035Chars (String name) {
         for (int i = 0; i < name.length(); i++) {
             if (!this.isRFC1035Char(name.charAt(i))) {
-                throw new BusinessException("nameXcontainsInvalidChars", "The name \"{0}\" contains invalid characters", name);
+                throw new TranslatableApplicationException("nameXcontainsInvalidChars", "The name \"{0}\" contains invalid characters", name);
             }
         }
     }
@@ -389,5 +397,16 @@ public abstract class ComServerImpl implements ServerComServer {
     public String getQueryApiPostUriIfSupported () throws BusinessException {
         throw new BusinessException("ComServerXDoesNotSupportRemoteQueries", "The comserver {0} does not support remote queries", this.getName());
     }
+
+    public void save() {
+        validate();
+        if (this.getId()==0) {
+            Bus.getServiceLocator().getOrmClient().getComServerFactory().persist(this);
+        } else {
+            validateUpdateAllowed();
+            Bus.getServiceLocator().getOrmClient().getComServerFactory().update(this);
+        }
+    }
+
 
 }

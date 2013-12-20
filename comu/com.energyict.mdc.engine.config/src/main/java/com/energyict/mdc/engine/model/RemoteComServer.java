@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.shadow.servers.RemoteComServerShadow;
-
 /**
  * Models a {@link ComServer} that installed in the DMZ and is not
  * allowed to communicate directly with the online database for security reasons.
@@ -12,7 +10,7 @@ import com.energyict.mdc.shadow.servers.RemoteComServerShadow;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (17:44)
  */
-public interface RemoteComServer extends ComServer<RemoteComServerShadow>, InboundCapableComServer<RemoteComServerShadow>, OutboundCapableComServer<RemoteComServerShadow> {
+public interface RemoteComServer extends ComServer, InboundCapableComServer, OutboundCapableComServer {
 
     /**
      * Gets the URI on which the event registration mechanism runs.
@@ -20,6 +18,7 @@ public interface RemoteComServer extends ComServer<RemoteComServerShadow>, Inbou
      * @return The URI or <code>null</code> if this ComServer does not support event registration
      */
     public String getEventRegistrationUri ();
+    public void setEventRegistrationUri(String eventRegistrationUri);
 
     /**
      * Tests if the URI for the event registration mechanism
@@ -28,6 +27,7 @@ public interface RemoteComServer extends ComServer<RemoteComServerShadow>, Inbou
      * @return <code>true</code> iff the URI for the event registration mechanism is the default one
      */
     public boolean usesDefaultEventRegistrationUri ();
+    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
 
     /**
      * Gets the {@link OnlineComServer} that this remote ComServer
@@ -37,6 +37,7 @@ public interface RemoteComServer extends ComServer<RemoteComServerShadow>, Inbou
      * @return The OnlineComServer
      */
     public OnlineComServer getOnlineComServer();
+    public void setOnlineComServer(OnlineComServer onlineComServer);
 
     /**
      * Gets the username that is required to authenticate the usage
@@ -45,6 +46,7 @@ public interface RemoteComServer extends ComServer<RemoteComServerShadow>, Inbou
      * @return The username
      */
     public String getQueryAPIUsername();
+    public void setQueryAPIUsername(String queryAPIUsername);
 
     /**
      * Gets the password that is required to authenticate the usage
@@ -53,5 +55,6 @@ public interface RemoteComServer extends ComServer<RemoteComServerShadow>, Inbou
      * @return The password
      */
     public String getQueryAPIPassword();
+    public void setQueryAPIPassword(String queryAPIPassword);
 
 }

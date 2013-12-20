@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.model.ComServer;
  * @since 2012-11-02 (15:27)
  */
 public interface ServerComServer extends ComServer {
-
     /**
      * Gets the URI on which the event registration mechanism runs
      * if that mechanism is supported.

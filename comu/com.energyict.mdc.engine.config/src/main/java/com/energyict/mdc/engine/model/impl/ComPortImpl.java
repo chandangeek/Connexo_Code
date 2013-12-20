@@ -191,18 +191,6 @@ public abstract class ComPortImpl implements ServerComPort {
         this.description = description;
     }
 
-    public boolean isObsoleteFlag() {
-        return obsoleteFlag;
-    }
-
-    public void setObsoleteFlag(boolean obsoleteFlag) {
-        this.obsoleteFlag = obsoleteFlag;
-    }
-
-    public void setObsoleteDate(Date obsoleteDate) {
-        this.obsoleteDate = obsoleteDate;
-    }
-
     public void setComPortType(ComPortType type) {
         this.type = type;
     }
@@ -231,7 +219,7 @@ public abstract class ComPortImpl implements ServerComPort {
     }
 
     @Override
-    public void persist() {
+    public void save() {
         validate();
         if (this.getId()==0) {
             Bus.getServiceLocator().getOrmClient().getComPortFactory().persist(this);
@@ -241,22 +229,49 @@ public abstract class ComPortImpl implements ServerComPort {
         }
     }
 
-    static protected class Builder<T extends ComPort> {
-        T comPort;
+    static protected class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
+        C comPort;
+        B self;
 
-        protected Builder(T comPort) {
+        protected ComPortBuilderImpl(C comPort, Class<B> clazz) {
             this.comPort = comPort;
+            self = clazz.cast(this);
         }
 
-        public Builder comPortType(ComPortType comPortType) {
+        @Override
+        public B comPortType(ComPortType comPortType) {
             comPort.setComPortType(comPortType);
-            return this;
+            return self;
         }
 
-        public Builder name(String name) {
+        @Override
+        public B name(String name) {
             comPort.setName(name);
-            return this;
+            return self;
+        }
+
+        @Override
+        public B comServer(ComServer comServer) {
+            comPort.setComServer(comServer);
+            return self;
+        }
+
+        @Override
+        public B active(boolean active) {
+            comPort.setActive(active);
+            return self;
+        }
+
+        @Override
+        public B description(String description) {
+            comPort.setDescription(description);
+            return self;
+        }
+
+        @Override
+        public C add() {
+            ((ComPortImpl)comPort).validate();
+            return comPort;
         }
     }
-
 }

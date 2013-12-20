@@ -35,6 +35,28 @@ import java.util.List;
  * @since 2012-03-27 (16:42)
  */
 public interface ComServer {
+    static final String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
+    static final String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
+    /**
+     * The minimum TimeDuration that can be used for changes and scheduling interpoll delay.
+     */
+    static final TimeDuration MINIMUM_INTERPOLL_DELAY = new TimeDuration(60, TimeDuration.SECONDS);
+    /**
+     * The maximum value for the storeTaskQueueSize property.
+     */
+    public static final int MAXIMUM_STORE_TASK_QUEUE_SIZE = 99999;
+    /**
+     * The maximum value for the numberOfStoreTaskThreads property.
+     */
+    public static final int MAXIMUM_NUMBER_OF_STORE_TASK_THREADS = 99;
+    /**
+     * The minimum value for the storeTaskThreadPriority property.
+     */
+    public static final int MINIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MIN_PRIORITY;
+    /**
+     * The maximum value for the storeTaskThreadPriority property.
+     */
+    public static final int MAXIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MAX_PRIORITY;
 
     public enum LogLevel {
         /**
@@ -208,7 +230,11 @@ public interface ComServer {
 
     public void setActive(boolean active);
 
-    void delete();
+    public String getType();
 
+    public OutboundComPort.OutboundComPortBuilder newOutbound();
 
+    public void delete();
+
+    public void save();
 }

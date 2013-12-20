@@ -1,14 +1,12 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
-
 /**
  * Models a {@link ComServer} that is connected to the online database.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (17:43)
  */
-public interface OnlineComServer extends ComServer<OnlineComServerShadow>, InboundCapableComServer<OnlineComServerShadow>, OutboundCapableComServer<OnlineComServerShadow> {
+public interface OnlineComServer extends ComServer, InboundCapableComServer, OutboundCapableComServer {
 
     /**
      * Gets the URI on which the event registration mechanism runs.
@@ -73,4 +71,17 @@ public interface OnlineComServer extends ComServer<OnlineComServerShadow>, Inbou
      */
     public int getStoreTaskThreadPriority ();
 
+    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri);
+
+    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
+
+    public void setQueryAPIPostUri(String queryAPIPostUri);
+
+    public void setEventRegistrationUri(String eventRegistrationUri);
+
+    public void setStoreTaskQueueSize(int storeTaskQueueSize);
+
+    public void setNumberOfStoreTaskThreads(int numberOfStoreTaskThreads);
+
+    public void setStoreTaskThreadPriority(int storeTaskThreadPriority);
 }

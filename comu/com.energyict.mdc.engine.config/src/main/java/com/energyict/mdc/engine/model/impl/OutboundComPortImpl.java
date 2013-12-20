@@ -56,21 +56,15 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
         }
     }
 
-    static public Builder newOutbound() {
-        return new Builder();
-    }
-
-    static private class Builder extends ComPortImpl.Builder<OutboundComPort> {
-        private Builder() {
-            super(new OutboundComPortImpl());
+    static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, OutboundComPort> implements OutboundComPortBuilder {
+        protected OutboundComPortBuilderImpl() {
+            super(new OutboundComPortImpl(), OutboundComPortBuilder.class);
         }
 
-        public Builder numberOfSimultaneousConnections(int number) {
+        public OutboundComPortBuilder numberOfSimultaneousConnections(int number) {
             comPort.setNumberOfSimultaneousConnections(number);
             return this;
         }
-
-
     }
 
 

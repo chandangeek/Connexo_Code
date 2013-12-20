@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.shadow.servers.OfflineComServerShadow;
-
 /**
  * Models a {@link ComServer} that will run offline,
  * i.e. isolated from the online database.
@@ -14,6 +12,6 @@ import com.energyict.mdc.shadow.servers.OfflineComServerShadow;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (17:40)
  */
-public interface OfflineComServer extends ComServer<OfflineComServerShadow>, OutboundCapableComServer<OfflineComServerShadow> {
+public interface OfflineComServer extends ComServer, OutboundCapableComServer {
 
 }
