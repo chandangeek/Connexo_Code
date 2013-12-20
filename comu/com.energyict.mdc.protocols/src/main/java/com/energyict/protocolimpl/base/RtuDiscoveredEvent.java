@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.cpo.AbstractBusinessEvent;
+import com.energyict.mdc.common.AbstractBusinessEvent;
 import com.energyict.mdw.core.Device;
 
 /**

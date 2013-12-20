@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.protocol.api.ConnectionType;

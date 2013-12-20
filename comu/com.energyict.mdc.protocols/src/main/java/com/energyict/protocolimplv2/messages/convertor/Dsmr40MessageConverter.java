@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;

@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;

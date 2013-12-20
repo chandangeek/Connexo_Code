@@ -11,7 +11,7 @@ import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.cryptoimpl.KeyStoreDataVaultProvider;

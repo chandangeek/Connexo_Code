@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;

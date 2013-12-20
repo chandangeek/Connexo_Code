@@ -3,7 +3,7 @@ package com.energyict.protocols.mdc.protocoltasks;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;

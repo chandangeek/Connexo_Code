@@ -19,7 +19,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimplv2.MdcManager;
 

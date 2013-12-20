@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import org.junit.*;
 
 import java.util.ArrayList;

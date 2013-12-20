@@ -5,7 +5,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;

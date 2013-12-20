@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;

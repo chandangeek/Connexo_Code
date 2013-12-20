@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.cpo.SqlBuilder;
+import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;

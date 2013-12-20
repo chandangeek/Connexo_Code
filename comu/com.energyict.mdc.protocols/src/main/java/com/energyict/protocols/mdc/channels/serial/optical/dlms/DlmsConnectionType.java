@@ -1,8 +1,8 @@
 package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
 import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;

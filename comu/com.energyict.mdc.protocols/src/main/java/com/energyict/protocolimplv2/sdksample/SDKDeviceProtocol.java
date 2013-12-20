@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;

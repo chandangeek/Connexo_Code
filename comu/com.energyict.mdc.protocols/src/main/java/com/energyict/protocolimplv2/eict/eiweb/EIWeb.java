@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;

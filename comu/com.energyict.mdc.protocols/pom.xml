@@ -29,6 +29,11 @@
     <dependencies>
         <dependency>
           <groupId>com.energyict</groupId>
+          <artifactId>mdc.dynamic</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.energyict</groupId>
           <artifactId>mdc-common</artifactId>
           <version>${project.version}</version>
         </dependency>
