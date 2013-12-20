@@ -1,21 +1,5 @@
 package com.elster.jupiter.parties.impl;
 
-import java.sql.SQLException;
-import java.util.Date;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static org.mockito.Mockito.mock;
-
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -33,7 +17,6 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -43,8 +26,18 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
+import java.sql.SQLException;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyCrudTest {

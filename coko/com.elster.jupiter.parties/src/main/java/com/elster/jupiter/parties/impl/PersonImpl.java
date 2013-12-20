@@ -9,7 +9,7 @@ public final class PersonImpl extends PartyImpl implements Person {
 
 	private String firstName;
 	private String lastName;
-	private String mName;
+	private String middleName;
 	private String prefix;
 	private String suffix;
 	private String specialNeed;
@@ -58,7 +58,7 @@ public final class PersonImpl extends PartyImpl implements Person {
 
     @Override
 	public String getMiddleName() {
-		return mName;
+		return middleName;
 	}
 
     @Override
@@ -75,7 +75,7 @@ public final class PersonImpl extends PartyImpl implements Person {
 
     @Override
     public void setMiddleName(String mName) {
-		this.mName = mName;
+		this.middleName = mName;
 	}
 
     @Override
