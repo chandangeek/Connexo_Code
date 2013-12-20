@@ -3,6 +3,7 @@ package com.energyict.mdc.dynamic.relation.impl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
@@ -54,7 +55,7 @@ public class RelationTransactionImpl implements RelationTransaction, DynamicAttr
     }
 
     public Relation execute() throws BusinessException, SQLException {
-        return this.doExecute();
+        return Environment.DEFAULT.get().execute(this);
     }
 
     private void lock() {

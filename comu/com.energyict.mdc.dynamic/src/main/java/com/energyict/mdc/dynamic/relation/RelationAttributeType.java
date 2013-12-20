@@ -57,6 +57,8 @@ public interface RelationAttributeType extends NamedBusinessObject {
      */
     public boolean isDefault();
 
+    public void clearDefaultFlag();
+
     /**
      * returns the specific value type in case of references (eg Folder), while getValueType() returns
      * the generalized type (eg IdBusinessObject)

@@ -308,6 +308,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         return isDefault;
     }
 
+    @Override
     public void clearDefaultFlag() {
         isDefault = null;
     }
