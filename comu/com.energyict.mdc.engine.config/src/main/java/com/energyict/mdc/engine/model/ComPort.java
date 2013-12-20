@@ -111,6 +111,8 @@ public interface ComPort {
 
     public void save();
 
+    void delete();
+
     public interface Builder<B extends Builder<B,C>, C extends ComPort> {
         B name(String name);
         B comPortType(ComPortType comPortType);

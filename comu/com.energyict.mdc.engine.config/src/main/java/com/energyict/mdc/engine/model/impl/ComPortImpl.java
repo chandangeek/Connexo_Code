@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -108,13 +109,6 @@ public abstract class ComPortImpl implements ServerComPort {
         if (!acceptableRange.contains(propertyValue)) {
             throw new TranslatableApplicationException("XnotInAcceptableRange", "\"{0}\" should be between {1} and {2}", propertyName, acceptableRange.lowerEndpoint(), acceptableRange.upperEndpoint());
         }
-    }
-
-    @Override
-    public void makeObsolete(){
-        this.validateMakeObsolete();
-        this.obsoleteFlag = true;
-        getComPortFactory().update(this);
     }
 
     private void validateMakeObsolete() {
@@ -222,10 +216,33 @@ public abstract class ComPortImpl implements ServerComPort {
     public void save() {
         validate();
         if (this.getId()==0) {
-            Bus.getServiceLocator().getOrmClient().getComPortFactory().persist(this);
+            getComPortFactory().persist(this);
         } else {
             validateUpdateAllowed();
-            Bus.getServiceLocator().getOrmClient().getComPortFactory().update(this);
+            getComPortFactory().update(this);
+        }
+    }
+
+    @Override
+    public void delete() {
+        getComPortFactory().remove(this);
+    }
+
+    @Override
+    public void makeObsolete(){
+        this.validateMakeObsolete();
+        this.obsoleteFlag = true;
+        removeFromComPortPools();
+        getComPortFactory().update(this);
+    }
+
+    private void removeFromComPortPools() {
+        Iterator<ComPortPoolMember> iterator = comPortPoolMembers.iterator();
+        while(iterator.hasNext()) {
+            ComPortPoolMember comPortPoolMember = iterator.next();
+            if (comPortPoolMember.getComPort().getId()==this.id) {
+                iterator.remove();
+            }
         }
     }
 
