@@ -35,7 +35,7 @@ public enum TableSpecs {
 
             table.primaryKey("EVT_PK_EVENTPROPERTYTYPE").on(topicColumn, nameColumn).add();
             table.unique("EVT_UK_EVENTPROPERTYTYPE").on(topicColumn, positionColumn).add();
-            table.foreignKey("EVT_FK_EVENTTYPE_PROPERY").references(EVT_EVENTTYPE.name()).onDelete(DeleteRule.CASCADE).map("eventType").reverseMap("eventPropertyTypes").on(topicColumn).composition().add();
+            table.foreignKey("EVT_FK_EVENTTYPE_PROPERTY").references(EVT_EVENTTYPE.name()).onDelete(DeleteRule.CASCADE).map("eventType").reverseMap("eventPropertyTypes").on(topicColumn).composition().add();
         }
     };
 

@@ -95,6 +95,7 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        ormService.register(dataModel);
         this.ormClient = new OrmClientImpl(dataModel);
     }
 
