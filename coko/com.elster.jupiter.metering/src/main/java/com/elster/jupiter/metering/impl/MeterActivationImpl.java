@@ -33,7 +33,7 @@ public class MeterActivationImpl implements MeterActivation {
 	// associations
 	private UsagePoint usagePoint;
     private Meter meter;
-    private List<Channel> channels;
+    private final List<Channel> channels = new ArrayList<>();
 	
 	@SuppressWarnings("unused")
 	private MeterActivationImpl() {	
@@ -45,7 +45,6 @@ public class MeterActivationImpl implements MeterActivation {
 		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
 		this.usagePoint = usagePoint;
 		this.interval = Interval.startAt(start);
-		this.channels = new ArrayList<>();
 	}
 	
 	public MeterActivationImpl(UsagePoint usagePoint, Date at) {
@@ -90,7 +89,7 @@ public class MeterActivationImpl implements MeterActivation {
 	
 	@Override
 	public List<Channel> getChannels() {
-        return Collections.unmodifiableList(doGetChannels());
+        return Collections.unmodifiableList(channels);
     }
 
     @Override
@@ -107,17 +106,9 @@ public class MeterActivationImpl implements MeterActivation {
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
 		//TODO: check for duplicate channel
         Channel channel = Bus.getChannelBuilder().meterActivation(this).readingTypes(main, readingTypes).build();
-        List<Channel> result = doGetChannels();
-        result.add(channel);
+        channels.add(channel);
         return channel;
 	}
-
-    private List<Channel> doGetChannels() {
-        if (channels == null) {
-            channels = Bus.getOrmClient().getChannelFactory().find("meterActivation", this);
-        }
-        return channels;
-    }
 
     @Override
 	public List<ReadingType> getReadingTypes() {

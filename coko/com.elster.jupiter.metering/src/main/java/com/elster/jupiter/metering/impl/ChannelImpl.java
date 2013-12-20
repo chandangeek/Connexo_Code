@@ -14,6 +14,8 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DoesNotExistException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
@@ -41,7 +43,6 @@ public final class ChannelImpl implements Channel {
 	
 	// persistent fields
 	private long id;
-	private long meterActivationId;
 	private long timeSeriesId;
 	private String mainReadingTypeMRID;
 	private String cumulativeReadingTypeMRID;
@@ -55,7 +56,7 @@ public final class ChannelImpl implements Channel {
 
 	
 	// associations
-	private MeterActivation meterActivation;
+	private Reference<MeterActivation> meterActivation = ValueReference.absent();
 	private TimeSeries timeSeries;
 	private ReadingType mainReadingType;
 	private ReadingType cumulativeReadingType;
@@ -66,8 +67,7 @@ public final class ChannelImpl implements Channel {
 	}
 	
 	ChannelImpl(MeterActivation meterActivation) {
-		this.meterActivation = meterActivation;
-		this.meterActivationId = meterActivation.getId();
+		this.meterActivation.set(meterActivation);
 	}
 	
 	@Override
@@ -77,10 +77,7 @@ public final class ChannelImpl implements Channel {
 	
 	@Override 
 	public MeterActivation getMeterActivation() {
-		if (meterActivation == null) {
-			meterActivation = Bus.getOrmClient().getMeterActivationFactory().getExisting(meterActivationId);
-		}
-		return meterActivation;
+		return meterActivation.get();
 	}
 	
 	@Override

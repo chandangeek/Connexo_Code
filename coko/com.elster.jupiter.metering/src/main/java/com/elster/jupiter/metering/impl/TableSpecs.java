@@ -209,7 +209,7 @@ public enum TableSpecs {
 			Column cumulativeReadingTypeMRIDColumn = table.addColumn("CUMULATIVEREADINGTYPEMRID","varchar2(80)",false,NOCONVERSION,"cumulativeReadingTypeMRID");
 			table.addAuditColumns();
 			table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
-			table.foreignKey("MTR_FK_CHANNELACTIVATION").references(MTR_METERACTIVATION.name()).onDelete(RESTRICT).map("meterActivation").reverseMap("channels").on(meterActivationIdColumn).add();
+			table.foreignKey("MTR_FK_CHANNELACTIVATION").references(MTR_METERACTIVATION.name()).onDelete(RESTRICT).map("meterActivation").reverseMap("channels").on(meterActivationIdColumn).composition().add();
 			table.foreignKey("MTR_FK_CHANNELMAINTYPE").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("mainReadingType").on(mainReadingTypeMRIDColumn).add();
 			table.foreignKey("MTR_FK_CHANNELCUMULATIVETYPE").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("cumulativeReadingType").on(cumulativeReadingTypeMRIDColumn).add();
 			table.foreignKey("MTR_FK_CHANNELTIMESERIES").on(timeSeriesIdColumn).references("IDS","IDS_TIMESERIES").onDelete(RESTRICT).map("timeSeries").add();
