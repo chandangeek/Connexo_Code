@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.Device;

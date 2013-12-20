@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
