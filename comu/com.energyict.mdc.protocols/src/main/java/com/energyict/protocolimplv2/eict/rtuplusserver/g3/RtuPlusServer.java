@@ -37,7 +37,7 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     protected DlmsProtocolProperties getProtocolProperties() {
-        return null;  // nothing to do yet
+        return new Dsmr23Properties();
     }
 
     @Override

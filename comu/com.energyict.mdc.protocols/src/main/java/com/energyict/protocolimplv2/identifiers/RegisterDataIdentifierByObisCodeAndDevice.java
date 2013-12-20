@@ -23,11 +23,13 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements CanFindRegiste
 
     private final ObisCode registerObisCode;
     private final CanFindDevice deviceIdentifier;
+    private final ObisCode deviceRegisterObisCode;
 
     private Register register;
 
-    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, CanFindDevice deviceIdentifier) {
+    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, CanFindDevice deviceIdentifier) {
         this.registerObisCode = registerObisCode;
+        this.deviceRegisterObisCode = deviceRegisterObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
@@ -50,12 +52,18 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements CanFindRegiste
     }
 
     @Override
-    public String toString() {
-        return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
+    public ObisCode getObisCode() {
+        return this.registerObisCode;
     }
 
-    public ObisCode getRegisterObisCode() {
-        return registerObisCode;
+    @Override
+    public ObisCode getDeviceRegisterObisCode() {
+        return this.deviceRegisterObisCode;
+    }
+
+    @Override
+    public String toString() {
+        return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
     }
 
     public CanFindDevice getDeviceIdentifier() {

@@ -35,7 +35,7 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     protected DlmsProtocolProperties getProtocolProperties() {
-        return null;  // nothing to do
+        return new Dsmr23Properties();
     }
 
     @Override
