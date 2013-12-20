@@ -19,7 +19,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
         'Mdc.store.LogLevels',
         'Mdc.view.setup.comport.OutboundComPorts',
         'Mdc.view.setup.comport.InboundComPorts',
-        'Mdc.view.setup.BigEarPopUp'
     ],
 
     initComponent: function () {
