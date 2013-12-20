@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
 import java.util.List;
@@ -55,6 +56,22 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
         }
     }
 
+    static public Builder newOutbound() {
+        return new Builder();
+    }
+
+    static private class Builder extends ComPortImpl.Builder<OutboundComPort> {
+        private Builder() {
+            super(new OutboundComPortImpl());
+        }
+
+        public Builder numberOfSimultaneousConnections(int number) {
+            comPort.setNumberOfSimultaneousConnections(number);
+            return this;
+        }
+
+
+    }
 
 
 }

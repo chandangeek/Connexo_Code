@@ -181,7 +181,11 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
-    public class Builder {}
+    public class Builder {
+        public OutboundComPortBuilder newOutboundComPort() {
+            OutboundComPort
+        }
+    }
     private void addComPort(ComPort comPort) {
         comPorts.add(comPort);
     }

@@ -21,14 +21,12 @@ public enum TableSpecs {
             table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
             table.column("OBSOLETEFLAG").type("varchar2(1)").map("obsoleteFlag").conversion(ColumnConversion.CHAR2BOOLEAN).add();
             table.column("OBSOLETEDATE").type("DATE").map("obsoleteDate").add();
-            table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).add();
-            table.column("TASKEXECUTIONTIMEOUT.COUNT").number().conversion(ColumnConversion.NUMBER2INT).add();
-            table.column("TASKEXECUTIONTIMEOUT.TIMEUNITCODE").number().conversion(ColumnConversion.NUMBER2INT).add();
-            table.column("DISCOVERYPROTOCOLPLUGGABLECLASSID").number().conversion(ColumnConversion.NUMBER2INT).add();
+            table.column("COMPORTTYPE").number().notNull().map("comPortType").conversion(ColumnConversion.NUMBER2ENUM).add();
+            table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.count").add();
+            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.timeCodeUnit").add();
+            table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map("discoveryProtocolPluggableClassId").add();
 
-            // LIST of comportpoolmembers!!!!
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
-            table.foreignKey("CEM_FK_COMPORTPOOL_INBOUNDCOMPORT");
         }
     },
     MDCCOMPORT {
@@ -50,7 +48,7 @@ public enum TableSpecs {
             table.column("PORTNUMBER").number().conversion(ColumnConversion.NUMBER2INT).map("portNumber").add();
             table.column("NUMBEROFSIMULTANEOUSCONNECTIONS").number().conversion(ColumnConversion.NUMBER2LONG).map("numberOfSimultaneousConnections").add();
             // InboundComPortImpl
-            table.column("COMPORTPOOLID").number().conversion(NUMBER2LONG).map("comPortPool");
+            Column comPortPoolId = table.column("COMPORTPOOLID").number().conversion(NUMBER2LONG).map("comPortPool").add();
             // ModemBasedInboundComPortImpl
             table.column("RINGCOUNT").number().conversion(ColumnConversion.NUMBER2INT).map("ringCount").add();
             table.column("MAXIMUMNUMBEROFDIALERRORS").number().conversion(ColumnConversion.NUMBER2INT).map("maximumDialErrors").add();
@@ -84,6 +82,7 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMPORT").on(idColumn).add();
             table.foreignKey("FK_COMPORT_COMSERVER").on(comServerColumn).references(MDCCOMSERVER.name()).
                     map("comServer").reverseMap("comPorts").composition().add();
+            table.foreignKey("FK_COMPORT_COMPORTPOOL").on(comPortPoolId).references(MDCCOMPORTPOOL.name()).map("comPortPool").reverseMap("comPorts").composition().add();
         }
     },
     MDCCOMPORTINPOOL {

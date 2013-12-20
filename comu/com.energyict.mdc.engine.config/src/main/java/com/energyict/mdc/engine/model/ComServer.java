@@ -1,23 +1,6 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.NamedBusinessObject;
-import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
-import com.energyict.mdc.journal.ComSession;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ModemBasedInboundComPort;
-import com.energyict.mdc.ports.OutboundComPort;
-import com.energyict.mdc.ports.ServletBasedInboundComPort;
-import com.energyict.mdc.ports.TCPBasedInboundComPort;
-import com.energyict.mdc.ports.UDPBasedInboundComPort;
-import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
-import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
-import com.energyict.mdc.shadow.ports.ServletBasedInboundComPortShadow;
-import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
-import com.energyict.mdc.shadow.ports.UDPBasedInboundComPortShadow;
-import com.energyict.mdc.shadow.servers.ComServerShadow;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -37,15 +20,15 @@ import java.util.List;
  * <li>Changing active/inactive flags of related ComPorts</li>
  * </ul>
  * <p/>
- * Each time a {@link com.energyict.mdc.tasks.ComTaskExecution} is executed,
+ * Each time a ComTaskExecution is executed,
  * one of the ComPorts of the ComServer that executes the ScheduledComTask
  * will be used to connect to the device.
- * A {@link ComSession} is created that captures all the details
+ * A ComSession is created that captures all the details
  * of the communication with the device. That communication overview
  * is obviously very imported and should not be deleted easily.
  * Therefore, objects that relate to the communication overview
  * are never deleted but made obsolete instead.
- * Obsolete ComServers will not return from {@link ComServerFactory}
+ * Obsolete ComServers will not return from ComServerFactory
  * finder methods.
  *
  * @author Rudi Vankeirsbilck (rudi)

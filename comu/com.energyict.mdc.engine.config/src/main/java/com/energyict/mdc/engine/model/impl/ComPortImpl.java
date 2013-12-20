@@ -241,4 +241,22 @@ public abstract class ComPortImpl implements ServerComPort {
         }
     }
 
+    static protected class Builder<T extends ComPort> {
+        T comPort;
+
+        protected Builder(T comPort) {
+            this.comPort = comPort;
+        }
+
+        public Builder comPortType(ComPortType comPortType) {
+            comPort.setComPortType(comPortType);
+            return this;
+        }
+
+        public Builder name(String name) {
+            comPort.setName(name);
+            return this;
+        }
+    }
+
 }

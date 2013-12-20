@@ -1,13 +1,11 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +76,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
         }
     }
 
-    protected void validateDelete() throws SQLException, BusinessException {
+    protected void validateDelete() {
         this.validateNotUsedByComPorts();
         this.validateNotUsedByConnectionTasks();
     }
