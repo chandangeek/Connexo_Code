@@ -1,7 +1,13 @@
 Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.window.Window',
     alias: 'widget.outboundComPortEdit',
     autoScroll: true,
+    title: 'ComServer',
+    width: '80%',
+    height: '90%',
+    modal: true,
+    constrain: true,
+    autoShow: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -70,8 +76,8 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
 
         this.buttons = [
             {
-                text: 'Back',
-                action: 'back'
+                text: 'Save',
+                action: 'save'
             },
             {
                 text: 'Cancel',

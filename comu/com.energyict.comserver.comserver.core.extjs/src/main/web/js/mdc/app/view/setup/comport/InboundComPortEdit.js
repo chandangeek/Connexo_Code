@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.window.Window',
     requires: [
         'Mdc.store.ComPortPools',
         'Mdc.store.ComPortTypes',
@@ -12,6 +12,13 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
     ],
     alias: 'widget.inboundComPortEdit',
     autoScroll: true,
+    title: 'ComServer',
+    // layout: 'fit',
+    width: '80%',
+    height: '90%',
+    modal: true,
+    constrain: true,
+    autoShow: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -243,8 +250,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
 
         this.buttons = [
             {
-                text: 'Back',
-                action: 'back'
+                text: 'Save',
+                action: 'save'
             },
             {
                 text: 'Cancel',

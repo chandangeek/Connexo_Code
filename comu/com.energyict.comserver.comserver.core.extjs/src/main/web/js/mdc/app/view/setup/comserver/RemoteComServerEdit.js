@@ -1,11 +1,17 @@
 Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.window.Window',
     alias: 'widget.remoteComServerEdit',
-    autoScroll: true,
+    title: 'Remote ComServer',
+    width: '80%',
+    height: '90%',
+    modal: true,
+    constrain: true,
+    autoShow: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
+    autoScroll: true,
     border: 0,
 
     requires: [
@@ -148,9 +154,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                                 fieldLabel: 'usesDefaultEventRegistrationUri'
                             }
                         ]
-                    },
-                    {"xtype": 'outboundComPorts'},
-                    {"xtype": 'inboundComPorts'}
+                    }
                 ]
             }
         ];

@@ -1,7 +1,12 @@
 Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.window.Window',
     alias: 'widget.inboundComPortPoolEdit',
     autoScroll: true,
+    width: '80%',
+    height: '90%',
+    modal: true,
+    constrain: true,
+    autoShow: true,
 
     requires: [
         'Mdc.view.setup.comport.PoolInboundComPorts',
@@ -72,10 +77,7 @@ Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
                                 displayField: 'name',
                                 valueField: 'id'
                             }
-                        ]},
-                    {
-                        "xtype": 'poolInboundComPorts'
-                    }
+                        ]}
                 ]
             }
         ];

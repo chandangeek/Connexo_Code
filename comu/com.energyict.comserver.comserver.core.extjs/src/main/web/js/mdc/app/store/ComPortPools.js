@@ -6,7 +6,7 @@ Ext.define('Mdc.store.ComPortPools',{
     autoLoad: true,
     model: 'Mdc.model.ComPortPool',
     storeId: 'comPortPools',
-
+    pageSize: 10,
     proxy: {
         type: 'rest',
         url: '../../api/mdc/comportpools',

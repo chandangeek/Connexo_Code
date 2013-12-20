@@ -3,8 +3,10 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
 
     views: [
         'setup.Browse',
-        'setup.comserver.ComServers',
-        'setup.comportpool.ComPortPools',
+        'setup.comserver.ComServersGrid',
+        'setup.comserver.ComServersSetup',
+        'setup.comportpool.ComPortPoolsGrid',
+        'setup.comportpool.ComPortPoolsSetup',
         'setup.devicecommunicationprotocol.List',
         'setup.licensedprotocol.List'
     ],
@@ -29,9 +31,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
 
     showComServers: function () {
-        var widget = Ext.widget('setupComServers');
+        var widget = Ext.widget('comServersSetup');
         Mdc.getApplication().getMainController().showContent(widget);
-        widget.getView().refresh();
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('setupDeviceCommunicationProtocols');
@@ -42,7 +43,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         Mdc.getApplication().getMainController().showContent(widget);
     },
     showComPortPools: function () {
-        var widget = Ext.widget('setupComPortPools');
+        var widget = Ext.widget('comPortPoolsSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     }
 });

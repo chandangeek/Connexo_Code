@@ -1,7 +1,13 @@
 Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.window.Window',
     alias: 'widget.comServerEdit',
     autoScroll: true,
+    title: 'ComServer',
+    width: '80%',
+    height: '90%',
+    modal: true,
+    constrain: true,
+    autoShow: true,
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -12,7 +18,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
         'Mdc.widget.TimeInfoField',
         'Mdc.store.LogLevels',
         'Mdc.view.setup.comport.OutboundComPorts',
-        'Mdc.view.setup.comport.InboundComPorts'
+        'Mdc.view.setup.comport.InboundComPorts',
+        'Mdc.view.setup.BigEarPopUp'
     ],
 
     initComponent: function () {
@@ -130,9 +137,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 fieldLabel: 'usesDefaultEventRegistrationUri'
                             }
                         ]
-                    },
-                    {"xtype": 'outboundComPorts'},
-                    {"xtype": 'inboundComPorts'}
+                    }
                 ]
             }
         ];

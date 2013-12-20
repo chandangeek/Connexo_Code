@@ -1,5 +1,11 @@
 Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.window.Window',
+    width: '80%',
+    height: '90%',
+    modal: true,
+    constrain: true,
+    autoShow: true,
+
 
     requires: [
         'Mdc.view.setup.comport.PoolOutboundComPorts'
@@ -61,10 +67,7 @@ Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
                                 uncheckedValue: 'false',
                                 fieldLabel: 'active'
                             }
-                        ]},
-                    {
-                        "xtype": 'poolOutboundComPorts'
-                    }
+                        ]}
                 ]
             }
         ];

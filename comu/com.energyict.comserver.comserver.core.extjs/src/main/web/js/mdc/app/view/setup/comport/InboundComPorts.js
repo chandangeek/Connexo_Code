@@ -14,10 +14,10 @@ Ext.define('Mdc.view.setup.comport.InboundComPorts', {
                     '{name} - {comPortType} - <tpl if="active==true"{active}><span style="color:lightgreen">active</span><tpl else><span style="color:#ff0000">not active</span></tpl>' +
                     '</caption>' +
                     '<tr>' +
-                    '<td>description: </td>' +
-                    '<td>{description}</td>' +
-                    '<td>modificationDate:</td>' +
-                    '<td>{modificationDate:date("d/m/Y - h:i:s")}</td>'+
+                    '<td width="25%">description: </td>' +
+                    '<td width="25%">{description}</td>' +
+                    '<td width="25%">modificationDate:</td>' +
+                    '<td width="25%">{modificationDate:date("d/m/Y - h:i:s")}</td>'+
                     '</tr>'+
                     '</table>',
                 flex:1

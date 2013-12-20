@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.Main', {
     clearContentPanel: function () {
         var widget;
         while (widget = this.getContentPanel().items.first()) {
-            this.getContentPanel().remove(widget, false);
+            this.getContentPanel().remove(widget,true);
         }
     }
 });
