@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.PluggableClassType;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.pluggable.PluggableClassShadow;
@@ -9,7 +10,6 @@ import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
 import com.energyict.mdc.rest.impl.properties.PropertyValueInfo;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,6 +30,9 @@ public class DeviceCommunicationProtocolInfo {
     public LicensedProtocolInfo licensedProtocol;
     public String deviceProtocolVersion;
     public PropertyInfo[] propertyInfos;
+
+    public DeviceCommunicationProtocolInfo() {
+    }
 
     public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
         this.name = deviceProtocolPluggableClass.getName();

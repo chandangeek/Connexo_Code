@@ -2,9 +2,10 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.shadow.ports.InboundComPortShadow;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comPortType")
