@@ -43,7 +43,6 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         for (Map.Entry<MeterActivation, Interval> entry : map.entrySet()) {
             validationService.validate(entry.getKey(), entry.getValue());
         }
-
     }
 
     private Map<MeterActivation, Interval> determineScopePerMeterActivation(ReadingStorer storer) {
