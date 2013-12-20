@@ -1,0 +1,71 @@
+package com.energyict.mdc.dynamic.relation;
+
+import com.energyict.mdc.common.BusinessException;
+
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * Provides services that relate to {@link RelationType}s,
+ * their {@link RelationAttributeType attributes}
+ * and instances of the RelationTypes.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2013-12-17 (10:27)
+ */
+public interface RelationService {
+
+    /**
+     * Finds all the active {@link RelationType}s.
+     *
+     * @return the List of RelationType.
+     * @see RelationType#isActive()
+     */
+    public List<RelationType> findAllActiveRelationTypes();
+
+    /**
+     * Finds the {@link RelationType} with the specified unique identifier.
+     *
+     * @param id the unique identifier
+     * @return the RelationType or <code>null</code> if no such RelationType exists.
+     */
+    public RelationType findRelationType(int id);
+
+    /**
+     * Creates a new {@link RelationType} from the specifications
+     * laid out in the {@link RelationTypeShadow}.
+     *
+     * @param shadow The RelationTypeShadow
+     * @return the newly created RelationType
+     * @throws BusinessException Thrown when a business constraint was violated
+     * @throws SQLException Thrown when a database constraint was violated
+     */
+    public RelationType createRelationType(RelationTypeShadow shadow) throws BusinessException, SQLException;
+
+    /**
+     * Finds the {@link RelationType} with the specified name.
+     *
+     * @param name the name to match
+     * @return the RelationType or <code>null</code> if no such RelationType exists.
+     */
+    public RelationType findRelationType(String name);
+
+    /**
+     * Finds the {@link RelationAttributeType} that is uniquely
+     * identified by the specified number.
+     *
+     * @param id The unique identifier
+     * @return The RelationAttributeType or <code>null</code> if no such RelationAttributeType exists
+     */
+    public RelationAttributeType findRelationAttributeType(int id);
+
+    /**
+     * Finds the List of {@link RelationType}s that can be used
+     * to create a {@link Relation} with the given {@link RelationParticipant}.
+     *
+     * @param participant The RelationParticipant
+     * @return the List of RelationType
+     */
+    public List<RelationType> findRelationTypesByParticipant(RelationParticipant participant);
+
+}
