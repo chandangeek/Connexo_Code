@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.dynamic;
 
+import com.energyict.mdc.dynamic.PropertySpec;
+
 import java.util.List;
 
 /**

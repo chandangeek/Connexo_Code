@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.device.messages;
 
 import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.protocol.api.dynamic.ValueFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
+import com.energyict.mdc.dynamic.ValueFactory;
 
 /**
  * Serves as the root for all {@link PropertySpec} test implementations.

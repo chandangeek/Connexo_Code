@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.device.messages;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 
 import java.math.BigDecimal;
 

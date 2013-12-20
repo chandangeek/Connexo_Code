@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 
 /**
  * Represents an Offline version of a DeviceMessageAttribute.
