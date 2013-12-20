@@ -24,6 +24,7 @@ import javax.jms.Session;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 class DestinationSpecImpl implements DestinationSpec {
@@ -45,7 +46,7 @@ class DestinationSpecImpl implements DestinationSpec {
 
     // associations
     private QueueTableSpec queueTableSpec;
-    private List<SubscriberSpec> subscribers;
+    private final List<SubscriberSpec> subscribers = new ArrayList<>();
 
 
     @Override
@@ -72,7 +73,7 @@ class DestinationSpecImpl implements DestinationSpec {
 
     @Override
     public List<SubscriberSpec> getSubscribers() {
-        return ImmutableList.copyOf(doGetConsumers());
+        return ImmutableList.copyOf(subscribers);
     }
 
     @Override
@@ -127,7 +128,7 @@ class DestinationSpecImpl implements DestinationSpec {
         if (!isActive()) {
             throw new InactiveDestinationException(this, name);
         }
-        List<SubscriberSpec> currentConsumers = doGetConsumers();
+        List<SubscriberSpec> currentConsumers = subscribers;
         for (SubscriberSpec each : currentConsumers) {
             if (each.getName().equals(name)) {
                 throw new DuplicateSubscriberNameException(name);
@@ -138,7 +139,8 @@ class DestinationSpecImpl implements DestinationSpec {
         }
         SubscriberSpecImpl result = new SubscriberSpecImpl(this, name);
         result.subscribe();
-        Bus.getOrmClient().getConsumerSpecFactory().persist(result);
+        subscribers.add(result);
+        Bus.getOrmClient().getDestinationSpecFactory().update(this);
         return result;
     }
 
@@ -184,20 +186,22 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void tryActivateJms(Connection connection) throws SQLException, JMSException {
-        OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-        QueueConnection queueConnection = Bus.getAQFacade().createQueueConnection(oraConnection);
-        try {
-            queueConnection.start();
-            AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-            AQQueueTable aqQueueTable = ((QueueTableSpecImpl) getQueueTableSpec()).getAqQueueTable(session);
-            AQjmsDestinationProperty props = new AQjmsDestinationProperty();
-            props.setRetryInterval(retryDelay);
-            Destination destination = getQueueTableSpec().isMultiConsumer() ?
-                    session.createTopic(aqQueueTable, name, props) :
-                    session.createQueue(aqQueueTable, name, props);
-            ((AQjmsDestination) destination).start(session, true, true);
-        } finally {
-            queueConnection.close();
+        if (connection.isWrapperFor(OracleConnection.class)) {
+            OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
+            QueueConnection queueConnection = Bus.getAQFacade().createQueueConnection(oraConnection);
+            try {
+                queueConnection.start();
+                AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+                AQQueueTable aqQueueTable = ((QueueTableSpecImpl) getQueueTableSpec()).getAqQueueTable(session);
+                AQjmsDestinationProperty props = new AQjmsDestinationProperty();
+                props.setRetryInterval(retryDelay);
+                Destination destination = getQueueTableSpec().isMultiConsumer() ?
+                        session.createTopic(aqQueueTable, name, props) :
+                        session.createQueue(aqQueueTable, name, props);
+                ((AQjmsDestination) destination).start(session, true, true);
+            } finally {
+                queueConnection.close();
+            }
         }
     }
 
@@ -215,10 +219,4 @@ class DestinationSpecImpl implements DestinationSpec {
         return "begin dbms_aqadm.stop_queue(?); dbms_aqadm.drop_queue(?); end;";
     }
 
-    private List<SubscriberSpec> doGetConsumers() {
-        if (subscribers == null) {
-            subscribers = Bus.getOrmClient().getConsumerSpecFactory().find("destination", this);
-        }
-        return subscribers;
-    }
 }

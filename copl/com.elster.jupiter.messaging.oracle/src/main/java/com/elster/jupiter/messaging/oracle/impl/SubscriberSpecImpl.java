@@ -4,6 +4,8 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
@@ -25,7 +27,6 @@ public class SubscriberSpecImpl implements SubscriberSpec {
      */
     private static final Seconds DEFAULT_WAIT = Seconds.seconds(60);
     private String name;
-    private String destinationName;
 
     @SuppressWarnings("unused")
     private long version;
@@ -36,7 +37,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     @SuppressWarnings("unused")
     private String userName;
 
-    private DestinationSpec destination;
+    private final Reference<DestinationSpec> destination = ValueReference.absent();
 
     private volatile OracleConnection cancellableConnection;
 
@@ -47,17 +48,13 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     SubscriberSpecImpl(DestinationSpec destination, String name) {
-        this.destination = destination;
-        this.destinationName = destination.getName();
+        this.destination.set(destination);
         this.name = name;
     }
 
     @Override
     public DestinationSpec getDestination() {
-        if (destination == null) {
-            destination = Bus.getOrmClient().getDestinationSpecFactory().getExisting(destinationName);
-        }
-        return destination;
+        return destination.get();
     }
 
     @Override
@@ -96,7 +93,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     private AQMessage dequeueMessage() throws SQLException {
-        return cancellableConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
+        return cancellableConnection.dequeue(destination.get().getName(), basicOptions(), getDestination().getPayloadType());
     }
 
     @Override
@@ -117,7 +114,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     public String toString() {
         return "SubscriberSpecImpl{" +
                 "name='" + name + '\'' +
-                ", destinationName='" + destinationName + '\'' +
+                ", destinationName='" + destination.get().getName() + '\'' +
                 '}';
     }
 
@@ -137,7 +134,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     AQMessage receiveNow() {
         try (Connection connection = Bus.getConnection()) {
             OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-            return oraConnection.dequeue(destinationName, optionsNoWait(), getDestination().getPayloadType());
+            return oraConnection.dequeue(destination.get().getName(), optionsNoWait(), getDestination().getPayloadType());
         } catch (SQLTimeoutException e) {
             return null;
         } catch (SQLException e) {
@@ -166,7 +163,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         try (Connection connection = Bus.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(subscribeSql())) {
                 statement.setString(1, name);
-                statement.setString(2, destinationName);
+                statement.setString(2, destination.get().getName());
                 statement.execute();
             }
         }
@@ -184,7 +181,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         try (Connection connection = Bus.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(unSubscribeSql())) {
                 statement.setString(1, subscriberName);
-                statement.setString(2, destinationName);
+                statement.setString(2, destination.get().getName());
                 statement.execute();
             }
         }

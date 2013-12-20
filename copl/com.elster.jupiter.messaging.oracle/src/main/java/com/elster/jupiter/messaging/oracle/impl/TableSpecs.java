@@ -12,6 +12,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 public enum TableSpecs {
 	MSG_QUEUETABLESPEC {
 		void  describeTable(Table table) {
+            table.map(QueueTableSpecImpl.class);
 			Column nameColumn = table.column("NAME").type("varchar2(30)").notNull().map("name").add();
 			table.column("PAYLOADTYPE").type("varchar2(30)").notNull().map("payloadType").add();
 			table.column("MULTICONSUMER").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("multiConsumer").add();
@@ -22,6 +23,7 @@ public enum TableSpecs {
 	},
 	MSG_DESTINATIONSPEC {
 		void describeTable(Table table) {
+            table.map(DestinationSpecImpl.class);
 			Column nameColumn = table.column("NAME").type("varchar2(30)").notNull().map("name").add();
 			Column queueTableNameColumn = table.column("QUEUETABLENAME").type("varchar2(30)").notNull().map("queueTableName").add();
 			table.column("RETRYDELAY").type("number").notNull().conversion(NUMBER2INT).map("retryDelay").add();
@@ -33,11 +35,12 @@ public enum TableSpecs {
 	}, 
 	MSG_SUBSCRIBERSPEC {
 		void describeTable(Table table) {
-			Column destinationNameColumn = table.column("DESTINATION").type("varchar2(30)").notNull().map("destinationName").add();
+            table.map(SubscriberSpecImpl.class);
+			Column destinationColumn = table.column("DESTINATION").type("varchar2(30)").notNull().add();
 			Column nameColumn = table.column("NAME").type("varchar2(30)").notNull().map("name").add();
 			table.addAuditColumns();
-			table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationNameColumn , nameColumn).add();
-			table.foreignKey("MSG_FK_SUBSCRIBERSPEC").references(MSG_DESTINATIONSPEC.name()).onDelete(CASCADE).map("destination").reverseMap("subscribers").on(destinationNameColumn).add();
+			table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationColumn , nameColumn).add();
+			table.foreignKey("MSG_FK_SUBSCRIBERSPEC").references(MSG_DESTINATIONSPEC.name()).onDelete(CASCADE).map("destination").reverseMap("subscribers").on(destinationColumn).composition().add();
 		}
 	};
 	

@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -32,12 +33,26 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
     private volatile Publisher publisher;
     private volatile ThreadPrincipalService threadPrincipalService;
 
+    MessageServiceImpl() {
+    }
+
+    @Inject
+    MessageServiceImpl(OrmService ormService, Publisher publisher, ThreadPrincipalService threadPrincipalService, TransactionService transactionService) {
+        setOrmService(ormService);
+        this.publisher = publisher;
+        this.threadPrincipalService = threadPrincipalService;
+        this.transactionService = transactionService;
+        activate();
+        getOrmClient().install();
+    }
+
     @Reference
 	public void setOrmService(OrmService ormService) {
 		DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Messaging");
 		for (TableSpecs each : TableSpecs.values()) {
 			each.addTo(dataModel);
 		}
+        ormService.register(dataModel);
 		this.ormClient = new OrmClientImpl(dataModel);
 	}
 	
