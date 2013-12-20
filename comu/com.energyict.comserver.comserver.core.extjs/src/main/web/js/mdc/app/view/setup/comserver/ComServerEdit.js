@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
         'Mdc.widget.TimeInfoField',
         'Mdc.store.LogLevels',
         'Mdc.view.setup.comport.OutboundComPorts',
-        'Mdc.view.setup.comport.InboundComPorts',
+        'Mdc.view.setup.comport.InboundComPorts'
     ],
 
     initComponent: function () {
