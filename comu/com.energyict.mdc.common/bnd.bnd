@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.energyict.mdc.common.impl
-Export-Package: com.energyict.mdc.common
+Export-Package: com.energyict.mdc.common, com.energyict.mdc.common.coordinates, com.energyict.mdc.common.ean
