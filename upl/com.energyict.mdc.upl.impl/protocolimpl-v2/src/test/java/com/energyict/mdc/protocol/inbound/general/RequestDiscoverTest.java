@@ -25,6 +25,8 @@ import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
+import com.energyict.mdw.core.LogBookSpec;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.util.IssueCollector;
 import com.energyict.util.IssueCollectorProvider;
@@ -68,6 +70,8 @@ public class RequestDiscoverTest {
     @Mock
     protected LogBook logBook;
     @Mock
+    protected LogBookSpec logBookSpec;
+    @Mock
     protected LogBookFactoryProvider logBookFactoryProvider;
     @Mock
     protected LogBookFactory logBookFactory;
@@ -94,6 +98,8 @@ public class RequestDiscoverTest {
         ArrayList<LogBook> logBooks = new ArrayList<>();
         logBooks.add(logBook);
         when(logBook.getId()).thenReturn(LOGBOOK_ID);
+        when(logBook.getLogBookSpec()).thenReturn(logBookSpec);
+        when(logBookSpec.getDeviceObisCode()).thenReturn(ObisCode.fromString("0.0.99.98.0.255"));
         when(this.device.getLogBooks()).thenReturn(logBooks);
         when(this.deviceFactory.findBySerialNumber(Matchers.<String>any())).thenReturn(Arrays.asList(this.device));
         when(this.deviceFactoryProvider.getDeviceFactory()).thenReturn(deviceFactory);
