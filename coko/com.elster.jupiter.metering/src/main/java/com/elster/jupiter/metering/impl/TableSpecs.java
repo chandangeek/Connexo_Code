@@ -14,6 +14,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 public enum TableSpecs {
 	MTR_SERVICECATEGORY {
 		void describeTable(Table table) {
+            table.map(ServiceCategoryImpl.class);
 			table.setJournalTableName("MTR_SERVICECATEGORYJRNL");
 			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
 			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
@@ -24,6 +25,7 @@ public enum TableSpecs {
 	},
 	MTR_SERVICELOCATION {
 		void describeTable(Table table) {
+            table.map(ServiceLocationImpl.class);
 			table.setJournalTableName("MTR_SERVICELOCATIONJRNL");
 			Column idColumn = table.addAutoIdColumn();
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
@@ -103,6 +105,7 @@ public enum TableSpecs {
 	},
 	MTR_AMRSYSTEM {
 		void describeTable(Table table) {
+            table.map(AmrSystemImpl.class);
 			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2INT).map("id").add();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.addAuditColumns();
@@ -112,6 +115,7 @@ public enum TableSpecs {
 	},
 	MTR_USAGEPOINT {
 		void describeTable(Table table) {
+            table.map(UsagePointImpl.class);
 			table.setJournalTableName("MTR_USAGEPOINTJRNL");
 			Column idColumn = table.addAutoIdColumn();
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
@@ -146,6 +150,7 @@ public enum TableSpecs {
 	},
 	MTR_READINGTYPE {
 		void describeTable(Table table) {
+            table.map(ReadingTypeImpl.class);
 			Column mRidColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
 			table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
@@ -155,6 +160,7 @@ public enum TableSpecs {
 	},
 	MTR_ENDDEVICE {
 		void describeTable(Table table) {
+            table.map(EndDeviceImpl.IMPLEMENTERS);
 			Column idColumn = table.addAutoIdColumn();
 			table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
@@ -182,6 +188,7 @@ public enum TableSpecs {
 	},	
 	MTR_METERACTIVATION {
 		void describeTable(Table table) {
+            table.map(MeterActivationImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).map("usagePointId").add();
 			Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).map("meterId").add();
@@ -194,6 +201,7 @@ public enum TableSpecs {
 	},
 	MTR_CHANNEL {
 		void describeTable(Table table) {
+            table.map(ChannelImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).map("meterActivationId").add();
 			Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).map("timeSeriesId").add();
@@ -220,6 +228,7 @@ public enum TableSpecs {
 	},
 	MTR_UPACCOUNTABILITY {
 		void describeTable(Table table) {
+            table.map(UsagePointAccountabilityImpl.class);
 			table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
 			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
 			Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).map("partyId").add();
@@ -235,6 +244,7 @@ public enum TableSpecs {
     MTR_UP_GROUP {
         @Override
         void describeTable(Table table) {
+            table.map(AbstractUsagePointGroup.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").map("name").add();
             Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
@@ -249,6 +259,7 @@ public enum TableSpecs {
     MTR_ENUM_UP_IN_GROUP {
         @Override
         void describeTable(Table table) {
+            table.map(EnumeratedUsagePointGroupImpl.EntryImpl.class);
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
@@ -260,6 +271,7 @@ public enum TableSpecs {
     MTR_QUERY_UP_GROUP_OP {
         @Override
         void describeTable(Table table) {
+            table.map(AbstractQueryBuilderOperation.IMPLEMENTERS);
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
@@ -275,6 +287,7 @@ public enum TableSpecs {
     MTR_READINGQUALITY {
         @Override
         void describeTable(Table table) {
+            table.map(ReadingQualityImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("readingTimestamp").add();
@@ -289,6 +302,7 @@ public enum TableSpecs {
     MTR_ENDDEVICEEVENTTYPE {
         @Override
         void describeTable(Table table) {
+            table.map(EndDeviceEventTypeImpl.class);
             Column mRidColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
             table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
