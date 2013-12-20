@@ -54,19 +54,7 @@ public class Password implements Nullable {
 
     @Override
     public boolean isNull() {
-        return this.isNull(getValue());
-    }
-
-    private boolean isNull(String strToTest) {
-        if (strToTest == null) {
-            return true;
-        }
-        for (int index=0; index<strToTest.length(); index++) {
-            if (!Character.isWhitespace(strToTest.charAt(index))) {
-                return false;
-            }
-        }
-        return true;
+        return is(getValue()).emptyOrOnlyWhiteSpace();
     }
 
 }

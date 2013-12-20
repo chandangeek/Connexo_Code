@@ -1,7 +1,5 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.Association;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

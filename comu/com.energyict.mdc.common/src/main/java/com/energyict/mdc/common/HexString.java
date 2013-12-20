@@ -1,7 +1,11 @@
 package com.energyict.mdc.common;
 
+import com.elster.jupiter.util.Checks;
+
 import java.io.Serializable;
 import java.math.BigInteger;
+
+import static com.elster.jupiter.util.Checks.*;
 
 /**
  * User: gde
@@ -16,7 +20,7 @@ public class HexString implements Comparable, Serializable, Nullable {
     }
 
     public HexString (String hexString) {
-        if (isNull(hexString)) {
+        if (is(hexString).emptyOrOnlyWhiteSpace()) {
             return;
         }
         else {
@@ -32,24 +36,6 @@ public class HexString implements Comparable, Serializable, Nullable {
                 throw new IllegalArgumentException(invalidHexString);
             }
         }
-    }
-
-    /**
-     * Checks if the given string is null or empty (length=0)
-     *
-     * @param strToTest the string to test
-     * @return true if the given string is null or empty (length=0)
-     */
-    private static boolean isNull (String strToTest) {
-        if (strToTest == null) {
-            return true;
-        }
-        for (int index = 0; index < strToTest.length(); index++) {
-            if (!Character.isWhitespace(strToTest.charAt(index))) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public String getContent () {
@@ -112,7 +98,7 @@ public class HexString implements Comparable, Serializable, Nullable {
 
     @Override
     public boolean isNull () {
-        return isNull(getContent());
+        return is(getContent()).emptyOrOnlyWhiteSpace();
     }
 
 }
