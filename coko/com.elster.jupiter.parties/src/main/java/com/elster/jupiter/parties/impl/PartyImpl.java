@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
@@ -45,18 +46,12 @@ abstract class PartyImpl implements Party {
     private String userName;
 
     // associations
-   	private final List<PartyInRole> partyInRoles = new ArrayList<>();
+   	private final List<PartyInRoleImpl> partyInRoles = new ArrayList<>();
    	private final List<PartyRepresentationImpl> representations = new ArrayList<>();
-   	
-   	// transient
-   	private final OrmClient ormClient;
-   	private final EventService eventService;
-   	
    	@Inject
-    PartyImpl(OrmClient ormClient , EventService eventService) {
-    	this.ormClient = ormClient;
-    	this.eventService = eventService;
-	}
+   	private DataModel dataModel;
+   	@Inject
+   	private EventService eventService;
 
    	@Override
 	public long getId() {
@@ -147,7 +142,7 @@ abstract class PartyImpl implements Party {
 	}
 
     @Override
-    public List<PartyInRole> getPartyInRoles() {
+    public List<PartyInRoleImpl> getPartyInRoles() {
         return ImmutableList.copyOf(partyInRoles);
 	}
     
@@ -167,8 +162,7 @@ abstract class PartyImpl implements Party {
         Interval interval = Interval.startAt(start);
         validateAddingDelegate(user, interval);
         PartyRepresentationImpl representation = 
-        		ormClient.getPartyRepresentationFactory().newInstance(PartyRepresentationImpl.class)
-        		.init(this, user, interval);
+        		dataModel.getInstance(PartyRepresentationImpl.class).init(this, user, interval);
         representations.add(representation);
         update();
         return representation;
@@ -180,7 +174,7 @@ abstract class PartyImpl implements Party {
     		throw new IllegalArgumentException();
     	}
     	((PartyRepresentationImpl) representation).setInterval(newInterval);
-    	ormClient.getPartyRepresentationFactory().update(representation);
+    	dataModel.update(representation);
     	update();
     }
     
@@ -189,7 +183,7 @@ abstract class PartyImpl implements Party {
         for (PartyRepresentationImpl representation : representations) {
             if (representation.getDelegate().equals(user) && representation.getInterval().contains(end,Interval.EndpointBehavior.CLOSED_OPEN)) {
                 representation.setInterval(representation.getInterval().withEnd(end));
-                ormClient.getPartyRepresentationFactory().update(representation);
+                dataModel.update(representation);
                 update();
                 return;
             }
@@ -198,10 +192,8 @@ abstract class PartyImpl implements Party {
     }
    
     @Override
-    public PartyInRole assumeRole(PartyRole role, Date start) {
-        PartyInRoleImpl candidate = 
-        		ormClient.getPartyInRoleFactory().newInstance(PartyInRoleImpl.class)
-        		.init(this, role, Interval.startAt(start));
+    public PartyInRoleImpl assumeRole(PartyRole role, Date start) {
+        PartyInRoleImpl candidate = PartyInRoleImpl.from(dataModel, this, role, Interval.startAt(start));
         validateAddingRole(candidate);
         partyInRoles.add(candidate);
         update();
@@ -209,18 +201,18 @@ abstract class PartyImpl implements Party {
     }
     
     @Override
-    public PartyInRole terminateRole(PartyInRole partyInRole, Date date) {
+    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Date date) {
         PartyInRoleImpl toUpdate = null;
-        for (PartyInRole candidate : getPartyInRoles()) {
+        for (PartyInRoleImpl candidate : getPartyInRoles()) {
             if (candidate.equals(partyInRole)) {
-                toUpdate = (PartyInRoleImpl) candidate; // safe cast as we only ever add that type.
+                toUpdate = candidate; 
             }
         }
         if (toUpdate == null || !partyInRole.getInterval().contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);
-        ormClient.getPartyInRoleFactory().update(toUpdate);
+        dataModel.update(toUpdate);
         update();
         return toUpdate;
     }
@@ -243,7 +235,7 @@ abstract class PartyImpl implements Party {
     
     @Override
     public void save() {
-    	action(getId()).save(ormClient.getPartyFactory(), this , getType());
+    	action(getId()).save(dataModel, this , getType());
     }
     
     public void update() {
@@ -253,7 +245,7 @@ abstract class PartyImpl implements Party {
     }
     
     public void delete() {
-        ormClient.getPartyFactory().remove(this);
+        dataModel.remove(this);
         eventService.postEvent(EventType.PARTY_DELETED.topic(), this);
     }
 

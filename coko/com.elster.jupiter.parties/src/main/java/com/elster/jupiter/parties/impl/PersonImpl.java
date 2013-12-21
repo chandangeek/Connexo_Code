@@ -2,12 +2,12 @@ package com.elster.jupiter.parties.impl;
 
 import static com.elster.jupiter.util.Checks.is;
 
-import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.cbo.TelephoneNumber;
-import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Person;
+
 import static com.google.common.base.Objects.toStringHelper;
 
 public final class PersonImpl extends PartyImpl implements Person {
@@ -21,11 +21,6 @@ public final class PersonImpl extends PartyImpl implements Person {
 	private String suffix;
 	private String specialNeed;
 
-    @Inject 
-    PersonImpl(OrmClient client, EventService eventService) {
-    	super(client,eventService);
-    }
-
     /**
      * @param firstName should not be null nor empty
      * @param lastName should not be null nor empty
@@ -37,6 +32,10 @@ public final class PersonImpl extends PartyImpl implements Person {
         validateLastName(lastName);
         return this;
     }
+	
+	static PersonImpl from(DataModel dataModel, String firstName, String lastName) {
+		return dataModel.getInstance(PersonImpl.class).init(firstName, lastName);
+	}
 
     private void validateLastName(String name) {
         if (is(name).emptyOrOnlyWhiteSpace()) {

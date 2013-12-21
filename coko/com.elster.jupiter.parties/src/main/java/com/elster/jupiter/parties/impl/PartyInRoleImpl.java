@@ -1,5 +1,6 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
@@ -8,6 +9,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+
 import static com.google.common.base.Objects.*;
 
 import java.util.Date;
@@ -29,14 +31,10 @@ public class PartyInRoleImpl implements PartyInRole {
     private UtcInstant modTime;
     private String userName;
     
-    private final OrmClient ormClient;
-    private final Clock clock;
-
-	@Inject
-	PartyInRoleImpl(OrmClient ormClient, Clock clock) {
-		this.ormClient = ormClient;
-		this.clock = clock;
-	}
+    @Inject
+    private DataModel dataModel;
+    @Inject
+    private Clock clock;
 	
 	PartyInRoleImpl init(Party party , PartyRole role , Interval interval) {
 		this.party.set(party);
@@ -44,6 +42,10 @@ public class PartyInRoleImpl implements PartyInRole {
 		this.roleMRID = role.getMRID();
 		this.interval = interval;
 		return this;
+	}
+	
+	static PartyInRoleImpl from(DataModel dataModel, Party party, PartyRole role, Interval interval) {
+		return dataModel.getInstance(PartyInRoleImpl.class).init(party, role, interval);
 	}
 	
 	@Override
@@ -59,7 +61,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	@Override
 	public PartyRole getRole() {
 		if (role == null) {
-			role = ormClient.getPartyRoleFactory().getExisting(roleMRID);
+			role = dataModel.mapper(PartyRole.class).getExisting(roleMRID);
 		}
 		return role;
 	}

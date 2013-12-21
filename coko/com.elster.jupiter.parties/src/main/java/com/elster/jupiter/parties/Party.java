@@ -19,12 +19,12 @@ public interface Party extends IdentifiedObject {
     void save();
     void delete();
     long getVersion();
-    List<PartyInRole> getPartyInRoles();
+    List<? extends PartyInRole> getPartyInRoles();
     PartyInRole assumeRole(PartyRole role, Date start);
     PartyInRole terminateRole(PartyInRole role, Date end);
     PartyRepresentation appointDelegate(User user, Date start);
 	void adjustRepresentation(PartyRepresentation representation, Interval newInterval);
     void unappointDelegate(User user, Date end);
-    List<PartyRepresentation> getCurrentDelegates();
+    List<? extends PartyRepresentation> getCurrentDelegates();
     Class<? extends Party> getType();
 }

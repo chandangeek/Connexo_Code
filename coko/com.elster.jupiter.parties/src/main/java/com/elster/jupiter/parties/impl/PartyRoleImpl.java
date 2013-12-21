@@ -1,7 +1,8 @@
 package com.elster.jupiter.parties.impl;
 
-import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -21,18 +22,7 @@ class PartyRoleImpl implements PartyRole {
 	@SuppressWarnings("unused")
 	private String userName;
 	
-	@Inject
-	PartyRoleImpl() {		
-	}
-
-    /**
-     * @param componentName
-     * @param mRID cannot be null.
-     * @param name
-     * @param aliasName
-     * @param description
-     */
-	PartyRoleImpl init(String componentName , String mRID , String name , String aliasName , String description) {
+	PartyRoleImpl init(String componentName , @NotNull String mRID , String name , String aliasName , String description) {
         validate(mRID);
 		this.componentName = componentName;
 		this.mRID = mRID;
@@ -41,8 +31,12 @@ class PartyRoleImpl implements PartyRole {
 		this.description = description;
 		return this;
 	}
-
-    private void validate(String mRID) {
+	
+	static PartyRoleImpl from(DataModel dataModel, String componentName, String mRID, String name, String aliasName, String description) {
+		return dataModel.getInstance(PartyRoleImpl.class).init(componentName, mRID, name, aliasName, description);
+	}
+	
+    private void validate(String mRID) { 
         if (is(mRID).emptyOrOnlyWhiteSpace()) {
             throw new IllegalArgumentException("mRID of PartyRole cannot be null");
         }

@@ -1,20 +1,21 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 
-public class InstallerImpl {	
+public class Installer {	
 	
-	final private OrmClient ormClient;
+	final private DataModel dataModel;
 	final private EventService eventService;
 	
-	InstallerImpl(OrmClient client,EventService eventService) {
-		this.ormClient = client;
+	Installer(DataModel dataModel,EventService eventService) {
+		this.dataModel = dataModel;
 		this.eventService = eventService;
 	}
 	
 	public void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
         try {
-            ormClient.install(executeDdl, updateOrm);
+            dataModel.install(executeDdl, updateOrm);
             if (createMasterData) {
                 createMasterData();
             }

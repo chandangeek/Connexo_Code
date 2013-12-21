@@ -2,11 +2,11 @@ package com.elster.jupiter.parties.impl;
 
 import static com.elster.jupiter.util.Checks.is;
 
-import javax.inject.Inject;
 import javax.validation.Valid;
+
 import com.elster.jupiter.cbo.PostalAddress;
 import com.elster.jupiter.cbo.StreetAddress;
-import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Organization;
 import com.google.common.base.Objects;
 
@@ -16,16 +16,15 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
 	private PostalAddress postalAddress;
 	@Valid
 	private StreetAddress streetAddress;
-	
-	@Inject
-	OrganizationImpl(OrmClient ormClient, EventService eventService) {
-		super(ormClient,eventService);
-	}
 
     OrganizationImpl init(String mRID) {
         validateMRID(mRID);
         setMRID(mRID.trim());
         return this;
+    }
+    
+    static OrganizationImpl from(DataModel dataModel, String mRID) {
+    	return dataModel.getInstance(OrganizationImpl.class).init(mRID);
     }
 
     private void validateMRID(String mRID) {
