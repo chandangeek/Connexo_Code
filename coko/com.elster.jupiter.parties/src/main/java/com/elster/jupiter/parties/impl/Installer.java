@@ -1,10 +1,21 @@
 package com.elster.jupiter.parties.impl;
 
-public class InstallerImpl {	
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
+
+public class Installer {	
+	
+	final private DataModel dataModel;
+	final private EventService eventService;
+	
+	Installer(DataModel dataModel,EventService eventService) {
+		this.dataModel = dataModel;
+		this.eventService = eventService;
+	}
 	
 	public void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
         try {
-            Bus.getOrmClient().install(executeDdl, updateOrm);
+            dataModel.install(executeDdl, updateOrm);
             if (createMasterData) {
                 createMasterData();
             }
@@ -19,7 +30,7 @@ public class InstallerImpl {
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            eventType.install();
+            eventType.install(eventService);
         }
     }
 

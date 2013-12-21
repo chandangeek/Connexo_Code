@@ -4,13 +4,17 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.PartyRepresentation;
+import com.elster.jupiter.parties.PartyRole;
 
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
-	PRT_PARTY {
+	PRT_PARTY (Party.class) {
 		void describeTable(Table table) {
 			table.map(PartyImpl.IMPLEMENTERS);
 			table.setJournalTableName("PRT_PARTYJRNL");
@@ -85,7 +89,7 @@ public enum TableSpecs {
 			table.unique("PTR_U_PARTY").on(mRIDColumn).add();
 		}
 	},
-	PRT_PARTYREP {
+	PRT_PARTYREP (PartyRepresentation.class) {
 		void describeTable(Table table) {
 			table.map(PartyRepresentationImpl.class);
 			Column delegateColumn = table.column("DELEGATE").type("varchar2(256)").notNull().map("delegate").add();
@@ -97,7 +101,7 @@ public enum TableSpecs {
 				map("party").reverseMap("representations").reverseMapOrder("delegate").composition().add();
 		}		
 	},
-	PRT_PARTYROLE {
+	PRT_PARTYROLE (PartyRole.class) {
 		void describeTable(Table table) {
 			table.map(PartyRoleImpl.class);
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
@@ -109,7 +113,7 @@ public enum TableSpecs {
 			table.primaryKey("PTR_PK_PARTYROLE").on(mRIDColumn).add();			
 		}
 	},
-	PRT_PARTYINROLE {
+	PRT_PARTYINROLE(PartyInRole.class) {
 		void describeTable(Table table) {
 			table.map(PartyInRoleImpl.class);
 			Column idColumn = table.addAutoIdColumn();
@@ -125,8 +129,14 @@ public enum TableSpecs {
 		}
 	};
 		
+	private Class<?> api;
+	
+	TableSpecs(Class<?> api) {
+		this.api = api;
+	}
+	
 	public void addTo(DataModel component) {
-		Table table = component.addTable(name());
+		Table table = component.addTable(name(),api);
 		describeTable(table);
 	}
 	

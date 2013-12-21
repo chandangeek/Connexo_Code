@@ -1,38 +1,41 @@
 package com.elster.jupiter.parties.impl;
 
+import static com.elster.jupiter.util.Checks.is;
+
+import javax.validation.constraints.NotNull;
+
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Person;
 
-import static com.elster.jupiter.util.Checks.is;
+import static com.google.common.base.Objects.toStringHelper;
 
 public final class PersonImpl extends PartyImpl implements Person {
 
+	@NotNull
 	private String firstName;
+	@NotNull
 	private String lastName;
 	private String middleName;
 	private String prefix;
 	private String suffix;
 	private String specialNeed;
 
-    @SuppressWarnings("unused")
-    private PersonImpl() {
-    }
-
     /**
      * @param firstName should not be null nor empty
      * @param lastName should not be null nor empty
      */
-	PersonImpl(String firstName, String lastName) {
-        super();
+	PersonImpl init(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        validate();
-    }
-
-    private void validate() {
         validateFirstName(firstName);
         validateLastName(lastName);
+        return this;
     }
+	
+	static PersonImpl from(DataModel dataModel, String firstName, String lastName) {
+		return dataModel.getInstance(PersonImpl.class).init(firstName, lastName);
+	}
 
     private void validateLastName(String name) {
         if (is(name).emptyOrOnlyWhiteSpace()) {
@@ -135,15 +138,11 @@ public final class PersonImpl extends PartyImpl implements Person {
 
     @Override
     public String toString() {
-        return "Person{" +
-                "id=" + getId() +
-                ", mRID='" + getMRID() + '\'' +
-                ", name='" + getName() + '\'' +
-                '}';
+        return toStringHelper(this).omitNullValues().add("id",getId()).add("mRID",getMRID()).add("name", getName()).toString();        
     }
 
     @Override
-    public String getType() {
-        return Person.class.getSimpleName();
+    public Class<Person> getType() {
+        return Person.class;
     }
 }

@@ -1,6 +1,22 @@
 package com.elster.jupiter.parties.impl;
 
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.sql.SQLException;
+import java.util.Date;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -14,7 +30,6 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -26,18 +41,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
-import java.sql.SQLException;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyCrudTest {
@@ -70,13 +73,10 @@ public class PartyCrudTest {
         			new PubSubModule(), 
         			new TransactionModule(printSql),
         			new OrmCacheModule());
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-			@Override
-			public Void perform() {
-				injector.getInstance(PartyService.class);
-				return null;
-			}
-		});
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        	injector.getInstance(PartyService.class);
+        	ctx.commit();
+        }
     }
 
     @AfterClass
@@ -97,6 +97,15 @@ public class PartyCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
         	PartyService partyService = getPartyService();
          	Organization organization = partyService.newOrganization("EICT");
+        	organization.save();
+        	organization.setAliasName("EnergyICT");
+        	organization.setDescription("Delivering tomorrow's energy solutions today");
+        	StreetAddress address = new StreetAddress();
+        	address.getStreetDetail().setBuildingName("KKS");
+        	address.getStreetDetail().setName("Stasegemsesteenweg");
+        	address.getStreetDetail().setNumber("114");
+        	organization.setStreetAddress(address);
+        	System.out.println(organization);
         	organization.save();
         	Query<Party> query = partyService.getPartyQuery();
         	query.setLazy();
@@ -119,7 +128,7 @@ public class PartyCrudTest {
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isLessThan(25);
+        	assertThat(context.getStats().getSqlCount()).isLessThan(30);
         }
     }
     
@@ -148,5 +157,25 @@ public class PartyCrudTest {
     		organization.assumeRole(role, new Date());
     		context.commit();
     	}
+    }
+    
+    @Test
+    public void testPartyRoleCache() {
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		for (int i = 10 ; i < 20 ; i++) {
+    			String name = "M" + i;
+    			getPartyService().createRole("XAZ", name , name , name , name);
+    		}
+    		context.commit();
+    	}
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10);
+    		assertThat(getPartyService().getRole("M15")).isPresent();
+    		assertThat(getPartyService().getRole("M1599")).isAbsent();
+    		context.commit();
+    		//assertThat(context.getStats().getSqlCount()).isEqualTo(1);
+    	}
+    	((PartyServiceImpl) getPartyService()).clearRoleCache();
+    	assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10);
     }
 }

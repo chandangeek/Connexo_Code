@@ -1,15 +1,21 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import static com.google.common.base.Objects.*;
+
 import java.util.Date;
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
@@ -24,16 +30,22 @@ public class PartyInRoleImpl implements PartyInRole {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String userName;
-
-	@SuppressWarnings("unused")
-	private PartyInRoleImpl() {
-	}
+    
+    @Inject
+    private DataModel dataModel;
+    @Inject
+    private Clock clock;
 	
-	PartyInRoleImpl(Party party , PartyRole role , Interval interval) {
+	PartyInRoleImpl init(Party party , PartyRole role , Interval interval) {
 		this.party.set(party);
 		this.role = role;
 		this.roleMRID = role.getMRID();
 		this.interval = interval;
+		return this;
+	}
+	
+	static PartyInRoleImpl from(DataModel dataModel, Party party, PartyRole role, Interval interval) {
+		return dataModel.getInstance(PartyInRoleImpl.class).init(party, role, interval);
 	}
 	
 	@Override
@@ -49,14 +61,14 @@ public class PartyInRoleImpl implements PartyInRole {
 	@Override
 	public PartyRole getRole() {
 		if (role == null) {
-			role = Bus.getOrmClient().getPartyRoleFactory().getExisting(roleMRID);
+			role = dataModel.mapper(PartyRole.class).getExisting(roleMRID);
 		}
 		return role;
 	}
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent(Bus.getClock());
+		return interval.isCurrent(clock);
 	}
 
 	@Override
@@ -78,11 +90,7 @@ public class PartyInRoleImpl implements PartyInRole {
 
     @Override
     public String toString() {
-        return "PartyInRole{" +
-                "party=" + party.get() +
-                ", role=" + role +
-                ", interval=" + interval +
-                '}';
+    	return toStringHelper(this).add("party", party).add("role", role).add("interval", interval).toString();
     }
 
     @Override

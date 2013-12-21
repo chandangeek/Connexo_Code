@@ -1,8 +1,22 @@
 package com.elster.jupiter.parties.impl;
 
+import static com.elster.jupiter.domain.util.Save.action;
+import static com.google.common.base.Objects.toStringHelper;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
-import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
@@ -15,72 +29,46 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 abstract class PartyImpl implements Party {
-    // ORM inheritance map
 	static final Map<String, Class<? extends Party>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
 
 	private long id;
-	private String mRID;
+	@NotNull(groups=Organization.class) private String mRID;
 	private String name;
 	private String aliasName;
 	private String description;
-	private ElectronicAddress electronicAddress;
-	private TelephoneNumber phone1;
-	private TelephoneNumber phone2;
-
+	@Valid private ElectronicAddress electronicAddress;
+	@Valid private TelephoneNumber phone1;
+	@Valid private TelephoneNumber phone2;
     private long version;
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String userName;
 
     // associations
-   	private final List<PartyInRole> partyInRoles = new ArrayList<>();
-   	private final List<PartyRepresentation> representations = new ArrayList<>();
-   	
-    PartyImpl() {
+   	private final List<PartyInRoleImpl> partyInRoles = new ArrayList<>();
+   	private final List<PartyRepresentationImpl> representations = new ArrayList<>();
+   	@Inject
+   	private DataModel dataModel;
+   	@Inject
+   	private EventService eventService;
+
+   	@Override
+	public long getId() {
+		return id;
+	}
+
+   	@Override
+	public String getMRID() {
+		return mRID;
 	}
 
     @Override
-    public PartyRepresentation appointDelegate(User user, Date start) {
-        Interval interval = Interval.startAt(start);
-        validateAddingDelegate(user, interval);
-        PartyRepresentationImpl representation = new PartyRepresentationImpl(this, user, interval);
-        representations.add(representation);
-        return representation;
-    }
+	public String getName() {
+		return name;
+	}
 
-    @Override
-    public PartyInRole assumeRole(PartyRole role, Date start) {
-        PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, Interval.startAt(start));
-        validateAddingRole(candidate);
-        partyInRoles.add(candidate);
-        return candidate;
-    }
-
-    public void delete() {
-        partyFactory().remove(this);
-        Bus.getEventService().postEvent(EventType.PARTY_DELETED.topic(), this);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Party)) {
-            return false;
-        }
-        Party party = (Party) o;
-        return id == party.getId();
-    }
-
-    @Override
+   	@Override
 	public String getAliasName() {
 		return aliasName;
 	}
@@ -93,29 +81,6 @@ abstract class PartyImpl implements Party {
     @Override
 	public ElectronicAddress getElectronicAddress() {
 		return electronicAddress == null ? null : electronicAddress.copy();
-	}
-
-    @Override
-	public long getId() {
-		return id;
-	}
-
-    /**
-     * @return Master Resource Identifier
-     */
-    @Override
-	public String getMRID() {
-		return mRID;
-	}
-
-    @Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-    public List<PartyInRole> getPartyInRoles() {
-        return ImmutableList.copyOf(partyInRoles);
 	}
 
     public TelephoneNumber getPhone1() {
@@ -131,21 +96,27 @@ abstract class PartyImpl implements Party {
         return version;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    UtcInstant getModTime() {
+        return modTime;
+    }
+
+    String getUserName() {
+        return userName;
     }
 
     @Override
-    public void save() {
-        if (getId() == 0) {
-            partyFactory().persist(this);
-            Bus.getEventService().postEvent(EventType.PARTY_CREATED.topic(), this);
-        } else {
-            partyFactory().update(this);
-            Bus.getEventService().postEvent(EventType.PARTY_UPDATED.topic(), this);
-        }
-    }
+    public void setMRID(String mRID) {
+		this.mRID = mRID;
+	}
+    
+	@Override
+    public void setName(String name) {
+		this.name = name;
+	}
 
 	@Override
     public void setAliasName(String aliasName) {
@@ -161,17 +132,7 @@ abstract class PartyImpl implements Party {
     public void setElectronicAddress(ElectronicAddress electronicAddress) {
 		this.electronicAddress = electronicAddress == null ? null : electronicAddress.copy();
 	}
-
-	@Override
-    public void setMRID(String mRID) {
-		this.mRID = mRID;
-	}
-
-	@Override
-    public void setName(String name) {
-		this.name = name;
-	}
-
+	
 	public void setPhone1(TelephoneNumber phone1) {
 		this.phone1 = phone1 == null ? null : phone1.copy();
 	}
@@ -181,77 +142,82 @@ abstract class PartyImpl implements Party {
 	}
 
     @Override
-    public PartyInRole terminateRole(PartyInRole partyInRole, Date date) {
-        PartyInRoleImpl toUpdate = null;
-        for (PartyInRole candidate : getPartyInRoles()) {
-            if (candidate.equals(partyInRole)) {
-                toUpdate = (PartyInRoleImpl) candidate; // safe cast as we only ever add that type.
-            }
-        }
-        if (toUpdate == null || !partyInRole.getInterval().contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
-            throw new IllegalArgumentException();
-        }
-        toUpdate.terminate(date);
-        Bus.getOrmClient().getPartyInRoleFactory().update(toUpdate);
-        return toUpdate;
-    }
-
-    @Override
-    public String toString() {
-        return "Party{" +
-                "id=" + id +
-                ", mRID='" + mRID + '\'' +
-                ", name='" + name + '\'' +
-                '}';
-    }
-
-    @Override
-    public void unappointDelegate(User user, Date end) {
-        List<PartyRepresentation> representations = getRepresentations();
-        for (PartyRepresentation representation : representations) {
-            if (representation.getDelegate().equals(user) && representation.getInterval().contains(end,Interval.EndpointBehavior.CLOSED_OPEN)) {
-                representation.setInterval(representation.getInterval().withEnd(end));
-                Bus.getOrmClient().getPartyRepresentationFactory().update(representation);
-                save();
-                return;
-            }
-        }
-        throw new IllegalArgumentException();
-    }
-
+    public List<PartyInRoleImpl> getPartyInRoles() {
+        return ImmutableList.copyOf(partyInRoles);
+	}
+    
     @Override
     public List<PartyRepresentation> getCurrentDelegates() {
         ImmutableList.Builder<PartyRepresentation> current = ImmutableList.builder();
-        for (PartyRepresentation representation : getRepresentations()) {
+        for (PartyRepresentation representation : representations) {
             if (representation.isCurrent()) {
                 current.add(representation);
             }
         }
         return current.build();
     }
-
-    UtcInstant getCreateTime() {
-        return createTime;
+    
+    @Override
+    public PartyRepresentation appointDelegate(User user, Date start) {
+        Interval interval = Interval.startAt(start);
+        validateAddingDelegate(user, interval);
+        PartyRepresentationImpl representation = PartyRepresentationImpl.from(dataModel,this, user, interval);
+        representations.add(representation);
+        update();
+        return representation;
     }
-
-    UtcInstant getModTime() {
-        return modTime;
+    
+    @Override
+    public void adjustRepresentation(PartyRepresentation representation , Interval newInterval) {
+    	if (!representations.contains(representation)) {
+    		throw new IllegalArgumentException();
+    	}
+    	((PartyRepresentationImpl) representation).setInterval(newInterval);
+    	dataModel.update(representation);
+    	update();
     }
-
-    List<PartyRepresentation> getRepresentations() {
-        return representations;
+    
+    @Override
+    public void unappointDelegate(User user, Date end) {
+        for (PartyRepresentationImpl representation : representations) {
+            if (representation.getDelegate().equals(user) && representation.getInterval().contains(end,Interval.EndpointBehavior.CLOSED_OPEN)) {
+                representation.setInterval(representation.getInterval().withEnd(end));
+                dataModel.update(representation);
+                update();
+                return;
+            }
+        }
+        throw new IllegalArgumentException();
     }
-
-    String getUserName() {
-        return userName;
+   
+    @Override
+    public PartyInRoleImpl assumeRole(PartyRole role, Date start) {
+        PartyInRoleImpl candidate = PartyInRoleImpl.from(dataModel, this, role, Interval.startAt(start));
+        validateAddingRole(candidate);
+        partyInRoles.add(candidate);
+        update();
+        return candidate;
     }
-
-    private DataMapper<Party> partyFactory() {
-        return Bus.getOrmClient().getPartyFactory();
+    
+    @Override
+    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Date date) {
+        PartyInRoleImpl toUpdate = null;
+        for (PartyInRoleImpl candidate : getPartyInRoles()) {
+            if (candidate.equals(partyInRole)) {
+                toUpdate = candidate; 
+            }
+        }
+        if (toUpdate == null || !partyInRole.getInterval().contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
+            throw new IllegalArgumentException();
+        }
+        toUpdate.terminate(date);
+        dataModel.update(toUpdate);
+        update();
+        return toUpdate;
     }
 
     private void validateAddingDelegate(User user, Interval interval) {
-        for (PartyRepresentation representation : getRepresentations()) {
+        for (PartyRepresentation representation : representations) {
             if (representation.getDelegate().getName().equals(user.getName()) && interval.overlaps(representation.getInterval())) {
                 throw new IllegalArgumentException();
             }
@@ -265,4 +231,44 @@ abstract class PartyImpl implements Party {
             }
         }
     }
+    
+    @Override
+    public void save() {
+    	action(getId()).save(dataModel, this , getType());
+    }
+    
+    public void update() {
+    	if (id != 0) {
+    		save();
+    	}
+    }
+    
+    public void delete() {
+        dataModel.remove(this);
+        eventService.postEvent(EventType.PARTY_DELETED.topic(), this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Party)) {
+            return false;
+        }
+        Party party = (Party) o;
+        return id == party.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).omitNullValues().add("id",id).add("mRID", mRID).add("name",name).toString();
+    }
+ 
+    
 }

@@ -1,14 +1,19 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Objects;
+
+import javax.inject.Inject;
 
 final class PartyRepresentationImpl implements PartyRepresentation {
 
@@ -27,21 +32,27 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private final Reference<Party> party = ValueReference.absent();
     private User delegateUser;
 
-	@SuppressWarnings("unused")
-	private PartyRepresentationImpl() {	
-	}
-	
-	PartyRepresentationImpl(Party party, User delegate, Interval interval) {
+    @Inject
+    private UserService userService;
+    @Inject
+    private Clock clock;
+    
+	private PartyRepresentationImpl init(Party party, User delegate, Interval interval) {
 		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
-        this.interval = interval;
+        this.interval = Objects.requireNonNull(interval);
+        return this;
 	}
 
+	static PartyRepresentationImpl from (DataModel dataModel, Party party, User delegate, Interval interval) {
+		return dataModel.getInstance(PartyRepresentationImpl.class).init(party, delegate,interval);
+	}
+	
     @Override
     public User getDelegate() {
         if (delegateUser == null) {
-            delegateUser = Bus.getUserService().findUser(delegate).orNull();
+            delegateUser = userService.findUser(delegate).orNull();
         }
 		return delegateUser;
 	}
@@ -58,10 +69,9 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 
     @Override
     public boolean isCurrent() {
-		return interval.isCurrent(Bus.getClock());
+		return interval.isCurrent(clock);
 	}
 
-    @Override
     public void setInterval(Interval interval) {
         this.interval = interval;
     }
