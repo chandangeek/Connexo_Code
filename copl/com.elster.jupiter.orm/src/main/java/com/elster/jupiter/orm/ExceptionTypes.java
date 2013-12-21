@@ -1,6 +1,5 @@
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.exception.ExceptionType;
 
 enum ExceptionTypes implements ExceptionType {
@@ -22,7 +21,7 @@ enum ExceptionTypes implements ExceptionType {
 
     @Override
     public String getModule() {
-        return Bus.COMPONENTNAME;
+        return OrmService.COMPONENTNAME;
     }
 
     @Override

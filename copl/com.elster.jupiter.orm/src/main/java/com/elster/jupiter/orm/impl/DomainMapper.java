@@ -4,6 +4,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
+import com.google.inject.Injector;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
@@ -37,10 +39,19 @@ public enum DomainMapper {
 			}
 		}
 	}
-	
+
+	private Object create(Class<?> clazz,Injector injector) throws ReflectiveOperationException {
+		if (clazz == RefAny.class) {
+			return injector.getInstance(RefAny.class);
+		}
+		Constructor<?> constructor = clazz.getDeclaredConstructor();
+		constructor.setAccessible(true);
+		return constructor.newInstance();		
+	}
+
 	private Object create(Class<?> clazz) throws ReflectiveOperationException {
 		if (clazz == RefAny.class) {
-			return new RefAnyImpl();
+			throw new UnsupportedOperationException();
 		}
 		Constructor<?> constructor = clazz.getDeclaredConstructor();
 		constructor.setAccessible(true);
@@ -65,11 +76,46 @@ public enum DomainMapper {
 		}
 	}
 	
+	private Object getOrCreate(Object target, String fieldName,Injector injector) {
+		Field field = getField(target.getClass(), fieldName);
+		if (field == null) {
+			return null;
+		} else {
+			try {
+				Object result = field.get(target);
+				if (result == null) {
+					result = create(field.getType(),injector);
+					field.set(target, result);
+				}
+				return result;
+			} catch (ReflectiveOperationException e) {
+				throw new MappingException(e);
+			}
+		}
+	}
+	
 	public void set(Object target , String  fieldPath, Object value) {		
 		String[] fieldNames = fieldPath.split("\\.");
 		if (fieldNames.length > 1) {
 			if (value != null) {
 				target = getOrCreate(target,fieldNames[0]);
+			} else {
+				target = basicGet(target,fieldNames[0]);
+			}
+		}
+		for (int i = 1 ; i < fieldNames.length - 1 ; i++) {
+			target = target == null ? null : basicGet(target,fieldNames[i]);
+		}
+		if (target != null) {
+			basicSet(target,fieldNames[fieldNames.length-1],value);
+		}
+	}
+	
+	public void set(Object target , String  fieldPath, Object value, Injector injector) {		
+		String[] fieldNames = fieldPath.split("\\.");
+		if (fieldNames.length > 1) {
+			if (value != null) {
+				target = getOrCreate(target,fieldNames[0],injector);
 			} else {
 				target = basicGet(target,fieldNames[0]);
 			}

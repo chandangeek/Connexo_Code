@@ -2,7 +2,8 @@ package com.elster.jupiter.orm.impl;
 
 import java.util.Objects;
 
-import com.elster.jupiter.orm.*;
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
@@ -11,24 +12,28 @@ public class ColumnInConstraintImpl {
 	private int position;
 	
 	// associations
-	private final Reference<TableConstraint> constraint = ValueReference.absent();
+	private final Reference<TableConstraintImpl> constraint = ValueReference.absent();
+	private ColumnImpl column;
 	
-	@SuppressWarnings("unused")
+	@Inject
 	private ColumnInConstraintImpl() {	
 	}
 
-	ColumnInConstraintImpl(TableConstraintImpl constraint, Column column, int position) {
+	ColumnInConstraintImpl(TableConstraintImpl constraint, ColumnImpl column, int position) {
 		this.position = position;
 		this.constraint.set(constraint);
 		this.columnName = column.getName();
 	}		
 	
-	TableConstraint getConstraint() {
+	TableConstraintImpl getConstraint() {
 		return constraint.get();
 	}
 		
-	Column getColumn() {
-		return Objects.requireNonNull(getConstraint().getTable().getColumn(columnName));						
+	ColumnImpl getColumn() {
+		if (column == null) {
+			column = Objects.requireNonNull(getConstraint().getTable().getColumn(columnName));
+		}
+		return column;
 	}
 	
 	@Override

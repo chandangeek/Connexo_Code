@@ -1,9 +1,21 @@
 package com.elster.jupiter.orm.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+
+import java.security.Principal;
+import java.sql.SQLException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.RefAny;
-import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -13,18 +25,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.security.Principal;
-import java.sql.SQLException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,10 +60,11 @@ public class RefAnyTest {
     }
 
     @Test
-    public void testRefAny() {    	
-    	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");
+    public void testRefAny() {   
+    	OrmServiceImpl service = (OrmServiceImpl) injector.getInstance(OrmService.class);
+    	Optional<Object> tableHolder = service.getDataModel("ORM").get().getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
     	assertThat(tableHolder).isPresent();
-    	RefAny refAny = RefAnyImpl.of(tableHolder.get());
+    	RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
     	assertThat(refAny.isPresent()).isTrue();
     }
 

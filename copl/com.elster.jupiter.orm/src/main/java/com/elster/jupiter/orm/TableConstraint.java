@@ -7,16 +7,11 @@ import java.util.List;
  */
 public interface TableConstraint {
 	String getName();
-    List<Column> getColumns();
+    List<? extends Column> getColumns();
 	Table getTable();
 	boolean isPrimaryKey();
 	boolean isUnique();
 	boolean isForeignKey();
 	boolean hasColumn(Column column);
-	/**
-	 * 
-	 * @return false if at least one of the columns is nullable, true otherwise
-	 */
 	boolean isNotNull();
-	Object[] getColumnValues(Object value);
 }

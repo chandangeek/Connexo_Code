@@ -2,16 +2,17 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
-import com.elster.jupiter.orm.Table;
 
 public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements PrimaryKeyConstraint {
 	
-	@SuppressWarnings("unused")
-	private PrimaryKeyConstraintImpl() {
+	@Override
+	PrimaryKeyConstraintImpl init(TableImpl table, String name) {
+		super.init(table,name);
+		return this;
 	}
 	
-	PrimaryKeyConstraintImpl(Table table , String name) {
-		super(table,name);
+	static PrimaryKeyConstraintImpl from(TableImpl table , String name) {
+		return new PrimaryKeyConstraintImpl().init(table,name);
 	}
 	
 	@Override
@@ -27,8 +28,8 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 	static class BuilderImpl implements PrimaryKeyConstraint.Builder {
 		private final PrimaryKeyConstraintImpl constraint;
 		
-		public BuilderImpl(Table table, String name) {
-			this.constraint = new PrimaryKeyConstraintImpl(table,name);
+		public BuilderImpl(TableImpl table, String name) {
+			this.constraint = PrimaryKeyConstraintImpl.from(table,name);
 		}
 
 		@Override
@@ -40,7 +41,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 		@Override
 		public PrimaryKeyConstraint add() {
 			constraint.validate();
-			((TableImpl) constraint.getTable()).add(constraint);
+			constraint.getTable().add(constraint);
 			return constraint;
 		}
 	

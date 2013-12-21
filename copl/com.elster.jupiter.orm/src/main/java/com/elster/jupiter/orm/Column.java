@@ -35,6 +35,7 @@ public interface Column {
 		Builder map(String field);
 		Builder conversion(ColumnConversion conversion);
 		Builder notNull();
+		Builder notNull(boolean value);
 		Builder sequence(String name);
 		Builder insert(String pseudoLiteral);
 		Builder update(String pseudoLiteral);
@@ -43,5 +44,6 @@ public interface Column {
 		Builder bool();
 		Column add();
 		Builder number();
+		Builder varChar(int length);
 	}
 }

@@ -1,47 +1,56 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.orm.internal.*;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
-
-import org.osgi.service.component.annotations.*;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-@Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + Bus.COMPONENTNAME)
-public class OrmServiceImpl implements OrmService , InstallService , ServiceLocator {
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.TransactionRequiredException;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.internal.TableSpecs;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Module;
+
+@Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + OrmService.COMPONENTNAME)
+public class OrmServiceImpl implements OrmService , InstallService {
 	
-	private volatile OrmClient ormClient;
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile JsonService jsonService;
-    private final Map<String,DataModel> dataModels = Collections.synchronizedMap(new HashMap<String,DataModel>());
+    private final Map<String,DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String,DataModelImpl>());
 
     public OrmServiceImpl() {
 	}
 
     @Inject
     public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService) {
-        this.clock = clock;
-        this.threadPrincipalService = threadPrincipalService;
-        this.dataSource = dataSource;
-        this.jsonService = jsonService;
+        setClock(clock);
+        setThreadPrincipalService(threadPrincipalService);
+        setDataSource(dataSource);
+        setJsonService(jsonService);
         activate();
         install();
     }
 
-	@Override
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
 		Connection result = dataSource.getConnection();
 		if (transactionRequired && result.getAutoCommit()) {
@@ -52,20 +61,19 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	}
 	
 	@Override
-	public Optional<DataModel> getDataModel(String name) {
+	public Optional<DataModelImpl> getDataModel(String name) {
 		return Optional.fromNullable(dataModels.get(name));
 	}
 	
-	// install time api
-	
 	@Override
-	public DataModel newDataModel(String name,String description) {		
-		return new DataModelImpl(name, description);
+	public DataModelImpl newDataModel(String name,String description) {		
+		return new DataModelImpl(this).init(name, description);
 	}
 
 	@Override
-	public void register(DataModel dataModel) {
-		((DataModelImpl) dataModel).prepare();
+	public void register(DataModel in) {
+		DataModelImpl dataModel = (DataModelImpl) in;
+		dataModel.prepare();
 		dataModels.put(dataModel.getName(), dataModel);
 	}
 	
@@ -73,19 +81,11 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public void install() {
 		 createDataModel(false).install(true,true);
 	}
-	 
-	
-	@Override
-	public OrmClient getOrmClient() {
-		return ormClient;
-	}
 
-    @Override
     public Clock getClock() {
         return clock;
     }
 
-    @Override
 	public Principal getPrincipal()  {
 		return threadPrincipalService.getPrincipal();
 	}
@@ -110,42 +110,37 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
         this.jsonService = jsonService;
     }
 
-    @Override
     public JsonService getJsonService() {
         return jsonService;
     }
 
     private DataModel createDataModel(boolean register) {
-		DataModel result =  newDataModel(Bus.COMPONENTNAME,"Object Relational Mapper");
+		DataModelImpl result =  newDataModel(COMPONENTNAME,"Object Relational Mapper");
+		result.setInjector(Guice.createInjector(getModule(result)));
 		for (TableSpecs spec : TableSpecs.values()) {
 			spec.addTo(result);			
 		}
 		if (register) {
-			register(result);
+			result.register();
+		} else {
+			result.prepare();
 		}
 		return result;
 	}
 
     @Activate
 	public void activate() {
-    	this.ormClient = new OrmClientImpl(createDataModel(true));
-		Bus.setServiceLocator(this);
+    	createDataModel(true);
 	}
 	
-	@Deactivate
-	public void deactivate() {
-		Bus.clearServiceLocator(this);
-	}
-	
-	@Override
-	public Table getTable(String componentName, String tableName) {
-		DataModel dataModel = dataModels.get(componentName);
+	public TableImpl getTable(String componentName, String tableName) {
+		DataModelImpl dataModel = dataModels.get(componentName);
 		if (dataModel == null) {
-			throw new RuntimeException("Component " + componentName + " not found");
+			throw new IllegalArgumentException ("DataModel " + componentName + " not found");
 		} else {
-			Table result = dataModel.getTable(tableName);
+			TableImpl result = dataModel.getTable(tableName);
 			if (result == null) {
-				throw new RuntimeException("Table " + tableName + " not found in component " + componentName);
+				throw new IllegalArgumentException("Table " + tableName + " not found in component " + componentName);
 			} else {
 				return result;
 			}		
@@ -154,15 +149,24 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 
 
 	@Override
-	public List<DataModel> getDataModels() {
+	public List<DataModelImpl> getDataModels() {
 		synchronized (dataModels) {
 			return new ArrayList<>(dataModels.values());
 		}
 	}
 	
-	@Override
-	public OrmService getOrmService() {
-		return this;
-	}
+	Module getModule(final DataModel dataModel) {
+    	return new AbstractModule() {	
+			@Override
+			public void configure() {
+				bind(DataModel.class).toInstance(dataModel);
+				bind(Clock.class).toInstance(clock);
+				bind(JsonService.class).toInstance(jsonService);
+				bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+				bind(OrmService.class).toInstance(OrmServiceImpl.this);
+			}
+		}; 	
+    }
+    
 
 }

@@ -51,7 +51,9 @@ public interface Finder<T> {
 	 * @param values
 	 * @return
 	 */
+    @Deprecated
 	Optional<T> get(Object... values);
+    Optional<T> getOptional(Object... values);
 	/**
 	 * Find journal entries for a primary key
 	 */

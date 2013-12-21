@@ -1,14 +1,16 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import com.elster.jupiter.orm.internal.Bus;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.util.units.Unit;
-
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Currency;
 import java.util.Date;
+
+import javax.inject.Inject;
+
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.util.units.Unit;
 
 // naming convention is DATABASE TYPE 2 JAVATYPE 
 public enum ColumnConversionImpl {
@@ -107,7 +109,7 @@ public enum ColumnConversionImpl {
 		
 		@Override
 		public Object convert(String in) {		
-			return Bus.toBoolean(in);
+			return toBoolean(in);
 		}
 	},
 	NUMBER2BOOLEAN { // 6
@@ -123,7 +125,7 @@ public enum ColumnConversionImpl {
 		
 		@Override
 		public Object convert(String in) {
-			return Bus.toBoolean(in);
+			return toBoolean(in);
 		}
 	},
 	// number to com.elste.jupiter.time.Instant, waiting for java.time.Instant
@@ -305,19 +307,17 @@ public enum ColumnConversionImpl {
     CHAR2JSON {
         @Override
         public Object convert(String in) {
-            Object[] objects = Bus.getJsonService().deserialize(in, Object[].class);
-            return objects;
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public Object convertToDb(Object value) {
-            return Bus.getJsonService().serialize(value);
+        	throw new UnsupportedOperationException();
         }
 
         @Override
         public Object convertFromDb(ResultSet rs, int index) throws SQLException {
-            String jsonString = rs.getString(index);
-            return jsonString == null ? null : convert(jsonString);
+            throw new UnsupportedOperationException();
         }
     },
     DATE2DATE {
@@ -372,4 +372,36 @@ public enum ColumnConversionImpl {
 		}
 	}
 
+	private static final String[] trueStrings = { "1" , "y" ,"yes" , "on" };
+	
+	private static boolean toBoolean(String in) {
+		for (String each : trueStrings) {
+			if (each.equalsIgnoreCase(in)) 
+				return true; 
+		}
+		return Boolean.valueOf(in);
+	}
+	
+	public static class JsonConverter {
+		private final JsonService jsonService;
+		
+		@Inject
+		JsonConverter(JsonService jsonService) {
+			this.jsonService = jsonService;
+		}
+		
+        public Object convert(String in) {
+            Object[] objects = jsonService.deserialize(in, Object[].class);
+            return objects;
+        }
+		
+        public Object convertToDb(Object value) {
+            return jsonService.serialize(value);
+        }
+
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            String jsonString = rs.getString(index);
+            return jsonString == null ? null : convert(jsonString);
+        }
+	}
 }

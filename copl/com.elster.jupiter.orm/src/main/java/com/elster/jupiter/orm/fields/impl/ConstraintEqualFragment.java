@@ -3,7 +3,7 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.Setter;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -12,7 +12,7 @@ public class ConstraintEqualFragment extends ConstraintFragment implements SqlFr
 
 	private final Object value;
 	
-	public ConstraintEqualFragment(ForeignKeyConstraint constraint , Object value , String alias) {
+	public ConstraintEqualFragment(ForeignKeyConstraintImpl constraint , Object value , String alias) {
 		super(constraint,alias);
 		this.value = value;
 	}

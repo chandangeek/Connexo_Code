@@ -1,17 +1,15 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
-import com.elster.jupiter.orm.internal.*;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 
 public class ColumnImpl implements Column  {
 	// persistent fields
@@ -29,32 +27,19 @@ public class ColumnImpl implements Column  {
 	private boolean skipOnUpdate;
 	
 	// associations
-	private final Reference<Table> table = ValueReference.absent();
+	private final Reference<TableImpl> table = ValueReference.absent();
 
-	@SuppressWarnings("unused")
-	private ColumnImpl() {
-	}
-
-	private ColumnImpl(Table table, String name) {
-		if (name.length() > Bus.CATALOGNAMELIMIT) {
+	private ColumnImpl init(TableImpl table, String name) {
+		if (name.length() > OrmService.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
 		this.table.set(table);
 		this.name = name;
+		return this;
 	}
 	
-	ColumnImpl(Table table, String name, String dbType , boolean notNull , ColumnConversion conversion , 
-			String fieldName , String sequenceName , boolean versionCount, String insertValue , String updateValue , boolean skipOnUpdate) {
-		this(table,name);
-		this.dbType = dbType;
-		this.notNull = notNull;
-		this.conversion = ColumnConversionImpl.valueOf(conversion.name());
-		this.fieldName = fieldName;		
-		this.sequenceName = sequenceName;				
-		this.versionCount = versionCount;
-		this.insertValue = insertValue;
-		this.updateValue = updateValue;
-		this.skipOnUpdate = skipOnUpdate;
+	static ColumnImpl from(TableImpl table, String name) {
+		return new ColumnImpl().init(table,name);
 	}
 	
 	private void validate() {
@@ -70,7 +55,7 @@ public class ColumnImpl implements Column  {
 	}
 	
 	@Override
-	public Table getTable() {
+	public TableImpl getTable() {
 		return table.get();
 	}
 	
@@ -109,7 +94,7 @@ public class ColumnImpl implements Column  {
 
 	@Override
 	public boolean isPrimaryKeyColumn() {
-		return ((TableImpl) getTable()).isPrimaryKeyColumn(this);		
+		return getTable().isPrimaryKeyColumn(this);		
 	}
 
 	public String getDbType() {		
@@ -133,7 +118,7 @@ public class ColumnImpl implements Column  {
 
 	@Override
 	public String getQualifiedSequenceName() {
-		return sequenceName == null ? null : ((TableImpl) getTable()).getQualifiedName(sequenceName);		
+		return sequenceName == null ? null : getTable().getQualifiedName(sequenceName);		
 	}
 	
 	@Override
@@ -161,20 +146,24 @@ public class ColumnImpl implements Column  {
 		return updateValue != null && updateValue.length() > 0;
 	}
 	
-	void persist() {
-		getOrmClient().getColumnFactory().persist(this);
+	private ColumnConversionImpl.JsonConverter jsonConverter() {
+		return getTable().getDataModel().getInstance(ColumnConversionImpl.JsonConverter.class);
 	}
 	
 	public Object convertToDb(Object value) {
-		return conversion.convertToDb(value);		
+		if (conversion == ColumnConversionImpl.CHAR2JSON) {
+			return jsonConverter().convertToDb(value);
+		} else {
+			return conversion.convertToDb(value);
+		}
 	}
 	
 	Object convertFromDb(ResultSet rs, int index) throws SQLException {
-		return conversion.convertFromDb(rs,index);
-	}
-	
-	private OrmClient getOrmClient() {
-		return Bus.getOrmClient();
+		if (conversion == ColumnConversionImpl.CHAR2JSON) {
+			return jsonConverter().convertFromDb(rs,index);
+		} else {
+			return conversion.convertFromDb(rs,index);
+		}
 	}
 	
 	boolean isStandard() {
@@ -210,7 +199,11 @@ public class ColumnImpl implements Column  {
 	}
 	
 	Object convert(String in) {
-		return conversion.convert(in);
+		if (conversion == ColumnConversionImpl.CHAR2JSON) {
+			return jsonConverter().convert(in);
+		} else {
+			return conversion.convert(in);
+		}	
 	}
 	
 	@Override
@@ -227,9 +220,9 @@ public class ColumnImpl implements Column  {
 		return getForeignKeyConstraint() != null;
 	}
 	
-	ForeignKeyConstraint getForeignKeyConstraint() {
-		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
-			for (Column column : constraint.getColumns()) {
+	ForeignKeyConstraintImpl getForeignKeyConstraint() {
+		for (ForeignKeyConstraintImpl constraint : getTable().getForeignKeyConstraints()) {
+			for (ColumnImpl column : constraint.getColumns()) {
 				if (this.equals(column)) {
 					return constraint;
 				}
@@ -241,8 +234,8 @@ public class ColumnImpl implements Column  {
 	static class BuilderImpl implements Column.Builder {
 		private final ColumnImpl column;
 		
-		BuilderImpl(Table table , String name) {
-			this.column = new ColumnImpl(table,name);
+		BuilderImpl(ColumnImpl column) {
+			this.column = column;
 			column.conversion = ColumnConversionImpl.NOCONVERSION;
 		}
 
@@ -266,9 +259,15 @@ public class ColumnImpl implements Column  {
 
 		@Override
 		public Builder notNull() {
-			column.notNull = true;
+			return notNull(true);
+		}
+		
+		@Override
+		public Builder notNull(boolean value) {
+			column.notNull = value;
 			return this;
 		}
+		
 
 		@Override
 		public Builder sequence(String name) {
@@ -311,9 +310,21 @@ public class ColumnImpl implements Column  {
 		}
 
 		@Override
+		public Builder varChar(int length) {
+			if (length < 1) {
+				throw new IllegalArgumentException("Illegal length: " + length);
+			}
+			if (length > 4000) {
+				// may need to adjust for non oracle or oracle 12
+				throw new IllegalArgumentException("" + length + " exceeds max varchar size");
+			}
+			return this.type("VARCHAR2(" + length + ")");
+		}
+		
+		@Override
 		public Column add() {
 			column.validate();
-			return ((TableImpl) column.getTable()).add(column);
+			return column.getTable().add(column);
 		}
 		
 	}

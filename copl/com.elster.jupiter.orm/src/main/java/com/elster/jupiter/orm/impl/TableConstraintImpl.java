@@ -1,20 +1,18 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.associations.impl.PersistentReference;
-import com.elster.jupiter.orm.internal.Bus;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 public abstract class TableConstraintImpl implements TableConstraint {
 	
@@ -26,18 +24,17 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	private String name;
 	
 	// associations
-	private final Reference<Table> table = ValueReference.absent();
+	private final Reference<TableImpl> table = ValueReference.absent();
 	private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 	
-	TableConstraintImpl() {	
-	}
 
-	TableConstraintImpl(Table table, String name) {
-		if (name.length() > Bus.CATALOGNAMELIMIT) {
+	TableConstraintImpl init(TableImpl table, String name) {
+		if (name.length() > OrmService.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
 		this.table.set(table);
 		this.name = name;
+		return this;
 	}
 
 	@Override
@@ -46,8 +43,8 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	}
 
 	@Override
-	public List<Column> getColumns() {
-		ImmutableList.Builder<Column> builder = new ImmutableList.Builder<>();
+	public List<ColumnImpl> getColumns() {
+		ImmutableList.Builder<ColumnImpl> builder = new ImmutableList.Builder<>();
 		for (ColumnInConstraintImpl each : columnHolders) {
 			builder.add(each.getColumn());
 		}
@@ -55,17 +52,17 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	}
 
 	@Override
-	public Table getTable() {
+	public TableImpl getTable() {
 		return table.get();
 	}
 
-	void add(Column column) {
+	void add(ColumnImpl column) {
 		columnHolders.add(new ColumnInConstraintImpl(this, column, columnHolders.size() + 1));
 	}
 
 	void add(Column[] columns) {
 		for (Column column : columns) {
-			add(column);
+			add((ColumnImpl) column);
 		}
 	}
 	
@@ -106,17 +103,16 @@ public abstract class TableConstraintImpl implements TableConstraint {
 		}
 		return true;
 	}
-
-	@Override
+	
 	public Object[] getColumnValues(Object value) {
-		List<Column> columns = getColumns();
+		List<ColumnImpl> columns = getColumns();
 		int columnCount = columns.size();		
 		Object[] result = new Object[columnCount]; 
 		for (int i = 0 ; i < columnCount ; i++) {
 			Column column = columns.get(i);
 			String fieldName = columns.get(i).getFieldName();
 			if (fieldName == null) {
-				for (ForeignKeyConstraint constraint : ((TableImpl) getTable()).getReferenceConstraints()) {
+				for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
 					if (constraint.hasColumn(column)) {
 						Reference<?> reference = (Reference<?>) DomainMapper.FIELDSTRICT.get(value, constraint.getFieldName());
 						if (reference == null || !reference.isPresent()) {

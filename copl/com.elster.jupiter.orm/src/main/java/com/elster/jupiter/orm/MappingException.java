@@ -8,7 +8,8 @@ import java.text.MessageFormat;
  * Thrown when ORM mapping of persistent Objects fails.
  */
 public class MappingException extends PersistenceException {
-
+	private static final long serialVersionUID = 1L;
+	
     public MappingException(IllegalAccessException cause) {
         super(ExceptionTypes.MAPPING_INTROSPECTION_FAILED, cause);
     }

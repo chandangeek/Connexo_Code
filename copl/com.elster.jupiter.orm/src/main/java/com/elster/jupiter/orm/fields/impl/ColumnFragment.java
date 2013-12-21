@@ -3,24 +3,23 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 
 abstract class ColumnFragment extends AliasFragment {
 
-	private final Column column;
+	private final ColumnImpl column;
 
-	public ColumnFragment(Column column , String alias) {
+	public ColumnFragment(ColumnImpl column , String alias) {
 		super(alias);
 		this.column = column;
 	}
 	
-	Column getColumn() {
+	ColumnImpl getColumn() {
 		return column;
 	}
 	
 	int bind(PreparedStatement statement, int position , Object value) throws SQLException {		
-		statement.setObject(position++ , ((ColumnImpl) column).convertToDb(value));
+		statement.setObject(position++ , column.convertToDb(value));
 		return position;
 	}
 

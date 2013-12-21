@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.internal;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.ColumnInConstraintImpl;
 import com.elster.jupiter.orm.impl.DataModelImpl;
@@ -15,7 +16,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	
-	ORM_DATAMODEL {		
+	ORM_DATAMODEL(DataModel.class) {		
 		void describeTable(Table table) {
 			table.map(DataModelImpl.class);
 			Column nameColumn = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
@@ -23,7 +24,7 @@ public enum TableSpecs {
 			table.primaryKey("ORM_PK_COMPONENT").on(nameColumn).add();
 		}
 	},
-	ORM_TABLE {
+	ORM_TABLE(Table.class) {
 		void describeTable(Table table) {
 			table.map(TableImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
@@ -39,7 +40,7 @@ public enum TableSpecs {
 				map("dataModel").reverseMap("tables").composition().add();
 		}
 	},
-	ORM_COLUMN {	
+	ORM_COLUMN(Column.class) {	
 		void describeTable(Table table) {
 			table.map(ColumnImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
@@ -62,7 +63,7 @@ public enum TableSpecs {
 				map("table").reverseMap("columns").reverseMapOrder("position").composition().add();
 		}
 	},
-	ORM_TABLECONSTRAINT {	
+	ORM_TABLECONSTRAINT(TableConstraint.class) {	
 		void describeTable(Table table) {
 			table.map(TableConstraintImpl.implementers);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
@@ -84,7 +85,7 @@ public enum TableSpecs {
 			table.foreignKey("ORM_FK_CONSTRAINTTABLE2").on(referencedComponentName, referencedTableName).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
 		}
 	},
-	ORM_COLUMNINCONSTRAINT {
+	ORM_COLUMNINCONSTRAINT(ColumnInConstraintImpl.class) {
 		void describeTable(Table table) {
 			table.map(ColumnInConstraintImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
@@ -102,9 +103,15 @@ public enum TableSpecs {
 	
 	private static final String COMPONENTDBTYPE = "varchar2(3)";
 	private static final String CATALOGDBTYPE = "varchar2(30)";
+	
+	private Class<?> api;
+	
+	TableSpecs(Class<?> api) {
+		this.api = api;
+	}
 
 	public void addTo(DataModel component) {
-		Table table = component.addTable(name());
+		Table table = component.addTable(name(),api);
 		describeTable(table);
 	}
 	

@@ -51,6 +51,5 @@ public interface DataMapper<T> extends Finder<T> {
 	 * @return the table served by the receiver
 	 */
 	Table getTable();
-	T newInstance();
-	<S extends T> S newInstance(Class<S> clazz);
+	Object[] getPrimaryKey(T object);
 }

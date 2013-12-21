@@ -1,23 +1,20 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.Table;
-
 import java.util.List;
 
 public class TableSqlGenerator {
 	private final TableImpl table;
-	//private final ColumnImpl[] allColumns;
 	
-	TableSqlGenerator(Table table) {
-		this.table = (TableImpl) table;		
+	TableSqlGenerator(TableImpl table) {
+		this.table = table;		
 	}
 	
 	void appendColumns(StringBuilder sb , String separator , String alias) {
 		appendColumns(sb,separator,alias,table.getColumns());		
 	}
 	
-	void appendColumns(StringBuilder sb, String separator , String alias , List<Column> columns) {
+	void appendColumns(StringBuilder sb, String separator , String alias , List<? extends Column> columns) {
 		if (alias == null) {
 			alias = "";
 		}			
@@ -54,7 +51,7 @@ public class TableSqlGenerator {
         return getSelectFromJournalClause(table.getColumns(),alias);
     }
 
-    String getSelectFromClause(List<Column> columns , String alias) {
+    String getSelectFromClause(List<? extends Column> columns , String alias) {
 		StringBuilder sb = new StringBuilder("select");
 		appendColumns(sb, " " , alias , columns);		
 		sb.append(" from ");
@@ -62,7 +59,7 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 
-    String getSelectFromJournalClause(List<Column> columns , String alias) {
+    String getSelectFromJournalClause(List<? extends Column> columns , String alias) {
         StringBuilder sb = new StringBuilder("select ");
         if (alias != null && alias.length() > 0) {
         	sb.append(alias);
@@ -75,7 +72,7 @@ public class TableSqlGenerator {
         return sb.toString();
     }
 
-    String refreshSql(List<Column> columnsToRefresh) {
+    String refreshSql(List<ColumnImpl> columnsToRefresh) {
 		StringBuilder sb = new StringBuilder(getSelectFromClause(columnsToRefresh, null));
 		sb.append(" where ");
 		String separator = "";
@@ -156,7 +153,7 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 	
-	String updateSql(List<Column> columns) {
+	String updateSql(List<ColumnImpl> columns) {
 		StringBuilder sb = new StringBuilder("update ");
 		sb.append(table.getQualifiedName());
 		sb.append(" set ");
@@ -202,11 +199,11 @@ public class TableSqlGenerator {
 		return table;
 	}	
 	
-	List<Column> getColumns() {
+	List<ColumnImpl> getColumns() {
 		return table.getColumns();
 	}
 	
-	List<Column> getPrimaryKeyColumns() {
+	List<ColumnImpl> getPrimaryKeyColumns() {
 		return table.getPrimaryKeyColumns();
 	}
 	

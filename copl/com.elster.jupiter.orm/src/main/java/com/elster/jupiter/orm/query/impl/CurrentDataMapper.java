@@ -1,23 +1,22 @@
 package com.elster.jupiter.orm.query.impl;
 
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.orm.impl.DomainMapper;
-import com.elster.jupiter.orm.internal.Bus;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.elster.jupiter.orm.impl.ColumnImpl;
+import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DomainMapper;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+
 public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragment {
-	private ForeignKeyConstraint constraint;
+	private ForeignKeyConstraintImpl constraint;
 	
-	public CurrentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {
+	public CurrentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraintImpl constraint, String alias) {
 		super(dataMapper, alias);	
 		this.constraint = constraint;
 	}
@@ -50,8 +49,8 @@ public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragme
 		appendTable(builder);
 		builder.append(" ON ");
 		builder.openBracket();
-		List<Column> primaryKeyColumns = constraint.getReferencedTable().getPrimaryKeyColumns();
-		List<Column> foreignKeyColumns = constraint.getColumns();
+		List<ColumnImpl> primaryKeyColumns = constraint.getReferencedTable().getPrimaryKeyColumns();
+		List<ColumnImpl> foreignKeyColumns = constraint.getColumns();
 		String separator = "";
 		for ( int i = 0 ; i < primaryKeyColumns.size() ; i++) {
 			builder.append(separator);
@@ -79,7 +78,7 @@ public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragme
 
 	@Override
 	public int bind(PreparedStatement statement, int position) throws SQLException {
-		long now = Bus.getClock().now().getTime();
+		long now = getTable().getDataModel().getClock().now().getTime();
 		statement.setLong(position++,now);
 		statement.setLong(position++,now);
 		return position;

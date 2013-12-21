@@ -2,59 +2,57 @@ package com.elster.jupiter.orm.impl;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.RefAny;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.internal.Bus;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 
 public final class RefAnyImpl implements RefAny {
 	
-	private final String component;
-	private final String table;
-	private final String key;
+	private String component;
+	private String table;
+	private String key;
 	@SuppressWarnings("unused")
-	private final long id;
+	private long id;
 	
-	private transient Optional<Object> targetHolder;
+	private Optional<Object> targetHolder;
 	
-	RefAnyImpl() {
-		this.component = null;
-		this.table = null;
-		this.key = null;
-		this.id = 0;
-	}
+	@Inject
+	private JsonService jsonService;
+	@Inject
+	private OrmService ormService;
 	
-	private RefAnyImpl(Object value , Table table) {
+	RefAnyImpl init(Object value, TableImpl table) {
 		this.component = table.getComponentName();
 		this.table = table.getName();
 		Object[] primaryKey = table.getPrimaryKey(Objects.requireNonNull(value));
-		key = Bus.getJsonService().serialize(primaryKey);
+		key = jsonService.serialize(primaryKey);
 		if (primaryKey.length == 1 && (Number.class.isInstance(primaryKey[0]))) {
 			id = ((Number) primaryKey[0]).longValue();
 		} else {
 			id = 0;
 		}
 		targetHolder = Optional.of(value);
+		return this;
+	}	
+	
+	static RefAnyImpl from(DataModel dataModel, Object value , TableImpl table) {
+		return dataModel.getInstance(RefAnyImpl.class).init(value,table);
+	}
+	
+	private OrmServiceImpl getOrmService() {
+		return (OrmServiceImpl) ormService;
 	}
 	
 	private Optional<Object> getTargetHolder() {
 		if (targetHolder == null) {
-			Object[] primaryKey = Bus.getJsonService().deserialize(key,Object[].class);
-			targetHolder = Bus.getLocator().getOrmService().getDataModel(component).get().getTable(table).get(primaryKey);
+			Object[] primaryKey = jsonService.deserialize(key,Object[].class);
+			targetHolder = getOrmService().getDataModel(component).get().getTable(table).getOptional(primaryKey);
 		}
 		return targetHolder;
-	}
-	
-	public static RefAnyImpl of(Object ref) {
-		Class<?> clazz = Objects.requireNonNull(ref).getClass();
-		for (DataModel dataModel : Bus.getLocator().getOrmService().getDataModels()) {
-			Optional<Table> tableHolder = dataModel.getTable(clazz);
-			if (tableHolder.isPresent()) {
-				return new RefAnyImpl(ref,tableHolder.get());
-			}
-		} 
-		throw new IllegalArgumentException("No table defined that maps " + ref.getClass());
 	}
 	
 	@Override

@@ -25,9 +25,9 @@ abstract class MultiColumnFragment extends AliasFragment {
 	}
 	
 	final int bind(PreparedStatement statement, int position , Object value) throws SQLException {		
-		for (Column each : getFieldMapping().getColumns()) {
+		for (ColumnImpl each : getFieldMapping().getColumns()) {
 			Object subValue = DomainMapper.FIELDSTRICT.get(value, reduce(each));
-			statement.setObject(position++ , ((ColumnImpl) each).convertToDb(subValue));
+			statement.setObject(position++ , each.convertToDb(subValue));
 		}
 		return position;
 	}

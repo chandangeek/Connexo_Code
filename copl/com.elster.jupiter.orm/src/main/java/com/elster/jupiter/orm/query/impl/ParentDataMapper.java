@@ -4,16 +4,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class ParentDataMapper<T> extends JoinDataMapper<T> {
-	private ForeignKeyConstraint constraint;
+	private ForeignKeyConstraintImpl constraint;
 	
-	public ParentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {
+	public ParentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraintImpl constraint, String alias) {
 		super(dataMapper, alias);	
 		this.constraint = constraint;
 	}
@@ -46,8 +46,8 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 		appendTable(builder);
 		builder.append(" ON ");
 		builder.openBracket();
-		List<Column> primaryKeyColumns = constraint.getReferencedTable().getPrimaryKeyColumns();
-		List<Column> foreignKeyColumns = constraint.getColumns();
+		List<ColumnImpl> primaryKeyColumns = constraint.getReferencedTable().getPrimaryKeyColumns();
+		List<ColumnImpl> foreignKeyColumns = constraint.getColumns();
 		String separator = "";
 		for ( int i = 0 ; i < primaryKeyColumns.size() ; i++) {
 			builder.append(separator);

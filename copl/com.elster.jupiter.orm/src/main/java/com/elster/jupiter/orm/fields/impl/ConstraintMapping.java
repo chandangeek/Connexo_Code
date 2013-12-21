@@ -1,15 +1,15 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 
 abstract class ConstraintMapping extends FieldMapping {
-	private final ForeignKeyConstraint constraint;
+	private final ForeignKeyConstraintImpl constraint;
 	
-	ConstraintMapping(ForeignKeyConstraint constraint) {
+	ConstraintMapping(ForeignKeyConstraintImpl constraint) {
 		this.constraint = constraint;
 	}
 
-	ForeignKeyConstraint getConstraint() {
+	ForeignKeyConstraintImpl getConstraint() {
 		return constraint;
 	}
 	

@@ -2,10 +2,12 @@ package com.elster.jupiter.orm.impl;
 
 import java.util.Objects;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.internal.Bus;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
 	// persistent fields
@@ -16,32 +18,24 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	private String reverseCurrentFieldName;
 	private boolean composition;
 	
-	private final Reference<Table> referencedTable = ValueReference.absent();
+	private final Reference<TableImpl> referencedTable = ValueReference.absent();
 	
-	@SuppressWarnings("unused")
-	private ForeignKeyConstraintImpl() {	
+	@Override
+	ForeignKeyConstraintImpl init(TableImpl table, String name) {
+		super.init(table, name);
+		return this;
 	}
 	
-	private ForeignKeyConstraintImpl(Table table, String name) {
-		super(table,name);
+	static ForeignKeyConstraintImpl from(TableImpl table, String name) {
+		return new ForeignKeyConstraintImpl().init(table,name);
 	}
 
-	ForeignKeyConstraintImpl(Table table, String name, Table referencedTable, DeleteRule deleteRule,AssociationMapping mapping) {
-		this(table,name);
-		this.setReferencedTable(referencedTable);
-		this.deleteRule = deleteRule;
-		this.fieldName = mapping.getFieldName();	
-		this.reverseFieldName = mapping.getReverseFieldName();
-		this.reverseOrderFieldName = mapping.getReverseOrderFieldName();
-		this.reverseCurrentFieldName = mapping.getReverseCurrentFieldName();
-	}
-
-	private final void setReferencedTable(Table table) {
+	private final void setReferencedTable(TableImpl table) {
 		this.referencedTable.set(table);
 	}
 	
 	@Override
-	public Table getReferencedTable() {
+	public TableImpl getReferencedTable() {
 		return referencedTable.get();
 	}
 	
@@ -137,8 +131,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	static class BuilderImpl implements ForeignKeyConstraint.Builder {
 		private final ForeignKeyConstraintImpl constraint;
 		
-		BuilderImpl(Table table, String name) {
-			this.constraint = new ForeignKeyConstraintImpl(table,name);
+		BuilderImpl(TableImpl table, String name) {
+			this.constraint = ForeignKeyConstraintImpl.from(table,name);
 			constraint.deleteRule = DeleteRule.RESTRICT;
 		}
 
@@ -168,7 +162,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
 		@Override
 		public Builder references(String component, String name) {
-			Table table = Bus.getTable(component, name);
+			TableImpl table =  constraint.getTable().getDataModel().getOrmService().getTable(component, name);
 			constraint.setReferencedTable(table);
 			return this;
 		}
@@ -200,7 +194,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		@Override
 		public ForeignKeyConstraint add() {
 			constraint.validate();
-			((TableImpl) constraint.getTable()).add(constraint);
+			constraint.getTable().add(constraint);
 			return constraint;		
 		}
 	}

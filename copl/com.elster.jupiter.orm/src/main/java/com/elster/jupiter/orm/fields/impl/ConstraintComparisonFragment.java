@@ -3,14 +3,14 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 
 public class ConstraintComparisonFragment extends ConstraintFragment {
 	
 	private final Comparison comparison;
 	
-	public ConstraintComparisonFragment(ForeignKeyConstraint constraint , Comparison comparison , String alias) {
+	public ConstraintComparisonFragment(ForeignKeyConstraintImpl constraint , Comparison comparison , String alias) {
 		super(constraint,alias);
 		this.comparison = comparison;
 	}

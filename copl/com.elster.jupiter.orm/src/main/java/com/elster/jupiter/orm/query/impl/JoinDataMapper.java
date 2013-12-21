@@ -4,7 +4,9 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
@@ -37,19 +39,18 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	final TableImpl getTable() {
-		return (TableImpl) getMapper().getTable();
+		return getMapper().getTable();
 	}
-
 
 	final <R> List<JoinDataMapper<R>> wrap(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
 		List<JoinDataMapper<R>> result = new ArrayList<>();
-		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
+		for (ForeignKeyConstraintImpl constraint : getTable().getForeignKeyConstraints()) {
 			if (newMapper.getTable().equals(constraint.getReferencedTable())) {
 				result.add(new ParentDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
 				return result;
 			}
 		}
-		for (ForeignKeyConstraint constraint : newMapper.getTable().getForeignKeyConstraints()) {
+		for (ForeignKeyConstraintImpl constraint : newMapper.getTable().getForeignKeyConstraints()) {
 			if (getTable().equals(constraint.getReferencedTable())) {
 				if (constraint.getReverseCurrentFieldName() != null) {
 					result.add(new CurrentDataMapper<>(newMapper, constraint, aliasFactory.getAlias(true)));
@@ -61,7 +62,7 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	final ColumnAndAlias getColumnAndAlias(String fieldName) {
-		Column column = getTable().getColumnForField(fieldName);
+		ColumnImpl column = getTable().getColumnForField(fieldName);
 		return column == null ? null : new ColumnAndAlias(column,getAlias());
 	}
 

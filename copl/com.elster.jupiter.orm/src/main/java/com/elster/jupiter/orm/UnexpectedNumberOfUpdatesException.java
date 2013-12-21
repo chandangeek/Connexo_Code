@@ -6,7 +6,8 @@ import java.text.MessageFormat;
  * An insert, update or delete statment did not result in the expected number of updates.
  */
 public class UnexpectedNumberOfUpdatesException extends PersistenceException {
-
+	private static final long serialVersionUID = 1L;
+	
     public enum Operation { INSERT, UPDATE, DELETE }
 
     public UnexpectedNumberOfUpdatesException(int expected, int actual, Operation operation) {

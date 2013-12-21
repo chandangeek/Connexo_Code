@@ -3,14 +3,14 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 
 public class ColumnComparisonFragment extends ColumnFragment {
 
 	private final Comparison comparison;
 	
-	public ColumnComparisonFragment(Column column , Comparison comparison, String alias) {
+	public ColumnComparisonFragment(ColumnImpl column , Comparison comparison, String alias) {
 		super(column,alias);
 		this.comparison = comparison;
 	}

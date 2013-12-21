@@ -1,7 +1,8 @@
 package com.elster.jupiter.orm.impl;
 
-import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,8 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
 
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;

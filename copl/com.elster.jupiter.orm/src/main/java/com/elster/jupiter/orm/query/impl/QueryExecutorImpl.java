@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.query.impl;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -67,7 +68,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	public Object convert(String fieldName, String value) {
 		DataMapperImpl<?>  mapper = root.getDataMapperForField(fieldName);
 		if (mapper != null) {
-			Column column = root.getColumnForField(fieldName);
+			ColumnImpl column = root.getColumnForField(fieldName);
 				if (column != null) {
 					return mapper.convert(column,value);
 				}
@@ -77,13 +78,13 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	@Override
 	public Optional<T> get(Object[] key , boolean eager , String[] exceptions) {
-		List<Column> primaryKeyColumns = this.root.getTable().getPrimaryKeyColumns();
+		List<ColumnImpl> primaryKeyColumns = this.root.getTable().getPrimaryKeyColumns();
 		if (primaryKeyColumns.size() != key.length) {
 			throw new IllegalArgumentException("Key mismatch");
 		}
 		Condition condition = Condition.TRUE;
 		int i = 0;
-		for (Column column : primaryKeyColumns) {
+		for (ColumnImpl column : primaryKeyColumns) {
 			condition = condition.and(Operator.EQUAL.compare(column.getFieldName(),key[i++]));
 		}
 		List<T> result = this.select(condition, null , eager , exceptions);

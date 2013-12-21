@@ -3,14 +3,14 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Contains;
 
 public class ColumnContainsFragment extends ColumnFragment {
 
 	private final Contains contains;
 
-	public ColumnContainsFragment(Column column , Contains contains, String alias) {
+	public ColumnContainsFragment(ColumnImpl column , Contains contains, String alias) {
 		super(column,alias);
 		this.contains = contains;
 	}

@@ -1,18 +1,10 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.internal.Bus;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.UtilModule;
-import com.google.common.base.Optional;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.security.Principal;
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,11 +12,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.security.Principal;
-import java.sql.SQLException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.util.UtilModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,7 +44,7 @@ public class OrmTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(principal),
         			new PubSubModule(),
-        			new TransactionModule(),        			        		
+        			new TransactionModule(false),        			        		
         			new OrmModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
@@ -61,16 +62,13 @@ public class OrmTest {
 
     @Test
     public void testDataModel() {
-    	assertThat(Bus.getOrmClient().getDataModelFactory().find()).hasSize(1);
-    	assertThat(Bus.getOrmClient().getTableFactory().find().size()).isGreaterThan(4);
-    	assertThat(Bus.getOrmClient().getColumnFactory().find().size()).isGreaterThan(10);
-    	assertThat(Bus.getOrmClient().getTableConstraintFactory().find()).isNotEmpty();
-    	assertThat(Bus.getOrmClient().getColumnInConstraintFactory().find()).isNotEmpty();
-    	assertThat(Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLES")).isAbsent();
-    	Optional<Object> tableHolder = Bus.getTable("ORM","ORM_TABLE").get("ORM","ORM_TABLE");
-    	assertThat(tableHolder).isPresent();
-    	Column column = Bus.getOrmClient().getColumnFactory().find().get(0);
-    	assertThat(column.getTable().getName()).isNotEmpty();
+    	OrmService ormService = injector.getInstance(OrmService.class);
+    	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
+    	assertThat(dataModel.mapper(DataModel.class).find()).hasSize(1);
+    	assertThat(dataModel.mapper(Table.class).find().size()).isGreaterThan(4);
+    	assertThat(dataModel.mapper(Column.class).find().size()).isGreaterThan(10);
+    	assertThat(dataModel.mapper(TableConstraint.class).find()).isNotEmpty();
+    	assertThat(dataModel.mapper(ColumnInConstraintImpl.class).find()).isNotEmpty();
     }
 
 

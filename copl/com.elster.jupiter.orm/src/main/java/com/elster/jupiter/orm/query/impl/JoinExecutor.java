@@ -1,15 +1,14 @@
 package com.elster.jupiter.orm.query.impl;
 
-import com.elster.jupiter.orm.internal.Bus;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlBuilder;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 final class JoinExecutor<T> {
 		
@@ -120,7 +119,7 @@ final class JoinExecutor<T> {
 		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, orderBy);		
 		List<T> result = new ArrayList<>();
-		try (Connection connection = Bus.getConnection(false)) {				
+		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {				
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {
 					while(resultSet.next()) {

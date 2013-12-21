@@ -1,17 +1,18 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UniqueConstraint;
 
 public class UniqueConstraintImpl extends TableConstraintImpl implements UniqueConstraint {
 	
-	@SuppressWarnings("unused")
-	private UniqueConstraintImpl() {
+	@Override
+	UniqueConstraintImpl init(TableImpl table,String name) {
+		super.init(table, name);
+		return this;
 	}
 	
-	UniqueConstraintImpl(Table table , String name) {
-		super(table,name);
+	static UniqueConstraintImpl from(TableImpl table , String name) {
+		return (UniqueConstraintImpl) new UniqueConstraintImpl().init(table,name);
 	}
 	
 	@Override
@@ -27,8 +28,8 @@ public class UniqueConstraintImpl extends TableConstraintImpl implements UniqueC
 	static class BuilderImpl implements UniqueConstraint.Builder {
 		private final UniqueConstraintImpl constraint;
 		
-		public BuilderImpl(Table table, String name) {
-			this.constraint = new UniqueConstraintImpl(table,name);
+		public BuilderImpl(TableImpl table, String name) {
+			this.constraint = UniqueConstraintImpl.from(table,name);
 		}
 
 		@Override
@@ -40,7 +41,7 @@ public class UniqueConstraintImpl extends TableConstraintImpl implements UniqueC
 		@Override
 		public UniqueConstraint add() {
 			constraint.validate();
-			((TableImpl) constraint.getTable()).add(constraint);
+			constraint.getTable().add(constraint);
 			return constraint;
 		}
 	

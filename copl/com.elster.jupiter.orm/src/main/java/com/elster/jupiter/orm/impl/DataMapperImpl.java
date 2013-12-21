@@ -6,14 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.validation.ValidatorFactory;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
@@ -126,7 +123,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	private final DataMapperReader<T> reader;
 	private final DataMapperWriter<T> writer;
 	
-	DataMapperImpl(Class<T> api, DataMapperType mapperType ,  Table table) {
+	DataMapperImpl(Class<T> api, DataMapperType mapperType ,  TableImpl table) {
 		this.sqlGenerator = new TableSqlGenerator(table);
 		this.alias = createAlias(api.getName());
 		this.mapperType = mapperType;
@@ -158,7 +155,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override 
-	public Table getTable() {
+	public TableImpl getTable() {
 		return sqlGenerator.getTable();
 	}
 	
@@ -213,7 +210,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	private void preventIfChild() {
-		if (((TableImpl) getTable()).isChild()) {
+		if (getTable().isChild()) {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -248,10 +245,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		update(object,getUpdateColumns(fieldNames));
 	}
 	
-	private List<Column> getUpdateColumns(String[] fieldNames) {
-		List<Column> columns = new ArrayList<>(fieldNames.length);
+	private List<ColumnImpl> getUpdateColumns(String[] fieldNames) {
+		List<ColumnImpl> columns = new ArrayList<>(fieldNames.length);
 		for (String fieldName : fieldNames) {
-			Column column = getTable().getColumnForField(fieldName);
+			ColumnImpl column = getTable().getColumnForField(fieldName);
 			if (column.isPrimaryKeyColumn() || column.isVersion() || column.hasUpdateValue() || column.isDiscriminator()) {
 				throw new IllegalArgumentException("Cannot update special column");
 			} else {
@@ -261,7 +258,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return columns;
 	}
 	
-	private void update(T object,List<Column> columns) {
+	private void update(T object,List<ColumnImpl> columns) {
 		try {
 			writer.update(object,columns);
 		} catch (SQLException ex) {
@@ -280,7 +277,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		update(objects,getUpdateColumns(fieldNames));
 	}
 	
-	private void update(List<T> objects,List<Column> columns){
+	private void update(List<T> objects,List<ColumnImpl> columns){
 		try {
 			writer.update(objects,columns);
 		} catch (SQLException ex) {
@@ -317,11 +314,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return result;
 	}
 	
-	public Object convert(Column column , String value) {
+	public Object convert(ColumnImpl column , String value) {
 		if (column.isEnum()) {
 			return getEnum(column,value);
 		} else {
-			return ((ColumnImpl) column).convert(value);
+			return column.convert(value);
 		}
 	}
 	
@@ -329,7 +326,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return mapperType.getEnum(column.getFieldName(), value);			
 	}
 	
-	private List<Column> getColumns() {
+	private List<ColumnImpl> getColumns() {
 		return getSqlGenerator().getColumns();
 	}
 		
@@ -342,13 +339,13 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		throw new IllegalArgumentException();
 	}
 	
-	private Object getValue(Column column , ResultSet rs , int startIndex ) throws SQLException {
+	private Object getValue(ColumnImpl column , ResultSet rs , int startIndex ) throws SQLException {
 		int offset = getIndex(column);
-		return ((ColumnImpl) column).convertFromDb(rs, startIndex + offset);
+		return column.convertFromDb(rs, startIndex + offset);
 	}
 	
 	public Object getPrimaryKey(ResultSet rs , int index) throws SQLException {
-		List<Column> primaryKeyColumns = getSqlGenerator().getPrimaryKeyColumns();
+		List<ColumnImpl> primaryKeyColumns = getSqlGenerator().getPrimaryKeyColumns();
 		switch (primaryKeyColumns.size()) {
 			case 0:
 				return null;
@@ -399,9 +396,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public T newInstance() {
 		return mapperType.newInstance((String) null);
 	}
-	
-	public <S extends T> S newInstance(Class<S> clazz) {
-		return mapperType.newInstance(clazz);
+
+	@Override
+	public Object[] getPrimaryKey(T object) {
+		return getTable().getPrimaryKey(object);
 	}
 	
 }

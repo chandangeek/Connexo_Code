@@ -3,9 +3,6 @@ package com.elster.jupiter.orm.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.TableConstraint;
-
 class TableDdlGenerator {
 	private final TableImpl table;
 	private List<String> ddl;
@@ -20,12 +17,12 @@ class TableDdlGenerator {
 		if (table.hasJournal() ) {
 			ddl.add(getJournalTableDdl());
 		}
-		for (TableConstraint constraint : table.getConstraints()) {
-			if (((TableConstraintImpl) constraint).needsIndex()) {
+		for (TableConstraintImpl constraint : table.getConstraints()) {
+			if (constraint.needsIndex()) {
 				ddl.add(getConstraintIndexDdl(constraint));
 			}
 		}		
-		for (Column column : table.getColumns()) {
+		for (ColumnImpl column : table.getColumns()) {
 			if (column.isAutoIncrement()) {
 				ddl.add(getSequenceDdl(column));
 			}
@@ -39,7 +36,7 @@ class TableDdlGenerator {
 		sb.append(table.getQualifiedName());
 		sb.append("(");
 		doAppendColumns(sb, table.getColumns(), true);
-		for (TableConstraint constraint : table.getConstraints()) {
+		for (TableConstraintImpl constraint : table.getConstraints()) {
 			sb.append(", ");
 			sb.append(getConstraintFragment(constraint));			
 		}
@@ -59,7 +56,7 @@ class TableDdlGenerator {
 		sb.append(separator);
 		sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
 		sb.append(" NUMBER NOT NULL");		
-		TableConstraint constraint = table.getPrimaryKeyConstraint();
+		TableConstraintImpl constraint = table.getPrimaryKeyConstraint();
 		if (constraint != null) {
 			sb.append(separator);
 			sb.append(getJournalConstraint(constraint));
@@ -68,7 +65,7 @@ class TableDdlGenerator {
 		return sb.toString();		
 	}
 	
-	private String getJournalConstraint(TableConstraint constraint) {
+	private String getJournalConstraint(TableConstraintImpl constraint) {
 		StringBuilder sb = new StringBuilder("constraint ");
 		sb.append(constraint.getName() + "_JRNL");
 		sb.append(" PRIMARY KEY ");
@@ -80,12 +77,12 @@ class TableDdlGenerator {
 		return sb.toString();
 	}
 	
-	private String getConstraintFragment(TableConstraint constraint) {
-		return ((TableConstraintImpl) constraint).getDdl();
+	private String getConstraintFragment(TableConstraintImpl constraint) {
+		return constraint.getDdl();
 	}
 	
 	
-	private String getConstraintIndexDdl(TableConstraint constraint) {
+	private String getConstraintIndexDdl(TableConstraintImpl constraint) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("CREATE INDEX ");
 		builder.append(constraint.getName());
@@ -95,7 +92,7 @@ class TableDdlGenerator {
 		return builder.toString();		
 	}
 	
-	private String getSequenceDdl(Column column) {
+	private String getSequenceDdl(ColumnImpl column) {
 		// cache 1000 for performance in RAC environments
 		return 
 			"create sequence " +
@@ -103,20 +100,20 @@ class TableDdlGenerator {
 		    " cache 1000";
 	}
 	
-	private void appendColumns(StringBuilder builder , List<Column> columns, boolean addType) {
+	private void appendColumns(StringBuilder builder , List<ColumnImpl> columns, boolean addType) {
 		builder.append(" (");
 		doAppendColumns(builder, columns, addType);
 		builder.append(") ");
 	}
 	
-	private void doAppendColumns(StringBuilder builder , List<Column> columns, boolean addType) {
+	private void doAppendColumns(StringBuilder builder , List<ColumnImpl> columns, boolean addType) {
 		String separator = "";
-		for (Column column : columns) {
+		for (ColumnImpl column : columns) {
 			builder.append(separator);
 			builder.append(column.getName());
 			if (addType) {
 				builder.append(" ");
-				builder.append(((ColumnImpl) column).getDbType());
+				builder.append(column.getDbType());
 				if (column.isNotNull()) {
 					builder.append(" NOT NULL");
 				}

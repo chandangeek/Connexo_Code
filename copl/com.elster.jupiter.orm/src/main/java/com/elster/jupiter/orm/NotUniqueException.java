@@ -8,7 +8,8 @@ import java.text.MessageFormat;
  * Thrown when a query that should return at most one instance, returns more than one.
  */
 public class NotUniqueException extends BaseException {
-
+	private static final long serialVersionUID = 1L;
+	
 	public NotUniqueException(String identification) {
 		super(ExceptionTypes.NOT_UNIQUE, MessageFormat.format("Not Unique by identification {0}", identification));
 	}

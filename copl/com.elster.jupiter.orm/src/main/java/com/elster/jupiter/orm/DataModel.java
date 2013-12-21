@@ -4,9 +4,7 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.base.Optional;
 import com.google.inject.Injector;
 
 /**
@@ -15,49 +13,29 @@ import com.google.inject.Injector;
  *
  */
 public interface DataModel {
-	<T> DataMapper<T> getDataMapper(Class<T> api,String tableName);
-	/** 
-	 * Create a DataMapper for the given arguments. Used when all tuples in the table are mapped to instances of the same class
-	 */
-	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation, String tableName);
-	/**
-	 * Create a DataMapper for the given arguments. Used with "single table inheritance".
-	 * Tuples of the table are mapped to different classes, based on a differentiator column
-	 */
-	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class <? extends T>> implementations, String tableName);
-	/**
-	 * Utility method to obtain the JDBC connection associated with the thread. 
-	 */
-	Connection getConnection(boolean transactionRequired) throws SQLException;
-	/**
-	 * Utility method to obtain the Principal associated with the thread.
-	 */
+	// operational api
+	void persist(Object entity);
+    void update(Object entity);
+    void remove(Object entity);
+    <T> T getInstance(Class<T> clazz);
+    <T> DataMapper<T> mapper(Class<T> api);
+    RefAny asRefAny(Object object);
+    // creation api 
+    Table addTable(String name,Class<?> api);
+	Table addTable(String schema, String tableName, Class<?> api);
+    void setInjector(Injector injector);
+	void register();
+	// courtesy methods
+    Connection getConnection(boolean transactionRequired) throws SQLException;
 	Principal getPrincipal();
-	
+	SqlDialect getSqlDialect();
+	// meta data api
 	String getName();
 	String getDescription();
-    List<Table> getTables();
-    Table getTable(String name);
-    /**
-     * Adds a table to the DataModel. ORM will use the default schema (defined by the DataSource user property)
-     */
-	Table addTable(String name);
-	/**
-     * Adds a table to the DataModel in the specified schema
-     */	
-	Table addTable(String schema, String tableName);
-	/**
-	 * Installs the DataModel
-	 * @param executeDdl: if true, execute the DDL to create the tables in the database
-	 * @param store: if true, store the mappings in the ORM tables
-	 */
+    List<? extends Table> getTables();
+    // installation
 	void install(boolean executeDdl, boolean store);
-
-    SqlDialect getSqlDialect();
-    
-    Optional<Table> getTable(Class<?> clazz);
-    RefAny asRefAny(Object object);
-    void setInjector(Injector injector);
-    Optional<Injector> getInjector();
-    
+    @Deprecated
+	<T> DataMapper<T> getDataMapper(Class<T> api,String tableName);
+	
 }

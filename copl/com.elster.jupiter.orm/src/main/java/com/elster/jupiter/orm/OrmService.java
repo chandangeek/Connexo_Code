@@ -21,12 +21,15 @@ import com.google.common.base.Optional;
  *
  */
 public interface OrmService {
-	Optional<DataModel> getDataModel(String name);
+	public static final String COMPONENTNAME = "ORM";
+	public static final int CATALOGNAMELIMIT = 30;
+
+	Optional<? extends DataModel> getDataModel(String name);
 	DataModel newDataModel(String name, String description);
 	void register(DataModel dataModel);
 	
 	/*
 	 * Only for applications that need to document the data model 
 	 */
-	List<DataModel> getDataModels();
+	List<? extends DataModel> getDataModels();
 }

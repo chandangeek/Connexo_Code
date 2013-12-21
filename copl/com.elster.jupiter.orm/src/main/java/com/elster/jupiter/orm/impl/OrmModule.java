@@ -20,7 +20,6 @@ public class OrmModule extends AbstractModule {
         requireBinding(DataSource.class);
         requireBinding(JsonService.class);
         requireBinding(ThreadPrincipalService.class);
-
         bind(OrmService.class).to(OrmServiceImpl.class).in(Scopes.SINGLETON);
     }
 

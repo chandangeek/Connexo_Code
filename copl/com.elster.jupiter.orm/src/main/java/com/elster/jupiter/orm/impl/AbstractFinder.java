@@ -80,13 +80,18 @@ public abstract class AbstractFinder<T> implements Finder<T> {
     }
 
     @Override
-    public final Optional<T> get(Object... values) {
+    public final Optional<T> getOptional(Object... values) {
         if (getPrimaryKeyLength() != values.length) {
             throw new IllegalArgumentException("Argument array length " + values.length + " does not match Primary Key Field count of " + getPrimaryKeyLength());
         }
         return findByPrimaryKey(values);
     }
 
+    @Override
+    public final Optional<T> get(Object... values) {
+    	return getOptional(values);
+    }
+    
     @Override
     public T getExisting(Object... values) {
         Optional<T> existing = findByPrimaryKey(values);

@@ -3,14 +3,14 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Contains;
 
 public class ConstraintContainsFragment extends ConstraintFragment {
 	
 	private final Contains contains;
 	
-	public ConstraintContainsFragment(ForeignKeyConstraint constraint , Contains contains , String alias) {
+	public ConstraintContainsFragment(ForeignKeyConstraintImpl constraint , Contains contains , String alias) {
 		super(constraint,alias);
 		this.contains = contains;
 	}

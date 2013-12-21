@@ -1,12 +1,12 @@
 package com.elster.jupiter.orm.query.impl;
 
-import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 
 class ColumnAndAlias {
-		private final Column column;
+		private final ColumnImpl column;
 		private final String alias;
 				
-		ColumnAndAlias(Column column, String alias) {
+		ColumnAndAlias(ColumnImpl column, String alias) {
 			this.column = column;
 			this.alias = alias;
 		}
@@ -16,7 +16,7 @@ class ColumnAndAlias {
 			return column.getName(alias);
 		}
 
-		public Column getColumn() {
+		public ColumnImpl getColumn() {
 			return column;
 		}
 

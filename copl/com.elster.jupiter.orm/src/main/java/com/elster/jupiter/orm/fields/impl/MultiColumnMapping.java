@@ -3,7 +3,7 @@ package com.elster.jupiter.orm.fields.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -11,12 +11,12 @@ import com.elster.jupiter.util.units.Quantity;
 
 public class MultiColumnMapping extends FieldMapping {
 	private final String fieldName;
-	private final List<Column> columns;
+	private final List<ColumnImpl> columns;
 	
-	public MultiColumnMapping(String fieldName , List<Column> allColumns) {
+	public MultiColumnMapping(String fieldName , List<ColumnImpl> allColumns) {
 		this.fieldName = fieldName;
 		this.columns = new ArrayList<>();
-		for (Column column : allColumns) {
+		for (ColumnImpl column : allColumns) {
 			if (column.getFieldName().startsWith(fieldName + ".")) {
 				columns.add(column);
 			}
@@ -28,7 +28,7 @@ public class MultiColumnMapping extends FieldMapping {
 		return fieldName;
 	}
 	
-	public List<Column> getColumns() {
+	public List<ColumnImpl> getColumns() {
 		return columns;
 	}
 

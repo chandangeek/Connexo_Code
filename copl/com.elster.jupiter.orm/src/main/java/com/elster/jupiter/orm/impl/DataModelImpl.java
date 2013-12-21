@@ -1,25 +1,30 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.RefAny;
-import com.elster.jupiter.orm.SqlDialect;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.internal.*;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-
-import oracle.jdbc.OracleConnection;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import oracle.jdbc.OracleConnection;
+
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.RefAny;
+import com.elster.jupiter.orm.SqlDialect;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 
 public class DataModelImpl implements DataModel {
@@ -29,20 +34,29 @@ public class DataModelImpl implements DataModel {
     private String description;
 
     // associations
-    private final List<Table> tables = new ArrayList<>();
+    private final List<TableImpl> tables = new ArrayList<>();
     
     // transient fields
-    Optional<Injector> injector = Optional.absent();
+    private Injector injector;
+    private final OrmServiceImpl ormService;
+    
+    private boolean registered;
 
-    @SuppressWarnings("unused")
-    private DataModelImpl() {
+    @Inject
+    DataModelImpl (OrmService ormService) {
+    	this.ormService = (OrmServiceImpl) ormService;
     }
-
-    public DataModelImpl(String name, String description) {
+    
+    DataModelImpl init(String name, String description) {
         this.name = name;
         this.description = description;
+        return this;
     }
 
+    static DataModelImpl from(OrmServiceImpl ormService, String name, String description) {
+    	return new DataModelImpl(ormService).init(name, description);
+    }
+    
     @Override
     public String getName() {
         return name;
@@ -54,17 +68,12 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public List<Table> getTables() {
-        return ImmutableList.copyOf(doGetTables());
+    public List<TableImpl> getTables() {
+        return ImmutableList.copyOf(tables);
     }
 
-    public List<Table> doGetTables() {
-        return tables;
-    }
-
-    @Override
-    public Table getTable(String tableName) {
-        for (Table table : getTables()) {
+    public TableImpl getTable(String tableName) {
+        for (TableImpl table : tables) {
             if (table.getName().equals(tableName)) {
                 return table;
             }
@@ -73,57 +82,49 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public Table addTable(String tableName) {
-        return addTable(null, tableName);
+    public Table addTable(String tableName,Class<?> api) {
+        return addTable(null, tableName,api);
     }
     
     private void checkActiveBuilder() {
     	if (!getTables().isEmpty()) {
-    		downCast(getTables().get(getTables().size()-1)).checkActiveBuilder();
+    		tables.get(getTables().size()-1).checkActiveBuilder();
     	}
     }
 
     @Override
-    public Table addTable(String schema, String tableName) {
+    public TableImpl addTable(String schema, String tableName, Class<?> api) {
     	checkActiveBuilder();
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
         }
-        Table table = new TableImpl(this, schema, tableName,getTables().size() + 1);
+        TableImpl table = TableImpl.from(this, schema, tableName, api, getTables().size() + 1);
         add(table);
         return table;
     }
 
     @Override
     public String toString() {
-        return "Component " + name;
+        return Joiner.on(" ").join("DataModel",name,"(" + description + ")");
     }
 
-    private void add(Table table) {
-        doGetTables().add(table);
-    }
-
-    public void persist() {
-        getOrmClient().getDataModelFactory().persist(this);
-    }
-
-    private OrmClient getOrmClient() {
-        return Bus.getOrmClient();
+    private void add(TableImpl table) {
+        tables.add(table);
     }
 
     @Override
-    public <T> DataMapper<T> getDataMapper(Class<T> api, String tableName) {
-    	return getTable(tableName).getDataMapper(api);
+    public <T> DataMapperImpl<T> mapper(Class<T> api) {
+    	for (TableImpl table : tables) {
+    		if (table.maps(api)) {
+    			return table.getDataMapper(api);
+    		}
+    	}
+    	throw new IllegalArgumentException("Type " + api + " not configured in data model " + this.getName());
     }
     
     @Override
-    public <T> DataMapper<T> getDataMapper(Class<T> api, Class<? extends T> implementation, String tableName) {
-        return getTable(tableName).getDataMapper(api, implementation);
-    }
-
-    @Override
-    public <T> DataMapper<T> getDataMapper(Class<T> api, Map<String, Class<? extends T>> implementations, String tableName) {
-        return getTable(tableName).getDataMapper(api, implementations);
+    public <T> DataMapperImpl<T> getDataMapper(Class<T> api, String tableName) {
+    	return getTable(tableName).getDataMapper(api);
     }
 
     @Override
@@ -132,7 +133,7 @@ public class DataModelImpl implements DataModel {
             executeDdl();
         }
         if (store) {
-            persist();
+            ormService.getDataModel(OrmService.COMPONENTNAME).get().persist(this);
         }
 
     }
@@ -147,7 +148,7 @@ public class DataModelImpl implements DataModel {
 
     private void doExecuteDdl() throws SQLException {
         try (
-                Connection connection = Bus.getConnection(false);
+                Connection connection = getConnection(false);
                 Statement statement = connection.createStatement()
         ) {
             doExecuteDdl(statement);
@@ -155,8 +156,8 @@ public class DataModelImpl implements DataModel {
     }
 
     private void doExecuteDdl(Statement statement) throws SQLException {
-        for (Table table : getTables()) {
-            executeTableDdl(statement, downCast(table));
+        for (TableImpl table : tables) {
+            executeTableDdl(statement, table);
         }
     }
 
@@ -168,12 +169,12 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public Connection getConnection(boolean transactionRequired) throws SQLException {
-        return Bus.getConnection(transactionRequired);
+        return ormService.getConnection(transactionRequired);
     }
 
     @Override
     public Principal getPrincipal() {
-        return Bus.getPrincipal();
+        return ormService.getPrincipal();
     }
 
     @Override
@@ -188,9 +189,8 @@ public class DataModelImpl implements DataModel {
         }
     }
     
-    @Override
-    public Optional<Table> getTable(Class<?> clazz) {
-    	for (Table table : getTables()) {
+    public Optional<TableImpl> getTable(Class<?> clazz) {
+    	for (TableImpl table : getTables()) {
     		if (table.maps(clazz)) {
     			return Optional.of(table);
     		}
@@ -200,27 +200,89 @@ public class DataModelImpl implements DataModel {
     
     @Override
     public RefAny asRefAny(Object reference) {
-    	return RefAnyImpl.of(reference);
-    }
-    
-    private TableImpl downCast(Table table) {
-    	return (TableImpl) table;
+    	Class<?> clazz = Objects.requireNonNull(reference).getClass();
+		for (DataModelImpl dataModel : getOrmService().getDataModels()) {
+			Optional<TableImpl> tableHolder = dataModel.getTable(clazz);
+			if (tableHolder.isPresent()) {
+				return getInstance(RefAnyImpl.class).init(reference,tableHolder.get());
+			}
+		} 
+		throw new IllegalArgumentException("No table defined that maps " + reference.getClass());
     }
     
     void prepare() {
-    	for (Table each : getTables()) {
-    		downCast(each).prepare();
+    	if (registered) {
+    		throw new IllegalStateException();
     	}
+    	if (injector == null) {
+    		injector = Guice.createInjector();
+    	}
+    	for (TableImpl each : tables) {
+    		each.prepare();
+    	}
+    	registered = true;
     }
     
     @Override
     public void setInjector(Injector injector) {
-    	this.injector = Optional.of(injector);
+    	this.injector = Objects.requireNonNull(injector);
+    }
+    
+
+    Injector getInjector() {
+    	return injector;
     }
     
     @Override
-    public Optional<Injector> getInjector() {
-    	return injector;
+    public void register() {
+    	this.ormService.register(this);
     }
+
+	@Override
+	public <T> T getInstance(Class<T> clazz) {
+		return injector.getInstance(clazz);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> void persist(Class<T> type , Object entity) {
+		DataMapper<T> mapper = mapper(type);
+		mapper.persist((T) entity);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> void update(Class<T> type , Object entity) {
+		DataMapper<T> mapper = mapper(type);
+		mapper.update((T) entity);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> void remove(Class<T> type, Object entity) {
+		DataMapper<T> mapper = mapper(type);
+		mapper.remove((T) entity);
+	}
+	
+	@Override
+	public void persist(Object entity) {
+		persist(Objects.requireNonNull(entity.getClass()),entity);
+	}
+
+	@Override
+	public void update(Object entity) {
+		update(Objects.requireNonNull(entity).getClass(),entity);
+	}
+	
+	@Override
+	public void remove(Object entity) {
+		remove(Objects.requireNonNull(entity).getClass(),entity);	
+	}
+	
+	public Clock getClock() {
+		return ormService.getClock();
+	}
+
+	public OrmServiceImpl getOrmService() {
+		return ormService;
+	}
+
     
 }

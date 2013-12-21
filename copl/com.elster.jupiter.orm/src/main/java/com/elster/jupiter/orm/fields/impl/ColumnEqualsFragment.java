@@ -3,14 +3,14 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 public class ColumnEqualsFragment extends ColumnFragment implements SqlFragment {
 
 	private final Object value;
 	
-	public ColumnEqualsFragment(Column column , Object value , String alias) {
+	public ColumnEqualsFragment(ColumnImpl column , Object value , String alias) {
 		super(column , alias);
 		this.value = value;		
 	}

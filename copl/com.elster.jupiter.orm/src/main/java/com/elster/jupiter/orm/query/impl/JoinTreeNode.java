@@ -1,19 +1,19 @@
 package com.elster.jupiter.orm.query.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.util.conditions.Comparison;
-import com.elster.jupiter.util.conditions.Contains;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
-import com.google.common.collect.ImmutableList;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import com.elster.jupiter.orm.impl.ColumnImpl;
+import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.TableImpl;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.google.common.collect.ImmutableList;
 
 final class JoinTreeNode<T>  {
 	
@@ -25,7 +25,7 @@ final class JoinTreeNode<T>  {
 		this.value = value;
 	}
 
-	Table getTable() {		
+	TableImpl getTable() {		
 		return value.getTable();
 	}
 	
@@ -101,7 +101,7 @@ final class JoinTreeNode<T>  {
 		});
 	}
 	
-	final Column getColumnForField(String fieldName) {
+	final ColumnImpl getColumnForField(String fieldName) {
 		ColumnAndAlias columnAndAlias = getColumnAndAliasForField(fieldName);
 		return columnAndAlias == null ? null : columnAndAlias.getColumn();
 	}

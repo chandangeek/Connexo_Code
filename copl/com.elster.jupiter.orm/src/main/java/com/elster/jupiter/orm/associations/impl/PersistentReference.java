@@ -3,17 +3,17 @@ package com.elster.jupiter.orm.associations.impl;
 
 import java.util.Objects;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.google.common.base.Optional;
 
 public class PersistentReference<T> implements Reference<T> {
 	
-	private final DataMapper<T> dataMapper;
+	private final DataMapperImpl<T> dataMapper;
 	private Object[] primaryKey;
 	private Optional<T> value;
 	
-	public PersistentReference(Object[] primaryKey , DataMapper<T> dataMapper) {
+	public PersistentReference(Object[] primaryKey , DataMapperImpl<T> dataMapper) {
 		this.primaryKey = primaryKey;
 		this.dataMapper = dataMapper;
 	}
@@ -48,7 +48,7 @@ public class PersistentReference<T> implements Reference<T> {
 					return value;
 				}
 			}
-			value = dataMapper.get(primaryKey);
+			value = dataMapper.getOptional(primaryKey);
 		}
 		return value;
 	}
