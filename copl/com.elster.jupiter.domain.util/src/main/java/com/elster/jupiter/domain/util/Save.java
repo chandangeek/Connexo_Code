@@ -1,25 +1,20 @@
 package com.elster.jupiter.domain.util;
 
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
 import javax.validation.groups.Default;
 
-import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 
 public enum Save {
 	CREATE(Create.class) {
 		@Override
-		<T> void doSave(DataMapper<T> mapper, T object) {
-			mapper.persist(object);
+		<T> void doSave(DataModel dataModel, T object) {
+			dataModel.persist(object);
 		}
 	},
 	UPDATE(Update.class) {
 		@Override
-		<T> void doSave(DataMapper<T> mapper, T object) {
-			mapper.update(object);
+		<T> void doSave(DataModel dataModel, T object) {
+			dataModel.update(object);
 		}
 	};
 	
@@ -33,7 +28,7 @@ public enum Save {
 		return group;
 	}
 	
-	public final <T> void validate(DataMapper<T> mapper, T object , Class<?> ... groups) {
+	public final <T> void validate(T object , Class<?> ... groups) {
 		Class<?>[] interfaces = new Class<?>[2 + groups.length];
 		interfaces[0] = Default.class;
 		interfaces[1] = group;
@@ -49,12 +44,12 @@ public enum Save {
 		*/
 	}
 	
-	public final <T> void save(DataMapper<T> mapper , T object, Class<?> ... groups) {
-		validate(mapper,object,groups);
-		doSave(mapper,object);
+	public final <T> void save(DataModel dataModel, T object, Class<?> ... groups) {
+		validate(object,groups);
+		doSave(dataModel,object);
 	}
 	
-	abstract <T> void doSave(DataMapper<T> mapper, T object);
+	abstract <T> void doSave(DataModel dataModel, T object);
 
 	public interface Create {
 	}
