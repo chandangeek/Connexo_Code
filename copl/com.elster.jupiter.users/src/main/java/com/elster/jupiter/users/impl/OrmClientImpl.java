@@ -1,10 +1,10 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.cache.TypeCache;
-import com.elster.jupiter.users.*;
-
-import static com.elster.jupiter.users.impl.TableSpecs.*;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 
 class OrmClientImpl implements OrmClient {
 
@@ -15,28 +15,28 @@ class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public TypeCache<Privilege> getPrivilegeFactory() {
-		return Bus.getComponentCache().getTypeCache(Privilege.class, PrivilegeImpl.class, USR_PRIVILEGE.name());
+	public DataMapper<Privilege> getPrivilegeFactory() {
+		return dataModel.mapper(Privilege.class);
 	}
 
 	@Override
-	public TypeCache<Group> getGroupFactory() {
-		return Bus.getComponentCache().getTypeCache(Group.class, GroupImpl.class, USR_GROUP.name(),getPrivilegeInGroupFactory());
+	public DataMapper<Group> getGroupFactory() {
+		return dataModel.mapper(Group.class);
 	}
 	
 	@Override
 	public DataMapper<User> getUserFactory() {
-		return dataModel.getDataMapper(User.class, UserImpl.class, USR_USER.name());
+		return dataModel.mapper(User.class);
 	}
 	
 	@Override
 	public DataMapper<PrivilegeInGroup> getPrivilegeInGroupFactory() {
-		return dataModel.getDataMapper(PrivilegeInGroup.class, PrivilegeInGroup.class, USR_PRIVILEGEINGROUP.name());
+		return dataModel.mapper(PrivilegeInGroup.class);
 	}
 
 	@Override
 	public DataMapper<UserInGroup> getUserInGroupFactory() {
-		return dataModel.getDataMapper(UserInGroup.class, UserInGroup.class, USR_USERINGROUP.name());
+		return dataModel.mapper(UserInGroup.class);
 	}
 
 	@Override

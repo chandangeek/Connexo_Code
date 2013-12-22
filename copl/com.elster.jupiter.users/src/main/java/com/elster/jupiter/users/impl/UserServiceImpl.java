@@ -1,13 +1,20 @@
 package com.elster.jupiter.users.impl;
 
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.xml.bind.DatatypeConverter;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
@@ -18,25 +25,14 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
 
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.xml.bind.DatatypeConverter;
-
-import java.util.List;
-
 @Component(
         name = "com.elster.jupiter.users",
         service = {UserService.class, InstallService.class},
         immediate = true,
         property = "name=" + Bus.COMPONENTNAME)
 public class UserServiceImpl implements UserService, InstallService, ServiceLocator {
+	private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
-    private volatile ComponentCache componentCache;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
 
@@ -44,11 +40,10 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
     
     @Inject
-    public UserServiceImpl(OrmService ormService, CacheService cacheService, TransactionService transactionService, QueryService queryService) {
-    	setOrmService(ormService);
-    	setCacheService(cacheService);
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService) {
     	setTransactionService(transactionService);
     	setQueryService(queryService);
+    	setOrmService(ormService);
     	activate();
     	install();
     }
@@ -118,12 +113,12 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Optional<Group> getGroup(long id) {
-        return groupFactory().get(id);
+        return dataModel.mapper(Group.class).getOptional(id);
     }
 
     @Override
     public List<Group> getGroups() {
-        return groupFactory().find();
+        return dataModel.mapper(Group.class).find();
     }
 
     @Override
@@ -133,7 +128,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Optional<Privilege> getPrivilege(String privilegeName) {
-        return Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
+        return Bus.getOrmClient().getPrivilegeFactory().getOptional(privilegeName);
     }
 
     @Override
@@ -157,7 +152,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Optional<User> getUser(long id) {
-        return userFactory().get(id);
+        return userFactory().getOptional(id);
     }
 
     @Override
@@ -181,16 +176,12 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "User Management");
+        dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "User Management");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        dataModel.register();
         this.ormClient = new OrmClientImpl(dataModel);
-    }
-    
-    @Reference(name = "ZCacheService")
-    public void setCacheService(CacheService cacheService) {
-        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
     @Reference
@@ -203,17 +194,9 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
         this.transactionService = transactionService;
     }
 
-    private TypeCache<Group> groupFactory() {
-        return Bus.getOrmClient().getGroupFactory();
-    }
-
     private DataMapper<User> userFactory() {
         return Bus.getOrmClient().getUserFactory();
     }
 
-	@Override
-	public ComponentCache getComponentCache() {
-		return componentCache;
-	}
 
 }

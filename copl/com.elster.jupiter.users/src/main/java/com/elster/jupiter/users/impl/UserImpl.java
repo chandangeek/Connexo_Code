@@ -5,7 +5,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -29,7 +31,7 @@ public class UserImpl implements User {
     // transient
     private List<UserInGroup> memberships;
     
-    @SuppressWarnings("unused")
+    @Inject
     private UserImpl() {
     }
 

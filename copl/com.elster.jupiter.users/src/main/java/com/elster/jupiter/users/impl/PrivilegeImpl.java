@@ -1,5 +1,7 @@
 package com.elster.jupiter.users.impl;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -11,7 +13,7 @@ class PrivilegeImpl implements Privilege {
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
 
-	@SuppressWarnings("unused")
+	@Inject
 	private PrivilegeImpl() {		
 	}
 	

@@ -1,6 +1,15 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.cache.TypeCache;
+import static com.elster.jupiter.util.Checks.is;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
@@ -8,10 +17,6 @@ import com.elster.jupiter.util.To;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
-import java.util.*;
-
-import static com.elster.jupiter.util.Checks.is;
 
 
 final class GroupImpl implements Group , PersistenceAware {
@@ -25,7 +30,7 @@ final class GroupImpl implements Group , PersistenceAware {
 	//transient fields
 	private List<PrivilegeInGroup> privilegeInGroups;
 	
-	@SuppressWarnings("unused")
+	@Inject
 	private GroupImpl() {		
 	}
 	
@@ -107,7 +112,7 @@ final class GroupImpl implements Group , PersistenceAware {
 	}
     
     
-    private TypeCache<Group> groupFactory() {
+    private DataMapper<Group> groupFactory() {
         return Bus.getOrmClient().getGroupFactory();
     }
 

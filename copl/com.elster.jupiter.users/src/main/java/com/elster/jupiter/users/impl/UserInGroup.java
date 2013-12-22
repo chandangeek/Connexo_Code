@@ -1,5 +1,7 @@
 package com.elster.jupiter.users.impl;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -14,7 +16,7 @@ public class UserInGroup {
 	private Group group;
 
 	
-	@SuppressWarnings("unused")
+	@Inject
 	private UserInGroup() {		
 	}
 	

@@ -1,12 +1,14 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.cache.TypeCache;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 
 interface OrmClient {
-	TypeCache<Privilege> getPrivilegeFactory();
-	TypeCache<Group> getGroupFactory();
+	DataMapper<Privilege> getPrivilegeFactory();
+	DataMapper<Group> getGroupFactory();
 	DataMapper<User> getUserFactory();
 	DataMapper<PrivilegeInGroup> getPrivilegeInGroupFactory();	
 	DataMapper<UserInGroup> getUserInGroupFactory();	

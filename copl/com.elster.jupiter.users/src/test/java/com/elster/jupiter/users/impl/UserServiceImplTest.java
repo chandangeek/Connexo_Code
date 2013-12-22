@@ -36,7 +36,7 @@ public class UserServiceImplTest {
     public void setUp() {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.getDataMapper(User.class, UserImpl.class, TableSpecs.USR_USER.name())).thenReturn(userFactory);
+        when(dataModel.mapper(User.class)).thenReturn(userFactory);
 
         userService = new UserServiceImpl();
 

@@ -16,7 +16,6 @@ public class UserModule extends AbstractModule {
         requireBinding(Clock.class);
         requireBinding(OrmService.class);
         requireBinding(QueryService.class);
-        requireBinding(CacheService.class);
         requireBinding(ThreadPrincipalService.class);
 
         bind(UserService.class).to(UserServiceImpl.class).in(Scopes.SINGLETON);
