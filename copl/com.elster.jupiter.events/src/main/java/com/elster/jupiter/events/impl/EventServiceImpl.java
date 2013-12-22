@@ -1,23 +1,10 @@
 package com.elster.jupiter.events.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.events.EventTypeBuilder;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.NoSuchTopicException;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
-import com.elster.jupiter.orm.cache.TypeCache;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.inject.Inject;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,14 +14,26 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 
-import javax.inject.Inject;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.NoSuchTopicException;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 
 @Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + Bus.COMPONENTNAME, immediate=true)
 public class EventServiceImpl implements EventService, InstallService, ServiceLocator {
 
-    private volatile ComponentCache componentCache;
     private volatile Clock clock;
     private volatile OrmClient ormClient;
     private final AtomicReference<EventAdmin> eventAdmin = new AtomicReference<>();
@@ -49,14 +48,13 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     }
 
     @Inject
-    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, CacheService cacheService, MessageService messageService, BundleContext bundleContext) {
-        initOrmClient(ormService);
-        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
-        this.clock = clock;
-        this.publisher = publisher;
-        this.beanService = beanService;
-        this.jsonService = jsonService;
-        this.messageService = messageService;
+    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext) {
+        setClock(clock);
+        setPublisher(publisher);
+        setBeanService(beanService);
+        setJsonService(jsonService);
+        setMessageService(messageService);
+        setOrmService(ormService);
         activate(bundleContext);
         install();
     }
@@ -64,10 +62,6 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     @Override
     public void install() {
         new InstallerImpl().install();
-    }
-
-    public ComponentCache getComponentCache() {
-        return componentCache;
     }
 
     @Override
@@ -95,12 +89,8 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+        dataModel.register();
         this.ormClient = new OrmClientImpl(dataModel);
-    }
-
-    @Reference(name = "ZCacheService")
-    public void setCacheService(CacheService cacheService) {
-        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
     @Override
@@ -183,7 +173,7 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
 
     @Override
     public void postEvent(String topic, Object source) {
-        Optional<EventType> found = getOrmClient().getEventTypeFactory().get(topic);
+        Optional<EventType> found = getOrmClient().getEventTypeFactory().getOptional(topic);
         if (!found.isPresent()) {
             throw new NoSuchTopicException(topic);
         }
@@ -219,13 +209,13 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
         return eventTypeFactory().find();
     }
 	
-	private TypeCache<EventType> eventTypeFactory() {
+	private DataMapper<EventType> eventTypeFactory() {
         return Bus.getOrmClient().getEventTypeFactory();
     }
 	
 	@Override
     public Optional<EventType> getEventType(String topic) {
-        return eventTypeFactory().get(topic);
+        return eventTypeFactory().getOptional(topic);
     }
 
 

@@ -4,10 +4,6 @@ import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.cache.TypeCache;
-
-import static com.elster.jupiter.events.impl.TableSpecs.EVT_EVENTPROPERTYTYPE;
-import static com.elster.jupiter.events.impl.TableSpecs.EVT_EVENTTYPE;
 
 public class OrmClientImpl implements OrmClient {
 
@@ -23,13 +19,13 @@ public class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public TypeCache<EventType> getEventTypeFactory() {
-        return Bus.getComponentCache().getTypeCache(EventType.class, EventTypeImpl.class, EVT_EVENTTYPE.name(), getEventTypePropertyFactory());
+    public DataMapper<EventType> getEventTypeFactory() {
+        return dataModel.mapper(EventType.class);
     }
 
     @Override
     public DataMapper<EventPropertyType> getEventTypePropertyFactory() {
-        return dataModel.getDataMapper(EventPropertyType.class, EventPropertyTypeImpl.class, EVT_EVENTPROPERTYTYPE.name());
+        return dataModel.mapper(EventPropertyType.class);
     }
 
     @Override

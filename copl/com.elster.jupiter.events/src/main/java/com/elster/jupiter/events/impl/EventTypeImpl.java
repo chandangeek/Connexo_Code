@@ -31,6 +31,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     public EventTypeImpl(String topic) {
         this.topic = topic;
         fromDB = false;
+        eventPropertyTypes = new ArrayList<>();
     }
 
     @Override

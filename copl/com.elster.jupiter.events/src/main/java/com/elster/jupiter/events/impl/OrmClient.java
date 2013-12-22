@@ -4,15 +4,12 @@ import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.cache.TypeCache;
 
 public interface OrmClient {
 
     void install();
 
-    TypeCache<EventType> getEventTypeFactory();
-    
-    //DataMapper<EventType> getEventTypeFactory();
+    DataMapper<EventType> getEventTypeFactory();
 
     DataModel getDataModel();
 

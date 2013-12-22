@@ -1,5 +1,7 @@
 package com.elster.jupiter.events.impl;
 
+import com.elster.jupiter.events.EventPropertyType;
+import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -9,9 +11,11 @@ import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
 
-    EVT_EVENTTYPE {
+    EVT_EVENTTYPE(EventType.class) {
         @Override
         void describeTable(Table table) {
+        	table.map(EventTypeImpl.class);
+        	table.cache();
             Column topicColumn = table.column("TOPIC").type("varchar(80)").notNull().map("topic").add();
             table.column("COMPONENT").type("varchar(3)").notNull().map("component").add();
             table.column("SCOPE").type("varchar(80)").notNull().map("scope").add();
@@ -22,9 +26,10 @@ public enum TableSpecs {
             table.primaryKey("EVT_PK_EVENTTYPE").on(topicColumn).add();
         }
     },
-    EVT_EVENTPROPERTYTYPE {
+    EVT_EVENTPROPERTYTYPE(EventPropertyType.class) {
         @Override
         void describeTable(Table table) {
+        	table.map(EventPropertyTypeImpl.class);
             Column topicColumn = table.column("TOPIC").type("varchar(80)").notNull().map("eventTypeTopic").add();
             Column nameColumn = table.column("NAME").type("varchar(80)").notNull().map("name").add();
             table.column("TYPE").type("number").notNull().conversion(NUMBER2ENUM).map("valueType").add();
@@ -37,8 +42,14 @@ public enum TableSpecs {
         }
     };
 
+    private Class<?> api;
+    
+    TableSpecs(Class<?> api) {
+    	this.api = api;
+    }
+    
     public void addTo(DataModel component) {
-        Table table = component.addTable(name());
+        Table table = component.addTable(name(),api);
         describeTable(table);
     }
 

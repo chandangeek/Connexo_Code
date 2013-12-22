@@ -1,12 +1,12 @@
 package com.elster.jupiter.events.impl;
 
-import com.elster.jupiter.events.EventPropertyType;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.ValueType;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.cache.TypeCache;
-import com.elster.jupiter.util.time.Clock;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Date;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -15,12 +15,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.events.EventPropertyType;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.util.time.Clock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventTypeImplTest {
@@ -40,7 +40,7 @@ public class EventTypeImplTest {
     @Mock
     private ServiceLocator serviceLocator;
     @Mock
-    private TypeCache<EventType> eventTypeFactory;
+    private DataMapper<EventType> eventTypeFactory;
     @Mock
     private DataMapper<EventPropertyType> eventTypePropertyFactory;
     @Mock
