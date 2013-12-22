@@ -1,5 +1,8 @@
 package com.elster.jupiter.orm.impl;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Objects;
 
 import com.elster.jupiter.orm.Column;
@@ -8,6 +11,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.common.base.Optional;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
 	// persistent fields
@@ -197,6 +201,15 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 			constraint.getTable().add(constraint);
 			return constraint;		
 		}
+	}
+	
+	Optional<Type> getReferenceParameterType() {
+		Field field = getTable().getField(fieldName);
+		if (field == null || field.getType() != Reference.class) {
+			return Optional.absent();
+		} else {
+			return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
+		} 
 	}
 	
 }

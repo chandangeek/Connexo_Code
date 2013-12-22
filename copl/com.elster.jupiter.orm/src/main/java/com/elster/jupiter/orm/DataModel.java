@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.google.inject.Injector;
+import com.google.inject.Module;
 
 /**
  * @author kha
@@ -23,8 +23,7 @@ public interface DataModel {
     // creation api 
     Table addTable(String name,Class<?> api);
 	Table addTable(String schema, String tableName, Class<?> api);
-    void setInjector(Injector injector);
-	void register();
+	void register(Module ... modules);
 	// courtesy methods
     Connection getConnection(boolean transactionRequired) throws SQLException;
 	Principal getPrincipal();

@@ -26,6 +26,7 @@ public interface Table {
     List<Column> addIntervalColumns(String fieldName);
     List<Column> addRefAnyColumns(String name , boolean notNull, String fieldName);
     void setJournalTableName(String journalTableName);
+	void cache();
 	void makeIndexOrganized();
     // meta data api
 	List<String> getDdl();
@@ -35,6 +36,7 @@ public interface Table {
 	String getQualifiedName();
 	String getJournalTableName();
 	boolean hasJournal();
+	boolean isCached();
 	boolean isIndexOrganized();
     List<? extends Column> getColumns();
     List<? extends TableConstraint> getConstraints();
@@ -45,4 +47,5 @@ public interface Table {
     void map(Class<?> implementer);
 	<T> void map(Map<String,Class<? extends T>> implementers);
 	boolean maps(Class<?> implementer);
+
 }

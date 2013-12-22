@@ -8,12 +8,8 @@ public final class ValueReference<T> implements Reference<T> {
 	
 	private T value;
 
-	private ValueReference() {
+	ValueReference() {
 		this.value = null;
-	}
-	
-	private ValueReference(T value) {
-		this.value = value;
 	}
 	
 	public static <T> Reference<T> absent() {
@@ -66,5 +62,6 @@ public final class ValueReference<T> implements Reference<T> {
 	public int hashCode() {
 		return Objects.hashCode(value);
 	}
+	
 	
 }

@@ -18,7 +18,7 @@ public final class RefAnyImpl implements RefAny {
 	@SuppressWarnings("unused")
 	private long id;
 	
-	private Optional<Object> targetHolder;
+	private Optional<?> targetHolder;
 	
 	@Inject
 	private JsonService jsonService;
@@ -47,7 +47,7 @@ public final class RefAnyImpl implements RefAny {
 		return (OrmServiceImpl) ormService;
 	}
 	
-	private Optional<Object> getTargetHolder() {
+	private Optional<?> getTargetHolder() {
 		if (targetHolder == null) {
 			Object[] primaryKey = jsonService.deserialize(key,Object[].class);
 			targetHolder = getOrmService().getDataModel(component).get().getTable(table).getOptional(primaryKey);

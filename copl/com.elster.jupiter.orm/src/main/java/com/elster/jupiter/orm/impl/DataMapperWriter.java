@@ -77,7 +77,7 @@ public class DataMapperWriter<T> {
 		}
 		refresh(object,true);
 		if (getTable().hasChildren()) {
-			for (ForeignKeyConstraintImpl constraint : getTable().getReverseConstraints()) {
+			for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 				if (constraint.isComposition()) {
 					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
 					if (field != null) {
@@ -138,7 +138,7 @@ public class DataMapperWriter<T> {
 		if (!getTable().hasChildren()) {
 			return;
 		}
-		for (ForeignKeyConstraintImpl constraint : getTable().getReverseConstraints()) {
+		for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 			if (constraint.isComposition()) {
 				List allParts = new ArrayList<>();
 				DataMapperImpl<?> mapper = null;
@@ -371,9 +371,6 @@ public class DataMapperWriter<T> {
 		Field field = mapperType.getDomainMapper().getField(target.getClass(),constraint.getFieldName());
 		if (field == null) {
 			return null;
-		}
-		if (!Modifier.isFinal(field.getModifiers())) {
-			throw new IllegalStateException("Reference field " + field.getName() + " in class " + target.getClass() + " + is not final");
 		}
 		Reference<?> reference = (Reference<?>) mapperType.getDomainMapper().get(target, constraint.getFieldName());
 		if (reference == null || !reference.isPresent()) {

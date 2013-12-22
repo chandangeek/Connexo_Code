@@ -62,7 +62,7 @@ public class RefAnyTest {
     @Test
     public void testRefAny() {   
     	OrmServiceImpl service = (OrmServiceImpl) injector.getInstance(OrmService.class);
-    	Optional<Object> tableHolder = service.getDataModel("ORM").get().getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
+    	Optional<?> tableHolder = service.getDataModel("ORM").get().getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
     	assertThat(tableHolder).isPresent();
     	RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
     	assertThat(refAny.isPresent()).isTrue();

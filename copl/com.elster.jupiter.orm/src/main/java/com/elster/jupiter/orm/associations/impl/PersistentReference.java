@@ -55,7 +55,16 @@ public class PersistentReference<T> implements Reference<T> {
 
 	@Override
 	public boolean isPresent() {
-		return getOptional().isPresent();
+		if (primaryKey != null) {
+			for (int i = 0 ; i < primaryKey.length;  i++) {
+				if (primaryKey[i] == null) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public Object getKeyPart(int index) {

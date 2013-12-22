@@ -71,6 +71,9 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 		return true;
 	}
 
-	
+	@Override
+	public boolean isReachable() {
+		return true;
+	}
 	
 }

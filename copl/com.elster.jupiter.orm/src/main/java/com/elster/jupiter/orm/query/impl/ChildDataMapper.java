@@ -149,4 +149,11 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		}
 		
 	}
+
+	@Override
+	public boolean isReachable() {
+		return constraint.getReverseFieldName() != null;
+	}
+	
+
 }

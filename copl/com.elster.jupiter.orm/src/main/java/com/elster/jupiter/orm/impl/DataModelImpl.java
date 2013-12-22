@@ -1,12 +1,15 @@
 package com.elster.jupiter.orm.impl;
 
+import java.lang.reflect.Type;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -19,12 +22,19 @@ import com.elster.jupiter.orm.RefAny;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
+import com.google.inject.util.Types;
 
 
 public class DataModelImpl implements DataModel {
@@ -123,6 +133,7 @@ public class DataModelImpl implements DataModel {
     }
     
     @Override
+    @Deprecated
     public <T> DataMapperImpl<T> getDataMapper(Class<T> api, String tableName) {
     	return getTable(tableName).getDataMapper(api);
     }
@@ -210,32 +221,28 @@ public class DataModelImpl implements DataModel {
 		throw new IllegalArgumentException("No table defined that maps " + reference.getClass());
     }
     
-    void prepare() {
-    	if (registered) {
-    		throw new IllegalStateException();
-    	}
-    	if (injector == null) {
-    		injector = Guice.createInjector();
-    	}
-    	for (TableImpl each : tables) {
-    		each.prepare();
-    	}
-    	registered = true;
+    void preSave() {
+    	injector = Guice.createInjector();
     }
     
-    @Override
-    public void setInjector(Injector injector) {
-    	this.injector = Objects.requireNonNull(injector);
-    }
-    
-
     Injector getInjector() {
     	return injector;
     }
     
     @Override
-    public void register() {
+    public void register(Module ... modules) {
+    	if (registered) {
+    		throw new IllegalStateException();
+    	}
+    	Module[] allModules = new Module[modules.length + 1];
+    	System.arraycopy(modules, 0, allModules, 0, modules.length);
+    	allModules[modules.length] = getModule();
+    	injector = Guice.createInjector(allModules);
+        for (TableImpl each : tables) {
+        	each.prepare();
+       	}
     	this.ormService.register(this);
+    	registered = true;
     }
 
 	@Override
@@ -283,6 +290,39 @@ public class DataModelImpl implements DataModel {
 	public OrmServiceImpl getOrmService() {
 		return ormService;
 	}
+	
+	Module getModule() {
+    	return new AbstractModule() {	
+			@SuppressWarnings("unchecked")
+			@Override
+			public void configure() {
+				Set<TypeLiteral<Reference<?>>> typeLiterals = new HashSet<>(); 
+				for (TableImpl table : getTables()) {
+					for (ForeignKeyConstraintImpl constraint : table.getForeignKeyConstraints()) {
+						Optional<Type> referenceParameterType = constraint.getReferenceParameterType();
+						if (referenceParameterType.isPresent()) {
+							Type referenceType = Types.newParameterizedType(Reference.class, referenceParameterType.get());
+							TypeLiteral<Reference<?>> typeLiteral = (TypeLiteral<Reference<?>>) TypeLiteral.get(referenceType);
+							typeLiterals.add(typeLiteral);
+						}
+					}
+				}
+				for (TypeLiteral<Reference<?>> each : typeLiterals) {
+					bind(each).toProvider(getReferenceProvider());
+				}
+			}
+		}; 	
+    } 
+	
+	Provider<? extends Reference<?>> getReferenceProvider() {
+		return new Provider<Reference<?>> () {
 
+			@Override
+			public Reference<?> get() {
+				return ValueReference.absent();
+			}
+			
+		};
+	}
     
 }

@@ -44,6 +44,11 @@ class RootDataMapper<T> extends JoinDataMapper<T> {
 		appendTable(builder);
 		return forceOuterJoin;
 	}
+	
+	@Override
+	public boolean isReachable() {
+		return true;
+	}
 }
 
 

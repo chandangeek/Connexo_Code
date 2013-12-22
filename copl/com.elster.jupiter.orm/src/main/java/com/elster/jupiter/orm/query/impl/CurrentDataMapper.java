@@ -88,5 +88,9 @@ public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragme
 	public String getText() {
 		return getAlias() + ".STARTTIME <= ? AND ? < " + getAlias() + ".ENDTIME";
 	}
-	
+
+	@Override
+	public boolean isReachable() {
+		return constraint.getReverseCurrentFieldName() != null;
+	}
 }

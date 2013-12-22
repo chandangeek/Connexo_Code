@@ -32,6 +32,7 @@ public enum TableSpecs {
 			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
 			Column schemaColumn = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
 			table.column("JOURNALTABLENAME").type(CATALOGDBTYPE).map("journalTableName").add();
+			table.column("CACHED").bool().map("cached").add();
 			table.column("INDEXORGANIZED").bool().map("indexOrganized").add();
 			table.primaryKey("ORM_PK_TABLE").on(componentName , nameColumn).add();
 			table.unique("ORM_U_TABLE").on(schemaColumn , nameColumn).add();

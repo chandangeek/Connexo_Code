@@ -105,7 +105,7 @@ final class JoinExecutor<T> {
     List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
 		builder = new SqlBuilder();
 		if (eager) {
-			root.markAll();
+			root.markReachable();
 			clear(exceptions);
 		} else {
 			mark(exceptions);

@@ -19,7 +19,6 @@ import java.util.Objects;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.FieldType;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
@@ -28,6 +27,7 @@ import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
+import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -42,6 +42,8 @@ public class TableImpl implements Table {
 	@SuppressWarnings("unused")
 	private int position;
 	private String journalTableName;
+	private boolean cached;
+	
 	private boolean indexOrganized;
 	
 	// associations
@@ -55,14 +57,15 @@ public class TableImpl implements Table {
 	// transient, protection against forgetting to call add() on a builder
 	private boolean activeBuilder;
 	private Class<?> api; 
+	private TableCache<?> cache;
 	
 	// cached fields , initialized when the table's datamodel is registered with the orm service.
 	private List<ForeignKeyConstraintImpl> referenceConstraints;
-	private List<ForeignKeyConstraintImpl> reverseConstraints;
+	private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
 		
 	TableImpl init(DataModelImpl dataModel, String schema, String name, Class<?> api,int position) {
         assert !is(name).emptyOrOnlyWhiteSpace();
-		if (name.length() > OrmService.CATALOGNAMELIMIT) {
+		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
 		this.dataModel.set(Objects.requireNonNull(dataModel));
@@ -119,6 +122,16 @@ public class TableImpl implements Table {
 	@Override
 	public String getComponentName() {		
 		return getDataModel().getName();
+	}
+	
+	@Override
+	public boolean isCached() {
+		return cached;
+	}
+
+	@Override
+	public void cache() {
+		this.cached = true;
 	}
 
 	Column add(ColumnImpl column) {
@@ -279,14 +292,50 @@ public class TableImpl implements Table {
 		constraints.add(constraint);
 		return constraint;
 	}
-
-	public <T> DataMapperImpl<T> getDataMapper(Class<T> api) {
+	
+	public DataMapperImpl<?> getDataMapper() {
+		return getDataMapper(api);
+	}
+	
+	Class<?> getApi() {
+		return api;
+	}
+	
+	<T> DataMapperImpl<T> getDataMapper(Class<T> api) {
 		if (mapperType == null) {
 			throw new IllegalStateException("Implementation not specified");
 		}
 		return new DataMapperImpl<>(api,mapperType,this);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> QueryExecutorImpl<T> getQuery() {
+		List<TableImpl> related = new ArrayList<>();
+		addAllRelated(related);
+		related.remove(0);
+		List<DataMapperImpl<?>> mappers = new ArrayList<>(related.size());
+		for (TableImpl each : related) {
+			mappers.add(each.getDataMapper());
+		}
+		return (QueryExecutorImpl<T>) getDataMapper(api).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
+	}
 
+	private void addAllRelated(List<TableImpl> related) {
+		related.add(this);
+		for (ForeignKeyConstraintImpl each : this.getForeignKeyConstraints()) {
+			TableImpl table = each.getReferencedTable();
+			if (!related.contains(table)) {
+				table.addAllRelated(related);
+			}
+		}
+		for (ForeignKeyConstraintImpl each : this.getReverseMappedConstraints()) {
+			TableImpl table = each.getTable();
+			if (!related.contains(table)) {
+				table.addAllRelated(related);
+			}
+		}
+	}
+	
 	public ColumnImpl getColumnForField(String name) {
 		for (ColumnImpl column : columns) {
 			if (name.equals(column.getFieldName())) {
@@ -314,7 +363,7 @@ public class TableImpl implements Table {
 	@Override
 	public Column addAutoIdColumn() {
 		String sequence = name + "ID";
-		if (sequence.length() > OrmService.CATALOGNAMELIMIT) {
+		if (sequence.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalStateException("Name " + sequence + " too long");
 		}
 		return column("ID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).sequence(name + "ID").skipOnUpdate().map("id").add();
@@ -364,9 +413,9 @@ public class TableImpl implements Table {
 	@Override
 	public Column.Builder column(String name) {
 		checkActiveBuilder();
-		if (name.length() > OrmService.CATALOGNAMELIMIT) {
+		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException(
-				Joiner.on(" ").join("Column name",name,"too long(",name.length()," > ",OrmService.CATALOGNAMELIMIT,")")); 
+				Joiner.on(" ").join("Column name",name,"too long(",name.length()," > ",ColumnConversion.CATALOGNAMELIMIT,")")); 
 		}
 		activeBuilder = true;
 		return new ColumnImpl.BuilderImpl(ColumnImpl.from(this,name));
@@ -454,8 +503,8 @@ public class TableImpl implements Table {
 		return referenceConstraints;
 	}
 	
-	List<ForeignKeyConstraintImpl> getReverseConstraints() {
-		return reverseConstraints;
+	List<ForeignKeyConstraintImpl> getReverseMappedConstraints() {
+		return reverseMappedConstraints;
 	}
 	
 	public FieldMapping getFieldMapping(String fieldName) {
@@ -500,8 +549,8 @@ public class TableImpl implements Table {
 		return indexOrganized;
 	}
 
-	public Optional<Object> getOptional(Object... primaryKeyValues) {
-		return getDataMapper(Object.class).getOptional(primaryKeyValues);
+	public Optional<?> getOptional(Object... primaryKeyValues) {
+		return getDataMapper(api).getOptional(primaryKeyValues);
 	}
 
 	@Override
@@ -541,10 +590,11 @@ public class TableImpl implements Table {
 		Objects.requireNonNull(mapperType,"No implementation has been set");
 		mapperType.init(getDataModel().getInjector());
 		buildReferenceConstraints();
-		buildReverseConstraints();
+		buildReverseMappedConstraints();
 		for (Column column : getColumns()) {
 			checkMapped(column);
 		}
+		cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
 	}
 	
 	private void checkMapped (Column column) {
@@ -566,12 +616,14 @@ public class TableImpl implements Table {
 		throw new IllegalStateException("Column " + column.getName() + " has no mapping");
 	}
 	
+	@SuppressWarnings("unused")
 	private void buildReferenceConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
 			if (mapperType.isReference(constraint.getFieldName())) {
 				Field field = mapperType.getField(constraint.getFieldName());
-				if (Modifier.isFinal(field.getModifiers())) {
+				//if (Modifier.isFinal(field.getModifiers())) {
+				if (true) {
 					builder.add(constraint);
 				} else {
 					throw new IllegalStateException(
@@ -583,32 +635,42 @@ public class TableImpl implements Table {
 		}
 		this.referenceConstraints = builder.build();		
 	}
-
-	private void buildReverseConstraints() {
+	
+	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (TableImpl table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
 				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
-					if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
-						if (each.isComposition()) {
-							Field field = mapperType.getField(each.getReverseFieldName());
-							if (!Modifier.isFinal(field.getModifiers())) {
-								throw new IllegalStateException(
-									Joiner.on(" ").join(
-											"Reverse Field", each.getReverseFieldName(), 
-											"for composition constraint", each.getName() , "is not final"));
-							}
-						}
+					if (each.getReferencedTable().equals(this)) {
 						builder.add(each);
 					}
 				}
 			}
 		}
-		this.reverseConstraints = builder.build();	
+		return builder.build();
+	}
+
+	private void buildReverseMappedConstraints() {
+		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
+		for (ForeignKeyConstraintImpl each : getReverseConstraints()) {
+			if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
+				if (each.isComposition()) {
+					Field field = mapperType.getField(each.getReverseFieldName());
+					if (!Modifier.isFinal(field.getModifiers())) {
+						throw new IllegalStateException(
+							Joiner.on(" ").join(
+								"Reverse Field", each.getReverseFieldName(), 
+								"for composition constraint", each.getName() , "is not final"));
+					}
+				}
+				builder.add(each);
+			}
+		}
+		this.reverseMappedConstraints = builder.build();	
 	}
 	
 	boolean hasChildren() {
-		for (ForeignKeyConstraintImpl constraint : reverseConstraints) {
+		for (ForeignKeyConstraintImpl constraint : reverseMappedConstraints) {
 			if (constraint.isComposition()) {
 				return true;
 			}
@@ -632,6 +694,15 @@ public class TableImpl implements Table {
 			}
 		}
 		return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	<T> TableCache<T> getCache() {
+		return (TableCache<T>) cache;
+	}
+	
+	Field getField(String fieldName) {
+		return mapperType.getField(fieldName);
 	}
 }
 	

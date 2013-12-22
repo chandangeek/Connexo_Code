@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -29,7 +29,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	
 
 	TableConstraintImpl init(TableImpl table, String name) {
-		if (name.length() > OrmService.CATALOGNAMELIMIT) {
+		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
 		this.table.set(table);

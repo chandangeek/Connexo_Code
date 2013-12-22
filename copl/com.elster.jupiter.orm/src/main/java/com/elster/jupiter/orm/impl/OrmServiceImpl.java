@@ -26,7 +26,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Module;
 
 @Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + OrmService.COMPONENTNAME)
@@ -37,8 +36,7 @@ public class OrmServiceImpl implements OrmService , InstallService {
     private volatile Clock clock;
     private volatile JsonService jsonService;
     private final Map<String,DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String,DataModelImpl>());
-
-    public OrmServiceImpl() {
+	public OrmServiceImpl() {
 	}
 
     @Inject
@@ -70,10 +68,7 @@ public class OrmServiceImpl implements OrmService , InstallService {
 		return new DataModelImpl(this).init(name, description);
 	}
 
-	@Override
-	public void register(DataModel in) {
-		DataModelImpl dataModel = (DataModelImpl) in;
-		dataModel.prepare();
+	public void register(DataModelImpl dataModel) {
 		dataModels.put(dataModel.getName(), dataModel);
 	}
 	
@@ -109,21 +104,20 @@ public class OrmServiceImpl implements OrmService , InstallService {
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
-
+    
     public JsonService getJsonService() {
         return jsonService;
     }
 
     private DataModel createDataModel(boolean register) {
-		DataModelImpl result =  newDataModel(COMPONENTNAME,"Object Relational Mapper");
-		result.setInjector(Guice.createInjector(getModule(result)));
+		DataModelImpl result =  newDataModel(OrmService.COMPONENTNAME,"Object Relational Mapper");
 		for (TableSpecs spec : TableSpecs.values()) {
 			spec.addTo(result);			
 		}
 		if (register) {
-			result.register();
+			result.register(getModule(result));
 		} else {
-			result.prepare();
+			result.preSave();
 		}
 		return result;
 	}

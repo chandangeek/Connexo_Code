@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
@@ -30,7 +29,7 @@ public class ColumnImpl implements Column  {
 	private final Reference<TableImpl> table = ValueReference.absent();
 
 	private ColumnImpl init(TableImpl table, String name) {
-		if (name.length() > OrmService.CATALOGNAMELIMIT) {
+		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
 		this.table.set(table);

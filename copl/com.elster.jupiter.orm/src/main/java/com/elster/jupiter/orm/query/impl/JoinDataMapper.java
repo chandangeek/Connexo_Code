@@ -186,4 +186,6 @@ public abstract class JoinDataMapper<T> {
 		}
 		return result;
 	}
+
+	abstract public boolean isReachable();
 }

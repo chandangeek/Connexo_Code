@@ -222,7 +222,7 @@ public class DataMapperReader<T> {
 			Field field = mapper.getField(result.getClass(), constraint.getFieldName());
 			if (field != null && Reference.class.isAssignableFrom(field.getType())) {
 				Object[] key = createKey(constraint,columnValues);
-				DataMapperImpl<?> dataMapper = constraint.getReferencedTable().getDataMapper(getTypeArgument(field));
+				DataMapperImpl<?> dataMapper = constraint.getReferencedTable().getDataMapper();
 				Reference<?> reference = new PersistentReference<>(key, dataMapper);
 				try {
 					field.set(result, reference);
@@ -231,7 +231,7 @@ public class DataMapperReader<T> {
 				}
 			}
 		}
-		for (ForeignKeyConstraintImpl constraint : getTable().getReverseConstraints()) {
+		for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 			Field field = mapper.getField(result.getClass(), constraint.getReverseFieldName());
 			if (field != null && List.class.isAssignableFrom(field.getType())) {
 				DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(getTypeArgument(field));

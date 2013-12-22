@@ -2,6 +2,8 @@ package com.elster.jupiter.orm;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 /**
  * 
  * Performs persistent operations for a given type and table
@@ -52,4 +54,5 @@ public interface DataMapper<T> extends Finder<T> {
 	 */
 	Table getTable();
 	Object[] getPrimaryKey(T object);
+	Optional<T> getEager(Object ... object);
 }

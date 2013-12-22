@@ -21,9 +21,11 @@ import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.google.common.base.Optional;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -44,7 +46,7 @@ public class OrmTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(principal),
         			new PubSubModule(),
-        			new TransactionModule(false),        			        		
+        			new TransactionModule(true),        			        		
         			new OrmModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
@@ -69,6 +71,24 @@ public class OrmTest {
     	assertThat(dataModel.mapper(Column.class).find().size()).isGreaterThan(10);
     	assertThat(dataModel.mapper(TableConstraint.class).find()).isNotEmpty();
     	assertThat(dataModel.mapper(ColumnInConstraintImpl.class).find()).isNotEmpty();
+    }
+    
+    @Test
+    public void testEagerQuery() {
+    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+    		OrmService ormService = injector.getInstance(OrmService.class);
+        	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
+    		Optional<DataModel> copy = dataModel.mapper(DataModel.class).getEager("ORM");
+    		for (Table each : copy.get().getTables()) {
+    			each.getColumns().size();
+    			each.getConstraints().size();
+    			for ( TableConstraint constraint : each.getConstraints()) {
+    				constraint.getColumns().size();
+    			}
+    		}
+    		ctx.commit();
+    		assertThat(ctx.getStats().getSqlCount()).isEqualTo(1);
+    	}
     }
 
 

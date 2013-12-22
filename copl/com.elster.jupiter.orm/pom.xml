@@ -49,7 +49,12 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
             <version>1.0.0-SNAPSHOT</version>
-        </dependency>        
+        </dependency>      
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.cache</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>         
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -81,6 +86,7 @@
         	<groupId>javax.validation</groupId>
         	<artifactId>validation-api</artifactId>
         </dependency>
+        
         
     </dependencies>
 </project>

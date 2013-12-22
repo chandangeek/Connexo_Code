@@ -224,11 +224,17 @@ final class JoinTreeNode<T>  {
 		marked = true;
 	}
 	
-	void markAll() {
-		mark();
-		for (JoinTreeNode<?> each : children) {
-			each.mark();
+	void markReachable() {
+		if (isReachable()) {
+			mark();
+			for (JoinTreeNode<?> each : children) {
+				each.markReachable();
+			}
 		}
+	}
+	
+	boolean isReachable() {
+		return value.isReachable();
 	}
 	
 	private boolean booleanValue(Boolean value) {

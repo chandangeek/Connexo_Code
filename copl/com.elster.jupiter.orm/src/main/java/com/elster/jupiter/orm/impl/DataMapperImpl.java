@@ -163,11 +163,23 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return sqlGenerator;
 	}
 	
+	private TableCache<T> getCache() {
+		return getTable().getCache();
+	}
 
 	@Override
     Optional<T> findByPrimaryKey(Object[] values) {
+		TableCache<T> cache = getCache();
+		Optional<T> result = cache.getOptional(reader,values);
+		if (result.isPresent()) {
+			return result;
+		}
 		try {
-			return reader.findByPrimaryKey(values);
+			result = reader.findByPrimaryKey(values);
+			if (result.isPresent()) {
+				cache.put(reader,values, result.get());
+			}
+			return result;
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -189,6 +201,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	@Override
 	public List<T> find(String[] fieldNames, Object[] values, String... orderColumns) {
+		if (fieldNames == null) {
+			Optional<List<T>> candidate = getCache().find(reader);
+			if (candidate.isPresent()) {
+				return candidate.get();
+			}
+		}
 		try {
 			return reader.find(fieldNames,values,orderColumns);
 		} catch(SQLException ex) {
@@ -214,30 +232,46 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			throw new UnsupportedOperationException();
 		}
 	}
+	
+	private void cacheChange() {
+		//TODO send event
+	}
 	@Override
 	public void persist(T object)  {
 		preventIfChild();
+		// initialize cache if needed
+		TableCache<T> cache = getCache();
+		cache.getOptional(reader, new Object[0]);
 		try {
 			writer.persist(object);
+			cache.cache(reader, object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
+		cacheChange();
 	}
 		
 	@Override
 	// note that this will not fill back auto increment columns.
 	public void persist(List<T> objects)  {
 		preventIfChild();
+		// initialize cache if needed
+		TableCache<T> cache = getCache();
+		cache.getOptional(reader, new Object[0]);		
 		try {
 			writer.persist(objects);
+			for (T each : objects) {
+				cache.cache(reader,each);
+			}
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
+		cacheChange();
 	}
 	
 	@Override
 	public void update(T object)  {
-		update(object,sqlGenerator.getTable().getStandardColumns());		
+		update(object,sqlGenerator.getTable().getStandardColumns());
 	}
 	
 	@Override
@@ -264,6 +298,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
+		cacheChange();
 	}
 	
 	
@@ -283,6 +318,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		} 	
+		cacheChange();
 	}
 	
 	@Override
@@ -290,9 +326,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		preventIfChild();
 		try {
 			writer.remove(object);
+			getCache().remove(object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
+		cacheChange();
 	}
 	
 	@Override
@@ -300,9 +338,13 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		preventIfChild();
 		try {
 			writer.remove(objects);
+			for (T each : objects) {
+				getCache().remove(each);
+			}
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
+		cacheChange();
 	}
 	
 	@Override
@@ -330,13 +372,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getSqlGenerator().getColumns();
 	}
 		
-	private int getIndex(Column column) {
-		for (int i = 0 ; i < getColumns().size(); i++) {
-			if (column.equals(getColumns().get(i))) { 
-				return i;
-			}
+	private int getIndex(ColumnImpl column) {
+		int i = getColumns().indexOf(column);
+		if (i < 0) {
+			throw new IllegalArgumentException(column.toString());
 		}
-		throw new IllegalArgumentException();
+		return i;
 	}
 	
 	private Object getValue(ColumnImpl column , ResultSet rs , int startIndex ) throws SQLException {
@@ -400,6 +441,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public Object[] getPrimaryKey(T object) {
 		return getTable().getPrimaryKey(object);
+	}
+	
+	@Override
+	public Optional<T> getEager(Object ... key) {
+		return getTable().<T>getQuery().get(key, true, new String[0]);
 	}
 	
 }
