@@ -1,5 +1,7 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import java.util.Objects;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +57,7 @@ public class WhiteBoard {
     }
     
     void addResource(Application application, String alias) {    	    	
-        ResourceConfig secureConfig = ResourceConfig.forApplication(application);
+        ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(RoleFilter.class);
