@@ -1,5 +1,9 @@
 package com.elster.jupiter.ids.plumbing;
 
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.impl.FieldSpecImpl;
 import com.elster.jupiter.ids.impl.RecordSpecImpl;
 import com.elster.jupiter.ids.impl.TimeSeriesImpl;
@@ -13,7 +17,7 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
-	IDS_VAULT {
+	IDS_VAULT(Vault.class) {
 		void  describeTable(Table table) {
 			table.map(VaultImpl.class);
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
@@ -30,7 +34,7 @@ public enum TableSpecs {
 			table.primaryKey("IDS_PK_VAULTS").on(componentName, idColumn).add();
 		}
 	},
-	IDS_RECORDSPEC {
+	IDS_RECORDSPEC (RecordSpec.class) {
 		void describeTable(Table table) {
 			table.map(RecordSpecImpl.class);
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
@@ -41,7 +45,7 @@ public enum TableSpecs {
 			table.unique("IDS_U_RECORDSPECS").on(componentName, nameColumn).add();
 		}
 	},	
-	IDS_FIELDSPEC { 
+	IDS_FIELDSPEC (FieldSpec.class) { 
 		void describeTable(Table table) {
 			table.map(FieldSpecImpl.class);
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
@@ -53,11 +57,11 @@ public enum TableSpecs {
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.primaryKey("IDS_PK_FIELDSPECS").on(componentName, recordSpecIdColumn , positionColumn ).add();
-			table.addUniqueConstraint("IDS_U_FIELDSPECS", componentName, recordSpecIdColumn , nameColumn );	
+			table.unique("IDS_U_FIELDSPECS").on(componentName, recordSpecIdColumn , nameColumn );	
 			table.foreignKey("IDS_FK_FIELDSPECS").references(IDS_RECORDSPEC.name()).onDelete(CASCADE).map("recordSpec").reverseMap("fieldSpecs").reverseMapOrder("position").on(componentName, recordSpecIdColumn).add();
 		}
 	},
-	IDS_TIMESERIES {
+	IDS_TIMESERIES (TimeSeries.class) {
 		void describeTable(Table table) {
 			table.map(TimeSeriesImpl.class);
 			Column idColumn = table.addAutoIdColumn();
@@ -80,8 +84,14 @@ public enum TableSpecs {
 		}
 	};
 	
+	private Class<?> api;
+	
+	TableSpecs(Class<?> api) {
+		this.api = api;
+	}
+	
 	public void addTo(DataModel component) {
-		Table table = component.addTable(name());
+		Table table = component.addTable(name(),api);
 		describeTable(table);
 	}
 	
