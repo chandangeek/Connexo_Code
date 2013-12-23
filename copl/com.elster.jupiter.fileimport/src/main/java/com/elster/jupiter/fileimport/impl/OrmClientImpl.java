@@ -18,12 +18,12 @@ class OrmClientImpl implements OrmClient {
 
     @Override
     public DataMapper<ImportSchedule> getImportScheduleFactory() {
-        return dataModel.getDataMapper(ImportSchedule.class, ImportScheduleImpl.class, TableSpecs.FIM_IMPORT_SCHEDULE.name());
+        return dataModel.mapper(ImportSchedule.class);
     }
 
     @Override
     public DataMapper<FileImport> getFileImportFactory() {
-        return dataModel.getDataMapper(FileImport.class, FileImportImpl.class, TableSpecs.FIM_FILE_IMPORT.name());
+        return dataModel.mapper(FileImport.class);
     }
 
     @Override

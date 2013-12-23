@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -69,9 +70,9 @@ public class FileImportServiceImplTest {
     public void setUp() {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString())).thenReturn(table);
-        when(dataModel.getDataMapper(ImportSchedule.class, ImportScheduleImpl.class, TableSpecs.FIM_IMPORT_SCHEDULE.name())).thenReturn(importScheduleFactory);
-        when(importScheduleFactory.get(15L)).thenReturn(Optional.of(importSchedule));
+        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
+        when(importScheduleFactory.getOptional(15L)).thenReturn(Optional.of(importSchedule));
 
         fileImportService = new FileImportServiceImpl();
 

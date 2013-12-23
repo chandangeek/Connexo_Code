@@ -1,5 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImport;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -9,9 +11,10 @@ import static com.elster.jupiter.orm.ColumnConversion.*;
 
 enum TableSpecs {
 
-    FIM_IMPORT_SCHEDULE {
+    FIM_IMPORT_SCHEDULE(ImportSchedule.class) {
         @Override
         void describeTable(Table table) {
+            table.map(ImportScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("DESTINATION").type("varchar2(80)").notNull().map("destinationName").add();
             table.column("CRONSTRING").type("varchar2(80)").notNull().map("cronString").add();
@@ -23,9 +26,10 @@ enum TableSpecs {
         }
 
     },
-    FIM_FILE_IMPORT {
+    FIM_FILE_IMPORT(FileImport.class) {
         @Override
         void describeTable(Table table) {
+            table.map(FileImportImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
             table.column("FILENAME").type("varchar2(80)").notNull().conversion(CHAR2FILE).map("file").add();
@@ -35,8 +39,14 @@ enum TableSpecs {
         }
     };
 
+    private final Class<?> api;
+
+    TableSpecs(Class<?> api) {
+        this.api = api;
+    }
+
     public void addTo(DataModel component) {
-        Table table = component.addTable(name());
+        Table table = component.addTable(name(), api);
         describeTable(table);
     }
 
