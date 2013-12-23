@@ -141,7 +141,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
 
     @Override
     public Optional<ImportSchedule> getImportSchedule(long id) {
-        return getOrmClient().getImportScheduleFactory().get(id);
+        return getOrmClient().getImportScheduleFactory().getOptional(id);
     }
 
     @Deactivate
