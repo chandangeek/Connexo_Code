@@ -86,8 +86,8 @@ public class TaskServiceImplTest {
     public void setUp() throws SQLException {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString())).thenReturn(table);
-        when(dataModel.getDataMapper(any(Class.class), any(Class.class), anyString())).thenReturn(recurrentTaskFactory);
+        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.mapper(any(Class.class))).thenReturn(recurrentTaskFactory);
         when(serviceLocator.getTransactionService()).thenReturn(transactionService);
         when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
             @Override

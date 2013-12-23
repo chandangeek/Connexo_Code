@@ -18,12 +18,12 @@ class OrmClientImpl implements OrmClient {
 
     @Override
     public DataMapper<RecurrentTask> getRecurrentTaskFactory() {
-        return dataModel.getDataMapper(RecurrentTask.class, RecurrentTaskImpl.class, TableSpecs.TSK_RECURRENT_TASK.name());
+        return dataModel.mapper(RecurrentTask.class);
     }
 
     @Override
     public DataMapper<TaskOccurrence> getTaskOccurrenceFactory() {
-        return dataModel.getDataMapper(TaskOccurrence.class, TaskOccurrenceImpl.class, TableSpecs.TSK_TASK_OCCURRENCE.name());
+        return dataModel.mapper(TaskOccurrence.class);
     }
 
     @Override
