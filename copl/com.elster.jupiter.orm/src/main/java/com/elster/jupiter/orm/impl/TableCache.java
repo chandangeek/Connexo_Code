@@ -1,13 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.base.Optional;
-import com.elster.jupiter.util.conditions.Condition;
 
 public interface TableCache<T> {
 	Optional<List<T>> find(DataMapperReader<T> reader);
@@ -16,7 +16,7 @@ public interface TableCache<T> {
 	void cache(DataMapperReader<T> reader,T value);
 	void remove(T entity);
 	 
-	public static class NoCache<T> implements TableCache<T> {
+	class NoCache<T> implements TableCache<T> {
 		@Override
 		public Optional<List<T>> find(DataMapperReader<T> reader) {
 			return Optional.absent();
@@ -41,7 +41,7 @@ public interface TableCache<T> {
 	
 	}
 	
-	public static class TupleCache<T> implements TableCache<T> {
+	class TupleCache<T> implements TableCache<T> {
 		
 		private final TableImpl table;
 		private Map<ArrayWrapper, T> cache;
@@ -62,7 +62,7 @@ public interface TableCache<T> {
 		}
 		
 		@Override
-		synchronized public Optional<List<T>> find(DataMapperReader<T> reader) {
+        public synchronized Optional<List<T>> find(DataMapperReader<T> reader) {
 			if (cache == null) {
 				initCache(reader);
 			} 
@@ -71,7 +71,7 @@ public interface TableCache<T> {
 		}
 
 		@Override
-		synchronized public Optional<T> getOptional(DataMapperReader<T> reader, Object[] key) {
+        public synchronized Optional<T> getOptional(DataMapperReader<T> reader, Object[] key) {
 			if (cache == null) {
 				initCache(reader);
 			} 
@@ -79,7 +79,7 @@ public interface TableCache<T> {
 		}
 
 		@Override
-		synchronized public void put(DataMapperReader<T> reader, Object[] key, T value) {
+        public synchronized void put(DataMapperReader<T> reader, Object[] key, T value) {
 			if (cache == null) {
 				initCache(reader);
 			} 
@@ -96,12 +96,12 @@ public interface TableCache<T> {
 		}
 
 		@Override
-		synchronized public void remove(T entity) {
+        public synchronized void remove(T entity) {
 			cache.remove(createKey(getKey(entity)));
 		}  
 	}
 	
-	final static class ArrayWrapper {
+	final class ArrayWrapper {
 		
 		private final Object[] key;
 		
