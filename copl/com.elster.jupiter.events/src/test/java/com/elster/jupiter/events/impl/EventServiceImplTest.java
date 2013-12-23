@@ -1,23 +1,5 @@
 package com.elster.jupiter.events.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -29,6 +11,20 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
 import com.google.common.base.Optional;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventServiceImplTest {
@@ -64,6 +60,7 @@ public class EventServiceImplTest {
         when(eventType.create("")).thenReturn(localEvent);
         when(eventType.shouldPublish()).thenReturn(false);
         when(dataModel.mapper(EventPropertyType.class)).thenReturn(eventTypePropertyFactory);
+        when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
 
         eventService = new EventServiceImpl();
 
