@@ -11,9 +11,8 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
-import java.util.Objects;
-
 import javax.inject.Inject;
+import java.util.Objects;
 
 final class PartyRepresentationImpl implements PartyRepresentation {
 
@@ -72,6 +71,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 		return interval.isCurrent(clock);
 	}
 
+    @Override
     public void setInterval(Interval interval) {
         this.interval = interval;
     }

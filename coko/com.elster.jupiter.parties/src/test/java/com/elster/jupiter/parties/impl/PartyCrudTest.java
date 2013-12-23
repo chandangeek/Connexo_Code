@@ -1,27 +1,12 @@
 package com.elster.jupiter.parties.impl;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.sql.SQLException;
-import java.util.Date;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
@@ -41,6 +26,19 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
+import java.sql.SQLException;
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyCrudTest {
@@ -71,8 +69,7 @@ public class PartyCrudTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(printSql),
-        			new OrmCacheModule());
+        			new TransactionModule(printSql));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(PartyService.class);
         	ctx.commit();
@@ -128,7 +125,7 @@ public class PartyCrudTest {
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isLessThan(30);
+        	assertThat(context.getStats().getSqlCount()).isLessThan(35);
         }
     }
     

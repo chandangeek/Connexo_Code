@@ -8,4 +8,6 @@ public interface PartyRepresentation {
     Party getParty();
     Interval getInterval();
     boolean isCurrent();
+
+    void setInterval(Interval interval);
 }
