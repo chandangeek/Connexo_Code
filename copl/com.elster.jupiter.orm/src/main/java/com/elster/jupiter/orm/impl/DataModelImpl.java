@@ -297,19 +297,29 @@ public class DataModelImpl implements DataModel {
 			@SuppressWarnings("unchecked")
 			@Override
 			public void configure() {
-				Set<TypeLiteral<Reference<?>>> typeLiterals = new HashSet<>(); 
+				Set<TypeLiteral<Reference<?>>> referenceTypeLiterals = new HashSet<>(); 
+				Set<TypeLiteral<List<?>>> listTypeLiterals = new HashSet<>();
 				for (TableImpl table : getTables()) {
 					for (ForeignKeyConstraintImpl constraint : table.getForeignKeyConstraints()) {
 						Optional<Type> referenceParameterType = constraint.getReferenceParameterType();
 						if (referenceParameterType.isPresent()) {
 							Type referenceType = Types.newParameterizedType(Reference.class, referenceParameterType.get());
 							TypeLiteral<Reference<?>> typeLiteral = (TypeLiteral<Reference<?>>) TypeLiteral.get(referenceType);
-							typeLiterals.add(typeLiteral);
+							referenceTypeLiterals.add(typeLiteral);
 						}
-					}
+						Optional<Type> listParameterType = constraint.getListParameterType();
+						if (listParameterType.isPresent()) {
+							Type referenceType = Types.newParameterizedType(List.class, listParameterType.get());
+							TypeLiteral<List<?>> typeLiteral = (TypeLiteral<List<?>>) TypeLiteral.get(referenceType);
+							listTypeLiterals.add(typeLiteral);
+						}
+ 					}
 				}
-				for (TypeLiteral<Reference<?>> each : typeLiterals) {
+				for (TypeLiteral<Reference<?>> each : referenceTypeLiterals) {
 					bind(each).toProvider(getReferenceProvider());
+				}
+				for (TypeLiteral<List<?>> each : listTypeLiterals) {
+					bind(each).toProvider(getListProvider());
 				}
 			}
 		}; 	
@@ -326,4 +336,14 @@ public class DataModelImpl implements DataModel {
 		};
 	}
     
+	Provider<? extends List<?>> getListProvider() {
+		return new Provider<List<?>> () {
+
+			@Override
+			public List<?> get() {
+				return new ArrayList<>();
+			}
+			
+		};
+	}
 }
