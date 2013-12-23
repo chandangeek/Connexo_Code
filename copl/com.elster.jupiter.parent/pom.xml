@@ -320,7 +320,6 @@
 		        <module>../com.elster.jupiter.metering.extjs</module>
 		        <module>../com.elster.jupiter.metering.rest</module>
 		        <module>../com.elster.jupiter.orm</module>
-		        <module>../com.elster.jupiter.orm.cache</module>
 		        <module>../com.elster.jupiter.osgi.goodies</module>
 		        <module>../com.elster.jupiter.parties</module>
 		        <module>../com.elster.jupiter.parties.rest</module>
