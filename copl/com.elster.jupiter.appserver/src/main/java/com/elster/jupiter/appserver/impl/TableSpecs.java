@@ -1,5 +1,8 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -9,7 +12,7 @@ import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
 
-    APS_APPSERVER {
+    APS_APPSERVER(AppServer.class) {
         @Override
         void describeTable(Table table) {
             table.map(AppServerImpl.class);
@@ -20,7 +23,7 @@ public enum TableSpecs {
         }
 
     },
-    APS_SUBSCRIBEREXECUTIONSPEC {
+    APS_SUBSCRIBEREXECUTIONSPEC(SubscriberExecutionSpec.class) {
         @Override
         void describeTable(Table table) {
             table.map(SubscriberExecutionSpecImpl.class);
@@ -33,7 +36,7 @@ public enum TableSpecs {
             table.primaryKey("APS_PK_SUBSCRIBEREXECUTIONSPEC").on(idColumn).add();
         }
     },
-    APS_IMPORTSCHEDULEONSERVER {
+    APS_IMPORTSCHEDULEONSERVER(ImportScheduleOnAppServer.class) {
         @Override
         void describeTable(Table table) {
             table.map(ImportScheduleOnAppServerImpl.class);
@@ -44,8 +47,14 @@ public enum TableSpecs {
         }
     };
 
+    private final Class<?> api;
+
+    TableSpecs(Class<?> api) {
+        this.api = api;
+    }
+
     public void addTo(DataModel component) {
-        Table table = component.addTable(name());
+        Table table = component.addTable(name(), api);
         describeTable(table);
     }
 

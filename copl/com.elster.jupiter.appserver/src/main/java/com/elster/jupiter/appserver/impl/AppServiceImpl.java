@@ -15,8 +15,7 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.InvalidateCacheRequest;
+import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
@@ -62,6 +61,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private AppServerCreator appServerCreator = new DefaultAppServerCreator();
 
     private volatile OrmClient ormClient;
+    private volatile OrmService ormService;
     private volatile TransactionService transactionService;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
@@ -69,7 +69,6 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BundleContext context;
     private volatile Publisher publisher;
-    private volatile CacheService cacheService;
     private volatile JsonService jsonService;
     private volatile FileImportService fileImportService;
     private volatile TaskService taskService;
@@ -190,6 +189,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
         DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Application Server");
         for (TableSpecs each : TableSpecs.values()) {
             each.addTo(dataModel);
@@ -276,15 +276,6 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     @Reference
     public void setPublisher(Publisher publisher) {
         this.publisher = publisher;
-    }
-
-    public CacheService getCacheService() {
-        return cacheService;
-    }
-
-    @Reference
-    public void setCacheService(CacheService cacheService) {
-        this.cacheService = cacheService;
     }
 
     @Override
@@ -381,7 +372,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                     Properties properties = command.getProperties();
                     String componentName = properties.getProperty(COMPONENT_NAME);
                     String tableName = properties.getProperty(TABLE_NAME);
-                    cacheService.refresh(componentName, tableName);
+                    ormService.invalidateCache(componentName, tableName);
                     break;
                 case FILEIMPORT_ACTIVATED:
                     String idAsString = command.getProperties().getProperty(ID);

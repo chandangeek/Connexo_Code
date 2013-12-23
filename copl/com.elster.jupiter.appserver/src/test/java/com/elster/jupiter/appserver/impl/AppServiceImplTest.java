@@ -16,8 +16,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.InvalidateCacheRequest;
+import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -105,15 +104,13 @@ public class AppServiceImplTest {
     private MessageBuilder messageBuilder;
     @Mock
     private JsonService jsonService;
-    @Mock
-    private CacheService cacheService;
 
     @SuppressWarnings("unchecked")
 	@Before
     public void setUp() throws SQLException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString())).thenReturn(table);
-        when(dataModel.getDataMapper(any(Class.class), any(Class.class), anyString())).thenReturn(appServerFactory, importScheduleOnAppServerFactory);
+        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.mapper(any(Class.class))).thenReturn(appServerFactory, importScheduleOnAppServerFactory);
         when(appServer.getSubscriberExecutionSpecs()).thenReturn(Collections.<SubscriberExecutionSpec>emptyList());
         when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Collections.<ImportScheduleOnAppServer>emptyList());
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
@@ -138,7 +135,6 @@ public class AppServiceImplTest {
         appService.setTaskService(taskService);
         appService.setFileImportService(fileImportService);
         appService.setJsonService(jsonService);
-        appService.setCacheService(cacheService);
     }
 
     @SuppressWarnings("unchecked")
@@ -423,7 +419,7 @@ public class AppServiceImplTest {
 
             arrivalLatch.await();
 
-            verify(cacheService).refresh(COMPONENT_NAME, TABLE_NAME);
+            verify(ormService).invalidateCache(COMPONENT_NAME, TABLE_NAME);
 
         } finally {
             subscriberSpec.cancel(); // unblock the receive();

@@ -29,17 +29,17 @@ public class OrmClientImpl implements OrmClient {
 
     @Override
     public DataMapper<AppServer> getAppServerFactory() {
-        return dataModel.getDataMapper(AppServer.class, AppServerImpl.class, TableSpecs.APS_APPSERVER.name());
+        return dataModel.mapper(AppServer.class);
     }
 
     @Override
     public DataMapper<SubscriberExecutionSpec> getSubscriberExecutionSpecFactory() {
-        return dataModel.getDataMapper(SubscriberExecutionSpec.class, SubscriberExecutionSpecImpl.class, TableSpecs.APS_SUBSCRIBEREXECUTIONSPEC.name());
+        return dataModel.mapper(SubscriberExecutionSpec.class);
     }
 
     @Override
     public DataMapper<ImportScheduleOnAppServer> getImportScheduleOnAppServerFactory() {
-        return dataModel.getDataMapper(ImportScheduleOnAppServer.class, ImportScheduleOnAppServerImpl.class, TableSpecs.APS_IMPORTSCHEDULEONSERVER.name());
+        return dataModel.mapper(ImportScheduleOnAppServer.class);
     }
 
 }
