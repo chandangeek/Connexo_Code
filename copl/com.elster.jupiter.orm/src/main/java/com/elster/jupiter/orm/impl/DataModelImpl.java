@@ -18,6 +18,7 @@ import oracle.jdbc.OracleConnection;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -292,6 +293,15 @@ public class DataModelImpl implements DataModel {
 		return ormService;
 	}
 	
+	@Override 
+	public <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers) {
+		DataMapper<?>[] mappers = new DataMapper[eagers.length];
+		for (int i = 0; i < eagers.length; i++) {
+			mappers[i] = mapper(eagers[i]);
+		}
+ 		return mapper(api).with(mappers);
+	}
+	
 	Module getModule() {
     	return new AbstractModule() {	
 			@SuppressWarnings("unchecked")
@@ -346,4 +356,6 @@ public class DataModelImpl implements DataModel {
 			
 		};
 	}
+	
+	
 }

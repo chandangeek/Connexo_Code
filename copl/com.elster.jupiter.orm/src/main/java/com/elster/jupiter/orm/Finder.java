@@ -1,6 +1,5 @@
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.Map;
  * Finder contains simple find methods. More advanced criteria can be specified on a Query object.
  * Also a Query object can join in other tables to avoid the N+1 ORM performance issue
  */
-public interface Finder<T> {
+public interface Finder<T> extends BasicQuery<T> {
 	/**
 	 * 
 	 * Fetch all tuples. Only use on small tables
@@ -46,23 +45,12 @@ public interface Finder<T> {
     List<T> find(String[] fieldNames , Object[] values , String... orderBy);
     List<T> find(Map<String,Object> valueMap);
     List<T> find(Map<String,Object> valueMap,String... orderBy);
-	/**
-	 * Find object by primary key
-	 * @param values
-	 * @return
-	 */
-    @Deprecated
-	Optional<T> get(Object... values);
-    Optional<T> getOptional(Object... values);
+	
 	/**
 	 * Find journal entries for a primary key
 	 */
     List<JournalEntry<T>> getJournal(Object... values);
-    /**
-     * Find object by primary key
-     * @throws DoesNotExistException if not found
-     */
-    T getExisting(Object... values);
+    
     /**
      * Find object where fieldName equals value
      * @throws NotUniqueException   
@@ -71,6 +59,7 @@ public interface Finder<T> {
 	Optional<T> getUnique(String fieldName1, Object value1, String fieldName2,Object value2);
 	Optional<T> getUnique(String[] fieldNames , Object[] values);
 	
-	List<T> select(Condition condition, String ... orderBy);
+	@Deprecated 
+	Optional<T> get(Object... keys);
 	
 }

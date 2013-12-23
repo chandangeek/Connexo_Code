@@ -25,7 +25,6 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		this.root = new JoinTreeNode<>(rootDataMapper);				
 	}
     
-	@Override 
 	public <R> void add(DataMapper<R> dataMapper) {
 		DataMapperImpl<R> newMapper = (DataMapperImpl<R>) dataMapper;
 		aliasFactory.setBase(newMapper.getAlias());
@@ -102,6 +101,21 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public void setRestriction(Condition condition) {
 		restriction = condition;
+	}
+
+	@Override
+	public Optional<T> getOptional(Object... values) {
+		return get(values,true,new String[0]);
+	}
+
+	@Override
+	public T getExisting(Object... values) {
+		return getOptional(values).get();
+	}
+
+	@Override
+	public List<T> select(Condition condition, String... orderBy) {
+		return select(condition, orderBy, true,new String[0]);
 	}
 }
 

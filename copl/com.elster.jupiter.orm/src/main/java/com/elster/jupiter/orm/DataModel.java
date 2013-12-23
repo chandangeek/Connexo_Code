@@ -20,6 +20,7 @@ public interface DataModel {
     void remove(Object entity);
     <T> T getInstance(Class<T> clazz);
     <T> DataMapper<T> mapper(Class<T> api);
+    <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers);
     RefAny asRefAny(Object object);
     // creation api 
     Table addTable(String name,Class<?> api);

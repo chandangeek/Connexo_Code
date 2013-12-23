@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.security.Principal;
 import java.sql.Connection;
@@ -143,9 +142,6 @@ public class DataMapperWriter<T> {
 					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
 					if (field != null) {
 						if (mapper == null) {
-							if (!Modifier.isFinal(field.getModifiers())) {
-								throw new IllegalStateException("Owner collections must be final");
-							}
 							Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
 							mapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(clazz);
 						}

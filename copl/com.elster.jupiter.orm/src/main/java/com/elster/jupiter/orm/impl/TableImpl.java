@@ -10,7 +10,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
 import static com.elster.jupiter.util.Checks.is;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -622,15 +621,7 @@ public class TableImpl implements Table {
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
 			if (mapperType.isReference(constraint.getFieldName())) {
 				Field field = mapperType.getField(constraint.getFieldName());
-				//if (Modifier.isFinal(field.getModifiers())) {
-				if (true) {
-					builder.add(constraint);
-				} else {
-					throw new IllegalStateException(
-						Joiner.on(" ").join(
-								"Reference field", constraint.getFieldName(), 
-								"for constraint", constraint.getName() , "is not final"));
-				}
+				builder.add(constraint);
 			}
 		}
 		this.referenceConstraints = builder.build();		
@@ -654,17 +645,6 @@ public class TableImpl implements Table {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (ForeignKeyConstraintImpl each : getReverseConstraints()) {
 			if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
-				if (each.isComposition()) {
-					/*
-					Field field = mapperType.getField(each.getReverseFieldName());
-					if (!Modifier.isFinal(field.getModifiers())) {
-						throw new IllegalStateException(
-							Joiner.on(" ").join(
-								"Reverse Field", each.getReverseFieldName(), 
-								"for composition constraint", each.getName() , "is not final"));
-					}
-					*/
-				}
 				builder.add(each);
 			}
 		}

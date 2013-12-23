@@ -8,19 +8,25 @@ import java.util.List;
 
 /**
  * 
- * This interface is only intended for use by domain classes. 
- * Service layer classes (Rest) should use com.elster.jupiter.domain.util.Query
+ * This interface is only intended for use by domain classes, 
+ * who typically use the BasicQuery api.
+ * Service layer classes (Rest) should use com.elster.jupiter.domain.util.Query,
+ * which uses the QueryExecutor api.
  * 
  */
-public interface QueryExecutor<T> {
-	<R> void add(DataMapper<R> dataMapper);
+public interface QueryExecutor<T> extends BasicQuery<T> {
+	
+	// creation api
+	void setRestriction(Condition condition);
+	
+	// domain util query support
     List<T> select(Condition condition, String[] orderBy, boolean eager , String[] exceptions);
     List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to);
+    Object convert(String fieldName , String value);
+    SqlFragment asFragment(Condition condition, String[] fieldNames);
+    Optional<T> get(Object[] key, boolean eager , String[] exceptions);
 	boolean hasField(String fieldName);
-	Object convert(String fieldName , String value);
-	SqlFragment asFragment(Condition condition, String[] fieldNames);
-	Optional<T> get(Object[] key, boolean eager , String[] exceptions);
 	Class<?> getType(String fieldName);
     List<String> getQueryFieldNames();
-    void setRestriction(Condition condition);
+    
 }
