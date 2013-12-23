@@ -15,7 +15,7 @@ public class DataModelResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON) 
 	public String[] getDataModels() {
-		List<DataModel> dataModels = OsgiInfoApplication.ormService.getDataModels();
+		List<? extends DataModel> dataModels = OsgiInfoApplication.ormService.getDataModels();
 		String result[] = new String[dataModels.size()];
 		for (int i = 0 ; i < dataModels.size(); i++) {
 			result[i] = dataModels.get(i).getName();
