@@ -2,7 +2,6 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
