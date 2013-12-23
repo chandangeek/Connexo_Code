@@ -29,7 +29,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		if (result != null) {
 			dataMapper.remove(result);
 		}
-		return getTarget().remove(index);
+		return result;
 	}
 	
 	@Override

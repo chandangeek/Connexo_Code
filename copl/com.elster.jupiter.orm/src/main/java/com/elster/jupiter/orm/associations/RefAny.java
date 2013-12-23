@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm;
+package com.elster.jupiter.orm.associations;
 
 public interface RefAny {
 	public boolean isPresent();

@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.elster.jupiter.orm.associations.RefAny;
 import com.google.inject.Module;
 
 /**
