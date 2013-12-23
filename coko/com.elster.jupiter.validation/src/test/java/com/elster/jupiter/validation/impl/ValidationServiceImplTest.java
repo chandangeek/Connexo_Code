@@ -4,8 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.cache.ComponentCache;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
@@ -35,8 +33,6 @@ public class ValidationServiceImplTest {
     @Mock
     private ServiceLocator serviceLocator;
     @Mock
-    private ComponentCache componentCache;
-    @Mock
     private EventService eventService;
     @Mock
     private OrmClient ormClient;
@@ -45,9 +41,9 @@ public class ValidationServiceImplTest {
     @Mock
     private Validator validator;
     @Mock
-    private TypeCache<IValidationRuleSet> validationRuleSetFactory;
+    private DataMapper<IValidationRuleSet> validationRuleSetFactory;
     @Mock
-    private TypeCache<IValidationRule> validationRuleFactory;
+    private DataMapper<IValidationRule> validationRuleFactory;
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -60,7 +56,6 @@ public class ValidationServiceImplTest {
     @Before
     public void setUp() {
         validationService = new ValidationServiceImpl();
-        when(serviceLocator.getComponentCache()).thenReturn(componentCache);
         when(serviceLocator.getEventService()).thenReturn(eventService);
         when(serviceLocator.getValidationService()).thenReturn(validationService);
         when(serviceLocator.getOrmClient()).thenReturn(ormClient);

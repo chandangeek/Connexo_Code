@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
@@ -308,11 +307,11 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         return Bus.getOrmClient().getReadingTypesInValidationRuleFactory();
     }
 
-    private TypeCache<IValidationRule> ruleFactory() {
+    private DataMapper<IValidationRule> ruleFactory() {
         return Bus.getOrmClient().getValidationRuleFactory();
     }
 
-    private TypeCache<ValidationRuleProperties> rulePropertiesFactory() {
+    private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {
         return Bus.getOrmClient().getValidationRulePropertiesFactory();
     }
 

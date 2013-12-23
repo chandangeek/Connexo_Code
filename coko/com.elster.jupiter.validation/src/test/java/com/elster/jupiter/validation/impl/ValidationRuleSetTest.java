@@ -1,7 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
@@ -32,9 +32,9 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private ServiceLocator serviceLocator;
 
     @Mock
-    private TypeCache<IValidationRule> ruleFactory;
+    private DataMapper<IValidationRule> ruleFactory;
     @Mock
-    private TypeCache<IValidationRuleSet> setFactory;
+    private DataMapper<IValidationRuleSet> setFactory;
 
     @Before
     public void setUp() {
@@ -144,9 +144,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         validationRuleSet.save();
 
         verify(setFactory).update(validationRuleSet);
-        verify(ruleFactory).remove(rule1);
-        verify(ruleFactory).update(rule2);
-        verify(ruleFactory).persist(rule3);
+        assertThat(validationRuleSet.getRules()).hasSize(2).contains(rule2, rule3);
 
     }
 

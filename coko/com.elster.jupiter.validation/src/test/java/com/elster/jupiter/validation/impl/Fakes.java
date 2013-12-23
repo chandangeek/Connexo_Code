@@ -67,6 +67,18 @@ public enum Fakes {
         }
 
         @Override
+        public Object[] getPrimaryKey(T object) {
+            //TODO automatically generated method body, provide implementation.
+            return new Object[0];
+        }
+
+        @Override
+        public Optional<T> getEager(Object... object) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
+        }
+
+        @Override
         public T lock(Object... values) {
             return null;
         }
@@ -190,6 +202,12 @@ public enum Fakes {
         }
 
         @Override
+        public Optional<T> getOptional(Object... values) {
+            //TODO automatically generated method body, provide implementation.
+            return null;
+        }
+
+        @Override
         public List<JournalEntry<T>> getJournal(Object... values) {
             return null;
         }
@@ -238,15 +256,6 @@ public enum Fakes {
 			return null;
 		}
 
-        @Override
-        public T newInstance() {
-            return null;
-        }
-
-        @Override
-        public <S extends T> S newInstance(Class<S> clazz) {
-            return null;
-        }
     }
 
     public static Object getFieldValue(Object object, String fieldName) {

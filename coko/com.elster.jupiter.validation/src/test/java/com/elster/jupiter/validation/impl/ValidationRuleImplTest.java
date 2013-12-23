@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -65,9 +64,9 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private ValidationRuleSet ruleSet;
     @Mock
-    private TypeCache<IValidationRule> ruleFactory;
+    private DataMapper<IValidationRule> ruleFactory;
     @Mock
-    private TypeCache<ValidationRuleProperties>  rulePropertiesFactory;
+    private DataMapper<ValidationRuleProperties>  rulePropertiesFactory;
     @Mock
     private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory;
     @Mock

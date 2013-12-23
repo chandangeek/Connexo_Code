@@ -14,9 +14,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Unit;
@@ -88,8 +85,6 @@ public class ValidationIT {
     @Mock
     private OrmService ormService;
     @Mock
-    private CacheService cacheService;
-    @Mock
     private Clock clock;
     @Mock
     private EventService eventService;
@@ -108,15 +103,13 @@ public class ValidationIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private ComponentCache componentCache;
-    @Mock
-    private TypeCache<IValidationRule> ruleFactory;
+    private DataMapper<IValidationRule> ruleFactory;
     @Mock
     private DataMapper<ReadingTypeInValidationRule> readingTypeInRuleFactory;
     @Mock
-    private TypeCache<ValidationRuleProperties> validationRulePropertyFactory;
+    private DataMapper<ValidationRuleProperties> validationRulePropertyFactory;
     @Mock
-    private TypeCache<IValidationRuleSet> ruleSetFactory;
+    private DataMapper<IValidationRuleSet> ruleSetFactory;
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -151,14 +144,13 @@ public class ValidationIT {
         when(minMaxValidator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
 
         when(ormService.newDataModel(Bus.COMPONENTNAME, "Validation")).thenReturn(dataModel);
-        when(cacheService.createComponentCache(dataModel)).thenReturn(componentCache);
-        when(componentCache.getTypeCache(IValidationRule.class, ValidationRuleImpl.class, TableSpecs.VAL_VALIDATIONRULE.name())).thenReturn(ruleFactory);
-        when(componentCache.getTypeCache(ValidationRuleProperties.class, ValidationRulePropertiesImpl.class, TableSpecs.VAL_VALIDATIONRULEPROPS.name())).thenReturn(validationRulePropertyFactory);
-        when(componentCache.getTypeCache(IValidationRuleSet.class, ValidationRuleSetImpl.class, TableSpecs.VAL_VALIDATIONRULESET.name())).thenReturn(ruleSetFactory);
-        when(dataModel.addTable(anyString())).thenReturn(table);
-        when(dataModel.getDataMapper(ReadingTypeInValidationRule.class, ReadingTypeInValidationRuleImpl.class, TableSpecs.VAL_READINGTYPEINVALRULE.name())).thenReturn(readingTypeInRuleFactory);
-        when(dataModel.getDataMapper(MeterActivationValidation.class, MeterActivationValidationImpl.class, TableSpecs.VAL_MA_VALIDATION.name())).thenReturn(meterActivationValidationFactory);
-        when(dataModel.getDataMapper(ChannelValidation.class, ChannelValidationImpl.class, TableSpecs.VAL_CH_VALIDATION.name())).thenReturn(channelValidationFactory);
+        when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);
+        when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(validationRulePropertyFactory);
+        when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(ruleSetFactory);
+        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypeInRuleFactory);
+        when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
+        when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
 
         doAnswer(new AssignId()).when(ruleSetFactory).persist(isA(ValidationRuleSetImpl.class));
 
@@ -206,7 +198,6 @@ public class ValidationIT {
 
         ValidationServiceImpl validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);
-        validationService.setCacheService(cacheService);
         validationService.setClock(clock);
         validationService.setEventService(eventService);
         validationService.setMeteringService(meteringService);

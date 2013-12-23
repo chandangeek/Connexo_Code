@@ -1,6 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -8,7 +8,6 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -163,7 +162,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }
 
-    private TypeCache<IValidationRule> ruleFactory() {
+    private DataMapper<IValidationRule> ruleFactory() {
         return Bus.getOrmClient().getValidationRuleFactory();
     }
 
@@ -187,13 +186,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> loadRules() {
-        ArrayList<IValidationRule> validationRules = new ArrayList<>();
-        for (IValidationRule validationRule : ruleFactory().find()) {
-            if (this.equals(validationRule.getRuleSet())) {
-                validationRules.add(validationRule);
-            }
-        }
-        return validationRules;
+        return ruleFactory().find("ruleSetId", this);
     }
 
     @Override
@@ -223,7 +216,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         return builder.toString();
     }
 
-    private TypeCache<IValidationRuleSet> validationRuleSetFactory() {
+    private DataMapper<IValidationRuleSet> validationRuleSetFactory() {
         return Bus.getOrmClient().getValidationRuleSetFactory();
     }
 

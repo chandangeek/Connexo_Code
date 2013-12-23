@@ -6,17 +6,25 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.Upcast;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorFactory;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +36,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private static final Upcast<IValidationRuleSet,ValidationRuleSet> UPCAST = new Upcast<>();
     private static final Upcast<IValidationRule,ValidationRule> RULE_UPCAST = new Upcast<>();
     private volatile OrmClient ormClient;
-    private volatile ComponentCache componentCache;
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
@@ -55,11 +62,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public ComponentCache getComponentCache() {
-        return componentCache;
-    }
-
-    @Override
     public MeteringService getMeteringService() {
         return meteringService;
     }
@@ -76,11 +78,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
             spec.addTo(dataModel);
         }
         this.ormClient = new OrmClientImpl(dataModel);
-    }
-
-    @Reference(name = "ZCacheService")
-    public void setCacheService(CacheService cacheService) {
-        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
     @Reference

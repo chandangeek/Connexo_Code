@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
@@ -12,11 +11,11 @@ interface OrmClient {
 
     DataModel getDataModel();
 
-    TypeCache<IValidationRuleSet> getValidationRuleSetFactory();
+    DataMapper<IValidationRuleSet> getValidationRuleSetFactory();
 
-    TypeCache<IValidationRule> getValidationRuleFactory();
+    DataMapper<IValidationRule> getValidationRuleFactory();
 
-    TypeCache<ValidationRuleProperties> getValidationRulePropertiesFactory();
+    DataMapper<ValidationRuleProperties> getValidationRulePropertiesFactory();
 
     DataMapper<ReadingTypeInValidationRule> getReadingTypesInValidationRuleFactory();
 
