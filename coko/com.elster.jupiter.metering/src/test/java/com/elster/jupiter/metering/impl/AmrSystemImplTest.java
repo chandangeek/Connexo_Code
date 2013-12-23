@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.orm.DataMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class AmrSystemImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ServiceLocator serviceLocator;
     @Mock
-    private TypeCache<AmrSystem> factory;
+    private DataMapper<AmrSystem> factory;
 
 
     @Before

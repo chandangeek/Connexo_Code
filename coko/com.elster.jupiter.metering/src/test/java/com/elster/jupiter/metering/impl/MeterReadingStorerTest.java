@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.test.EndDeviceEventImpl;
 import com.elster.jupiter.metering.impl.test.MeterReadingImpl;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -39,7 +38,7 @@ public class MeterReadingStorerTest {
     @Mock
     private ReadingStorer readingStorer;
     @Mock
-    private TypeCache<EndDeviceEventType> endDeviceEventTypeFactory;
+    private DataMapper<EndDeviceEventType> endDeviceEventTypeFactory;
     @Mock
     private EndDeviceEventType eventType;
     @Mock
@@ -52,7 +51,7 @@ public class MeterReadingStorerTest {
         when(serviceLocator.getMeteringService().createOverrulingStorer()).thenReturn(readingStorer);
         when(serviceLocator.getOrmClient().getEndDeviceEventTypeFactory()).thenReturn(endDeviceEventTypeFactory);
         when(serviceLocator.getOrmClient().getEndDeviceEventRecordFactory()).thenReturn(eventRecordFactory);
-        when(endDeviceEventTypeFactory.get(EVENTTYPECODE)).thenReturn(Optional.of(eventType));
+        when(endDeviceEventTypeFactory.getOptional(EVENTTYPECODE)).thenReturn(Optional.of(eventType));
     }
 
     @After

@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
+
 public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
 	private ServiceKind kind;
@@ -18,6 +20,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private String userName;
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private ServiceCategoryImpl() {	
 	}
 	

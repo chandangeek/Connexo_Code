@@ -10,13 +10,13 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
@@ -27,13 +27,16 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(MockitoJUnitRunner.class)
 public class MeterActivationImplIT {
 
     private Injector injector;
@@ -71,8 +74,7 @@ public class MeterActivationImplIT {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(),
-                new OrmCacheModule());
+                new TransactionModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {
@@ -89,18 +91,23 @@ public class MeterActivationImplIT {
 
     @Test
     public void testPersistence() {
-        MeterActivationImpl meterActivation = new MeterActivationImpl((Meter) null, new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
-        meterActivation.save();
+        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                MeterActivationImpl meterActivation = new MeterActivationImpl((Meter) null, new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
+                meterActivation.save();
 
-        ReadingType readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+                ReadingType readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
 
-        Channel channel = meterActivation.createChannel(readingType);
+                Channel channel = meterActivation.createChannel(readingType);
 
-        meterActivation.save();
+                meterActivation.save();
 
-        MeterActivation loaded = Bus.getOrmClient().getMeterActivationFactory().get(meterActivation.getId()).get();
+                MeterActivation loaded = Bus.getOrmClient().getMeterActivationFactory().get(meterActivation.getId()).get();
 
-        assertThat(loaded.getChannels()).hasSize(1).contains(channel);
+                assertThat(loaded.getChannels()).hasSize(1).contains(channel);
+            }
+        });
     }
 
 }

@@ -22,8 +22,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
@@ -47,7 +45,6 @@ import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 public class MeteringServiceImpl implements MeteringService, InstallService, ServiceLocator {
 
     private volatile OrmClient ormClient;
-    private volatile ComponentCache componentCache;
     private volatile IdsService idsService;
     private volatile QueryService queryService;
     private volatile PartyService partyService;
@@ -59,11 +56,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Inject
-    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, CacheService cacheService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService) {
+    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService) {
         this.clock = clock;
         initOrmClient(ormService);
         this.idsService = idsService;
-        initComponentCache(cacheService);
         this.eventService = eventService;
         this.partyService = partyService;
         this.queryService = queryService;
@@ -74,12 +70,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
-        return getOrmClient().getServiceCategoryFactory().get(kind);
+        return getOrmClient().getServiceCategoryFactory().getOptional(kind);
     }
 
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
-        return getOrmClient().getReadingTypeFactory().get(mRid);
+        return getOrmClient().getReadingTypeFactory().getOptional(mRid);
     }
 
     @Override
@@ -174,11 +170,6 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public ComponentCache getComponentCache() {
-        return componentCache;
-    }
-
-    @Override
     public IdsService getIdsService() {
         return idsService;
     }
@@ -209,17 +200,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        ormService.register(dataModel);
+        dataModel.register();
         this.ormClient = new OrmClientImpl(dataModel);
-    }
-
-    @Reference(name = "ZCacheService")
-    public void setCacheService(CacheService cacheService) {
-        initComponentCache(cacheService);
-    }
-
-    private void initComponentCache(CacheService cacheService) {
-        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
     @Reference

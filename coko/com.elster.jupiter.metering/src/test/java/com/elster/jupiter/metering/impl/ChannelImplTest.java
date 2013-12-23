@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -158,7 +157,6 @@ public class ChannelImplTest extends EqualsContractTest {
 
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
-        verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getCumulativeReadingType()).isEqualTo(readingType2);
         assertThat(channel.getReadingTypes()).hasSize(2)
@@ -172,7 +170,6 @@ public class ChannelImplTest extends EqualsContractTest {
     public void testInitWithIntervalLength() {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
-        verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getCumulativeReadingType()).isEqualTo(readingType2);
         assertThat(channel.getReadingTypes()).hasSize(2)
@@ -195,7 +192,6 @@ public class ChannelImplTest extends EqualsContractTest {
 
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2, readingType4));
 
-        verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getCumulativeReadingType()).isEqualTo(readingType2);
         assertThat(channel.getReadingTypes()).hasSize(3)

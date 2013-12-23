@@ -1,21 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.security.Principal;
-import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
@@ -32,7 +16,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -48,6 +31,21 @@ import com.elster.jupiter.util.units.Unit;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogService;
+
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.sql.SQLException;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointQueryTest {
@@ -90,8 +88,7 @@ public class UsagePointQueryTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(),
-        			new OrmCacheModule());
+        			new TransactionModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {

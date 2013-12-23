@@ -20,6 +20,7 @@ import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import java.util.Currency;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -77,6 +78,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private Currency currency;
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private ReadingTypeImpl() {		
 	}
 	

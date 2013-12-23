@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -26,6 +27,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         private String key;
         private String value;
 
+        @Inject
         private EndDeviceEventDetailRecord() {
         }
 
@@ -254,6 +256,8 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         this.mRID = mRID;
     }
 
+
+
     EndDeviceEventRecordImpl(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
         this.endDevice = endDevice;
         this.endDeviceId = endDevice.getId();
@@ -262,6 +266,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         this.eventTypeCode = eventType.getMRID();
     }
 
+    @Inject
     private EndDeviceEventRecordImpl() {
         // for persistence
     }

@@ -13,7 +13,6 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -86,8 +85,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 new UtilModule(),
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
-                new TransactionModule(),
-                new OrmCacheModule());
+                new TransactionModule());
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override

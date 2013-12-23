@@ -1,13 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.List;
-
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+
+import javax.inject.Inject;
+import java.util.List;
 
 public class AmrSystemImpl implements AmrSystem {
 	//persistent fields
@@ -23,9 +24,10 @@ public class AmrSystemImpl implements AmrSystem {
 	private String userName;
 	
 	@SuppressWarnings("unused")
-	private AmrSystemImpl() {	
+    @Inject
+	private AmrSystemImpl() {
 	}
-	
+
 	AmrSystemImpl(int id , String name) {
 		this.id = id;
 		this.name = name;

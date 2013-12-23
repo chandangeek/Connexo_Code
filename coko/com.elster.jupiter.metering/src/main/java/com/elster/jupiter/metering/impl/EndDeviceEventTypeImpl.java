@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.util.Objects;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -34,6 +35,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     @SuppressWarnings("unused")
     private String userName;
 
+    @Inject
     private EndDeviceEventTypeImpl() {
     }
 

@@ -18,6 +18,7 @@ import com.elster.jupiter.util.units.Quantity;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class UsagePointImpl implements UsagePoint {
 	private List<UsagePointAccountability> accountabilities;
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private UsagePointImpl() {
 	}
 	

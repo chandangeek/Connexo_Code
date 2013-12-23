@@ -50,7 +50,7 @@ public class MeterReadingStorer {
     private void storeEvents(List<EndDeviceEvent> events) {
         List<EndDeviceEventRecord> records = new ArrayList<>(events.size());
         for (EndDeviceEvent sourceEvent : events) {
-            Optional<EndDeviceEventType> found = Bus.getOrmClient().getEndDeviceEventTypeFactory().get(sourceEvent.getEventTypeCode());
+            Optional<EndDeviceEventType> found = Bus.getOrmClient().getEndDeviceEventTypeFactory().getOptional(sourceEvent.getEventTypeCode());
             if (found.isPresent()) {
                 EndDeviceEventRecordImpl eventRecord = new EndDeviceEventRecordImpl(meter, found.get(), sourceEvent.getCreatedDateTime());
                 for (Map.Entry<String, String> entry : sourceEvent.getEventData().entrySet()) {

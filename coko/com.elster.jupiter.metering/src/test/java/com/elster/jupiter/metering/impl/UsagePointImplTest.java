@@ -369,8 +369,8 @@ public class UsagePointImplTest {
         when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
         when(acc1.getParty()).thenReturn(party1);
         when(acc2.getParty()).thenReturn(party2);
-        when(party1.getCurrentDelegates()).thenReturn(Arrays.asList(representation1, representation2));
-        when(party2.getCurrentDelegates()).thenReturn(Arrays.asList(representation3, representation4));
+        doReturn(Arrays.asList(representation1, representation2)).when(party1).getCurrentDelegates();
+        doReturn(Arrays.asList(representation3, representation4)).when(party2).getCurrentDelegates();
 
         assertThat(usagePoint.hasAccountability(user4)).isTrue();
     }
@@ -380,8 +380,8 @@ public class UsagePointImplTest {
         when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
         when(acc1.getParty()).thenReturn(party1);
         when(acc2.getParty()).thenReturn(party2);
-        when(party1.getCurrentDelegates()).thenReturn(Arrays.asList(representation1, representation2));
-        when(party2.getCurrentDelegates()).thenReturn(Arrays.asList(representation3, representation4));
+        doReturn(Arrays.asList(representation1, representation2)).when(party1).getCurrentDelegates();
+        doReturn(Arrays.asList(representation3, representation4)).when(party2).getCurrentDelegates();
 
         assertThat(usagePoint.hasAccountability(user5)).isFalse();
     }

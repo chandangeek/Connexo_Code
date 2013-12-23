@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -80,6 +79,9 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(EndDeviceEventRecord.class).to(EndDeviceEventRecordImpl.class);
+            bind(EndDevice.class).to(EndDeviceImpl.class);
+            bind(EndDeviceEventType.class).to(EndDeviceEventTypeImpl.class);
         }
     }
 
@@ -98,8 +100,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new UtilModule(),
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
-                new TransactionModule(),
-                new OrmCacheModule());
+                new TransactionModule());
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
@@ -132,7 +133,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
 
-                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
+                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().getOptional(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
             }
         });
 

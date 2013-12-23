@@ -1,16 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
+
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public enum Bus {
     ;
@@ -41,10 +40,6 @@ public enum Bus {
 	
 	public static QueryService getQueryService() {
 		return getLocator().getQueryService();
-	}
-	
-	static ComponentCache getComponentCache() {
-		return getLocator().getComponentCache();		
 	}
 	
 	public static PartyService getPartyService() {

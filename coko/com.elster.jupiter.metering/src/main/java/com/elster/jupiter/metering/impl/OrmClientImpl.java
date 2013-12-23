@@ -17,8 +17,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.cache.TypeCache;
-import com.google.common.collect.ImmutableMap;
 
 public class OrmClientImpl implements OrmClient {
 	
@@ -29,48 +27,48 @@ public class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public TypeCache<ServiceCategory> getServiceCategoryFactory() {
-		return Bus.getComponentCache().getTypeCache(ServiceCategory.class, ServiceCategoryImpl.class, TableSpecs.MTR_SERVICECATEGORY.name());
+	public DataMapper<ServiceCategory> getServiceCategoryFactory() {
+		return dataModel.mapper(ServiceCategory.class);
 	}
 	
 	@Override
 	public DataMapper<ServiceLocation> getServiceLocationFactory() {
-		return dataModel.getDataMapper(ServiceLocation.class, ServiceLocationImpl.class, TableSpecs.MTR_SERVICELOCATION.name());
+		return dataModel.mapper(ServiceLocation.class);
 	}
 	
 	@Override
-	public TypeCache<AmrSystem> getAmrSystemFactory() {
-		return Bus.getComponentCache().getTypeCache(AmrSystem.class, AmrSystemImpl.class , TableSpecs.MTR_AMRSYSTEM.name());
+	public DataMapper<AmrSystem> getAmrSystemFactory() {
+		return dataModel.mapper(AmrSystem.class);
 	}
 	
 	@Override
-	public TypeCache<ReadingType> getReadingTypeFactory() {
-		return Bus.getComponentCache().getTypeCache(ReadingType.class, ReadingTypeImpl.class, TableSpecs.MTR_READINGTYPE.name());
+	public DataMapper<ReadingType> getReadingTypeFactory() {
+		return dataModel.mapper(ReadingType.class);
 	}
 	
 	@Override
 	public DataMapper<UsagePoint> getUsagePointFactory() {
-		return dataModel.getDataMapper(UsagePoint.class, UsagePointImpl.class, TableSpecs.MTR_USAGEPOINT.name());
+		return dataModel.mapper(UsagePoint.class);
 	}
 	
 	@Override
 	public DataMapper<EndDevice> getEndDeviceFactory() {
-		return dataModel.getDataMapper(EndDevice.class, AbstractEndDeviceImpl.IMPLEMENTERS, TableSpecs.MTR_ENDDEVICE.name());
+		return dataModel.mapper(EndDevice.class);
 	}
 
 	@Override
 	public DataMapper<MeterActivation> getMeterActivationFactory() {
-		return dataModel.getDataMapper(MeterActivation.class, MeterActivationImpl.class, TableSpecs.MTR_METERACTIVATION.name());
+		return dataModel.mapper(MeterActivation.class);
 	}
 	
 	@Override
 	public DataMapper<Channel> getChannelFactory() {
-		return dataModel.getDataMapper(Channel.class, ChannelImpl.class, TableSpecs.MTR_CHANNEL.name());
+		return dataModel.mapper(Channel.class);
 	}
 
 	@Override
 	public DataMapper<ReadingTypeInChannel> getReadingTypeInChannelFactory() {
-		return dataModel.getDataMapper(ReadingTypeInChannel.class, ReadingTypeInChannel.class, TableSpecs.MTR_READINGTYPEINCHANNEL.name());
+		return dataModel.mapper(ReadingTypeInChannel.class);
 	}
 
 	@Override
@@ -85,46 +83,46 @@ public class OrmClientImpl implements OrmClient {
 
 	@Override
 	public DataMapper<UsagePointAccountability> getUsagePointAccountabilityFactory() {
-		return dataModel.getDataMapper(UsagePointAccountability.class, UsagePointAccountabilityImpl.class, TableSpecs.MTR_UPACCOUNTABILITY.name());
+		return dataModel.mapper(UsagePointAccountability.class);
 	}
 
     @Override
     public DataMapper<EnumeratedUsagePointGroup.Entry> getEnumeratedUsagePointGroupEntryFactory() {
-        return dataModel.getDataMapper(EnumeratedUsagePointGroup.Entry.class, EnumeratedUsagePointGroupImpl.EntryImpl.class, TableSpecs.MTR_ENUM_UP_IN_GROUP.name());
+        return dataModel.mapper(EnumeratedUsagePointGroup.Entry.class);
     }
 
     @Override
     public DataMapper<UsagePointGroup> getUsagePointGroupFactory() {
-        return dataModel.getDataMapper(UsagePointGroup.class, AbstractUsagePointGroup.IMPLEMENTERS, TableSpecs.MTR_UP_GROUP.name());
+        return dataModel.mapper(UsagePointGroup.class);
     }
 
     @Override
     public DataMapper<QueryUsagePointGroup> getQueryUsagePointGroupFactory() {
-        return dataModel.getDataMapper(QueryUsagePointGroup.class, ImmutableMap.<String, Class<?extends QueryUsagePointGroup>>of(QueryUsagePointGroup.TYPE_IDENTIFIER, QueryUsagePointGroupImpl.class), TableSpecs.MTR_UP_GROUP.name());
+        return dataModel.mapper(QueryUsagePointGroup.class);
     }
 
     @Override
     public DataMapper<EnumeratedUsagePointGroup> getEnumeratedUsagePointGroupFactory() {
-        return dataModel.getDataMapper(EnumeratedUsagePointGroup.class, ImmutableMap.<String, Class<?extends EnumeratedUsagePointGroup>>of(EnumeratedUsagePointGroup.TYPE_IDENTIFIER, EnumeratedUsagePointGroupImpl.class), TableSpecs.MTR_UP_GROUP.name());
+        return dataModel.mapper(EnumeratedUsagePointGroup.class);
     }
 
     @Override
     public DataMapper<QueryBuilderOperation> getQueryBuilderOperationFactory() {
-        return dataModel.getDataMapper(QueryBuilderOperation.class, AbstractQueryBuilderOperation.IMPLEMENTERS, TableSpecs.MTR_QUERY_UP_GROUP_OP.name());
+        return dataModel.mapper(QueryBuilderOperation.class);
     }
 
     @Override
     public DataMapper<ReadingQuality> getReadingQualityFactory() {
-        return dataModel.getDataMapper(ReadingQuality.class, ReadingQualityImpl.class, TableSpecs.MTR_READINGQUALITY.name());
+        return dataModel.mapper(ReadingQuality.class);
     }
 
     @Override
-    public TypeCache<EndDeviceEventType> getEndDeviceEventTypeFactory() {
-        return Bus.getComponentCache().getTypeCache(EndDeviceEventType.class, EndDeviceEventTypeImpl.class, TableSpecs.MTR_ENDDEVICEEVENTTYPE.name());
+    public DataMapper<EndDeviceEventType> getEndDeviceEventTypeFactory() {
+        return dataModel.mapper(EndDeviceEventType.class);
     }
 
     @Override
     public DataMapper<EndDeviceEventRecord> getEndDeviceEventRecordFactory() {
-        return dataModel.getDataMapper(EndDeviceEventRecord.class, EndDeviceEventRecordImpl.class, TableSpecs.MTR_ENDDEVICEEVENTRECORD.name());
+        return dataModel.mapper(EndDeviceEventRecord.class);
     }
 }

@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -11,7 +10,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -40,7 +38,6 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointCrudTest {
@@ -83,8 +80,7 @@ public class UsagePointCrudTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(),
-        			new OrmCacheModule());
+        			new TransactionModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {

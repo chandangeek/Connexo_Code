@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -36,6 +37,7 @@ public class MeterActivationImpl implements MeterActivation {
     private final List<Channel> channels = new ArrayList<>();
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private MeterActivationImpl() {	
 	}
 	
@@ -107,6 +109,7 @@ public class MeterActivationImpl implements MeterActivation {
 		//TODO: check for duplicate channel
         Channel channel = Bus.getChannelBuilder().meterActivation(this).readingTypes(main, readingTypes).build();
         channels.add(channel);
+        Bus.getEventService().postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;
 	}
 

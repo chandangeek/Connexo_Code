@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.orm.DataMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ServiceCategoryImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ServiceLocator serviceLocator;
     @Mock
-    private TypeCache<ServiceCategory> serviceCategoryFactory;
+    private DataMapper<ServiceCategory> serviceCategoryFactory;
 
     @Before
     public void setUp() {

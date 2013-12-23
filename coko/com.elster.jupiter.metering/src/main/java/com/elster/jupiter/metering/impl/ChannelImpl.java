@@ -24,6 +24,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -63,6 +64,7 @@ public final class ChannelImpl implements Channel {
 	private List<ReadingType> additionalReadingTypes;
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private ChannelImpl() {	
 	}
 	
@@ -109,8 +111,6 @@ public final class ChannelImpl implements Channel {
 		}
 		this.timeSeries = createTimeSeries();
 		this.timeSeriesId = timeSeries.getId();
-		Bus.getOrmClient().getChannelFactory().persist(this);
-        Bus.getEventService().postEvent(EventType.CHANNEL_CREATED.topic(), this);
 		persistReadingTypes();
 	}
 	

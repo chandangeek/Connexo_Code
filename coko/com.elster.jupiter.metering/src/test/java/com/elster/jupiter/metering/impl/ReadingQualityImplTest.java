@@ -1,18 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.Date;
-
-import org.joda.time.DateMidnight;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -29,7 +16,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -43,6 +29,18 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.joda.time.DateMidnight;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.Date;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,8 +81,7 @@ public class ReadingQualityImplTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(),
-        			new OrmCacheModule());
+        			new TransactionModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {

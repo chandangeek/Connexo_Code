@@ -5,7 +5,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
@@ -19,7 +18,6 @@ public class MeteringModule extends AbstractModule {
         requireBinding(Clock.class);
         requireBinding(OrmService.class);
         requireBinding(IdsService.class);
-        requireBinding(CacheService.class);
         requireBinding(EventService.class);
         requireBinding(PartyService.class);
         requireBinding(QueryService.class);

@@ -12,9 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
-import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import org.junit.After;
@@ -29,6 +26,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,17 +49,11 @@ public class MeteringServiceImplTest {
     @Mock
     private Column column1, column2;
     @Mock
-    private CacheService cacheService;
-    @Mock
-    private ComponentCache componentCache;
-    @Mock
-    private TypeCache<ReadingType> readingTypeCache;
-    @Mock
     private DataMapper<ServiceLocation> serviceLocationFactory;
     @Mock
     private ServiceLocation serviceLocation;
     @Mock
-    private TypeCache<ServiceCategory> serviceCategoryTypeCache;
+    private DataMapper<ServiceCategory> serviceCategoryTypeCache;
     @Mock
     private ServiceCategory serviceCategory;
     @Mock
@@ -70,18 +62,15 @@ public class MeteringServiceImplTest {
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.addTable(anyString())).thenReturn(table);
+        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
         when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(column1, column2));
-        when(dataModel.getDataMapper(ReadingType.class, ReadingTypeImpl.class, TableSpecs.MTR_READINGTYPE.name())).thenReturn(readingTypeFactory);
-        when(dataModel.getDataMapper(ServiceLocation.class, ServiceLocationImpl.class, TableSpecs.MTR_SERVICELOCATION.name())).thenReturn(serviceLocationFactory);
-        when(cacheService.createComponentCache(dataModel)).thenReturn(componentCache);
-        when(componentCache.getTypeCache(ReadingType.class, ReadingTypeImpl.class, TableSpecs.MTR_READINGTYPE.name())).thenReturn(readingTypeCache);
-        when(componentCache.getTypeCache(ServiceCategory.class, ServiceCategoryImpl.class, TableSpecs.MTR_SERVICECATEGORY.name())).thenReturn(serviceCategoryTypeCache);
+        when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);
+        when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
+        when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryTypeCache);
         meteringService = new MeteringServiceImpl();
         Bus.setServiceLocator(meteringService);
 
         meteringService.setOrmService(ormService);
-        meteringService.setCacheService(cacheService);
         meteringService.setIdsService(idsService);
     }
 
@@ -93,7 +82,7 @@ public class MeteringServiceImplTest {
     @Test
     public void testGetReadingType() {
         String mrID = "mrID";
-        when(readingTypeCache.get(mrID)).thenReturn(Optional.of(readingType));
+        when(readingTypeFactory.getOptional(mrID)).thenReturn(Optional.of(readingType));
 
         assertThat(meteringService.getReadingType(mrID)).contains(readingType);
     }
@@ -123,7 +112,7 @@ public class MeteringServiceImplTest {
 
     @Test
     public void testGetServiceCategory() {
-        when(serviceCategoryTypeCache.get(ServiceKind.GAS)).thenReturn(Optional.of(serviceCategory));
+        when(serviceCategoryTypeCache.getOptional(ServiceKind.GAS)).thenReturn(Optional.of(serviceCategory));
 
         assertThat(meteringService.getServiceCategory(ServiceKind.GAS)).contains(serviceCategory);
     }

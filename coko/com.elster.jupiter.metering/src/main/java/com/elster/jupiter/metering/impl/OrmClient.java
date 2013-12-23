@@ -17,17 +17,16 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.cache.TypeCache;
 
 public interface OrmClient {
 
-    TypeCache<ServiceCategory> getServiceCategoryFactory();
+    DataMapper<ServiceCategory> getServiceCategoryFactory();
 
     DataMapper<ServiceLocation> getServiceLocationFactory();
 
-    TypeCache<AmrSystem> getAmrSystemFactory();
+    DataMapper<AmrSystem> getAmrSystemFactory();
 
-    TypeCache<ReadingType> getReadingTypeFactory();
+    DataMapper<ReadingType> getReadingTypeFactory();
 
     DataMapper<UsagePoint> getUsagePointFactory();
 
@@ -57,7 +56,7 @@ public interface OrmClient {
 
     DataMapper<ReadingQuality> getReadingQualityFactory();
 
-    TypeCache<EndDeviceEventType> getEndDeviceEventTypeFactory();
+    DataMapper<EndDeviceEventType> getEndDeviceEventTypeFactory();
 
     DataMapper<EndDeviceEventRecord> getEndDeviceEventRecordFactory();
 }
