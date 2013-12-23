@@ -193,7 +193,7 @@ public class EventTypeImplTest {
         eventType.save();
 
         verify(eventTypeFactory).persist(eventType);
-        verify(eventTypePropertyFactory).persist(eventPropertyType);
+        assertThat(eventType.getPropertyTypes()).hasSize(1);
     }
 
     @Test
@@ -207,21 +207,21 @@ public class EventTypeImplTest {
         eventType.save();
 
         verify(eventTypeFactory).update(eventType);
-        verify(eventTypePropertyFactory).remove(eventPropertyType);
+        assertThat(eventType.getPropertyTypes()).isEmpty();
     }
 
     @Test
     public void testUpdateAddingProperty() {
         EventTypeImpl eventType = new EventTypeImpl(TOPIC);
-        EventPropertyType eventPropertyType = eventType.addProperty(PROPERTY_NAME, ValueType.STRING, ACCESS_PATH);
+        EventPropertyType eventPropertyType1 = eventType.addProperty(PROPERTY_NAME, ValueType.STRING, ACCESS_PATH);
         eventType.save();
-        when(eventTypePropertyFactory.find("eventType", eventType)).thenReturn(Arrays.asList(eventPropertyType));
+        when(eventTypePropertyFactory.find("eventType", eventType)).thenReturn(Arrays.asList(eventPropertyType1));
 
-        eventPropertyType = eventType.addProperty("newProperty", ValueType.STRING, ACCESS_PATH);
+        EventPropertyType eventPropertyType2 = eventType.addProperty("newProperty", ValueType.STRING, ACCESS_PATH);
         eventType.save();
 
         verify(eventTypeFactory).update(eventType);
-        verify(eventTypePropertyFactory).persist(eventPropertyType);
+        assertThat(eventType.getPropertyTypes()).hasSize(2).contains(eventPropertyType1, eventPropertyType2);
     }
 
     @Test

@@ -3,6 +3,8 @@ package com.elster.jupiter.events.impl;
 import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 
 public class EventPropertyTypeImpl implements EventPropertyType {
 
@@ -12,14 +14,14 @@ public class EventPropertyTypeImpl implements EventPropertyType {
     private String accessPath;
     private int position;
 
-    private transient EventType eventType;
+    private final Reference<EventType> eventType = ValueReference.absent();
 
     @SuppressWarnings("unused")
 	private EventPropertyTypeImpl() {
     }
 
     EventPropertyTypeImpl(EventType eventType, String name, ValueType valueType, String accessPath, int position) {
-        this.eventType = eventType;
+        this.eventType.set(eventType);
         this.eventTypeTopic = eventType.getTopic();
         this.name = name;
         this.valueType = valueType;
@@ -44,10 +46,7 @@ public class EventPropertyTypeImpl implements EventPropertyType {
 
     @Override
     public EventType getEventType() {
-        if (eventType == null) {
-            eventType = Bus.getOrmClient().getEventTypeFactory().getExisting(eventTypeTopic);
-        }
-        return eventType;
+        return eventType.get();
     }
 
     @Override
