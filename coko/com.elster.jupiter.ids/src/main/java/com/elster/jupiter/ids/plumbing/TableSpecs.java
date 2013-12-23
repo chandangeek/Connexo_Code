@@ -57,7 +57,7 @@ public enum TableSpecs {
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.primaryKey("IDS_PK_FIELDSPECS").on(componentName, recordSpecIdColumn , positionColumn ).add();
-			table.unique("IDS_U_FIELDSPECS").on(componentName, recordSpecIdColumn , nameColumn );	
+			table.unique("IDS_U_FIELDSPECS").on(componentName, recordSpecIdColumn , nameColumn ).add();
 			table.foreignKey("IDS_FK_FIELDSPECS").references(IDS_RECORDSPEC.name()).onDelete(CASCADE).map("recordSpec").reverseMap("fieldSpecs").reverseMapOrder("position").on(componentName, recordSpecIdColumn).add();
 		}
 	},

@@ -8,6 +8,7 @@ import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ public class FieldSpecImpl implements FieldSpec {
 	private RecordSpec recordSpec;
 
 	@SuppressWarnings("unused")
+    @Inject
 	private FieldSpecImpl()  {		
 	}
 	

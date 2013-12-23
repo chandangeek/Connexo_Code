@@ -11,8 +11,6 @@ import com.elster.jupiter.orm.SqlDialect;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static com.elster.jupiter.ids.plumbing.TableSpecs.*;
-
 public class OrmClientImpl implements OrmClient {
 	
 	private final DataModel dataModel;
@@ -23,22 +21,22 @@ public class OrmClientImpl implements OrmClient {
 
 	@Override
 	public DataMapper<Vault> getVaultFactory() {
-		return dataModel.getDataMapper(Vault.class, IDS_VAULT.name());
+		return dataModel.mapper(Vault.class);
 	}
 
 	@Override
 	public DataMapper<RecordSpec> getRecordSpecFactory() {
-		return dataModel.getDataMapper(RecordSpec.class, IDS_RECORDSPEC.name());
+		return dataModel.mapper(RecordSpec.class);
 	}
 	
 	@Override
 	public DataMapper<FieldSpec> getFieldSpecFactory() {
-		return dataModel.getDataMapper(FieldSpec.class, IDS_FIELDSPEC.name());
+		return dataModel.mapper(FieldSpec.class);
 	}
 	
 	@Override
 	public DataMapper<TimeSeries> getTimeSeriesFactory() {	
-		return dataModel.getDataMapper(TimeSeries.class , IDS_TIMESERIES.name());
+		return dataModel.mapper(TimeSeries.class);
 	}
 	
 	@Override

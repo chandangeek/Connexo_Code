@@ -14,6 +14,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,6 +57,7 @@ public final class VaultImpl implements Vault {
 	private String userName;
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private VaultImpl()  {		
 	}
 	

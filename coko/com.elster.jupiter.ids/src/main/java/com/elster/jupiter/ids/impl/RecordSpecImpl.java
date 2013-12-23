@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +31,7 @@ public final class RecordSpecImpl implements RecordSpec {
 	private List<FieldSpec> fieldSpecs;
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private RecordSpecImpl() {		
 	}
 	

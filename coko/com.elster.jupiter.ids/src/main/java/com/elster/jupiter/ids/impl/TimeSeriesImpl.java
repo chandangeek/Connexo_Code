@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,6 +57,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private TimeZone timeZone;	
 	
 	@SuppressWarnings("unused")
+    @Inject
 	private TimeSeriesImpl() {		
 	}
 
