@@ -7,15 +7,19 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
+
 import org.joda.time.Seconds;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+
+import javax.inject.Inject;
 
 /**
  * SubscriberSpec implementation.
@@ -43,7 +47,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private final Object cancelLock = new Object();
 
-    @SuppressWarnings("unused")
+    @Inject
     private SubscriberSpecImpl() {
     }
 

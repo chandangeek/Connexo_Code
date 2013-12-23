@@ -5,7 +5,6 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -62,8 +61,7 @@ public class DestinationSpecImplIT {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(),
-                new OrmCacheModule());
+                new TransactionModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {

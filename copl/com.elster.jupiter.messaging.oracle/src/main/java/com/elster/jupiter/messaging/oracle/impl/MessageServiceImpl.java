@@ -33,15 +33,15 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
     private volatile Publisher publisher;
     private volatile ThreadPrincipalService threadPrincipalService;
 
-    MessageServiceImpl() {
+    public MessageServiceImpl() {
     }
 
     @Inject
     MessageServiceImpl(OrmService ormService, Publisher publisher, ThreadPrincipalService threadPrincipalService, TransactionService transactionService) {
         setOrmService(ormService);
-        this.publisher = publisher;
-        this.threadPrincipalService = threadPrincipalService;
-        this.transactionService = transactionService;
+        setPublisher(publisher);
+        setThreadPrincipalService(threadPrincipalService);
+        setTransactionService(transactionService);
         activate();
         getOrmClient().install();
     }
@@ -52,7 +52,7 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
 		for (TableSpecs each : TableSpecs.values()) {
 			each.addTo(dataModel);
 		}
-        ormService.register(dataModel);
+        dataModel.register();
 		this.ormClient = new OrmClientImpl(dataModel);
 	}
 	
@@ -135,7 +135,8 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
 
     @Override
     public AQFacade getAQFacade() {
-        return defaultAQMessageFactory;
+    	return null;
+        //return defaultAQMessageFactory;
     }
 
 }

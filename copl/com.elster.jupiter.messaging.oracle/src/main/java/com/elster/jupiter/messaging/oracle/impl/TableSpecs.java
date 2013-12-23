@@ -1,5 +1,8 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -10,7 +13,7 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
-	MSG_QUEUETABLESPEC {
+	MSG_QUEUETABLESPEC(QueueTableSpec.class) {
 		void  describeTable(Table table) {
             table.map(QueueTableSpecImpl.class);
 			Column nameColumn = table.column("NAME").type("varchar2(30)").notNull().map("name").add();
@@ -21,7 +24,7 @@ public enum TableSpecs {
 			table.primaryKey("MSG_PK_QUEUETABLESPEC").on(nameColumn).add();
 		}
 	},
-	MSG_DESTINATIONSPEC {
+	MSG_DESTINATIONSPEC (DestinationSpec.class) {
 		void describeTable(Table table) {
             table.map(DestinationSpecImpl.class);
 			Column nameColumn = table.column("NAME").type("varchar2(30)").notNull().map("name").add();
@@ -30,10 +33,10 @@ public enum TableSpecs {
 			table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
 			table.addAuditColumns();
 			table.primaryKey("MSG_PK_DESTINATIONSPEC").on(nameColumn).add();
-			table.foreignKey("MSG_FK_DESTINATIONSPEC").references(MSG_QUEUETABLESPEC.name()).onDelete(RESTRICT).map("queueTable").on(queueTableNameColumn).add();
+			table.foreignKey("MSG_FK_DESTINATIONSPEC").references(MSG_QUEUETABLESPEC.name()).onDelete(RESTRICT).map("queueTableSpec").on(queueTableNameColumn).add();
 		}
 	}, 
-	MSG_SUBSCRIBERSPEC {
+	MSG_SUBSCRIBERSPEC (SubscriberSpec.class) {
 		void describeTable(Table table) {
             table.map(SubscriberSpecImpl.class);
 			Column destinationColumn = table.column("DESTINATION").type("varchar2(30)").notNull().add();
@@ -44,8 +47,14 @@ public enum TableSpecs {
 		}
 	};
 	
+	private Class<?> api;
+	
+	TableSpecs(Class<?> api) {
+		this.api = api;
+	}
+	
 	public void addTo(DataModel component) {
-		Table table = component.addTable(name());
+		Table table = component.addTable(name(),api);
 		describeTable(table);
 	}
 	

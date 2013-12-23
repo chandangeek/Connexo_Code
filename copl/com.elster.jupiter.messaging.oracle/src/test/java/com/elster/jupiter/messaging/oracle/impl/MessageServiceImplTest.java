@@ -23,8 +23,7 @@ import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,10 +66,10 @@ public class MessageServiceImplTest {
     public void setUp() throws SQLException {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.getDataMapper(QueueTableSpec.class, QueueTableSpecImpl.class, TableSpecs.MSG_QUEUETABLESPEC.name())).thenReturn(queueTableSpecFactory);
-        when(dataModel.getDataMapper(DestinationSpec.class, DestinationSpecImpl.class, TableSpecs.MSG_DESTINATIONSPEC.name())).thenReturn(destinationSpecFactory);
-        when(dataModel.getDataMapper(SubscriberSpec.class, SubscriberSpecImpl.class, TableSpecs.MSG_SUBSCRIBERSPEC.name())).thenReturn(subscriberSpecFactory);
-        when(dataModel.addTable(anyString())).thenReturn(table);
+        when(dataModel.mapper(QueueTableSpec.class)).thenReturn(queueTableSpecFactory);
+        when(dataModel.mapper(DestinationSpec.class)).thenReturn(destinationSpecFactory);
+        when(dataModel.mapper(SubscriberSpec.class)).thenReturn(subscriberSpecFactory);
+        when(dataModel.addTable(anyString(),any(Class.class))).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
 

@@ -11,16 +11,19 @@ import com.elster.jupiter.messaging.UnderlyingJmsException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
+
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsDestination;
 import oracle.jms.AQjmsDestinationProperty;
 import oracle.jms.AQjmsSession;
 
+import javax.inject.Inject;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -151,7 +154,7 @@ class DestinationSpecImpl implements DestinationSpec {
         this.retryDelay = retryDelay;
     }
 
-    @SuppressWarnings("unused")
+    @Inject
     private DestinationSpecImpl() {
     }
 

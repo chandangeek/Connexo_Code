@@ -19,17 +19,17 @@ public class OrmClientImpl implements OrmClient {
 
 	@Override
 	public DataMapper<QueueTableSpec> getQueueTableSpecFactory() {
-		return dataModel.getDataMapper(QueueTableSpec.class, QueueTableSpecImpl.class, TableSpecs.MSG_QUEUETABLESPEC.name());
+		return dataModel.mapper(QueueTableSpec.class);
 	}
 
 	@Override
 	public DataMapper<DestinationSpec> getDestinationSpecFactory() {
-		return dataModel.getDataMapper(DestinationSpec.class, DestinationSpecImpl.class, TableSpecs.MSG_DESTINATIONSPEC.name());
+		return dataModel.mapper(DestinationSpec.class);
 	}
 	
 	@Override
 	public DataMapper<SubscriberSpec> getConsumerSpecFactory() {
-		return dataModel.getDataMapper(SubscriberSpec.class, SubscriberSpecImpl.class, TableSpecs.MSG_SUBSCRIBERSPEC.name());
+		return dataModel.mapper(SubscriberSpec.class);
 	}
 	@Override
 	public Connection getConnection() throws SQLException {
