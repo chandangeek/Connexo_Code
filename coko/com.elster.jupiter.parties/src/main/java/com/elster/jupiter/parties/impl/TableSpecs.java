@@ -104,6 +104,7 @@ public enum TableSpecs {
 	PRT_PARTYROLE (PartyRole.class) {
 		void describeTable(Table table) {
 			table.map(PartyRoleImpl.class);
+			table.cache();
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
 			table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
 			table.column("NAME").type("varchar2(80)").notNull().map("name").add();

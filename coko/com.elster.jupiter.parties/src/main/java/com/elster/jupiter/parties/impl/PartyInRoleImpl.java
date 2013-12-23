@@ -22,14 +22,14 @@ public class PartyInRoleImpl implements PartyInRole {
 	private long id;
 	private String roleMRID;
 	private Interval interval;
-	
-	private final Reference<Party> party = ValueReference.absent();
-	private PartyRole role;
 
     private long version;
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String userName;
+    
+    private final Reference<Party> party = ValueReference.absent();
+	private PartyRole role;
     
     @Inject
     private DataModel dataModel;

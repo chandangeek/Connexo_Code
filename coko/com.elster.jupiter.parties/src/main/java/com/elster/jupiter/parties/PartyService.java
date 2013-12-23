@@ -11,6 +11,7 @@ public interface PartyService {
     List<Party> getParties();
     Query<Party> getPartyQuery();
     Person newPerson(String firstName, String lastName);
+	Optional<Party> getParty(long id);
     Optional<Party> findParty(long id);
     Organization newOrganization(String mRID);
     PartyRole createRole(String componentName, String mRID, String name, String aliasName, String description);

@@ -1,4 +1,4 @@
-package com.elster.jupiter.parties.impl;
+package com.elster.jupiter.parties;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,13 +21,14 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -38,6 +39,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -55,7 +57,7 @@ public class PartyCrudTest {
         }
     }
     
-    private static final boolean printSql = false;
+    private static final boolean printSql = true;
 
     @BeforeClass
     public static void setUp() throws SQLException {
@@ -71,8 +73,7 @@ public class PartyCrudTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule(printSql),
-        			new OrmCacheModule());
+        			new TransactionModule(printSql));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(PartyService.class);
         	ctx.commit();
@@ -128,7 +129,21 @@ public class PartyCrudTest {
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isLessThan(30);
+        	assertThat(context.getStats().getSqlCount()).isLessThan(50);
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+        	getPartyService().getPartyRoles();
+        	context.commit();
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(0);
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+        	Optional<Party> party = getPartyService().getParty(1);
+        	party.get().getCurrentDelegates().size();
+        	for (PartyInRole each : party.get().getPartyInRoles()) {
+        		each.getRole().getMRID();
+        	}
+        	context.commit();
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(1);
         }
     }
     
@@ -173,9 +188,8 @@ public class PartyCrudTest {
     		assertThat(getPartyService().getRole("M15")).isPresent();
     		assertThat(getPartyService().getRole("M1599")).isAbsent();
     		context.commit();
-    		//assertThat(context.getStats().getSqlCount()).isEqualTo(1);
+    		assertThat(context.getStats().getSqlCount()).isEqualTo(1);
     	}
-    	((PartyServiceImpl) getPartyService()).clearRoleCache();
-    	assertThat(getPartyService().getPartyRoles().size()).isGreaterThanOrEqualTo(10);
+
     }
 }

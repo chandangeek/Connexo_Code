@@ -14,8 +14,6 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
@@ -29,15 +27,12 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Module;
 
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService, InstallService {
 	
 	private volatile DataModel dataModel;
-	private volatile CacheService cacheService;
-	private volatile ComponentCache componentCache;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile UserService userService;
@@ -48,12 +43,11 @@ public class PartyServiceImpl implements PartyService, InstallService {
     }
 
     @Inject
-    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, CacheService cacheService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
+    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
-        setCacheService(cacheService);
         setEventService(eventService);
         setThreadPrincipalService(threadPrincipalService);
         activate();
@@ -65,30 +59,24 @@ public class PartyServiceImpl implements PartyService, InstallService {
 			@Override
 			public void configure() {
 				bind(DataModel.class).toInstance(dataModel);
-				bind(ComponentCache.class).toInstance(componentCache);
 				bind(EventService.class).toInstance(eventService);
 				bind(Clock.class).toInstance(clock);
 				bind(UserService.class).toInstance(userService);
+		
 			}
 		}; 	
     }
     
     @Activate
     public void activate() {
-    	componentCache = cacheService.createComponentCache(dataModel);
-        dataModel.setInjector(Guice.createInjector(getModule()));
-        dataModel.register();
+        dataModel.register(getModule());
     }
 
 	@Override
 	public PartyRole createRole(String componentName, String mRID, String name, String aliasName , String description) {
 		PartyRoleImpl result = PartyRoleImpl.from(dataModel, componentName, mRID, name, aliasName, description);
-		componentCache.getTypeCache(PartyRole.class).persist(result);
+		dataModel.persist(result);
 		return result;
-	}
-
-	void clearRoleCache() {
-		cacheService.refresh(COMPONENTNAME, TableSpecs.PRT_PARTYROLE.name());
 	}
 	
 	@Override
@@ -127,6 +115,12 @@ public class PartyServiceImpl implements PartyService, InstallService {
         return builder.build();
     }
 
+    
+    @Override 
+    public Optional<Party> getParty(long id) {
+    	return dataModel.mapper(Party.class).getEager(id);
+    }
+    
     @Override
     public Optional<Party> getParty(String mRID) {
         return dataModel.mapper(Party.class).getUnique("mRID", mRID);
@@ -139,7 +133,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
 
     @Override
     public List<PartyRole> getPartyRoles() {
-        return componentCache.getTypeCache(PartyRole.class).find();
+        return dataModel.mapper(PartyRole.class).find();
     }
     
     private Principal getPrincipal() {
@@ -163,11 +157,6 @@ public class PartyServiceImpl implements PartyService, InstallService {
     @Override
     public Person newPerson(String firstName, String lastName) {
     	return PersonImpl.from(dataModel,firstName,lastName);
-    }
-
-    @Reference
-    public void setCacheService(CacheService cacheService) {
-    	this.cacheService = cacheService;
     }
 
     @Reference
@@ -213,5 +202,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
         dataModel.update(partyRole);
     }
 
-
+    DataModel getDataModel() {
+    	return dataModel;
+    }
 }
