@@ -1,17 +1,17 @@
 package com.elster.jupiter.orm.associations.impl;
 
-import java.util.AbstractList;
-import java.util.List;
-
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 
-abstract public class PersistentList<T> extends AbstractList<T> {
+import java.util.AbstractList;
+import java.util.List;
+
+public abstract class PersistentList<T> extends AbstractList<T> {
 	
 	private List<T> target;
-	final private DataMapper<T> dataMapper;
-	final private Object owner;
-	final private ForeignKeyConstraint constraint;
+	private final DataMapper<T> dataMapper;
+	private final Object owner;
+	private final ForeignKeyConstraint constraint;
 	
 	PersistentList(ForeignKeyConstraint constraint, DataMapper<T> dataMapper, Object owner) {
 		this.constraint = constraint;
@@ -28,24 +28,25 @@ abstract public class PersistentList<T> extends AbstractList<T> {
 		if (target == null) {
 			if (constraint.getReverseOrderFieldName() == null) {
 				target = dataMapper.find(constraint.getFieldName(),owner);
-			} else 
-				target = dataMapper.find(constraint.getFieldName(),owner,constraint.getReverseOrderFieldName());			
+			} else {
+				target = dataMapper.find(constraint.getFieldName(),owner,constraint.getReverseOrderFieldName());
+            }
 		}
 		return target;
 	}
 	
 	@Override
-	final public T get(int index) {
+    public final T get(int index) {
 		return getTarget().get(index);
 	}
 
 	@Override
-	final public int size() {
+    public final int size() {
 		return getTarget().size();
 	}
 
 	@Override
-	final public T set(int index,T element) {
+    public final T set(int index,T element) {
 		return getTarget().set(index, element);
 	}
 	

@@ -1,8 +1,8 @@
 package com.elster.jupiter.orm;
 
-import java.util.List;
-
 import com.google.common.base.Optional;
+
+import java.util.List;
 
 /*
  * OSGI ORM Service
@@ -30,4 +30,6 @@ public interface OrmService {
 	 * Only for applications that need to document the data model 
 	 */
 	List<? extends DataModel> getDataModels();
+
+    void invalidateCache(String componentName, String tableName);
 }

@@ -1,20 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import java.lang.reflect.Type;
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import oracle.jdbc.OracleConnection;
-
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -37,6 +22,19 @@ import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
+import oracle.jdbc.OracleConnection;
+
+import javax.inject.Inject;
+import java.lang.reflect.Type;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 
 public class DataModelImpl implements DataModel {
@@ -84,6 +82,7 @@ public class DataModelImpl implements DataModel {
         return ImmutableList.copyOf(tables);
     }
 
+    @Override
     public TableImpl getTable(String tableName) {
         for (TableImpl table : tables) {
             if (table.getName().equals(tableName)) {
