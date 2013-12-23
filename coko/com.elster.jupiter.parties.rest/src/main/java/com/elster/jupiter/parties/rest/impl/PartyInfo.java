@@ -25,7 +25,7 @@ public class PartyInfo {
         description = party.getDescription();
         electronicAddress = party.getElectronicAddress();
         version = party.getVersion();
-        type = party.getType().getName();
+        type = party.getType().getSimpleName();
     }
 
     public PartyInfo() {
