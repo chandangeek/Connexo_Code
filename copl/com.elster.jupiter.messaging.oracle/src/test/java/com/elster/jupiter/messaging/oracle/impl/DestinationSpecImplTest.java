@@ -79,6 +79,7 @@ public class DestinationSpecImplTest {
         when(serviceLocator.getAQFacade().createQueueConnection(connection)).thenReturn(queueConnection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(queueTableSpec.getName()).thenReturn(QUEUE_TABLE_NAME);
+        when(queueTableSpec.isMultiConsumer()).thenReturn(true);
         when(connection.unwrap(any(Class.class))).thenReturn(connection);
         when(connection.isWrapperFor(any(Class.class))).thenReturn(true);
         when(subscriber.getName()).thenReturn(SUBSCRIBER);
@@ -150,6 +151,7 @@ public class DestinationSpecImplTest {
     @Test
     public void testActivationOnJmsForQueue() throws Exception {
         when(queueTableSpec.isJms()).thenReturn(true);
+        when(queueTableSpec.isMultiConsumer()).thenReturn(false);
         when(queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE)).thenReturn(queueSession);
         when(queueTableSpec.getAqQueueTable(queueSession)).thenReturn(aqTable);
         when(queueSession.createQueue(eq(aqTable), eq(NAME), any(AQjmsDestinationProperty.class))).thenReturn(destination);
@@ -182,10 +184,12 @@ public class DestinationSpecImplTest {
 
     @Test
     public void testGetConsumers() {
-        ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(subscriber1, subscriber2);
 
+        destinationSpec.activate();
         subscriber1 = destinationSpec.subscribe("1");
         subscriber2 = destinationSpec.subscribe("2");
+
+        ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(subscriber1, subscriber2);
 
         assertThat(destinationSpec.getSubscribers()).isEqualTo(subscribers);
     }
