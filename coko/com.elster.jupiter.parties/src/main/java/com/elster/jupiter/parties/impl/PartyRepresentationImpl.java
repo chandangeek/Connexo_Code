@@ -1,8 +1,11 @@
 package com.elster.jupiter.parties.impl;
 
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
@@ -10,9 +13,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
-
-import javax.inject.Inject;
-import java.util.Objects;
 
 final class PartyRepresentationImpl implements PartyRepresentation {
 
@@ -28,7 +28,8 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private String userName;
 	
 	// associations
-	private final Reference<Party> party = ValueReference.absent();
+	@Inject
+	private Reference<Party> party;
     private User delegateUser;
 
     @Inject
@@ -36,7 +37,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
     @Inject
     private Clock clock;
     
-	private PartyRepresentationImpl init(Party party, User delegate, Interval interval) {
+	private PartyRepresentationImpl init(PartyImpl party, User delegate, Interval interval) {
 		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
 		this.delegate = delegate.getName();
@@ -44,7 +45,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
         return this;
 	}
 
-	static PartyRepresentationImpl from (DataModel dataModel, Party party, User delegate, Interval interval) {
+	static PartyRepresentationImpl from (DataModel dataModel, PartyImpl party, User delegate, Interval interval) {
 		return dataModel.getInstance(PartyRepresentationImpl.class).init(party, delegate,interval);
 	}
 	

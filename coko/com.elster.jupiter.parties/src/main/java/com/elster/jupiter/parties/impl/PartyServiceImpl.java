@@ -73,7 +73,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
 	@Override
 	public PartyRole createRole(String componentName, String mRID, String name, String aliasName , String description) {
 		PartyRoleImpl result = PartyRoleImpl.from(dataModel, componentName, mRID, name, aliasName, description);
-        dataModel.persist(result);
+		dataModel.persist(result);
 		return result;
 	}
 
@@ -117,6 +117,12 @@ public class PartyServiceImpl implements PartyService, InstallService {
         return builder.build();
     }
 
+    
+    @Override 
+    public Optional<Party> getParty(long id) {
+    	return dataModel.mapper(Party.class).getEager(id);
+    }
+    
     @Override
     public Optional<Party> getParty(String mRID) {
         return dataModel.mapper(Party.class).getUnique("mRID", mRID);
@@ -199,5 +205,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
         dataModel.update(partyRole);
     }
 
-
+    DataModel getDataModel() {
+    	return dataModel;
+    }
 }

@@ -46,8 +46,10 @@ abstract class PartyImpl implements Party {
     private String userName;
 
     // associations
-   	private final List<PartyInRoleImpl> partyInRoles = new ArrayList<>();
-   	private final List<PartyRepresentationImpl> representations = new ArrayList<>();
+    @Inject
+   	private List<PartyInRoleImpl> partyInRoles = new ArrayList<>();
+   	@Inject
+   	private List<PartyRepresentationImpl> representations = new ArrayList<>();
    	@Inject
    	private DataModel dataModel;
    	@Inject

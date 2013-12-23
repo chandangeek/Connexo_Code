@@ -25,6 +25,6 @@ public interface Party extends IdentifiedObject {
     PartyRepresentation appointDelegate(User user, Date start);
 	void adjustRepresentation(PartyRepresentation representation, Interval newInterval);
     void unappointDelegate(User user, Date end);
-    List<? extends PartyRepresentation> getCurrentDelegates();
+    List<PartyRepresentation> getCurrentDelegates();
     Class<? extends Party> getType();
 }
