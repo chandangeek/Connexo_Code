@@ -24,7 +24,7 @@ public class UpdatePartyRepresentationTransaction implements Transaction<PartyRe
         if (representation == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        representation.setInterval(new Interval(info.start, info.end));
+        party.adjustRepresentation(representation, new Interval(info.start, info.end));
         Bus.getPartyService().updateRepresentation(representation);
         return representation;
     }
