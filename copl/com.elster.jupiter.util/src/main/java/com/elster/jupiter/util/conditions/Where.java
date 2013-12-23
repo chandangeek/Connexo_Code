@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.conditions;
 
 import java.util.Date;
+import java.util.Objects;
 
 import com.elster.jupiter.util.time.Interval;
 
@@ -111,6 +112,10 @@ public final class Where {
 		return afterOrEqual(interval.getStart()).and(before(interval.getEnd()));
 	}
 	
+	public Condition isCurrentAt(Date date) {
+		Objects.requireNonNull(date);
+		return where(field + ".start").isGreatherThanOrEqual(date).and(where(field + ".stop").isLessThan(date));
+	}
 	public class BetweenBuilder {
 	
 		private final Object lowerValue;

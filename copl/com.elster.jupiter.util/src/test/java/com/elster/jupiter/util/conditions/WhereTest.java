@@ -29,4 +29,10 @@ public class WhereTest {
 		assertThat(where("test").inClosed(interval).toString()).matches(".*test.*>=[ ?].*AND.*test.*<=[ ?].*");
 	}
 	
+	@Test
+	public void testCurrentAt() {
+		Date date = new Date();
+		assertThat(where("test").isCurrentAt(date).toString()).matches(".*test\\.start\\s*>=[ ?].*AND.*test\\.stop.\\s*<[ ?].*");
+	}
+	
 }
