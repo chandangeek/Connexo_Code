@@ -2,6 +2,7 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.transaction.Transaction;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -14,7 +15,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
 
 @Path("/roles")
 public class RolesResource {
@@ -46,13 +46,11 @@ public class RolesResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRoleInfos getPartyRole(@PathParam("id") String id) {
-        List<PartyRole> partyRoles = Bus.getPartyService().getPartyRoles();
-        for (PartyRole partyRole : partyRoles) {
-            if (partyRole.getMRID().equals(id)) {
-                return new PartyRoleInfos(partyRole);
-            }
+        Optional<PartyRole> found = Bus.getPartyService().findPartyRoleByMRID(id);
+        if (!found.isPresent()) {
+            return new PartyRoleInfos();
         }
-        return new PartyRoleInfos();
+        return new PartyRoleInfos(found.get());
     }
 
     @GET

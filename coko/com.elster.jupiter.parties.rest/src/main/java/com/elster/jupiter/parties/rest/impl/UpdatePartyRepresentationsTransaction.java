@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class UpdatePartyRepresentationsTransaction implements Transaction<List<PartyRepresentation>> {
+public class UpdatePartyRepresentationsTransaction implements Transaction<List<? extends PartyRepresentation>> {
 
     private final PartyRepresentationInfos infos;
     private final long id;
@@ -24,7 +24,7 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<P
     }
 
     @Override
-    public List<PartyRepresentation> perform() {
+    public List<? extends PartyRepresentation> perform() {
         Optional<Party> found = Bus.getPartyService().findParty(id);
         if (!found.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);

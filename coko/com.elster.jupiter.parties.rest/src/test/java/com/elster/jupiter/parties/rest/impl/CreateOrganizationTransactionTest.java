@@ -49,7 +49,6 @@ public class CreateOrganizationTransactionTest {
         Bus.setServiceLocator(serviceLocator);
 
         when(serviceLocator.getPartyService().newOrganization(MRID)).thenReturn(organization);
-
     }
 
     @After
@@ -67,7 +66,7 @@ public class CreateOrganizationTransactionTest {
 
         verify(organization).setPhone1(telephoneCaptor.capture());
 
-        assertThat(telephoneCaptor.getValue()).isEqualsToByComparingFields(PHONE1);
+        assertThat(telephoneCaptor.getValue()).isEqualToComparingFieldByField(PHONE1);
     }
 
     private OrganizationInfo organizationInfo() {

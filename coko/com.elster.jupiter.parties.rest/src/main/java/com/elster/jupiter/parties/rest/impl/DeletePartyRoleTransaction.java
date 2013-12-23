@@ -2,10 +2,10 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 public class DeletePartyRoleTransaction extends VoidTransaction {
 
@@ -17,13 +17,10 @@ public class DeletePartyRoleTransaction extends VoidTransaction {
 
     @Override
     public void doPerform() {
-        List<PartyRole> partyRoles = Bus.getPartyService().getPartyRoles();
-        for (PartyRole partyRole : partyRoles) {
-            if (partyRole.getMRID().equals(info.mRID)) {
-                Bus.getPartyService().deletePartyRole(partyRole);
-                return;
-            }
+        Optional<PartyRole> found = Bus.getPartyService().findPartyRoleByMRID(info.mRID);
+        if (!found.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        Bus.getPartyService().deletePartyRole(found.get());
     }
 }
