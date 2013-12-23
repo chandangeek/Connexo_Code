@@ -655,6 +655,7 @@ public class TableImpl implements Table {
 		for (ForeignKeyConstraintImpl each : getReverseConstraints()) {
 			if (each.getReferencedTable().equals(this) && each.getReverseFieldName() != null) {
 				if (each.isComposition()) {
+					/*
 					Field field = mapperType.getField(each.getReverseFieldName());
 					if (!Modifier.isFinal(field.getModifiers())) {
 						throw new IllegalStateException(
@@ -662,6 +663,7 @@ public class TableImpl implements Table {
 								"Reverse Field", each.getReverseFieldName(), 
 								"for composition constraint", each.getName() , "is not final"));
 					}
+					*/
 				}
 				builder.add(each);
 			}

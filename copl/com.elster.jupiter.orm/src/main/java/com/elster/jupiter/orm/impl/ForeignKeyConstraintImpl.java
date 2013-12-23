@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Objects;
 
 import com.elster.jupiter.orm.Column;
@@ -212,4 +213,15 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		} 
 	}
 	
+	Optional<Type> getListParameterType() {
+		if (getReverseFieldName() == null) {
+			return Optional.absent();
+		}
+		Field field = getReferencedTable().getField(getReverseFieldName());
+		if (field == null || field.getType() != List.class) {
+			return Optional.absent();
+		} else {
+			return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
+		}
+	}
 }

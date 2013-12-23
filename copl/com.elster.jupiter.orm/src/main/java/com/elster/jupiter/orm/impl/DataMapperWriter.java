@@ -80,10 +80,7 @@ public class DataMapperWriter<T> {
 			for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 				if (constraint.isComposition()) {
 					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
-					if (field != null) {
-						if (!Modifier.isFinal(field.getModifiers())) {
-							throw new IllegalStateException("Owner collections must be final");
-						}
+					if (field != null) {				
 						try {
 							List parts =(List) field.get(object);
 							Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
