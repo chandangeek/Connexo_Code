@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.InvalidateCacheRequest;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
@@ -15,6 +17,7 @@ public interface TableCache<T> {
 	void put(DataMapperReader<T> reader, Object[] key , T value);
 	void cache(DataMapperReader<T> reader,T value);
 	void remove(T entity);
+	void renew();
 	 
 	class NoCache<T> implements TableCache<T> {
 		@Override
@@ -38,6 +41,10 @@ public interface TableCache<T> {
 		@Override
 		public void remove(T entity) {
 		}
+		
+		@Override
+		public void renew() {
+		}
 	
 	}
 	
@@ -50,9 +57,18 @@ public interface TableCache<T> {
 			this.table = table;
 		}
 		
+		private void cacheChange() {
+			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
+			publisher.publish(new InvalidateCacheRequest(table.getComponentName(), table.getName()));
+		}
+		
+		synchronized public void renew() {
+			this.cache = null; 
+		}
+		
 		private void initCache(DataMapperReader<T> reader) {
 			cache = new HashMap<>();
-			for (T each : table.<T>getQuery().select(Condition.TRUE,new String[0],true, new String[0])) {
+			for (T each : table.<T>getQuery().select(Condition.TRUE)) {
 				cache.put(createKey(getKey(each)), each);
 			}
 		}
@@ -84,6 +100,7 @@ public interface TableCache<T> {
 				initCache(reader);
 			} 
 			cache.put(createKey(key),value);
+			cacheChange();
 		}
 
 		private ArrayWrapper createKey(Object[] in) {
@@ -98,6 +115,7 @@ public interface TableCache<T> {
 		@Override
         public synchronized void remove(T entity) {
 			cache.remove(createKey(getKey(entity)));
+			cacheChange();
 		}  
 	}
 	

@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
@@ -18,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.validation.ValidatorFactory;
+import javax.validation.ValidationProviderResolver;
 
 import java.security.Principal;
 import java.sql.Connection;
@@ -35,19 +36,21 @@ public class OrmServiceImpl implements OrmService , InstallService {
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile Publisher publisher;
     private volatile JsonService jsonService;
-    private volatile ValidatorFactory validatorFactory;
+    private volatile ValidationProviderResolver validationProviderResolver;
     private final Map<String,DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String,DataModelImpl>());
 	public OrmServiceImpl() {
 	}
 
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService,ValidatorFactory validatorFactory) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver) {
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
         setDataSource(dataSource);
         setJsonService(jsonService);
-        setValidatorFactory(validatorFactory);
+        setPublisher(publisher);
+        setValidationProviderResolver(validationProviderResolver);
         activate();
         install();
     }
@@ -109,8 +112,13 @@ public class OrmServiceImpl implements OrmService , InstallService {
     }
     
     @Reference 
-    public void setValidatorFactory(ValidatorFactory validatorFactory) {
-    	this.validatorFactory = validatorFactory;
+    public void setValidationProviderResolver(ValidationProviderResolver ValidationProviderResolver) {
+    	this.validationProviderResolver = validationProviderResolver;
+    }
+    
+    @Reference
+    public void setPublisher(Publisher publisher) {
+    	this.publisher = publisher;
     }
     
     public JsonService getJsonService() {
@@ -124,9 +132,7 @@ public class OrmServiceImpl implements OrmService , InstallService {
 		}
 		if (register) {
 			result.register(getModule(result));
-		} else {
-			result.preSave();
-		}
+		} 
 		return result;
 	}
 
@@ -172,11 +178,15 @@ public class OrmServiceImpl implements OrmService , InstallService {
 
     @Override
     public void invalidateCache(String componentName, String tableName) {
-        //TODO for Karel to implement
-
+        DataModelImpl dataModel = dataModels.get(componentName);
+        dataModel.renewCache(tableName);
     }
 
-	public ValidatorFactory getValidatorFactory() {	
-		return validatorFactory;
+    ValidationProviderResolver getValidationProviderResolver() {	
+		return validationProviderResolver;
 	}
+    
+    Publisher getPublisher() {
+    	return publisher;
+    }
 }

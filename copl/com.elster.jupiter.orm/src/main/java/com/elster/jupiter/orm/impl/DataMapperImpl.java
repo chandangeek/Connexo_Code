@@ -447,5 +447,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public Optional<T> getEager(Object ... key) {
 		return getTable().<T>getQuery().get(key, true, new String[0]);
 	}
+
+	@Override
+	public Object getAttribute(Object target, String fieldName) {
+		return DomainMapper.FIELDSTRICT.get(target, fieldName);
+	}
 	
 }

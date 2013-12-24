@@ -686,6 +686,10 @@ public class TableImpl implements Table {
 	Field getField(String fieldName) {
 		return mapperType.getField(fieldName);
 	}
+	
+	void renewCache() {
+		getCache().renew();
+	}
 }
 	
 

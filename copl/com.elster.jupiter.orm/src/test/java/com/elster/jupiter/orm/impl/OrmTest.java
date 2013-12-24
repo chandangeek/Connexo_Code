@@ -20,7 +20,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -48,13 +47,10 @@ public class OrmTest {
         			new PubSubModule(),
         			new TransactionModule(true),        			        		
         			new OrmModule());
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-			@Override
-			public Void perform() {
-				injector.getInstance(OrmService.class);
-				return null;
-			}
-		});
+		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+			injector.getInstance(OrmService.class);
+			ctx.commit();
+		}
     }
 
     @After

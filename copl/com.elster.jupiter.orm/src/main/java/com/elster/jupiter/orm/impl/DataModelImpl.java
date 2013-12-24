@@ -26,6 +26,9 @@ import com.google.inject.util.Types;
 import oracle.jdbc.OracleConnection;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
 import java.lang.reflect.Type;
@@ -226,7 +229,7 @@ public class DataModelImpl implements DataModel {
     }
     
     void preSave() {
-    	injector = Guice.createInjector();
+    	//injector = Guice.createInjector();
     }
     
     Injector getInjector() {
@@ -361,7 +364,32 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public ValidatorFactory getValidatorFactory() {
-		return ormService.getValidatorFactory();
+		return Validation.byDefaultProvider()
+        	.providerResolver(ormService.getValidationProviderResolver())
+        	.configure()
+        	.constraintValidatorFactory(getConstraintValidatorFactory())
+        	.buildValidatorFactory();
+	}
+	
+	private ConstraintValidatorFactory getConstraintValidatorFactory() {
+		return new ConstraintValidatorFactory() {
+			
+			@Override
+			public void releaseInstance(ConstraintValidator<?, ?> arg0) {				
+			}
+			
+			@Override
+			public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> arg0) {			
+				return DataModelImpl.this.getInstance(arg0);
+			}
+		};
+	}
+	
+	public void renewCache(String tableName) {
+		TableImpl table = getTable(tableName);
+		if (table != null) {
+			table.renewCache();
+		}
 	}
 	
 	
