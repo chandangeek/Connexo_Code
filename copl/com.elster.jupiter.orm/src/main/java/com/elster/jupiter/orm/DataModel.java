@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.validation.ValidatorFactory;
+
 /**
  * @author kha
  *         DataModel is a container for a component's table description objects.
@@ -42,6 +44,8 @@ public interface DataModel {
     Principal getPrincipal();
 
     SqlDialect getSqlDialect();
+    
+    ValidatorFactory getValidatorFactory();
 
     // meta data api
     String getName();

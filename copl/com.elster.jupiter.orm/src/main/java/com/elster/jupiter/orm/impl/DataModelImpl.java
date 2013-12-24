@@ -22,9 +22,12 @@ import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
+
 import oracle.jdbc.OracleConnection;
 
 import javax.inject.Inject;
+import javax.validation.ValidatorFactory;
+
 import java.lang.reflect.Type;
 import java.security.Principal;
 import java.sql.Connection;
@@ -355,6 +358,12 @@ public class DataModelImpl implements DataModel {
 			
 		};
 	}
+
+	@Override
+	public ValidatorFactory getValidatorFactory() {
+		return ormService.getValidatorFactory();
+	}
+	
 	
 	
 }

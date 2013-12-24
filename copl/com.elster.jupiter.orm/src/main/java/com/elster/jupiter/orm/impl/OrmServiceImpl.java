@@ -11,12 +11,15 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.ValidatorFactory;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -33,16 +36,18 @@ public class OrmServiceImpl implements OrmService , InstallService {
 	private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile JsonService jsonService;
+    private volatile ValidatorFactory validatorFactory;
     private final Map<String,DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String,DataModelImpl>());
 	public OrmServiceImpl() {
 	}
 
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService,ValidatorFactory validatorFactory) {
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
         setDataSource(dataSource);
         setJsonService(jsonService);
+        setValidatorFactory(validatorFactory);
         activate();
         install();
     }
@@ -101,6 +106,11 @@ public class OrmServiceImpl implements OrmService , InstallService {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+    
+    @Reference 
+    public void setValidatorFactory(ValidatorFactory validatorFactory) {
+    	this.validatorFactory = validatorFactory;
     }
     
     public JsonService getJsonService() {
@@ -165,4 +175,8 @@ public class OrmServiceImpl implements OrmService , InstallService {
         //TODO for Karel to implement
 
     }
+
+	public ValidatorFactory getValidatorFactory() {	
+		return validatorFactory;
+	}
 }
