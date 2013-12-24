@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: * 
-Private-Package:
+Private-Package: com.elster.jupiter.bootstrap.validation.impl
 Export-Package: com.elster.jupiter.bootstrap
 
