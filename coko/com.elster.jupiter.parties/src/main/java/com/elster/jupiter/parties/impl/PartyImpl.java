@@ -2,6 +2,8 @@ package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Organization;
@@ -19,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +31,7 @@ import java.util.Objects;
 import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.Objects.toStringHelper;
 
+@Unique(fields="mRID", groups = Save.Create.class)
 abstract class PartyImpl implements Party {
 
     static final Map<String, Class<? extends Party>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);

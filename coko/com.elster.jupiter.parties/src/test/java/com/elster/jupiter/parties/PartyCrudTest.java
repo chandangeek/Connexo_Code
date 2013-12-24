@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,6 +33,8 @@ import org.osgi.framework.BundleContext;
 
 import java.sql.SQLException;
 import java.util.Date;
+
+import javax.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -184,5 +187,28 @@ public class PartyCrudTest {
     		assertThat(context.getStats().getSqlCount()).isEqualTo(1);
     	}
 
+    }
+    
+    @Test(expected=ConstraintViolationException.class)
+    public void testValidation() {
+    	try (TransactionContext context = getTransactionService().getContext()) {
+           	PartyService partyService = getPartyService();
+           	Organization organization = partyService.newOrganization("Elster");
+           	organization.setStreetAddress(new StreetAddress());
+           	organization.save();
+           	context.commit();
+    	}
+    }
+    
+    @Test(expected=ConstraintViolationException.class)
+    public void testDuplicate() {
+    	try (TransactionContext context = getTransactionService().getContext()) {
+           	PartyService partyService = getPartyService();
+           	Organization organization = partyService.newOrganization("Elster");
+           	organization.save();
+           	organization = partyService.newOrganization("Elster");
+           	organization.save();
+           	context.commit();
+    	}
     }
 }
