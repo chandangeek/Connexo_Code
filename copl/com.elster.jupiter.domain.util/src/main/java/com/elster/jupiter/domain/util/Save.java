@@ -1,5 +1,10 @@
 package com.elster.jupiter.domain.util;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import javax.validation.groups.Default;
 
 import com.elster.jupiter.orm.DataModel;
@@ -28,24 +33,19 @@ public enum Save {
 		return group;
 	}
 	
-	public final <T> void validate(T object , Class<?> ... groups) {
+	public final <T> void validate(Validator validator, T object , Class<?> ... groups) {
 		Class<?>[] interfaces = new Class<?>[2 + groups.length];
 		interfaces[0] = Default.class;
 		interfaces[1] = group;
-		for (int i = 0 ; i < groups.length ; i++) {
-			interfaces[2+i] = groups[i];
-		}
-		/*
-		Validator validator = mapper.getValidatorFactory().getValidator();
+		System.arraycopy(groups, 0, interfaces, 2, groups.length);
 		Set<ConstraintViolation<T>> failures = validator.validate(object, interfaces);
 		if (!failures.isEmpty()) {
 			throw new ConstraintViolationException(failures);
 		}
-		*/
 	}
 	
 	public final <T> void save(DataModel dataModel, T object, Class<?> ... groups) {
-		validate(object,groups);
+		validate(dataModel.getValidatorFactory().getValidator(),object,groups);
 		doSave(dataModel,object);
 	}
 	
