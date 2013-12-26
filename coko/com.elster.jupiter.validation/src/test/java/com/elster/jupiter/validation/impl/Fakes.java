@@ -203,8 +203,7 @@ public enum Fakes {
 
         @Override
         public Optional<T> getOptional(Object... values) {
-            //TODO automatically generated method body, provide implementation.
-            return null;
+            return get(values);
         }
 
         @Override

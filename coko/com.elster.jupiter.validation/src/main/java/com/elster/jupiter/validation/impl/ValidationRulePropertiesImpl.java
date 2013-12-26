@@ -4,8 +4,6 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
-import java.math.BigDecimal;
-
 final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
@@ -26,7 +24,7 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
     @Override
     public ValidationRule getRule() {
         if (rule == null) {
-            rule = Bus.getOrmClient().getValidationRuleFactory().get(ruleId).get();
+            rule = Bus.getOrmClient().getValidationRuleFactory().getOptional(ruleId).get();
         }
         return rule;
     }

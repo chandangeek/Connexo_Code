@@ -98,7 +98,7 @@ public class ValidationServiceImplTest {
     @Test
     public void testApplyRuleSet() {
         when(meterActivation.getId()).thenReturn(ID);
-        when(meterActivationValidationFactory.get(ID)).thenReturn(Optional.<MeterActivationValidation>absent());
+        when(meterActivationValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterActivationValidation>absent());
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
         validationRuleSet.save();
@@ -115,7 +115,7 @@ public class ValidationServiceImplTest {
     @Test
     public void testApplyRuleSetOnExisting() {
         MeterActivationValidation meterActivationValidation = mock(MeterActivationValidationImpl.class);
-        when(meterActivationValidationFactory.get(ID)).thenReturn(Optional.of(meterActivationValidation));
+        when(meterActivationValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterActivationValidation));
         when(meterActivation.getId()).thenReturn(ID);
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
@@ -129,7 +129,7 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testApplyRuleSetWithChannels() {
-        when(meterActivationValidationFactory.get(ID)).thenReturn(Optional.<MeterActivationValidation>absent());
+        when(meterActivationValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterActivationValidation>absent());
         when(meterActivation.getId()).thenReturn(ID);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);

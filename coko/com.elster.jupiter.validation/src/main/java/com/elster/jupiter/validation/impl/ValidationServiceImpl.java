@@ -112,12 +112,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
-        return getOrmClient().getValidationRuleSetFactory().get(id).transform(UPCAST);
+        return getOrmClient().getValidationRuleSetFactory().getOptional(id).transform(UPCAST);
     }
 
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
-        return getOrmClient().getValidationRuleFactory().get(id).transform(RULE_UPCAST);
+        return getOrmClient().getValidationRuleFactory().getOptional(id).transform(RULE_UPCAST);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public void validate(MeterActivation meterActivation, Interval interval) {
-        Optional<MeterActivationValidation> found = getOrmClient().getMeterActivationValidationFactory().get(meterActivation.getId());
+        Optional<MeterActivationValidation> found = getOrmClient().getMeterActivationValidationFactory().getOptional(meterActivation.getId());
         if (found.isPresent()) {
             found.get().validate(interval);
         }
@@ -171,7 +171,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        Optional<MeterActivationValidation> found = Bus.getOrmClient().getMeterActivationValidationFactory().get(meterActivation.getId());
+        Optional<MeterActivationValidation> found = Bus.getOrmClient().getMeterActivationValidationFactory().getOptional(meterActivation.getId());
         MeterActivationValidation meterActivationValidation = found.or(new MeterActivationValidationImpl(meterActivation));
         meterActivationValidation.setRuleSet(ruleSet);
 

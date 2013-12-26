@@ -36,7 +36,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     @Override
     public MeterActivationValidation getMeterActivationValidation() {
         if (meterActivationValidation == null) {
-            meterActivationValidation = Bus.getOrmClient().getMeterActivationValidationFactory().get(meterActivationValidationId).get();
+            meterActivationValidation = Bus.getOrmClient().getMeterActivationValidationFactory().getOptional(meterActivationValidationId).get();
         }
         return meterActivationValidation;
     }

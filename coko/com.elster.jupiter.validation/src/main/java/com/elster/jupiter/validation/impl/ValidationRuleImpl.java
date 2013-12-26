@@ -164,7 +164,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @Override
     public ValidationRuleSet getRuleSet() {
         if (ruleSet == null) {
-            ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().get(ruleSetId).get();
+            ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().getOptional(ruleSetId).get();
         }
         return ruleSet;
     }
