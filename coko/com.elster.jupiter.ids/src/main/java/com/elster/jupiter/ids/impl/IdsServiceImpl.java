@@ -42,17 +42,17 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
 
     @Override
     public Optional<Vault> getVault(String component, long id) {
-        return getOrmClient().getVaultFactory().get(component, id);
+        return getOrmClient().getVaultFactory().getOptional(component, id);
     }
 
     @Override
     public Optional<RecordSpec> getRecordSpec(String component, long id) {
-        return getOrmClient().getRecordSpecFactory().get(component, id);
+        return getOrmClient().getRecordSpecFactory().getOptional(component, id);
     }
 
     @Override
     public Optional<TimeSeries> getTimeSeries(long id) {
-        return getOrmClient().getTimeSeriesFactory().get(id);
+        return getOrmClient().getTimeSeriesFactory().getOptional(id);
     }
 
     @Override
