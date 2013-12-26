@@ -158,7 +158,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 endDeviceEventRecord.addProperty("D", "C");
                 endDeviceEventRecord.save();
 
-                Optional<EndDeviceEventRecord> found = Bus.getOrmClient().getEndDeviceEventRecordFactory().get(endDevice.getId(), eventType.getMRID(), date);
+                Optional<EndDeviceEventRecord> found = Bus.getOrmClient().getEndDeviceEventRecordFactory().getOptional(endDevice.getId(), eventType.getMRID(), date);
                 assertThat(found).contains(endDeviceEventRecord);
                 assertThat(found.get().getProperties()).contains(entry("A", "C"), entry("D", "C"));
             }

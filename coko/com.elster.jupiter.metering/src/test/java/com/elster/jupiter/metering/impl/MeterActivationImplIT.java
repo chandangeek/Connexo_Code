@@ -103,7 +103,7 @@ public class MeterActivationImplIT {
 
                 meterActivation.save();
 
-                MeterActivation loaded = Bus.getOrmClient().getMeterActivationFactory().get(meterActivation.getId()).get();
+                MeterActivation loaded = Bus.getOrmClient().getMeterActivationFactory().getOptional(meterActivation.getId()).get();
 
                 assertThat(loaded.getChannels()).hasSize(1).contains(channel);
             }

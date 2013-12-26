@@ -112,7 +112,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 EndDeviceEventTypeImpl endDeviceEventType = new EndDeviceEventTypeImpl(code);
                 endDeviceEventType.persist();
 
-                Optional<EndDeviceEventType> found = Bus.getOrmClient().getEndDeviceEventTypeFactory().get(code);
+                Optional<EndDeviceEventType> found = Bus.getOrmClient().getEndDeviceEventTypeFactory().getOptional(code);
                 assertThat(found).contains(new EndDeviceEventTypeImpl(code));
             }
         });

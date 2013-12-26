@@ -105,7 +105,7 @@ public class MeteringServiceImplTest {
     @Test
     public void testFindServiceLocationById() {
         long id = 156L;
-        when(serviceLocationFactory.get(id)).thenReturn(Optional.of(serviceLocation));
+        when(serviceLocationFactory.getOptional(id)).thenReturn(Optional.of(serviceLocation));
 
         assertThat(meteringService.findServiceLocation(id)).contains(serviceLocation);
     }

@@ -103,7 +103,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public EndDevice getEndDevice() {
         if (endDevice == null) {
-            endDevice = Bus.getOrmClient().getEndDeviceFactory().get(endDeviceId).get();
+            endDevice = Bus.getOrmClient().getEndDeviceFactory().getOptional(endDeviceId).get();
         }
         return endDevice;
     }
@@ -116,7 +116,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public EndDeviceEventType getEventType() {
         if (eventType == null) {
-            eventType = Bus.getOrmClient().getEndDeviceEventTypeFactory().get(eventTypeCode).get();
+            eventType = Bus.getOrmClient().getEndDeviceEventTypeFactory().getOptional(eventTypeCode).get();
         }
         return eventType;
     }

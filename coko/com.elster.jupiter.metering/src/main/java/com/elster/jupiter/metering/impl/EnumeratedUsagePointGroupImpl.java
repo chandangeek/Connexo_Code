@@ -116,14 +116,14 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         @Override
         public UsagePoint getUsagePoint() {
             if (usagePoint == null) {
-                usagePoint = Bus.getOrmClient().getUsagePointFactory().get(usagePointId).get();
+                usagePoint = Bus.getOrmClient().getUsagePointFactory().getOptional(usagePointId).get();
             }
             return usagePoint;
         }
 
         public EnumeratedUsagePointGroup getUsagePointGroup() {
             if (usagePointGroup == null) {
-                usagePointGroup = factory().get(groupId).get();
+                usagePointGroup = factory().getOptional(groupId).get();
             }
             return usagePointGroup;
         }

@@ -73,7 +73,7 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 
 	public UsagePoint getUsagePoint() {
         if (usagePoint == null) {
-            usagePoint = Bus.getOrmClient().getUsagePointFactory().get(usagePointId).get();
+            usagePoint = Bus.getOrmClient().getUsagePointFactory().getOptional(usagePointId).get();
         }
 		return usagePoint;
 	}

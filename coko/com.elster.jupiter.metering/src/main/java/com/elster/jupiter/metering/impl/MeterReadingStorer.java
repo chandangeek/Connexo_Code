@@ -110,7 +110,7 @@ public class MeterReadingStorer {
 	}
 	
 	private Optional<ReadingType> getReadingType(String code) {
-		return Bus.getOrmClient().getReadingTypeFactory().get(code);				
+		return Bus.getOrmClient().getReadingTypeFactory().getOptional(code);
 	}
 	
 	private Channel findOrCreateChannel(Reading reading , MeterActivation meterActivation) {

@@ -95,12 +95,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Optional<ServiceLocation> findServiceLocation(long id) {
-        return getOrmClient().getServiceLocationFactory().get(id);
+        return getOrmClient().getServiceLocationFactory().getOptional(id);
     }
 
     @Override
     public Optional<UsagePoint> findUsagePoint(long id) {
-        return getOrmClient().getUsagePointFactory().get(id);
+        return getOrmClient().getUsagePointFactory().getOptional(id);
     }
 
     @Override
@@ -276,7 +276,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id) {
-        return getOrmClient().getQueryUsagePointGroupFactory().get(id);
+        return getOrmClient().getQueryUsagePointGroupFactory().getOptional(id);
     }
 
     @Override
@@ -288,17 +288,17 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
-        return getOrmClient().getEnumeratedUsagePointGroupFactory().get(id);
+        return getOrmClient().getEnumeratedUsagePointGroupFactory().getOptional(id);
     }
 
     @Override
     public Optional<MeterActivation> findMeterActivation(long id) {
-        return getOrmClient().getMeterActivationFactory().get(id);
+        return getOrmClient().getMeterActivationFactory().getOptional(id);
     }
 
     @Override
     public Optional<Channel> findChannel(long id) {
-        return getOrmClient().getChannelFactory().get(id);
+        return getOrmClient().getChannelFactory().getOptional(id);
     }
 
     @Override
@@ -313,7 +313,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Optional<AmrSystem> findAmrSystem(long id) {
-        return getOrmClient().getAmrSystemFactory().get(id);
+        return getOrmClient().getAmrSystemFactory().getOptional(id);
     }
 
 }

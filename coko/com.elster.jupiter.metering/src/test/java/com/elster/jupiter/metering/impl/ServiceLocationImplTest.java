@@ -101,7 +101,7 @@ public class ServiceLocationImplTest {
         ElectronicAddress electronicAddress = new ElectronicAddress("email@mail.mars");
         serviceLocation.setElectronicAddress(electronicAddress);
 
-        assertThat(serviceLocation.getElectronicAddress()).isEqualsToByComparingFields(electronicAddress);
+        assertThat(serviceLocation.getElectronicAddress()).isEqualToComparingFieldByField(electronicAddress);
     }
 
     @Test
@@ -117,8 +117,8 @@ public class ServiceLocationImplTest {
         StreetAddress streetAddress = new StreetAddress(new StreetDetail("street", "nr"), new TownDetail("cd", "Paris", "France"));
         serviceLocation.setMainAddress(streetAddress);
 
-        assertThat(serviceLocation.getMainAddress().getStreetDetail()).isEqualsToByComparingFields(streetAddress.getStreetDetail());
-        assertThat(serviceLocation.getMainAddress().getTownDetail()).isEqualsToByComparingFields(streetAddress.getTownDetail());
+        assertThat(serviceLocation.getMainAddress().getStreetDetail()).isEqualToComparingFieldByField(streetAddress.getStreetDetail());
+        assertThat(serviceLocation.getMainAddress().getTownDetail()).isEqualToComparingFieldByField(streetAddress.getTownDetail());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class ServiceLocationImplTest {
         TelephoneNumber telephoneNumber = new TelephoneNumber("+32", "9", "555 55 55");
         serviceLocation.setPhone1(telephoneNumber);
 
-        assertThat(serviceLocation.getPhone1()).isEqualsToByComparingFields(telephoneNumber);
+        assertThat(serviceLocation.getPhone1()).isEqualToComparingFieldByField(telephoneNumber);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class ServiceLocationImplTest {
         TelephoneNumber telephoneNumber = new TelephoneNumber("+32", "9", "555 55 55");
         serviceLocation.setPhone2(telephoneNumber);
 
-        assertThat(serviceLocation.getPhone2()).isEqualsToByComparingFields(telephoneNumber);
+        assertThat(serviceLocation.getPhone2()).isEqualToComparingFieldByField(telephoneNumber);
     }
 
     @Test
@@ -142,8 +142,8 @@ public class ServiceLocationImplTest {
         StreetAddress streetAddress = new StreetAddress(new StreetDetail("street", "nr"), new TownDetail("cd", "Paris", "France"));
         serviceLocation.setSecondaryAddress(streetAddress);
 
-        assertThat(serviceLocation.getSecondaryAddress().getStreetDetail()).isEqualsToByComparingFields(streetAddress.getStreetDetail());
-        assertThat(serviceLocation.getSecondaryAddress().getTownDetail()).isEqualsToByComparingFields(streetAddress.getTownDetail());
+        assertThat(serviceLocation.getSecondaryAddress().getStreetDetail()).isEqualToComparingFieldByField(streetAddress.getStreetDetail());
+        assertThat(serviceLocation.getSecondaryAddress().getTownDetail()).isEqualToComparingFieldByField(streetAddress.getTownDetail());
     }
 
     @Test
@@ -151,7 +151,7 @@ public class ServiceLocationImplTest {
         Status status = Status.builder().value("value").reason("reason").remark("remark").build();
         serviceLocation.setStatus(status);
 
-        assertThat(serviceLocation.getStatus()).isEqualsToByComparingFields(status);
+        assertThat(serviceLocation.getStatus()).isEqualToComparingFieldByField(status);
     }
 
     @Test
