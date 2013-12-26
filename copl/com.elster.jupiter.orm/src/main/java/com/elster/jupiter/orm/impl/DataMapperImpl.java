@@ -170,15 +170,14 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 
 	@SuppressWarnings("unchecked")
 	@Override
-    Optional<T> findByPrimaryKey(Object[] values) {
+    Optional<T> findByPrimaryKey(KeyValue keyValue) {
 		TableCache<? super T> cache = getCache();
-		KeyValue keyValue = KeyValue.of(values);
 		T cacheVersion = (T) cache.get(keyValue);
 		if (cacheVersion != null) {
 			return Optional.of(cacheVersion);
 		}
 		try {
-			Optional<T> result = reader.findByPrimaryKey(values);
+			Optional<T> result = reader.findByPrimaryKey(keyValue);
 			if (result.isPresent()) {
 				cache.put(keyValue, result.get());
 			}
@@ -196,7 +195,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	@Override
 	public T lock(Object... values)  {
 		try {
-			return reader.lock(values);
+			return reader.lock(KeyValue.of(values));
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -221,7 +220,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     @Override
     public List<JournalEntry<T>> getJournal(Object... values) {
         try {
-            return reader.findJournals(values);
+            return reader.findJournals(KeyValue.of(values));
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -379,27 +378,19 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return column.convertFromDb(rs, startIndex + offset);
 	}
 	
-	public Object getPrimaryKey(ResultSet rs , int index) throws SQLException {
+	public KeyValue getPrimaryKey(ResultSet rs , int index) throws SQLException {
 		List<ColumnImpl> primaryKeyColumns = getTable().getPrimaryKeyColumns();
-		switch (primaryKeyColumns.size()) {
-			case 0:
-				return null;
-			
-			case 1: {
-				Object result = getValue(primaryKeyColumns.get(0),rs,index);
-				return rs.wasNull() ? null : result;
-			}
-		
-			default: {
-				Object[] values = new Object[primaryKeyColumns.size()];
-				for (int i = 0 ; i < values.length ; i++) {
-					values[i] = getValue(primaryKeyColumns.get(i),rs,index);
-					if (rs.wasNull()) {
-						return null;
-					}
+		if  (primaryKeyColumns.isEmpty()) {
+			return null;
+		} else {
+			Object[] values = new Object[primaryKeyColumns.size()];
+			for (int i = 0 ; i < values.length ; i++) {
+				values[i] = getValue(primaryKeyColumns.get(i),rs,index);
+				if (rs.wasNull()) {
+					return null;
 				}
-				return new CompositePrimaryKey(values);				
 			}
+			return KeyValue.of(values);				
 		}
 	}
 	

@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class ChildDataMapper<T> extends JoinDataMapper <T> {
@@ -33,7 +34,7 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 			addTarget(target);
 		}
 		T value = null;
-		Object key = getMapper().getPrimaryKey(rs, index);
+		KeyValue key = getMapper().getPrimaryKey(rs, index);
 		if (key != null) {
 			value = get(key);
 			if (value == null) {	

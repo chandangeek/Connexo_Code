@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
@@ -23,7 +24,7 @@ import java.util.Map;
 public abstract class JoinDataMapper<T> {
 	private final DataMapperImpl<T> dataMapper;
 	private final String alias;
-	private Map<Object,T> cache;
+	private Map<KeyValue,T> cache;
 
 	JoinDataMapper(DataMapperImpl<T> dataMapper, String alias) {
 		this.dataMapper = dataMapper;
@@ -119,11 +120,11 @@ public abstract class JoinDataMapper<T> {
 		}
 	}
 
-	final T put(Object key , T value) {
+	final T put(KeyValue key , T value) {
 		return cache.put(key, value);
 	}
 
-	final T get(Object key) {
+	final T get(KeyValue key) {
 		return cache.get(key);
 	}
 

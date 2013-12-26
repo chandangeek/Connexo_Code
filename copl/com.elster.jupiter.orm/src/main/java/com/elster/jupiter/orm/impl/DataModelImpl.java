@@ -39,6 +39,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -120,6 +121,22 @@ public class DataModelImpl implements DataModel {
         return table;
     }
 
+    public <T> TableImpl<T> addTable(String schema, String tableName, Class<T> api, Class<? extends T> implementation) {
+    	return addTable(schema,tableName,api).map(implementation);
+    }
+    
+    public <T> TableImpl<T> addTable(String schema, String tableName, Class<T> api, Map<String,Class<? extends T>> implementers) {
+    	return addTable(schema,tableName,api).map(implementers);
+    }
+    
+    public <T> TableImpl<T> addTable(String tableName, Class<T> api, Class<? extends T> implementation) {
+    	return addTable(null,tableName,api,implementation);
+    }
+    
+    public <T> TableImpl<T> addTable(String tableName, Class<T> api, Map<String,Class<? extends T>> implementers) {
+    	return addTable(null,tableName,api,implementers);
+    }
+    
     @Override
     public String toString() {
         return Joiner.on(" ").join("DataModel",name,"(" + description + ")");

@@ -44,8 +44,8 @@ public interface Table<T> {
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 	String getComponentName();
 	List<? extends Column> getPrimaryKeyColumns();
-    void map(Class<? extends T> implementer);
-	void map(Map<String,Class<? extends T>> implementers);
+    Table<T> map(Class<? extends T> implementer);
+	Table<T> map(Map<String,Class<? extends T>> implementers);
 	boolean maps(Class<?> implementer);
 
 }

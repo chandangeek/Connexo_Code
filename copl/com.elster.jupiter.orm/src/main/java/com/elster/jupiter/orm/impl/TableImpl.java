@@ -78,6 +78,15 @@ public class TableImpl<T> implements Table<T> {
 	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, int position) {
 		return new TableImpl<T>().init(dataModel,schema,name,api,position);
 	}
+
+	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, Class<? extends T> implementation, int position) {
+		return new TableImpl<T>().init(dataModel,schema,name,api,position).map(implementation);
+	}
+	
+	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, Map<String,Class<? extends T>> implementers, int position) {
+		return new TableImpl<T>().init(dataModel,schema,name,api,position).map(implementers);
+	}
+	
 	
 	@Override 
 	public String getSchema() {
@@ -553,7 +562,7 @@ public class TableImpl<T> implements Table<T> {
 	}
 
 	@Override
-	public void map(Class<? extends T> implementation) {
+	public TableImpl<T> map(Class<? extends T> implementation) {
 		if (this.mapperType != null) {
 			throw new IllegalStateException("Implementer(s) already specified");
 		}
@@ -561,10 +570,11 @@ public class TableImpl<T> implements Table<T> {
 			throw new IllegalArgumentException("" + implementation + " does not implement " + api);
 		}
 		this.mapperType = new SingleDataMapperType(implementation);
+		return this;
 	}
 
 	@Override
-	public void map(Map<String, Class<? extends T>> implementations) {
+	public TableImpl<T> map(Map<String, Class<? extends T>> implementations) {
 		if (this.mapperType != null) {
 			throw new IllegalStateException("Implementer(s) already specified");
 		}
@@ -577,6 +587,7 @@ public class TableImpl<T> implements Table<T> {
 			}
 		}
 		this.mapperType = new InheritanceDataMapperType<>(implementations);
+		return this;
 	}
 
 	@Override

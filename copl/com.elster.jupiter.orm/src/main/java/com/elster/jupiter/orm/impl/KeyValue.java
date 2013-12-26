@@ -67,6 +67,15 @@ public final class KeyValue {
 		}
 	}
 	
+	public int size() {
+		return key.length;
+	}
+	
+	@Override 
+	public String toString() {
+		return "KeyValue: " + Arrays.toString(key);
+	}
+	
 	
 } 
 

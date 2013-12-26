@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.elster.jupiter.orm.Column;
@@ -54,36 +53,36 @@ public class DataMapperReader<T> {
 		return dataMapper.getSqlGenerator();
 	}
 	
-	private List<SqlFragment> getPrimaryKeyFragments(Object[] values) {
+	private List<SqlFragment> getPrimaryKeyFragments(KeyValue keyValue) {
 		List<ColumnImpl> pkColumns = getPrimaryKeyColumns();
-		if (pkColumns.size() != values.length) {
+		if (pkColumns.size() != keyValue.size()) {
 			throw new IllegalArgumentException("Argument array length does not match Primary Key Field count of " + pkColumns.size());
 		}
 		List<SqlFragment> fragments = new ArrayList<>(pkColumns.size());
-		for (int i = 0 ; i < values.length ; i++) {
-			fragments.add(new ColumnEqualsFragment(pkColumns.get(i) , values[i] , getAlias()));
+		for (int i = 0 ; i < keyValue.size() ; i++) {
+			fragments.add(new ColumnEqualsFragment(pkColumns.get(i) , keyValue.get(i) , getAlias()));
 		}
 		return fragments;		
 	}
 	
-	Optional<T> findByPrimaryKey (Object[] values) throws SQLException {
-        List<T> result = find(getPrimaryKeyFragments(values), null, false);
+	Optional<T> findByPrimaryKey (KeyValue keyValue) throws SQLException {
+        List<T> result = find(getPrimaryKeyFragments(keyValue), null, false);
         if (result.size() > 1) {
-            throw new NotUniqueException(Arrays.toString(values));
+            throw new NotUniqueException(keyValue.toString());
         }
         return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
 	}
 
-    List<JournalEntry<T>> findJournals(Object[] values) throws SQLException {
-        return findJournal(getPrimaryKeyFragments(values), new String[] { TableImpl.JOURNALTIMECOLUMNNAME + " desc" }, false);
+    List<JournalEntry<T>> findJournals(KeyValue keyValue) throws SQLException {
+        return findJournal(getPrimaryKeyFragments(keyValue), new String[] { TableImpl.JOURNALTIMECOLUMNNAME + " desc" }, false);
     }
 	
 	int getPrimaryKeyLength() {
 		return getPrimaryKeyColumns().size();
 	}
 	
-	public T lock(Object... values)  throws SQLException {
-		List<T> candidates = find(getPrimaryKeyFragments(values) , null , true);
+	public T lock(KeyValue keyValue)  throws SQLException {
+		List<T> candidates = find(getPrimaryKeyFragments(keyValue) , null , true);
 		return candidates.isEmpty() ? null : candidates.get(0);
 	}
 
