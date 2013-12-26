@@ -77,6 +77,20 @@ public class ModuleCreatorTest {
 		System.out.println("Loaded: " + allClasses.size() + " in " + stopWatch.lap());
 		Module module = ModuleCreator.create(allClasses.toArray(new Class<?>[allClasses.size()]));
 		System.out.println("Inspected: " + allClasses.size() + " in " + stopWatch.lap());
+		int methods = 0;
+		int fields = 0;
+		for (Class<?> clazz : allClasses) {
+			try {
+				methods += clazz.getDeclaredMethods().length;
+			} catch (Throwable ex) {				
+			}
+			try {
+				fields += clazz.getDeclaredFields().length;
+			} catch(Throwable ex ) {
+			}
+			
+		}
+		System.out.println("There are " + methods + " methods, and " + fields + " fields on the classpath" );
 	}
 	
 	

@@ -690,6 +690,11 @@ public class TableImpl implements Table {
 	void renewCache() {
 		getCache().renew();
 	}
+	
+	boolean isAutoId() {
+		List<ColumnImpl> columns = getPrimaryKeyColumns();
+		return (columns.size() == 1 && columns.get(0).isAutoIncrement());
+	}
 }
 	
 

@@ -61,6 +61,9 @@ public class PersistentReference<T> implements Reference<T> {
 					return false;
 				}
 			}
+			if (primaryKey.length == 1 && dataMapper.isAutoId()) {
+				return ((Number) primaryKey[0]).longValue() != 0;
+			}
 			return true;
 		} else {
 			return false;
