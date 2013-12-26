@@ -2,7 +2,11 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.orm.DataModel;
+
+import javax.inject.Inject;
 
 public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
 
@@ -14,19 +18,29 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     private transient SubscriberSpec subscriberSpec;
     private String appServerName;
     private transient AppServer appServer;
+    private final DataModel dataModel;
+    private final MessageService messageService;
 
     @SuppressWarnings("unused")
-	private SubscriberExecutionSpecImpl() {
-    	
+    @Inject
+	SubscriberExecutionSpecImpl(DataModel dataModel, MessageService messageService) {
+    	this.dataModel = dataModel;
+        this.messageService = messageService;
     }
     
-    public SubscriberExecutionSpecImpl(AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
+    public static SubscriberExecutionSpecImpl from(DataModel dataModel, MessageService messageService, AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
+        SubscriberExecutionSpecImpl subscriberExecutionSpec = new SubscriberExecutionSpecImpl(dataModel, messageService);
+        return subscriberExecutionSpec.init(appServer, subscriberSpec, threadCount);
+    }
+
+    SubscriberExecutionSpecImpl init(AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
         this.appServer = appServer;
         this.appServerName = appServer.getName();
         this.subscriberSpec = subscriberSpec;
         this.subscriberSpecName = subscriberSpec.getName();
         this.destinationSpecName = subscriberSpec.getDestination().getName();
         this.threadCount = threadCount;
+        return this;
     }
 
     @Override
@@ -37,7 +51,7 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     @Override
     public SubscriberSpec getSubscriberSpec() {
         if (subscriberSpec == null) {
-            subscriberSpec = Bus.getMessageService().getSubscriberSpec(destinationSpecName, subscriberSpecName).get();
+            subscriberSpec = messageService.getSubscriberSpec(destinationSpecName, subscriberSpecName).get();
         }
         return subscriberSpec;
     }
@@ -45,7 +59,7 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     @Override
     public AppServer getAppServer() {
         if (appServer == null) {
-            appServer = Bus.getOrmClient().getAppServerFactory().get(appServerName).get();
+            appServer = dataModel.mapper(AppServer.class).getOptional(appServerName).get();
         }
         return appServer;
     }

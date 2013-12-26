@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -19,21 +20,18 @@ import static org.mockito.Mockito.when;
 public class AppServerThreadFactoryTest {
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private AppServer appServer;
+    @Mock
+    private AppService appService;
 
     @Before
     public void setUp() {
-        Bus.setServiceLocator(serviceLocator);
-
-        when(serviceLocator.getAppServer()).thenReturn(Optional.of(appServer));
         when(appServer.getName()).thenReturn("name");
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
@@ -45,7 +43,7 @@ public class AppServerThreadFactoryTest {
             public void uncaughtException(Thread t, Throwable e) {
                 e.printStackTrace();
             }
-        }));
+        }, appService));
 
         final CountDownLatch latch = new CountDownLatch(1);
 

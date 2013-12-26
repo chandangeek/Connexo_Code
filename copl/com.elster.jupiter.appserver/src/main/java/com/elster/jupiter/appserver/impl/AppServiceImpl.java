@@ -14,8 +14,8 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
@@ -29,6 +29,7 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.component.annotations.Activate;
@@ -47,8 +48,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + Bus.COMPONENTNAME}, immediate = true)
-public class AppServiceImpl implements ServiceLocator, InstallService, AppService, Subscriber {
+@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + "APS"}, immediate = true)
+public class AppServiceImpl implements InstallService, AppService, Subscriber {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -58,9 +59,8 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private static final String ID = "id";
     private static final String BATCH_EXECUTOR = "batch executor";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
-    private AppServerCreator appServerCreator = new DefaultAppServerCreator();
 
-    private volatile OrmClient ormClient;
+    private volatile DataModel dataModel;
     private volatile OrmService ormService;
     private volatile TransactionService transactionService;
     private volatile MessageService messageService;
@@ -80,19 +80,22 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
 
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
-    }
-
     @Activate
     public void activate(BundleContext context) {
         this.context = context;
+
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(AppServerCreator.class).to(DefaultAppServerCreator.class);
+            }
+        });
+
         tryActivate(context);
     }
 
     private void tryActivate(BundleContext context) {
-        Bus.setServiceLocator(this);
         String appServerName = context.getProperty(APPSERVER_NAME);
         if (appServerName != null) {
             activateAs(appServerName);
@@ -106,7 +109,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private void activateAs(String appServerName) {
-        Optional<AppServer> foundAppServer = Bus.getOrmClient().getAppServerFactory().get(appServerName);
+        Optional<AppServer> foundAppServer = dataModel.mapper(AppServer.class).getOptional(appServerName);
         if (!foundAppServer.isPresent()) {
             LOGGER.log(Level.SEVERE, "AppServer with name " + appServerName + " not found.");
             activateAnonymously();
@@ -116,7 +119,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
         ThreadGroup threadGroup = new ThreadGroup("AppServer message listeners");
-        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
+        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(), this);
 
         launchFileImports();
         launchTaskService();
@@ -132,9 +135,9 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private void launchFileImports() {
-        List<ImportScheduleOnAppServer> importScheduleOnAppServers = getOrmClient().getImportScheduleOnAppServerFactory().find("appServer", appServer);
+        List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
         for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
-            getFileImportService().schedule(importScheduleOnAppServer.getImportSchedule());
+            fileImportService.schedule(importScheduleOnAppServer.getImportSchedule());
         }
     }
 
@@ -148,11 +151,11 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private void listenForMesssagesToAllServers() {
-        Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(ALL_SERVERS, messagingName());
+        Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
             allServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler()));
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService));
             deactivateTasks.add(new Runnable() {
                 @Override
                 public void run() {
@@ -164,11 +167,11 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private void listenForMessagesToAppServer() {
-        Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(messagingName(), messagingName());
+        Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(messagingName(), messagingName());
         if (subscriberSpec.isPresent()) {
             SubscriberSpec appServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler()));
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler(), transactionService));
             deactivateTasks.add(new Runnable() {
                 @Override
                 public void run() {
@@ -190,16 +193,15 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Application Server");
+        dataModel = ormService.newDataModel("APS", "Jupiter Application Server");
         for (TableSpecs each : TableSpecs.values()) {
             each.addTo(dataModel);
         }
-        this.ormClient = new OrmClientImpl(dataModel);
     }
 
     @Override
     public AppServer createAppServer(final String name, final CronExpression cronExpression) {
-        return getAppServerCreator().createAppServer(name, cronExpression);
+        return dataModel.getInstance(AppServerCreator.class).createAppServer(name, cronExpression);
     }
 
     private String messagingName() {
@@ -209,29 +211,24 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     @Override
     public void install() {
         try {
-            getOrmClient().install();
+            dataModel.install(true, true);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         try {
-            User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
+            User user = userService.createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
             user.save();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         try {
-            QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWTOPICTABLE").get();
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get();
             defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 
     @Reference
@@ -239,29 +236,14 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.transactionService = transactionService;
     }
 
-    @Override
-    public MessageService getMessageService() {
-        return messageService;
-    }
-
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
 
-    @Override
-    public CronExpressionParser getCronExpressionParser() {
-        return cronExpressionParser;
-    }
-
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
-    }
-
-    @Override
-    public LogService getLogService() {
-        return logService;
     }
 
     @Reference
@@ -297,33 +279,14 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    @Override
-    public JsonService getJsonService() {
-        return jsonService;
-    }
-
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
 
-    @Override
-    public FileImportService getFileImportService() {
-        return fileImportService;
-    }
-
     @Reference
     public void setFileImportService(FileImportService fileImportService) {
         this.fileImportService = fileImportService;
-    }
-
-    @Override
-    public AppServerCreator getAppServerCreator() {
-        return appServerCreator;
-    }
-
-    void setAppServerCreator(AppServerCreator appServerCreator) {
-        this.appServerCreator = appServerCreator;
     }
 
     @Override
@@ -335,7 +298,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
             properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
             AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
 
-            allServerSubscriberSpec.getDestination().message(getJsonService().serialize(command)).send();
+            allServerSubscriberSpec.getDestination().message(jsonService.serialize(command)).send();
         }
 
     }
@@ -349,11 +312,6 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.taskService = taskService;
     }
 
-    @Override
-    public UserService getUserService() {
-        return userService;
-    }
-
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -363,7 +321,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
         @Override
         public void process(Message message) {
-            AppServerCommand command = getJsonService().deserialize(message.getPayload(), AppServerCommand.class);
+            AppServerCommand command = jsonService.deserialize(message.getPayload(), AppServerCommand.class);
             switch (command.getCommand()) {
                 case STOP:
                     stop();
@@ -376,8 +334,8 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                     break;
                 case FILEIMPORT_ACTIVATED:
                     String idAsString = command.getProperties().getProperty(ID);
-                    ImportSchedule importSchedule = getFileImportService().getImportSchedule(Long.valueOf(idAsString)).get();
-                    getFileImportService().schedule(importSchedule);
+                    ImportSchedule importSchedule = fileImportService.getImportSchedule(Long.valueOf(idAsString)).get();
+                    fileImportService.schedule(importSchedule);
                 default:
             }
         }
@@ -400,4 +358,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     }
 
+    DataModel getDataModel() {
+        return dataModel;
+    }
 }

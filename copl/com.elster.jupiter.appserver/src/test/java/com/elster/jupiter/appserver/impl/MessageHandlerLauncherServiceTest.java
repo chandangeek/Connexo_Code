@@ -51,8 +51,6 @@ public class MessageHandlerLauncherServiceTest {
     @Mock
     private Message message;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserService userService;
@@ -74,10 +72,6 @@ public class MessageHandlerLauncherServiceTest {
         when(subscriberSpec.getName()).thenReturn(SUBSCRIBER);
         when(subscriberSpec.receive()).thenReturn(message);
         when(subscriberExecutionSpec.getThreadCount()).thenReturn(1);
-        when(serviceLocator.getThreadPrincipalService()).thenReturn(threadPrincipalService);
-        when(serviceLocator.getUserService()).thenReturn(userService);
-        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(serviceLocator.getAppServer()).thenReturn(Optional.of(appServer));
         when(userService.findUser(BATCH_EXECUTOR)).thenReturn(Optional.of(user));
         when(factory.newMessageHandler()).thenReturn(handler);
         when(appServer.getName()).thenReturn(NAME);
@@ -85,8 +79,9 @@ public class MessageHandlerLauncherServiceTest {
         initFakeTransactionService();
 
         messageHandlerLauncherService.setAppService(appService);
-
-        Bus.setServiceLocator(serviceLocator);
+        messageHandlerLauncherService.setUserService(userService);
+        messageHandlerLauncherService.setThreadPrincipalService(threadPrincipalService);
+        messageHandlerLauncherService.setTransactionService(transactionService);
     }
 
     @SuppressWarnings("unchecked")
@@ -101,7 +96,6 @@ public class MessageHandlerLauncherServiceTest {
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
@@ -139,6 +133,8 @@ public class MessageHandlerLauncherServiceTest {
             arrivalLatch.await();
 
             verify(subscriberSpec, atLeastOnce()).receive();
+        } catch(Exception e) {
+            e.printStackTrace();
         } finally {
             messageHandlerLauncherService.deactivate();
         }
@@ -174,6 +170,8 @@ public class MessageHandlerLauncherServiceTest {
 
             verify(subscriberSpec).cancel();
             verify(handler).process(message);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             messageHandlerLauncherService.deactivate();
         }

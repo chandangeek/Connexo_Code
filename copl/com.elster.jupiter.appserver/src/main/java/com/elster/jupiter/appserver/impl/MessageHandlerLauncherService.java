@@ -4,6 +4,9 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -26,8 +29,12 @@ import java.util.concurrent.TimeUnit;
 public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
+    private volatile TransactionService transactionService;
+
     private final ThreadGroup threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
-    private final ThreadFactory threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
+    private ThreadFactory threadFactory;
 
     private final Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
     private final Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
@@ -46,8 +53,24 @@ public class MessageHandlerLauncherService {
         this.appService = appService;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     @Activate
     public void activate() {
+        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(), appService);
     }
 
     @Deactivate
@@ -89,13 +112,13 @@ public class MessageHandlerLauncherService {
     }
 
     private ProvidesCancellableFuture withBatchPrincipal(MessageHandlerTask task) {
-        return new RunMessageHandlerTaskAs(task, Bus.getThreadPrincipalService(), getBatchPrincipal());
+        return new RunMessageHandlerTaskAs(task, threadPrincipalService, getBatchPrincipal());
     }
 
     private Principal getBatchPrincipal() {
         if (batchPrincipal == null) {
             String batchExecutorName = "batch executor";
-            batchPrincipal = Bus.getUserService().findUser(batchExecutorName).get();
+            batchPrincipal = userService.findUser(batchExecutorName).get();
         }
         return batchPrincipal;
     }
@@ -105,7 +128,7 @@ public class MessageHandlerLauncherService {
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {
-        return new MessageHandlerTask(subscriberSpec, factory.newMessageHandler());
+        return new MessageHandlerTask(subscriberSpec, factory.newMessageHandler(), transactionService);
     }
 
     private Optional<SubscriberExecutionSpec> findSubscriberExecutionSpec(String subscriberName) {

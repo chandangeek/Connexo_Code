@@ -3,6 +3,7 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.util.concurrent.FutureTask;
@@ -17,17 +18,19 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     private final SubscriberSpec subscriberSpec;
     private final MessageHandler handler;
     private final MessageHandlerTask.ProcessTransaction processTransaction = new ProcessTransaction();
+    private final TransactionService transactionService;
 
-    MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler) {
+    MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService) {
         this.subscriberSpec = subscriberSpec;
         this.handler = handler;
+        this.transactionService = transactionService;
     }
 
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                Bus.getTransactionService().execute(processTransaction);
+                transactionService.execute(processTransaction);
             } catch (RuntimeException e) {
                 LOGGER.log(Level.SEVERE, "Message handler failed", e);
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message

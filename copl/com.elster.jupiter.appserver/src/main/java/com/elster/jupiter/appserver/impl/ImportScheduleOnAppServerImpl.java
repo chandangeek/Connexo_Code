@@ -4,8 +4,11 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
 import java.util.Properties;
 
 public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer {
@@ -14,22 +17,34 @@ public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer 
     private transient ImportSchedule importSchedule;
     private String appServerName;
     private transient AppServer appServer;
+    private DataModel dataModel;
+
+    private final FileImportService fileImportService;
 
     @SuppressWarnings("unused")
-	private ImportScheduleOnAppServerImpl() {
+    @Inject
+	private ImportScheduleOnAppServerImpl(DataModel dataModel, FileImportService fileImportService) {
+        this.dataModel = dataModel;
+        this.fileImportService = fileImportService;
     }
 
-    public ImportScheduleOnAppServerImpl(ImportSchedule importSchedule, AppServer appServer) {
+    static ImportScheduleOnAppServerImpl from(DataModel dataModel, FileImportService fileImportService, ImportSchedule importSchedule, AppServer appServer) {
+        ImportScheduleOnAppServerImpl importScheduleOnAppServer = new ImportScheduleOnAppServerImpl(dataModel, fileImportService);
+        return importScheduleOnAppServer.init(importSchedule, appServer);
+    }
+
+    ImportScheduleOnAppServerImpl init(ImportSchedule importSchedule, AppServer appServer) {
         this.importScheduleId = importSchedule.getId();
         this.importSchedule = importSchedule;
         this.appServerName = appServer.getName();
         this.appServer = appServer;
+        return this;
     }
 
     @Override
     public ImportSchedule getImportSchedule() {
         if (importSchedule == null) {
-            importSchedule = Bus.getFileImportService().getImportSchedule(importScheduleId).get();
+            importSchedule = fileImportService.getImportSchedule(importScheduleId).get();
         }
         return importSchedule;
     }
@@ -37,14 +52,14 @@ public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer 
     @Override
     public AppServer getAppServer() {
         if (appServer == null) {
-            appServer = Bus.getOrmClient().getAppServerFactory().get(appServerName).get();
+            appServer = dataModel.mapper(AppServer.class).getOptional(appServerName).get();
         }
         return appServer;
     }
 
     @Override
     public void save() {
-        Bus.getOrmClient().getImportScheduleOnAppServerFactory().persist(this);
+        dataModel.mapper(ImportScheduleOnAppServer.class).persist(this);
         Properties properties = new Properties();
         properties.setProperty("id", String.valueOf(importSchedule.getId()));
         getAppServer().sendCommand(new AppServerCommand(Command.FILEIMPORT_ACTIVATED, properties));

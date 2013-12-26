@@ -2,13 +2,14 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -25,37 +26,38 @@ public class ImportScheduleOnAppServerImplTest {
     private ImportSchedule importSchedule;
     @Mock
     private DataMapper<ImportScheduleOnAppServer> importScheduleOnAppServerFactory;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private FileImportService fileImportService;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getOrmClient().getImportScheduleOnAppServerFactory()).thenReturn(importScheduleOnAppServerFactory);
+        when(dataModel.mapper(ImportScheduleOnAppServer.class)).thenReturn(importScheduleOnAppServerFactory);
 
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
+
     @Test
     public void testGetImportSchedule() {
-        ImportScheduleOnAppServerImpl importScheduleOnAppServer = new ImportScheduleOnAppServerImpl(importSchedule, appServer);
+        ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, fileImportService, importSchedule, appServer);
 
         assertThat(importScheduleOnAppServer.getImportSchedule()).isEqualTo(importSchedule);
     }
 
     @Test
     public void testGetAppServer() {
-        ImportScheduleOnAppServerImpl importScheduleOnAppServer = new ImportScheduleOnAppServerImpl(importSchedule, appServer);
+        ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, fileImportService, importSchedule, appServer);
 
         assertThat(importScheduleOnAppServer.getAppServer()).isEqualTo(appServer);
     }
 
     @Test
     public void testSave() {
-        ImportScheduleOnAppServerImpl importScheduleOnAppServer = new ImportScheduleOnAppServerImpl(importSchedule, appServer);
+        ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, fileImportService, importSchedule, appServer);
 
         importScheduleOnAppServer.save();
 

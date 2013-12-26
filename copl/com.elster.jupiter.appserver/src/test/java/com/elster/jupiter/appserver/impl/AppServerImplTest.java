@@ -9,7 +9,9 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import org.junit.After;
@@ -35,10 +37,6 @@ public class AppServerImplTest {
     @Mock
     private SubscriberSpec subscriberSpec;
     @Mock
-    private OrmClient ormClient;
-    @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private DataMapper<SubscriberExecutionSpec> subscriberExecutionSpecFactory;
     @Mock
     private CronExpression cronExpression;
@@ -54,24 +52,23 @@ public class AppServerImplTest {
     private JsonService jsonService;
     @Mock
     private MessageBuilder messageBuilder;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private CronExpressionParser cronExpressionParser;
 
     @Before
     public void setUp() {
 
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getSubscriberExecutionSpecFactory()).thenReturn(subscriberExecutionSpecFactory);
+        when(dataModel.mapper(SubscriberExecutionSpec.class)).thenReturn(subscriberExecutionSpecFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);
-        when(serviceLocator.getMessageService()).thenReturn(messageService);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService));
 
-        Bus.setServiceLocator(serviceLocator);
-
-        appServer = new AppServerImpl(NAME, cronExpression);
+        appServer = AppServerImpl.from(dataModel, NAME, cronExpression);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
