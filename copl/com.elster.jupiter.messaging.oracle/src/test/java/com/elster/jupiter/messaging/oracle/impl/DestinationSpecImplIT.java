@@ -90,7 +90,7 @@ public class DestinationSpecImplIT {
 
                 destinationSpec.subscribe("A");
 
-                Optional<DestinationSpec> found = Bus.getOrmClient().getDestinationSpecFactory().get("name");
+                Optional<DestinationSpec> found = Bus.getOrmClient().getDestinationSpecFactory().getOptional("name");
                 assertThat(found).isPresent();
                 assertThat(found.get().getSubscribers()).hasSize(1);
             }

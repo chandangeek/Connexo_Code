@@ -100,17 +100,17 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
 
 	@Override
 	public Optional<QueueTableSpec> getQueueTableSpec(String name) {
-		return Bus.getOrmClient().getQueueTableSpecFactory().get(name);
+		return Bus.getOrmClient().getQueueTableSpecFactory().getOptional(name);
 	}
 
 	@Override
 	public Optional<DestinationSpec> getDestinationSpec(String name) {
-		return Bus.getOrmClient().getDestinationSpecFactory().get(name);
+		return Bus.getOrmClient().getDestinationSpecFactory().getOptional(name);
 	}
 
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
-        return Bus.getOrmClient().getConsumerSpecFactory().get(destinationSpecName, name);
+        return Bus.getOrmClient().getConsumerSpecFactory().getOptional(destinationSpecName, name);
     }
 
     @Override

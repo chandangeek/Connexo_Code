@@ -99,42 +99,42 @@ public class MessageServiceImplTest {
 
     @Test
     public void testGetQueueTableSpec() {
-        when(queueTableSpecFactory.get(QTS)).thenReturn(Optional.of(queueTableSpec));
+        when(queueTableSpecFactory.getOptional(QTS)).thenReturn(Optional.of(queueTableSpec));
 
         assertThat(messageService.getQueueTableSpec(QTS)).contains(queueTableSpec);
     }
 
     @Test
     public void testGetQueueTableSpecNotExists() {
-        when(queueTableSpecFactory.get(QTS)).thenReturn(Optional.<QueueTableSpec>absent());
+        when(queueTableSpecFactory.getOptional(QTS)).thenReturn(Optional.<QueueTableSpec>absent());
 
         assertThat(messageService.getQueueTableSpec(QTS)).isAbsent();
     }
 
     @Test
     public void testGetDestinationSpec() {
-        when(destinationSpecFactory.get(DESTINATION)).thenReturn(Optional.of(destination));
+        when(destinationSpecFactory.getOptional(DESTINATION)).thenReturn(Optional.of(destination));
 
         assertThat(messageService.getDestinationSpec(DESTINATION)).contains(destination);
     }
 
     @Test
     public void testGetDestinationSpecNotExists() {
-        when(destinationSpecFactory.get(DESTINATION)).thenReturn(Optional.<DestinationSpec>absent());
+        when(destinationSpecFactory.getOptional(DESTINATION)).thenReturn(Optional.<DestinationSpec>absent());
 
         assertThat(messageService.getDestinationSpec(DESTINATION)).isAbsent();
     }
 
     @Test
     public void testGetSubscriberSpec() {
-        when(subscriberSpecFactory.get(DESTINATION, SUBSCRIBER)).thenReturn(Optional.of(subscriberSpec));
+        when(subscriberSpecFactory.getOptional(DESTINATION, SUBSCRIBER)).thenReturn(Optional.of(subscriberSpec));
 
         assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).contains(subscriberSpec);
     }
 
     @Test
     public void testGetSubscriberSpecNotExists() {
-        when(subscriberSpecFactory.get(DESTINATION, SUBSCRIBER)).thenReturn(Optional.<SubscriberSpec>absent());
+        when(subscriberSpecFactory.getOptional(DESTINATION, SUBSCRIBER)).thenReturn(Optional.<SubscriberSpec>absent());
 
         assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).isAbsent();
     }
