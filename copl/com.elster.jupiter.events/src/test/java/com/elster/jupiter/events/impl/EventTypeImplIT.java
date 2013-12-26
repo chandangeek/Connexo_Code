@@ -1,18 +1,5 @@
 package com.elster.jupiter.events.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-
-import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -31,6 +18,18 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
+import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventTypeImplIT {
@@ -92,7 +91,7 @@ public class EventTypeImplIT {
                 eventType.addProperty("A", ValueType.STRING, "C");
                 eventType.save();
 
-                Optional<EventType> optional = Bus.getOrmClient().getEventTypeFactory().get(eventType.getTopic());
+                Optional<EventType> optional = Bus.getOrmClient().getEventTypeFactory().getOptional(eventType.getTopic());
 
                 assertThat(optional).isPresent();
                 EventType read = optional.get();
