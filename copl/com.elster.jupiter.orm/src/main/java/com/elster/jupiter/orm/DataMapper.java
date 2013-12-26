@@ -52,8 +52,8 @@ public interface DataMapper<T> extends Finder<T> {
 	/**
 	 * @return the table served by the receiver
 	 */
-	Table getTable();
-	Object[] getPrimaryKey(T object);
+	Table<? super T> getTable();
+
 	Optional<T> getEager(Object ... object);
 	// meta data access
 	Object getAttribute(Object target , String fieldName);

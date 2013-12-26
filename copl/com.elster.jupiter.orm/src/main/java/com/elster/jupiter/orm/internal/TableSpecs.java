@@ -16,16 +16,19 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	
-	ORM_DATAMODEL(DataModel.class) {		
-		void describeTable(Table table) {
+	ORM_DATAMODEL {		
+		public void addTo(DataModel dataModel) {
+			Table<DataModel> table = dataModel.addTable(name(),DataModel.class);
 			table.map(DataModelImpl.class);
 			Column nameColumn = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
 			table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
 			table.primaryKey("ORM_PK_COMPONENT").on(nameColumn).add();
 		}
 	},
-	ORM_TABLE(Table.class) {
-		void describeTable(Table table) {
+	ORM_TABLE {
+		@SuppressWarnings("rawtypes")
+		public void addTo(DataModel dataModel) {
+			Table<Table> table = dataModel.addTable(name(),Table.class);
 			table.map(TableImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
@@ -41,8 +44,9 @@ public enum TableSpecs {
 				map("dataModel").reverseMap("tables").composition().add();
 		}
 	},
-	ORM_COLUMN(Column.class) {	
-		void describeTable(Table table) {
+	ORM_COLUMN {	
+		public void addTo(DataModel dataModel) {
+			Table<Column> table = dataModel.addTable(name(),Column.class);
 			table.map(ColumnImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();		
@@ -64,8 +68,9 @@ public enum TableSpecs {
 				map("table").reverseMap("columns").reverseMapOrder("position").composition().add();
 		}
 	},
-	ORM_TABLECONSTRAINT(TableConstraint.class) {	
-		void describeTable(Table table) {
+	ORM_TABLECONSTRAINT {	
+		public void addTo(DataModel dataModel) {
+			Table<TableConstraint> table = dataModel.addTable(name(),TableConstraint.class);
 			table.map(TableConstraintImpl.implementers);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLEID").type(CATALOGDBTYPE).notNull().add();
@@ -86,8 +91,9 @@ public enum TableSpecs {
 			table.foreignKey("ORM_FK_CONSTRAINTTABLE2").on(referencedComponentName, referencedTableName).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
 		}
 	},
-	ORM_COLUMNINCONSTRAINT(ColumnInConstraintImpl.class) {
-		void describeTable(Table table) {
+	ORM_COLUMNINCONSTRAINT {
+		public void addTo(DataModel dataModel) {
+			Table<ColumnInConstraintImpl> table = dataModel.addTable(name(),ColumnInConstraintImpl.class);
 			table.map(ColumnInConstraintImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();
@@ -105,17 +111,6 @@ public enum TableSpecs {
 	private static final String COMPONENTDBTYPE = "varchar2(3)";
 	private static final String CATALOGDBTYPE = "varchar2(30)";
 	
-	private Class<?> api;
-	
-	TableSpecs(Class<?> api) {
-		this.api = api;
-	}
-
-	public void addTo(DataModel component) {
-		Table table = component.addTable(name(),api);
-		describeTable(table);
-	}
-	
-	abstract void describeTable(Table table);
+	public abstract void addTo(DataModel dataModel);
 	
 }

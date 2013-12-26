@@ -24,11 +24,11 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	private String name;
 	
 	// associations
-	private final Reference<TableImpl> table = ValueReference.absent();
+	private final Reference<TableImpl<?>> table = ValueReference.absent();
 	private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 	
 
-	TableConstraintImpl init(TableImpl table, String name) {
+	TableConstraintImpl init(TableImpl<?> table, String name) {
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -52,7 +52,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	}
 
 	@Override
-	public TableImpl getTable() {
+	public TableImpl<?> getTable() {
 		return table.get();
 	}
 
@@ -104,7 +104,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 		return true;
 	}
 	
-	public Object[] getColumnValues(Object value) {
+	public KeyValue getColumnValues(Object value) {
 		List<ColumnImpl> columns = getColumns();
 		int columnCount = columns.size();		
 		Object[] result = new Object[columnCount]; 
@@ -122,7 +122,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 						if (reference instanceof PersistentReference<?>) {
 							result[i] = ((PersistentReference<?>) reference).getKeyPart(index);
 						} else {
-							result[i] = constraint.getReferencedTable().getPrimaryKey(reference.get())[index];
+							result[i] = constraint.getReferencedTable().getPrimaryKey(reference.get()).get(index);
 						}
 						break;
 					}
@@ -132,7 +132,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 				result[i] = DomainMapper.FIELDSTRICT.get(value, columns.get(i).getFieldName());
 			}
 		}
-		return result;		
+		return KeyValue.of(result);		
 	}
 	
 	boolean needsIndex() {		

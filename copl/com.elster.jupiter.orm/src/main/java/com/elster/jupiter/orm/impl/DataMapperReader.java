@@ -1,7 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,26 +28,30 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 public class DataMapperReader<T> {
-	private final TableSqlGenerator sqlGenerator;
-	private final String alias;
-	private final DataMapperType mapperType;
+	private final DataMapperImpl<T> dataMapper;
 	
 	DataMapperReader(DataMapperImpl<T> dataMapper, DataMapperType mapperType) {
-		this.sqlGenerator = dataMapper.getSqlGenerator();	
-		this.alias = dataMapper.getAlias();
-		this.mapperType = mapperType;
+		this.dataMapper = dataMapper;
+	}
+	
+	private String getAlias() {
+		return dataMapper.getAlias();
+	}
+	
+	private DataMapperType getMapperType() {
+		return dataMapper.getMapperType();
 	}
 	
 	private Connection getConnection(boolean txRequired) throws SQLException {
 		return getTable().getDataModel().getConnection(txRequired);
 	}
 	
-	private TableImpl getTable() {
-		return sqlGenerator.getTable();
+	private TableImpl<? super T> getTable() {
+		return dataMapper.getTable();
 	}
 	
 	private TableSqlGenerator getSqlGenerator() {
-		return sqlGenerator;
+		return dataMapper.getSqlGenerator();
 	}
 	
 	private List<SqlFragment> getPrimaryKeyFragments(Object[] values) {
@@ -58,7 +61,7 @@ public class DataMapperReader<T> {
 		}
 		List<SqlFragment> fragments = new ArrayList<>(pkColumns.size());
 		for (int i = 0 ; i < values.length ; i++) {
-			fragments.add(new ColumnEqualsFragment(pkColumns.get(i) , values[i] , alias));
+			fragments.add(new ColumnEqualsFragment(pkColumns.get(i) , values[i] , getAlias()));
 		}
 		return fragments;		
 	}
@@ -159,12 +162,12 @@ public class DataMapperReader<T> {
     }
 
     private SqlBuilder selectSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
-		SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromClause(alias));
+		SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromClause(getAlias()));
         return doSelectSql(fragments, orderColumns, lock, builder);
 	}
 
     private SqlBuilder selectJournalSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
-        SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromJournalClause(alias));
+        SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromJournalClause(getAlias()));
         return doSelectSql(fragments, orderColumns, lock, builder);
     }
 
@@ -184,7 +187,7 @@ public class DataMapperReader<T> {
             for (String each : orderColumns) {
                 builder.append(separator);
                 Column column = getColumnForField(each);
-                builder.append(column == null ? each : column.getName(alias));
+                builder.append(column == null ? each : column.getName(getAlias()));
                 separator = ", ";
             }
         }
@@ -194,22 +197,21 @@ public class DataMapperReader<T> {
         return builder;
     }
 
-
     	
 	private T newInstance(ResultSet rs , int startIndex) throws SQLException {
 		for (int i = 0 ; i < getColumns().size() ; i++) {
 			if (getColumns().get(i).isDiscriminator()) {
-				return mapperType.newInstance(rs.getString(startIndex + i));
+				return getMapperType().newInstance(rs.getString(startIndex + i));
 			}
 		}
 		throw MappingException.noDiscriminatorColumn();
 	}
 	
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
-		T result = mapperType.hasMultiple() ? newInstance(rs,startIndex) : mapperType.<T>newInstance();
+		T result = getMapperType().hasMultiple() ? newInstance(rs,startIndex) : getMapperType().<T>newInstance();
 		List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
-		DomainMapper mapper = mapperType.getDomainMapper();
-		for (ColumnImpl column : getSqlGenerator().getColumns()) {
+		DomainMapper mapper = getMapperType().getDomainMapper();
+		for (ColumnImpl column : getTable().getColumns()) {
 			Object value = column.convertFromDb(rs, startIndex++);
 			if (column.isForeignKeyPart()) {
 				columnValues.add(Pair.of(column,rs.wasNull() ? null : value));
@@ -221,9 +223,9 @@ public class DataMapperReader<T> {
 		for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
 			Field field = mapper.getField(result.getClass(), constraint.getFieldName());
 			if (field != null && Reference.class.isAssignableFrom(field.getType())) {
-				Object[] key = createKey(constraint,columnValues);
+				KeyValue keyValue = createKey(constraint,columnValues);
 				DataMapperImpl<?> dataMapper = constraint.getReferencedTable().getDataMapper();
-				Reference<?> reference = new PersistentReference<>(key, dataMapper);
+				Reference<?> reference = new PersistentReference<>(keyValue, dataMapper);
 				try {
 					field.set(result, reference);
 				} catch (ReflectiveOperationException ex) {
@@ -234,7 +236,7 @@ public class DataMapperReader<T> {
 		for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 			Field field = mapper.getField(result.getClass(), constraint.getReverseFieldName());
 			if (field != null && List.class.isAssignableFrom(field.getType())) {
-				DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(getTypeArgument(field));
+				DataMapperImpl<?> dataMapper = constraint.getTable().getDataMapper(getTypeArgument(field));
 				List<?> value = (constraint.isComposition()) ?
 						new ManagedPersistentList<>(constraint, dataMapper, result) :
 						new UnManagedPersistentList<>(constraint, dataMapper, result);
@@ -249,8 +251,7 @@ public class DataMapperReader<T> {
 	}
 	
 	private Class<?> getTypeArgument(Field field) {
-		ParameterizedType type = (ParameterizedType) field.getGenericType();
-		return (Class<?>) type.getActualTypeArguments()[0];
+		return DomainMapper.FIELDSTRICT.extractClass(field.getGenericType());
 	}
 	
 	private Object getValue(ColumnImpl column , List<Pair<ColumnImpl,Object>> columnValues) {
@@ -262,13 +263,13 @@ public class DataMapperReader<T> {
 		throw new IllegalArgumentException();
 	}
 	
-	private Object[] createKey(ForeignKeyConstraintImpl constraint , List<Pair<ColumnImpl,Object>> columnValues) {
+	private KeyValue createKey(ForeignKeyConstraintImpl constraint , List<Pair<ColumnImpl,Object>> columnValues) {
 		List<ColumnImpl> columns = constraint.getColumns();
 		Object[] result = new Object[columns.size()];
 		for (int i = 0 ; i < result.length ; i++) {
 			result[i] = getValue(columns.get(i),columnValues);
 		}
-		return result;
+		return KeyValue.of(result);
 	}
 	
 	T construct(ResultSet rs, List<Setter> setters) throws SQLException {
@@ -283,11 +284,11 @@ public class DataMapperReader<T> {
 	}
 	
 	private List<ColumnImpl> getColumns() {
-		return getSqlGenerator().getColumns();
+		return getTable().getColumns();
 	}
 	
 	private List<ColumnImpl> getPrimaryKeyColumns() {
-		return getSqlGenerator().getPrimaryKeyColumns();
+		return getTable().getPrimaryKeyColumns();
 	}
 	
 	Column getColumnForField(String fieldName) {
@@ -340,7 +341,7 @@ public class DataMapperReader<T> {
 		if (mapping == null) {
 			throw new IllegalArgumentException("Invalid field " + fieldName);
 		} else {
-			fragments.add(mapping.asEqualFragment(value, alias));
+			fragments.add(mapping.asEqualFragment(value, getAlias()));
 		}
 	}
 	

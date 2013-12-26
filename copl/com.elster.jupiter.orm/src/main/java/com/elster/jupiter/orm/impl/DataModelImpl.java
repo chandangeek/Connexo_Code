@@ -50,7 +50,7 @@ public class DataModelImpl implements DataModel {
     private String description;
 
     // associations
-    private final List<TableImpl> tables = new ArrayList<>();
+    private final List<TableImpl<?>> tables = new ArrayList<>();
     
     // transient fields
     private Injector injector;
@@ -84,13 +84,13 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public List<TableImpl> getTables() {
+    public List<TableImpl<?>> getTables() {
         return ImmutableList.copyOf(tables);
     }
 
     @Override
-    public TableImpl getTable(String tableName) {
-        for (TableImpl table : tables) {
+    public TableImpl<?> getTable(String tableName) {
+        for (TableImpl<?> table : tables) {
             if (table.getName().equals(tableName)) {
                 return table;
             }
@@ -99,7 +99,7 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public Table addTable(String tableName,Class<?> api) {
+    public <T> Table<T> addTable(String tableName,Class<T> api) {
         return addTable(null, tableName,api);
     }
     
@@ -110,12 +110,12 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public TableImpl addTable(String schema, String tableName, Class<?> api) {
+    public <T> TableImpl<T> addTable(String schema, String tableName, Class<T> api) {
     	checkActiveBuilder();
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
         }
-        TableImpl table = TableImpl.from(this, schema, tableName, api, getTables().size() + 1);
+        TableImpl<T> table = TableImpl.from(this, schema, tableName, api, getTables().size() + 1);
         add(table);
         return table;
     }
@@ -125,13 +125,13 @@ public class DataModelImpl implements DataModel {
         return Joiner.on(" ").join("DataModel",name,"(" + description + ")");
     }
 
-    private void add(TableImpl table) {
+    private void add(TableImpl<?> table) {
         tables.add(table);
     }
 
     @Override
     public <T> DataMapperImpl<T> mapper(Class<T> api) {
-    	for (TableImpl table : tables) {
+    	for (TableImpl<?> table : tables) {
     		if (table.maps(api)) {
     			return table.getDataMapper(api);
     		}
@@ -174,12 +174,12 @@ public class DataModelImpl implements DataModel {
     }
 
     private void doExecuteDdl(Statement statement) throws SQLException {
-        for (TableImpl table : tables) {
+        for (TableImpl<?> table : tables) {
             executeTableDdl(statement, table);
         }
     }
 
-    private void executeTableDdl(Statement statement, TableImpl table) throws SQLException {
+    private void executeTableDdl(Statement statement, TableImpl<?> table) throws SQLException {
         for (String each : table.getDdl()) {            
             statement.execute(each);
         }
@@ -207,10 +207,10 @@ public class DataModelImpl implements DataModel {
         }
     }
     
-    public Optional<TableImpl> getTable(Class<?> clazz) {
-    	for (TableImpl table : getTables()) {
+    public Optional<TableImpl<?>> getTable(Class<?> clazz) {
+    	for (TableImpl<?> table : getTables()) {
     		if (table.maps(clazz)) {
-    			return Optional.of(table);
+    			return Optional.<TableImpl<?>>of(table);
     		}
     	}
     	return Optional.absent();
@@ -220,7 +220,7 @@ public class DataModelImpl implements DataModel {
     public RefAny asRefAny(Object reference) {
     	Class<?> clazz = Objects.requireNonNull(reference).getClass();
 		for (DataModelImpl dataModel : getOrmService().getDataModels()) {
-			Optional<TableImpl> tableHolder = dataModel.getTable(clazz);
+			Optional<TableImpl<?>> tableHolder = dataModel.getTable(clazz);
 			if (tableHolder.isPresent()) {
 				return getInstance(RefAnyImpl.class).init(reference,tableHolder.get());
 			}
@@ -245,7 +245,7 @@ public class DataModelImpl implements DataModel {
     	System.arraycopy(modules, 0, allModules, 0, modules.length);
     	allModules[modules.length] = getModule();
     	injector = Guice.createInjector(allModules);
-        for (TableImpl each : tables) {
+        for (TableImpl<?> each : tables) {
         	each.prepare();
        	}
     	this.ormService.register(this);
@@ -314,7 +314,7 @@ public class DataModelImpl implements DataModel {
 			public void configure() {
 				Set<TypeLiteral<Reference<?>>> referenceTypeLiterals = new HashSet<>(); 
 				Set<TypeLiteral<List<?>>> listTypeLiterals = new HashSet<>();
-				for (TableImpl table : getTables()) {
+				for (TableImpl<?> table : getTables()) {
 					for (ForeignKeyConstraintImpl constraint : table.getForeignKeyConstraints()) {
 						Optional<Type> referenceParameterType = constraint.getReferenceParameterType();
 						if (referenceParameterType.isPresent()) {
@@ -386,7 +386,7 @@ public class DataModelImpl implements DataModel {
 	}
 	
 	public void renewCache(String tableName) {
-		TableImpl table = getTable(tableName);
+		TableImpl<?> table = getTable(tableName);
 		if (table != null) {
 			table.renewCache();
 		}

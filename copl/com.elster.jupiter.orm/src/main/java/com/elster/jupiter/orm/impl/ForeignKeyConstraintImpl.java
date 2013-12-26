@@ -23,24 +23,24 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	private String reverseCurrentFieldName;
 	private boolean composition;
 	
-	private final Reference<TableImpl> referencedTable = ValueReference.absent();
+	private final Reference<TableImpl<?>> referencedTable = ValueReference.absent();
 	
 	@Override
-	ForeignKeyConstraintImpl init(TableImpl table, String name) {
+	ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
 		super.init(table, name);
 		return this;
 	}
 	
-	static ForeignKeyConstraintImpl from(TableImpl table, String name) {
+	static ForeignKeyConstraintImpl from(TableImpl<?> table, String name) {
 		return new ForeignKeyConstraintImpl().init(table,name);
 	}
 
-	private final void setReferencedTable(TableImpl table) {
+	private final void setReferencedTable(TableImpl<?> table) {
 		this.referencedTable.set(table);
 	}
 	
 	@Override
-	public TableImpl getReferencedTable() {
+	public TableImpl<?> getReferencedTable() {
 		return referencedTable.get();
 	}
 	
@@ -136,7 +136,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	static class BuilderImpl implements ForeignKeyConstraint.Builder {
 		private final ForeignKeyConstraintImpl constraint;
 		
-		BuilderImpl(TableImpl table, String name) {
+		BuilderImpl(TableImpl<?> table, String name) {
 			this.constraint = ForeignKeyConstraintImpl.from(table,name);
 			constraint.deleteRule = DeleteRule.RESTRICT;
 		}
@@ -167,7 +167,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
 		@Override
 		public Builder references(String component, String name) {
-			TableImpl table =  constraint.getTable().getDataModel().getOrmService().getTable(component, name);
+			TableImpl<?> table =  constraint.getTable().getDataModel().getOrmService().getTable(component, name);
 			constraint.setReferencedTable(table);
 			return this;
 		}

@@ -26,9 +26,9 @@ public class ColumnImpl implements Column  {
 	private boolean skipOnUpdate;
 	
 	// associations
-	private final Reference<TableImpl> table = ValueReference.absent();
+	private final Reference<TableImpl<?>> table = ValueReference.absent();
 
-	private ColumnImpl init(TableImpl table, String name) {
+	private ColumnImpl init(TableImpl<?> table, String name) {
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -37,7 +37,7 @@ public class ColumnImpl implements Column  {
 		return this;
 	}
 	
-	static ColumnImpl from(TableImpl table, String name) {
+	static ColumnImpl from(TableImpl<?> table, String name) {
 		return new ColumnImpl().init(table,name);
 	}
 	
@@ -54,7 +54,7 @@ public class ColumnImpl implements Column  {
 	}
 	
 	@Override
-	public TableImpl getTable() {
+	public TableImpl<?> getTable() {
 		return table.get();
 	}
 	

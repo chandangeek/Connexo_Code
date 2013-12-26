@@ -75,7 +75,7 @@ public class OrmTest {
     		OrmService ormService = injector.getInstance(OrmService.class);
         	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
     		Optional<DataModel> copy = dataModel.mapper(DataModel.class).getEager("ORM");
-    		for (Table each : copy.get().getTables()) {
+    		for (Table<?> each : copy.get().getTables()) {
     			each.getColumns().size();
     			each.getConstraints().size();
     			for ( TableConstraint constraint : each.getConstraints()) {

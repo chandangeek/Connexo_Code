@@ -6,12 +6,12 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements PrimaryKeyConstraint {
 	
 	@Override
-	PrimaryKeyConstraintImpl init(TableImpl table, String name) {
+	PrimaryKeyConstraintImpl init(TableImpl<?> table, String name) {
 		super.init(table,name);
 		return this;
 	}
 	
-	static PrimaryKeyConstraintImpl from(TableImpl table , String name) {
+	static PrimaryKeyConstraintImpl from(TableImpl<?> table , String name) {
 		return new PrimaryKeyConstraintImpl().init(table,name);
 	}
 	
@@ -28,7 +28,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 	static class BuilderImpl implements PrimaryKeyConstraint.Builder {
 		private final PrimaryKeyConstraintImpl constraint;
 		
-		public BuilderImpl(TableImpl table, String name) {
+		public BuilderImpl(TableImpl<?> table, String name) {
 			this.constraint = PrimaryKeyConstraintImpl.from(table,name);
 		}
 

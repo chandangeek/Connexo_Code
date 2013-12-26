@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -117,13 +116,15 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"XML",                                                                             
 		"XS",                                                                              
 		"YES" }; 
+	private final TableImpl<? super T> table;
 	private final TableSqlGenerator sqlGenerator;
 	private final DataMapperType mapperType;
 	private final String alias;
 	private final DataMapperReader<T> reader;
 	private final DataMapperWriter<T> writer;
 	
-	DataMapperImpl(Class<T> api, DataMapperType mapperType ,  TableImpl table) {
+	DataMapperImpl(Class<T> api, DataMapperType mapperType ,  TableImpl<? super T> table) {
+		this.table = table;
 		this.sqlGenerator = new TableSqlGenerator(table);
 		this.alias = createAlias(api.getName());
 		this.mapperType = mapperType;
@@ -155,29 +156,31 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override 
-	public TableImpl getTable() {
-		return sqlGenerator.getTable();
+	public TableImpl<? super T> getTable() {
+		return table;
 	}
 	
 	public TableSqlGenerator getSqlGenerator() {
 		return sqlGenerator;
 	}
 	
-	private TableCache<T> getCache() {
+	private TableCache<? super T> getCache() {
 		return getTable().getCache();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
     Optional<T> findByPrimaryKey(Object[] values) {
-		TableCache<T> cache = getCache();
-		Optional<T> result = cache.getOptional(reader,values);
-		if (result.isPresent()) {
-			return result;
+		TableCache<? super T> cache = getCache();
+		KeyValue keyValue = KeyValue.of(values);
+		T cacheVersion = (T) cache.get(keyValue);
+		if (cacheVersion != null) {
+			return Optional.of(cacheVersion);
 		}
 		try {
-			result = reader.findByPrimaryKey(values);
+			Optional<T> result = reader.findByPrimaryKey(values);
 			if (result.isPresent()) {
-				cache.put(reader,values, result.get());
+				cache.put(keyValue, result.get());
 			}
 			return result;
 		} catch (SQLException ex) {
@@ -199,12 +202,13 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> find(String[] fieldNames, Object[] values, String... orderColumns) {
 		if (fieldNames == null) {
-			Optional<List<T>> candidate = getCache().find(reader);
-			if (candidate.isPresent()) {
-				return candidate.get();
+			List<? super T> candidates = getCache().find();
+			if (candidates != null) {
+				return (List<T>) candidates;
 			}
 		}
 		try {
@@ -233,22 +237,18 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 	
-	private void cacheChange() {
-		//TODO send event
-	}
 	@Override
 	public void persist(T object)  {
 		preventIfChild();
 		// initialize cache if needed
-		TableCache<T> cache = getCache();
-		cache.getOptional(reader, new Object[0]);
+		TableCache<? super T> cache = getCache();
+		cache.start();
 		try {
 			writer.persist(object);
-			cache.cache(reader, object);
+			cache.cache(object);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		cacheChange();
 	}
 		
 	@Override
@@ -256,22 +256,21 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public void persist(List<T> objects)  {
 		preventIfChild();
 		// initialize cache if needed
-		TableCache<T> cache = getCache();
-		cache.getOptional(reader, new Object[0]);		
+		TableCache<? super T> cache = getCache();
+		cache.start();		
 		try {
 			writer.persist(objects);
 			for (T each : objects) {
-				cache.cache(reader,each);
+				cache.cache(each);
 			}
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		cacheChange();
 	}
 	
 	@Override
 	public void update(T object)  {
-		update(object,sqlGenerator.getTable().getStandardColumns());
+		update(object,getTable().getStandardColumns());
 	}
 	
 	@Override
@@ -298,13 +297,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		cacheChange();
 	}
-	
 	
 	@Override
 	public void update(List<T> objects)  {
-		update(objects,sqlGenerator.getTable().getStandardColumns());
+		update(objects,getTable().getStandardColumns());
 	}
 	
 	@Override
@@ -318,7 +315,6 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		} 	
-		cacheChange();
 	}
 	
 	@Override
@@ -330,7 +326,6 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		cacheChange();
 	}
 	
 	@Override
@@ -344,7 +339,6 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		cacheChange();
 	}
 	
 	@Override
@@ -369,7 +363,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	private List<ColumnImpl> getColumns() {
-		return getSqlGenerator().getColumns();
+		return getTable().getColumns();
 	}
 		
 	private int getIndex(ColumnImpl column) {
@@ -386,7 +380,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	public Object getPrimaryKey(ResultSet rs , int index) throws SQLException {
-		List<ColumnImpl> primaryKeyColumns = getSqlGenerator().getPrimaryKeyColumns();
+		List<ColumnImpl> primaryKeyColumns = getTable().getPrimaryKeyColumns();
 		switch (primaryKeyColumns.size()) {
 			case 0:
 				return null;
@@ -409,21 +403,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 	
-	ForeignKeyConstraint getForeignKeyConstraintFor(String name) {
-		for (ForeignKeyConstraint each : getTable().getForeignKeyConstraints()) {
-			if (each.getFieldName().equals(name)) {
-                return each;
-            }
-		}
-		return null;
-	}
-	
 	public Class<?> getType(String fieldName) {
 		return mapperType.getType(fieldName);
 	}
 	
 	public List<T> select(Condition condition, String ... orderBy) {
-		return with().select(condition, orderBy, false,null);
+		return with().select(condition, orderBy);
 	}
 	
 	DataMapperType getMapperType() {
@@ -437,15 +422,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public T newInstance() {
 		return mapperType.newInstance((String) null);
 	}
-
-	@Override
-	public Object[] getPrimaryKey(T object) {
-		return getTable().getPrimaryKey(object);
-	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Optional<T> getEager(Object ... key) {
-		return getTable().<T>getQuery().getOptional(key);
+		return (Optional<T>) getTable().getQuery().getOptional(key);
 	}
 
 	@Override
@@ -456,4 +437,5 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public boolean isAutoId() {
 		return getTable().isAutoId();
 	}
+	
 }

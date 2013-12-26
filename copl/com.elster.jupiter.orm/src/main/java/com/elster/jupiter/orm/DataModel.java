@@ -32,9 +32,9 @@ public interface DataModel {
     RefAny asRefAny(Object object);
 
     // creation api
-    Table addTable(String name, Class<?> api);
+    <T> Table<T> addTable(String name, Class<T> api);
 
-    Table addTable(String schema, String tableName, Class<?> api);
+    <T> Table<T> addTable(String schema, String tableName, Class<T> api);
 
     void register(Module... modules);
 
@@ -52,9 +52,9 @@ public interface DataModel {
 
     String getDescription();
 
-    List<? extends Table> getTables();
+    List<? extends Table<?>> getTables();
 
-    Table getTable(String name);
+    Table<?> getTable(String name);
 
     // installation
     void install(boolean executeDdl, boolean store);

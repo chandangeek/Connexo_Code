@@ -25,7 +25,7 @@ final class JoinTreeNode<T>  {
 		this.value = value;
 	}
 
-	TableImpl getTable() {		
+	TableImpl<? super T> getTable() {		
 		return value.getTable();
 	}
 	

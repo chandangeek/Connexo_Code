@@ -31,7 +31,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-public class TableImpl implements Table {
+public class TableImpl<T> implements Table<T> {
 	
 	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
 	
@@ -55,14 +55,14 @@ public class TableImpl implements Table {
 	
 	// transient, protection against forgetting to call add() on a builder
 	private boolean activeBuilder;
-	private Class<?> api; 
-	private TableCache<?> cache;
+	private Class<T> api; 
+	private TableCache<T> cache;
 	
 	// cached fields , initialized when the table's datamodel is registered with the orm service.
 	private List<ForeignKeyConstraintImpl> referenceConstraints;
 	private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
 		
-	TableImpl init(DataModelImpl dataModel, String schema, String name, Class<?> api,int position) {
+	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api,int position) {
         assert !is(name).emptyOrOnlyWhiteSpace();
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
@@ -75,8 +75,8 @@ public class TableImpl implements Table {
 		return this;
 	}
 	
-	static TableImpl from(DataModelImpl dataModel,String schema,String name, Class<?> api, int position) {
-		return new TableImpl().init(dataModel,schema,name,api,position);
+	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, int position) {
+		return new TableImpl<T>().init(dataModel,schema,name,api,position);
 	}
 	
 	@Override 
@@ -292,7 +292,7 @@ public class TableImpl implements Table {
 		return constraint;
 	}
 	
-	public DataMapperImpl<?> getDataMapper() {
+	public DataMapperImpl<T> getDataMapper() {
 		return getDataMapper(api);
 	}
 	
@@ -300,35 +300,35 @@ public class TableImpl implements Table {
 		return api;
 	}
 	
-	<T> DataMapperImpl<T> getDataMapper(Class<T> api) {
+	@SuppressWarnings("unchecked")
+	<S> DataMapperImpl<S> getDataMapper(Class<S> api) {
 		if (mapperType == null) {
 			throw new IllegalStateException("Implementation not specified");
 		}
-		return new DataMapperImpl<>(api,mapperType,this);
+		return new DataMapperImpl<S>(api,mapperType, (TableImpl<? super S>) this);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T> QueryExecutorImpl<T> getQuery() {
-		List<TableImpl> related = new ArrayList<>();
+	public QueryExecutorImpl<T> getQuery() {
+		List<TableImpl<?>> related = new ArrayList<>();
 		addAllRelated(related);
 		related.remove(0);
 		List<DataMapperImpl<?>> mappers = new ArrayList<>(related.size());
-		for (TableImpl each : related) {
+		for (TableImpl<?> each : related) {
 			mappers.add(each.getDataMapper());
 		}
 		return (QueryExecutorImpl<T>) getDataMapper(api).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
 	}
 
-	private void addAllRelated(List<TableImpl> related) {
+	private void addAllRelated(List<TableImpl<?>> related) {
 		related.add(this);
 		for (ForeignKeyConstraintImpl each : this.getForeignKeyConstraints()) {
-			TableImpl table = each.getReferencedTable();
+			TableImpl<?> table = each.getReferencedTable();
 			if (!related.contains(table)) {
 				table.addAllRelated(related);
 			}
 		}
 		for (ForeignKeyConstraintImpl each : this.getReverseMappedConstraints()) {
-			TableImpl table = each.getTable();
+			TableImpl<?> table = each.getTable();
 			if (!related.contains(table)) {
 				table.addAllRelated(related);
 			}
@@ -449,7 +449,7 @@ public class TableImpl implements Table {
         if (!(o instanceof TableImpl)) {
             return false;
         }
-        TableImpl table = (TableImpl) o;
+        TableImpl<?> table = (TableImpl<?>) o;
         return name.equals(table.name) && this.getDataModel().equals(table.getDataModel());
     }
 
@@ -458,7 +458,7 @@ public class TableImpl implements Table {
 		return name.hashCode();
 	}
 
-	public Object[] getPrimaryKey(Object value) {
+	public KeyValue getPrimaryKey(Object value) {
 		TableConstraintImpl primaryKeyConstraint = getPrimaryKeyConstraint();
 		if (primaryKeyConstraint == null) {
 			throw new IllegalStateException("Table has no primary key");
@@ -483,7 +483,7 @@ public class TableImpl implements Table {
 				return FieldType.ASSOCIATION;
 			}
 		}
-		for (TableImpl table : getDataModel().getTables()) {
+		for (TableImpl<?> table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
 				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
 					if (fieldName.equals(each.getReverseFieldName())) {
@@ -525,7 +525,7 @@ public class TableImpl implements Table {
 				return new ForwardConstraintMapping(each);
 			}
 		}
-		for (TableImpl table : getDataModel().getTables()) {
+		for (TableImpl<?> table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
 				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
 					if (fieldName.equals(each.getFieldName())) {
@@ -553,7 +553,7 @@ public class TableImpl implements Table {
 	}
 
 	@Override
-	public void map(Class<?> implementation) {
+	public void map(Class<? extends T> implementation) {
 		if (this.mapperType != null) {
 			throw new IllegalStateException("Implementer(s) already specified");
 		}
@@ -564,7 +564,7 @@ public class TableImpl implements Table {
 	}
 
 	@Override
-	public <T> void map(Map<String, Class<? extends T>> implementations) {
+	public void map(Map<String, Class<? extends T>> implementations) {
 		if (this.mapperType != null) {
 			throw new IllegalStateException("Implementer(s) already specified");
 		}
@@ -593,7 +593,7 @@ public class TableImpl implements Table {
 		for (Column column : getColumns()) {
 			checkMapped(column);
 		}
-		cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
+		cache = isCached() ? new TableCache.TupleCache<T>(this) : new TableCache.NoCache<T>();
 	}
 	
 	private void checkMapped (Column column) {
@@ -629,7 +629,7 @@ public class TableImpl implements Table {
 	
 	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
-		for (TableImpl table : getDataModel().getTables()) {
+		for (TableImpl<?> table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
 				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
 					if (each.getReferencedTable().equals(this)) {
@@ -678,9 +678,8 @@ public class TableImpl implements Table {
 		return false;
 	}
 	
-	@SuppressWarnings("unchecked")
-	<T> TableCache<T> getCache() {
-		return (TableCache<T>) cache;
+	TableCache<T> getCache() {
+		return cache;
 	}
 	
 	Field getField(String fieldName) {

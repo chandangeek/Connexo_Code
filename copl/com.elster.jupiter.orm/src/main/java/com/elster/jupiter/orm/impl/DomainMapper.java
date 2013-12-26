@@ -8,6 +8,8 @@ import com.google.inject.Injector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 
 public enum DomainMapper {
@@ -207,5 +209,15 @@ public enum DomainMapper {
 			}
 		}
 		return result;
+	}
+	
+	Class<?> extractClass (Type type) {
+		if (type instanceof Class<?>) {
+			return (Class<?>) type;
+		} else if (type instanceof ParameterizedType) {
+			return extractClass(((ParameterizedType) type).getRawType());
+		} else {
+			throw new IllegalArgumentException("" + type);
+		}
 	}
 }

@@ -1,15 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.OptimisticLockException;
-import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
-import com.elster.jupiter.orm.associations.impl.PersistentReference;
-import com.elster.jupiter.util.time.UtcInstant;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.security.Principal;
@@ -22,17 +12,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
+import com.elster.jupiter.util.time.UtcInstant;
+
 public class DataMapperWriter<T> {
-	private final DataMapperType mapperType;
-	private final TableSqlGenerator sqlGenerator;
+	private final DataMapperImpl<T> dataMapper;
 	
 	DataMapperWriter(DataMapperImpl<T> dataMapper) {
-		this.mapperType = dataMapper.getMapperType();
-		this.sqlGenerator = dataMapper.getSqlGenerator();
+		this.dataMapper = dataMapper;
 	}
 
-	private TableImpl getTable() {
-		return sqlGenerator.getTable();
+	private TableImpl<? super T> getTable() {
+		return dataMapper.getTable();
+	}
+	
+	private DataMapperType getDataMapperType() {
+		return dataMapper.getMapperType();
+	}
+	
+	private DomainMapper getDomainMapper() {
+		return getDataMapperType().getDomainMapper();
+	}
+	
+	private TableSqlGenerator getSqlGenerator() {
+		return dataMapper.getSqlGenerator();
 	}
 	
 	private Connection  getConnection(boolean tranactionRequired) throws SQLException {
@@ -53,7 +63,7 @@ public class DataMapperWriter<T> {
 		prepare(object,false,new UtcInstant(getTable().getDataModel().getClock()));
 		Map<ColumnImpl, Long> autoIncrements = new HashMap<>();
 		try (Connection connection = getConnection(true)) {			
-			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.insertSql(false))) {
+			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(false))) {
 				int index = 1;	
 				for (ColumnImpl column : getColumns())  {
 					if (column.isAutoIncrement()) {						
@@ -72,17 +82,17 @@ public class DataMapperWriter<T> {
 			if (entry.getKey().hasIntValue()) {
 				value = value.intValue();
 			}
-			mapperType.getDomainMapper().set(object,entry.getKey().getFieldName(), value);
+			getDomainMapper().set(object,entry.getKey().getFieldName(), value);
 		}
 		refresh(object,true);
 		if (getTable().hasChildren()) {
 			for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 				if (constraint.isComposition()) {
-					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
+					Field field = getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
 					if (field != null) {				
 						try {
 							List parts =(List) field.get(object);
-							Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+							Class<?> clazz = getDomainMapper().extractClass(field.getGenericType());
 							DataMapperImpl<?> mapper = (DataMapperImpl<?>) constraint.getTable().getDataMapper(clazz);
 							mapper.getWriter().persist(parts);
 							if (mapper.getWriter().needsRefreshAfterBatchInsert()) {						
@@ -100,8 +110,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	boolean needsRefreshAfterBatchInsert() {
-		return 
-			getTable().hasAutoIncrementColumns() && !getTable().hasChildren();
+		return getTable().hasAutoIncrementColumns() && !getTable().hasChildren();
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -117,7 +126,7 @@ public class DataMapperWriter<T> {
 			return;
 		}
 		try (Connection connection = getConnection(true)) {			
-			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.insertSql(true))) {
+			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().insertSql(true))) {
 				for (T tuple : objects) {
 					prepare(tuple,false,now);
 					int index = 1;	
@@ -139,7 +148,7 @@ public class DataMapperWriter<T> {
 				List allParts = new ArrayList<>();
 				DataMapperImpl<?> mapper = null;
 				for (Object object : objects) {
-					Field field = mapperType.getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
+					Field field = getDomainMapper().getField(object.getClass(), constraint.getReverseFieldName());
 					if (field != null) {
 						if (mapper == null) {
 							Class<?> clazz = (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
@@ -164,7 +173,7 @@ public class DataMapperWriter<T> {
 	}
 		
 	private void journal(Object object,UtcInstant now) throws SQLException {
-		String sql = sqlGenerator.journalSql();
+		String sql = getSqlGenerator().journalSql();
 		try (Connection connection = getConnection(true)) {						
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {				
 				int index = 1;
@@ -178,7 +187,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	private void journal(List<T> objects,UtcInstant now) throws SQLException {
-		String sql = sqlGenerator.journalSql();
+		String sql = getSqlGenerator().journalSql();
 		try (Connection connection = getConnection(true)) {						
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {						
 				for (T tuple : objects) {
@@ -203,7 +212,7 @@ public class DataMapperWriter<T> {
 		Column[] versionCountColumns = getTable().getVersionColumns();
 		Map<Column,Long> versionCounts = new HashMap<>();
 		try (Connection connection = getConnection(true)) {			
-			String sql = sqlGenerator.updateSql(columns);
+			String sql = getSqlGenerator().updateSql(columns);
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {				
 				int index = 1;	
 				for (ColumnImpl column : columns)  {
@@ -232,7 +241,7 @@ public class DataMapperWriter<T> {
 		} 	
 		for (Map.Entry<Column, Long> entry : versionCounts.entrySet()) {
 			// version count must have integer mapping
-			mapperType.getDomainMapper().set(object,entry.getKey().getFieldName(), entry.getValue() + 1);
+			getDomainMapper().set(object,entry.getKey().getFieldName(), entry.getValue() + 1);
 		}
 		refresh(object,false);
 	}
@@ -244,7 +253,7 @@ public class DataMapperWriter<T> {
 			journal(objects,now);
 		}
 		try (Connection connection = getConnection(true)) {							
-			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.updateSql(columns))) {
+			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().updateSql(columns))) {
 				for (T tuple : objects) {
 					prepare(tuple,true,now);
 					int index = 1;	
@@ -269,7 +278,7 @@ public class DataMapperWriter<T> {
 			journal(object,new UtcInstant(getTable().getDataModel().getClock()));
 		}
 		try (Connection connection = getConnection(true)) {			
-			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.deleteSql())) {
+			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
 				int index = 1;	
 				for (ColumnImpl column : getPrimaryKeyColumns()) {
 					statement.setObject(index++, getValue(object,column));
@@ -288,7 +297,7 @@ public class DataMapperWriter<T> {
 			journal(objects,now);
 		}
 		try (Connection connection = getConnection(true)) {
-			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.deleteSql())) {
+			try (PreparedStatement statement = connection.prepareStatement(getSqlGenerator().deleteSql())) {
 				for (T tuple : objects) {					
 					int index = 1;	
 					for (ColumnImpl column : getPrimaryKeyColumns()) {
@@ -311,7 +320,7 @@ public class DataMapperWriter<T> {
 	
 	private void refresh(T object , List<ColumnImpl> columns) throws SQLException {
 		try (Connection connection = getConnection(false)) {
-			String sql = sqlGenerator.refreshSql(columns);
+			String sql = getSqlGenerator().refreshSql(columns);
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {
 				int index = 1;
 				for (ColumnImpl column : getPrimaryKeyColumns()) {
@@ -331,10 +340,10 @@ public class DataMapperWriter<T> {
 	private void prepare(Object target, boolean update, UtcInstant now) {
 		for (Column each : getColumns()) {
 			if (each.getConversion() == ColumnConversion.NUMBER2NOW && !(update && each.skipOnUpdate())) {				
-				mapperType.getDomainMapper().set(target,each.getFieldName(),now);
+				getDomainMapper().set(target,each.getFieldName(),now);
 			}
 			if (each.getConversion() == ColumnConversion.CHAR2PRINCIPAL && !(update && each.skipOnUpdate())) {
-				mapperType.getDomainMapper().set(target,each.getFieldName(),getCurrentUserName());
+				getDomainMapper().set(target,each.getFieldName(),getCurrentUserName());
 			}
 		}
 	}
@@ -346,13 +355,13 @@ public class DataMapperWriter<T> {
 
 	private Object getValue(Object target , ColumnImpl column) {
 		if (column.isDiscriminator()) {
-			return mapperType.getDiscriminator(target.getClass());
+			return getDataMapperType().getDiscriminator(target.getClass());
 		} 
 		if (column.getFieldName() == null) {
 			return getValue(target, column , column.getForeignKeyConstraint());
 		}
 		else {			
-			return column.convertToDb(mapperType.getDomainMapper().get(target , column.getFieldName()));
+			return column.convertToDb(getDomainMapper().get(target , column.getFieldName()));
 		}
 	}
 	
@@ -361,11 +370,11 @@ public class DataMapperWriter<T> {
 	}
 	
 	private Object getValue(Object target , ColumnImpl column , ForeignKeyConstraintImpl constraint) {
-		Field field = mapperType.getDomainMapper().getField(target.getClass(),constraint.getFieldName());
+		Field field = getDomainMapper().getField(target.getClass(),constraint.getFieldName());
 		if (field == null) {
 			return null;
 		}
-		Reference<?> reference = (Reference<?>) mapperType.getDomainMapper().get(target, constraint.getFieldName());
+		Reference<?> reference = (Reference<?>) getDomainMapper().get(target, constraint.getFieldName());
 		if (reference == null || !reference.isPresent()) {
 			return null;
 		}
@@ -374,20 +383,20 @@ public class DataMapperWriter<T> {
 			Object value = ((PersistentReference<?>) reference).getKeyPart(index);
 			return value == null ? null : convertToDb(column,value);
 		}
-		Object value = constraint.getReferencedTable().getPrimaryKey(reference.get())[index];
+		Object value = constraint.getReferencedTable().getPrimaryKey(reference.get()).get(index);
 		return convertToDb(column,value);
 	}
 
 	private void setValue(Object target , ColumnImpl column , ResultSet rs, int index) throws SQLException {
-		mapperType.getDomainMapper().set(target, column.getFieldName(), column.convertFromDb(rs, index));
+		getDomainMapper().set(target, column.getFieldName(), column.convertFromDb(rs, index));
 	}	
 
 	private List<ColumnImpl> getColumns() {
-		return sqlGenerator.getColumns();
+		return getTable().getColumns();
 	}
 	
 	private List<ColumnImpl> getPrimaryKeyColumns() {
-		return sqlGenerator.getPrimaryKeyColumns();
+		return getTable().getPrimaryKeyColumns();
 	}
 	
 		

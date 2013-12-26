@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
  
 abstract class ConstraintFragment extends AliasFragment {
 
@@ -19,9 +20,9 @@ abstract class ConstraintFragment extends AliasFragment {
 	}
 	
 	int bind(PreparedStatement statement, int position, Object value) throws SQLException {
-		Object[] columnValues = getConstraint().getReferencedTable().getPrimaryKeyConstraint().getColumnValues(value);
+		KeyValue columnValues = getConstraint().getReferencedTable().getPrimaryKeyConstraint().getColumnValues(value);
 		for (int i = 0 ; i < getConstraint().getColumns().size(); i++) {
-			statement.setObject(position++ , getConstraint().getColumns().get(i).convertToDb(columnValues[i]));
+			statement.setObject(position++ , getConstraint().getColumns().get(i).convertToDb(columnValues.get(i)));
 		}
 		return position;
 	}

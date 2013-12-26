@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -63,6 +64,7 @@ public class ModuleCreatorTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testPerformance() throws IOException {
 		StopWatch stopWatch = new StopWatch(false);
 		Set<ClassPath.ClassInfo> allClassesInfo = ClassPath.from(this.getClass().getClassLoader()).getTopLevelClasses();

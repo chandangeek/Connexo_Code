@@ -8,6 +8,7 @@ import com.google.inject.Injector;
 
 abstract class DataMapperType {
 	private Injector injector;
+	
 	abstract boolean maps(Class<?> clazz);
 	abstract DomainMapper getDomainMapper();
 	abstract boolean hasMultiple();

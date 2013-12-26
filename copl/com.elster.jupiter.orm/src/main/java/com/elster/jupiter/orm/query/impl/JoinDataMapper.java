@@ -38,7 +38,7 @@ public abstract class JoinDataMapper<T> {
 		return alias;
 	}
 
-	final TableImpl getTable() {
+	final TableImpl<? super T> getTable() {
 		return getMapper().getTable();
 	}
 

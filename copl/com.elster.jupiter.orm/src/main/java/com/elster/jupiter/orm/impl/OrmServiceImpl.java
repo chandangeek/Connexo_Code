@@ -141,12 +141,12 @@ public class OrmServiceImpl implements OrmService , InstallService {
     	createDataModel(true);
 	}
 	
-	public TableImpl getTable(String componentName, String tableName) {
+	public TableImpl<?> getTable(String componentName, String tableName) {
 		DataModelImpl dataModel = dataModels.get(componentName);
 		if (dataModel == null) {
 			throw new IllegalArgumentException ("DataModel " + componentName + " not found");
 		} else {
-			TableImpl result = dataModel.getTable(tableName);
+			TableImpl<?> result = dataModel.getTable(tableName);
 			if (result == null) {
 				throw new IllegalArgumentException("Table " + tableName + " not found in component " + componentName);
 			} else {
