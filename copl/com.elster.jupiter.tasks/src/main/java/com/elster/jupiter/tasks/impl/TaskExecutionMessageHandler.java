@@ -25,7 +25,7 @@ class TaskExecutionMessageHandler implements MessageHandler {
     }
 
     private TaskOccurrence getTaskOccurrence(Message message) {
-        return Bus.getOrmClient().getTaskOccurrenceFactory().get(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
+        return Bus.getOrmClient().getTaskOccurrenceFactory().getOptional(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
     }
 
     private TaskOccurrenceMessage getTaskOccurrenceMessage(Message message) {

@@ -56,7 +56,7 @@ public class TaskExecutionMessageHandlerTest {
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(taskOccurrence.getId()).thenReturn(ID);
         taskOccurrenceMessage = new TaskOccurrenceMessage(taskOccurrence);
-        when(taskOccurrenceFactory.get(ID)).thenReturn(Optional.of(taskOccurrence));
+        when(taskOccurrenceFactory.getOptional(ID)).thenReturn(Optional.of(taskOccurrence));
         when(jsonService.deserialize(PAYLOAD, TaskOccurrenceMessage.class)).thenReturn(taskOccurrenceMessage);
 
         Bus.setServiceLocator(serviceLocator);

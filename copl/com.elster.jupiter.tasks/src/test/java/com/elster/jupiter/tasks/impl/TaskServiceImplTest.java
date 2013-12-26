@@ -133,14 +133,14 @@ public class TaskServiceImplTest {
 
     @Test
     public void testGetRecurrentTaskById() {
-        when(recurrentTaskFactory.get(ID)).thenReturn(Optional.of(recurrentTask));
+        when(recurrentTaskFactory.getOptional(ID)).thenReturn(Optional.of(recurrentTask));
 
         assertThat(taskService.getRecurrentTask(ID)).contains(recurrentTask);
     }
 
     @Test
     public void testGetRecurrentTaskByIdNotFound() {
-        when(recurrentTaskFactory.get(ID)).thenReturn(Optional.<RecurrentTask>absent());
+        when(recurrentTaskFactory.getOptional(ID)).thenReturn(Optional.<RecurrentTask>absent());
 
         assertThat(taskService.getRecurrentTask(ID)).isAbsent();
     }

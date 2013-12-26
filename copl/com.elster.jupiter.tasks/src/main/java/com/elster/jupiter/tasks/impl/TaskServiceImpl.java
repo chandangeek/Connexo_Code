@@ -97,7 +97,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
 
     @Override
     public Optional<RecurrentTask> getRecurrentTask(long id) {
-        return getOrmClient().getRecurrentTaskFactory().get(id);
+        return getOrmClient().getRecurrentTaskFactory().getOptional(id);
     }
 
     @Override
