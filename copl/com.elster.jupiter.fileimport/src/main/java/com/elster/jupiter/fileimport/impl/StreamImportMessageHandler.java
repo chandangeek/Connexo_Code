@@ -28,7 +28,7 @@ class StreamImportMessageHandler implements MessageHandler {
         FileImport fileImport = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImport = Bus.getOrmClient().getFileImportFactory().get(fileImportMessage.fileImportId).get();
+            fileImport = Bus.getOrmClient().getFileImportFactory().getOptional(fileImportMessage.fileImportId).get();
         }
         return fileImport;
     }

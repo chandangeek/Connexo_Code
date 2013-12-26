@@ -49,7 +49,7 @@ public class StreamImportMessageHandlerTest {
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(jsonService.deserialize(aryEq(PAYLOAD), eq(FileImportMessage.class))).thenReturn(fileImportMessage);
         when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getFileImportFactory().get(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImport));
+        when(ormClient.getFileImportFactory().getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImport));
 
 
         streamImportMessageHandler = new StreamImportMessageHandler(fileImporter);
