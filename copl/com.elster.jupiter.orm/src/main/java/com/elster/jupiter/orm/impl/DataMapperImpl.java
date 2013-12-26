@@ -1,11 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
@@ -15,6 +9,12 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
@@ -236,6 +236,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	private void cacheChange() {
 		//TODO send event
 	}
+
 	@Override
 	public void persist(T object)  {
 		preventIfChild();
