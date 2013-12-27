@@ -29,7 +29,7 @@ import com.google.common.base.Optional;
 public class DataMapperReader<T> {
 	private final DataMapperImpl<T> dataMapper;
 	
-	DataMapperReader(DataMapperImpl<T> dataMapper, DataMapperType mapperType) {
+	DataMapperReader(DataMapperImpl<T> dataMapper) {
 		this.dataMapper = dataMapper;
 	}
 	
@@ -37,7 +37,7 @@ public class DataMapperReader<T> {
 		return dataMapper.getAlias();
 	}
 	
-	private DataMapperType getMapperType() {
+	private DataMapperType<? super T> getMapperType() {
 		return dataMapper.getMapperType();
 	}
 	
@@ -197,17 +197,19 @@ public class DataMapperReader<T> {
     }
 
     	
+	@SuppressWarnings("unchecked")
 	private T newInstance(ResultSet rs , int startIndex) throws SQLException {
 		for (int i = 0 ; i < getColumns().size() ; i++) {
 			if (getColumns().get(i).isDiscriminator()) {
-				return getMapperType().newInstance(rs.getString(startIndex + i));
+				return (T) getMapperType().newInstance(rs.getString(startIndex + i));
 			}
 		}
 		throw MappingException.noDiscriminatorColumn();
 	}
 	
+	@SuppressWarnings("unchecked")
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
-		T result = getMapperType().hasMultiple() ? newInstance(rs,startIndex) : getMapperType().<T>newInstance();
+		T result = getMapperType().hasMultiple() ? (T) newInstance(rs,startIndex) : (T) getMapperType().newInstance();
 		List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
 		DomainMapper mapper = getMapperType().getDomainMapper();
 		for (ColumnImpl column : getTable().getColumns()) {

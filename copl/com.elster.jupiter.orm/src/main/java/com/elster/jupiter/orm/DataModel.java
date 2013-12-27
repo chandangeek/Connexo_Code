@@ -7,8 +7,6 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-
 import javax.validation.ValidatorFactory;
 
 /**
@@ -35,10 +33,6 @@ public interface DataModel {
     // creation api
     <T> Table<T> addTable(String name, Class<T> api);
     <T> Table<T> addTable(String schema, String tableName, Class<T> api);
-    <T> Table<T> addTable(String schema, String tableName, Class<T> api, Class<? extends T> implementation);
-    <T> Table<T> addTable(String schema, String tableName, Class<T> api, Map<String, Class<? extends T>> implementations);
-    <T> Table<T> addTable(String tableName, Class<T> api, Class<? extends T> implementation);
-    <T> Table<T> addTable(String tableName, Class<T> api, Map<String, Class<? extends T>> implementations);
     
     void register(Module... modules);
 

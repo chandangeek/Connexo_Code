@@ -33,7 +33,7 @@ public class DataMapperWriter<T> {
 		return dataMapper.getTable();
 	}
 	
-	private DataMapperType getDataMapperType() {
+	private DataMapperType<? super T> getDataMapperType() {
 		return dataMapper.getMapperType();
 	}
 	

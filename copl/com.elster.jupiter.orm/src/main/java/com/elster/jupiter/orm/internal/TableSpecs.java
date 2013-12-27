@@ -18,7 +18,8 @@ public enum TableSpecs {
 	
 	ORM_DATAMODEL {		
 		public void addTo(DataModel dataModel) {
-			Table<DataModel> table = dataModel.addTable(name(),DataModel.class,DataModelImpl.class);
+			Table<DataModel> table = dataModel.addTable(name(),DataModel.class);
+			table.map(DataModelImpl.class);
 			Column nameColumn = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
 			table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
 			table.primaryKey("ORM_PK_COMPONENT").on(nameColumn).add();
@@ -27,7 +28,8 @@ public enum TableSpecs {
 	ORM_TABLE {
 		@SuppressWarnings("rawtypes")
 		public void addTo(DataModel dataModel) {
-			Table<Table> table = dataModel.addTable(name(),Table.class,TableImpl.class);
+			Table<Table> table = dataModel.addTable(name(),Table.class);
+			table.map(TableImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
@@ -44,7 +46,8 @@ public enum TableSpecs {
 	},
 	ORM_COLUMN {	
 		public void addTo(DataModel dataModel) {
-			Table<Column> table = dataModel.addTable(name(),Column.class, ColumnImpl.class);
+			Table<Column> table = dataModel.addTable(name(),Column.class);
+			table.map(ColumnImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();		
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
@@ -67,7 +70,8 @@ public enum TableSpecs {
 	},
 	ORM_TABLECONSTRAINT {	
 		public void addTo(DataModel dataModel) {
-			Table<TableConstraint> table = dataModel.addTable(name(),TableConstraint.class,TableConstraintImpl.class);
+			Table<TableConstraint> table = dataModel.addTable(name(),TableConstraint.class);
+			table.map(TableConstraintImpl.implementers);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLEID").type(CATALOGDBTYPE).notNull().add();
 			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
@@ -89,7 +93,8 @@ public enum TableSpecs {
 	},
 	ORM_COLUMNINCONSTRAINT {
 		public void addTo(DataModel dataModel) {
-			Table<ColumnInConstraintImpl> table = dataModel.addTable(name(),ColumnInConstraintImpl.class,ColumnInConstraintImpl.class);
+			Table<ColumnInConstraintImpl> table = dataModel.addTable(name(),ColumnInConstraintImpl.class);
+			table.map(ColumnInConstraintImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();
 			Column constraintNameColumn = table.column("CONSTRAINTNAME").type(CATALOGDBTYPE).notNull().add();

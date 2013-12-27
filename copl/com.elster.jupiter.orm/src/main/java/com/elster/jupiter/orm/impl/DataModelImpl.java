@@ -39,7 +39,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -112,6 +111,7 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public <T> TableImpl<T> addTable(String schema, String tableName, Class<T> api) {
+    	checkNotRegistered();
     	checkActiveBuilder();
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
@@ -121,22 +121,6 @@ public class DataModelImpl implements DataModel {
         return table;
     }
 
-    public <T> TableImpl<T> addTable(String schema, String tableName, Class<T> api, Class<? extends T> implementation) {
-    	return addTable(schema,tableName,api).map(implementation);
-    }
-    
-    public <T> TableImpl<T> addTable(String schema, String tableName, Class<T> api, Map<String,Class<? extends T>> implementers) {
-    	return addTable(schema,tableName,api).map(implementers);
-    }
-    
-    public <T> TableImpl<T> addTable(String tableName, Class<T> api, Class<? extends T> implementation) {
-    	return addTable(null,tableName,api,implementation);
-    }
-    
-    public <T> TableImpl<T> addTable(String tableName, Class<T> api, Map<String,Class<? extends T>> implementers) {
-    	return addTable(null,tableName,api,implementers);
-    }
-    
     @Override
     public String toString() {
         return Joiner.on(" ").join("DataModel",name,"(" + description + ")");
@@ -148,6 +132,7 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public <T> DataMapperImpl<T> mapper(Class<T> api) {
+    	checkRegistered();
     	for (TableImpl<?> table : tables) {
     		if (table.maps(api)) {
     			return table.getDataMapper(api);
@@ -159,6 +144,7 @@ public class DataModelImpl implements DataModel {
     @Override
     @Deprecated
     public <T> DataMapperImpl<T> getDataMapper(Class<T> api, String tableName) {
+    	checkRegistered();
     	return getTable(tableName).getDataMapper(api);
     }
 
@@ -235,6 +221,7 @@ public class DataModelImpl implements DataModel {
     
     @Override
     public RefAny asRefAny(Object reference) {
+    	checkRegistered();
     	Class<?> clazz = Objects.requireNonNull(reference).getClass();
 		for (DataModelImpl dataModel : getOrmService().getDataModels()) {
 			Optional<TableImpl<?>> tableHolder = dataModel.getTable(clazz);
@@ -245,19 +232,25 @@ public class DataModelImpl implements DataModel {
 		throw new IllegalArgumentException("No table defined that maps " + reference.getClass());
     }
     
-    void preSave() {
-    	//injector = Guice.createInjector();
-    }
-    
     Injector getInjector() {
     	return injector;
     }
     
+    private void checkRegistered() {
+    	if (!registered) {
+    		throw new IllegalStateException("DataModel not registered"); 
+    	}
+    }
+    
+    private void checkNotRegistered() {
+    	if (registered) {
+    		throw new IllegalStateException("DataModel already registered"); 
+    	}
+    }
+    
     @Override
     public void register(Module ... modules) {
-    	if (registered) {
-    		throw new IllegalStateException();
-    	}
+    	checkNotRegistered();
     	Module[] allModules = new Module[modules.length + 1];
     	System.arraycopy(modules, 0, allModules, 0, modules.length);
     	allModules[modules.length] = getModule();
@@ -294,16 +287,19 @@ public class DataModelImpl implements DataModel {
 	
 	@Override
 	public void persist(Object entity) {
+		checkRegistered();
 		persist(Objects.requireNonNull(entity.getClass()),entity);
 	}
 
 	@Override
 	public void update(Object entity) {
+		checkRegistered();
 		update(Objects.requireNonNull(entity).getClass(),entity);
 	}
 	
 	@Override
 	public void remove(Object entity) {
+		checkRegistered();
 		remove(Objects.requireNonNull(entity).getClass(),entity);	
 	}
 	
@@ -317,6 +313,7 @@ public class DataModelImpl implements DataModel {
 	
 	@Override 
 	public <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers) {
+		checkRegistered();
 		DataMapper<?>[] mappers = new DataMapper[eagers.length];
 		for (int i = 0; i < eagers.length; i++) {
 			mappers[i] = mapper(eagers[i]);
@@ -403,6 +400,7 @@ public class DataModelImpl implements DataModel {
 	}
 	
 	public void renewCache(String tableName) {
+		checkRegistered();
 		TableImpl<?> table = getTable(tableName);
 		if (table != null) {
 			table.renewCache();

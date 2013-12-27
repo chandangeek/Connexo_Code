@@ -2,10 +2,11 @@ package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Field;
 
-public class SingleDataMapperType extends DataMapperType {
-	private final Class<?> implementation;
+public class SingleDataMapperType<T> extends DataMapperType<T> {
+	private final Class<? extends T> implementation;
 	
-	SingleDataMapperType(Class<?> clazz) {
+	SingleDataMapperType(TableImpl<T> table, Class<? extends T> clazz) {
+		super(table);
 		this.implementation = clazz;
 	}
 
@@ -24,14 +25,13 @@ public class SingleDataMapperType extends DataMapperType {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	<T> T newInstance() {
-		return (T) getInjector().getInstance(implementation);
+	T newInstance() {
+		return getInjector().getInstance(implementation);
 	}
 	
 	@Override
-	<T> T newInstance(String discriminator) {
+	T newInstance(String discriminator) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -46,7 +46,7 @@ public class SingleDataMapperType extends DataMapperType {
 	}
 
 	@Override
-	Object getDiscriminator(Class<?> clazz) {
+	String getDiscriminator(Class<?> clazz) {
 		throw new IllegalStateException("Should not implement");
 	}
 	

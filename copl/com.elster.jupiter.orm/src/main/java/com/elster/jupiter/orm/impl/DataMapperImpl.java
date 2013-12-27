@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
@@ -118,18 +117,16 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"YES" }; 
 	private final TableImpl<? super T> table;
 	private final TableSqlGenerator sqlGenerator;
-	private final DataMapperType mapperType;
 	private final String alias;
 	private final DataMapperReader<T> reader;
 	private final DataMapperWriter<T> writer;
 	
-	DataMapperImpl(Class<T> api, DataMapperType mapperType ,  TableImpl<? super T> table) {
+	DataMapperImpl(Class<T> api, TableImpl<? super T> table) {
 		this.table = table;
 		this.sqlGenerator = new TableSqlGenerator(table);
 		this.alias = createAlias(api.getName());
-		this.mapperType = mapperType;
-		this.reader = new DataMapperReader<>(this,mapperType);
-		this.writer = new DataMapperWriter<>(this);
+		this.reader = new DataMapperReader<>(this);
+		this.writer = new DataMapperWriter<>(this);		
 	}	
 	
 	private String createAlias(String apiName) {
@@ -358,7 +355,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	private Object getEnum(Column column, String value) {
-		return mapperType.getEnum(column.getFieldName(), value);			
+		return getMapperType().getEnum(column.getFieldName(), value);			
 	}
 	
 	private List<ColumnImpl> getColumns() {
@@ -395,23 +392,19 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	public Class<?> getType(String fieldName) {
-		return mapperType.getType(fieldName);
+		return getMapperType().getType(fieldName);
 	}
 	
 	public List<T> select(Condition condition, String ... orderBy) {
 		return with().select(condition, orderBy);
 	}
 	
-	DataMapperType getMapperType() {
-		return mapperType;
+	DataMapperType <? super T> getMapperType() {
+		return table.getMapperType();
 	}
 	
 	public DataMapperWriter<T> getWriter() {
 		return writer;
-	}
-	
-	public T newInstance() {
-		return mapperType.newInstance((String) null);
 	}
 	
 	@SuppressWarnings("unchecked")

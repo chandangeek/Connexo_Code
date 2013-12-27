@@ -51,7 +51,7 @@ public class TableImpl<T> implements Table<T> {
 	private final List<TableConstraintImpl> constraints = new ArrayList<>();
 	
 	// mapping
-	private DataMapperType mapperType;
+	private DataMapperType<T> mapperType;
 	
 	// transient, protection against forgetting to call add() on a builder
 	private boolean activeBuilder;
@@ -78,15 +78,6 @@ public class TableImpl<T> implements Table<T> {
 	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, int position) {
 		return new TableImpl<T>().init(dataModel,schema,name,api,position);
 	}
-
-	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, Class<? extends T> implementation, int position) {
-		return new TableImpl<T>().init(dataModel,schema,name,api,position).map(implementation);
-	}
-	
-	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, Map<String,Class<? extends T>> implementers, int position) {
-		return new TableImpl<T>().init(dataModel,schema,name,api,position).map(implementers);
-	}
-	
 	
 	@Override 
 	public String getSchema() {
@@ -314,7 +305,10 @@ public class TableImpl<T> implements Table<T> {
 		if (mapperType == null) {
 			throw new IllegalStateException("Implementation not specified");
 		}
-		return new DataMapperImpl<S>(api,mapperType, (TableImpl<? super S>) this);
+		if (mapperType.getInjector() == null) {
+			throw new IllegalStateException("Datamodel not registered");
+		}
+		return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
 	}
 	
 	public QueryExecutorImpl<T> getQuery() {
@@ -569,7 +563,7 @@ public class TableImpl<T> implements Table<T> {
 		if (!api.isAssignableFrom(implementation)) {
 			throw new IllegalArgumentException("" + implementation + " does not implement " + api);
 		}
-		this.mapperType = new SingleDataMapperType(implementation);
+		this.mapperType = new SingleDataMapperType<T>(this,implementation);
 		return this;
 	}
 
@@ -586,7 +580,7 @@ public class TableImpl<T> implements Table<T> {
 				throw new IllegalArgumentException("" + implementation + " does not implement " + api);
 			}
 		}
-		this.mapperType = new InheritanceDataMapperType<>(implementations);
+		this.mapperType = new InheritanceDataMapperType<>(this,implementations);
 		return this;
 	}
 
@@ -598,7 +592,6 @@ public class TableImpl<T> implements Table<T> {
 	void prepare() {
 		checkActiveBuilder();
 		Objects.requireNonNull(mapperType,"No implementation has been set");
-		mapperType.init(getDataModel().getInjector());
 		buildReferenceConstraints();
 		buildReverseMappedConstraints();
 		for (Column column : getColumns()) {
@@ -704,6 +697,10 @@ public class TableImpl<T> implements Table<T> {
 	boolean isAutoId() {
 		List<ColumnImpl> columns = getPrimaryKeyColumns();
 		return (columns.size() == 1 && columns.get(0).isAutoIncrement());
+	}
+	
+	DataMapperType<T> getMapperType() {
+		return mapperType;
 	}
 }
 	

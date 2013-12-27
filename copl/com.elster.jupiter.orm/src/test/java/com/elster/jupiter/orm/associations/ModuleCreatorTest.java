@@ -77,7 +77,7 @@ public class ModuleCreatorTest {
 			}
 		}
 		System.out.println("Loaded: " + allClasses.size() + " in " + stopWatch.lap());
-		Module module = ModuleCreator.create(allClasses.toArray(new Class<?>[allClasses.size()]));
+		ModuleCreator.create(allClasses.toArray(new Class<?>[allClasses.size()]));
 		System.out.println("Inspected: " + allClasses.size() + " in " + stopWatch.lap());
 		int methods = 0;
 		int fields = 0;

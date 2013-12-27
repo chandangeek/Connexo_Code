@@ -6,11 +6,12 @@ import java.util.Objects;
 
 import com.elster.jupiter.orm.MappingException;
 
-public class InheritanceDataMapperType<T> extends DataMapperType {
+public class InheritanceDataMapperType<T> extends DataMapperType<T> {
 	
 	private final Map<String,Class<? extends T>> implementations;
 	
-	InheritanceDataMapperType(Map<String,Class<? extends T>> implementations) {
+	InheritanceDataMapperType(TableImpl<T> table, Map<String,Class<? extends T>> implementations) {
+		super(table);
 		this.implementations = implementations;
 	}
 	
@@ -30,11 +31,10 @@ public class InheritanceDataMapperType<T> extends DataMapperType {
 	}
 
 	@Override
-	<S> S newInstance() {
+	T newInstance() {
 		throw new UnsupportedOperationException();
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	T newInstance(String discriminator) {
 		return getInjector().getInstance(Objects.requireNonNull(implementations.get(discriminator)));
@@ -63,7 +63,7 @@ public class InheritanceDataMapperType<T> extends DataMapperType {
 	}
 	
 	@Override
-	Object getDiscriminator(Class<?> clazz) {
+	String getDiscriminator(Class<?> clazz) {
 		for (Map.Entry<String,Class<? extends T>> entry : implementations.entrySet()) {
 			if (entry.getValue() == clazz) {
 				return entry.getKey();
