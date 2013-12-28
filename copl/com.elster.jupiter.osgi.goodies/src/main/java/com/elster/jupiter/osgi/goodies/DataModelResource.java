@@ -1,21 +1,25 @@
 package com.elster.jupiter.osgi.goodies;
 
 
+import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
 
 import com.elster.jupiter.orm.*;
+import com.google.common.base.Joiner;
 
 import java.util.*;
 
 @Path("/datamodels")
 public class DataModelResource {
+	
+	@Inject
+	private OrmService ormService;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON) 
 	public String[] getDataModels() {
-		List<? extends DataModel> dataModels = OsgiInfoApplication.ormService.getDataModels();
+		List<? extends DataModel> dataModels = ormService.getDataModels();
 		String result[] = new String[dataModels.size()];
 		for (int i = 0 ; i < dataModels.size(); i++) {
 			result[i] = dataModels.get(i).getName();
@@ -27,7 +31,7 @@ public class DataModelResource {
     @Path("/{componentName}.svg")
     @Produces("image/svg+xml")
     public byte[] getViz(@PathParam("componentName") String componentName) {
-		DataModel dataModel = OsgiInfoApplication.ormService.getDataModel(componentName).get();
+		DataModel dataModel = ormService.getDataModel(componentName).get();
 		String result = generate(dataModel);
     	return new GraphvizInterface().toSvg(result);
     }
@@ -36,16 +40,29 @@ public class DataModelResource {
     @Path("/{componentName}/tables/{tableName}.svg")
     @Produces("image/svg+xml")
     public byte[] getViz(@PathParam("componentName") String componentName, @PathParam("tableName") String tableName) {
-		DataModel dataModel = OsgiInfoApplication.ormService.getDataModel(componentName).get();
-		Table table = dataModel.getTable(tableName);
+		DataModel dataModel = ormService.getDataModel(componentName).get();
+		Table<?> table = dataModel.getTable(tableName);
 		String result = generate(table);
     	return new GraphvizInterface().toSvg(result);
     }
 	
+	@GET
+	@Path("/{componentName}/tables/{tableName}.txt")
+	@Produces("text/plain")
+	public String getDdl(@PathParam("componentName") String componentName, @PathParam("tableName") String tableName) {
+		DataModel dataModel = ormService.getDataModel(componentName).get();
+		Table<?> table = dataModel.getTable(tableName);
+		if (table == null) {
+			return "Table not found";
+		} else {
+			return Joiner.on("\n").join(table.getDdl());
+		}
+	}
+	
 	private String generate(DataModel model) {
 		StringBuilder builder = new StringBuilder("digraph datamodel {\n");
 		Set<String> tables = new HashSet<>();		
-		for (Table table : model.getTables()) {
+		for (Table<?> table : model.getTables()) {
 			addTable(table,tables,builder);
 			for (ForeignKeyConstraint tableConstraint : table.getForeignKeyConstraints()) {
 				String arrowhead = tableConstraint.isNotNull() ? "teetee" : "teeodot";  
@@ -66,7 +83,7 @@ public class DataModelResource {
 		return builder.toString();
 	}
 
-	private String generate(Table table) {
+	private String generate(Table<?> table) {
 		StringBuilder builder = new StringBuilder("digraph table {\n");
 		builder.append("rankdir=\"LR\";\n");	
 		Set<String> tables = new HashSet<>();
@@ -76,11 +93,13 @@ public class DataModelResource {
 		for (Column column : table.getColumns()) {
 			String node = getNodeName(column);
 			builder.append(node + "[shape=plaintext label=\"" + column.getName() + "\"];\n");
-			builder.append(table.getName() + "->" + node + " [style=invis];\n");			
-			String mapperNode = "\"" + table.getName() + "." + column.getName() + "." + column.getFieldName() +  "\"";
-			aspects.add(mapperNode);
-			builder.append(mapperNode + " [shape=plaintext label=\"" + column.getFieldName() + "\"];\n");
-			builder.append(node + "->" + mapperNode + ";\n");
+			builder.append(table.getName() + "->" + node + " [style=invis];\n");	
+			if (column.getFieldName() != null) {
+				String mapperNode = "\"" + table.getName() + "." + column.getName() + "." + column.getFieldName() +  "\"";
+				aspects.add(mapperNode);
+				builder.append(mapperNode + " [shape=plaintext label=\"" + column.getFieldName() + "\"];\n");
+				builder.append(node + "->" + mapperNode + ";\n");
+			}
 		}
 		builder.append("{rank=same;");
 		for (Column column : table.getColumns()) {
@@ -121,9 +140,9 @@ public class DataModelResource {
 		return builder.toString();
 	}
 	
-	private List<ForeignKeyConstraint> getReferencing(Table table) {
+	private List<ForeignKeyConstraint> getReferencing(Table<?> table) {
 		List<ForeignKeyConstraint> result = new ArrayList<>();
-		for (Table each : table.getDataModel().getTables()) {
+		for (Table<?> each : table.getDataModel().getTables()) {
 			if(!each.equals(table)) {
 				for (ForeignKeyConstraint constraint : each.getForeignKeyConstraints()) {
 					if (constraint.getReferencedTable().equals(table) && constraint.getReverseFieldName() != null) {
@@ -152,7 +171,7 @@ public class DataModelResource {
 		return "Unknown Constraint";
 	}
 	
-	private void addTable(Table table , Set<String> tables , StringBuilder builder) {
+	private void addTable(Table<?> table , Set<String> tables , StringBuilder builder) {
 		if (tables.contains(table.getName())) {
 			return;
 		}

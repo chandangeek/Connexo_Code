@@ -11,6 +11,7 @@ import org.osgi.service.component.annotations.*;
 
 @Component(name="com.elster.jupiter.osgi.goodies.datamodel", service=Servlet.class, immediate=true, property={ "felix.webconsole.label=DataModel" ,  "felix.webconsole.title=DataModel Browser" })
 public class DataModelConsolePlugin extends HttpServlet {
+	private static final long serialVersionUID = 1L;
 	volatile private BundleContext context;
 	
 	@Override

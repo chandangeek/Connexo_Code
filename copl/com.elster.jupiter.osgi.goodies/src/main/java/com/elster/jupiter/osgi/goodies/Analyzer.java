@@ -86,6 +86,20 @@ public class Analyzer {
 		return false;
 	}
 	
+	private static String[] jupiterExcludes = {
+		".*util.*", 
+		".*oracle.*",
+		".*orm.*",
+		"com.elster.jupiter.security.thread",
+		"com.elster.jupiter.pubsub",
+		"com.elster.jupiter.transaction",
+	};
+
+	
+	String generateJupiter() {
+		return this.generate(new String[] {"com\\.elster\\.jupiter\\..*" }, jupiterExcludes ,false);
+	}
+	
 	void generate(BundleInfo bundleInfo) {		
 		for ( Bundle dependent : bundleInfo.getDependents()) {
 			if (include(dependent.getSymbolicName())) {

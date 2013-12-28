@@ -1,5 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.osgi.goodies
+Private-Package: com.elster.jupiter.osgi.goodies,\
+	com.elster.jupiter.schema.oracle.impl
 Include-Resource: src/main/web
 
+Export-Package: com.elster.jupiter.schema.oracle
