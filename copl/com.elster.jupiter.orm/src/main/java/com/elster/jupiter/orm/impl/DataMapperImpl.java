@@ -4,11 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Condition;
@@ -115,6 +116,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		"XML",                                                                             
 		"XS",                                                                              
 		"YES" }; 
+	private final Class<T> api;
 	private final TableImpl<? super T> table;
 	private final TableSqlGenerator sqlGenerator;
 	private final String alias;
@@ -122,6 +124,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	private final DataMapperWriter<T> writer;
 	
 	DataMapperImpl(Class<T> api, TableImpl<? super T> table) {
+		this.api = api;
 		this.table = table;
 		this.sqlGenerator = new TableSqlGenerator(table);
 		this.alias = createAlias(api.getName());
@@ -152,7 +155,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return alias;
 	}
 	
-	@Override 
+	Class<T> getApi() {
+		return api;
+	}
+	
 	public TableImpl<? super T> getTable() {
 		return table;
 	}
@@ -265,16 +271,22 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override
-	public void update(T object)  {
-		update(object,getTable().getStandardColumns());
-	}
-	
-	@Override
 	public void update(T object , String... fieldNames)  {
 		update(object,getUpdateColumns(fieldNames));
 	}
 	
+	public void touch(T object) {
+		if (table.getAutoUpdateColumns().isEmpty()) { 
+			throw new IllegalStateException("Nothing to touch");
+		} else {
+			update(object, Collections.<ColumnImpl>emptyList());
+		}
+	}
+	
 	private List<ColumnImpl> getUpdateColumns(String[] fieldNames) {
+		if (fieldNames.length == 0) {
+			return table.getStandardColumns();
+		} 
 		List<ColumnImpl> columns = new ArrayList<>(fieldNames.length);
 		for (String fieldName : fieldNames) {
 			ColumnImpl column = getTable().getColumnForField(fieldName);
@@ -296,15 +308,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override
-	public void update(List<T> objects)  {
-		update(objects,getTable().getStandardColumns());
-	}
-	
-	@Override
 	public void update(List<T> objects , String... fieldNames)  {
 		update(objects,getUpdateColumns(fieldNames));
 	}
 	
+
 	private void update(List<T> objects,List<ColumnImpl> columns){
 		try {
 			writer.update(objects,columns);
@@ -338,11 +346,17 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override
-	public QueryExecutor<T> with(DataMapper<?>... dataMappers) {
+	public QueryExecutorImpl<T> with(DataMapper<?>... dataMappers) {
 		QueryExecutorImpl <T> result = new QueryExecutorImpl<>(this);
 		for (DataMapper<?> each : dataMappers) {
-			result.add(each);
+			DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) each;
+			if (dataMapper.needsRestriction()) {
+				throw new IllegalStateException("No Restriction allowed on additional mappers: " + dataMapper);
+			} else {
+				result.add(dataMapper);
+			}
 		}
+		result.setRestriction(getMapperType().condition(getApi()));
 		return result;
 	}
 	
@@ -407,10 +421,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return writer;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Optional<T> getEager(Object ... key) {
-		return (Optional<T>) getTable().getQuery().getOptional(key);
+		return (Optional<T>) getTable().getQuery(getApi()).getOptional(key);
 	}
 
 	@Override
@@ -422,4 +435,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getTable().isAutoId();
 	}
 	
+	boolean needsRestriction() {
+		return getMapperType().needsRestriction(api);
+	}
 }

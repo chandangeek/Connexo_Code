@@ -269,19 +269,25 @@ public class DataModelImpl implements DataModel {
 
 	@SuppressWarnings("unchecked")
 	private <T> void persist(Class<T> type , Object entity) {
-		DataMapper<T> mapper = mapper(type);
+		DataMapperImpl<T> mapper = mapper(type);
 		mapper.persist((T) entity);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T> void update(Class<T> type , Object entity) {
-		DataMapper<T> mapper = mapper(type);
-		mapper.update((T) entity);
+	private <T> void update(Class<T> type , Object entity, String... columns) {
+		DataMapperImpl<T> mapper = mapper(type);
+		mapper.update((T) entity,columns);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> void touch(Class<T> type , Object entity) {
+		DataMapperImpl<T> mapper = mapper(type);
+		mapper.touch((T) entity);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private <T> void remove(Class<T> type, Object entity) {
-		DataMapper<T> mapper = mapper(type);
+		DataMapperImpl<T> mapper = mapper(type);
 		mapper.remove((T) entity);
 	}
 	
@@ -292,10 +298,17 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void update(Object entity) {
+	public void update(Object entity, String... columns) {
 		checkRegistered();
-		update(Objects.requireNonNull(entity).getClass(),entity);
+		update(Objects.requireNonNull(entity).getClass(),entity,columns);
 	}
+	
+	@Override
+	public void touch(Object entity) {
+		checkRegistered();
+		touch(Objects.requireNonNull(entity).getClass(),entity);
+	}
+	
 	
 	@Override
 	public void remove(Object entity) {
@@ -405,6 +418,11 @@ public class DataModelImpl implements DataModel {
 		if (table != null) {
 			table.renewCache();
 		}
+	}
+	
+	@Override
+	public boolean isInstalled() {
+		return ormService.isInstalled(this);
 	}
 	
 	

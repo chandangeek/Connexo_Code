@@ -1,6 +1,10 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Field;
+import java.util.List;
+
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 public class SingleDataMapperType<T> extends DataMapperType<T> {
 	private final Class<? extends T> implementation;
@@ -54,4 +58,20 @@ public class SingleDataMapperType<T> extends DataMapperType<T> {
 	Field getField(String fieldName) {
 		return DomainMapper.FIELDLENIENT.getField(implementation,fieldName);
 	}
+
+	@Override
+	void addSqlFragment(List<SqlFragment> fragments, Class<? extends T> type,String alias) {
+	}
+
+	@Override
+	Condition condition(Class<? extends T> api) {
+		return Condition.TRUE;
+	}
+
+	@Override
+	boolean needsRestriction(Class<? extends T> api) {
+		return false;
+	}
+	
+	
 }

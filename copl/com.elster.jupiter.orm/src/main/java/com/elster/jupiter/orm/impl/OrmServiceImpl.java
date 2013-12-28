@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
@@ -40,6 +41,7 @@ public class OrmServiceImpl implements OrmService , InstallService {
     private volatile JsonService jsonService;
     private volatile ValidationProviderResolver validationProviderResolver;
     private final Map<String,DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String,DataModelImpl>());
+    
 	public OrmServiceImpl() {
 	}
 
@@ -52,7 +54,9 @@ public class OrmServiceImpl implements OrmService , InstallService {
         setPublisher(publisher);
         setValidationProviderResolver(validationProviderResolver);
         activate();
-        install();
+        if (!getOrmDataModel().isInstalled()) {
+        	install();
+        }
     }
 
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
@@ -78,6 +82,9 @@ public class OrmServiceImpl implements OrmService , InstallService {
 		dataModels.put(dataModel.getName(), dataModel);
 	}
 	
+	private DataModel getOrmDataModel() {
+		return dataModels.get(COMPONENTNAME);
+	}
 	 @Override
 	public void install() {
 		 createDataModel(false).install(true,true);
@@ -189,4 +196,17 @@ public class OrmServiceImpl implements OrmService , InstallService {
     Publisher getPublisher() {
     	return publisher;
     }
+
+	public boolean isInstalled(DataModelImpl dataModel) {
+		DataModel orm = getOrmDataModel();
+		try {
+			return orm.mapper(DataModel.class).getOptional(dataModel.getName()).isPresent();
+		} catch (UnderlyingSQLFailedException ex) {
+			if (dataModel == orm) {
+				return false;
+			} else {
+				throw ex;
+			}
+		}
+	}
 }

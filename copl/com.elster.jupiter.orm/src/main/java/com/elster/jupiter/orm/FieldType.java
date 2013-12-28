@@ -18,7 +18,7 @@ public enum FieldType {
 	 */
 	REVERSEASSOCIATION, 
 	/*
-	 * Parent end of foreing key. Contains current version in a time relation
+	 * Parent end of foreign key. Contains current version in a time relation
 	 */
 	CURRENTASSOCIATION;
 }

@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
+import java.security.Principal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -9,6 +11,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class ColumnImpl implements Column  {
 	// persistent fields
@@ -228,6 +231,46 @@ public class ColumnImpl implements Column  {
 			}
 		}
 		return null;
+	}
+	
+	private DomainMapper getDomainMapper() {
+		return getTable().getMapperType().getDomainMapper();
+	}
+	
+	Object getDomainValue(Object target) {
+		if (isDiscriminator()) {
+			return getTable().getMapperType().getDiscriminator(target.getClass());
+		} else if (fieldName != null) {
+			return getDomainMapper().get(target, fieldName);
+		} else {
+			return getForeignKeyConstraint().domainValue(this,target);
+		}
+	}
+	
+	void prepare(Object target, boolean update, UtcInstant now) {
+		if (conversion == ColumnConversionImpl.NUMBER2NOW && !(update && skipOnUpdate())) {				
+			getDomainMapper().set(target,fieldName,now);
+		} 
+		if (conversion == ColumnConversionImpl.CHAR2PRINCIPAL && !(update && skipOnUpdate())) {
+			getDomainMapper().set(target,fieldName,getCurrentUserName());
+		}
+	}
+	
+	private String getCurrentUserName() {
+		Principal principal = getTable().getDataModel().getPrincipal();
+		return principal == null ? null : principal.getName();
+	}
+	
+	void setDomainValue(Object target, Object value) {
+		getDomainMapper().set(target, fieldName, value,getTable().getDataModel().getInjector());
+	}
+	
+	void setDomainValue(Object target, ResultSet rs, int index) throws SQLException {
+		setDomainValue(target, convertFromDb(rs,index));
+	}
+	
+	void setObject(PreparedStatement statement, int index, Object target ) throws SQLException  { 
+		statement.setObject(index, convertToDb(getDomainValue(target)));
 	}
 	
 	static class BuilderImpl implements Column.Builder {

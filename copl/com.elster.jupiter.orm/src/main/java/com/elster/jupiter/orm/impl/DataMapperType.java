@@ -1,7 +1,11 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Field;
+import java.util.List;
+
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.inject.Injector;
 
 abstract class DataMapperType<T> {
@@ -19,6 +23,9 @@ abstract class DataMapperType<T> {
 	abstract Object getEnum(String fieldName, String value);
 	abstract String getDiscriminator(Class<?> clazz);
 	abstract Field getField(String fieldName);
+	abstract void addSqlFragment(List<SqlFragment> fragments , Class<? extends T> api, String alias);
+	abstract Condition condition(Class<? extends T> api);
+	abstract boolean needsRestriction(Class<? extends T> api);
 	
 	final Injector getInjector() {
 		return table.getDataModel().getInjector();
@@ -27,6 +34,10 @@ abstract class DataMapperType<T> {
 	final boolean isReference(String fieldName) {
 		Class<?> clazz = getType(fieldName);
 		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
+	}
+	
+	final TableImpl<T> getTable() {
+		return table;
 	}
 	
 }

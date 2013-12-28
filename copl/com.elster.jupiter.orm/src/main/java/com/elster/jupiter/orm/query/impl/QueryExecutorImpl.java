@@ -25,12 +25,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		this.root = new JoinTreeNode<>(rootDataMapper);				
 	}
     
-	public <R> void add(DataMapper<R> dataMapper) {
-		DataMapperImpl<R> newMapper = (DataMapperImpl<R>) dataMapper;
+	public <R> void add(DataMapperImpl<R> newMapper) {
 		aliasFactory.setBase(newMapper.getAlias());
-		boolean result = root.addMapper((DataMapperImpl<R>) dataMapper , aliasFactory);
+		boolean result = root.addMapper(newMapper , aliasFactory);
 		if (!result) {
-			throw new IllegalArgumentException("No referential key match for " + dataMapper.getTable().getName());
+			throw new IllegalArgumentException("No referential key match for " + newMapper.getTable().getName());
 		}
 	}	
 	
@@ -100,7 +99,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	@Override
 	public void setRestriction(Condition condition) {
-		restriction = condition;
+		restriction = restriction.and(condition);
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -109,31 +108,11 @@ public abstract class TableConstraintImpl implements TableConstraint {
 		int columnCount = columns.size();		
 		Object[] result = new Object[columnCount]; 
 		for (int i = 0 ; i < columnCount ; i++) {
-			Column column = columns.get(i);
-			String fieldName = columns.get(i).getFieldName();
-			if (fieldName == null) {
-				for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
-					if (constraint.hasColumn(column)) {
-						Reference<?> reference = (Reference<?>) DomainMapper.FIELDSTRICT.get(value, constraint.getFieldName());
-						if (reference == null || !reference.isPresent()) {
-							result[i] = null;
-						}
-						int index = constraint.getColumns().indexOf(column);
-						if (reference instanceof PersistentReference<?>) {
-							result[i] = ((PersistentReference<?>) reference).getKeyPart(index);
-						} else {
-							result[i] = constraint.getReferencedTable().getPrimaryKey(reference.get()).get(index);
-						}
-						break;
-					}
-					throw new IllegalStateException("No mapping for Column " + column.getName());
-				}
-			} else {
-				result[i] = DomainMapper.FIELDSTRICT.get(value, columns.get(i).getFieldName());
-			}
+			result[i] = columns.get(i).getDomainValue(value);
 		}
 		return KeyValue.of(result);		
 	}
+
 	
 	boolean needsIndex() {		
 		return false;		

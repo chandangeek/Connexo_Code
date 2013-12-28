@@ -62,6 +62,7 @@ public class DataMapperReader<T> {
 		for (int i = 0 ; i < keyValue.size() ; i++) {
 			fragments.add(new ColumnEqualsFragment(pkColumns.get(i) , keyValue.get(i) , getAlias()));
 		}
+		getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
 		return fragments;		
 	}
 	
@@ -104,6 +105,7 @@ public class DataMapperReader<T> {
 			}
 		}
 		List<SqlFragment> fragments = new ArrayList<>();
+		getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
 		if (fieldNames != null) {
 			for (int i = 0 ; i < fieldNames.length ; i++) {
 				addFragments(fragments,fieldNames[i], values[i]);
@@ -218,11 +220,11 @@ public class DataMapperReader<T> {
 				columnValues.add(Pair.of(column,rs.wasNull() ? null : value));
 			}
 			if (column.getFieldName() != null) {
-				mapper.set(result, column.getFieldName(), value, getTable().getDataModel().getInjector());
+				column.setDomainValue(result, value);
 			}
 		}
 		for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
-			Field field = mapper.getField(result.getClass(), constraint.getFieldName());
+			Field field = constraint.referenceField(result.getClass());
 			if (field != null && Reference.class.isAssignableFrom(field.getType())) {
 				KeyValue keyValue = createKey(constraint,columnValues);
 				DataMapperImpl<?> dataMapper = constraint.getReferencedTable().getDataMapper();

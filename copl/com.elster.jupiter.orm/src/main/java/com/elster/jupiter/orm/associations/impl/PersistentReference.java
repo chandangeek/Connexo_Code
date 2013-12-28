@@ -61,6 +61,10 @@ public class PersistentReference<T> implements Reference<T> {
 		return primaryKey.get(index);
 	}
 	
+	public KeyValue getKey() {
+		return primaryKey;
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) {

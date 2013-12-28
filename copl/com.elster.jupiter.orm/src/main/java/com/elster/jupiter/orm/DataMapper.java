@@ -22,18 +22,13 @@ public interface DataMapper<T> extends Finder<T> {
 	 */
 	void persist(List<T> objects);
 	/**
-	 * Updates all updatable columns for the tuple matching the primary key extracted from the argument. 
-	 * Any database generated fields will be updated in object
-	 */
-	void update(T object);
-	/**
-	 * Updates only the columns that match with the fieldNames
+	 * Updates only the columns that match with the fieldNames,
+	 * or all columns if none are specified
 	 */
 	void update(T object, String... fieldNames);
 	/**
 	 * Batch update the list of objects. Database generated fields will NOT be updated
 	 */
-	void update(List<T> objects);
 	void update(List<T> objects, String... fieldNames);
 	/**
 	 * delete the tuple whose primary key matches the primary key extracted from the argument
@@ -48,12 +43,9 @@ public interface DataMapper<T> extends Finder<T> {
 	 * There must be a (direct or indirect) foreign key relationship between the receiver's type and the 
 	 * types mapped by the arguments. 
 	 */
+	@Deprecated
 	QueryExecutor<T> with(DataMapper<?> ... tupleHandlers);
-	/**
-	 * @return the table served by the receiver
-	 */
-	Table<? super T> getTable();
-
+	
 	Optional<T> getEager(Object ... object);
 	// meta data access
 	Object getAttribute(Object target , String fieldName);

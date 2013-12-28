@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.google.common.base.Optional;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
@@ -133,6 +134,23 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		Objects.requireNonNull(fieldName);
 	}
 	
+	public Object domainValue(Column column , Object target) {
+		Reference<?> reference = (Reference<?>) getTable().getMapperType().getDomainMapper().get(target, getFieldName());
+		if (reference == null || !reference.isPresent()) {
+			return null;
+		}
+		int index = getColumns().indexOf(column);
+		return extractKey(reference).get(index);
+	}
+	
+	KeyValue extractKey(Reference<?> reference) {
+		if (reference instanceof PersistentReference<?>) {
+			return ((PersistentReference<?>) reference).getKey();
+		} else {
+			return getReferencedTable().getPrimaryKeyConstraint().getColumnValues(reference.get());
+		}
+	}
+	
 	static class BuilderImpl implements ForeignKeyConstraint.Builder {
 		private final ForeignKeyConstraintImpl constraint;
 		
@@ -224,4 +242,22 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 			return Optional.of(((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
 		}
 	}
+	
+	private DomainMapper getDomainMapper() {
+		return getTable().getMapperType().getDomainMapper();
+	}
+	
+	Field referenceField(Class<?> api) {
+		return getDomainMapper().getField(api, getFieldName());
+	}
+	
+	Field compositionField(Class<?> api) {
+		return getDomainMapper().getField(api, getReverseFieldName());
+	}
+	
+	DataMapperImpl<?> compositionMapper(Field field) {
+		Class<?> clazz = getDomainMapper().extractClass(field.getGenericType());
+		return getTable().getDataMapper(clazz);
+	}
+	
 }

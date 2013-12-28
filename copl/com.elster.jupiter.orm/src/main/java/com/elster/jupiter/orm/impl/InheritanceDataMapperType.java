@@ -1,10 +1,18 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.google.common.base.Joiner;
 
 public class InheritanceDataMapperType<T> extends DataMapperType<T> {
 	
@@ -82,4 +90,77 @@ public class InheritanceDataMapperType<T> extends DataMapperType<T> {
 		}
 		return null;
 	}
+	
+	@Override
+	boolean needsRestriction(Class<? extends T> api) {
+		if (api == getTable().getApi()) {
+			return false;
+		} else {
+			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
+				if (!api.isAssignableFrom(entry.getValue())) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+	
+
+	@Override
+	Condition condition(Class<? extends T> api) {
+		Condition result = Condition.TRUE;
+		if (needsRestriction(api)) {
+			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
+				if (api.isAssignableFrom(entry.getValue())) {
+					result = result.and(Where.where("class").isEqualTo(entry.getKey()));
+				}
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	void addSqlFragment(List<SqlFragment> fragments, Class<? extends T> api, String alias) {
+		if (needsRestriction(api)) {
+			fragments.add(new DiscriminatorFragment(api,alias));
+		}
+	}
+	
+	private class DiscriminatorFragment implements SqlFragment {
+		
+		private final String alias;
+		private final List<String> discriminators = new ArrayList<>();
+		
+		DiscriminatorFragment(Class<? extends T> api, String alias) {
+			this.alias = alias;
+			for (Map.Entry<String, Class<? extends T>> entry : implementations.entrySet()) {
+				if (api.isAssignableFrom(entry.getValue())) {
+					discriminators.add(entry.getKey());
+				}
+			}
+			assert(!discriminators.isEmpty());
+		}
+		
+		@Override
+		public int bind(PreparedStatement statement, int position) throws SQLException {
+			return position;
+		}
+
+		@Override
+		public String getText() {
+			ColumnImpl column = getTable().getDiscriminator().get();
+			StringBuffer buffer = new StringBuffer(column.getName(alias));
+			if (discriminators.size() == 1) {
+				buffer.append(" = '");
+				buffer.append(discriminators.get(0));
+				buffer.append("'");
+			} else {
+				buffer.append(" IN ('");
+				buffer.append(Joiner.on("','").join(discriminators));
+				buffer.append("')");
+			}
+			return buffer.toString();
+		}
+	}
+	
 }

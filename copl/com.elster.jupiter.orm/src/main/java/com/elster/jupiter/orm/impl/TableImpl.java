@@ -230,14 +230,14 @@ public class TableImpl<T> implements Table<T> {
 		return result;		
 	}		
 		
-	ColumnImpl[] getAutoUpdateColumns() {
-		List<Column> result = new ArrayList<>();
+	List<ColumnImpl> getAutoUpdateColumns() {
+		List<ColumnImpl> result = new ArrayList<>();
 		for (ColumnImpl column : columns) {
 			if (column.hasAutoValue(true)) {
 				result.add(column);
 			}
 		}		
-		return result.toArray(new ColumnImpl[result.size()]);
+		return result;
 	}
 	
 	@Override
@@ -311,7 +311,7 @@ public class TableImpl<T> implements Table<T> {
 		return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
 	}
 	
-	public QueryExecutorImpl<T> getQuery() {
+	public <S extends T> QueryExecutorImpl<S> getQuery(Class <S> type) {
 		List<TableImpl<?>> related = new ArrayList<>();
 		addAllRelated(related);
 		related.remove(0);
@@ -319,7 +319,10 @@ public class TableImpl<T> implements Table<T> {
 		for (TableImpl<?> each : related) {
 			mappers.add(each.getDataMapper());
 		}
-		return (QueryExecutorImpl<T>) getDataMapper(api).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
+		return getDataMapper(type).with(mappers.toArray(new DataMapperImpl<?>[mappers.size()]));
+	}
+	public QueryExecutorImpl<T> getQuery() {
+		return getQuery(api);
 	}
 
 	private void addAllRelated(List<TableImpl<?>> related) {
@@ -701,6 +704,15 @@ public class TableImpl<T> implements Table<T> {
 	
 	DataMapperType<T> getMapperType() {
 		return mapperType;
+	}
+	
+	Optional<ColumnImpl> getDiscriminator() {
+		for (ColumnImpl column : columns) {
+			if (column.isDiscriminator()) {
+				return Optional.of(column);
+			}
+		}
+		return Optional.absent();
 	}
 }
 	

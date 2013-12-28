@@ -7,6 +7,7 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+
 import javax.validation.ValidatorFactory;
 
 /**
@@ -18,11 +19,13 @@ public interface DataModel {
     // operational api
     void persist(Object entity);
 
-    void update(Object entity);
-
+    void update(Object entity, String... fieldNames);
+    
+    void touch(Object entity);
+    
     void remove(Object entity);
-
-    <T> T getInstance(Class<T> clazz);
+    
+     <T> T getInstance(Class<T> clazz);
 
     <T> DataMapper<T> mapper(Class<T> api);
 
@@ -33,8 +36,8 @@ public interface DataModel {
     // creation api
     <T> Table<T> addTable(String name, Class<T> api);
     <T> Table<T> addTable(String schema, String tableName, Class<T> api);
-    
     void register(Module... modules);
+    boolean isInstalled();
 
     // courtesy methods
     Connection getConnection(boolean transactionRequired) throws SQLException;
