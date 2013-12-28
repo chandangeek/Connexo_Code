@@ -1,5 +1,18 @@
 package com.elster.jupiter.parties.impl;
 
+import static com.elster.jupiter.domain.util.Save.action;
+import static com.google.common.base.Objects.toStringHelper;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.domain.util.Save;
@@ -17,19 +30,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import static com.elster.jupiter.domain.util.Save.action;
-import static com.google.common.base.Objects.toStringHelper;
 
 @Unique(fields="mRID", groups = Save.Create.class)
 abstract class PartyImpl implements Party {
@@ -106,12 +106,12 @@ abstract class PartyImpl implements Party {
         return version;
     }
 
-    UtcInstant getCreateTime() {
-        return createTime;
+    Date getCreateTime() {
+        return createTime == null ? null : createTime.toDate();
     }
 
-    UtcInstant getModTime() {
-        return modTime;
+    Date getModTime() {
+        return modTime == null ? null : modTime.toDate();
     }
 
     String getUserName() {
@@ -173,7 +173,7 @@ abstract class PartyImpl implements Party {
         validateAddingDelegate(user, interval);
         PartyRepresentationImpl representation = PartyRepresentationImpl.from(dataModel, this, user, interval);
         representations.add(representation);
-        update();
+        touch();
         return representation;
     }
 
@@ -184,7 +184,7 @@ abstract class PartyImpl implements Party {
         }
         ((PartyRepresentationImpl) representation).setInterval(newInterval);
         dataModel.update(representation);
-        update();
+        touch();
     }
 
     @Override
@@ -193,7 +193,7 @@ abstract class PartyImpl implements Party {
             if (representation.getDelegate().equals(user) && representation.getInterval().contains(end, Interval.EndpointBehavior.CLOSED_OPEN)) {
                 representation.setInterval(representation.getInterval().withEnd(end));
                 dataModel.update(representation);
-                update();
+                touch();
                 return;
             }
         }
@@ -205,7 +205,7 @@ abstract class PartyImpl implements Party {
         PartyInRoleImpl candidate = PartyInRoleImpl.from(dataModel, this, role, Interval.startAt(start));
         validateAddingRole(candidate);
         partyInRoles.add(candidate);
-        update();
+        touch();
         return candidate;
     }
 
@@ -222,7 +222,7 @@ abstract class PartyImpl implements Party {
         }
         toUpdate.terminate(date);
         dataModel.update(toUpdate);
-        update();
+        touch();
         return toUpdate;
     }
 
@@ -247,9 +247,9 @@ abstract class PartyImpl implements Party {
         action(getId()).save(dataModel, this, getType());
     }
 
-    public void update() {
+    public void touch() {
         if (id != 0) {
-            save();
+            dataModel.touch(this);
         }
     }
 
@@ -279,6 +279,5 @@ abstract class PartyImpl implements Party {
     public String toString() {
         return toStringHelper(this).omitNullValues().add("id", id).add("mRID", mRID).add("name", name).toString();
     }
-
 
 }

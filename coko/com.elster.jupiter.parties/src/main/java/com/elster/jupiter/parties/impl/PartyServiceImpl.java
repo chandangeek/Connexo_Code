@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
@@ -19,11 +20,13 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.security.Principal;
 import java.util.List;
 
@@ -50,7 +53,9 @@ public class PartyServiceImpl implements PartyService, InstallService {
         setEventService(eventService);
         setThreadPrincipalService(threadPrincipalService);
         activate();
-        install();
+        if (!dataModel.isInstalled()) {
+        	install();
+        }
     }
 
     Module getModule() {
@@ -130,7 +135,7 @@ public class PartyServiceImpl implements PartyService, InstallService {
 
     @Override
     public Query<Party> getPartyQuery() {
-    	return queryService.wrap(dataModel.mapper(Party.class).with());
+    	return queryService.wrap(dataModel.query(Party.class,PartyInRole.class));
     }
 
     @Override
