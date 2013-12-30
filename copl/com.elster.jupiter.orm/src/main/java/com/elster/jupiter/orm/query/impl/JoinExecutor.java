@@ -42,7 +42,7 @@ final class JoinExecutor<T> {
 		return from == 0 ? builder : builder.asPageBuilder(from, to);
 	}
 	
-	void appendSql(Condition condition , String[] orderBy) {
+	private void appendSql(Condition condition , String[] orderBy) {
 		appendSelectClause();
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder,orderBy);
@@ -136,7 +136,7 @@ final class JoinExecutor<T> {
 		root.set(results, rs, 1);					
 	}
 
-	void mark(String[] exceptions) {
+	private void mark(String[] exceptions) {
 		if (exceptions != null) {
 			for (String each : exceptions) {
 				root.mark(each + ".");
@@ -144,7 +144,7 @@ final class JoinExecutor<T> {
 		}
 	}
 	
-	void clear(String[] exceptions) {
+	private void clear(String[] exceptions) {
 		if (exceptions != null) {
 			for (String each : exceptions) {
 				root.clear(each + ".");
@@ -152,7 +152,7 @@ final class JoinExecutor<T> {
 		}
 	}
 	
-	boolean hasSemiJoin() {
+	private boolean hasSemiJoin() {
 		return root.hasSemiJoin();
 	}
 	

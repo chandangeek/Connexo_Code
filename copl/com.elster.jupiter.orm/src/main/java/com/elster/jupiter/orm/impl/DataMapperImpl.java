@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -171,13 +170,17 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getTable().getCache();
 	}
 
-	@SuppressWarnings("unchecked")
+
 	@Override
     Optional<T> findByPrimaryKey(KeyValue keyValue) {
 		TableCache<? super T> cache = getCache();
-		T cacheVersion = (T) cache.get(keyValue);
+		Object cacheVersion = cache.get(keyValue);
 		if (cacheVersion != null) {
-			return Optional.of(cacheVersion);
+			if (api.isInstance(cacheVersion)) {
+				return Optional.of(api.cast(cacheVersion)); 
+			} else {
+				return Optional.absent();
+			}
 		}
 		try {
 			Optional<T> result = reader.findByPrimaryKey(keyValue);
@@ -210,7 +213,17 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		if (fieldNames == null) {
 			List<? super T> candidates = getCache().find();
 			if (candidates != null) {
-				return (List<T>) candidates;
+				if (needsRestriction()) {
+					List<T> result = new ArrayList<>();
+					for (Object candidate : candidates) {
+						if (api.isInstance(candidate)) {
+							result.add(api.cast(candidate));
+						}
+					}
+					return result;
+				} else {
+					return (List<T>) candidates;
+				}
 			}
 		}
 		try {
@@ -361,15 +374,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	public Object convert(ColumnImpl column , String value) {
-		if (column.isEnum()) {
-			return getEnum(column,value);
-		} else {
-			return column.convert(value);
-		}
-	}
-	
-	private Object getEnum(Column column, String value) {
-		return getMapperType().getEnum(column.getFieldName(), value);			
+		return column.convert(value);
 	}
 	
 	private List<ColumnImpl> getColumns() {
@@ -430,12 +435,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	public Object getAttribute(Object target, String fieldName) {
 		return DomainMapper.FIELDSTRICT.get(target, fieldName);
 	}
-
-	public boolean isAutoId() {
-		return getTable().isAutoId();
+	
+	private boolean needsRestriction() {
+		return getMapperType().needsRestriction(api);
 	}
 	
-	boolean needsRestriction() {
-		return getMapperType().needsRestriction(api);
+	public T cast (Object object) {
+		return api.cast(object);
 	}
 }

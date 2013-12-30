@@ -308,7 +308,12 @@ public class TableImpl<T> implements Table<T> {
 		if (mapperType.getInjector() == null) {
 			throw new IllegalStateException("Datamodel not registered");
 		}
-		return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
+		if (maps(api)) {
+			
+			return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
+		} else {
+			throw new IllegalArgumentException("" + api);
+		}
 	}
 	
 	public <S extends T> QueryExecutorImpl<S> getQuery(Class <S> type) {
@@ -591,10 +596,17 @@ public class TableImpl<T> implements Table<T> {
 	public boolean maps(Class<?> clazz) {
 		return api.isAssignableFrom(clazz);
 	}
+	
+	public DomainMapper getDomainMapper() {
+		return getMapperType().getDomainMapper();
+	}
 
 	void prepare() {
 		checkActiveBuilder();
 		Objects.requireNonNull(mapperType,"No implementation has been set");
+		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
+			constraint.prepare();
+		}
 		buildReferenceConstraints();
 		buildReverseMappedConstraints();
 		for (Column column : getColumns()) {
@@ -622,12 +634,11 @@ public class TableImpl<T> implements Table<T> {
 		throw new IllegalStateException("Column " + column.getName() + " has no mapping");
 	}
 	
-	@SuppressWarnings("unused")
 	private void buildReferenceConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
 			if (mapperType.isReference(constraint.getFieldName())) {
-				Field field = mapperType.getField(constraint.getFieldName());
+				mapperType.getField(constraint.getFieldName());
 				builder.add(constraint);
 			}
 		}
@@ -689,7 +700,7 @@ public class TableImpl<T> implements Table<T> {
 		return cache;
 	}
 	
-	Field getField(String fieldName) {
+	public Field getField(String fieldName) {
 		return mapperType.getField(fieldName);
 	}
 	
@@ -713,6 +724,10 @@ public class TableImpl<T> implements Table<T> {
 			}
 		}
 		return Optional.absent();
+	}
+	
+	Class<? extends T> classCast(Class<?> in) {
+		return in.asSubclass(api);
 	}
 }
 	

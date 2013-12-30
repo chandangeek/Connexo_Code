@@ -8,10 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -62,34 +60,23 @@ public class DataMapperWriter<T> {
 			}							
 		} 		
 		refresh(object,true);
-		if (getTable().hasChildren()) {
-			for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
-				if (constraint.isComposition()) {
-					Field field = constraint.compositionField(object.getClass());
-					if (field != null) {			
-						try {
-							List parts =(List) field.get(object);
-							DataMapperImpl<?> mapper = (DataMapperImpl<?>) constraint.compositionMapper(field);
-							mapper.getWriter().persist(parts);
-							if (mapper.getWriter().needsRefreshAfterBatchInsert()) {						
-								field.set(object, new ManagedPersistentList<>(constraint, mapper, object));
-							} else {
-								field.set(object, new ManagedPersistentList<>(constraint, mapper, object, parts));
-							}
-						} catch (ReflectiveOperationException ex) {
-							throw new MappingException(ex);
-						}
-					}
+		for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
+			if (constraint.isComposition()) {
+				DataMapperWriter writer = constraint.reverseMapper(constraint.reverseField(object.getClass())).getWriter();
+				List<?> toPersist = constraint.added(object,writer.needsRefreshAfterBatchInsert());
+				if (toPersist.size() == 1) {
+					writer.persist(toPersist.get(0));
+				} else {
+					writer.persist(toPersist);
 				}
 			}
 		}
 	}
 	
-	boolean needsRefreshAfterBatchInsert() {
+	public boolean needsRefreshAfterBatchInsert() {
 		return getTable().hasAutoIncrementColumns() && !getTable().hasChildren();
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void persist(List<T> objects) throws SQLException {
 		if (objects.isEmpty()) {
 			return;
@@ -116,33 +103,30 @@ public class DataMapperWriter<T> {
 				statement.executeBatch();
 			}							
 		} 	
-		if (!getTable().hasChildren()) {
-			return;
+		if (getTable().hasChildren()) {
+			persistChildren(objects);
 		}
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void persistChildren(List<T> objects) throws SQLException {
 		for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 			if (constraint.isComposition()) {
 				List allParts = new ArrayList<>();
-				DataMapperImpl<?> mapper = null;
+				DataMapperWriter<?> writer = null;
 				for (Object object : objects) {
-					Field field = constraint.compositionField(object.getClass());
+					Field field = constraint.reverseField(object.getClass());
 					if (field != null) {
-						if (mapper == null) {
-							mapper = (DataMapperImpl<?>) constraint.compositionMapper(field);
+						if (writer == null) {
+							writer = constraint.reverseMapper(field).getWriter();
 						}
-						try {
-							List parts =(List) field.get(object);
-							allParts.addAll(parts);
-							if (mapper.getWriter().needsRefreshAfterBatchInsert()) {
-								field.set(object, new ManagedPersistentList<>(constraint, mapper, object));
-							} else {
-								field.set(object, new ManagedPersistentList<>(constraint, mapper, object, parts));
-							}
-						} catch (ReflectiveOperationException ex) {
-							throw new MappingException(ex);
-						}
+						List parts = constraint.added(object,writer.needsRefreshAfterBatchInsert());
+						allParts.addAll(parts);
 					}
 				}
-				mapper.getWriter().persist(allParts);
+				if (writer != null) {
+					writer.persist(allParts);
+				}
 			}
 		} 
 	}
@@ -194,7 +178,7 @@ public class DataMapperWriter<T> {
 				}
 				index = bindPrimaryKey(statement, index, object);
 				for (ColumnImpl column : versionCountColumns) {
-					Long value = (Long) column.getDomainValue(object);
+					Long value = (Long) column.domainValue(object);
 					versionCounts.add(Pair.of(column, value));
 					statement.setObject(index++, value);
 				}
@@ -239,7 +223,7 @@ public class DataMapperWriter<T> {
 		} 	
 	}
 	
-	void remove(T object) throws SQLException {		
+	public void remove(T object) throws SQLException {		
 		if (getTable().hasJournal()) {
 			journal(object,new UtcInstant(getTable().getDataModel().getClock()));
 		}
@@ -307,7 +291,7 @@ public class DataMapperWriter<T> {
 		return getTable().getColumns();
 	}
 	
-	int bindPrimaryKey(PreparedStatement statement, int index, Object target) throws SQLException {
+	private int bindPrimaryKey(PreparedStatement statement, int index, Object target) throws SQLException {
 		for (ColumnImpl column : getTable().getPrimaryKeyColumns()) {
 			column.setObject(statement,index++, target);
 		}

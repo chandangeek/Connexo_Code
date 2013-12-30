@@ -200,8 +200,10 @@ public class ColumnImpl implements Column  {
 		}
 	}
 	
-	Object convert(String in) {
-		if (conversion == ColumnConversionImpl.CHAR2JSON) {
+	public Object convert(String in) {
+		if (isEnum()) {
+			return getTable().getMapperType().getEnum(fieldName, in);	
+		} else if (conversion == ColumnConversionImpl.CHAR2JSON) {
 			return jsonConverter().convert(in);
 		} else {
 			return conversion.convert(in);
@@ -234,10 +236,10 @@ public class ColumnImpl implements Column  {
 	}
 	
 	private DomainMapper getDomainMapper() {
-		return getTable().getMapperType().getDomainMapper();
+		return getTable().getDomainMapper();
 	}
 	
-	Object getDomainValue(Object target) {
+	Object domainValue(Object target) {
 		if (isDiscriminator()) {
 			return getTable().getMapperType().getDiscriminator(target.getClass());
 		} else if (fieldName != null) {
@@ -270,7 +272,7 @@ public class ColumnImpl implements Column  {
 	}
 	
 	void setObject(PreparedStatement statement, int index, Object target ) throws SQLException  { 
-		statement.setObject(index, convertToDb(getDomainValue(target)));
+		statement.setObject(index, convertToDb(domainValue(target)));
 	}
 	
 	static class BuilderImpl implements Column.Builder {

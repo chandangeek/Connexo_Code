@@ -81,5 +81,12 @@ public class PersistentReference<T> implements Reference<T> {
 	public int hashCode() {
 		return Objects.hashCode(orNull());
 	}
+
+	@Override
+	public void setNull() {
+		set(null);
+	}
+	
+	
  
 }

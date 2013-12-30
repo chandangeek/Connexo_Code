@@ -64,12 +64,9 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 	
 	public Object convert(String fieldName, String value) {
-		DataMapperImpl<?>  mapper = root.getDataMapperForField(fieldName);
-		if (mapper != null) {
-			ColumnImpl column = root.getColumnForField(fieldName);
-				if (column != null) {
-					return mapper.convert(column,value);
-				}
+		ColumnImpl column = root.getColumnForField(fieldName);
+		if (column != null) {
+			return column.convert(value);
 		}
 		throw new IllegalArgumentException("No mapper or column for " + fieldName);
 	}

@@ -1,10 +1,14 @@
 package com.elster.jupiter.orm.query.impl;
 
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
@@ -12,11 +16,11 @@ import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-public class ChildDataMapper<T> extends JoinDataMapper <T> {
+public class EffectiveDataMapper<T> extends JoinDataMapper<T> {
 	private final ForeignKeyConstraintImpl constraint;
 	private Map<Object, List<T>> targetCache;
 	
-	public ChildDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraintImpl constraint, String alias) {
+	public EffectiveDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraintImpl constraint, String alias) {
 		super(dataMapper, alias);
 		this.constraint = constraint;
 	}
@@ -86,32 +90,22 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 
 	@Override
 	void completeFind() {
-		String fieldName = constraint.getReverseFieldName();
-		if (fieldName != null) {
-			super.completeFind();
-			for (Map.Entry<Object,List<T>> entry : targetCache.entrySet()) {
-				if (constraint.isOneToOne()) {
-					if (entry.getValue().size() > 1) {
-						throw new NotUniqueException(fieldName);
-					}
-					if (entry.getValue().size() == 1) {
-						constraint.setReverseField(entry.getKey(), entry.getValue().get(0));
-					}
-				} else {
-					sort(entry.getValue());
-					List<T> values = entry.getValue();
-					constraint.setReverseField(entry.getKey(), values);
+		super.completeFind();
+		for (Map.Entry<Object,List<T>> entry : targetCache.entrySet()) {
+			if (constraint.isOneToOne()) {
+				if (entry.getValue().size() > 1) {
+					throw new NotUniqueException(constraint.getReverseFieldName());
 				}
+				if (entry.getValue().size() == 1) {
+					constraint.setReverseField(entry.getKey(), entry.getValue().get(0));
+				}
+			} else {
+				List<T> values = entry.getValue();
+				constraint.setReverseField(entry.getKey(), values);
 			}
 		}
 	}
 
-	private void sort(List<?> list) {
-		String fieldName = constraint.getReverseOrderFieldName();
-		if (fieldName != null) {
-			Collections.sort(list, new FieldComparator(fieldName));
-		}
-	}
 	
 	@Override
 	String getName() {
@@ -128,29 +122,8 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		return true;
 	}
 
-	private static class FieldComparator implements Comparator<Object> {
-		private final String sortField;
-		
-		FieldComparator(String sortField) {
-			this.sortField = sortField;
-		}
-		
-		@Override
-		public int compare(Object o1, Object o2) {
-			return getValue(o1).compareTo(getValue(o2));			
-		}
-		
-		@SuppressWarnings({ "unchecked" })
-		private Comparable<Object> getValue(Object o) {
-			return (Comparable<Object>) DomainMapper.FIELDSTRICT.get(o, sortField);
-		}
-		
-	}
-
 	@Override
 	public boolean isReachable() {
 		return constraint.getReverseFieldName() != null;
 	}
-	
-
 }

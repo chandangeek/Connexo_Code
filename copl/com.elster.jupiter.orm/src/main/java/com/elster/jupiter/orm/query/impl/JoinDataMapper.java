@@ -53,10 +53,11 @@ public abstract class JoinDataMapper<T> {
 		}
 		for (ForeignKeyConstraintImpl constraint : newMapper.getTable().getForeignKeyConstraints()) {
 			if (getTable().equals(constraint.getReferencedTable())) {
-				if (constraint.getReverseCurrentFieldName() != null) {
-					result.add(new CurrentDataMapper<>(newMapper, constraint, aliasFactory.getAlias(true)));
+				if (constraint.isTemporal()) {
+					result.add(new EffectiveDataMapper<>(newMapper, constraint, aliasFactory.getAlias()));
+				} else {
+					result.add(new ChildDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
 				}
-				result.add(new ChildDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
 			}
 		}
 		return result;

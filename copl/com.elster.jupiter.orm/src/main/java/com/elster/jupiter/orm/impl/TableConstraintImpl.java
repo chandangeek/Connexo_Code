@@ -108,7 +108,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 		int columnCount = columns.size();		
 		Object[] result = new Object[columnCount]; 
 		for (int i = 0 ; i < columnCount ; i++) {
-			result[i] = columns.get(i).getDomainValue(value);
+			result[i] = columns.get(i).domainValue(value);
 		}
 		return KeyValue.of(result);		
 	}

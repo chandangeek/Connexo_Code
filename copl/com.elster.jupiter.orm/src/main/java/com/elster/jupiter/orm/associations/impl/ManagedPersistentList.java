@@ -55,7 +55,6 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		return getTarget().addAll(collection);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean removeAll(Collection<?> collection) {
 		if (collection.isEmpty() || isEmpty()) {
@@ -64,7 +63,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		List<T> removedList = new ArrayList<>();
 		for (Object toRemove : collection) {
 			if (getTarget().remove(toRemove)) {
-				removedList.add((T) toRemove);
+				removedList.add(dataMapper.cast(toRemove));
 			}
 		}
 		dataMapper.remove(removedList);

@@ -55,7 +55,6 @@ public class DataModelImpl implements DataModel {
     // transient fields
     private Injector injector;
     private final OrmServiceImpl ormService;
-    
     private boolean registered;
 
     @Inject
@@ -267,28 +266,24 @@ public class DataModelImpl implements DataModel {
 		return injector.getInstance(clazz);
 	}
 
-	@SuppressWarnings("unchecked")
 	private <T> void persist(Class<T> type , Object entity) {
 		DataMapperImpl<T> mapper = mapper(type);
-		mapper.persist((T) entity);
+		mapper.persist(mapper.cast(entity));
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	private <T> void update(Class<T> type , Object entity, String... columns) {
 		DataMapperImpl<T> mapper = mapper(type);
-		mapper.update((T) entity,columns);
+		mapper.update(mapper.cast(entity),columns);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T> void touch(Class<T> type , Object entity) {
 		DataMapperImpl<T> mapper = mapper(type);
-		mapper.touch((T) entity);
+		mapper.touch(mapper.cast(entity));
 	}
 	
-	@SuppressWarnings("unchecked")
 	private <T> void remove(Class<T> type, Object entity) {
 		DataMapperImpl<T> mapper = mapper(type);
-		mapper.remove((T) entity);
+		mapper.remove(mapper.cast(entity));
 	}
 	
 	@Override

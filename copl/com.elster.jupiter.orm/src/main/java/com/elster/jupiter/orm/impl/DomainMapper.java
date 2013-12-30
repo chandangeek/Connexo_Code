@@ -174,13 +174,18 @@ public enum DomainMapper {
 		return result;
 	}
 	
-	Class<?> extractClass (Type type) {
+	public static Class<?> extractDomainClass (Field field) {
+		Type type = field.getGenericType();
 		if (type instanceof Class<?>) {
 			return (Class<?>) type;
 		} else if (type instanceof ParameterizedType) {
-			return extractClass(((ParameterizedType) type).getRawType());
-		} else {
-			throw new IllegalArgumentException("" + type);
-		}
+			Type subType = ((ParameterizedType) type).getActualTypeArguments()[0];
+			if (subType instanceof Class<?>) {
+				return (Class<?>) subType;
+			} else if (type instanceof ParameterizedType) {
+				return (Class<?>) ((ParameterizedType) subType).getRawType();
+			}
+		} 
+		throw new IllegalArgumentException("" + type);
 	}
 }
