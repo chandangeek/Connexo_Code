@@ -22,7 +22,7 @@ public abstract class JoinTreeAction<T> {
 	}
 	
 	final boolean proceed(T lastResult) {
-		return lastResult == null || (lastResult instanceof Boolean && !((Boolean) lastResult).booleanValue());
+		return lastResult == null || lastResult == Boolean.FALSE;
 	}
 	
 	abstract T invoke(String fieldName , JoinDataMapper<?> value);	

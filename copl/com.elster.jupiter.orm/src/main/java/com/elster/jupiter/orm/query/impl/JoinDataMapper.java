@@ -17,6 +17,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +79,7 @@ public abstract class JoinDataMapper<T> {
 		return mapping == null ? null : mapping.asContainsFragment(contains, getAlias());
 	}
 
-	final boolean hasField(String fieldName)  {
+	boolean hasField(String fieldName)  {
 		return getTable().getFieldMapping(fieldName) != null;
 	}
 
@@ -142,7 +143,7 @@ public abstract class JoinDataMapper<T> {
 		this.cache = new HashMap<>();
 	}
 
-	void completeFind() {
+	void completeFind(Date effectiveDate) {
 		for (T each : cache.values()) {
 			if (each instanceof PersistenceAware) {
 				((PersistenceAware) each).postLoad();
@@ -190,4 +191,8 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	abstract public boolean isReachable();
+	
+	boolean skipFetch(boolean marked, boolean anyChildMarked) {
+		return isChild() && (marked || anyChildMarked);
+	}
 }

@@ -154,7 +154,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return alias;
 	}
 	
-	Class<T> getApi() {
+	public Class<T> getApi() {
 		return api;
 	}
 	

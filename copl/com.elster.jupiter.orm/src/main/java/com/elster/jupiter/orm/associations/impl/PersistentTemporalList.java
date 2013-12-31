@@ -7,11 +7,11 @@ import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.TemporalList;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
 public class PersistentTemporalList<T extends Effectivity> extends AbstractPersistentTemporalAspect<T> implements TemporalList<T> {
-	private Date effectiveDate;
+	private UtcInstant effectiveDate;
 	private List<T> effectives;
 
 	public PersistentTemporalList(ForeignKeyConstraintImpl constraint,DataMapperImpl<T> dataMapper, Object owner) {
@@ -20,7 +20,7 @@ public class PersistentTemporalList<T extends Effectivity> extends AbstractPersi
 
 	@Override
 	public boolean add(T element) {
-		if (effectiveDate != null && element.getInterval().contains(effectiveDate,Interval.EndpointBehavior.CLOSED_OPEN)) {
+		if (effectiveDate != null && element.getInterval().isEffective(effectiveDate.toDate())) {
 			effectives.add(element);
 		}
 		return super.add(element);
@@ -28,7 +28,7 @@ public class PersistentTemporalList<T extends Effectivity> extends AbstractPersi
 
 	@Override
 	public boolean remove(T element) {
-		if (element.getInterval().contains(effectiveDate,Interval.EndpointBehavior.CLOSED_OPEN)) {
+		if (element.getInterval().isEffective(effectiveDate.toDate())) {
 			effectives.remove(element);
 		}
 		return super.remove(element);
@@ -36,11 +36,15 @@ public class PersistentTemporalList<T extends Effectivity> extends AbstractPersi
 
 	@Override
 	public List<T> effective(Date when) {
-		if (effectiveDate == null || !effectiveDate.equals(when)) {
-			effectiveDate = new Date(when.getTime());
-			effectives = allEffective(when);
+		if (effectiveDate == null || !effectiveDate.toDate().equals(when)) {
+			setCache(when,allEffective(when));
 		}
 		return ImmutableList.copyOf(effectives);
+	}
+	
+	public void setCache(Date effectiveDate, List<T> values) {
+		this.effectiveDate = new UtcInstant(effectiveDate);
+		this.effectives = values;
 	}
 	
 

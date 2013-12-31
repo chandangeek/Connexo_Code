@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.util.conditions.Condition;
@@ -16,13 +17,15 @@ final class JoinExecutor<T> {
 	private SqlBuilder builder;
 	private final int from;
 	private final int to;
+	private final Date effectiveDate;
 	
-	JoinExecutor(JoinTreeNode<T> root) {
-		this(root,0,0);		 
+	JoinExecutor(JoinTreeNode<T> root, Date effectiveDate) {
+		this(root,effectiveDate,0,0);		 
 	}
  	
-	JoinExecutor(JoinTreeNode<T> root, int from , int to) {
+	JoinExecutor(JoinTreeNode<T> root, Date effectiveDate, int from , int to) {
 		this.root = root;
+		this.effectiveDate = effectiveDate;
 		this.from = from;
 		this.to = to;
 	}
@@ -80,7 +83,7 @@ final class JoinExecutor<T> {
 	private void appendWhereClause(SqlBuilder builder , Condition condition , String separator) {
 		if (condition != null && condition != Condition.TRUE) {
 			builder.append(separator);
-			new WhereClauseBuilder(this.root, builder).visit(condition);
+			new WhereClauseBuilder(this.root, builder, effectiveDate).visit(condition);
 		}
 	}
 	
@@ -104,18 +107,32 @@ final class JoinExecutor<T> {
 
     List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
 		builder = new SqlBuilder();
+		boolean initialMarkDone = false;
 		if (eager) {
+			// mark all nodes that have a where clause contribution.
+			// we need to do this first, as markReachable depends on the marked state for temporal relations.	
+			new JoinTreeMarker(root).visit(condition);
+			initialMarkDone = true;
 			root.markReachable();
 			clear(exceptions);
 		} else {
 			mark(exceptions);
 		}
+		// if rownum query we cannot use rows from 1:n relations as they mess up the row count
+		// we will only include them if we need to, because they have a where clause contribution,
+		// and eliminate duplicate row with select distinct
 		if (from > 0) {
 			root.clearChildMappers();
+			// need to remark 
+			initialMarkDone = false;
 		}
-		new JoinTreeMarker(root).visit(condition);
+		if (!initialMarkDone) {
+			new JoinTreeMarker(root).visit(condition);
+		}
+		// prune unneeded tree parts, and clear mark state
 		root.prune();
-		root.clearCache();		
+		root.clearCache();
+		// remark all nodes with a where clause contribution.
 		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, orderBy);		
 		List<T> result = new ArrayList<>();
@@ -128,7 +145,7 @@ final class JoinExecutor<T> {
 				}				
 			} 
 		}
-		root.completeFind();
+		root.completeFind(effectiveDate);
 		return result;
 	}
 	

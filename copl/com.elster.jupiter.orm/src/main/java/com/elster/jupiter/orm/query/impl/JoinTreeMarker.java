@@ -38,6 +38,10 @@ public class JoinTreeMarker implements Visitor {
 		markAndTest(contains.getFieldName());		 		
 	}
 	
+	public void visitEffective(Effective effective) {
+		markAndTest(effective.getFieldName());
+	}
+	
 	private void markAndTest(String fieldName) {
 		boolean markAndTest = root.hasWhereField(fieldName);
 		if (!markAndTest) {

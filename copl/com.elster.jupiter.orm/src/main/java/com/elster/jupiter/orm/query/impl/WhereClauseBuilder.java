@@ -5,6 +5,7 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Constant;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Effective;
 import com.elster.jupiter.util.conditions.Exists;
 import com.elster.jupiter.util.conditions.FragmentExpression;
 import com.elster.jupiter.util.conditions.Membership;
@@ -12,19 +13,23 @@ import com.elster.jupiter.util.conditions.Not;
 import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.util.Date;
 import java.util.List;
 
 public class WhereClauseBuilder implements Visitor {
 	
 	private final JoinTreeNode<?> root;
 	private final SqlBuilder builder;
+	private final Date effectiveDate;
 	
-	WhereClauseBuilder(JoinTreeNode<?> root, SqlBuilder builder) {
+	WhereClauseBuilder(JoinTreeNode<?> root, SqlBuilder builder, Date effectiveDate) {
 		this.root = root;
 		this.builder = builder;
+		this.effectiveDate = effectiveDate;
 	}
 	
 	public void visit(Condition condition) {
@@ -120,6 +125,11 @@ public class WhereClauseBuilder implements Visitor {
 	@Override
 	public void visitFragmentExpression(FragmentExpression expression) {
 		builder.add(expression.getFragment());
+	}
+
+	@Override
+	public void visitEffective(Effective effective) {
+		Where.where(effective.getFieldName()).isEffective(effectiveDate).visit(this);
 	}
 	
 }

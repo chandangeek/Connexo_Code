@@ -22,7 +22,7 @@ public class AbstractTemporalAspect<T extends Effectivity> implements TemporalAs
 	List<T> allEffective(Date when) {
 		ImmutableList.Builder<T> builder = ImmutableList.builder();
 		for (T each : values) {
-			if (each.getInterval().contains(when,Interval.EndpointBehavior.CLOSED_OPEN)) {
+			if (each.getInterval().isEffective(when)) {
 				builder.add(each);
 			}
 		}

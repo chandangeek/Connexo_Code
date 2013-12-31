@@ -39,11 +39,11 @@ public abstract class AbstractPersistentTemporalAspect<T extends Effectivity> im
 	
 	@Override
 	public List<T> effective(Interval interval) {
-		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffectiveIn(interval)),"interval.start"));
+		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(interval)),"interval.start"));
 	}
 
 	List<T> allEffective(Date date) {
-		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffectiveAt(date)),"interval.start"));
+		return postProcess(dataMapper.select(baseCondition.and(Where.where("interval").isEffective(date)),"interval.start"));
 	}
 	
 	@Override
