@@ -11,6 +11,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import org.osgi.service.event.EventAdmin;
 
 public class EventsModule extends AbstractModule {
 
@@ -23,6 +24,7 @@ public class EventsModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(MessageService.class);
         requireBinding(BundleContext.class);
+        requireBinding(EventAdmin.class);
 
         bind(EventService.class).to(EventServiceImpl.class).in(Scopes.SINGLETON);
     }

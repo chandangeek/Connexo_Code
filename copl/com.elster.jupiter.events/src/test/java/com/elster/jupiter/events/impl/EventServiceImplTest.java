@@ -67,13 +67,10 @@ public class EventServiceImplTest {
         eventService.setOrmService(ormService);
         eventService.setPublisher(publisher);
         eventService.setEventAdmin(eventAdmin);
-
-        Bus.setServiceLocator(eventService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(eventService);
     }
 
     @Test(expected = NoSuchTopicException.class)

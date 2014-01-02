@@ -4,9 +4,15 @@ import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +26,33 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private boolean publish = true;
     private final List<EventPropertyType> eventPropertyTypes = new ArrayList<>();
     private transient boolean fromDB = true;
+    private final DataModel dataModel;
+    private final Clock clock;
+    private final JsonService jsonService;
+    private final EventConfiguration eventConfiguration;
+    private final MessageService messageService;
+    private final BeanService beanService;
 
     @SuppressWarnings("unused")
-	private EventTypeImpl() {
+    @Inject
+	EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService) {
+        this.dataModel = dataModel;
+        this.clock = clock;
+        this.jsonService = jsonService;
+        this.eventConfiguration = eventConfiguration;
+        this.messageService = messageService;
+        this.beanService = beanService;
     }
 
-    public EventTypeImpl(String topic) {
+    static EventTypeImpl from(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, String topic) {
+        EventTypeImpl eventType = new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService);
+        eventType.fromDB = false;
+        return eventType.init(topic);
+    }
+
+    private EventTypeImpl init(String topic) {
         this.topic = topic;
-        fromDB = false;
+        return this;
     }
 
     @Override
@@ -82,7 +107,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     }
 
     void setTopic(String topic) {
-        this.topic = topic;
+        init(topic);
     }
 
     private List<EventPropertyType> propertyTypes() {
@@ -91,7 +116,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
 
     @Override
     public LocalEvent create(Object source) {
-        return new LocalEventImpl(this, source);
+        return new LocalEventImpl(clock.now(), jsonService, eventConfiguration, messageService, beanService, this, source);
     }
 
     @Override
@@ -119,9 +144,9 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     @Override
     public void save() {
         if (fromDB) {
-            Bus.getOrmClient().getEventTypeFactory().update(this);
+            dataModel.mapper(EventType.class).update(this);
         } else {
-            Bus.getOrmClient().getEventTypeFactory().persist(this);
+            dataModel.mapper(EventType.class).persist(this);
             fromDB = true;
         }
     }
