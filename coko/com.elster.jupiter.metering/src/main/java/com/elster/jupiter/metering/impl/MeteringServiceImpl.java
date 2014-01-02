@@ -18,24 +18,30 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.util.Date;
 import java.util.List;
 
@@ -121,11 +127,14 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     @Override
     public Query<UsagePoint> getUsagePointQuery() {
         return getQueryService().wrap(
-                getOrmClient().getUsagePointFactory().with(
-                        getOrmClient().getServiceLocationFactory(),
-                        getOrmClient().getMeterActivationFactory(),
-                        //	getOrmClient().getChannelFactory(),?
-                        getOrmClient().getEndDeviceFactory()));
+                getOrmClient().getDataModel().query(
+                		UsagePoint.class, 
+                		ServiceLocation.class, 
+                		MeterActivation.class,
+                		EndDevice.class,
+                		UsagePointAccountability.class,
+                		Party.class,
+                		PartyRepresentation.class));                		
     }
     
     @SuppressWarnings("unchecked")
@@ -250,7 +259,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Condition hasAccountability(Date when) {
-        return Expression.create(new HasAccountabilitiyFragment(when));
+    	return 
+    		Where.where("accountabilities.interval").isEffective(when).and(
+    		Where.where("accountabilities.party.representations.interval").isEffective(when).and(
+    		Where.where("accountabilities.party.representations.delegate").
+    			isEqualTo(Bus.getOrmClient().getDataModel().getPrincipal().getName())));
     }
 
     public Clock getClock() {
