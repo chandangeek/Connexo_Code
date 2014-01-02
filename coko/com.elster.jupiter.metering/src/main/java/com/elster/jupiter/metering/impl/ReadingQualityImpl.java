@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 public class ReadingQualityImpl implements ReadingQuality {
@@ -26,6 +27,7 @@ public class ReadingQualityImpl implements ReadingQuality {
     @SuppressWarnings("unused")
     private String userName;
 
+    @Inject
     private ReadingQualityImpl() {
         // for persistence
     }

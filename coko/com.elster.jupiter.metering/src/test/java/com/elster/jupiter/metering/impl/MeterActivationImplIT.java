@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 
@@ -45,6 +46,8 @@ public class MeterActivationImplIT {
     private BundleContext bundleContext;
     @Mock
     private UserService userService;
+    @Mock
+    private EventAdmin eventAdmin;
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -56,6 +59,7 @@ public class MeterActivationImplIT {
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
 
