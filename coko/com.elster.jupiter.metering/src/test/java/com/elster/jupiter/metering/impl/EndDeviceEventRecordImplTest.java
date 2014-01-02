@@ -40,6 +40,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -62,6 +63,8 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     private UserService userService;
     @Mock
     private Principal principal;
+    @Mock
+    private EventAdmin eventAdmin;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -82,6 +85,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             bind(EndDeviceEventRecord.class).to(EndDeviceEventRecordImpl.class);
             bind(EndDevice.class).to(EndDeviceImpl.class);
             bind(EndDeviceEventType.class).to(EndDeviceEventTypeImpl.class);
+            bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
 

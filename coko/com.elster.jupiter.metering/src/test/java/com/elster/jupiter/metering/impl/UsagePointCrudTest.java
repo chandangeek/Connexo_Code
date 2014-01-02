@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
@@ -52,6 +53,8 @@ public class UsagePointCrudTest {
     private UserService userService;
     @Mock
     private Principal principal;
+    @Mock
+    private EventAdmin eventAdmin;
     
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -61,7 +64,8 @@ public class UsagePointCrudTest {
         @Override
         protected void configure() {       
             bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);           
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
 
