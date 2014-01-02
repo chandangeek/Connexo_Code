@@ -239,7 +239,8 @@ public class DecoratedConnection implements Connection {
         return decorated.getCatalog();
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    @SuppressWarnings("unchecked")
+	public <T> T unwrap(Class<T> iface) throws SQLException {
         if (iface.isInstance(this)) {
             return (T) this;
         }

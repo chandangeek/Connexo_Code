@@ -3,6 +3,7 @@ package com.elster.jupiter.bootstrap.h2.impl;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
+
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -55,7 +56,8 @@ public class DecoratedDataSource implements DataSource {
         decorated.setLoginTimeout(seconds);
     }
 
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    @SuppressWarnings("unchecked")
+	public <T> T unwrap(Class<T> iface) throws SQLException {
         if (iface.isInstance(this)) {
             return (T) this;
         }

@@ -4,7 +4,6 @@ import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.DataSourceSetupException;
 
 import org.h2.jdbcx.JdbcDataSource;
-import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
