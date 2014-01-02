@@ -33,11 +33,11 @@ public final class Where {
 		return Operator.EQUALORBOTHNULL.compare(field,value);
 	}
 	
-	public Condition isGreatherThan(Object value) {
+	public Condition isGreaterThan(Object value) {
 		return Operator.GREATERTHAN.compare(field,value);
 	}
 	
-	public Condition isGreatherThanOrEqual(Object value) {
+	public Condition isGreaterThanOrEqual(Object value) {
 		return Operator.GREATERTHANOREQUAL.compare(field,value);
 	}
 	
@@ -112,10 +112,23 @@ public final class Where {
 		return afterOrEqual(interval.getStart()).and(before(interval.getEnd()));
 	}
 	
-	public Condition isCurrentAt(Date date) {
-		Objects.requireNonNull(date);
-		return where(field + ".start").isGreatherThanOrEqual(date).and(where(field + ".stop").isLessThan(date));
+	public Condition isEffective() {
+		return new Effective(field);
 	}
+ 	public Condition isEffective(Date date) {
+		return where(field + ".start").isLessThanOrEqual(date.getTime()).and(where(field + ".end").isGreaterThan(date.getTime()));
+	}
+	
+	public Condition isEffective(Interval interval) {
+		return where(field + ".start").isLessThan(interval.dbEnd()).and(where(field + ".end").isGreaterThan(interval.dbStart()));
+	}
+	
+	@Deprecated
+	@Override
+	public boolean equals(Object other) {
+		return super.equals(other);
+	}
+	
 	public class BetweenBuilder {
 	
 		private final Object lowerValue;

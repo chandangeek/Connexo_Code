@@ -13,6 +13,7 @@ import java.util.Objects;
  */
 public final class Interval {
 	private static final long ETERNITY = 1_000_000_000_000_000_000L;
+	private static final Interval SINCE_EPOCH = new Interval(0,ETERNITY);
 
     private final long start;
 	private final long end;
@@ -46,6 +47,10 @@ public final class Interval {
         return new Interval(start, null);
     }
 	
+    public static Interval sinceEpoch() {
+    	return SINCE_EPOCH;
+    }
+    
 	public Date getEnd() {
 		return end == ETERNITY ? null : new Date(end);
 	}
@@ -54,7 +59,7 @@ public final class Interval {
 		return start == -ETERNITY ? null : new Date(start);
 	}
 
-    /**
+    /** 
      * As this method is used for validity check, the CLOSED_OPEN endpoint behavior is used.
      * @param clock
      * @return true if the current time according to the given Clock is contained in this Interval.
@@ -63,7 +68,16 @@ public final class Interval {
 		long now = clock.now().getTime();
 		return contains(now,EndpointBehavior.CLOSED_OPEN);
 	}
-
+	
+	public boolean isEffective(Date when) {
+		return contains(when,EndpointBehavior.CLOSED_OPEN);
+	}
+	
+	public boolean isEffective(Interval interval) {
+		return this.overlaps(interval);
+	}
+	
+ 
     private boolean contains(long when,EndpointBehavior behavior) {
     	return behavior.contains(this,when);
     }
@@ -267,6 +281,14 @@ public final class Interval {
             return this;
         }
         return new Interval(Ordering.natural().min(start, date.getTime()), Ordering.natural().max(end, date.getTime()));
+    }
+    
+    public long dbStart() {
+    	return start;
+    }
+    
+    public long dbEnd() {
+    	return end;
     }
 
     public enum EndpointBehavior {

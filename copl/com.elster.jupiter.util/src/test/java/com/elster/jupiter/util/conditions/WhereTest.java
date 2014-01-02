@@ -32,7 +32,7 @@ public class WhereTest {
 	@Test
 	public void testCurrentAt() {
 		Date date = new Date();
-		assertThat(where("test").isCurrentAt(date).toString()).matches(".*test\\.start\\s*>=[ ?].*AND.*test\\.stop.\\s*<[ ?].*");
+		assertThat(where("test").isEffective(date).toString()).matches(".*test\\.start\\s*>=[ ?].*AND.*test\\.stop.\\s*<[ ?].*");
 	}
 	
 }
