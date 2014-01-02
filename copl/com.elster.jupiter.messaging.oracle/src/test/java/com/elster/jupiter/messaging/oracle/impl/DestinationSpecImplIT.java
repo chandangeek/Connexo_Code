@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 
@@ -37,6 +38,8 @@ public class DestinationSpecImplIT {
 
     @Mock
     private BundleContext bundleContext;
+    @Mock
+    private EventAdmin eventAdmin;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -46,6 +49,7 @@ public class DestinationSpecImplIT {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
 
