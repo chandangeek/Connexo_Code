@@ -18,7 +18,7 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.base.Optional;
-import org.osgi.framework.BundleContext;
+import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +40,38 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
-    private volatile List<ValidatorFactory> validatorFactories = new ArrayList<ValidatorFactory>();
+    private volatile List<ValidatorFactory> validatorFactories = new ArrayList<>();
+    private volatile DataModel dataModel;
+
+    public ValidationServiceImpl() {
+    }
+
+    @Inject
+    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService) {
+        this.clock = clock;
+        this.eventService = eventService;
+        this.meteringService = meteringService;
+        setOrmService(ormService);
+        activate();
+        install();
+    }
 
     @Activate
-    public void activate(BundleContext context) {
+    public void activate() {
         Bus.setServiceLocator(this);
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(Clock.class).toInstance(clock);
+                bind(EventService.class).toInstance(eventService);
+                bind(MeteringService.class).toInstance(meteringService);
+                bind(DataModel.class).toInstance(dataModel);
+            }
+        });
     }
 
     @Deactivate
-    public void deactivate(BundleContext context) {
+    public void deactivate() {
         Bus.clearServiceLocator(this);
     }
 
@@ -73,7 +97,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Validation");
+        dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Validation");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }

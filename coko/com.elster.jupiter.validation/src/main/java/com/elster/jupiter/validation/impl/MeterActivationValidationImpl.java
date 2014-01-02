@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private Set<ChannelValidation> channelValidations;
     private transient boolean saved;
 
+    @Inject
     private MeterActivationValidationImpl() {
         saved = true;
     }

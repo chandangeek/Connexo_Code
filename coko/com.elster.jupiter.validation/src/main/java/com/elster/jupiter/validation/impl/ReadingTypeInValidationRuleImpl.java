@@ -1,13 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.base.Optional;
-import org.osgi.service.component.annotations.Reference;
 
-import java.util.Objects;
+import javax.inject.Inject;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
@@ -17,6 +15,7 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
     private ReadingType readingType;
     private ValidationRule rule;
 
+    @Inject
     private ReadingTypeInValidationRuleImpl() {
     }
 

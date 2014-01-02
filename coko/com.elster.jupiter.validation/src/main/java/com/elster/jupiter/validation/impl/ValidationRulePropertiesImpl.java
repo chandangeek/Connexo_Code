@@ -4,6 +4,8 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
+import javax.inject.Inject;
+
 final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
@@ -12,7 +14,10 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private transient ValidationRule rule;
 
-    private ValidationRulePropertiesImpl() {}     //for persistence
+    @Inject
+    private ValidationRulePropertiesImpl() {
+        //for persistence
+    }
 
     public ValidationRulePropertiesImpl(ValidationRule rule, String name, Quantity value) {
         this.rule = rule;
