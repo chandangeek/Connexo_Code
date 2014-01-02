@@ -35,6 +35,11 @@ public enum TableSpecs {
             table.column("LOCKATTRIBUTEID").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("lockAttributeTypeId").add();
             table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
         }
+
+        @Override
+        Class<?> api() {
+            return RelationType.class;
+        }
     },
     EISRELATIONATTRIBUTETYPE {
         @Override
@@ -55,6 +60,11 @@ public enum TableSpecs {
             table.foreignKey("FK_RAT_RELATIONTYPE").on(relationTypeColumn).references(EISRELATIONTYPE.name()).
                     map("relationType").reverseMap("attributeTypes").reverseMapOrder("ordinal").composition().add();
         }
+
+        @Override
+        Class<?> api() {
+            return RelationAttributeType.class;
+        }
     },
     EISCONSTRAINT {
         @Override
@@ -68,6 +78,11 @@ public enum TableSpecs {
             table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
             table.foreignKey("FK_CONSTRAINT_RELATIONTYPE").on(relationTypeColumn).references(EISRELATIONTYPE.name()).
                     map("relationType").reverseMap("constraints").composition().add();
+        }
+
+        @Override
+        Class<?> api() {
+            return Constraint.class;
         }
     },
     EISCONSTRAINTMEMBER {
@@ -83,13 +98,20 @@ public enum TableSpecs {
                     on(constraintColumn).references(EISRELATIONATTRIBUTETYPE.name()).
                     map("attributeTypeId").add();
         }
+
+        @Override
+        Class<?> api() {
+            return ConstraintMember.class;
+        }
     };
 
     public void addTo(DataModel component) {
-        Table table = component.addTable(name());
+        Table table = component.addTable(name(), api());
         describeTable(table);
     }
 
     abstract void describeTable(Table table);
+
+    abstract Class<?> api();
 
 }
