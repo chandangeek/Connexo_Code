@@ -34,7 +34,7 @@ public class HasAccountabilitiyFragment implements SqlFragment {
         // TODO depends on alias generation in QueryExecutor, expose generated alias?
 		return 
 			"exists (select null from mtr_upaccountability upa join prt_partyrep pr on upa.partyid = pr.partyid " +
-			"where \"up\".id = upa.usagepointid and pr.delegate = ? and " +
+			"where up.id = upa.usagepointid and pr.delegate = ? and " +
 			"upa.starttime <= ? and upa.endtime > ? and pr.starttime <= ? and pr.endtime > ?)";
 	}
 
