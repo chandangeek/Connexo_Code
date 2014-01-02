@@ -52,5 +52,10 @@
             <version>1.3.174</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-all</artifactId>
+			<version>4.0</version>
+		</dependency>
     </dependencies>
 </project>
