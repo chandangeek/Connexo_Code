@@ -25,6 +25,7 @@ public enum TableSpecs {
 	USR_GROUP {
 		void addTo(DataModel dataModel) {
 			Table<Group> table = dataModel.addTable(name(), Group.class);
+			table.map(GroupImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
@@ -37,6 +38,7 @@ public enum TableSpecs {
 	USR_USER {
 		void addTo(DataModel dataModel) {
 			Table<User> table = dataModel.addTable(name(), User.class);
+			table.map(UserImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column authenticationNameColumn = table.column("AUTHNAME").type("varchar2(80)").notNull().map("authenticationName").add();
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
@@ -51,6 +53,7 @@ public enum TableSpecs {
 	USR_PRIVILEGEINGROUP {
 		void addTo(DataModel dataModel) {
 			Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
+			table.map(PrivilegeInGroup.class);
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
 			Column privilegeNameColumn = table.column("PRIVILEGENAME").type("varchar2(80)").notNull().map("privilegeName").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
@@ -62,6 +65,7 @@ public enum TableSpecs {
 	USR_USERINGROUP {
 		void addTo(DataModel dataModel) {
 			Table<UserInGroup> table = dataModel.addTable(name(), UserInGroup.class);
+			table.map(UserInGroup.class);
 			Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
