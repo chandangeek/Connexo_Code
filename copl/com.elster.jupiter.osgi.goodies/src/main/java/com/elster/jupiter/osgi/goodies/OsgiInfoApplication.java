@@ -23,8 +23,6 @@ public class OsgiInfoApplication extends Application implements BinderProvider {
 	volatile BundleContext context;
 	volatile OrmService ormService;
 	
-	private final Set<Class<?>> classes = new HashSet<>();
-	
 	public OsgiInfoApplication() {
 	}
 

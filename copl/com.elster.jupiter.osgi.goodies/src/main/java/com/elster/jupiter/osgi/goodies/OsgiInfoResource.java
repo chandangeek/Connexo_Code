@@ -7,6 +7,7 @@ import javax.ws.rs.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+@SuppressWarnings("deprecation")
 @Path("/bundles")
 public class OsgiInfoResource {
 	
