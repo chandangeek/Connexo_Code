@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -245,7 +246,8 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         this.ruleSetId = ruleSetId;
     }
 
-    private ValidationRuleImpl() {
+    @Inject
+    ValidationRuleImpl() {
         //for persistence
     }
 

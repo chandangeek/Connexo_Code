@@ -202,7 +202,7 @@ public class ValidationIT {
         validationService.setEventService(eventService);
         validationService.setMeteringService(meteringService);
 
-        validationService.activate(bundleContext);
+        validationService.activate();
 
         validationService.addResource(validatorFactory);
 

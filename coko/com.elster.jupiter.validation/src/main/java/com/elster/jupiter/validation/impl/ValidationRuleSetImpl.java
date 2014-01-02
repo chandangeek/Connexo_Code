@@ -8,6 +8,7 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +28,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private List<IValidationRule> rules;
 
+    @Inject
     private ValidationRuleSetImpl() {
         // for persistence
     }
@@ -186,7 +188,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private List<IValidationRule> loadRules() {
-        return ruleFactory().find("ruleSetId", this);
+        return ruleFactory().find("ruleSet", this);
     }
 
     @Override
