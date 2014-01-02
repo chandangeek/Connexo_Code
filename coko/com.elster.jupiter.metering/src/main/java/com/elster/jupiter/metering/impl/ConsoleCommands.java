@@ -17,7 +17,7 @@ public class ConsoleCommands {
     public void printDdl() {
         try {
             for (Table table : Bus.getOrmClient().getDataModel().getTables()) {
-                for (String s : table.getDdl()) {
+                for (Object s : table.getDdl()) {
                     System.out.println(s);
                 }
             }

@@ -7,6 +7,7 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Constant;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Effective;
 import com.elster.jupiter.util.conditions.Exists;
 import com.elster.jupiter.util.conditions.FragmentExpression;
 import com.elster.jupiter.util.conditions.Membership;
@@ -159,6 +160,11 @@ public class QueryBuilder {
         @Override
         public void visitFragmentExpression(FragmentExpression expression) {
             throw new UnsupportedOperationException("Fragment expressions not supported.");
+        }
+        
+        @Override
+        public void visitEffective(Effective effective) {
+        	throw new UnsupportedOperationException("Effective expressions not YET supported.");
         }
     }
 
