@@ -350,13 +350,13 @@ public class DataModelImpl implements DataModel {
 							break;
 						}
 					}
-					throw new IllegalArgumentException("" + eagers[i]);
+					if (mappers[i] == null) {
+						throw new IllegalArgumentException("" + eagers[i]);
+					}
 				} else {
 					mappers[i] = lastDataModel.mapper(eagers[i]);
 				}
 			}
-			
-			mappers[i] = mapper(eagers[i]);
 		}
  		return root.with(mappers);
 	}
