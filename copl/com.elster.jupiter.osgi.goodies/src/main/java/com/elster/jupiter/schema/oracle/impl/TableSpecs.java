@@ -42,8 +42,8 @@ public enum TableSpecs {
 		public void addTo(DataModel dataModel) {
 			Table<UserConstraint> table = dataModel.addTable(name(), UserConstraint.class);
 			table.map(UserConstraintImpl.class);
-			Column tableColumn = table.column("TABLE_NAME").varChar(128).notNull().add();
 			Column nameColumn = table.column("CONSTRAINT_NAME").varChar(128).notNull().map("name").add();
+			Column tableColumn = table.column("TABLE_NAME").varChar(128).notNull().add();
 			table.column("CONSTRAINT_TYPE").varChar(1).notNull().conversion(CHAR2ENUM).map("type").add();
 			Column referencedConstraint = table.column("R_CONSTRAINT_NAME").varChar(128).add();
 			table.primaryKey("PK_USERCONSTRAINTS").on(nameColumn).add();

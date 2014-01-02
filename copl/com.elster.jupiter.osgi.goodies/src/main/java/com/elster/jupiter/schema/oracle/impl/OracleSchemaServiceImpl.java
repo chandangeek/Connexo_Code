@@ -24,7 +24,7 @@ public class OracleSchemaServiceImpl implements OracleSchemaService {
 	
 	@Reference 
 	public void setOrmService(OrmService ormService) {
-		dataModel = ormService.newDataModel("ORA", "Oracle scheam");
+		dataModel = ormService.newDataModel("ORA", "Oracle schema");
 		for (TableSpecs each : TableSpecs.values()) {
 			each.addTo(dataModel);
 		}
