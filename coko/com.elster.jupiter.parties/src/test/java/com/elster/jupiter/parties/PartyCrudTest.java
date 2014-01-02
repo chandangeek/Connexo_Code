@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -50,7 +51,8 @@ public class PartyCrudTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {       
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));          
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
     
