@@ -1,8 +1,5 @@
 package com.elster.jupiter.transaction.impl;
 
-import java.sql.SQLException;
-
-import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 

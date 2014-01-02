@@ -1,13 +1,12 @@
 package com.elster.jupiter.transaction.impl;
 
-import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.transaction.SqlEvent;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionEvent;
-import com.elster.jupiter.util.time.StopWatch;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.transaction.SqlEvent;
+import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.util.time.StopWatch;
  
 class TransactionState implements Subscriber {	
 	private final TransactionServiceImpl  transactionService;
