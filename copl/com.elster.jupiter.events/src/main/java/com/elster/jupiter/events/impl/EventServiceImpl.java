@@ -56,7 +56,9 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
         setMessageService(messageService);
         setOrmService(ormService);
         activate(bundleContext);
-        install();
+        if (!ormClient.getDataModel().isInstalled()) {
+        	install();
+        }
     }
 
     @Override

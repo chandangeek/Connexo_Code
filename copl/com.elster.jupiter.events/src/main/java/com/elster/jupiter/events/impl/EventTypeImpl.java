@@ -10,6 +10,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class EventTypeImpl implements EventType, PersistenceAware {
 
     private String topic;
@@ -21,7 +23,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private final List<EventPropertyType> eventPropertyTypes = new ArrayList<>();
     private transient boolean fromDB = true;
 
-    @SuppressWarnings("unused")
+    @Inject
 	private EventTypeImpl() {
     }
 

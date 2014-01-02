@@ -1,5 +1,7 @@
 package com.elster.jupiter.events.impl;
 
+import javax.inject.Inject;
+
 import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.ValueType;
@@ -16,7 +18,7 @@ public class EventPropertyTypeImpl implements EventPropertyType {
 
     private final Reference<EventType> eventType = ValueReference.absent();
 
-    @SuppressWarnings("unused")
+    @Inject
 	private EventPropertyTypeImpl() {
     }
 
