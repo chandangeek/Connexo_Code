@@ -19,6 +19,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -61,14 +62,14 @@ public class OrganizationTest {
 	@Test
     public void testCreation() {
 		Party party =  OrganizationImpl.from(dataModel,"EICT");
-    	assertThat(party.getPartyInRoles()).isEmpty();
+    	assertThat(party.getPartyInRoles(Interval.sinceEpoch())).isEmpty();
     	assertThat(party.getCurrentDelegates()).isEmpty();
     	Date now = new Date();
     	when(clock.now()).thenReturn(now);
     	assertThat(party.appointDelegate(user, now).isCurrent()).isTrue();
     	assertThat(party.getCurrentDelegates()).isNotEmpty();
     	assertThat(party.assumeRole(role, now).getParty()).isEqualTo(party);
-    	assertThat(party.getPartyInRoles()).hasSize(1);
+    	assertThat(party.getPartyInRoles(now)).hasSize(1);
     }
     
 }

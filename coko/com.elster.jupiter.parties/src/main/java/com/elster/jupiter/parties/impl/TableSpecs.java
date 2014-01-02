@@ -119,7 +119,7 @@ public enum TableSpecs {
 			table.map(PartyInRoleImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
-			Column roleMRIDColumn = table.column("PARTYROLEMRID").type("varchar2(80)").notNull().map("roleMRID").add();
+			Column roleMRIDColumn = table.column("PARTYROLEMRID").type("varchar2(80)").notNull().add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.primaryKey("PTR_PK_PARTYINROLE").on(idColumn).add();

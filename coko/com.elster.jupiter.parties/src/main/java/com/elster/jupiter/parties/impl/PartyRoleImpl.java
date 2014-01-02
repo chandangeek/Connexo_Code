@@ -1,10 +1,20 @@
 package com.elster.jupiter.parties.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
+import com.google.inject.Inject;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -21,6 +31,14 @@ class PartyRoleImpl implements PartyRole {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
+	
+	private final DataModel dataModel;
+	
+	@Inject
+	PartyRoleImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
+	}
+	
 	
 	PartyRoleImpl init(String componentName , @NotNull String mRID , String name , String aliasName , String description) {
         validate(mRID);
@@ -114,4 +132,27 @@ class PartyRoleImpl implements PartyRole {
                 ", name='" + name + '\'' +
                 '}';
     }
+
+	@Override
+	public List<Party> getParties() {
+		return getParties(Optional.<Date>absent());
+	}
+
+	@Override
+	public List<Party> getParties(Date effectiveDate) {
+		return getParties(Optional.of(effectiveDate));			
+	}
+	
+	private List<Party> getParties(Optional<Date> effectiveDate) {
+		Condition condition = 
+			Where.where("partyInRoles.interval").isEffective().and(
+			Where.where("partyInRoles.role").isEqualTo(this));
+		QueryExecutor<Party> query = dataModel.query(Party.class,PartyInRole.class);
+		if (effectiveDate.isPresent()) {
+			query.setEffectiveDate(effectiveDate.get());
+		}
+		return query.select(condition);
+	}
+	
+
 }

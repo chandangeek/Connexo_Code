@@ -19,7 +19,8 @@ public interface Party extends IdentifiedObject {
     void save();
     void delete();
     long getVersion();
-    List<? extends PartyInRole> getPartyInRoles();
+    List<? extends PartyInRole> getPartyInRoles(Interval interval);
+    List<? extends PartyInRole> getPartyInRoles(Date when);
     PartyInRole assumeRole(PartyRole role, Date start);
     PartyInRole terminateRole(PartyInRole role, Date end);
     PartyRepresentation appointDelegate(User user, Date start);

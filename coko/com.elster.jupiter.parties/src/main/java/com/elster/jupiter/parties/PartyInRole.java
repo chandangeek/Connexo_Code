@@ -1,13 +1,12 @@
 package com.elster.jupiter.parties;
 
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.orm.associations.Effectivity;
 
-public interface PartyInRole {
+public interface PartyInRole extends Effectivity {
 	long getId();
 	Party getParty();
 	PartyRole getRole();
 	boolean isCurrent();
-	Interval getInterval();
 
     /**
      * @param partyInRole

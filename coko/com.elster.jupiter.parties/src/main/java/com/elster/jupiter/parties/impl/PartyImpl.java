@@ -19,6 +19,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.TemporalList;
+import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
@@ -54,10 +56,10 @@ abstract class PartyImpl implements Party {
     private String userName;
 
     // associations
-    @Inject
-   	private List<PartyInRoleImpl> partyInRoles = new ArrayList<>();
-   	@Inject
+
+   	private TemporalList<PartyInRoleImpl> partyInRoles = Temporals.emptyList();
    	private List<PartyRepresentationImpl> representations = new ArrayList<>();
+   	
    	@Inject
    	private DataModel dataModel;
    	@Inject
@@ -152,10 +154,15 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public List<PartyInRoleImpl> getPartyInRoles() {
-        return ImmutableList.copyOf(partyInRoles);
+    public List<PartyInRoleImpl> getPartyInRoles(Interval interval) {
+        return partyInRoles.effective(interval);
     }
 
+    @Override
+    public List<PartyInRoleImpl> getPartyInRoles(Date date) {
+        return partyInRoles.effective(date);
+    }
+    
     @Override
     public List<PartyRepresentation> getCurrentDelegates() {
         ImmutableList.Builder<PartyRepresentation> current = ImmutableList.builder();
@@ -190,7 +197,7 @@ abstract class PartyImpl implements Party {
     @Override
     public void unappointDelegate(User user, Date end) {
         for (PartyRepresentationImpl representation : representations) {
-            if (representation.getDelegate().equals(user) && representation.getInterval().contains(end, Interval.EndpointBehavior.CLOSED_OPEN)) {
+            if (representation.getDelegate().equals(user) && representation.getInterval().isEffective(end)) {
                 representation.setInterval(representation.getInterval().withEnd(end));
                 dataModel.update(representation);
                 touch();
@@ -210,14 +217,12 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Date date) {
+    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Date date) { 
         PartyInRoleImpl toUpdate = null;
-        for (PartyInRoleImpl candidate : getPartyInRoles()) {
-            if (candidate.equals(partyInRole)) {
-                toUpdate = candidate;
-            }
+        if (partyInRole.getParty() == this) {
+        	toUpdate = (PartyInRoleImpl) partyInRole;
         }
-        if (toUpdate == null || !partyInRole.getInterval().contains(date, Interval.EndpointBehavior.CLOSED_OPEN)) {
+        if (toUpdate == null || !partyInRole.getInterval().isEffective(date)) {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);
@@ -235,7 +240,7 @@ abstract class PartyImpl implements Party {
     }
 
     private void validateAddingRole(PartyInRoleImpl candidate) {
-        for (PartyInRole partyInRole : partyInRoles) {
+        for (PartyInRole partyInRole : partyInRoles.effective(candidate.getInterval())) {
             if (candidate.conflictsWith(partyInRole)) {
                 throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
             }

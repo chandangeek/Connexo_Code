@@ -20,7 +20,6 @@ import javax.inject.Inject;
 public class PartyInRoleImpl implements PartyInRole {
 	
 	private long id;
-	private String roleMRID;
 	private Interval interval;
 
     private long version;
@@ -29,18 +28,21 @@ public class PartyInRoleImpl implements PartyInRole {
     private String userName;
     
     private final Reference<Party> party = ValueReference.absent();
-	private PartyRole role;
+	private Reference<PartyRole> role = ValueReference.absent();
     
-    @Inject
-    private DataModel dataModel;
-    @Inject
-    private Clock clock;
+    private final DataModel dataModel;
+    private final Clock clock;
 	
+    @Inject
+    private PartyInRoleImpl(DataModel dataModel, Clock clock) {
+    	this.dataModel = dataModel;
+    	this.clock = clock;
+    }
+    
 	PartyInRoleImpl init(Party party , PartyRole role , Interval interval) {
-		this.party.set(party);
-		this.role = role;
-		this.roleMRID = role.getMRID();
-		this.interval = interval;
+		this.party.set(Objects.requireNonNull(party));
+		this.role.set(Objects.requireNonNull(role));
+		this.interval = Objects.requireNonNull(interval);
 		return this;
 	}
 	
@@ -60,10 +62,7 @@ public class PartyInRoleImpl implements PartyInRole {
 		
 	@Override
 	public PartyRole getRole() {
-		if (role == null) {
-			role = dataModel.mapper(PartyRole.class).getExisting(roleMRID);
-		}
-		return role;
+		return role.get();
 	}
 
 	@Override
@@ -78,11 +77,11 @@ public class PartyInRoleImpl implements PartyInRole {
 
     @Override
     public boolean conflictsWith(PartyInRole other) {
-        return role.equals(other.getRole()) && getParty().equals(other.getParty()) && interval.overlaps(other.getInterval());
+        return getRole().equals(other.getRole()) && getParty().equals(other.getParty()) && interval.overlaps(other.getInterval());
     }
 
     void terminate(Date date) {
-        if (!interval.contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
+        if (!interval.isEffective(date)) {
             throw new IllegalArgumentException();
         }
         interval = interval.withEnd(date);

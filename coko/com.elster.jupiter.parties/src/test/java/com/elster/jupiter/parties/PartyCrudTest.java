@@ -19,6 +19,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -111,21 +112,26 @@ public class PartyCrudTest {
         	assertThat(query.select(Condition.TRUE)).hasSize(1);
         	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	PartyRole role = partyService.getPartyRoles().get(0);
-        	organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
-        	assertThat(organization.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+        	PartyInRole partyInRole = organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
+        	assertThat(organization.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
         	Party party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+        	assertThat(party.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
         	query.setLazy();
         	party = query.select(Condition.TRUE).get(0);
-        	assertThat(party.getPartyInRoles().get(0).getRole()).isEqualTo(role);
+        	assertThat(party.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
+        	query = partyService.getPartyQuery();
+        	Condition condition = Where.where("partyInRoles.interval").isEffective();
+        	assertThat(query.select(condition)).isNotEmpty();
+        	query.setEffectiveDate(new Date(0));
+        	assertThat(query.select(condition)).isEmpty();
         	UserService userService = injector.getInstance(UserService.class);
         	User user = userService.findUser("admin").get();
         	party.appointDelegate(user, new Date(0));
         	party.save();
         	party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getCurrentDelegates().get(0).getDelegate()).isEqualTo(user);
+        	assertThat(role.getParties()).isNotEmpty();
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isLessThan(50);
         }
         try (TransactionContext context = getTransactionService().getContext()) {
         	getPartyService().getPartyRoles();
@@ -135,11 +141,11 @@ public class PartyCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
         	Optional<Party> party = getPartyService().getParty(1);
         	party.get().getCurrentDelegates().size();
-        	for (PartyInRole each : party.get().getPartyInRoles()) {
+        	for (PartyInRole each : party.get().getPartyInRoles(new Date())) {
         		each.getRole().getMRID();
         	}
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isEqualTo(1);
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(2);
         }
     }
     
@@ -164,7 +170,7 @@ public class PartyCrudTest {
     		PartyRole role = getPartyService().createRole("111", "222", "333", "444", "555");
     		organization.assumeRole(role, new Date(0));
     		organization.save();
-    		assertThat(organization.getPartyInRoles()).hasSize(1);
+    		assertThat(organization.getPartyInRoles(new Date())).hasSize(1);
     		organization.assumeRole(role, new Date());
     		context.commit();
     	}
