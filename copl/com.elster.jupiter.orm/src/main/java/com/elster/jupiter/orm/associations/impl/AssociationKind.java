@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.TemporalList;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -75,6 +76,11 @@ public enum AssociationKind {
 		@Override
 		public List<?> added(ForeignKeyConstraintImpl constraint, Field field, Object owner,boolean refresh) throws ReflectiveOperationException {
 			List<?> parts = (List<?>) field.get(owner);
+			if (constraint.isAutoIndex()) {
+				for (int i = 0 ; i < parts.size(); i++) {
+					DomainMapper.FIELDSTRICT.set(parts.get(i), "position" , i+1);
+				}
+			}
 			if (refresh) {						
 				field.set(owner, create(constraint, field, owner,Optional.absent()));
 			} else {

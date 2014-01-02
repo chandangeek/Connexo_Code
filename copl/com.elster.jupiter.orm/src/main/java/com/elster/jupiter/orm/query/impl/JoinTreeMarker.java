@@ -12,11 +12,11 @@ public class JoinTreeMarker implements Visitor {
 		this.root = root;
 	}
 	
-	public void visit(Condition condition) {
+	void visit(Condition condition) {
 		condition.visit(this);
 	}
 		
-	public void visitAll(List<Condition> conditions , String separator) {		
+	private void visitAll(List<Condition> conditions , String separator) {		
 		for (Condition each : conditions) {
 			each.visit(this);			
 		}		

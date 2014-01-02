@@ -62,7 +62,7 @@ public class TableImpl<T> implements Table<T> {
 	private List<ForeignKeyConstraintImpl> referenceConstraints;
 	private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
 		
-	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api,int position) {
+	TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
@@ -71,12 +71,11 @@ public class TableImpl<T> implements Table<T> {
 		this.schema = schema;
 		this.name = Objects.requireNonNull(name);
 		this.api = Objects.requireNonNull(api);
-		this.position = position;
 		return this;
 	}
 	
-	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api, int position) {
-		return new TableImpl<T>().init(dataModel,schema,name,api,position);
+	static <T> TableImpl<T> from(DataModelImpl dataModel,String schema,String name, Class<T> api) {
+		return new TableImpl<T>().init(dataModel,schema,name,api);
 	}
 	
 	@Override 
@@ -135,7 +134,6 @@ public class TableImpl<T> implements Table<T> {
 
 	Column add(ColumnImpl column) {
 		activeBuilder = false;
-		column.setPosition(columns.size()+1);
 		columns.add(column);
 		return column;
 	}
@@ -378,6 +376,11 @@ public class TableImpl<T> implements Table<T> {
 		}
 		return column("ID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).sequence(name + "ID").skipOnUpdate().map("id").add();
 	}
+	
+	@Override
+	public Column addPositionColumn() {
+		return column("POSITION").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("position").add();
+	}
 
 	@Override
 	public List<Column> addIntervalColumns(String fieldName) {
@@ -542,6 +545,13 @@ public class TableImpl<T> implements Table<T> {
 					if (fieldName.equals(each.getFieldName())) {
 						return new ReverseConstraintMapping(each);
 					}
+				}
+			}
+		}
+		for (ColumnImpl each : columns) {
+			if (each.getFieldName() == null) {
+				if (fieldName.equals(each.getName())) {
+					return new ColumnMapping(each);
 				}
 			}
 		}

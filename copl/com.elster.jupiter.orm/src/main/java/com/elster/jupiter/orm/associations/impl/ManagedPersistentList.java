@@ -5,41 +5,41 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DomainMapper;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 
 public class ManagedPersistentList<T> extends PersistentList<T> {
 	
-	final private DataMapperImpl<T> dataMapper;
-	
-	public ManagedPersistentList(ForeignKeyConstraint constraint, DataMapperImpl<T> dataMapper, Object owner) {
+	public ManagedPersistentList(ForeignKeyConstraintImpl constraint, DataMapperImpl<T> dataMapper, Object owner) {
 		super(constraint, dataMapper, owner);
-		this.dataMapper = dataMapper;
 	}
 	
-	public ManagedPersistentList(ForeignKeyConstraint constraint, DataMapperImpl<T> dataMapper, Object owner , List<T> target) {
+	public ManagedPersistentList(ForeignKeyConstraintImpl constraint, DataMapperImpl<T> dataMapper, Object owner , List<T> target) {
 		super(constraint, dataMapper, owner,target);
-		this.dataMapper = dataMapper;
 	}
 	
 	@Override
 	public T remove(int index) {
 		T result = getTarget().remove(index);
 		if (result != null) {
-			dataMapper.remove(result);
+			getDataMapper().remove(result);
+			updatePositions(index);
 		}
 		return result;
 	}
 	
 	@Override
 	public void add(int index,T element) {
+		setPosition(index,element);
 		try {
-			dataMapper.getWriter().persist(element);
+			getDataMapper().getWriter().persist(element);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 		getTarget().add(index,element);
+		updatePositions(index);
 	}
 	
 	@Override
@@ -47,12 +47,17 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		if (collection.isEmpty()) {
 			return false;
 		}
+		List<T> toAdd = new ArrayList<>(collection);
+		int index = getTarget().size();
+		for (T value : toAdd) {
+			setPosition(index++,value);
+		}
 		try {
-			dataMapper.getWriter().persist(new ArrayList<>(collection));
+			getDataMapper().getWriter().persist(toAdd);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
-		return getTarget().addAll(collection);
+		return getTarget().addAll(toAdd);
 	}
 	
 	@Override
@@ -63,16 +68,51 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		List<T> removedList = new ArrayList<>();
 		for (Object toRemove : collection) {
 			if (getTarget().remove(toRemove)) {
-				removedList.add(dataMapper.cast(toRemove));
+				removedList.add(getDataMapper().cast(toRemove));
 			}
 		}
-		dataMapper.remove(removedList);
+		getDataMapper().remove(removedList);
+		updatePositions(0);
 		return !removedList.isEmpty();
 	}
 	
 	public void clear() {
-		dataMapper.remove(getTarget());
+		getDataMapper().remove(getTarget());
 		getTarget().clear();
+	}
+	
+	private void updatePositions(int startIndex) {
+		if (!getConstraint().isAutoIndex()) {
+			return;
+		}
+		List <T> toUpdate = new ArrayList<>();
+		for (int i = startIndex ; i < getTarget().size() ; i++) {
+			T value = getTarget().get(i);
+			if (setPosition(i + 1 ,value)) {
+				toUpdate.add(value);
+			}
+		}
+		getDataMapper().update(toUpdate, "position");
+	}
+	
+	
+	private boolean setPosition(int position, T value) {
+		if (!getConstraint().isAutoIndex()) {
+			return false;
+		}
+		DomainMapper mapper = getDataMapper().getTable().getDomainMapper();
+		int oldPosition = (Integer) mapper.get(value, "position");
+		if (oldPosition == position) {
+			return false;
+		} else {
+			mapper.set(value, "position", position);
+			return true;
+		}
+	}
+	
+	public void reorder(List<T> newOrder) {
+		setTarget(new ArrayList<>(newOrder));
+		updatePositions(0);
 	}
 	
 }

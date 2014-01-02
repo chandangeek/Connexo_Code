@@ -20,6 +20,7 @@ public interface Table<T> {
 	Column addModTimeColumn(String name, String fieldName);
 	Column addUserNameColumn(String name, String fieldName);
 	Column addAutoIdColumn();
+	Column addPositionColumn();
 	List<Column> addAuditColumns();
     List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
     List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);

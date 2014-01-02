@@ -60,6 +60,8 @@ public interface DataModel {
     // installation
     void install(boolean executeDdl, boolean store);
 
+    <T> void reorder(List<T> list, List<T> newOrder);
+    
     @Deprecated
     <T> DataMapper<T> getDataMapper(Class<T> api, String tableName);
 

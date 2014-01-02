@@ -21,6 +21,8 @@ public abstract class TableConstraintImpl implements TableConstraint {
 			"FOREIGNKEY" , ForeignKeyConstraintImpl.class);
 	
 	private String name;
+	@SuppressWarnings("unused")
+	private int position;
 	
 	// associations
 	private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -56,7 +58,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	}
 
 	void add(ColumnImpl column) {
-		columnHolders.add(new ColumnInConstraintImpl(this, column, columnHolders.size() + 1));
+		columnHolders.add(ColumnInConstraintImpl.from(this, column));
 	}
 
 	void add(Column[] columns) {

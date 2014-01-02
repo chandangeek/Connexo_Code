@@ -170,14 +170,16 @@ public abstract class JoinDataMapper<T> {
 		List<String> result = new ArrayList<>();
 		for (Column each : getTable().getColumns()) {
 			String fieldName = each.getFieldName();
-			String[] parts = fieldName.split("\\.");
-			String part = "";
-			for (int i = 0 ; i < parts.length - 1 ; i++) {
-				part += parts[i];
-				if (!result.contains(part)) {
-					result.add(part);
+			if (fieldName != null) {
+				String[] parts = fieldName.split("\\.");
+				String part = "";
+				for (int i = 0 ; i < parts.length - 1 ; i++) {
+					part += parts[i];
+					if (!result.contains(part)) {
+						result.add(part);
+					}
+					part += ".";
 				}
-				part += ".";
 			}
 			result.add(fieldName);
 		}

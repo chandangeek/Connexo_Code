@@ -17,6 +17,7 @@ public class ColumnImpl implements Column  {
 	// persistent fields
 	
 	private String name;
+	@SuppressWarnings("unused")
 	private int position;
 	private String dbType;
 	private boolean notNull;
@@ -85,13 +86,7 @@ public class ColumnImpl implements Column  {
 	@Override
 	public String toString() {
 		return 
-			"Column " + name + " is " + 
-			(isAutoIncrement() ? " auto increment " : "") + 
-			"column " + position + " in table " + getTable().getQualifiedName();
-	}
-
-	void setPosition(int position) {
-		this.position = position;
+			"Column " + name + " in table " + getTable().getQualifiedName();
 	}
 
 	@Override

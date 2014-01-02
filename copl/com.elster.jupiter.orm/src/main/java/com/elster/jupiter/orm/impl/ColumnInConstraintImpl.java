@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 public class ColumnInConstraintImpl {
 	private String columnName;
+	@SuppressWarnings("unused")
 	private int position;
 	
 	// associations
@@ -19,11 +20,15 @@ public class ColumnInConstraintImpl {
 	private ColumnInConstraintImpl() {	
 	}
 
-	ColumnInConstraintImpl(TableConstraintImpl constraint, ColumnImpl column, int position) {
-		this.position = position;
+	ColumnInConstraintImpl init(TableConstraintImpl constraint, ColumnImpl column) {
 		this.constraint.set(constraint);
 		this.columnName = column.getName();
+		return this;
 	}		
+	
+	static ColumnInConstraintImpl from(TableConstraintImpl constraint, ColumnImpl column) {
+		return new ColumnInConstraintImpl().init(constraint, column);
+	}
 	
 	TableConstraintImpl getConstraint() {
 		return constraint.get();
@@ -38,8 +43,7 @@ public class ColumnInConstraintImpl {
 	
 	@Override
 	public String toString() {
-		return "Column " + getColumn().getName()
-				+ " is column " + position + " in " + getConstraint();
+		return "Column " + getColumn().getName() + " in " + getConstraint();
 	}
 	
 }

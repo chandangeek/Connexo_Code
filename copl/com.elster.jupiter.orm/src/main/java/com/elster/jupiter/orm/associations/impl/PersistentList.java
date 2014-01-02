@@ -1,25 +1,25 @@
 package com.elster.jupiter.orm.associations.impl;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-
 import java.util.AbstractList;
 import java.util.List;
+
+import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 
 public abstract class PersistentList<T> extends AbstractList<T> {
 	
 	private List<T> target;
-	private final DataMapper<T> dataMapper;
+	private final DataMapperImpl<T> dataMapper;
 	private final Object owner;
-	private final ForeignKeyConstraint constraint;
+	private final ForeignKeyConstraintImpl constraint;
 	
-	PersistentList(ForeignKeyConstraint constraint, DataMapper<T> dataMapper, Object owner) {
+	PersistentList(ForeignKeyConstraintImpl constraint, DataMapperImpl<T> dataMapper, Object owner) {
 		this.constraint = constraint;
 		this.dataMapper = dataMapper;
 		this.owner = owner;
 	}
 
-	PersistentList(ForeignKeyConstraint constraint, DataMapper<T> dataMapper, Object owner, List<T> target) {
+	PersistentList(ForeignKeyConstraintImpl constraint, DataMapperImpl<T> dataMapper, Object owner, List<T> target) {
 		this(constraint,dataMapper,owner);
 		this.target = target;
 	}
@@ -35,6 +35,14 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		return target;
 	}
 	
+	ForeignKeyConstraintImpl getConstraint() {
+		return constraint;
+	}
+	
+	DataMapperImpl<T> getDataMapper() {
+		return dataMapper;
+	}
+	
 	@Override
     public final T get(int index) {
 		return getTarget().get(index);
@@ -44,10 +52,9 @@ public abstract class PersistentList<T> extends AbstractList<T> {
     public final int size() {
 		return getTarget().size();
 	}
-
-	@Override
-    public final T set(int index,T element) {
-		return getTarget().set(index, element);
-	}
 	
+	void setTarget(List<T> target) {
+		this.target = target;
+	}
+
 }

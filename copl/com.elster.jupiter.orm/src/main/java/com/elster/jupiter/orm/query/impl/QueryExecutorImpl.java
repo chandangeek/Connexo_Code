@@ -82,7 +82,8 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		Condition condition = Condition.TRUE;
 		int i = 0;
 		for (ColumnImpl column : primaryKeyColumns) {
-			condition = condition.and(Operator.EQUAL.compare(column.getFieldName(),key[i++]));
+			String fieldName  = column.getFieldName() == null ? column.getName() : column.getFieldName();
+			condition = condition.and(Operator.EQUAL.compare(fieldName,key[i++]));
 		}
 		List<T> result = this.select(condition, null , eager , exceptions);
 		if (result.size() > 1) {

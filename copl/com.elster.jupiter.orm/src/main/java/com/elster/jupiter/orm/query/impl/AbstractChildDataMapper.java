@@ -73,7 +73,11 @@ abstract public class AbstractChildDataMapper<T> extends JoinDataMapper <T> {
 
 	@Override
 	final boolean appendFromClause(SqlBuilder builder, String parentAlias, boolean isMarked, boolean forceOuterJoin) {
-		builder.append(" LEFT JOIN ");
+		boolean outerJoin = forceOuterJoin || !isMarked;
+		if (outerJoin) {
+			builder.append(" LEFT");
+		}
+		builder.append(" JOIN ");
 		appendTable(builder);
 		builder.append(" ON ");
 		builder.openBracket();
@@ -88,7 +92,7 @@ abstract public class AbstractChildDataMapper<T> extends JoinDataMapper <T> {
 			separator = " AND ";
 		}
 		builder.closeBracketSpace();
-		return true;
+		return outerJoin;
 	}
 	
 	@Override

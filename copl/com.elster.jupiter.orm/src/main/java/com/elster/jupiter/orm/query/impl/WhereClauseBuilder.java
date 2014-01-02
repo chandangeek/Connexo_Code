@@ -32,11 +32,11 @@ public class WhereClauseBuilder implements Visitor {
 		this.effectiveDate = effectiveDate;
 	}
 	
-	public void visit(Condition condition) {
+	void visit(Condition condition) {
 		condition.visit(this);
 	}
 		
-	public void visitAll(List<Condition> conditions , String separator) {		
+	private void visitAll(List<Condition> conditions , String separator) {		
 		boolean firstTime = true; 
 		builder.openBracket();
 		for (Condition each : conditions) {

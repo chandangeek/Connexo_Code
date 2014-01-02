@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Joiner;
@@ -115,7 +116,7 @@ public class DataModelImpl implements DataModel {
         if (getTable(tableName) != null) {
             throw new IllegalArgumentException("Component has already table " + tableName);
         }
-        TableImpl<T> table = TableImpl.from(this, schema, tableName, api, getTables().size() + 1);
+        TableImpl<T> table = TableImpl.from(this, schema, tableName, api);
         add(table);
         return table;
     }
@@ -132,12 +133,21 @@ public class DataModelImpl implements DataModel {
     @Override
     public <T> DataMapperImpl<T> mapper(Class<T> api) {
     	checkRegistered();
+    	Optional<DataMapperImpl<T>> mapper = optionalMapper(api);
+    	if (mapper.isPresent()) {
+    		return mapper.get();
+    	} else {
+    		throw new IllegalArgumentException("Type " + api + " not configured in data model " + this.getName());
+    	}
+    }
+    
+    private <T> Optional<DataMapperImpl<T>> optionalMapper(Class<T> api) {
     	for (TableImpl<?> table : tables) {
     		if (table.maps(api)) {
-    			return table.getDataMapper(api);
+    			return Optional.of(table.getDataMapper(api));
     		}
-    	}
-    	throw new IllegalArgumentException("Type " + api + " not configured in data model " + this.getName());
+    	}	
+    	return Optional.absent();
     }
     
     @Override
@@ -319,14 +329,37 @@ public class DataModelImpl implements DataModel {
 		return ormService;
 	}
 	
+	@SuppressWarnings({ "unused", "rawtypes" })
 	@Override 
 	public <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers) {
 		checkRegistered();
-		DataMapper<?>[] mappers = new DataMapper[eagers.length];
+		DataMapperImpl<T> root = mapper(api);
+		DataMapperImpl<?>[] mappers = new DataMapperImpl[eagers.length];
+		DataModelImpl lastDataModel = this;
 		for (int i = 0; i < eagers.length; i++) {
+			Optional mapper = optionalMapper(eagers[i]);
+			if (mapper.isPresent()) {
+				mappers[i] = mapper(eagers[i]);
+				lastDataModel = this;
+			} else {
+				if (lastDataModel == this) {
+					DataMapperImpl<?> previousMapper = (DataMapperImpl<?>) ((i == 0) ? root : mappers[i-1]);
+					for (ForeignKeyConstraintImpl constraint : previousMapper.getTable().getForeignKeyConstraints()) {
+						if (constraint.getReferencedTable().getApi().isAssignableFrom(eagers[i])) {
+							lastDataModel = constraint.getReferencedTable().getDataModel();
+							mappers[i] = constraint.getReferencedTable().getDataMapper(eagers[i]);
+							break;
+						}
+					}
+					throw new IllegalArgumentException("" + eagers[i]);
+				} else {
+					mappers[i] = lastDataModel.mapper(eagers[i]);
+				}
+			}
+			
 			mappers[i] = mapper(eagers[i]);
 		}
- 		return mapper(api).with(mappers);
+ 		return root.with(mappers);
 	}
 	
 	Module getModule() {
@@ -420,6 +453,24 @@ public class DataModelImpl implements DataModel {
 		return ormService.isInstalled(this);
 	}
 	
+	@Override
+	public <T> void reorder(List<T> list , List<T> newOrder) {
+		if (list.size() != newOrder.size()) {
+			throw new IllegalArgumentException();
+		}
+		for (T each : list) {
+			if (!newOrder.contains(each)) {
+				throw new IllegalArgumentException();
+			}
+		}
+		if (list instanceof ManagedPersistentList<?> ) {
+			((ManagedPersistentList<T>) list).reorder(newOrder);
+		} else {
+			for (int i = 0 ; i < list.size() ; i++) {
+				list.set(i,newOrder.get(i));
+			}
+		}
+	}
 	
 	
 }

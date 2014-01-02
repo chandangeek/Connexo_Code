@@ -260,6 +260,10 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		}
 	}
 	
+	public boolean isAutoIndex() {
+		return "position".equals(reverseOrderFieldName);
+	}
+	
 	static class BuilderImpl implements ForeignKeyConstraint.Builder {
 		private final ForeignKeyConstraintImpl constraint;
 		
