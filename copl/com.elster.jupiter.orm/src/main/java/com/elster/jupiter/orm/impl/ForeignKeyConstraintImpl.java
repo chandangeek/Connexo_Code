@@ -142,7 +142,6 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	}
 	
 	public Object domainValue(Column column , Object target) {
-		assert(composition);
 		Reference<?> reference = (Reference<?>) getTable().getDomainMapper().get(target, getFieldName());
 		if (reference == null || !reference.isPresent()) {
 			return null;
