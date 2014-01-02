@@ -26,10 +26,14 @@ public class WhereClauseBuilder implements Visitor {
 	private final SqlBuilder builder;
 	private final Date effectiveDate;
 	
-	WhereClauseBuilder(JoinTreeNode<?> root, SqlBuilder builder, Date effectiveDate) {
+	private WhereClauseBuilder(JoinTreeNode<?> root, SqlBuilder builder, Date effectiveDate) {
 		this.root = root;
 		this.builder = builder;
 		this.effectiveDate = effectiveDate;
+	}
+	
+	static WhereClauseBuilder from(JoinTreeNode<?> root, SqlBuilder builder, Date effectiveDate) {
+		return new WhereClauseBuilder(root,builder,effectiveDate);
 	}
 	
 	void visit(Condition condition) {

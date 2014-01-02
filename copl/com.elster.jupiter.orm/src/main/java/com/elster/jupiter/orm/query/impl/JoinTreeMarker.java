@@ -8,8 +8,12 @@ public class JoinTreeMarker implements Visitor {
 	
 	private final JoinTreeNode<?> root;
 	
-	JoinTreeMarker(JoinTreeNode<?> root) {
+	private JoinTreeMarker(JoinTreeNode<?> root) {
 		this.root = root;
+	}
+	
+	static JoinTreeMarker on(JoinTreeNode<?> root) {
+		return new JoinTreeMarker(root);
 	}
 	
 	void visit(Condition condition) {

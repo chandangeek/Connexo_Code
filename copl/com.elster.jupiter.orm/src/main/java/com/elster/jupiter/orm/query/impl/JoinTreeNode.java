@@ -14,7 +14,6 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 
 final class JoinTreeNode<T>  {

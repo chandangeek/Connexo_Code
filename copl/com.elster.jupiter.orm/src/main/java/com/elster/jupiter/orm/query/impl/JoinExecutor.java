@@ -32,13 +32,13 @@ final class JoinExecutor<T> {
 	
 	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
 		builder = new SqlBuilder();
-		new JoinTreeMarker(root).visit(condition);
+		JoinTreeMarker.on(root).visit(condition);
 		ColumnAndAlias[] columnAndAliases = new ColumnAndAlias[fieldNames.length];
 		for (int i = 0 ; i < fieldNames.length ; i++) {
 			columnAndAliases[i] = root.getColumnAndAliasForField(fieldNames[i]);
 		}
 		root.prune();
-		new JoinTreeMarker(root).visit(condition);
+		JoinTreeMarker.on(root).visit(condition);
 		appendSelectClause(columnAndAliases);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
@@ -83,7 +83,7 @@ final class JoinExecutor<T> {
 	private void appendWhereClause(SqlBuilder builder , Condition condition , String separator) {
 		if (condition != null && condition != Condition.TRUE) {
 			builder.append(separator);
-			new WhereClauseBuilder(this.root, builder, effectiveDate).visit(condition);
+			WhereClauseBuilder.from(root, builder, effectiveDate).visit(condition);
 		}
 	}
 	
@@ -111,7 +111,7 @@ final class JoinExecutor<T> {
 		if (eager) {
 			// mark all nodes that have a where clause contribution.
 			// we need to do this first, as markReachable depends on the marked state for temporal relations.	
-			new JoinTreeMarker(root).visit(condition);
+			JoinTreeMarker.on(root).visit(condition);
 			initialMarkDone = true;
 			root.markReachable();
 			clear(exceptions);
@@ -127,13 +127,13 @@ final class JoinExecutor<T> {
 			initialMarkDone = false;
 		}
 		if (!initialMarkDone) {
-			new JoinTreeMarker(root).visit(condition);
+			JoinTreeMarker.on(root).visit(condition);
 		}
-		// prune unneeded tree parts, and clear mark state
+		// prune unneeded tree branches, and clears mark state
 		root.prune();
 		root.clearCache();
 		// remark all nodes with a where clause contribution.
-		new JoinTreeMarker(root).visit(condition);
+		JoinTreeMarker.on(root).visit(condition);
 		appendSql(condition, orderBy);		
 		List<T> result = new ArrayList<>();
 		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {				

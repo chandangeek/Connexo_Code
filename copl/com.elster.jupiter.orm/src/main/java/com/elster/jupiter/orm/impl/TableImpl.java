@@ -614,6 +614,13 @@ public class TableImpl<T> implements Table<T> {
 	void prepare() {
 		checkActiveBuilder();
 		Objects.requireNonNull(mapperType,"No implementation has been set");
+		PrimaryKeyConstraintImpl primaryKey = Objects.requireNonNull(getPrimaryKeyConstraint(),"No primary key defined");
+		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
+		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
+			if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
+				throw new IllegalStateException("Primary key columns must be defined first and in order");
+			}
+		}
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
 			constraint.prepare();
 		}

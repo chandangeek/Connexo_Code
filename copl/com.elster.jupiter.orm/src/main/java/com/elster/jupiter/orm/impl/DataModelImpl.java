@@ -1,6 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -329,7 +328,7 @@ public class DataModelImpl implements DataModel {
 		return ormService;
 	}
 	
-	@SuppressWarnings({ "unused", "rawtypes" })
+	@SuppressWarnings("rawtypes")
 	@Override 
 	public <T> QueryExecutor<T> query(Class<T> api, Class<?> ... eagers) {
 		checkRegistered();

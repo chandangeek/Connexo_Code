@@ -43,18 +43,26 @@ public class PersistentReference<T> implements Reference<T> {
 	@Override
 	public Optional<T> getOptional() {
 		if (value == null) {
-			if (primaryKey.isNull()) {
-				value = Optional.absent();
-			} else {
+			if (isPresent()) {
 				value = dataMapper.getOptional(primaryKey.getKey());
-			}
+			} else {
+				value = Optional.absent();
+			} 
 		}
 		return value;
 	}
 
 	@Override
 	public boolean isPresent() {
-		return primaryKey != null && !primaryKey.isNull();
+		if (primaryKey == null) {
+			return false;
+		} else  {
+			if (dataMapper.getTable().getPrimaryKeyConstraint().allowZero()) {
+				return !primaryKey.isNullAllowZero();
+			} else {
+				return !primaryKey.isNull();
+			}
+		}
 	}
 	
 	public Object getKeyPart(int index) {
