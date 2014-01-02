@@ -11,6 +11,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -49,7 +50,8 @@ public class DataModelTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {       
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));          
+           bind(BundleContext.class).toInstance(mock(BundleContext.class));   
+           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
     

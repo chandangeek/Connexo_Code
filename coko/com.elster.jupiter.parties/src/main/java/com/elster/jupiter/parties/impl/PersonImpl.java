@@ -2,9 +2,11 @@ package com.elster.jupiter.parties.impl;
 
 import static com.elster.jupiter.util.Checks.is;
 
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Person;
 
@@ -20,6 +22,11 @@ public final class PersonImpl extends PartyImpl implements Person {
 	private String prefix;
 	private String suffix;
 	private String specialNeed;
+	
+	@Inject
+	PersonImpl(DataModel dataModel, EventService eventService) {
+		super(dataModel,eventService);
+	}
 
     /**
      * @param firstName should not be null nor empty

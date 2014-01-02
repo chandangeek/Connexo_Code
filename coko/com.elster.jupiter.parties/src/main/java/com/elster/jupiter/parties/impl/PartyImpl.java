@@ -60,10 +60,15 @@ abstract class PartyImpl implements Party {
    	private TemporalList<PartyInRoleImpl> partyInRoles = Temporals.emptyList();
    	private List<PartyRepresentationImpl> representations = new ArrayList<>();
    	
+  
+   	private final DataModel dataModel;
+   	private final EventService eventService;
+   	
    	@Inject
-   	private DataModel dataModel;
-   	@Inject
-   	private EventService eventService;
+   	PartyImpl(DataModel dataModel, EventService eventService) {
+   		this.dataModel = dataModel;
+   		this.eventService = eventService;
+   	}
 
     @Override
     public long getId() {

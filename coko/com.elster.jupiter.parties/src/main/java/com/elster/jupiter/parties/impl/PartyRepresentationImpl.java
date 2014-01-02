@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
@@ -28,14 +29,17 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private String userName;
 	
 	// associations
-	@Inject
-	private Reference<Party> party;
+	private Reference<Party> party = ValueReference.absent();
     private User delegateUser;
 
+    private final  UserService userService;
+    private final Clock clock;
+    
     @Inject
-    private UserService userService;
-    @Inject
-    private Clock clock;
+    PartyRepresentationImpl(Clock clock, UserService userService) {
+    	this.clock = clock;
+    	this.userService = userService;
+    }
     
 	private PartyRepresentationImpl init(PartyImpl party, User delegate, Interval interval) {
 		this.party.set(party);
