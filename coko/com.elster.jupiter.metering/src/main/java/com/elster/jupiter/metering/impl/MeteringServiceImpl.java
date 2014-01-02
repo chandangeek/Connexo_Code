@@ -254,7 +254,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Condition hasAccountability() {
-        return hasAccountability(new Date());
+        return hasAccountability(clock.now());
     }
 
     @Override
