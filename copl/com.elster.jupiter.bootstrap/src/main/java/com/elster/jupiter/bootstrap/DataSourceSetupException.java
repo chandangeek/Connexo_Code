@@ -6,7 +6,9 @@ import java.sql.SQLException;
 
 public class DataSourceSetupException extends BaseException {
 
-    public DataSourceSetupException(SQLException cause) {
+	private static final long serialVersionUID = 1L;
+
+	public DataSourceSetupException(SQLException cause) {
         super(ExceptionTypes.DATASOURCE_SETUP_FAILED, cause);
     }
 }
