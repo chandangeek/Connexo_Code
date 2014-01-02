@@ -62,17 +62,6 @@ public enum Fakes {
         }
 
         @Override
-        public Table getTable() {
-            return null;
-        }
-
-        @Override
-        public Object[] getPrimaryKey(T object) {
-            //TODO automatically generated method body, provide implementation.
-            return new Object[0];
-        }
-
-        @Override
         public Optional<T> getEager(Object... object) {
             //TODO automatically generated method body, provide implementation.
             return null;
@@ -102,10 +91,6 @@ public enum Fakes {
             }
         }
 
-        @Override
-        public void update(T object) {
-            store.put(getKey(object), object);
-        }
 
         @Override
         public void update(T object, String... fieldNames) {
@@ -113,15 +98,10 @@ public enum Fakes {
         }
 
         @Override
-        public void update(List<T> objects) {
+        public void update(List<T> objects, String... fieldNames) {
             for (T object : objects) {
                 update(object);
             }
-        }
-
-        @Override
-        public void update(List<T> objects, String... fieldNames) {
-            update(objects);
         }
 
         @Override
@@ -252,6 +232,12 @@ public enum Fakes {
 
 		@Override
 		public List<T> select(Condition condition, String... orderBy) {
+			return null;
+		}
+
+		@Override
+		public Object getAttribute(Object target, String fieldName) {
+			// TODO Auto-generated method stub
 			return null;
 		}
 
