@@ -3,6 +3,7 @@ package com.elster.jupiter.parties.rest.impl;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -25,7 +26,7 @@ public class TerminatePartyRoleTransaction implements Transaction<PartyInRole> {
     }
 
     private PartyInRole getPartyInRole(Party party) {
-        for (PartyInRole partyInRole : party.getPartyInRoles()) {
+        for (PartyInRole partyInRole : party.getPartyInRoles(Interval.sinceEpoch())) {
             if (partyInRole.getId() == info.id) {
                 if (partyInRole.getVersion() != info.version) {
                     throw new WebApplicationException(Response.Status.CONFLICT);

@@ -6,6 +6,7 @@ import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
@@ -21,6 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.List;
 
 
@@ -76,7 +78,7 @@ public class PartiesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInRoleInfos getRoles(@PathParam("id") long id) {
         Party party = partyWithId(id);
-        return new PartyInRoleInfos(party.getPartyInRoles());
+        return new PartyInRoleInfos(party.getPartyInRoles(Interval.sinceEpoch()));
     }
 
     @POST
