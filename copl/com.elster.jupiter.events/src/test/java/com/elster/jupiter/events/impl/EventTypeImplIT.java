@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 
@@ -38,6 +39,8 @@ public class EventTypeImplIT {
 
     @Mock
     private BundleContext bundleContext;
+    @Mock
+    private EventAdmin eventAdmin;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -47,6 +50,7 @@ public class EventTypeImplIT {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
         }
     }
 
@@ -82,16 +86,17 @@ public class EventTypeImplIT {
         injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                EventTypeImpl eventType = new EventTypeImpl("topic");
-                eventType.setComponent("A");
-                eventType.setPublish(true);
-                eventType.setName("name");
-                eventType.setCategory("category");
-                eventType.setScope("scope");
-                eventType.addProperty("A", ValueType.STRING, "C");
+                EventService eventService = injector.getInstance(EventService.class);
+                EventType eventType = eventService.buildEventTypeWithTopic("topic")
+                        .component("A")
+                .shouldPublish()
+                .name("name")
+                        .category("category").scope("scope")
+                        .withProperty("A", ValueType.STRING, "C")
+                        .create();
                 eventType.save();
 
-                Optional<EventType> optional = Bus.getOrmClient().getEventTypeFactory().getOptional(eventType.getTopic());
+                Optional<EventType> optional = eventService.getEventType(eventType.getTopic());
 
                 assertThat(optional).isPresent();
                 EventType read = optional.get();

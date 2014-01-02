@@ -1,23 +1,21 @@
 package com.elster.jupiter.events.impl;
 
-import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventTypeBuilderImplTest {
@@ -31,27 +29,30 @@ public class EventTypeBuilderImplTest {
     private EventTypeBuilder eventTypeBuilder;
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OrmClient ormClient;
+    private DataModel dataModel;
+    @Mock
+    private Clock clock;
+    @Mock
+    private JsonService jsonService;
+    @Mock
+    private EventConfiguration eventConfiguration;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private BeanService beanService;
+
 
     @Before
     public void setUp() {
-        when(ormClient.getEventTypePropertyFactory().find(eq("eventType"), any(EventType.class))).thenReturn(Collections.<EventPropertyType>emptyList());
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-
-        eventTypeBuilder = new EventTypeBuilderImpl(TOPIC)
+        eventTypeBuilder = new EventTypeBuilderImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, TOPIC)
                 .category(CATEGORY)
                 .component(COMPONENT)
                 .name(NAME)
                 .scope(SCOPE);
-
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

@@ -40,8 +40,6 @@ public class LocalEventImplTest {
     private static final String DESTINATION = "destiny";
     private static final String SERIALIZED = "serialized";
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private Clock clock;
     @Mock
     private Dog source;
@@ -64,11 +62,6 @@ public class LocalEventImplTest {
 
     @Before
     public void setUp() {
-        when(serviceLocator.getClock()).thenReturn(clock);
-        when(serviceLocator.getBeanService()).thenReturn(beanService);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-        when(serviceLocator.getEventConfiguration()).thenReturn(eventConfiguration);
-        when(serviceLocator.getMessageService()).thenReturn(messageService);
         when(clock.now()).thenReturn(NOW);
         when(eventType.getPropertyTypes()).thenReturn(Arrays.asList(propertyType));
         when(eventType.getTopic()).thenReturn(TOPIC);
@@ -93,18 +86,15 @@ public class LocalEventImplTest {
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(eventConfiguration.getEventDestinationName()).thenReturn(DESTINATION);
         when(messageService.getDestinationSpec(DESTINATION)).thenReturn(Optional.of(destination));
-
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
     public void testCreation() {
-        LocalEventImpl localEvent = new LocalEventImpl(eventType, source);
+        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source);
 
         assertThat(localEvent.getDateTime()).isEqualTo(NOW);
         assertThat(localEvent.getSource()).isEqualTo(source);
@@ -113,7 +103,7 @@ public class LocalEventImplTest {
 
     @Test
     public void testToOsgiEvent() {
-        LocalEventImpl localEvent = new LocalEventImpl(eventType, source);
+        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source);
 
         Event event = localEvent.toOsgiEvent();
 
@@ -124,7 +114,7 @@ public class LocalEventImplTest {
 
     @Test
     public void testPublish() {
-        LocalEventImpl localEvent = new LocalEventImpl(eventType, source);
+        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source);
 
         localEvent.publish();
 
