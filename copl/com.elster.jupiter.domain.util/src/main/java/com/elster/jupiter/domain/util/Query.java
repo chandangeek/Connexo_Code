@@ -4,6 +4,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.base.Optional;
 
+import java.util.Date;
 import java.util.List;
 /**
  * A Query is the object version of  a database join.
@@ -64,4 +65,6 @@ public interface Query<T> {
      * @return the Java type corresponding to this field name
      */
 	Class<?> getType(String fieldName);
+	Date getEffectiveDate();
+	void  setEffectiveDate(Date date);
 }

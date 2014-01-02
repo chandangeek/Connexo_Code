@@ -6,6 +6,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.base.Optional;
 
+import java.util.Date;
 import java.util.List;
 
 class QueryImpl<T> implements Query<T> {
@@ -76,5 +77,14 @@ class QueryImpl<T> implements Query<T> {
         return queryExecutor.getType(fieldName);
     }
 
+    @Override
+    public Date getEffectiveDate() {
+    	return queryExecutor.getEffectiveDate();
+    }
+    
+    @Override
+    public void setEffectiveDate(Date date) {
+    	queryExecutor.setEffectiveDate(date);
+    }
 
 }
