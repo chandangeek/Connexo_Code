@@ -106,9 +106,8 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     @Override
     public Optional<User> findUser(String authenticationName) {
     	Condition condition = Operator.EQUAL.compare("authenticationName",authenticationName);
-        List<User> users = userFactory().with(Bus.getOrmClient().getUserInGroupFactory()).select(condition,new String[] {}, true, new String[] {});
-        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
-        
+    	List<User> users = dataModel.query(User.class,UserInGroup.class).select(condition);
+        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));      
 	}
 
     @Override
@@ -157,7 +156,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Query<User> getUserQuery() {
-        return getQueryService().wrap(userFactory().with());
+        return getQueryService().wrap(dataModel.query(User.class));
     }
 
 	public void install() {

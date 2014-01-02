@@ -11,8 +11,9 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
-	USR_PRIVILEGE (Privilege.class) {
-		void describeTable(Table table) {
+	USR_PRIVILEGE {
+		void addTo(DataModel dataModel) {
+			Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
 			table.map(PrivilegeImpl.class);
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
@@ -21,9 +22,9 @@ public enum TableSpecs {
 			table.primaryKey("USR_PK_PRIVILEGES").on(nameColumn).add();
 		}
 	},
-	USR_GROUP (Group.class) {
-		void describeTable(Table table) {
-			table.map(GroupImpl.class);
+	USR_GROUP {
+		void addTo(DataModel dataModel) {
+			Table<Group> table = dataModel.addTable(name(), Group.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
@@ -33,9 +34,9 @@ public enum TableSpecs {
 			table.unique("IDS_U_GROUP").on(nameColumn).add();
 		}
 	},
-	USR_USER (User.class) {
-		void describeTable(Table table) {
-			table.map(UserImpl.class);
+	USR_USER {
+		void addTo(DataModel dataModel) {
+			Table<User> table = dataModel.addTable(name(), User.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column authenticationNameColumn = table.column("AUTHNAME").type("varchar2(80)").notNull().map("authenticationName").add();
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
@@ -47,9 +48,9 @@ public enum TableSpecs {
 			table.unique("USR_U_USERAUTHNAME").on(authenticationNameColumn).add();
 		}
 	},
-	USR_PRIVILEGEINGROUP (PrivilegeInGroup.class) {
-		void describeTable(Table table) {
-			table.map(PrivilegeInGroup.class);
+	USR_PRIVILEGEINGROUP {
+		void addTo(DataModel dataModel) {
+			Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
 			Column privilegeNameColumn = table.column("PRIVILEGENAME").type("varchar2(80)").notNull().map("privilegeName").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
@@ -58,29 +59,18 @@ public enum TableSpecs {
 			table.foreignKey("FK_PRIVINGROUP2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeNameColumn).add();
 		}
 	},
-	USR_USERINGROUP (UserInGroup.class) {
-		void describeTable(Table table) {
-			table.map(UserInGroup.class);
+	USR_USERINGROUP {
+		void addTo(DataModel dataModel) {
+			Table<UserInGroup> table = dataModel.addTable(name(), UserInGroup.class);
 			Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
 			Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.primaryKey("USR_PK_USERINGROUP").on(groupIdColumn , userIdColumn).add();
+			table.primaryKey("USR_PK_USERINGROUP").on(userIdColumn , groupIdColumn).add();
 			table.foreignKey("FK_USERINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").on(groupIdColumn).add();
 			table.foreignKey("FK_USERINGROUP2USER").references(USR_USER.name()).onDelete(CASCADE).map("user").reverseMap("memberships").on(userIdColumn).add();
 		}
 	};
-	
-	private Class<?> api;
-	
-	TableSpecs(Class<?> api) {
-		this.api = api;
-	}
-	
-	void addTo(DataModel component) {
-		Table table = component.addTable(name(),api);
-		describeTable(table);
-	}
-	
-	abstract void describeTable(Table table);
+
+	abstract void addTo(DataModel component);	
 	
 }
