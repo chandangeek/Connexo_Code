@@ -112,7 +112,7 @@ public class PartyCrudTest {
         	assertThat(query.select(Condition.TRUE)).hasSize(1);
         	partyService.createRole("XXX", "YYY", "ZZZ", "AAA", "BBB");
         	PartyRole role = partyService.getPartyRoles().get(0);
-        	PartyInRole partyInRole = organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
+        	organization.assumeRole(partyService.getPartyRoles().get(0),new Date());
         	assertThat(organization.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);
         	Party party = query.select(Condition.TRUE).get(0);
         	assertThat(party.getPartyInRoles(new Date()).get(0).getRole()).isEqualTo(role);

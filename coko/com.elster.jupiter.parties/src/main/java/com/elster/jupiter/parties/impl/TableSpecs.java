@@ -14,8 +14,9 @@ import java.util.List;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
-	PRT_PARTY (Party.class) {
-		void describeTable(Table table) {
+	PRT_PARTY () {
+		void addTo(DataModel dataModel) {
+			Table<Party> table = dataModel.addTable(name(), Party.class);
 			table.map(PartyImpl.IMPLEMENTERS);
 			table.setJournalTableName("PRT_PARTYJRNL");
 			Column idColumn = table.addAutoIdColumn();
@@ -89,8 +90,9 @@ public enum TableSpecs {
 			table.unique("PTR_U_PARTY").on(mRIDColumn).add();
 		}
 	},
-	PRT_PARTYREP (PartyRepresentation.class) {
-		void describeTable(Table table) {
+	PRT_PARTYREP {
+		void addTo(DataModel dataModel) {
+			Table<PartyRepresentation> table = dataModel.addTable(name(), PartyRepresentation.class);
 			table.map(PartyRepresentationImpl.class);
 			Column delegateColumn = table.column("DELEGATE").type("varchar2(256)").notNull().map("delegate").add();
 			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
@@ -101,8 +103,9 @@ public enum TableSpecs {
 				map("party").reverseMap("representations").reverseMapOrder("delegate").composition().add();
 		}		
 	},
-	PRT_PARTYROLE (PartyRole.class) {
-		void describeTable(Table table) {
+	PRT_PARTYROLE {
+		void addTo(DataModel dataModel) {
+			Table<PartyRole> table = dataModel.addTable(name(), PartyRole.class);
 			table.map(PartyRoleImpl.class);
 			table.cache();
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
@@ -114,8 +117,9 @@ public enum TableSpecs {
 			table.primaryKey("PTR_PK_PARTYROLE").on(mRIDColumn).add();			
 		}
 	},
-	PRT_PARTYINROLE(PartyInRole.class) {
-		void describeTable(Table table) {
+	PRT_PARTYINROLE {
+		void addTo(DataModel dataModel) {
+			Table<PartyInRole> table = dataModel.addTable(name(), PartyInRole.class);
 			table.map(PartyInRoleImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
@@ -129,18 +133,8 @@ public enum TableSpecs {
 			table.foreignKey("PRT_FKPARTYINROLEROLE").on(roleMRIDColumn).references(PRT_PARTYROLE.name()).onDelete(DeleteRule.RESTRICT).map("role").add();
 		}
 	};
+	
+	abstract void addTo(DataModel component);
 		
-	private Class<?> api;
-	
-	TableSpecs(Class<?> api) {
-		this.api = api;
-	}
-	
-	public void addTo(DataModel component) {
-		Table table = component.addTable(name(),api);
-		describeTable(table);
-	}
-	
-	abstract void describeTable(Table table);
 	
 }

@@ -30,12 +30,10 @@ public class PartyInRoleImpl implements PartyInRole {
     private final Reference<Party> party = ValueReference.absent();
 	private Reference<PartyRole> role = ValueReference.absent();
     
-    private final DataModel dataModel;
     private final Clock clock;
 	
     @Inject
-    private PartyInRoleImpl(DataModel dataModel, Clock clock) {
-    	this.dataModel = dataModel;
+    private PartyInRoleImpl(Clock clock) {
     	this.clock = clock;
     }
     

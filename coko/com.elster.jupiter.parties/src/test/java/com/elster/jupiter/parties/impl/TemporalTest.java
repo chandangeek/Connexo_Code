@@ -1,7 +1,6 @@
 package com.elster.jupiter.parties.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
@@ -18,23 +17,16 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyInRole;
-import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
@@ -94,7 +86,6 @@ public class TemporalTest {
     
     @Test
     public void testTemporal()  {
-    	Date start = new Date();
         try (TransactionContext context = getTransactionService().getContext()) {
         	PartyService partyService = getPartyService();
          	Organization organization = partyService.newOrganization("Melrose");

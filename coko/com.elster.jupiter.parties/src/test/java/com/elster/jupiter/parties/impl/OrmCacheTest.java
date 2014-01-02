@@ -86,9 +86,6 @@ public class OrmCacheTest {
     	inMemoryBootstrapModule.deactivate();
     }
     
-    private PartyService getPartyService() {
-        return injector.getInstance(PartyService.class);
-    }
 
     @Test
     public void testEventTypeCache() {
