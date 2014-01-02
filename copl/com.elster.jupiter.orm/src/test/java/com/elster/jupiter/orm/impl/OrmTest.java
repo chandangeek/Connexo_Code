@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 import java.security.Principal;
 import java.sql.SQLException;
@@ -20,7 +21,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -48,13 +48,10 @@ public class OrmTest {
         			new PubSubModule(),
         			new TransactionModule(true),        			        		
         			new OrmModule());
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-			@Override
-			public Void perform() {
-				injector.getInstance(OrmService.class);
-				return null;
-			}
-		});
+		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+			injector.getInstance(OrmService.class);
+			ctx.commit();
+		}
     }
 
     @After
@@ -75,11 +72,11 @@ public class OrmTest {
     
     @Test
     public void testEagerQuery() {
+    	OrmService ormService = injector.getInstance(OrmService.class);
+    	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-    		OrmService ormService = injector.getInstance(OrmService.class);
-        	DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
     		Optional<DataModel> copy = dataModel.mapper(DataModel.class).getEager("ORM");
-    		for (Table each : copy.get().getTables()) {
+    		for (Table<?> each : copy.get().getTables()) {
     			each.getColumns().size();
     			each.getConstraints().size();
     			for ( TableConstraint constraint : each.getConstraints()) {
@@ -88,6 +85,10 @@ public class OrmTest {
     		}
     		ctx.commit();
     		assertThat(ctx.getStats().getSqlCount()).isEqualTo(1);
+    	}
+    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+    		Optional<Column> column = dataModel.mapper(Column.class).getEager("ORM","ORM_TABLE","NAME");
+    		assertThat(column).isPresent();
     	}
     }
 

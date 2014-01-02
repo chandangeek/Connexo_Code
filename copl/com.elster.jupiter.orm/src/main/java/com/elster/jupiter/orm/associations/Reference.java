@@ -9,4 +9,5 @@ public interface Reference<T> {
 	void set(T value);
 	Optional<T> getOptional();
 	boolean isPresent();
+	void setNull(); 
 }

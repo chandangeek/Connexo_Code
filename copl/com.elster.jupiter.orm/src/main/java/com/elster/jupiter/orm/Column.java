@@ -11,7 +11,7 @@ public interface Column {
 	 */
 	public static final String TYPEFIELDNAME = "class";
 	
-	Table getTable();
+	Table<?> getTable();
 	String getName();
 	String getName(String alias);    
     String getFieldName();

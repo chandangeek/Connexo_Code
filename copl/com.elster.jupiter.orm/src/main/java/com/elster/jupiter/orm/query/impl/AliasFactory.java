@@ -11,12 +11,9 @@ public class AliasFactory {
 		this.base = alias;
 	}	
 	
-	String getAlias() {
-		return getAlias(false);
-	}
 	
-	String getAlias(boolean current) {
-		return current ? getAlias("C" + base) : getAlias(base);
+	String getAlias() {
+		return getAlias(base);
 	}
 		
 	private String getAlias(String base) {

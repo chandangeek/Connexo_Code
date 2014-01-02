@@ -8,15 +8,19 @@ public class JoinTreeMarker implements Visitor {
 	
 	private final JoinTreeNode<?> root;
 	
-	JoinTreeMarker(JoinTreeNode<?> root) {
+	private JoinTreeMarker(JoinTreeNode<?> root) {
 		this.root = root;
 	}
 	
-	public void visit(Condition condition) {
+	static JoinTreeMarker on(JoinTreeNode<?> root) {
+		return new JoinTreeMarker(root);
+	}
+	
+	void visit(Condition condition) {
 		condition.visit(this);
 	}
 		
-	public void visitAll(List<Condition> conditions , String separator) {		
+	private void visitAll(List<Condition> conditions , String separator) {		
 		for (Condition each : conditions) {
 			each.visit(this);			
 		}		
@@ -36,6 +40,10 @@ public class JoinTreeMarker implements Visitor {
 
 	public void visitContains(Contains contains) {
 		markAndTest(contains.getFieldName());		 		
+	}
+	
+	public void visitEffective(Effective effective) {
+		markAndTest(effective.getFieldName());
 	}
 	
 	private void markAndTest(String fieldName) {

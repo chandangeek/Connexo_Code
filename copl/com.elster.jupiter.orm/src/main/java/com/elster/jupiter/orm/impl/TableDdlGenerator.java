@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class TableDdlGenerator {
-	private final TableImpl table;
+	private final TableImpl<?> table;
 	private List<String> ddl;
 	
-	TableDdlGenerator(TableImpl table) {
+	TableDdlGenerator(TableImpl<?> table) {
 		this.table = table;				
 	}
 	

@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
@@ -16,6 +17,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,7 @@ import java.util.Map;
 public abstract class JoinDataMapper<T> {
 	private final DataMapperImpl<T> dataMapper;
 	private final String alias;
-	private Map<Object,T> cache;
+	private Map<KeyValue,T> cache;
 
 	JoinDataMapper(DataMapperImpl<T> dataMapper, String alias) {
 		this.dataMapper = dataMapper;
@@ -38,7 +40,7 @@ public abstract class JoinDataMapper<T> {
 		return alias;
 	}
 
-	final TableImpl getTable() {
+	final TableImpl<? super T> getTable() {
 		return getMapper().getTable();
 	}
 
@@ -52,10 +54,11 @@ public abstract class JoinDataMapper<T> {
 		}
 		for (ForeignKeyConstraintImpl constraint : newMapper.getTable().getForeignKeyConstraints()) {
 			if (getTable().equals(constraint.getReferencedTable())) {
-				if (constraint.getReverseCurrentFieldName() != null) {
-					result.add(new CurrentDataMapper<>(newMapper, constraint, aliasFactory.getAlias(true)));
+				if (constraint.isTemporal()) {
+					result.add(new EffectiveDataMapper<>(newMapper, constraint, aliasFactory.getAlias()));
+				} else {
+					result.add(new ChildDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
 				}
-				result.add(new ChildDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
 			}
 		}
 		return result;
@@ -76,7 +79,7 @@ public abstract class JoinDataMapper<T> {
 		return mapping == null ? null : mapping.asContainsFragment(contains, getAlias());
 	}
 
-	final boolean hasField(String fieldName)  {
+	boolean hasField(String fieldName)  {
 		return getTable().getFieldMapping(fieldName) != null;
 	}
 
@@ -119,11 +122,11 @@ public abstract class JoinDataMapper<T> {
 		}
 	}
 
-	final T put(Object key , T value) {
+	final T put(KeyValue key , T value) {
 		return cache.put(key, value);
 	}
 
-	final T get(Object key) {
+	final T get(KeyValue key) {
 		return cache.get(key);
 	}
 
@@ -140,7 +143,7 @@ public abstract class JoinDataMapper<T> {
 		this.cache = new HashMap<>();
 	}
 
-	void completeFind() {
+	void completeFind(Date effectiveDate) {
 		for (T each : cache.values()) {
 			if (each instanceof PersistenceAware) {
 				((PersistenceAware) each).postLoad();
@@ -167,14 +170,16 @@ public abstract class JoinDataMapper<T> {
 		List<String> result = new ArrayList<>();
 		for (Column each : getTable().getColumns()) {
 			String fieldName = each.getFieldName();
-			String[] parts = fieldName.split("\\.");
-			String part = "";
-			for (int i = 0 ; i < parts.length - 1 ; i++) {
-				part += parts[i];
-				if (!result.contains(part)) {
-					result.add(part);
+			if (fieldName != null) {
+				String[] parts = fieldName.split("\\.");
+				String part = "";
+				for (int i = 0 ; i < parts.length - 1 ; i++) {
+					part += parts[i];
+					if (!result.contains(part)) {
+						result.add(part);
+					}
+					part += ".";
 				}
-				part += ".";
 			}
 			result.add(fieldName);
 		}
@@ -188,4 +193,8 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	abstract public boolean isReachable();
+	
+	boolean skipFetch(boolean marked, boolean anyChildMarked) {
+		return isChild() && (marked || anyChildMarked);
+	}
 }

@@ -1,34 +1,43 @@
 package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.Field;
-import java.util.Objects;
+import java.util.List;
 
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.inject.Injector;
 
-abstract class DataMapperType {
-	private Injector injector;
+abstract class DataMapperType<T> {
+	private final TableImpl<T> table;
+	
+	DataMapperType(TableImpl<T> table) {
+		this.table = table;
+	}
 	abstract boolean maps(Class<?> clazz);
 	abstract DomainMapper getDomainMapper();
 	abstract boolean hasMultiple();
-	abstract <T> T newInstance();
-	abstract <T> T newInstance(String discriminator);
+	abstract T newInstance();
+	abstract T newInstance(String discriminator);
 	abstract Class<?> getType(String fieldName);
 	abstract Object getEnum(String fieldName, String value);
-	abstract Object getDiscriminator(Class<?> clazz);
+	abstract String getDiscriminator(Class<?> clazz);
 	abstract Field getField(String fieldName);
-	
-	final void init(Injector injector) {
-		this.injector = Objects.requireNonNull(injector);
-	}
+	abstract void addSqlFragment(List<SqlFragment> fragments , Class<? extends T> api, String alias);
+	abstract Condition condition(Class<? extends T> api);
+	abstract boolean needsRestriction(Class<? extends T> api);
 	
 	final Injector getInjector() {
-		return injector;
+		return table.getDataModel().getInjector();
 	}
 	
 	final boolean isReference(String fieldName) {
 		Class<?> clazz = getType(fieldName);
 		return clazz == null ? false : Reference.class.isAssignableFrom(clazz); 
+	}
+	
+	final TableImpl<T> getTable() {
+		return table;
 	}
 	
 }

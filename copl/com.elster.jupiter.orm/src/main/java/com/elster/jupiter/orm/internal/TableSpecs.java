@@ -16,39 +16,43 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	
-	ORM_DATAMODEL(DataModel.class) {		
-		void describeTable(Table table) {
+	ORM_DATAMODEL {		
+		public void addTo(DataModel dataModel) {
+			Table<DataModel> table = dataModel.addTable(name(),DataModel.class);
 			table.map(DataModelImpl.class);
-			Column nameColumn = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
+			Column name = table.column("NAME").type(COMPONENTDBTYPE).notNull().map("name").add();
 			table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
-			table.primaryKey("ORM_PK_COMPONENT").on(nameColumn).add();
+			table.primaryKey("ORM_PK_COMPONENT").on(name).add();
 		}
 	},
-	ORM_TABLE(Table.class) {
-		void describeTable(Table table) {
+	ORM_TABLE {
+		@SuppressWarnings("rawtypes")
+		public void addTo(DataModel dataModel) {
+			Table<Table> table = dataModel.addTable(name(),Table.class);
 			table.map(TableImpl.class);
-			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
-			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
-			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-			Column schemaColumn = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
+			Column component = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
+			Column name = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
+			Column position = table.addPositionColumn();
+			Column schema = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
 			table.column("JOURNALTABLENAME").type(CATALOGDBTYPE).map("journalTableName").add();
 			table.column("CACHED").bool().map("cached").add();
 			table.column("INDEXORGANIZED").bool().map("indexOrganized").add();
-			table.primaryKey("ORM_PK_TABLE").on(componentName , nameColumn).add();
-			table.unique("ORM_U_TABLE").on(schemaColumn , nameColumn).add();
-			table.unique("ORM_U_TABLEPOSITION").on(componentName , positionColumn).add();
-			table.foreignKey("ORM_FK_TABLEDATAMODEL").on(componentName).references(ORM_DATAMODEL.name()).onDelete(CASCADE).
-				map("dataModel").reverseMap("tables").composition().add();
+			table.primaryKey("ORM_PK_TABLE").on(component , name).add();
+			table.unique("ORM_U_TABLE").on(schema , name).add();
+			table.unique("ORM_U_TABLEPOSITION").on(component , position).add();
+			table.foreignKey("ORM_FK_TABLEDATAMODEL").on(component).references(ORM_DATAMODEL.name()).onDelete(CASCADE).
+				map("dataModel").reverseMap("tables").reverseMapOrder("position").composition().add();
 		}
 	},
-	ORM_COLUMN(Column.class) {	
-		void describeTable(Table table) {
+	ORM_COLUMN {	
+		public void addTo(DataModel dataModel) {
+			Table<Column> table = dataModel.addTable(name(),Column.class);
 			table.map(ColumnImpl.class);
-			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
+			Column component = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();		
-			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
-			Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-			Column fieldNameColumn = table.column("FIELDNAME").type("varchar2(80)").map("fieldName").add();
+			Column name= table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
+			Column position = table.addPositionColumn();
+			table.column("FIELDNAME").type("varchar2(80)").map("fieldName").add();
 			table.column("DBTYPE").type(CATALOGDBTYPE).notNull().map("dbType").add();
 			table.column("NOTNULL").bool().map("notNull").add();
 			table.column("VERSIONCOUNT").bool().map("versionCount").add();
@@ -57,37 +61,40 @@ public enum TableSpecs {
 			table.column("SEQUENCENAME").type(CATALOGDBTYPE).map("sequenceName").add();
 			table.column("INSERTVALUE").type("varchar2(256)").map("insertValue").add();
 			table.column("UPDATEVALUE").type("varchar2(256)").map("updateValue").add();
-			table.primaryKey("ORM_PK_COLUMNS").on(componentName, tableName, nameColumn).add();
-			table.unique("ORM_U_COLUMNPOSITION").on(componentName , tableName , positionColumn).add();
-			table.unique("ORM_U_COLUMNFIELDNAME").on(componentName , tableName , fieldNameColumn).add();
-			table.foreignKey("ORM_FK_COLUMNTABLE").on(componentName,tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
+			table.primaryKey("ORM_PK_COLUMNS").on(component, tableName, name).add();
+			table.unique("ORM_U_COLUMNPOSITION").on(component, tableName , position).add();
+			table.foreignKey("ORM_FK_COLUMNTABLE").on(component,tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
 				map("table").reverseMap("columns").reverseMapOrder("position").composition().add();
 		}
 	},
-	ORM_TABLECONSTRAINT(TableConstraint.class) {	
-		void describeTable(Table table) {
+	ORM_TABLECONSTRAINT {	
+		public void addTo(DataModel dataModel) {
+			Table<TableConstraint> table = dataModel.addTable(name(),TableConstraint.class);
 			table.map(TableConstraintImpl.implementers);
-			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
+			Column component = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLEID").type(CATALOGDBTYPE).notNull().add();
-			Column nameColumn = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
+			Column name = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			table.addDiscriminatorColumn("CONSTRAINTTYPE", CATALOGDBTYPE);
-			Column referencedComponentName = table.column("REFERENCEDCOMPONENT").type(COMPONENTDBTYPE).add();
-			Column referencedTableName = table.column("REFERENCEDTABLENAME").type(CATALOGDBTYPE).add();
+			Column position = table.addPositionColumn();
+			Column referencedComponent = table.column("REFERENCEDCOMPONENT").type(COMPONENTDBTYPE).add();
+			Column referencedTable = table.column("REFERENCEDTABLENAME").type(CATALOGDBTYPE).add();
 			table.column("DELETERULE").type(CATALOGDBTYPE).conversion(CHAR2ENUM).map("deleteRule").add();
 			table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
 			table.column("REVERSEFIELDNAME").type("VARCHAR2(80)").map("reverseFieldName").add();
 			table.column("REVERSEORDERFIELDNAME").type("VARCHAR2(80)").map("reverseOrderFieldName").add();
 			table.column("REVERSECURRENTFIELDNAME").type("VARCHAR2(80)").map("reverseCurrentFieldName").add();
 			table.column("COMPOSITION").type("CHAR(1)").conversion(CHAR2BOOLEAN).map("composition").add();
-			table.primaryKey("ORM_PK_CONSTRAINT").on(componentName , tableName , nameColumn).add();
-			table.unique("ORM_U_CONSTRAINT").on(nameColumn).add();
-			table.foreignKey("ORM_FK_CONSTRAINTTABLE").on(componentName , tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
-				map("table").reverseMap("constraints").composition().add();	
-			table.foreignKey("ORM_FK_CONSTRAINTTABLE2").on(referencedComponentName, referencedTableName).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
+			table.primaryKey("ORM_PK_CONSTRAINT").on(component , tableName , name).add();
+			table.unique("ORM_U_CONSTRAINT").on(name).add();
+			table.unique("ORM_U_CONSTRAINT2").on(component,tableName,position).add();
+			table.foreignKey("ORM_FK_CONSTRAINTTABLE").on(component , tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
+				map("table").reverseMap("constraints").reverseMapOrder("position").composition().add();	
+			table.foreignKey("ORM_FK_CONSTRAINTTABLE2").on(referencedComponent, referencedTable).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
 		}
 	},
-	ORM_COLUMNINCONSTRAINT(ColumnInConstraintImpl.class) {
-		void describeTable(Table table) {
+	ORM_COLUMNINCONSTRAINT {
+		public void addTo(DataModel dataModel) {
+			Table<ColumnInConstraintImpl> table = dataModel.addTable(name(),ColumnInConstraintImpl.class);
 			table.map(ColumnInConstraintImpl.class);
 			Column componentName = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
 			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();
@@ -105,17 +112,6 @@ public enum TableSpecs {
 	private static final String COMPONENTDBTYPE = "varchar2(3)";
 	private static final String CATALOGDBTYPE = "varchar2(30)";
 	
-	private Class<?> api;
-	
-	TableSpecs(Class<?> api) {
-		this.api = api;
-	}
-
-	public void addTo(DataModel component) {
-		Table table = component.addTable(name(),api);
-		describeTable(table);
-	}
-	
-	abstract void describeTable(Table table);
+	public abstract void addTo(DataModel dataModel);
 	
 }

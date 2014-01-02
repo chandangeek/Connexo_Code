@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.associations.impl.PersistentReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -22,13 +21,15 @@ public abstract class TableConstraintImpl implements TableConstraint {
 			"FOREIGNKEY" , ForeignKeyConstraintImpl.class);
 	
 	private String name;
+	@SuppressWarnings("unused")
+	private int position;
 	
 	// associations
-	private final Reference<TableImpl> table = ValueReference.absent();
+	private final Reference<TableImpl<?>> table = ValueReference.absent();
 	private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 	
 
-	TableConstraintImpl init(TableImpl table, String name) {
+	TableConstraintImpl init(TableImpl<?> table, String name) {
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -52,12 +53,12 @@ public abstract class TableConstraintImpl implements TableConstraint {
 	}
 
 	@Override
-	public TableImpl getTable() {
+	public TableImpl<?> getTable() {
 		return table.get();
 	}
 
 	void add(ColumnImpl column) {
-		columnHolders.add(new ColumnInConstraintImpl(this, column, columnHolders.size() + 1));
+		columnHolders.add(ColumnInConstraintImpl.from(this, column));
 	}
 
 	void add(Column[] columns) {
@@ -104,36 +105,16 @@ public abstract class TableConstraintImpl implements TableConstraint {
 		return true;
 	}
 	
-	public Object[] getColumnValues(Object value) {
+	public KeyValue getColumnValues(Object value) {
 		List<ColumnImpl> columns = getColumns();
 		int columnCount = columns.size();		
 		Object[] result = new Object[columnCount]; 
 		for (int i = 0 ; i < columnCount ; i++) {
-			Column column = columns.get(i);
-			String fieldName = columns.get(i).getFieldName();
-			if (fieldName == null) {
-				for (ForeignKeyConstraintImpl constraint : getTable().getReferenceConstraints()) {
-					if (constraint.hasColumn(column)) {
-						Reference<?> reference = (Reference<?>) DomainMapper.FIELDSTRICT.get(value, constraint.getFieldName());
-						if (reference == null || !reference.isPresent()) {
-							result[i] = null;
-						}
-						int index = constraint.getColumns().indexOf(column);
-						if (reference instanceof PersistentReference<?>) {
-							result[i] = ((PersistentReference<?>) reference).getKeyPart(index);
-						} else {
-							result[i] = constraint.getReferencedTable().getPrimaryKey(reference.get())[index];
-						}
-						break;
-					}
-					throw new IllegalStateException("No mapping for Column " + column.getName());
-				}
-			} else {
-				result[i] = DomainMapper.FIELDSTRICT.get(value, columns.get(i).getFieldName());
-			}
+			result[i] = columns.get(i).domainValue(value);
 		}
-		return result;		
+		return KeyValue.of(result);		
 	}
+
 	
 	boolean needsIndex() {		
 		return false;		

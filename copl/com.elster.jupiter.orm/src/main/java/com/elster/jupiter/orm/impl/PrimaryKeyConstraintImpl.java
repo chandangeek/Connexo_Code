@@ -5,13 +5,15 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 
 public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements PrimaryKeyConstraint {
 	
+	private boolean allowZero;
+	
 	@Override
-	PrimaryKeyConstraintImpl init(TableImpl table, String name) {
+	PrimaryKeyConstraintImpl init(TableImpl<?> table, String name) {
 		super.init(table,name);
 		return this;
 	}
 	
-	static PrimaryKeyConstraintImpl from(TableImpl table , String name) {
+	static PrimaryKeyConstraintImpl from(TableImpl<?> table , String name) {
 		return new PrimaryKeyConstraintImpl().init(table,name);
 	}
 	
@@ -25,16 +27,27 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 		return "primary key";
 	}
 	
+	@Override
+	public boolean allowZero() {
+		return allowZero;
+	}
+	
 	static class BuilderImpl implements PrimaryKeyConstraint.Builder {
 		private final PrimaryKeyConstraintImpl constraint;
 		
-		public BuilderImpl(TableImpl table, String name) {
+		public BuilderImpl(TableImpl<?> table, String name) {
 			this.constraint = PrimaryKeyConstraintImpl.from(table,name);
 		}
 
 		@Override
 		public Builder on(Column... columns) {
 			constraint.add(columns);
+			return this;
+		}
+		
+		@Override
+		public Builder allowZero() {
+			this.constraint.allowZero = true;
 			return this;
 		}
 
@@ -44,6 +57,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
 			constraint.getTable().add(constraint);
 			return constraint;
 		}
+		
 	
 	}
 }

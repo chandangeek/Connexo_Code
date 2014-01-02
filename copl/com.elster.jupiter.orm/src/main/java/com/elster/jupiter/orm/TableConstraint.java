@@ -8,7 +8,7 @@ import java.util.List;
 public interface TableConstraint {
 	String getName();
     List<? extends Column> getColumns();
-	Table getTable();
+	Table<?> getTable();
 	boolean isPrimaryKey();
 	boolean isUnique();
 	boolean isForeignKey();

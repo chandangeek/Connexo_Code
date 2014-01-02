@@ -5,15 +5,16 @@ import java.util.Objects;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.google.common.base.Optional;
 
 public class PersistentReference<T> implements Reference<T> {
 	
 	private final DataMapperImpl<T> dataMapper;
-	private Object[] primaryKey;
+	private KeyValue primaryKey;
 	private Optional<T> value;
 	
-	public PersistentReference(Object[] primaryKey , DataMapperImpl<T> dataMapper) {
+	public PersistentReference(KeyValue primaryKey , DataMapperImpl<T> dataMapper) {
 		this.primaryKey = primaryKey;
 		this.dataMapper = dataMapper;
 	}
@@ -42,33 +43,34 @@ public class PersistentReference<T> implements Reference<T> {
 	@Override
 	public Optional<T> getOptional() {
 		if (value == null) {
-			for (Object keyPart : primaryKey) {
-				if (keyPart == null) {
-					value = Optional.absent();
-					return value;
-				}
-			}
-			value = dataMapper.getOptional(primaryKey);
+			if (isPresent()) {
+				value = dataMapper.getOptional(primaryKey.getKey());
+			} else {
+				value = Optional.absent();
+			} 
 		}
 		return value;
 	}
 
 	@Override
 	public boolean isPresent() {
-		if (primaryKey != null) {
-			for (int i = 0 ; i < primaryKey.length;  i++) {
-				if (primaryKey[i] == null) {
-					return false;
-				}
-			}
-			return true;
-		} else {
+		if (primaryKey == null) {
 			return false;
+		} else  {
+			if (dataMapper.getTable().getPrimaryKeyConstraint().allowZero()) {
+				return !primaryKey.isNullAllowZero();
+			} else {
+				return !primaryKey.isNull();
+			}
 		}
 	}
 	
 	public Object getKeyPart(int index) {
-		return primaryKey[index];
+		return primaryKey.get(index);
+	}
+	
+	public KeyValue getKey() {
+		return primaryKey;
 	}
 	
 	@Override
@@ -87,5 +89,12 @@ public class PersistentReference<T> implements Reference<T> {
 	public int hashCode() {
 		return Objects.hashCode(orNull());
 	}
+
+	@Override
+	public void setNull() {
+		set(null);
+	}
+	
+	
  
 }

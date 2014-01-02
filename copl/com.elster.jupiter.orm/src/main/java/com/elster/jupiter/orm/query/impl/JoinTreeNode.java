@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.query.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +26,7 @@ final class JoinTreeNode<T>  {
 		this.value = value;
 	}
 
-	TableImpl getTable() {		
+	TableImpl<? super T> getTable() {		
 		return value.getTable();
 	}
 	
@@ -155,13 +156,13 @@ final class JoinTreeNode<T>  {
 		return index;		
 	}
 	
-	final void completeFind() {
+	final void completeFind(Date effectiveDate) {
 		if (!semiJoin()) {
 			// do children first, so they can set collection relations before postLoad does.
 			for (JoinTreeNode<?> each : children) {			
-				each.completeFind();
+				each.completeFind(effectiveDate);
 			}
-			value.completeFind();
+			value.completeFind(effectiveDate);
 		}		
 	}
 	
@@ -210,8 +211,10 @@ final class JoinTreeNode<T>  {
 	}
 	
 	private boolean isMarked() {
-		if (marked)
-			return true;
+		return marked || isAnyChildMarked();
+	}
+	
+	private boolean isAnyChildMarked() {
 		for (JoinTreeNode<?> each : children) {
 			if (each.isMarked()) {
 				return true;
@@ -295,7 +298,7 @@ final class JoinTreeNode<T>  {
 	}
 	
 	boolean semiJoin() {
-		return value.isChild() && isMarked();
+		return value.skipFetch(marked,isAnyChildMarked());
 	}
 	
 	boolean hasSemiJoin() {
@@ -308,6 +311,18 @@ final class JoinTreeNode<T>  {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(value.getTable().getName());
+		for (JoinTreeNode<?> each : children) {
+			builder.append(" -> (");
+			builder.append(each);
+			builder.append(")");
+		}
+		return builder.toString();
 	}
 			
 }

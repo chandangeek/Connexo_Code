@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 class RootDataMapper<T> extends JoinDataMapper<T> {
@@ -14,7 +15,7 @@ class RootDataMapper<T> extends JoinDataMapper<T> {
 	
 	@SuppressWarnings("unchecked")
 	T set(Object target, ResultSet rs, int index ) throws SQLException {
-		Object key = getMapper().getPrimaryKey(rs,1);
+		KeyValue key = getMapper().getPrimaryKey(rs,1);
 		T value = get(key);
 		if (value == null) {
 			value = getMapper().construct(rs,1);

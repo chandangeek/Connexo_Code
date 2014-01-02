@@ -62,6 +62,11 @@ public final class ValueReference<T> implements Reference<T> {
 	public int hashCode() {
 		return Objects.hashCode(value);
 	}
+
+	@Override
+	public void setNull() {
+		value = null;
+	}
 	
 	
 }

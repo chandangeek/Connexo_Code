@@ -17,7 +17,7 @@ public class MultiColumnMapping extends FieldMapping {
 		this.fieldName = fieldName;
 		this.columns = new ArrayList<>();
 		for (ColumnImpl column : allColumns) {
-			if (column.getFieldName().startsWith(fieldName + ".")) {
+			if (column.getFieldName() != null && column.getFieldName().startsWith(fieldName + ".")) {
 				columns.add(column);
 			}
 		}

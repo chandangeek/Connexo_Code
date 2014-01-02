@@ -4,9 +4,9 @@ import com.elster.jupiter.orm.Column;
 import java.util.List;
 
 public class TableSqlGenerator {
-	private final TableImpl table;
+	private final TableImpl<?> table;
 	
-	TableSqlGenerator(TableImpl table) {
+	TableSqlGenerator(TableImpl<?> table) {
 		this.table = table;		
 	}
 	
@@ -193,18 +193,6 @@ public class TableSqlGenerator {
 			sb.append(" = ?");
 		}
 		return sb.toString();
-	}
-
-	TableImpl getTable() {
-		return table;
-	}	
-	
-	List<ColumnImpl> getColumns() {
-		return table.getColumns();
-	}
-	
-	List<ColumnImpl> getPrimaryKeyColumns() {
-		return table.getPrimaryKeyColumns();
 	}
 	
 	

@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.json.JsonService;
@@ -19,29 +20,29 @@ public final class RefAnyImpl implements RefAny {
 	private String key;
 	@SuppressWarnings("unused")
 	private long id;
-	
 	private Optional<?> targetHolder;
 	
-	@Inject
-	private JsonService jsonService;
-	@Inject
-	private OrmService ormService;
+	private final OrmService ormService;
+	private final JsonService jsonService;
 	
-	public RefAnyImpl init(Object value, TableImpl table) {
+	
+	@Inject
+	public RefAnyImpl(OrmService ormService , JsonService jsonService) {
+		this.ormService = ormService;
+		this.jsonService = jsonService;
+	}
+	
+	public RefAnyImpl init(Object value, TableImpl<?> table) {
 		this.component = table.getComponentName();
 		this.table = table.getName();
-		Object[] primaryKey = table.getPrimaryKey(Objects.requireNonNull(value));
-		key = jsonService.serialize(primaryKey);
-		if (primaryKey.length == 1 && (Number.class.isInstance(primaryKey[0]))) {
-			id = ((Number) primaryKey[0]).longValue();
-		} else {
-			id = 0;
-		}
+		KeyValue primaryKey = table.getPrimaryKey(Objects.requireNonNull(value));
+		key = jsonService.serialize(primaryKey.getKey());
+		id = primaryKey.getId();
 		targetHolder = Optional.of(value);
 		return this;
 	}	
 	
-	static RefAnyImpl from(DataModel dataModel, Object value , TableImpl table) {
+	static RefAnyImpl from(DataModel dataModel, Object value , TableImpl<?> table) {
 		return dataModel.getInstance(RefAnyImpl.class).init(value,table);
 	}
 	

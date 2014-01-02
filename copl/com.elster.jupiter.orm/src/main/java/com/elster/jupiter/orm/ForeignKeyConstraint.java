@@ -1,7 +1,7 @@
 package com.elster.jupiter.orm;
 
 public interface ForeignKeyConstraint extends TableConstraint {
-	Table getReferencedTable();	
+	Table<?> getReferencedTable();	
 	DeleteRule getDeleteRule();
 	String getFieldName();
 	String getReverseFieldName();

@@ -4,6 +4,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.common.base.Optional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,5 +29,7 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
 	boolean hasField(String fieldName);
 	Class<?> getType(String fieldName);
     List<String> getQueryFieldNames();
+    Date getEffectiveDate();
+    void setEffectiveDate(Date date);
     
 }

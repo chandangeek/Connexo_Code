@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 import java.sql.SQLException;
@@ -17,6 +18,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	private final JoinTreeNode<T> root;
 	private final AliasFactory aliasFactory = new AliasFactory();
 	private Condition restriction = Condition.TRUE;
+	private UtcInstant effectiveInstant;
 	
 	public QueryExecutorImpl(DataMapperImpl<T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
@@ -25,12 +27,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		this.root = new JoinTreeNode<>(rootDataMapper);				
 	}
     
-	public <R> void add(DataMapper<R> dataMapper) {
-		DataMapperImpl<R> newMapper = (DataMapperImpl<R>) dataMapper;
+	public <R> void add(DataMapperImpl<R> newMapper) {
 		aliasFactory.setBase(newMapper.getAlias());
-		boolean result = root.addMapper((DataMapperImpl<R>) dataMapper , aliasFactory);
+		boolean result = root.addMapper(newMapper , aliasFactory);
 		if (!result) {
-			throw new IllegalArgumentException("No referential key match for " + dataMapper.getTable().getName());
+			throw new IllegalArgumentException("No referential key match for " + newMapper.getTable().getName());
 		}
 	}	
 	
@@ -42,7 +43,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to) {
 		try {
-			return new JoinExecutor<>(root.copy(),from,to).select(restriction.and(condition),orderBy , eager, exceptions);
+			return new JoinExecutor<>(root.copy(), getEffectiveDate() , from,to).select(restriction.and(condition),orderBy , eager, exceptions);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -61,16 +62,13 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	@Override
 	public SqlFragment asFragment(Condition condition, String[] fieldNames) {
-		return new JoinExecutor<>(root.copy()).getSqlBuilder(condition, fieldNames);		
+		return new JoinExecutor<>(root.copy(),getEffectiveDate()).getSqlBuilder(condition, fieldNames);		
 	}
 	
 	public Object convert(String fieldName, String value) {
-		DataMapperImpl<?>  mapper = root.getDataMapperForField(fieldName);
-		if (mapper != null) {
-			ColumnImpl column = root.getColumnForField(fieldName);
-				if (column != null) {
-					return mapper.convert(column,value);
-				}
+		ColumnImpl column = root.getColumnForField(fieldName);
+		if (column != null) {
+			return column.convert(value);
 		}
 		throw new IllegalArgumentException("No mapper or column for " + fieldName);
 	}
@@ -84,7 +82,8 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		Condition condition = Condition.TRUE;
 		int i = 0;
 		for (ColumnImpl column : primaryKeyColumns) {
-			condition = condition.and(Operator.EQUAL.compare(column.getFieldName(),key[i++]));
+			String fieldName  = column.getFieldName() == null ? column.getName() : column.getFieldName();
+			condition = condition.and(Operator.EQUAL.compare(fieldName,key[i++]));
 		}
 		List<T> result = this.select(condition, null , eager , exceptions);
 		if (result.size() > 1) {
@@ -100,7 +99,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	@Override
 	public void setRestriction(Condition condition) {
-		restriction = condition;
+		restriction = restriction.and(condition);
 	}
 
 	@Override
@@ -116,6 +115,19 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public List<T> select(Condition condition, String... orderBy) {
 		return select(condition, orderBy, true,new String[0]);
+	}
+
+	@Override
+	public Date getEffectiveDate() {
+		if (effectiveInstant == null) {
+			effectiveInstant = new UtcInstant(this.root.getTable().getDataModel().getClock().now());
+		}
+		return effectiveInstant.toDate();
+	}
+
+	@Override
+	public void setEffectiveDate(Date date) {
+		this.effectiveInstant = new UtcInstant(date);
 	}
 }
 

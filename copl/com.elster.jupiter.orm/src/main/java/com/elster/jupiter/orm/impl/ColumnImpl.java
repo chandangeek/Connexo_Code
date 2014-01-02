@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
+import java.security.Principal;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -9,11 +11,13 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class ColumnImpl implements Column  {
 	// persistent fields
 	
 	private String name;
+	@SuppressWarnings("unused")
 	private int position;
 	private String dbType;
 	private boolean notNull;
@@ -26,9 +30,9 @@ public class ColumnImpl implements Column  {
 	private boolean skipOnUpdate;
 	
 	// associations
-	private final Reference<TableImpl> table = ValueReference.absent();
+	private final Reference<TableImpl<?>> table = ValueReference.absent();
 
-	private ColumnImpl init(TableImpl table, String name) {
+	private ColumnImpl init(TableImpl<?> table, String name) {
 		if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -37,7 +41,7 @@ public class ColumnImpl implements Column  {
 		return this;
 	}
 	
-	static ColumnImpl from(TableImpl table, String name) {
+	static ColumnImpl from(TableImpl<?> table, String name) {
 		return new ColumnImpl().init(table,name);
 	}
 	
@@ -54,7 +58,7 @@ public class ColumnImpl implements Column  {
 	}
 	
 	@Override
-	public TableImpl getTable() {
+	public TableImpl<?> getTable() {
 		return table.get();
 	}
 	
@@ -82,13 +86,7 @@ public class ColumnImpl implements Column  {
 	@Override
 	public String toString() {
 		return 
-			"Column " + name + " is " + 
-			(isAutoIncrement() ? " auto increment " : "") + 
-			"column " + position + " in table " + getTable().getQualifiedName();
-	}
-
-	void setPosition(int position) {
-		this.position = position;
+			"Column " + name + " in table " + getTable().getQualifiedName();
 	}
 
 	@Override
@@ -197,8 +195,10 @@ public class ColumnImpl implements Column  {
 		}
 	}
 	
-	Object convert(String in) {
-		if (conversion == ColumnConversionImpl.CHAR2JSON) {
+	public Object convert(String in) {
+		if (isEnum()) {
+			return getTable().getMapperType().getEnum(fieldName, in);	
+		} else if (conversion == ColumnConversionImpl.CHAR2JSON) {
 			return jsonConverter().convert(in);
 		} else {
 			return conversion.convert(in);
@@ -228,6 +228,46 @@ public class ColumnImpl implements Column  {
 			}
 		}
 		return null;
+	}
+	
+	private DomainMapper getDomainMapper() {
+		return getTable().getDomainMapper();
+	}
+	
+	Object domainValue(Object target) {
+		if (isDiscriminator()) {
+			return getTable().getMapperType().getDiscriminator(target.getClass());
+		} else if (fieldName != null) {
+			return getDomainMapper().get(target, fieldName);
+		} else {
+			return getForeignKeyConstraint().domainValue(this,target);
+		}
+	}
+	
+	void prepare(Object target, boolean update, UtcInstant now) {
+		if (conversion == ColumnConversionImpl.NUMBER2NOW && !(update && skipOnUpdate())) {				
+			getDomainMapper().set(target,fieldName,now);
+		} 
+		if (conversion == ColumnConversionImpl.CHAR2PRINCIPAL && !(update && skipOnUpdate())) {
+			getDomainMapper().set(target,fieldName,getCurrentUserName());
+		}
+	}
+	
+	private String getCurrentUserName() {
+		Principal principal = getTable().getDataModel().getPrincipal();
+		return principal == null ? null : principal.getName();
+	}
+	
+	void setDomainValue(Object target, Object value) {
+		getDomainMapper().set(target, fieldName, value,getTable().getDataModel().getInjector());
+	}
+	
+	void setDomainValue(Object target, ResultSet rs, int index) throws SQLException {
+		setDomainValue(target, convertFromDb(rs,index));
+	}
+	
+	void setObject(PreparedStatement statement, int index, Object target ) throws SQLException  { 
+		statement.setObject(index, convertToDb(domainValue(target)));
 	}
 	
 	static class BuilderImpl implements Column.Builder {

@@ -8,7 +8,7 @@ import java.util.Map;
  * For all methods, name typically refers to the database name, 
  * while fieldName refers to an java instance field.
  */
-public interface Table {	
+public interface Table<T> {	
 	// datamodel construction api
     Column.Builder column(String name);
     PrimaryKeyConstraint.Builder primaryKey(String name);
@@ -20,6 +20,7 @@ public interface Table {
 	Column addModTimeColumn(String name, String fieldName);
 	Column addUserNameColumn(String name, String fieldName);
 	Column addAutoIdColumn();
+	Column addPositionColumn();
 	List<Column> addAuditColumns();
     List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
     List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);
@@ -44,8 +45,8 @@ public interface Table {
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 	String getComponentName();
 	List<? extends Column> getPrimaryKeyColumns();
-    void map(Class<?> implementer);
-	<T> void map(Map<String,Class<? extends T>> implementers);
+    Table<T> map(Class<? extends T> implementer);
+	Table<T> map(Map<String,Class<? extends T>> implementers);
 	boolean maps(Class<?> implementer);
 
 }

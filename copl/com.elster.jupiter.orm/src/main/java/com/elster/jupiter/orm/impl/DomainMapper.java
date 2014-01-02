@@ -8,6 +8,8 @@ import com.google.inject.Injector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 
 public enum DomainMapper {
@@ -42,40 +44,17 @@ public enum DomainMapper {
 
 	private Object create(Class<?> clazz,Injector injector) throws ReflectiveOperationException {
 		if (clazz == RefAny.class) {
-			return injector.getInstance(RefAny.class);
-		}
-		Constructor<?> constructor = clazz.getDeclaredConstructor();
-		constructor.setAccessible(true);
-		return constructor.newInstance();		
-	}
-
-	private Object create(Class<?> clazz) throws ReflectiveOperationException {
-		if (clazz == RefAny.class) {
-			throw new UnsupportedOperationException();
-		}
-		Constructor<?> constructor = clazz.getDeclaredConstructor();
-		constructor.setAccessible(true);
-		return constructor.newInstance();		
-	}
-
-	private Object getOrCreate(Object target, String fieldName) {
-		Field field = getField(target.getClass(), fieldName);
-		if (field == null) {
-			return null;
-		} else {
-			try {
-				Object result = field.get(target);
-				if (result == null) {
-					result = create(field.getType());
-					field.set(target, result);
-				}
-				return result;
-			} catch (ReflectiveOperationException e) {
-				throw new MappingException(e);
+			if (injector == null) {
+				throw new IllegalArgumentException("Needs injector");
+			} else {
+				return injector.getInstance(RefAny.class);
 			}
 		}
+		Constructor<?> constructor = clazz.getDeclaredConstructor();
+		constructor.setAccessible(true);
+		return constructor.newInstance();		
 	}
-	
+
 	private Object getOrCreate(Object target, String fieldName,Injector injector) {
 		Field field = getField(target.getClass(), fieldName);
 		if (field == null) {
@@ -95,20 +74,7 @@ public enum DomainMapper {
 	}
 	
 	public void set(Object target , String  fieldPath, Object value) {		
-		String[] fieldNames = fieldPath.split("\\.");
-		if (fieldNames.length > 1) {
-			if (value != null) {
-				target = getOrCreate(target,fieldNames[0]);
-			} else {
-				target = basicGet(target,fieldNames[0]);
-			}
-		}
-		for (int i = 1 ; i < fieldNames.length - 1 ; i++) {
-			target = target == null ? null : basicGet(target,fieldNames[i]);
-		}
-		if (target != null) {
-			basicSet(target,fieldNames[fieldNames.length-1],value);
-		}
+		set(target,fieldPath,value,null);
 	}
 	
 	public void set(Object target , String  fieldPath, Object value, Injector injector) {		
@@ -159,8 +125,7 @@ public enum DomainMapper {
 				}
 			}
 		}
-		System.out.println(value.getClass() + ":" + value);
-		throw new IllegalArgumentException("" + value);
+		throw new IllegalArgumentException("" + value + " not appropriate for enum " + clazz);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -207,5 +172,20 @@ public enum DomainMapper {
 			}
 		}
 		return result;
+	}
+	
+	public static Class<?> extractDomainClass (Field field) {
+		Type type = field.getGenericType();
+		if (type instanceof Class<?>) {
+			return (Class<?>) type;
+		} else if (type instanceof ParameterizedType) {
+			Type subType = ((ParameterizedType) type).getActualTypeArguments()[0];
+			if (subType instanceof Class<?>) {
+				return (Class<?>) subType;
+			} else if (type instanceof ParameterizedType) {
+				return (Class<?>) ((ParameterizedType) subType).getRawType();
+			}
+		} 
+		throw new IllegalArgumentException("" + type);
 	}
 }
