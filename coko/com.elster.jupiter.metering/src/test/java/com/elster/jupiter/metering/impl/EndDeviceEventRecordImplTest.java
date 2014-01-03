@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -65,6 +66,8 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -86,6 +89,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             bind(EndDevice.class).to(EndDeviceImpl.class);
             bind(EndDeviceEventType.class).to(EndDeviceEventTypeImpl.class);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(DataModel.class).toInstance(dataModel);
         }
     }
 
