@@ -1,20 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
-import static com.elster.jupiter.util.Checks.is;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.FieldType;
@@ -30,6 +15,16 @@ import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.util.Checks.is;
 
 public class TableImpl<T> implements Table<T> {
 	
@@ -618,7 +613,7 @@ public class TableImpl<T> implements Table<T> {
 		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
 		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
 			if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-				throw new IllegalStateException("Primary key columns must be defined first and in order");
+				throw new IllegalStateException(MessageFormat.format("Primary key columns must be defined first and in order in table {0}", getName()));
 			}
 		}
 		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
