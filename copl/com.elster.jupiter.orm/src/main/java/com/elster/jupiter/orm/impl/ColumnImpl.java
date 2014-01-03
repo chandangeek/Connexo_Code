@@ -251,6 +251,9 @@ public class ColumnImpl implements Column  {
 		if (conversion == ColumnConversionImpl.CHAR2PRINCIPAL && !(update && skipOnUpdate())) {
 			getDomainMapper().set(target,fieldName,getCurrentUserName());
 		}
+		if (isVersion() && !update) {
+			getDomainMapper().set(target, fieldName,1);
+		}
 	}
 	
 	private String getCurrentUserName() {
