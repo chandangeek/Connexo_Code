@@ -50,8 +50,8 @@ public class AppServerImpl implements AppServer {
     }
 
     @Override
-	public SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
-        SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, messageService, this, subscriberSpec, threadCount);
+	public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+        SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, this, subscriberSpec, threadCount);
         getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
         return subscriberExecutionSpec;
     }

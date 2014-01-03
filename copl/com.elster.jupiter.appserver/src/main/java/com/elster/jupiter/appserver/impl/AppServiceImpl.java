@@ -89,6 +89,11 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
             protected void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(AppServerCreator.class).to(DefaultAppServerCreator.class);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TransactionService.class).toInstance(transactionService);
+                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                bind(JsonService.class).toInstance(jsonService);
+                bind(FileImportService.class).toInstance(fileImportService);
             }
         });
 

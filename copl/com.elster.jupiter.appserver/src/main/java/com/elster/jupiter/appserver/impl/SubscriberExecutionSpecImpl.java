@@ -28,9 +28,8 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
         this.messageService = messageService;
     }
     
-    public static SubscriberExecutionSpecImpl from(DataModel dataModel, MessageService messageService, AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
-        SubscriberExecutionSpecImpl subscriberExecutionSpec = new SubscriberExecutionSpecImpl(dataModel, messageService);
-        return subscriberExecutionSpec.init(appServer, subscriberSpec, threadCount);
+    public static SubscriberExecutionSpecImpl from(DataModel dataModel, AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
+        return dataModel.getInstance(SubscriberExecutionSpecImpl.class).init(appServer, subscriberSpec, threadCount);
     }
 
     SubscriberExecutionSpecImpl init(AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
