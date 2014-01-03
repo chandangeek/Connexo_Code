@@ -132,17 +132,18 @@ public class DataModelTest {
          	assertThat(person.getCreateTime()).isNull();
          	assertThat(person.getModTime()).isNull();
          	assertThat(person.getUserName()).isNull();
+         	assertThat(person.getVersion()).isEqualTo(0);
          	person.save();
          	Date now = new Date();
          	assertThat(person.getCreateTime()).isBeforeOrEqualsTo(now);
          	assertThat(person.getModTime()).isBeforeOrEqualsTo(now);
          	assertThat(person.getUserName()).isNotNull();
-        	assertThat(person.getVersion()).isEqualTo(0);
+        	assertThat(person.getVersion()).isEqualTo(1);
          	person.setAliasName("xxxx");
          	person.save();
          	assertThat(person.getCreateTime()).isBeforeOrEqualsTo(now);
          	assertThat(person.getModTime()).isAfterOrEqualsTo(now);
-         	assertThat(person.getVersion()).isEqualTo(1);
+         	assertThat(person.getVersion()).isEqualTo(2);
         }
     }
     
