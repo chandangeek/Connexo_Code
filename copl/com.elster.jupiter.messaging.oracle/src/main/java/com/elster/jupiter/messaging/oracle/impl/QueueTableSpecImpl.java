@@ -12,6 +12,7 @@ import oracle.AQ.AQQueueTableProperty;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsSession;
 
+import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
@@ -38,6 +39,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     private String userName;
 
     @SuppressWarnings("unused")
+    @Inject
     private QueueTableSpecImpl() {
     }
 
