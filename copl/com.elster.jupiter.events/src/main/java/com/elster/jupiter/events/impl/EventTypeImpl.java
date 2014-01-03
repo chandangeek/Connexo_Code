@@ -44,8 +44,8 @@ public class EventTypeImpl implements EventType, PersistenceAware {
         this.beanService = beanService;
     }
 
-    static EventTypeImpl from(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, String topic) {
-        EventTypeImpl eventType = new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService);
+    static EventTypeImpl from(DataModel dataModel, String topic) {
+        EventTypeImpl eventType = dataModel.getInstance(EventTypeImpl.class);
         eventType.fromDB = false;
         return eventType.init(topic);
     }

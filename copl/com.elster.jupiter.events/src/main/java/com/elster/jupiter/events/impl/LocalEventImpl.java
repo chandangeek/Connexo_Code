@@ -25,7 +25,6 @@ public class LocalEventImpl implements LocalEvent {
     private final MessageService messageService;
     private final BeanService beanService;
 
-
     LocalEventImpl(Date dateTime, JsonService jsonService, EventConfiguration eventService, MessageService messageService, BeanService beanService, EventType type, Object source) {
         this.type = type;
         this.source = source;

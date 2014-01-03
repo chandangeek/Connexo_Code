@@ -26,7 +26,7 @@ public class EventTypeBuilderImpl implements EventTypeBuilder {
         this.messageService = messageService;
         this.beanService = beanService;
         this.dataModel = dataModel;
-        underConstruction = EventTypeImpl.from(this.dataModel, this.clock, this.jsonService, this.eventConfiguration, this.messageService, this.beanService, topic);
+        underConstruction = EventTypeImpl.from(this.dataModel, topic);
     }
 
     @Override
