@@ -8,16 +8,22 @@ import java.nio.file.Paths;
  */
 class SimpleFileNameCollisionResolver implements FileNameCollisionResolver {
 
+    private final FileSystem fileSystem;
+
+    SimpleFileNameCollisionResolver(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
     @Override
     public Path resolve(Path path) {
-        if (Bus.getFileSystem().exists(path)) {
+        if (fileSystem.exists(path)) {
             String fileName = path.toString();
             String extension = getExtension(fileName);
             String preExtension = getBaseName(fileName);
             for (int i = 1; i < Integer.MAX_VALUE; i++) {
                 fileName = preExtension + i + '.' + extension;
                 Path candidate = Paths.get(fileName);
-                if (!Bus.getFileSystem().exists(candidate)) {
+                if (!fileSystem.exists(candidate)) {
                     return candidate;
                 }
             }

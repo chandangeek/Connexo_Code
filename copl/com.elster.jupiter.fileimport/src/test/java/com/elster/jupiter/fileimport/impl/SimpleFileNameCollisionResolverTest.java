@@ -17,27 +17,24 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleFileNameCollisionResolverTest {
 
-    FileNameCollisionResolver resolver = new SimpleFileNameCollisionResolver();
+    FileNameCollisionResolver resolver;
 
     @Mock
     private FileSystem fileSystem;
-    @Mock
-    private ServiceLocator serviceLocator;
     @Mock
     private Path path;
 
     @Before
     public void setUp() {
-        when(fileSystem.exists(any(Path.class))).thenReturn(false);
-        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
-        when(path.toString()).thenReturn("/dir/test.txt");
+        resolver = new SimpleFileNameCollisionResolver(fileSystem);
 
-        Bus.setServiceLocator(serviceLocator);
+        when(fileSystem.exists(any(Path.class))).thenReturn(false);
+//        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
+        when(path.toString()).thenReturn("/dir/test.txt");
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

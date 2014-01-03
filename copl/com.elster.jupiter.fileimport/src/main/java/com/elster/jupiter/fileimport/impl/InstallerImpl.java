@@ -1,9 +1,17 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.orm.DataModel;
+
 class InstallerImpl {
 
+    private final DataModel dataModel;
+
+    InstallerImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
     public void install() {
-        Bus.getOrmClient().install();
+        dataModel.install(true, true);
     }
 
 }

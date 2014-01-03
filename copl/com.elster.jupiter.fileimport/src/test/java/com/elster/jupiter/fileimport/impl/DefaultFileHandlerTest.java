@@ -37,8 +37,6 @@ public class DefaultFileHandlerTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private JsonService jsonService;
     @Mock
     private MessageBuilder messageBuilder;
@@ -48,8 +46,8 @@ public class DefaultFileHandlerTest {
 
         when(importSchedule.createFileImport(any(File.class))).thenReturn(fileImport);
         when(importSchedule.getDestination()).thenReturn(destination);
-        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
+//        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
+//        when(serviceLocator.getJsonService()).thenReturn(jsonService);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(destination.message(SERIALIZED)).thenReturn(messageBuilder);
 
@@ -60,14 +58,11 @@ public class DefaultFileHandlerTest {
             }
         });
 
-        Bus.setServiceLocator(serviceLocator);
-
-        fileHandler = new DefaultFileHandler(importSchedule);
+        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

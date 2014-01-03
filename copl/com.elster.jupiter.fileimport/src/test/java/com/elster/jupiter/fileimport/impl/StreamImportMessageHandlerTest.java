@@ -3,6 +3,7 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import org.junit.After;
@@ -33,33 +34,27 @@ public class StreamImportMessageHandlerTest {
     @Mock
     private Message message;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private JsonService jsonService;
     @Mock
     private FileImport fileImport;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OrmClient ormClient;
+    private DataModel dataModel;
 
     @Before
     public void setUp() {
         when(fileImport.getId()).thenReturn(FILE_IMPORT_ID);
         fileImportMessage = new FileImportMessage(fileImport);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(jsonService.deserialize(aryEq(PAYLOAD), eq(FileImportMessage.class))).thenReturn(fileImportMessage);
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getFileImportFactory().getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImport));
+//        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
+        when(dataModel.mapper(FileImport.class).getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImport));
 
 
-        streamImportMessageHandler = new StreamImportMessageHandler(fileImporter);
-
-        Bus.setServiceLocator(serviceLocator);
+        streamImportMessageHandler = new StreamImportMessageHandler(dataModel, jsonService, fileImporter);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

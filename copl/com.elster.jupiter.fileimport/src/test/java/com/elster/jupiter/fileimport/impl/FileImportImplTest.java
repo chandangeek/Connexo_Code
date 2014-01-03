@@ -3,6 +3,7 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +31,6 @@ public class FileImportImplTest {
     private static final String FILE_NAME = "fileName";
     private static final String CONTENTS = "CONTENTS";
     @Mock
-    private OrmClient ormClient;
-    @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private DataMapper<FileImport> fileImportFactory;
     @Mock
     private File file, newFile, successFile, failureFile, inProcessDirectory, successDirectory, failureDirectory;
@@ -45,14 +42,15 @@ public class FileImportImplTest {
     private FileSystem fileSystem;
     @Mock
     private FileNameCollisionResolver fileNameCollisionResolver;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() {
 
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(serviceLocator.getFileNameCollisionResollver()).thenReturn(fileNameCollisionResolver);
+//        when(serviceLocator.getFileNameCollisionResollver()).thenReturn(fileNameCollisionResolver);
         when(file.toPath()).thenReturn(path);
-        when(ormClient.getFileImportFactory()).thenReturn(fileImportFactory);
+        when(dataModel.mapper(FileImport.class)).thenReturn(fileImportFactory);
         when(importSchedule.getId()).thenReturn(ID);
         when(importSchedule.getInProcessDirectory()).thenReturn(inProcessDirectory);
         when(importSchedule.getSuccessDirectory()).thenReturn(successDirectory);
@@ -67,7 +65,7 @@ public class FileImportImplTest {
         when(file.getPath()).thenReturn("./test.xml");
         when(file.exists()).thenReturn(true);
         when(newFile.exists()).thenReturn(true);
-        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
+//        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
         when(fileSystem.getInputStream(any(File.class))).thenReturn(contentsAsStream());
         when(fileNameCollisionResolver.resolve(inProcessPath)).thenReturn(newPath);
         when(newPath.toFile()).thenReturn(newFile);
@@ -81,8 +79,6 @@ public class FileImportImplTest {
         when(failurePath.toFile()).thenReturn(failureFile);
         when(failureFile.toPath()).thenReturn(failurePath);
         when(failurePath.getFileName()).thenReturn(failurePath);
-
-        Bus.setServiceLocator(serviceLocator);
     }
 
     private ByteArrayInputStream contentsAsStream() {
@@ -91,12 +87,11 @@ public class FileImportImplTest {
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
     public void testCreateKeepsReferenceToImportSchedule() {
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
@@ -106,7 +101,7 @@ public class FileImportImplTest {
     public void testCreateKeepsReferenceToFile() {
         when(path.getFileName()).thenReturn(path);
 
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
 
         assertThat(fileImport.getFileName()).isEqualTo("newPath");
@@ -114,7 +109,7 @@ public class FileImportImplTest {
 
     @Test
     public void testGetContents() {
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
 
         InputStream contents = fileImport.getContents();
 
@@ -123,7 +118,7 @@ public class FileImportImplTest {
 
     @Test
     public void testMovedToProcessing() {
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
 
         verify(fileSystem).move(path, newPath);
@@ -131,7 +126,7 @@ public class FileImportImplTest {
 
     @Test
     public void testMarkSuccessMovedToSuccessFolder() {
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
 
         Mockito.reset(fileSystem);
@@ -146,7 +141,7 @@ public class FileImportImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileSystem.getInputStream(any(File.class))).thenReturn(spiedStream);
 
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
         fileImport.getContents();
 
@@ -159,7 +154,7 @@ public class FileImportImplTest {
 
     @Test
     public void testMarkFailureMovedToFailureFolder() {
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
 
         Mockito.reset(fileSystem);
@@ -174,7 +169,7 @@ public class FileImportImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileSystem.getInputStream(any(File.class))).thenReturn(spiedStream);
 
-        FileImport fileImport = FileImportImpl.create(importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
         fileImport.prepareProcessing();
         fileImport.getContents();
 

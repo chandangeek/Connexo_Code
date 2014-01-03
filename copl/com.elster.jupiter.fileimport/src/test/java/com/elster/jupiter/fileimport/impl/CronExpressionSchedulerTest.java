@@ -30,28 +30,23 @@ public class CronExpressionSchedulerTest {
     private CronExpression cronExpression;
     @Mock
     private Clock clock;
-    @Mock
-    private ServiceLocator serviceLocator;
 
 
 
     @Before
     public void setUp() {
-        scheduler = new CronExpressionScheduler(1);
+        scheduler = new CronExpressionScheduler(clock, 1);
 
         when(cronJob.getSchedule()).thenReturn(cronExpression);
         when(cronExpression.nextAfter(now)).thenReturn(firstOccurrence);
         when(cronExpression.nextAfter(firstOccurrence)).thenReturn(secondOccurrence);
         when(clock.now()).thenReturn(now, firstOccurrence, secondOccurrence);
-        when(serviceLocator.getClock()).thenReturn(clock);
-        Bus.setServiceLocator(serviceLocator);
+//        when(serviceLocator.getClock()).thenReturn(clock);
     }
 
     @After
     public void tearDown() {
         scheduler.shutdownNow();
-
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

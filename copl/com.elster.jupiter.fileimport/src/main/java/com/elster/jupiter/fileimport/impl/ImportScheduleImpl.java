@@ -3,8 +3,12 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 
+import javax.inject.Inject;
 import java.io.File;
 
 /**
@@ -21,12 +25,27 @@ class ImportScheduleImpl implements ImportSchedule {
     private File failureDirectory;
     private transient CronExpression cronExpression;
     private String cronString;
+    private final MessageService messageService;
+    private final DataModel dataModel;
+    private final CronExpressionParser cronExpressionParser;
+    private final FileNameCollisionResolver fileNameCollisionresolver;
+    private final FileSystem fileSystem;
 
     @SuppressWarnings("unused")
-	private ImportScheduleImpl() {
+    @Inject
+	private ImportScheduleImpl(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem) {
+        this.messageService = messageService;
+        this.dataModel = dataModel;
+        this.cronExpressionParser = cronExpressionParser;
+        this.fileNameCollisionresolver = fileNameCollisionresolver;
+        this.fileSystem = fileSystem;
     }
 
-    ImportScheduleImpl(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
+    static ImportScheduleImpl from(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        return new ImportScheduleImpl(messageService, dataModel, cronExpressionParser, fileNameCollisionresolver, fileSystem).init(cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+    }
+
+    private ImportScheduleImpl init(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
         this.cronExpression = cronExpression;
         this.cronString = cronExpression.toString();
         this.destination = destination;
@@ -35,6 +54,7 @@ class ImportScheduleImpl implements ImportSchedule {
         this.inProcessDirectory = inProcessDirectory;
         this.failureDirectory = failureDirectory;
         this.successDirectory = successDirectory;
+        return this;
     }
 
     @Override
@@ -45,7 +65,7 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public DestinationSpec getDestination() {
         if (destination == null) {
-            destination = Bus.getMessageService().getDestinationSpec(destinationName).get();
+            destination = messageService.getDestinationSpec(destinationName).get();
         }
         return destination;
     }
@@ -73,7 +93,7 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public CronExpression getScheduleExpression() {
         if (cronExpression == null) {
-            cronExpression = Bus.getCronExpressionParser().parse(cronString);
+            cronExpression = cronExpressionParser.parse(cronString);
         }
         return cronExpression;
     }
@@ -83,15 +103,15 @@ class ImportScheduleImpl implements ImportSchedule {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }
-        return FileImportImpl.create(this, file);
+        return FileImportImpl.create(fileSystem, dataModel, fileNameCollisionresolver, this, file);
     }
 
     @Override
     public void save() {
         if (id == 0) {
-            Bus.getOrmClient().getImportScheduleFactory().persist(this);
+            dataModel.mapper(ImportSchedule.class).persist(this);
         } else {
-            Bus.getOrmClient().getImportScheduleFactory().update(this);
+            dataModel.mapper(ImportSchedule.class).update(this);
         }
     }
 }

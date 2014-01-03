@@ -43,8 +43,6 @@ public class ImportScheduleJobTest {
     @Mock
     private File importDir;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private FileSystem fileSystem;
     @Mock
     private DirectoryStream<Path> directoryStream;
@@ -67,10 +65,10 @@ public class ImportScheduleJobTest {
     public void setUp() {
         when(importSchedule.getScheduleExpression()).thenReturn(cronExpression);
         when(importSchedule.getImportDirectory()).thenReturn(importDir);
-        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
-        when(serviceLocator.getPredicates()).thenReturn(predicates);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
+//        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
+//        when(serviceLocator.getPredicates()).thenReturn(predicates);
+//        when(serviceLocator.getJsonService()).thenReturn(jsonService);
+//        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
         when(fileSystem.newDirectoryStream(importDir.toPath())).thenReturn(directoryStream);
         when(fileImport.getId()).thenReturn(ID);
 
@@ -82,14 +80,11 @@ public class ImportScheduleJobTest {
             }
         });
 
-        importScheduleJob = new ImportScheduleJob(importSchedule);
-
-        Bus.setServiceLocator(serviceLocator);
+        importScheduleJob = new ImportScheduleJob(predicates, fileSystem, jsonService, importSchedule, transactionService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

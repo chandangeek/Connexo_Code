@@ -3,8 +3,11 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,25 +35,27 @@ public class ImportScheduleImplTest {
     @Mock
     private File file;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
-    private OrmClient ormClient;
-    @Mock
     private DataMapper<ImportSchedule> importScheduleFactory;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private CronExpressionParser cronParser;
+    @Mock
+    private FileNameCollisionResolver nameResolver;
+    @Mock
+    private FileSystem fileSystem;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getImportScheduleFactory()).thenReturn(importScheduleFactory);
+        when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
 
-        Bus.setServiceLocator(serviceLocator);
-
-        importSchedule = new ImportScheduleImpl(cronExpression, destination, importDir, inProcessDir, failureDir, successDir);
+        importSchedule = ImportScheduleImpl.from(messageService, dataModel, cronParser, nameResolver, fileSystem, cronExpression, destination, importDir, inProcessDir, failureDir, successDir);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

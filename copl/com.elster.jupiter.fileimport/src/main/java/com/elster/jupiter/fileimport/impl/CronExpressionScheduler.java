@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.time.Clock;
 
 import java.util.Date;
 import java.util.List;
@@ -14,12 +15,15 @@ import java.util.concurrent.TimeUnit;
 class CronExpressionScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
+    private final Clock clock;
 
     /**
      * Creates a new CronExpressionScheduler with the given size of thread pool.
+     * @param clock
      * @param threadPoolSize
      */
-    public CronExpressionScheduler(int threadPoolSize) {
+    public CronExpressionScheduler(Clock clock, int threadPoolSize) {
+        this.clock = clock;
         scheduledExecutorService = Executors.newScheduledThreadPool(threadPoolSize);
     }
 
@@ -28,7 +32,7 @@ class CronExpressionScheduler {
      * @param cronJob
      */
     public void submitOnce(CronJob cronJob) {
-        Date now = Bus.getClock().now();
+        Date now = clock.now();
         Date next = cronJob.getSchedule().nextAfter(now);
         if (next != null) {
             long delay = next.getTime() - now.getTime();

@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,6 +77,7 @@ public class FileImportServiceImplTest {
 
         fileImportService.setOrmService(ormService);
         fileImportService.setClock(clock);
+        fileImportService.setOrmService(ormService);
     }
 
     @After
@@ -109,12 +109,10 @@ public class FileImportServiceImplTest {
         when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
 
         try {
-            fileImportService.activate(context);
+            fileImportService.activate();
 
             // mock the fileSystem
-            ServiceLocator serviceLocator = spy(fileImportService);
-            when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
-            Bus.setServiceLocator(serviceLocator);
+            //when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 
             final CountDownLatch requestedDirectoryStream = new CountDownLatch(1);
             when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY.toPath())).thenAnswer(new Answer<DirectoryStream<Path>>() {

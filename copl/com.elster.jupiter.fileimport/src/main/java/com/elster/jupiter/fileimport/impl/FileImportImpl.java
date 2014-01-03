@@ -4,6 +4,8 @@ import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.State;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,12 +20,18 @@ final class FileImportImpl implements FileImport {
     private File file;
     private State state;
     private transient InputStream inputStream;
+    private final FileSystem fileSystem;
+    private final DataModel dataModel;
+    private final FileNameCollisionResolver fileNameCollisionResolver;
 
-    private FileImportImpl() {
+    private FileImportImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver) {
+        this.fileSystem = fileSystem;
+        this.dataModel = dataModel;
+        this.fileNameCollisionResolver = fileNameCollisionResolver;
     }
 
-    public static FileImport create(ImportSchedule importSchedule, File file) {
-        return new FileImportImpl(importSchedule, file);
+    public static FileImport create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, ImportSchedule importSchedule, File file) {
+        return new FileImportImpl(fileSystem, dataModel, fileNameCollisionResolver).init(importSchedule, file);
     }
 
     @Override
@@ -36,11 +44,12 @@ final class FileImportImpl implements FileImport {
         save();
     }
 
-    private FileImportImpl(ImportSchedule importSchedule, File file) {
+    private FileImportImpl init(ImportSchedule importSchedule, File file) {
         this.file = file;
         this.importSchedule = importSchedule;
         this.importScheduleId = importSchedule.getId();
         this.state = State.NEW;
+        return this;
     }
 
     @Override
@@ -51,7 +60,7 @@ final class FileImportImpl implements FileImport {
     @Override
     public InputStream getContents() {
         if (inputStream == null) {
-            inputStream = Bus.getFileSystem().getInputStream(file);
+            inputStream = fileSystem.getInputStream(file);
         }
         return inputStream;
     }
@@ -59,9 +68,13 @@ final class FileImportImpl implements FileImport {
     @Override
     public ImportSchedule getImportSchedule() {
         if (importSchedule == null) {
-            importSchedule = Bus.getOrmClient().getImportScheduleFactory().getExisting(importScheduleId);
+            importSchedule = importScheduleFactory().getExisting(importScheduleId);
         }
         return importSchedule;
+    }
+
+    private DataMapper<ImportSchedule> importScheduleFactory() {
+        return dataModel.mapper(ImportSchedule.class);
     }
 
     @Override
@@ -94,23 +107,27 @@ final class FileImportImpl implements FileImport {
 
     void save() {
         if (id == 0) {
-            Bus.getOrmClient().getFileImportFactory().persist(this);
+            fileImportFactory().persist(this);
         } else {
-            Bus.getOrmClient().getFileImportFactory().update(this);
+            fileImportFactory().update(this);
         }
+    }
+
+    private DataMapper<FileImport> fileImportFactory() {
+        return dataModel.mapper(FileImport.class);
     }
 
     private void moveFile() {
         if (file.exists()) {
             Path path = file.toPath();
             Path target = targetPath(path);
-            Bus.getFileSystem().move(path, target);
+            fileSystem.move(path, target);
             file = target.toFile();
         }
     }
 
     private Path targetPath(Path path) {
-        return Bus.getFileNameCollisionResolver().resolve(getTargetDirectory().resolve(path.getFileName()));
+        return fileNameCollisionResolver.resolve(getTargetDirectory().resolve(path.getFileName()));
     }
 
     private Path getTargetDirectory() {
