@@ -26,11 +26,11 @@ public enum FactoryIds {
         return this.id;
     }
 
-    private static class Constants {
+    public static class Constants {
         public static final int DEVICE_FACTORY_ID = 2;
         private static final int CODE_FACTORY_ID = 5;
         private static final int USERFILE_FACTORY_ID = 18;
-        private static final int RELATION_TYPE_FACTORY_ID = 26;
+        public static final int RELATION_TYPE_FACTORY_ID = 26;
         private static final int LOOKUP_FACTORY_ID = 111;
         private static final int LOADPROFILE_TYPE_FACTORYID = 182;
         private static final int LOADPROFILE_FACTORYID = 185;
