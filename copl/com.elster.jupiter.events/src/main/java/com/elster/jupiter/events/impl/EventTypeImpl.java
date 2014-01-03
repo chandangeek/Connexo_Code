@@ -16,6 +16,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class EventTypeImpl implements EventType, PersistenceAware {
 
     private String topic;
@@ -33,7 +35,6 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private final MessageService messageService;
     private final BeanService beanService;
 
-    @SuppressWarnings("unused")
     @Inject
 	EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService) {
         this.dataModel = dataModel;
