@@ -101,16 +101,13 @@ public class UsagePointCrudTest {
 
     @Test
     public void test() throws SQLException {
-
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 doTest(getMeteringService(), date);
-
             }
         });
-
     }
 
     private MeteringService getMeteringService() {
@@ -130,7 +127,7 @@ public class UsagePointCrudTest {
         usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
         usagePoint.save();
         assertThat(Bus.getOrmClient().getUsagePointFactory().find("amiBillingReady",AmiBillingReadyKind.AMIDISABLED)).hasSize(1);
-        assertThat(usagePoint.getVersion()).isEqualTo(1);
+        assertThat(usagePoint.getVersion()).isEqualTo(2);
         usagePoint.delete();
         assertThat(Bus.getOrmClient().getUsagePointFactory().find()).hasSize(0);
         assertThat(Bus.getOrmClient().getUsagePointFactory().getJournal(id)).hasSize(2);
