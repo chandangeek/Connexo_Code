@@ -159,11 +159,10 @@ public abstract class JoinDataMapper<T> {
 
 	abstract String getName();
 	abstract T set(Object value , ResultSet rs , int index) throws SQLException;
-	abstract boolean canRestrict();
 	abstract boolean appendFromClause(SqlBuilder builder , String parentAlias , boolean isMarked , boolean forceOuterJoin);
 
 	public final Boolean hasWhereField(String fieldName) {
-		return canRestrict() && hasField(fieldName);
+		return hasField(fieldName);
 	}
 
 	public final List<String> getQueryFields() {

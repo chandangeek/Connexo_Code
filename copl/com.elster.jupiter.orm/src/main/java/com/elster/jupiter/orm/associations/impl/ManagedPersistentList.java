@@ -1,14 +1,19 @@
 package com.elster.jupiter.orm.associations.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.fields.impl.ConstraintEqualFragment;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class ManagedPersistentList<T> extends PersistentList<T> {
 	
@@ -111,8 +116,31 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 	}
 	
 	public void reorder(List<T> newOrder) {
+		// set index to negative value to avoid database constrait violations
+		for (int i = 0 ; i < newOrder.size(); i++) {
+			setPosition(-i-1, newOrder.get(i));
+		}
+		getDataMapper().update(newOrder,"position");
+		try (Connection connection = getDataMapper().getTable().getDataModel().getConnection(true)) {
+			try (PreparedStatement preparedStatement = swapSignSql().prepare(connection)) {
+				preparedStatement.executeUpdate();
+			}
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
 		setTarget(new ArrayList<>(newOrder));
-		updatePositions(0);
 	}
 	
+	SqlBuilder swapSignSql() {
+		ColumnImpl column = getConstraint().getTable().getColumn("position");
+		SqlBuilder builder = new SqlBuilder("update ");
+		builder.append(getConstraint().getTable().getQualifiedName());
+		builder.append (" set ");
+		builder.append(column.getName());
+		builder.append(" = -");
+		builder.append(column.getName());
+		builder.append(" where ");
+		builder.add(new ConstraintEqualFragment(getConstraint(),getOwner(),""));
+		return builder;
+	}
 }

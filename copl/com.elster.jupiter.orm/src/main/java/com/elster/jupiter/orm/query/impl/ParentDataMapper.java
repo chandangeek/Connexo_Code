@@ -29,7 +29,7 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 					value = getMapper().construct(rs,index);
 					put(key, value);
 				}
-				if (constraint.getFieldName() != null) {
+				if (constraint.getFieldName() != null && !getTable().isCached()) {
 					DomainMapper.FIELDSTRICT.set(target,constraint.getFieldName(),value);
 				}
 			}
@@ -68,13 +68,8 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 	}
 
 	@Override
-	boolean canRestrict() {	
-		return true;
-	}
-
-	@Override
 	public boolean isReachable() {
-		return true;
+		return !getTable().isCached();
 	}
 	
 }

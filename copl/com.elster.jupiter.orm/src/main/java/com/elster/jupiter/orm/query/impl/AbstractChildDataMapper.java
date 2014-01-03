@@ -100,9 +100,5 @@ abstract public class AbstractChildDataMapper<T> extends JoinDataMapper <T> {
 		return constraint.getReverseFieldName();
 	}
 
-	@Override
-	final boolean canRestrict() {
-		return true;
-	}
 	
 }

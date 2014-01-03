@@ -138,7 +138,7 @@ public class OrmServiceImpl implements OrmService , InstallService {
 			spec.addTo(result);			
 		}
 		if (register) {
-			result.register(getModule(result));
+			result.register();
 		} 
 		return result;
 	}

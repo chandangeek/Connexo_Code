@@ -280,9 +280,6 @@ final class JoinTreeNode<T>  {
 	}
 
     List<String> getQueryFields() {
-		if (!value.canRestrict()) {
-			return ImmutableList.of();
-		}
 		String localName = value.getName();
 		localName = (localName == null) ? "" : localName + ".";		
         ImmutableList.Builder<String> builder = ImmutableList.builder();

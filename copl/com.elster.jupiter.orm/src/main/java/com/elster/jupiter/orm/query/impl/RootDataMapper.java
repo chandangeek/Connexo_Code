@@ -36,11 +36,6 @@ class RootDataMapper<T> extends JoinDataMapper<T> {
 	}
 
 	@Override
-	boolean canRestrict() {
-		return true;
-	}
-
-	@Override
 	boolean appendFromClause(SqlBuilder builder, String parentAlias, boolean isMarked, boolean forceOuterJoin) {
 		appendTable(builder);
 		return forceOuterJoin;

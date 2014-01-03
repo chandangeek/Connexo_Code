@@ -57,4 +57,7 @@ public abstract class PersistentList<T> extends AbstractList<T> {
 		this.target = target;
 	}
 
+	Object getOwner() {
+		return owner;
+	}
 }
