@@ -17,9 +17,12 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
-	IDS_VAULT(Vault.class) {
-		void  describeTable(Table table) {
+	IDS_VAULT {
+		@Override
+		public void  addTo(DataModel dataModel) {
+			Table<Vault> table = dataModel.addTable(name(),Vault.class);
 			table.map(VaultImpl.class);
+			table.cache();
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
 			table.column("DESCRIPTION").type("varchar2(80)").notNull().map("description").add();
@@ -34,9 +37,12 @@ public enum TableSpecs {
 			table.primaryKey("IDS_PK_VAULTS").on(componentName, idColumn).add();
 		}
 	},
-	IDS_RECORDSPEC (RecordSpec.class) {
-		void describeTable(Table table) {
+	IDS_RECORDSPEC {
+		@Override
+		public void  addTo(DataModel dataModel) {
+			Table<RecordSpec> table = dataModel.addTable(name(),RecordSpec.class);
 			table.map(RecordSpecImpl.class);
+			table.cache();
 			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
@@ -45,11 +51,13 @@ public enum TableSpecs {
 			table.unique("IDS_U_RECORDSPECS").on(componentName, nameColumn).add();
 		}
 	},	
-	IDS_FIELDSPEC (FieldSpec.class) { 
-		void describeTable(Table table) {
+	IDS_FIELDSPEC { 
+		@Override
+		public void  addTo(DataModel dataModel) {
+			Table<FieldSpec> table = dataModel.addTable(name(),FieldSpec.class);
 			table.map(FieldSpecImpl.class);
-			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
-			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).map("recordSpecId").add();
+			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().add();
+			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
 			table.column("FIELDTYPE").type("number").notNull().conversion(NUMBER2ENUM).map("fieldType").add();
@@ -58,17 +66,20 @@ public enum TableSpecs {
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.primaryKey("IDS_PK_FIELDSPECS").on(componentName, recordSpecIdColumn , positionColumn ).add();
 			table.unique("IDS_U_FIELDSPECS").on(componentName, recordSpecIdColumn , nameColumn ).add();
-			table.foreignKey("IDS_FK_FIELDSPECS").references(IDS_RECORDSPEC.name()).onDelete(CASCADE).map("recordSpec").reverseMap("fieldSpecs").reverseMapOrder("position").on(componentName, recordSpecIdColumn).add();
+			table.foreignKey("IDS_FK_FIELDSPECS").on(componentName, recordSpecIdColumn).references(IDS_RECORDSPEC.name()).onDelete(CASCADE).
+				map("recordSpec").reverseMap("fieldSpecs").reverseMapOrder("position").composition().add();
 		}
 	},
-	IDS_TIMESERIES (TimeSeries.class) {
-		void describeTable(Table table) {
+	IDS_TIMESERIES {
+		@Override
+		public void  addTo(DataModel dataModel) {
+			Table<TimeSeries> table = dataModel.addTable(name(),TimeSeries.class);
 			table.map(TimeSeriesImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column vaultComponent = table.column("VAULTCOMPONENT").type("varchar2(3)").notNull().map("vaultComponentName").add();
-			Column vaultIdColumn = table.column("VAULTID").type("number").notNull().conversion(NUMBER2LONG).map("vaultId").add();
-			Column recordSpecComponent = table.column("RECORDSPECCOMPONENT").type("varchar2(3)").notNull().map("recordSpecComponentName").add();
-			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).map("recordSpecId").add();
+			Column vaultComponent = table.column("VAULTCOMPONENT").type("varchar2(3)").notNull().add();
+			Column vaultIdColumn = table.column("VAULTID").type("number").notNull().conversion(NUMBER2LONG).add();
+			Column recordSpecComponent = table.column("RECORDSPECCOMPONENT").type("varchar2(3)").notNull().add();
+			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).add();
 			table.column("FIRSTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("firstTime").add();
 			table.column("LASTTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lastTime").add();
 			table.column("LOCKTIME").type("number").conversion(NUMBER2UTCINSTANT).map("lockTime").add();
@@ -84,17 +95,6 @@ public enum TableSpecs {
 		}
 	};
 	
-	private Class<?> api;
-	
-	TableSpecs(Class<?> api) {
-		this.api = api;
-	}
-	
-	public void addTo(DataModel component) {
-		Table table = component.addTable(name(),api);
-		describeTable(table);
-	}
-	
-	abstract void describeTable(Table table);
+	abstract public void addTo(DataModel component);
 	
 }

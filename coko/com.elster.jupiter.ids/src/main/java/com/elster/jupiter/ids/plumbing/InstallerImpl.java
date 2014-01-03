@@ -4,15 +4,22 @@ import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.impl.RecordSpecImpl;
 import com.elster.jupiter.ids.impl.VaultImpl;
+import com.elster.jupiter.orm.DataModel;
 
 import java.util.Calendar;
 
 public class InstallerImpl {
+	
+	private final DataModel dataModel;
+	
+	public InstallerImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
+	}
 
     private static final int DEFAULT_SLOT_COUNT = 8;
 
     public void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
-		Bus.getOrmClient().install(executeDdl,updateOrm);
+		dataModel.install(executeDdl,updateOrm);
 		if (createMasterData) {
             createMasterData();
         }
@@ -24,8 +31,8 @@ public class InstallerImpl {
 	}
 
 	private void createVaults() {
-		Vault newVault = new VaultImpl("IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, true);
-		Bus.getOrmClient().getVaultFactory().persist(newVault);
+		Vault newVault = VaultImpl.from(dataModel,"IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, true);
+		newVault.persist();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MONTH,1);
 		cal.set(Calendar.DAY_OF_MONTH,1);
@@ -39,7 +46,7 @@ public class InstallerImpl {
 	}
 	
 	private void createRecordSpecs() {
-		RecordSpecImpl recordSpec = new RecordSpecImpl("IDS",1,"Simple");
+		RecordSpecImpl recordSpec = RecordSpecImpl.from(dataModel,"IDS",1,"Simple");
 		recordSpec.addFieldSpec("value" , FieldType.NUMBER);
 		recordSpec.persist();
 	}

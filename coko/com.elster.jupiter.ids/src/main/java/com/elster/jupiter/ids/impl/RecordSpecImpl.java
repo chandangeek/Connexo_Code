@@ -1,17 +1,17 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.FieldType;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.plumbing.Bus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.inject.Inject;
+
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.FieldType;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 
 public final class RecordSpecImpl implements RecordSpec {
 	// persistent fields
@@ -26,23 +26,26 @@ public final class RecordSpecImpl implements RecordSpec {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
+
 	// associations
-	private List<FieldSpec> fieldSpecs;
+	private List<FieldSpec> fieldSpecs = new ArrayList<>();
 	
-	@SuppressWarnings("unused")
-    @Inject
-	private RecordSpecImpl() {		
+	private final DataModel dataModel;
+	
+	@Inject
+	RecordSpecImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
 	}
 	
-	public RecordSpecImpl(String componentName , long id , String name) {
-        if (componentName == null) {
-            throw new IllegalArgumentException();
-        }
-		this.componentName = componentName;
+	RecordSpecImpl init(String componentName , long id , String name) {
+		this.componentName = Objects.requireNonNull(componentName);
 		this.id = id;
-		this.name = name;
-		fieldSpecs = new ArrayList<>();
+		this.name = Objects.requireNonNull(name);
+		return this;
+	}
+	
+	public static RecordSpecImpl from(DataModel dataModel, String componentName, long id,String name ) {
+		return dataModel.getInstance(RecordSpecImpl.class).init(componentName, id, name);
 	}
 	
 	@Override
@@ -62,32 +65,19 @@ public final class RecordSpecImpl implements RecordSpec {
 
 	@Override
 	public List<FieldSpec> getFieldSpecs() {
-		return ImmutableList.copyOf(doGetFieldSpecs());
+		return ImmutableList.copyOf(fieldSpecs);
 	}
-	
-	private List<FieldSpec> doGetFieldSpecs() {
-		if (fieldSpecs == null) {
-			fieldSpecs = Bus.getOrmClient().getFieldSpecFactory().find("recordSpec", this);
-			for (FieldSpec each : fieldSpecs) {
-				((FieldSpecImpl) each).doSetRecordSpec(this);
-			}
-		}
-		return fieldSpecs;
-	}
+
 
 	@Override
 	public FieldSpec addFieldSpec(String name, FieldType fieldType) {		
-		FieldSpec fieldSpec = new FieldSpecImpl(this,name, fieldType);
-		doGetFieldSpecs().add(fieldSpec);
-		((FieldSpecImpl) fieldSpec).doSetPosition(doGetFieldSpecs().size());
+		FieldSpec fieldSpec = FieldSpecImpl.from(dataModel,this,name, fieldType);
+		fieldSpecs.add(fieldSpec);
 		return fieldSpec;
 	}
 	
 	public void persist() {
-		getFactory().persist(this);
-		for (FieldSpec fieldSpec : doGetFieldSpecs()) {
-			((FieldSpecImpl) fieldSpec).persist();
-		}
+		dataModel.persist(this);
 	}
 
     @Override
@@ -109,7 +99,5 @@ public final class RecordSpecImpl implements RecordSpec {
     public int hashCode() {
         return Objects.hash(id, componentName);
     }
-	private DataMapper<RecordSpec> getFactory() {
-		return Bus.getOrmClient().getRecordSpecFactory();		
-	}
+	
 }

@@ -5,10 +5,7 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.ids.plumbing.InstallerImpl;
-import com.elster.jupiter.ids.plumbing.OrmClient;
-import com.elster.jupiter.ids.plumbing.OrmClientImpl;
 import com.elster.jupiter.ids.plumbing.ServiceLocator;
 import com.elster.jupiter.ids.plumbing.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
@@ -23,10 +20,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + IdsService.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, InstallService, ServiceLocator {
 
-    private volatile OrmClient ormClient;
+	private volatile DataModel dataModel;
     private volatile Clock clock;
 
     public IdsServiceImpl() {
@@ -37,67 +34,61 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
         setClock(clock);
         setOrmService(ormService);
         activate();
-        install();
+        if (!dataModel.isInstalled()) {
+        	install();
+        }
     }
 
     @Override
     public Optional<Vault> getVault(String component, long id) {
-        return getOrmClient().getVaultFactory().getOptional(component, id);
+        return dataModel.mapper(Vault.class).getOptional(component, id);
     }
 
     @Override
     public Optional<RecordSpec> getRecordSpec(String component, long id) {
-        return getOrmClient().getRecordSpecFactory().getOptional(component, id);
+        return dataModel.mapper(RecordSpec.class).getOptional(component, id);
     }
 
     @Override
     public Optional<TimeSeries> getTimeSeries(long id) {
-        return getOrmClient().getTimeSeriesFactory().getOptional(id);
+        return dataModel.mapper(TimeSeries.class).getOptional(id);
     }
 
     @Override
     public TimeSeriesDataStorer createStorer(boolean overrules) {
-        return new TimeSeriesDataStorerImpl(overrules);
+        return new TimeSeriesDataStorerImpl(dataModel,clock,overrules);
     }
 
     @Override
     public void install() {
-        new InstallerImpl().install(true, true, true);
-    }
-
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
+        new InstallerImpl(dataModel).install(true, true, true);
     }
 
     @Override
     public Vault newVault(String component, long id, String name, int slotCount, boolean regular) {
-        return new VaultImpl(component, id, name, slotCount, regular);
+        return VaultImpl.from(dataModel,component, id, name, slotCount, regular);
     }
 
     @Override
     public RecordSpec newRecordSpec(String component, long id, String name) {
-        return new RecordSpecImpl(component, id, name);
+        return RecordSpecImpl.from(dataModel,component, id, name);
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "TimeSeries Data Store");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "TimeSeries Data Store");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
         dataModel.register();
-        ormClient = new OrmClientImpl(dataModel);
     }
 
     @Activate
     public void activate() {
-        Bus.setServiceLocator(this);
     }
 
     @Deactivate
     public void deactivate() {
-        Bus.clearServiceLocator(this);
     }
 
     public Clock getClock() {

@@ -5,9 +5,10 @@ import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.plumbing.Bus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.time.Clock;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,8 +31,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	private final Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
 	private final StorerStatsImpl stats = new StorerStatsImpl();
 	private final Map<Long, TimeSeries> lockedTimeSeriesMap = new HashMap<>();
+	private final DataModel dataModel;
+	private final Clock clock;
 
-	public TimeSeriesDataStorerImpl(boolean overrules) {
+	public TimeSeriesDataStorerImpl(DataModel dataModel , Clock clock, boolean overrules) {
+		this.dataModel = dataModel;
+		this.clock = clock;
 		this.overrules = overrules;
 	}
 	
@@ -49,7 +54,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		RecordSpecInVault recordSpecInVault = new RecordSpecInVault(timeSeries);
 		SlaveTimeSeriesDataStorer slaveStorer = storerMap.get(recordSpecInVault);
 		if (slaveStorer == null) {
-			slaveStorer = new SlaveTimeSeriesDataStorer(entry);
+			slaveStorer = new SlaveTimeSeriesDataStorer(dataModel,clock,entry);
 			storerMap.put(recordSpecInVault,slaveStorer);
 		} else {
 			slaveStorer.add(entry);
@@ -131,12 +136,17 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		private final Map<Long, SingleTimeSeriesStorer> storerMap = new HashMap<>();
         private final VaultImpl vault;
         private final RecordSpec recordSpec;
+        private final DataModel dataModel;
+        private final Clock  clock;
 		
-		SlaveTimeSeriesDataStorer(TimeSeriesEntryImpl entry) {
+		SlaveTimeSeriesDataStorer(DataModel dataModel, Clock clock, TimeSeriesEntryImpl entry) {
+			this.dataModel = dataModel;
+			this.clock = clock;
 			SingleTimeSeriesStorer storer = new SingleTimeSeriesStorer(entry);
 			storerMap.put(entry.getTimeSeries().getId(),storer);
 			vault = (VaultImpl) entry.getTimeSeries().getVault();
 			recordSpec = entry.getTimeSeries().getRecordSpec();
+			
 		}
 		
 		List<TimeSeries> getAllTimeSeries() {
@@ -239,9 +249,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		void execute(StorerStatsImpl stats , boolean overrules) throws SQLException {
-			try (Connection connection = Bus.getConnection(true)) {
+			try (Connection connection = dataModel.getConnection(true)) {
 				setOldEntries(connection);
-				long now = Bus.getClock().now().getTime();
+				long now = clock.now().getTime();
 				addInserts(connection,now);
 				if (overrules) {
 					if (vault.hasJournal()) {

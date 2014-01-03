@@ -6,15 +6,17 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.plumbing.Bus;
-import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,12 +58,16 @@ public final class VaultImpl implements Vault {
 	@SuppressWarnings("unused")
 	private String userName;
 	
-	@SuppressWarnings("unused")
+	private final DataModel dataModel;
+	private final Clock clock;
+	
     @Inject
-	private VaultImpl()  {		
+	VaultImpl(DataModel dataModel, Clock clock)  {
+    	this.dataModel = dataModel;
+    	this.clock = clock;
 	}
 	
-	public VaultImpl(String componentName , long id , String description , int slotCount , boolean regular) {
+	VaultImpl init(String componentName , long id , String description , int slotCount , boolean regular) {
 		this.componentName = componentName;
 		this.id = id;
 		this.description = description;
@@ -72,7 +78,13 @@ public final class VaultImpl implements Vault {
 		this.partition = false;
 		this.active = false;		
 		this.minTime = new UtcInstant(0);
+		return this;
 	}
+	
+	public static VaultImpl from(DataModel dataModel, String componentName, long id, String description, int slotCount, boolean regular) {
+		return dataModel.getInstance(VaultImpl.class).init(componentName, id, description, slotCount, regular);
+	}
+	
 
 	@Override 
 	public String getComponentName() {
@@ -85,11 +97,11 @@ public final class VaultImpl implements Vault {
 	}
 
 	public Date getCreateDate() {
-		return createTime.toDate();
+		return createTime == null ? null : createTime.toDate();
 	}
 	
 	public Date getModDate() {
-		return modTime.toDate();
+		return modTime == null ? null : modTime.toDate();
 	}
 	
 	@Override
@@ -105,7 +117,7 @@ public final class VaultImpl implements Vault {
 	@Override
 	public void setDescription(String description) {
 		this.description = description;
-		getFactory().update(this , "description" );
+		dataModel.update(this , "description" );
 	}
 	
 	@Override
@@ -158,7 +170,7 @@ public final class VaultImpl implements Vault {
 		}
 		this.active = true;
 		this.maxTime = new UtcInstant(to);
-		getFactory().update(this,"active","maxTime");
+		dataModel.update(this,"active","maxTime");
 	}
 	
 	private void doActivate(Date to) throws SQLException {
@@ -194,7 +206,7 @@ public final class VaultImpl implements Vault {
 			builder.append(",VERSIONCOUNT");
 		}
 		builder.append("))");
-        if (Bus.getOrmClient().isOracle()) {
+        if (isOracle()) {
             builder.append(" ORGANIZATION INDEX COMPRESS 1 ");
         }
         if (isPartitioned()) {
@@ -246,7 +258,7 @@ public final class VaultImpl implements Vault {
 			}
 		}
 		this.maxTime = new UtcInstant(to);
-		getFactory().update(this,"maxTime");
+		dataModel.update(this,"maxTime");
 	}
 	
 	private void doAddPartition(Date to) throws SQLException {	
@@ -274,14 +286,14 @@ public final class VaultImpl implements Vault {
 
 	@Override
 	public TimeSeries createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, int intervalLength, IntervalLengthUnit unit, int hourOffset) {
-		TimeSeriesImpl timeSeries = new TimeSeriesImpl(this, spec,timeZone, intervalLength , unit, hourOffset);
+		TimeSeriesImpl timeSeries = TimeSeriesImpl.from(dataModel,this, spec,timeZone, intervalLength , unit, hourOffset);
 		timeSeries.persist();		
 		return timeSeries;
 	}
 
 	@Override
 	public TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
-		TimeSeriesImpl timeSeries = new TimeSeriesImpl(this, spec,timeZone);
+		TimeSeriesImpl timeSeries = TimeSeriesImpl.from(dataModel, this, spec,timeZone);
 		timeSeries.persist();		
 		return timeSeries;
 	}
@@ -310,7 +322,7 @@ public final class VaultImpl implements Vault {
 			return true;
 		} else {
 			if (overrule) {
-				long now = Bus.getClock().now().getTime();
+				long now = clock.now().getTime();
 				if (hasJournal()) {
 					journal(timeSeries,when,now);
 				}					
@@ -357,7 +369,7 @@ public final class VaultImpl implements Vault {
 				int offset = 1;
 				statement.setLong(offset++,timeSeries.getId());
 				statement.setLong(offset++, when);
-				statement.setLong(offset++, Bus.getClock().now().getTime());
+				statement.setLong(offset++, clock.now().getTime());
 				if (hasLocalTime()) {
 					Calendar cal = timeSeries.getStartCalendar(new Date(when));
 					statement.setTimestamp(offset++,new Timestamp(cal.getTime().getTime()),cal);
@@ -555,14 +567,14 @@ public final class VaultImpl implements Vault {
 	}
 		
 	private Connection getConnection(boolean transactionRequired) throws SQLException {
-		return Bus.getConnection(transactionRequired);
-	}
-	
-	private DataMapper<Vault> getFactory() {
-		return Bus.getOrmClient().getVaultFactory();
+		return dataModel.getConnection(transactionRequired);
 	}
 	
 	public void persist() {
-		getFactory().persist(this);
+		dataModel.persist(this);
+	}
+	
+	private boolean isOracle() {
+		return dataModel.getSqlDialect().equals(SqlDialect.ORACLE);
 	}
 }

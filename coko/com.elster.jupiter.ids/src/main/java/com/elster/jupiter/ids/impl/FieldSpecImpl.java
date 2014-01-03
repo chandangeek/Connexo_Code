@@ -1,22 +1,22 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldDerivationRule;
-import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.FieldType;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.plumbing.Bus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.util.time.UtcInstant;
-
-import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Inject;
+
+import com.elster.jupiter.ids.FieldDerivationRule;
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.FieldType;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.UtcInstant;
+
 public class FieldSpecImpl implements FieldSpec {
-	// persistent fields
-	private String componentName;
-	private long recordSpecId;
+	
 	@SuppressWarnings("unused")
 	private int position;
 	private String name;
@@ -28,20 +28,25 @@ public class FieldSpecImpl implements FieldSpec {
 	private UtcInstant modTime;
 	
 	//associations
-	private RecordSpec recordSpec;
+	private Reference<RecordSpec> recordSpec = ValueReference.absent();
+	
+	private final DataModel dataModel;
 
-	@SuppressWarnings("unused")
     @Inject
-	private FieldSpecImpl()  {		
+	private FieldSpecImpl(DataModel dataModel)  {
+    	this.dataModel = dataModel;
 	}
 	
-	FieldSpecImpl(RecordSpec recordSpec , String name , FieldType fieldType) {
-		this.recordSpec = recordSpec;
-		this.componentName = recordSpec.getComponentName();
-		this.recordSpecId = recordSpec.getId();
+	FieldSpecImpl init(RecordSpec recordSpec , String name , FieldType fieldType) {
+		this.recordSpec.set(recordSpec);
 		this.name = name;
 		this.fieldType = fieldType;
 		this.derivationRule = FieldDerivationRule.NODERIVATION;
+		return this;
+	}
+	
+	static FieldSpecImpl from(DataModel dataModel, RecordSpec recordSpec , String name , FieldType fieldType) {
+		return dataModel.getInstance(FieldSpecImpl.class).init(recordSpec,name,fieldType);
 	}
 	
 	private FieldType getFieldSpecType() {
@@ -50,16 +55,9 @@ public class FieldSpecImpl implements FieldSpec {
 	
 	@Override
 	public RecordSpec getRecordSpec() {
-		if (recordSpec == null) {
-			recordSpec = Bus.getOrmClient().getRecordSpecFactory().getExisting(componentName, recordSpecId);
-		}
-		return recordSpec;
+		return recordSpec.get();
 	}
 	
-	void doSetRecordSpec(RecordSpec recordSpec) {
-		this.recordSpec = recordSpec;
-	}
-
 	@Override
 	public String getName() {	
 		return name;
@@ -81,7 +79,7 @@ public class FieldSpecImpl implements FieldSpec {
 	}
 	
 	void persist() {
-		getFactory().persist(this);		
+		dataModel.persist(this);		
 	}
 
 	void doSetPosition(int position) {
@@ -95,9 +93,4 @@ public class FieldSpecImpl implements FieldSpec {
 	void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
 		getFieldSpecType().bind(statement, offset, object);
 	}
-	
-	private DataMapper<FieldSpec> getFactory() {
-		return Bus.getOrmClient().getFieldSpecFactory();
-	}
-	
 }

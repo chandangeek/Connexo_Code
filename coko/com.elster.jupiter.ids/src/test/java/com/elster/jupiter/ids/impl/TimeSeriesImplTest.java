@@ -1,30 +1,33 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.ids.IntervalLengthUnit;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.Vault;
-import com.google.common.collect.ImmutableList;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Date;
-import java.util.TimeZone;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Date;
+import java.util.TimeZone;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.orm.DataModel;
+import com.google.common.collect.ImmutableList;
+
 public class TimeSeriesImplTest extends EqualsContractTest {
 
     private static final long ID = 15L;
     private Vault vault = mock(Vault.class);
     private RecordSpec recordSpec = mock(RecordSpec.class);
+    private DataModel dataModel = mock(DataModel.class);
 
     private final TimeSeriesImpl timeSeries = initTimeSeries();
 
@@ -39,7 +42,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     }
 
     private TimeSeriesImpl initTimeSeries() {
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
         simulateSaved(series, ID);
         return series;
     }
@@ -51,14 +54,14 @@ public class TimeSeriesImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
         simulateSaved(series, ID);
         return series;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
         simulateSaved(series, ID + 1);
         return ImmutableList.of(series);
     }
@@ -76,7 +79,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeInvalidMinute() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 10, IntervalLengthUnit.MINUTE, 0);
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 10, IntervalLengthUnit.MINUTE, 0);
 
         Date date = new DateTime(2012, 10, 10, 14, 5, 0, DateTimeZone.forTimeZone(timeZone)).toDate();
 
@@ -87,8 +90,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeInvalidMinuteForSubMinuteValue() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 10, IntervalLengthUnit.MINUTE, 0);
-
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 10, IntervalLengthUnit.MINUTE, 0);
         Date date = new DateTime(2012, 10, 10, 14, 20, 0, 1, DateTimeZone.forTimeZone(timeZone)).toDate();
 
         assertThat(series.isValidDateTime(date)).isFalse();
@@ -98,7 +100,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeValidMinute() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 10, IntervalLengthUnit.MINUTE, 0);
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 10, IntervalLengthUnit.MINUTE, 0);
 
         Date date = new DateTime(2012, 10, 10, 14, 20, 0, DateTimeZone.forTimeZone(timeZone)).toDate();
 
@@ -108,7 +110,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeValidDay() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 0);
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 0);
 
         Date date = new DateTime(2012, 10, 12, 0, 0, 0, DateTimeZone.forTimeZone(timeZone)).toDate();
 
@@ -118,7 +120,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeInvalidDay() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 0);
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 0);
 
         Date date = new DateTime(2012, 10, 10, 0, 0, 0, 1, DateTimeZone.forTimeZone(timeZone)).toDate();
 
@@ -128,7 +130,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeValidDayWithOffset() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 6);
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 6);
 
         Date date = new DateTime(2012, 10, 10, 6, 0, 0, 0, DateTimeZone.forTimeZone(timeZone)).toDate();
 
@@ -138,17 +140,12 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     @Test
     public void testIsValidDateTimeInvalidDayWithOffset() {
         TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
-        TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 6);
+        TimeSeriesImpl series = new TimeSeriesImpl(dataModel).init(vault, recordSpec, timeZone, 1, IntervalLengthUnit.DAY, 6);
 
         Date date = new DateTime(2012, 10, 10, 12, 0, 0, 0, DateTimeZone.forTimeZone(timeZone)).toDate();
 
         assertThat(series.isValidDateTime(date)).isFalse();
     }
-
-    private double offsetHours(long offset) {
-        return (offset / (1000d * 60 * 60));
-    }
-
 
     private void simulateSaved(TimeSeriesImpl impl, long id) {
         field("id").ofType(Long.TYPE).in(impl).set(id);

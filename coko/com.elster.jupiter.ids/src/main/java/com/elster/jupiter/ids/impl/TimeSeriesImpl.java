@@ -1,40 +1,39 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.IntervalLengthUnit;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.plumbing.Bus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
+
+import javax.inject.Inject;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
-import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
-import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
+import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 public final class TimeSeriesImpl implements TimeSeries {
 
     private static final int MINUTES_PER_HOUR = 60;
     // persistent fields
 	private long id;
-	private String vaultComponentName;
-	private long vaultId;
-	private String recordSpecComponentName;
-	private long recordSpecId;
 	private UtcInstant firstTime;
 	private UtcInstant lastTime;
 	private UtcInstant lockTime;
@@ -50,49 +49,46 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private String userName;
 	
 	// association
-	private Vault vault;
-	private RecordSpec recordSpec;
+	private Reference<Vault> vault = ValueReference.absent();
+	private Reference<RecordSpec> recordSpec = ValueReference.absent();
 	
 	// cached values
 	private TimeZone timeZone;	
 	
-	@SuppressWarnings("unused")
+	private final DataModel dataModel;
+	
     @Inject
-	private TimeSeriesImpl() {		
+	TimeSeriesImpl(DataModel dataModel) {
+    	this.dataModel = dataModel;
 	}
 
-	TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone) {
-        validate(vault, recordSpec);
-		this.vault = vault;
-		this.vaultComponentName = vault.getComponentName();
-		this.vaultId = vault.getId();
-		this.recordSpec = recordSpec;
-		this.recordSpecComponentName = recordSpec.getComponentName();
-		this.recordSpecId = recordSpec.getId();
+	TimeSeriesImpl init(Vault vault , RecordSpec recordSpec, TimeZone timeZone) {
+		this.vault.set(Objects.requireNonNull(vault));
+		this.recordSpec.set(Objects.requireNonNull(recordSpec));
 		this.timeZone = timeZone;
 		this.timeZoneName = timeZone.getID();
-		this.regular = false;		
+		this.regular = false;
+		return this;
 	}
 
-    private void validate(Vault vault, RecordSpec recordSpec) {
-        if (vault == null) {
-            throw new IllegalArgumentException("Vault cannot be null.");
-        }
-        if (recordSpec == null) {
-            throw new IllegalArgumentException("RecordSpec cannot be null.");
-        }
-    }
-
-    TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offsetInHours) {
-		this(vault,recordSpec,timeZone);
-        validate(vault, recordSpec);
-		this.regular = true;
+    TimeSeriesImpl init(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offsetInHours) {
+		init(vault,recordSpec,timeZone);
+        this.regular = true;
         validate(intervalLength, intervalLengthUnit);
 		this.intervalLength = intervalLength;
 		this.intervalLengthUnit = intervalLengthUnit;
 		this.offset = offsetInHours;
+		return this;
 	}
 
+    static TimeSeriesImpl from(DataModel dataModel, Vault vault, RecordSpec recordSpec, TimeZone timeZone) {
+    	return dataModel.getInstance(TimeSeriesImpl.class).init(vault,recordSpec,timeZone);
+    }
+    
+    static TimeSeriesImpl from(DataModel dataModel, Vault vault, RecordSpec recordSpec, TimeZone timeZone,int intervalLength, IntervalLengthUnit intervalLengthUnit,int ofsetInHours) {
+    	return dataModel.getInstance(TimeSeriesImpl.class).init(vault,recordSpec,timeZone,intervalLength,intervalLengthUnit,ofsetInHours);
+    }
+    
     private void validate(int intervalLength, IntervalLengthUnit intervalLengthUnit) {
         if (IntervalLengthUnit.MINUTE.equals(intervalLengthUnit)) {
             if (MINUTES_PER_HOUR % intervalLength != 0) {
@@ -154,18 +150,12 @@ public final class TimeSeriesImpl implements TimeSeries {
 
 	@Override
 	public Vault getVault() {
-		if (vault == null) {
-			vault = Bus.getOrmClient().getVaultFactory().getExisting(vaultComponentName, vaultId);
-		}
-		return vault;
+		return vault.get();
 	}
 	
 	@Override
 	public RecordSpec getRecordSpec() {
-		if (recordSpec == null) {
-			recordSpec = Bus.getOrmClient().getRecordSpecFactory().getExisting(recordSpecComponentName, recordSpecId);
-		}
-		return recordSpec;
+		return recordSpec.get();
 	}
 	
 	@Override
@@ -182,13 +172,9 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	void persist() {
-		getFactory().persist(this);		
+		dataModel.persist(this);		
 	}
 	
-	private DataMapper<TimeSeries> getFactory() {
-		return Bus.getOrmClient().getTimeSeriesFactory();
-	}
-
 	@Override
 	public boolean add(Date dateTime, boolean overrule, Object... values) {
 		if (!isValid(dateTime)) {
@@ -215,7 +201,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 				updateAspects.add("lastTime");
 			}
 		}
-		getFactory().update(this,updateAspects.toArray(new String[updateAspects.size()]));
+		dataModel.update(this,updateAspects.toArray(new String[updateAspects.size()]));
 	}
 	
 	Calendar getStartCalendar(Date date) {
@@ -274,7 +260,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     }
     
     TimeSeries lock() {
-		return getFactory().lock(getId());
+		return dataModel.mapper(TimeSeries.class).lock(getId());
 	}
 	
 	@Override
