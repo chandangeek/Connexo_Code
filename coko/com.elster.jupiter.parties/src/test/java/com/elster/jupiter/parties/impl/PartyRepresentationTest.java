@@ -42,16 +42,7 @@ public class PartyRepresentationTest {
     
     @Before
     public void setUp() {
-    	Class<PartyRepresentationImpl> testClass = PartyRepresentationImpl.class;
-    	Module myModule = new AbstractModule() {
-			@Override
-			protected void configure() {
-				bind(Clock.class).toInstance(clock);
-				bind(UserService.class).toInstance(userService);
-			}
-		};
-    	injector = Guice.createInjector(myModule,ModuleCreator.create(testClass));
-    	when(dataModel.getInstance(testClass)).thenReturn((injector.getInstance(testClass)));
+    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService));
     }
 
     @Test

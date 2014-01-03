@@ -33,7 +33,7 @@ public class PartyInRoleImpl implements PartyInRole {
     private final Clock clock;
 	
     @Inject
-    private PartyInRoleImpl(Clock clock) {
+    PartyInRoleImpl(Clock clock) {
     	this.clock = clock;
     }
     

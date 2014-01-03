@@ -40,23 +40,11 @@ public class OrganizationTest {
     @Mock
     private PartyRole role;
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
 	@Before
     public void setUp() {
-    	Module myModule = new AbstractModule() {
-			@Override
-			protected void configure() {
-				bind(DataModel.class).toInstance(dataModel);
-				bind(Clock.class).toInstance(clock);
-				bind(UserService.class).toInstance(userService);
-				bind(EventService.class).toInstance(eventService);
-			}
-		};
-		Class[] testClasses = { OrganizationImpl.class , PartyRepresentationImpl.class , PartyInRoleImpl.class };
-    	Injector injector = Guice.createInjector(myModule,ModuleCreator.create(testClasses));
-    	for  (Class clazz : testClasses) {
-    		when(dataModel.getInstance(clazz)).thenReturn(injector.getInstance(clazz));
-    	}
+    	when(dataModel.getInstance(OrganizationImpl.class)).thenReturn(new OrganizationImpl(dataModel, eventService));
+    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService));
+    	when(dataModel.getInstance(PartyInRoleImpl.class)).thenReturn(new PartyInRoleImpl(clock));
     }
    
 	@Test
