@@ -6,7 +6,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.InstallerImpl;
-import com.elster.jupiter.ids.plumbing.ServiceLocator;
 import com.elster.jupiter.ids.plumbing.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -21,7 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + IdsService.COMPONENTNAME)
-public class IdsServiceImpl implements IdsService, InstallService, ServiceLocator {
+public class IdsServiceImpl implements IdsService, InstallService {
 
 	private volatile DataModel dataModel;
     private volatile Clock clock;

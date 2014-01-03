@@ -65,10 +65,6 @@ public class IdsCrudTest {
     	inMemoryBootstrapModule.deactivate();
     }
 
-    private TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
-    }
-
     @Test
     public void testCrud()  {
         IdsService idsService = injector.getInstance(IdsService.class);
