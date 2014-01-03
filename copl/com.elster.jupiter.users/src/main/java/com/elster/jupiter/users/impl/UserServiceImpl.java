@@ -1,15 +1,5 @@
 package com.elster.jupiter.users.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.xml.bind.DatatypeConverter;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.DataMapper;
@@ -24,15 +14,25 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.xml.bind.DatatypeConverter;
+import java.util.List;
 
 @Component(
         name = "com.elster.jupiter.users",
         service = {UserService.class, InstallService.class},
         immediate = true,
-        property = "name=" + Bus.COMPONENTNAME)
-public class UserServiceImpl implements UserService, InstallService, ServiceLocator {
-	private volatile DataModel dataModel;
-    private volatile OrmClient ormClient;
+        property = "name=" + UserService.COMPONENTNAME)
+public class UserServiceImpl implements UserService, InstallService {
+
+    private static final String REALM = "Jupiter";
+    private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
 
@@ -45,12 +45,18 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     	setQueryService(queryService);
     	setOrmService(ormService);
     	activate();
-    	install();
+        install();
     }
     
     @Activate
 	public void activate() {
-		Bus.setServiceLocator(this);
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(TransactionService.class).toInstance(transactionService);
+                bind(UserService.class).toInstance(UserServiceImpl.this);
+            }
+        });
 	}
 
     public Optional<User> authenticate(String userName, String password) {
@@ -69,28 +75,27 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Group createGroup(String name) {
-        GroupImpl result = new GroupImpl(name);
+        GroupImpl result = GroupImpl.from(dataModel, name);
         result.persist();
         return result;
     }
 
     @Override
     public Privilege createPrivilege(String componentName, String privilegeName, String description) {
-        PrivilegeImpl result = new PrivilegeImpl(componentName, privilegeName, description);
+        PrivilegeImpl result = PrivilegeImpl.from(dataModel, componentName, privilegeName, description);
         result.persist();
         return result;
     }
 	
 	@Override
 	public User createUser(String authenticationName, String description) {
-		UserImpl result = new UserImpl(authenticationName,description);
+		UserImpl result = UserImpl.from(dataModel, authenticationName, description);
 		result.save();
 		return result;
 	}
 	
 	@Deactivate
 	public void deactivate() {
-		Bus.clearServiceLocator(this);
 	}
 
     @Override
@@ -106,7 +111,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     @Override
     public Optional<User> findUser(String authenticationName) {
     	Condition condition = Operator.EQUAL.compare("authenticationName",authenticationName);
-        List<User> users = userFactory().with(Bus.getOrmClient().getUserInGroupFactory()).select(condition,new String[] {}, true, new String[] {});
+        List<User> users = userFactory().with(dataModel.mapper(UserInGroup.class)).select(condition,new String[] {}, true, new String[] {});
         return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
         
 	}
@@ -122,18 +127,17 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
+    public Optional<Privilege> getPrivilege(String privilegeName) {
+        return privilegeFactory().getOptional(privilegeName);
     }
 
-    @Override
-    public Optional<Privilege> getPrivilege(String privilegeName) {
-        return Bus.getOrmClient().getPrivilegeFactory().getOptional(privilegeName);
+    private DataMapper<Privilege> privilegeFactory() {
+        return dataModel.mapper(Privilege.class);
     }
 
     @Override
     public List<Privilege> getPrivileges() {
-        return Bus.getOrmClient().getPrivilegeFactory().find();
+        return privilegeFactory().find();
     }
 
     public QueryService getQueryService() {
@@ -142,12 +146,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public String getRealm() {
-        return Bus.REALM;
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
+        return REALM;
     }
 
     @Override
@@ -161,27 +160,25 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
 	public void install() {
-		new InstallerImpl().install();		
+		new InstallerImpl(dataModel).install();
 	}
 
     @Override
     public Group newGroup(String name) {
-        return new GroupImpl(name);
+        return GroupImpl.from(dataModel, name);
     }
 
     @Override
     public User newUser(String name) {
-        return new UserImpl(name);
+        return UserImpl.from(dataModel, name);
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "User Management");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "User Management");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        dataModel.register();
-        this.ormClient = new OrmClientImpl(dataModel);
     }
 
     @Reference
@@ -195,7 +192,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     private DataMapper<User> userFactory() {
-        return Bus.getOrmClient().getUserFactory();
+        return dataModel.mapper(User.class);
     }
 
 

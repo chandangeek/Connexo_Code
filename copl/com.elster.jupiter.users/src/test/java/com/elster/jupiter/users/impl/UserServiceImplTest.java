@@ -37,17 +37,15 @@ public class UserServiceImplTest {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.mapper(User.class)).thenReturn(userFactory);
+        when(dataModel.getInstance(UserImpl.class)).thenReturn(new UserImpl(dataModel));
 
         userService = new UserServiceImpl();
 
         userService.setOrmService(ormService);
-
-        Bus.setServiceLocator(userService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(userService);
     }
 
     @Test

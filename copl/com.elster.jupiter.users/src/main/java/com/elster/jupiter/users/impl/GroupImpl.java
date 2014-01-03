@@ -1,15 +1,7 @@
 package com.elster.jupiter.users.impl;
 
-import static com.elster.jupiter.util.Checks.is;
-
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
@@ -17,6 +9,14 @@ import com.elster.jupiter.util.To;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+
+import static com.elster.jupiter.util.Checks.is;
 
 
 final class GroupImpl implements Group , PersistenceAware {
@@ -29,15 +29,22 @@ final class GroupImpl implements Group , PersistenceAware {
 	
 	//transient fields
 	private List<PrivilegeInGroup> privilegeInGroups;
+    private final DataModel dataModel;
+
+    @Inject
+	private GroupImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 	
-	@Inject
-	private GroupImpl() {		
-	}
-	
-	GroupImpl(String name) {
+	GroupImpl init(String name) {
         validateName(name);
         this.name = name;
+        return this;
 	}
+
+    static GroupImpl from(DataModel dataModel, String name) {
+        return dataModel.getInstance(GroupImpl.class).init(name);
+    }
 
     private void validateName(String name) {
         if (is(name).emptyOrOnlyWhiteSpace()) {
@@ -72,7 +79,7 @@ final class GroupImpl implements Group , PersistenceAware {
     
     private List<PrivilegeInGroup> getPrivilegeInGroups() {
     	if (privilegeInGroups == null) {
-    		privilegeInGroups = Bus.getOrmClient().getPrivilegeInGroupFactory().find("groupId", getId());
+    		privilegeInGroups = dataModel.mapper(PrivilegeInGroup.class).find("groupId", getId());
     	}
     	return privilegeInGroups;
     }
@@ -87,7 +94,7 @@ final class GroupImpl implements Group , PersistenceAware {
         if (hasPrivilege(privilege)) {
             return false;
         }
-		PrivilegeInGroup privilegeInGroup = new PrivilegeInGroup(this,privilege);
+		PrivilegeInGroup privilegeInGroup = PrivilegeInGroup.from(dataModel, this, privilege);
 		privilegeInGroup.persist();
 		getPrivilegeInGroups().add(privilegeInGroup);
         return false;
@@ -113,7 +120,7 @@ final class GroupImpl implements Group , PersistenceAware {
     
     
     private DataMapper<Group> groupFactory() {
-        return Bus.getOrmClient().getGroupFactory();
+        return dataModel.mapper(Group.class);
     }
 
     public Date getCreateDate() {
@@ -135,7 +142,7 @@ final class GroupImpl implements Group , PersistenceAware {
 	
 	@Override
 	public void grant(String privilegeName) {
-		Privilege privilege = Bus.getOrmClient().getPrivilegeFactory().getExisting(privilegeName);
+		Privilege privilege = dataModel.mapper(Privilege.class).getExisting(privilegeName);
 		grant(privilege);
 	}
 	

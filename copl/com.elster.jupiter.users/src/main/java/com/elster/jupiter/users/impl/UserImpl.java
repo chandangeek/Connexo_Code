@@ -1,7 +1,9 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
@@ -30,19 +32,27 @@ public class UserImpl implements User {
 
     // transient
     private List<UserInGroup> memberships;
-    
+
+    private final DataModel dataModel;
+
     @Inject
-    private UserImpl() {
+    UserImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
-    UserImpl(String authenticationName) {
-        this(authenticationName, null);
+    static UserImpl from(DataModel dataModel, String authenticationName) {
+        return from(dataModel, authenticationName, null);
     }
 
-    UserImpl(String authenticationName, String description) {
+    static UserImpl from(DataModel dataModel, String authenticationName, String description) {
+        return dataModel.getInstance(UserImpl.class).init(authenticationName, description);
+    }
+
+    UserImpl init(String authenticationName, String description) {
         validateAuthenticationName(authenticationName);
         this.authenticationName = authenticationName;
         this.description = description;
+        return this;
     }
 
     private void validateAuthenticationName(String authenticationName) {
@@ -87,7 +97,7 @@ public class UserImpl implements User {
         if (isMemberOf(group)) {
             return false;
         }
-        UserInGroup membership = new UserInGroup(this, group);
+        UserInGroup membership = UserInGroup.from(dataModel, this, group);
         if (memberships != null) {
         	memberships.add(membership);
         }
@@ -116,7 +126,7 @@ public class UserImpl implements User {
 
     private List<UserInGroup> getMemberships() {
     	if (memberships == null) {
-    		return Bus.getOrmClient().getUserInGroupFactory().find("user", this);
+    		return dataModel.mapper(UserInGroup.class).find("user", this);
     	}
     	return memberships;
     }
@@ -133,9 +143,9 @@ public class UserImpl implements User {
 
     public void save() {
         if (id == 0) {
-            Bus.getOrmClient().getUserFactory().persist(this);
+            dataModel.mapper(User.class).persist(this);
         } else {
-            Bus.getOrmClient().getUserFactory().update(this);
+            dataModel.mapper(User.class).update(this);
         }
     }
 
@@ -168,7 +178,7 @@ public class UserImpl implements User {
 
     @Override
     public void delete() {
-        Bus.getOrmClient().getUserFactory().remove(this);
+        dataModel.mapper(User.class).remove(this);
     }
 
     @Override
@@ -210,7 +220,7 @@ public class UserImpl implements User {
 			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
 			messageDigest.update(authenticationName.getBytes());
 			messageDigest.update(":".getBytes());
-			messageDigest.update(Bus.REALM.getBytes());
+			messageDigest.update(dataModel.getInstance(UserService.class).getRealm().getBytes());
 			messageDigest.update(":".getBytes());
 			messageDigest.update(password.getBytes());			
 			byte[] md5 = messageDigest.digest();

@@ -1,9 +1,10 @@
 package com.elster.jupiter.users.impl;
 
-import javax.inject.Inject;
-
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import javax.inject.Inject;
 
 class PrivilegeImpl implements Privilege {
 	// persistent fields
@@ -12,17 +13,23 @@ class PrivilegeImpl implements Privilege {
 	private String description;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
+    private final DataModel dataModel;
 
 	@Inject
-	private PrivilegeImpl() {		
+	private PrivilegeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
 	}
-	
-	PrivilegeImpl(String componentName , String name , String description) {
+
+    static PrivilegeImpl from(DataModel dataModel, String componentName , String name , String description) {
+        return new PrivilegeImpl(dataModel).init(componentName, name, description);
+    }
+
+	PrivilegeImpl init(String componentName , String name , String description) {
 		this.componentName = componentName;
 		this.name = name;
 		this.description = description;
+        return this;
 	}
-	
 
 	@Override 
 	public String getName() {
@@ -40,7 +47,7 @@ class PrivilegeImpl implements Privilege {
 	}
 
 	void persist() {
-		Bus.getOrmClient().getPrivilegeFactory().persist(this);
+		dataModel.mapper(Privilege.class).persist(this);
 	}
 
     @Override

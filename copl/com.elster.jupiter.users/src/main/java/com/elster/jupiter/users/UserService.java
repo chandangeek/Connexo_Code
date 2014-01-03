@@ -1,11 +1,13 @@
 package com.elster.jupiter.users;
 
-import java.util.List;
-
 import com.elster.jupiter.domain.util.Query;
 import com.google.common.base.Optional;
 
+import java.util.List;
+
 public interface UserService {
+
+    String COMPONENTNAME = "USR";
 
     User createUser(String authenticationName, String description);
 
