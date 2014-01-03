@@ -13,21 +13,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.ModuleCreator;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyRepresentationTest {
-
-    private Injector injector;
     
     @Mock
     DataModel dataModel;
@@ -40,9 +33,10 @@ public class PartyRepresentationTest {
     @Mock
     UserService userService;
     
-    @Before
+    @SuppressWarnings("unchecked")
+	@Before
     public void setUp() {
-    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService));
+    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService)).thenThrow(IllegalStateException.class);
     }
 
     @Test

@@ -13,17 +13,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.ModuleCreator;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrganizationTest {
@@ -40,11 +35,12 @@ public class OrganizationTest {
     @Mock
     private PartyRole role;
     
+	@SuppressWarnings("unchecked")
 	@Before
     public void setUp() {
-    	when(dataModel.getInstance(OrganizationImpl.class)).thenReturn(new OrganizationImpl(dataModel, eventService));
-    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService));
-    	when(dataModel.getInstance(PartyInRoleImpl.class)).thenReturn(new PartyInRoleImpl(clock));
+    	when(dataModel.getInstance(OrganizationImpl.class)).thenReturn(new OrganizationImpl(dataModel, eventService)).thenThrow(IllegalStateException.class);
+    	when(dataModel.getInstance(PartyRepresentationImpl.class)).thenReturn(new PartyRepresentationImpl(clock, userService)).thenThrow(IllegalStateException.class);
+    	when(dataModel.getInstance(PartyInRoleImpl.class)).thenReturn(new PartyInRoleImpl(clock)).thenThrow(IllegalStateException.class);
     }
    
 	@Test
