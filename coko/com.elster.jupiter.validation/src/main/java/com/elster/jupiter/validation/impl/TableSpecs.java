@@ -47,9 +47,9 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ValidationRulePropertiesImpl.class);
+            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).map("ruleId").add();
             Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.addQuantityColumns("VALUE", true, "value");
-            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).map("ruleId").add();
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(CASCADE).map("rule").on(ruleIdColumn).add();
         }
