@@ -132,6 +132,7 @@ public class EventServiceImpl implements EventService, InstallService {
                 bind(MessageService.class).toInstance(messageService);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(EventConfiguration.class).toInstance(eventConfiguration);
+                bind(DataModel.class).toInstance(dataModel);
             }
         });
     }

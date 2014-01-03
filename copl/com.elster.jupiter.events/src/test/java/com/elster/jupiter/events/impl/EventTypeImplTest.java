@@ -59,6 +59,7 @@ public class EventTypeImplTest {
     public void setUp() {
         when(clock.now()).thenReturn(NOW);
         when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
+        when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService));
     }
 
     @After

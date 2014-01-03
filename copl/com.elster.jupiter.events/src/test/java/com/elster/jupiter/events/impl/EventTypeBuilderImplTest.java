@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EventTypeBuilderImplTest {
@@ -41,9 +42,9 @@ public class EventTypeBuilderImplTest {
     @Mock
     private BeanService beanService;
 
-
     @Before
     public void setUp() {
+        when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService));
         eventTypeBuilder = new EventTypeBuilderImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, TOPIC)
                 .category(CATEGORY)
                 .component(COMPONENT)

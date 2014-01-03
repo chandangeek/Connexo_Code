@@ -41,7 +41,7 @@ public class EventServiceImplTest {
     @Mock
     private DataMapper<EventType> eventTypeFactory;
     @Mock
-    private EventType eventType;
+    private EventTypeImpl eventType;
     @Mock
     private Publisher publisher;
     @Mock
@@ -56,11 +56,12 @@ public class EventServiceImplTest {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(),any(Class.class))).thenReturn(table);
-        when(eventTypeFactory.getOptional(TOPIC)).thenReturn(Optional.of(eventType));
+        when(eventTypeFactory.getOptional(TOPIC)).thenReturn(Optional.<EventType>of(eventType));
         when(eventType.create("")).thenReturn(localEvent);
         when(eventType.shouldPublish()).thenReturn(false);
         when(dataModel.mapper(EventPropertyType.class)).thenReturn(eventTypePropertyFactory);
         when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
+        when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(eventType);
 
         eventService = new EventServiceImpl();
 
@@ -127,7 +128,7 @@ public class EventServiceImplTest {
     public void testBuildEventTypeWithTopicHasCorrectTopic() {
         EventTypeBuilder eventTypeBuilder = eventService.buildEventTypeWithTopic(TOPIC);
 
-        assertThat(eventTypeBuilder.create().getTopic()).isEqualTo(TOPIC);
+        assertThat(eventTypeBuilder.create()).isEqualTo(eventType);
     }
 
 
