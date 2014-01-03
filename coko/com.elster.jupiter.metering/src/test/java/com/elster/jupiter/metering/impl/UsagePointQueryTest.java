@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TownDetail;
@@ -17,20 +18,27 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.units.Unit;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +52,7 @@ import org.osgi.service.log.LogService;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Date;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +80,6 @@ public class UsagePointQueryTest {
 
         @Override
         protected void configure() {       
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
         }
@@ -92,7 +100,8 @@ public class UsagePointQueryTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
-        			new TransactionModule());
+        			new UserModule(),
+        			new TransactionModule(false));
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {
@@ -110,11 +119,14 @@ public class UsagePointQueryTest {
 
     @Test
     public void test() throws SQLException {
-
-        getTransactionService().execute(new VoidTransaction() {
+    	UserService userService = injector.getInstance(UserService.class);
+    	final User user = userService.findUser("admin").get();
+    	ThreadPrincipalService threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+    	threadPrincipalService.set(user);
+    	getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {                
-                doTest(injector.getInstance(MeteringService.class));
+                doTest(injector.getInstance(MeteringService.class), user);
 
             }
         });
@@ -125,7 +137,7 @@ public class UsagePointQueryTest {
         return injector.getInstance(TransactionService.class);
     }
 
-    private void doTest(MeteringService meteringService) {
+    private void doTest(MeteringService meteringService, User user) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         ServiceLocation location = meteringService.newServiceLocation();
         StreetAddress address = new StreetAddress(new StreetDetail("Stasegemsesteenweg","112"), new TownDetail("8500",  "Kortrijk", "BE"));
@@ -150,6 +162,18 @@ public class UsagePointQueryTest {
         }
         assertThat(query.select(Condition.TRUE)).hasSize(11);
         assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);
+        assertThat(query.select(meteringService.hasAccountability())).isEmpty();
+        PartyService partyService = injector.getInstance(PartyService.class);
+        Party party = partyService.newOrganization("Electrabel");
+        party.save();
+        PartyRole role = partyService.getRole(MarketRoleKind.COMPETTITIVERETAILER.name()).get();
+        party.assumeRole(role, new Date());
+        query.setLazy();
+        assertThat(query.select(meteringService.hasAccountability())).isEmpty();
+        party.appointDelegate(user, new Date());
+        party = partyService.getParty("Electrabel").get();
+        usagePoint.addAccountability(role, party, new Date());
+        assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
      }
 
 }

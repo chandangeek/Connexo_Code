@@ -26,8 +26,10 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
-	MTR_SERVICECATEGORY(ServiceCategory.class) {
-		void describeTable(Table table) {
+	MTR_SERVICECATEGORY {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<ServiceCategory> table = dataModel.addTable(name(),ServiceCategory.class);
             table.map(ServiceCategoryImpl.class);
 			table.setJournalTableName("MTR_SERVICECATEGORYJRNL");
 			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
@@ -37,8 +39,10 @@ public enum TableSpecs {
 			table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
 		}
 	},
-	MTR_SERVICELOCATION(ServiceLocation.class) {
-		void describeTable(Table table) {
+	MTR_SERVICELOCATION {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<ServiceLocation> table = dataModel.addTable(name(),ServiceLocation.class);
             table.map(ServiceLocationImpl.class);
 			table.setJournalTableName("MTR_SERVICELOCATIONJRNL");
 			Column idColumn = table.addAutoIdColumn();
@@ -117,8 +121,10 @@ public enum TableSpecs {
 			table.unique("MTR_U_SERVICELOCATION").on(mRIDColumn).add();
 		}
 	},
-	MTR_AMRSYSTEM(AmrSystem.class) {
-		void describeTable(Table table) {
+	MTR_AMRSYSTEM {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<AmrSystem> table = dataModel.addTable(name(),AmrSystem.class);
             table.map(AmrSystemImpl.class);
 			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2INT).map("id").add();
 			Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
@@ -127,8 +133,10 @@ public enum TableSpecs {
 			table.unique("MTR_U_AMRSYSTEM").on(nameColumn).add();
 		}
 	},
-	MTR_USAGEPOINT(UsagePoint.class) {
-		void describeTable(Table table) {
+	MTR_USAGEPOINT {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<UsagePoint> table = dataModel.addTable(name(),UsagePoint.class);
             table.map(UsagePointImpl.class);
 			table.setJournalTableName("MTR_USAGEPOINTJRNL");
 			Column idColumn = table.addAutoIdColumn();
@@ -162,9 +170,12 @@ public enum TableSpecs {
 			table.foreignKey("MTR_FK_USAGEPOINTSERVICELOC").on(serviceLocationIdColumn).references(MTR_SERVICELOCATION.name()).onDelete(RESTRICT).map("serviceLocation").reverseMap("usagePoints").add();
 		}
 	},
-	MTR_READINGTYPE(ReadingType.class) {
-		void describeTable(Table table) {
+	MTR_READINGTYPE {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<ReadingType> table = dataModel.addTable(name(),ReadingType.class);
             table.map(ReadingTypeImpl.class);
+            table.cache();
 			Column mRidColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
 			table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
@@ -172,8 +183,10 @@ public enum TableSpecs {
 			table.primaryKey("MTR_PK_READINGTYPE").on(mRidColumn).add();
 		}
 	},
-	MTR_ENDDEVICE(EndDevice.class) {
-		void describeTable(Table table) {
+	MTR_ENDDEVICE {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<EndDevice> table = dataModel.addTable(name(),EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
 			Column idColumn = table.addAutoIdColumn();
 			table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
@@ -200,8 +213,10 @@ public enum TableSpecs {
 			table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
 		}
 	},	
-	MTR_METERACTIVATION(MeterActivation.class) {
-		void describeTable(Table table) {
+	MTR_METERACTIVATION {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<MeterActivation> table = dataModel.addTable(name(),MeterActivation.class);
             table.map(MeterActivationImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).map("usagePointId").add();
@@ -213,8 +228,10 @@ public enum TableSpecs {
 			table.foreignKey("MTR_FK_METERACTMETER").references(MTR_ENDDEVICE.name()).onDelete(RESTRICT).map("meter").reverseMap("meterActivations").reverseMapOrder("interval.start").reverseMapCurrent("currentMeterActivation").on(meterIdColumn).add();
 		}
 	},
-	MTR_CHANNEL(Channel.class) {
-		void describeTable(Table table) {
+	MTR_CHANNEL {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<Channel> table = dataModel.addTable(name(),Channel.class);
             table.map(ChannelImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).add();
@@ -229,8 +246,10 @@ public enum TableSpecs {
 			table.foreignKey("MTR_FK_CHANNELTIMESERIES").on(timeSeriesIdColumn).references("IDS","IDS_TIMESERIES").onDelete(RESTRICT).map("timeSeries").add();
 		}
 	},		
-	MTR_READINGTYPEINCHANNEL(ReadingTypeInChannel.class) {
-		void describeTable(Table table) {
+	MTR_READINGTYPEINCHANNEL {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<ReadingTypeInChannel> table = dataModel.addTable(name(),ReadingTypeInChannel.class);
             table.map(ReadingTypeInChannel.class);
 			Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
@@ -240,8 +259,10 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("readingType").on(readingTypeMRidColumn).add();
 		}
 	},
-	MTR_UPACCOUNTABILITY(UsagePointAccountability.class) {
-		void describeTable(Table table) {
+	MTR_UPACCOUNTABILITY {
+		@Override
+		void addTo(DataModel dataModel) {
+			Table<UsagePointAccountability> table = dataModel.addTable(name(),UsagePointAccountability.class);
             table.map(UsagePointAccountabilityImpl.class);
 			table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
 			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
@@ -255,9 +276,10 @@ public enum TableSpecs {
 			table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE").on(roleMRIDColumn).references("PRT", "PRT_PARTYROLE").onDelete(RESTRICT).map("role").add();
  		}
 	},
-    MTR_UP_GROUP(UsagePointGroup.class) {
+    MTR_UP_GROUP {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<UsagePointGroup> table = dataModel.addTable(name(),UsagePointGroup.class);
             table.map(AbstractUsagePointGroup.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").map("name").add();
@@ -270,9 +292,10 @@ public enum TableSpecs {
             table.unique("MTR_U_ENUM_UP_GROUP").on(mRIDColumn).add();
         }
     },
-    MTR_ENUM_UP_IN_GROUP(EnumeratedUsagePointGroup.Entry.class) {
+    MTR_ENUM_UP_IN_GROUP {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<EnumeratedUsagePointGroup.Entry> table = dataModel.addTable(name(),EnumeratedUsagePointGroup.Entry.class);
             table.map(EnumeratedUsagePointGroupImpl.EntryImpl.class);
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
@@ -282,9 +305,10 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_UPGE_UP").references(MTR_USAGEPOINT.name()).onDelete(DeleteRule.RESTRICT).map("usagePoint").on(usagePointColumn).add();
         }
     },
-    MTR_QUERY_UP_GROUP_OP(QueryBuilderOperation.class) {
+    MTR_QUERY_UP_GROUP_OP {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<QueryBuilderOperation> table = dataModel.addTable(name(),QueryBuilderOperation.class);
             table.map(AbstractQueryBuilderOperation.IMPLEMENTERS);
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
@@ -298,9 +322,10 @@ public enum TableSpecs {
 
         }
     },
-    MTR_READINGQUALITY(ReadingQuality.class) {
+    MTR_READINGQUALITY {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<ReadingQuality> table = dataModel.addTable(name(),ReadingQuality.class);
             table.map(ReadingQualityImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
@@ -313,27 +338,33 @@ public enum TableSpecs {
             table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn).add();
         }
     },
-    MTR_ENDDEVICEEVENTTYPE(EndDeviceEventType.class) {
+    MTR_ENDDEVICEEVENTTYPE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<EndDeviceEventType> table = dataModel.addTable(name(),EndDeviceEventType.class);
             table.map(EndDeviceEventTypeImpl.class);
+            table.cache();
             Column mRidColumn = table.column("MRID").type("varchar2(80)").notNull().map("mRID").add();
             table.column("ALIASNAME").type("varchar2(256)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTTYPE").on(mRidColumn).add();
         }
-    }, MTR_ENDDEVICEEVENTRECORD(EndDeviceEventRecord.class) {
+    }, 
+    MTR_ENDDEVICEEVENTRECORD {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<EndDeviceEventRecord> table = dataModel.addTable(name(),EndDeviceEventRecord.class);
             table.map(EndDeviceEventRecordImpl.class);
+            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
+            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             table.column("NAME").type("varchar2(80)").map("name").add();
             table.column("MRID").type("varchar2(80)").map("mRID").add();
             table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
             table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
             table.column("REASON").type("varchar2(256)").map("reason").add();
             table.column("SEVERITY").type("varchar2(80)").map("severity").add();
-            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();
             table.column("ISSUERID").type("varchar2(80)").map("issuerID").add();
             table.column("ISSUERTRACKINGID").type("varchar2(80)").map("issuerTrackingID").add();
             table.column("STATUSDATETIME").type("number").conversion(NUMBER2UTCINSTANT).map("status.dateTime").add();
@@ -341,21 +372,20 @@ public enum TableSpecs {
             table.column("STATUSREMARK").type("varchar2(80)").map("status.remark").add();
             table.column("STATUSVALUE").type("varchar2(80)").map("status.value").add();
             table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
             table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2INT).add();
             table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
             table.foreignKey("MTR_FK_EVENT_ENDDEVICE").references(MTR_ENDDEVICE.name()).onDelete(DeleteRule.CASCADE).map("endDevice").on(endDeviceColumn).add();
         }
     },
-    MTR_ENDDEVICEEVENTDETAIL(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class) {
+    MTR_ENDDEVICEEVENTDETAIL {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+			Table<EndDeviceEventRecordImpl.EndDeviceEventDetailRecord> table = dataModel.addTable(name(),EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
-            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();
             Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
+            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();   
             Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             Column keyColumn = table.column("KEY").type("varchar2(80)").notNull().map("key").add();
             table.column("DETAIL_VALUE").type("varchar2(256)").notNull().map("value").add();
@@ -365,17 +395,6 @@ public enum TableSpecs {
         }
     };
 
-    private final Class<?> api;
-
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    public void addTo(DataModel component) {
-		Table table = component.addTable(name(), api);
-		describeTable(table);
-	}
-	
-	abstract void describeTable(Table table);
-	
+   
+    abstract void addTo(DataModel component);
 }
