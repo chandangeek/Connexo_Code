@@ -21,7 +21,7 @@ import com.energyict.mdc.dynamic.relation.RelationType;
  */
 public enum TableSpecs {
 
-    EISRELATIONTYPE {
+    EISRELATIONTYPE(RelationType.class) {
         @Override
         void describeTable(Table table) {
             table.map(RelationTypeImpl.class);
@@ -36,7 +36,7 @@ public enum TableSpecs {
             table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
         }
     },
-    EISRELATIONATTRIBUTETYPE {
+    EISRELATIONATTRIBUTETYPE(RelationAttributeType.class) {
         @Override
         void describeTable(Table table) {
             table.map(RelationAttributeTypeImpl.class);
@@ -56,7 +56,7 @@ public enum TableSpecs {
                     map("relationType").reverseMap("attributeTypes").reverseMapOrder("ordinal").composition().add();
         }
     },
-    EISCONSTRAINT {
+    EISCONSTRAINT(Constraint.class) {
         @Override
         void describeTable(Table table) {
             table.map(ConstraintImpl.class);
@@ -70,7 +70,7 @@ public enum TableSpecs {
                     map("relationType").reverseMap("constraints").composition().add();
         }
     },
-    EISCONSTRAINTMEMBER {
+    EISCONSTRAINTMEMBER(ConstraintMember.class) {
         @Override
         void describeTable(Table table) {
             table.map(ConstraintMember.class);
@@ -85,8 +85,14 @@ public enum TableSpecs {
         }
     };
 
+    private Class apiClass;
+
+    TableSpecs (Class apiClass) {
+        this.apiClass = apiClass;
+    }
+
     public void addTo(DataModel component) {
-        Table table = component.addTable(name());
+        Table table = component.addTable(name(), this.apiClass);
         describeTable(table);
     }
 

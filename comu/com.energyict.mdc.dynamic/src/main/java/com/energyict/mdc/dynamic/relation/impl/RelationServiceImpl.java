@@ -9,6 +9,8 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -27,6 +29,7 @@ import java.util.List;
 @Component(name="com.energyict.mdc.dynamic.relation", service = RelationService.class)
 public class RelationServiceImpl implements RelationService, ServiceLocator {
 
+    private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
 
     public RelationServiceImpl() {
@@ -40,14 +43,23 @@ public class RelationServiceImpl implements RelationService, ServiceLocator {
         this.activate();
     }
 
+    Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+            }
+        };
+    }
+
     @Reference
     public void setOrmService (OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel("CDR", "ComServer dynamic relations");
+        this.dataModel = ormService.newDataModel("CDR", "ComServer dynamic relations");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
+            tableSpecs.addTo(this.dataModel);
         }
-        ormService.register(dataModel);
-        this.ormClient = new OrmClientImpl(dataModel);
+        this.dataModel.register();
+        this.ormClient = new OrmClientImpl(this.dataModel);
     }
 
     @Activate
