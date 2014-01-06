@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -19,6 +20,11 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     private long discoveryProtocolPluggableClassId;
     private final List<InboundComPort> comPorts = new ArrayList<>();
+
+
+    public static InboundComPortPool from(DataModel dataModel) {
+        return dataModel.getInstance(InboundComPortPoolImpl.class);
+    }
 
     protected InboundComPortPoolImpl() {
         super();

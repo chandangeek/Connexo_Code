@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
@@ -18,11 +19,15 @@ import java.net.URISyntaxException;
  */
 public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteComServer {
 
-    private Reference<OnlineComServer> onlineComServer;
+    private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
     private String queryAPIUsername;
     private String queryAPIPassword;
     private String eventRegistrationUri;
     private boolean usesDefaultEventRegistrationUri;
+
+    public static RemoteComServer from(DataModel dataModel) {
+        return dataModel.getInstance(RemoteComServerImpl.class);
+    }
 
     protected RemoteComServerImpl () {
         super();
@@ -61,7 +66,7 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
 
     @Override
     public void setOnlineComServer(OnlineComServer onlineComServer) {
-        this.onlineComServer = ValueReference.of(onlineComServer);
+        this.onlineComServer.set(onlineComServer);
     }
 
     @Override

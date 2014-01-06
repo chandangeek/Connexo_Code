@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -9,6 +10,7 @@ import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.google.common.collect.Range;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -29,6 +31,10 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     private int storeTaskQueueSize;
     private int numberOfStoreTaskThreads;
     private int storeTaskThreadPriority;
+
+    public static OnlineComServer from(DataModel dataModel) {
+        return dataModel.getInstance(OnlineComServerImpl.class);
+    }
 
     protected OnlineComServerImpl () {
         super();

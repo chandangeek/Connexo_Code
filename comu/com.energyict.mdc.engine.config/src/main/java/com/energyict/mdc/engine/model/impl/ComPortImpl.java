@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -14,6 +13,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -29,13 +29,20 @@ import java.util.Objects;
  * @since 2012-04-02 (12:48)
  */
 public abstract class ComPortImpl implements ServerComPort {
+
+    protected static final String MODEM_DISCRIMINATOR = "0";
+    protected static final String TCP_DISCRIMINATOR = "1";
+    protected static final String SERVLET_DISCRIMINATOR = "2";
+    protected static final String UDP_DISCRIMINATOR = "3";
+    protected static final String OUTBOUND_DISCRIMINATOR = "5";
+
     static final Map<String, Class<? extends ServerComPort>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ServerComPort>>of(
-                    "0", ModemBasedInboundComPortImpl.class,
-                    "1", TCPBasedInboundComPortImpl.class,
-                    "2", ServletBasedInboundComPortImpl.class,
-                    "3", UDPBasedInboundComPortImpl.class,
-                    "5", OutboundComPortImpl.class);
+                    MODEM_DISCRIMINATOR, ModemBasedInboundComPortImpl.class,
+                    TCP_DISCRIMINATOR, TCPBasedInboundComPortImpl.class,
+                    SERVLET_DISCRIMINATOR, ServletBasedInboundComPortImpl.class,
+                    UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
+                    OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
 
     private long id=0;
     private String name;
@@ -52,7 +59,7 @@ public abstract class ComPortImpl implements ServerComPort {
     }
 
     protected ComPortImpl(ComServer comServer) {
-        this.comServer = ValueReference.of(comServer);
+        this.comServer.set(comServer);
     }
 
     public void setName(String name) {

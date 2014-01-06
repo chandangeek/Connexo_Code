@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+
 import java.util.Objects;
 
 /**
@@ -26,7 +26,7 @@ public abstract class InboundComPortImpl extends ComPortImpl implements InboundC
 
     public void setComPortPool(InboundComPortPool comPortPool) {
         Objects.requireNonNull(comPortPool);
-        this.comPortPool = ValueReference.of(comPortPool);
+        this.comPortPool.set(comPortPool);
     }
 
     protected void validate() {

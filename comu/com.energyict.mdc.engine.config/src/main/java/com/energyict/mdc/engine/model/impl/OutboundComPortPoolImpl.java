@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,10 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     private TimeDuration taskExecutionTimeout;
     private final List<OutboundComPort> outboundComPorts = new ArrayList<>();
+
+    public static OutboundComPortPool from(DataModel dataModel) {
+        return dataModel.getInstance(OutboundComPortPoolImpl.class);
+    }
 
     protected OutboundComPortPoolImpl () {
         super();

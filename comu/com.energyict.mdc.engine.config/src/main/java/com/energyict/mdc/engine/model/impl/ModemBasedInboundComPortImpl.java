@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.google.common.collect.Range;
 import java.math.BigDecimal;
@@ -27,6 +29,15 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     private String addressSelector;
     private String postDialCommands;
     private SerialPortConfiguration serialPortConfiguration;
+
+    public static ServerModemBasedInboundComPort from(DataModel dataModel, ComServer owner) {
+        return dataModel.getInstance(ModemBasedInboundComPortImpl.class).init(owner);
+    }
+
+    private ServerModemBasedInboundComPort init(ComServer owner) {
+        this.setComServer(owner);
+        return this;
+    }
 
     protected ModemBasedInboundComPortImpl () {
         super();

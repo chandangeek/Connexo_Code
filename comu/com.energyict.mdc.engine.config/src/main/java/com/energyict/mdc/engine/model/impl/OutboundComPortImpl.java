@@ -1,11 +1,14 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
+
 import java.util.List;
 
 /**
@@ -17,6 +20,15 @@ import java.util.List;
 public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundComPort {
 
     private int numberOfSimultaneousConnections;
+
+    public static ServerOutboundComPort from(DataModel dataModel, ComServer owner) {
+        return dataModel.getInstance(OutboundComPortImpl.class).init(owner);
+    }
+
+    private ServerOutboundComPort init(ComServer owner) {
+        this.setComServer(owner);
+        return this;
+    }
 
     protected OutboundComPortImpl () {
         super();
