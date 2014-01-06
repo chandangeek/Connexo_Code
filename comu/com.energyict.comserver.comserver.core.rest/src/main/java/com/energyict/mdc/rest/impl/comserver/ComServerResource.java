@@ -3,6 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
 import java.sql.SQLException;
@@ -22,18 +23,18 @@ import javax.ws.rs.core.Response;
 @Path("/comservers")
 public class ComServerResource {
 
-    private final ComServerService comServerService;
+    private final EngineModelService engineModelService;
 
     @Inject
-    public ComServerResource(ComServerService comServerService) {
-        this.comServerService = comServerService;
+    public ComServerResource(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ComServersInfo getComServers() {
         ComServersInfo comServers = new ComServersInfo();
-        for (ComServer comServer : comServerService.findAll()) {
+        for (ComServer comServer : engineModelService.findAllComServers()) {
             comServers.comServers.add(ComServerInfoFactory.asInfo(comServer));
         }
         return comServers;
@@ -43,7 +44,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo getComServer(@PathParam("id") int id) {
-        ComServer<?> comServer = comServerService.find(id);
+        ComServer comServer = engineModelService.findComServer(id);
         if (comServer == null) {
             throw new WebApplicationException("No ComServer with id "+id,
                 Response.status(Response.Status.NOT_FOUND).build());
@@ -55,7 +56,7 @@ public class ComServerResource {
     @Path("/{id}/comports")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortsInfo getComPortsForComServerServer(@PathParam("id") int id) {
-        ComServer<ComServerShadow> comServer = (ComServer<ComServerShadow>) comServerService.find(id);
+        ComServer comServer = engineModelService.findComServer(id);
         if (comServer == null) {
             throw new WebApplicationException("No ComServer with id "+id,
                 Response.status(Response.Status.NOT_FOUND).build());
@@ -72,7 +73,7 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteComServer(@PathParam("id") int id) {
         try {
-            ComServer<?> comServer = comServerService.find(id);
+            ComServer comServer = engineModelService.findComServer(id);
             if (comServer == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No ComServer with id "+id).build();
             }
@@ -88,7 +89,8 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
         try {
-            return ComServerInfoFactory.asInfo(comServerService.create(comServerInfo.asShadow()));
+            ComServer comServer = engineModelService.
+            return ComServerInfoFactory.asInfo(engineModelService.create(comServerInfo.asShadow()));
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -109,7 +111,7 @@ public class ComServerResource {
                     Response.status(Response.Status.BAD_REQUEST).build());
             }
 
-            ComServer<ComServerShadow> comServer = (ComServer<ComServerShadow>) comServerService.find(id);
+            ComServer comServer = engineModelService.findComServer(id);
             if (comServer == null) {
                 throw new WebApplicationException("No ComServer with id "+id,
                     Response.status(Response.Status.NOT_FOUND).build());

@@ -1,16 +1,17 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comServerType")
@@ -20,7 +21,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
      @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote") })
 public abstract class ComServerInfo<S extends ComServerShadow> {
 
-    public int id;
+    public long id;
     public String name;
     public boolean active;
     public ComServer.LogLevel serverLogLevel;

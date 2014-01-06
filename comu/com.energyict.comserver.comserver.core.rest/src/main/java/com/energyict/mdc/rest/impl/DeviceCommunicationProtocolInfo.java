@@ -4,7 +4,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.PluggableClassType;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.pluggable.PluggableClassShadow;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
