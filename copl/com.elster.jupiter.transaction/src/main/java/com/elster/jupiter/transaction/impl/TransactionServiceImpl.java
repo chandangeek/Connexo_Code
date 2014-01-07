@@ -8,6 +8,7 @@ import com.elster.jupiter.transaction.*;
 import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
 
 import java.sql.Connection;
@@ -26,11 +27,12 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
     @Inject
-    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher, TransactionServiceConfig config) {
+    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher, 
+    		@Named("printSql") boolean printSql) {
         setThreadPrincipalService(threadPrincipalService);
         setPublisher(publisher);
         setBootstrapService(bootstrapService);
-        printSql = config.printSql();
+        this.printSql = printSql;
     }
 
     @Override
@@ -141,8 +143,5 @@ public class TransactionServiceImpl implements TransactionService {
     	this.printSql = printSql;
     }
     
-    interface TransactionServiceConfig {
-    	boolean printSql();
-    }
     
 }
