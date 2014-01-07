@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -42,7 +43,6 @@ public class DestinationSpecImplIT {
     private EventAdmin eventAdmin;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
 
     private class MockModule extends AbstractModule {
 
@@ -85,16 +85,17 @@ public class DestinationSpecImplIT {
         injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                QueueTableSpecImpl queueTableSpec = new QueueTableSpecImpl("name", "SYS.AQ$_JMS_RAW", false);
-                Bus.getOrmClient().getQueueTableSpecFactory().persist(queueTableSpec);
+                MessageService messageService = injector.getInstance(MessageService.class);
+                QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("name", "SYS.AQ$_JMS_RAW", false);
+                queueTableSpec.save();
 
-                DestinationSpecImpl destinationSpec = new DestinationSpecImpl(queueTableSpec, "name", 50);
-                Bus.getOrmClient().getDestinationSpecFactory().persist(destinationSpec);
+                DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("name", 50);
+                destinationSpec.save();
                 destinationSpec.activate();
 
                 destinationSpec.subscribe("A");
 
-                Optional<DestinationSpec> found = Bus.getOrmClient().getDestinationSpecFactory().getOptional("name");
+                Optional<DestinationSpec> found = messageService.getDestinationSpec("name");
                 assertThat(found).isPresent();
                 assertThat(found.get().getSubscribers()).hasSize(1);
             }

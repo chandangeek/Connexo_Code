@@ -3,6 +3,7 @@ package com.elster.jupiter.messaging.oracle.impl;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTableProperty;
 import oracle.jdbc.OracleConnection;
@@ -38,8 +39,6 @@ public class QueueTableSpecImplTest {
     private QueueTableSpecImpl queueTableSpec;
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private OracleConnection connection;
     @Mock
     private AQFacade aqFacade;
@@ -48,30 +47,27 @@ public class QueueTableSpecImplTest {
     @Mock
     private AQjmsSession aqJmsSession;
     @Mock
-    private OrmClient ormClient;
-    @Mock
     private DataMapper<QueueTableSpec> queueTableSpecFactory;
     @Mock
     private PreparedStatement preparedStatement;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() throws SQLException, JMSException {
-        queueTableSpec = new QueueTableSpecImpl(NAME, PAYLOAD_TYPE, MULTI_CONSUMER);
-        when(serviceLocator.getConnection()).thenReturn(connection);
-        when(serviceLocator.getAQFacade()).thenReturn(aqFacade);
+        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, aqFacade));
+        when(dataModel.getConnection(false)).thenReturn(connection);
+        when(dataModel.mapper(QueueTableSpec.class)).thenReturn(queueTableSpecFactory);
+        queueTableSpec = QueueTableSpecImpl.from(dataModel, NAME, PAYLOAD_TYPE, MULTI_CONSUMER);
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
         when(queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE)).thenReturn(aqJmsSession);
         when(connection.unwrap(any(Class.class))).thenReturn(connection);
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getQueueTableSpecFactory()).thenReturn(queueTableSpecFactory);
+        when(connection.isWrapperFor(OracleConnection.class)).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

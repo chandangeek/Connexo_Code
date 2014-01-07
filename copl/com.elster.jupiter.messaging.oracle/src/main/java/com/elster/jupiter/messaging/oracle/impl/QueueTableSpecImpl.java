@@ -4,6 +4,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.UnderlyingAqException;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
 import oracle.AQ.AQException;
@@ -38,15 +39,27 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     @SuppressWarnings("unused")
     private String userName;
 
+    private final DataModel dataModel;
+    private final AQFacade aqFacade;
+    private transient boolean fromDB = true;
+
     @SuppressWarnings("unused")
     @Inject
-    private QueueTableSpecImpl() {
+    QueueTableSpecImpl(DataModel dataModel, AQFacade aqFacade) {
+        this.dataModel = dataModel;
+        this.aqFacade = aqFacade;
     }
 
-    public QueueTableSpecImpl(String name, String payloadType, boolean multiConsumer) {
+    QueueTableSpecImpl init(String name, String payloadType, boolean multiConsumer) {
         this.name = name;
         this.payloadType = payloadType;
         this.multiConsumer = multiConsumer;
+        this.fromDB = false;
+        return this;
+    }
+
+    static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer) {
+        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, multiConsumer);
     }
 
     @Override
@@ -60,15 +73,19 @@ public class QueueTableSpecImpl implements QueueTableSpec {
             doActivateAq();
         }
         active = true;
-        Bus.getOrmClient().getQueueTableSpecFactory().update(this, "active");
+        dataModel.mapper(QueueTableSpec.class).update(this, "active");
     }
 
     private void doActivateAq() {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             tryActivateAq(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    private Connection getConnection() throws SQLException {
+        return dataModel.getConnection(false);
     }
 
     private void tryActivateAq(Connection connection) throws SQLException {
@@ -80,7 +97,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     private void doActivateJms() {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             tryActivateJms(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -92,8 +109,11 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     private void tryActivateJms(Connection connection) throws SQLException, JMSException, AQException {
+        if (!connection.isWrapperFor(OracleConnection.class)) {
+            return;
+        }
         OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-        QueueConnection queueConnection = Bus.getAQFacade().createQueueConnection(oraConnection);
+        QueueConnection queueConnection = aqFacade.createQueueConnection(oraConnection);
         try {
             queueConnection.start();
             AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -116,7 +136,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
             throw new UnderlyingSQLFailedException(ex);
         }
         active = false;
-        Bus.getOrmClient().getQueueTableSpecFactory().update(this, "active");
+        dataModel.mapper(QueueTableSpec.class).update(this, "active");
     }
 
     private String createSql() {
@@ -133,7 +153,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     private void doDeactivate() throws SQLException {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(dropSql())) {
                 statement.setString(1, name);
                 statement.execute();
@@ -153,7 +173,6 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public String getPayloadType() {
-        // TODO Auto-generated method stub
         return payloadType;
     }
 
@@ -164,8 +183,8 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public DestinationSpec createDestinationSpec(String name, int retryDelay) {
-        DestinationSpecImpl spec = new DestinationSpecImpl(this, name, retryDelay);
-        Bus.getOrmClient().getDestinationSpecFactory().persist(spec);
+        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay);
+        spec.save();
         spec.activate();
         return spec;
     }
@@ -177,5 +196,15 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     public AQQueueTable getAqQueueTable(AQjmsSession session) throws JMSException {
         return session.getQueueTable("kore", name);
+    }
+
+    @Override
+    public void save() {
+        if (fromDB) {
+            dataModel.mapper(QueueTableSpec.class).update(this);
+        } else {
+            dataModel.mapper(QueueTableSpec.class).persist(this);
+            fromDB = true;
+        }
     }
 }

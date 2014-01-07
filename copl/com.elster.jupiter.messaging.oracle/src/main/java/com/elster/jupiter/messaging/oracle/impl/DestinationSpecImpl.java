@@ -8,7 +8,9 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
@@ -50,6 +52,10 @@ class DestinationSpecImpl implements DestinationSpec {
     // associations
     private QueueTableSpec queueTableSpec;
     private final List<SubscriberSpec> subscribers = new ArrayList<>();
+    private final DataModel dataModel;
+    private final AQFacade aqFacade;
+    private final Publisher publisher;
+    private boolean fromDB = true;
 
 
     @Override
@@ -60,7 +66,7 @@ class DestinationSpecImpl implements DestinationSpec {
             doActivateAq();
         }
         active = true;
-        Bus.getOrmClient().getDestinationSpecFactory().update(this, "active");
+        dataModel.mapper(DestinationSpec.class).update(this, "active");
     }
 
     @Override
@@ -71,7 +77,7 @@ class DestinationSpecImpl implements DestinationSpec {
             throw new UnderlyingSQLFailedException(ex);
         }
         active = false;
-        Bus.getOrmClient().getDestinationSpecFactory().update(this, "active");
+        dataModel.mapper(DestinationSpec.class).update(this, "active");
     }
 
     @Override
@@ -92,7 +98,7 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public QueueTableSpec getQueueTableSpec() {
         if (queueTableSpec == null) {
-            queueTableSpec = Bus.getOrmClient().getQueueTableSpecFactory().getExisting(queueTableName);
+            queueTableSpec = dataModel.mapper(QueueTableSpec.class).getExisting(queueTableName);
         }
         return queueTableSpec;
     }
@@ -114,7 +120,7 @@ class DestinationSpecImpl implements DestinationSpec {
 
     @Override
     public MessageBuilder message(byte[] bytes) {
-        return new BytesMessageBuilder(this, bytes);
+        return new BytesMessageBuilder(dataModel, aqFacade, publisher, this, bytes);
     }
 
     @Override
@@ -122,7 +128,7 @@ class DestinationSpecImpl implements DestinationSpec {
         if (getQueueTableSpec().isJms()) {
             throw new UnsupportedOperationException("JMS support not yet implemented.");
         } else {
-            return new BytesMessageBuilder(this, text.getBytes());
+            return new BytesMessageBuilder(dataModel, aqFacade, publisher, this, text.getBytes());
         }
     }
 
@@ -140,26 +146,46 @@ class DestinationSpecImpl implements DestinationSpec {
         if (isQueue() && !currentConsumers.isEmpty()) {
             throw new AlreadyASubscriberForQueueException(this);
         }
-        SubscriberSpecImpl result = new SubscriberSpecImpl(this, name);
+        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name);
         result.subscribe();
         subscribers.add(result);
-        Bus.getOrmClient().getDestinationSpecFactory().update(this);
+        dataModel.mapper(DestinationSpec.class).update(this);
         return result;
     }
 
-    DestinationSpecImpl(QueueTableSpec queueTableSpec, String name, int retryDelay) {
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
         this.retryDelay = retryDelay;
+        this.fromDB = false;
+        return this;
     }
 
     @Inject
-    private DestinationSpecImpl() {
+    DestinationSpecImpl(DataModel dataModel, AQFacade aqFacade, Publisher publisher) {
+        this.dataModel = dataModel;
+        this.aqFacade = aqFacade;
+        this.publisher = publisher;
+    }
+
+    @Override
+    public void save() {
+        if (fromDB) {
+            dataModel.mapper(DestinationSpec.class).update(this);
+        } else {
+            dataModel.mapper(DestinationSpec.class).persist(this);
+            fromDB = true;
+        }
+
+    }
+
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay);
     }
 
     private void doActivateAq() {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = dataModel.getConnection(false)) {
             tryActivate(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -179,7 +205,7 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void doActivateJms() {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = dataModel.getConnection(false)) {
             tryActivateJms(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -191,7 +217,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private void tryActivateJms(Connection connection) throws SQLException, JMSException {
         if (connection.isWrapperFor(OracleConnection.class)) {
             OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-            QueueConnection queueConnection = Bus.getAQFacade().createQueueConnection(oraConnection);
+            QueueConnection queueConnection = aqFacade.createQueueConnection(oraConnection);
             try {
                 queueConnection.start();
                 AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
@@ -209,7 +235,7 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void doDeactivate() throws SQLException {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = dataModel.getConnection(false)) {
             try (PreparedStatement statement = connection.prepareStatement(dropSql())) {
                 statement.setString(1, name);
                 statement.setString(2, name);

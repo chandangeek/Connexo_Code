@@ -1,11 +1,18 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 
-public class InstallerImpl {	
-	
-	public void install(MessageService service) {
-		Bus.getOrmClient().install();
+public class InstallerImpl {
+
+    private final DataModel dataModel;
+
+    public InstallerImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    public void install(MessageService service) {
+		dataModel.install(true, true);
 		createQueueTables(service);
 	}
 	

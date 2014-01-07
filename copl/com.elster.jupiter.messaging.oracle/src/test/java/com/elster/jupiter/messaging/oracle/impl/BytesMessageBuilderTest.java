@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import oracle.jdbc.OracleConnection;
@@ -31,8 +32,6 @@ public class BytesMessageBuilderTest {
     @Mock
     private DestinationSpec destination;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private AQFacade aqFacade;
     @Mock
     private AQMessage aqMessage;
@@ -42,17 +41,16 @@ public class BytesMessageBuilderTest {
     private Publisher publisher;
     @Mock
     private AQMessageProperties aqMessageProperties;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() throws SQLException {
-        Bus.setServiceLocator(serviceLocator);
-        when(serviceLocator.getAQFacade()).thenReturn(aqFacade);
         when(aqFacade.create(any(AQMessageProperties.class))).thenReturn(aqMessage);
-        when(serviceLocator.getConnection()).thenReturn(connection);
         when(connection.unwrap(any(Class.class))).thenReturn(connection);
-        when(serviceLocator.getPublisher()).thenReturn(publisher);
         when(destination.getName()).thenReturn(DESTINATION_NAME);
         when(aqFacade.createAQMessageProperties()).thenReturn(aqMessageProperties);
+        when(dataModel.getConnection(false)).thenReturn(connection);
     }
 
     @After
@@ -62,8 +60,7 @@ public class BytesMessageBuilderTest {
 
     @Test
     public void testNormalSend() throws SQLException {
-        new BytesMessageBuilder(destination, MESSAGE.getBytes())
-                .send();
+        new BytesMessageBuilder(dataModel, aqFacade, publisher, destination, MESSAGE.getBytes()).send();
 
         verify(aqMessage).setPayload(MESSAGE.getBytes());
         verify(connection).enqueue(eq(DESTINATION_NAME), any(AQEnqueueOptions.class), eq(aqMessage));
@@ -71,7 +68,7 @@ public class BytesMessageBuilderTest {
 
     @Test
     public void testExpiringSend() throws SQLException {
-        new BytesMessageBuilder(destination, MESSAGE.getBytes())
+        new BytesMessageBuilder(dataModel, aqFacade, publisher, destination, MESSAGE.getBytes())
                 .expiringAfter(Seconds.seconds(60))
                 .send();
 
@@ -84,7 +81,7 @@ public class BytesMessageBuilderTest {
     public void testExpiringSendThatFailsWithSqlException() throws SQLException {
         doThrow(SQLException.class).when(aqMessageProperties).setExpiration(anyInt());
 
-        new BytesMessageBuilder(destination, MESSAGE.getBytes())
+        new BytesMessageBuilder(dataModel, aqFacade, publisher, destination, MESSAGE.getBytes())
                 .expiringAfter(Seconds.seconds(60))
                 .send();
    }
@@ -93,7 +90,7 @@ public class BytesMessageBuilderTest {
     public void testSendingFailsWithSQLException() throws SQLException {
         doThrow(SQLException.class).when(connection).enqueue(anyString(), any(AQEnqueueOptions.class), any(AQMessage.class));
 
-        BytesMessageBuilder bytesMessageBuilder = new BytesMessageBuilder(destination, MESSAGE.getBytes());
+        BytesMessageBuilder bytesMessageBuilder = new BytesMessageBuilder(dataModel, aqFacade, publisher, destination, MESSAGE.getBytes());
 
         bytesMessageBuilder.send();
 

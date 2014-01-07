@@ -1,11 +1,14 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.pubsub.Publisher;
 import com.google.common.collect.ImmutableList;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
@@ -16,7 +19,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -47,8 +49,6 @@ public class DestinationSpecImplTest {
 
     @Mock
     private QueueTableSpecImpl queueTableSpec;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private DataMapper<SubscriberSpec> subscriberSpecFactory;
     @Mock
@@ -69,27 +69,33 @@ public class DestinationSpecImplTest {
     private SubscriberSpec subscriber1, subscriber2;
     @Mock
     private SubscriberSpec subscriber;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private Publisher publisher;
+    @Mock
+    private DataMapper<DestinationSpec> destinationSpecFactory;
 
     @Before
     public void setUp() throws Exception {
-        Bus.setServiceLocator(serviceLocator);
-
-        when(serviceLocator.getOrmClient().getConsumerSpecFactory()).thenReturn(subscriberSpecFactory);
-        when(serviceLocator.getConnection()).thenReturn(connection);
-        when(serviceLocator.getAQFacade().createQueueConnection(connection)).thenReturn(queueConnection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(queueTableSpec.getName()).thenReturn(QUEUE_TABLE_NAME);
         when(queueTableSpec.isMultiConsumer()).thenReturn(true);
         when(connection.unwrap(any(Class.class))).thenReturn(connection);
         when(connection.isWrapperFor(any(Class.class))).thenReturn(true);
         when(subscriber.getName()).thenReturn(SUBSCRIBER);
+        when(dataModel.getConnection(false)).thenReturn(connection);
+        when(dataModel.getInstance(DestinationSpecImpl.class)).thenReturn(new DestinationSpecImpl(dataModel, aqFacade, publisher));
+        when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel));
+        when(dataModel.mapper(SubscriberSpec.class)).thenReturn(subscriberSpecFactory);
+        when(dataModel.mapper(DestinationSpec.class)).thenReturn(destinationSpecFactory);
+        when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
 
-        destinationSpec = new DestinationSpecImpl(queueTableSpec, NAME, RETRY_DELAY);
+        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

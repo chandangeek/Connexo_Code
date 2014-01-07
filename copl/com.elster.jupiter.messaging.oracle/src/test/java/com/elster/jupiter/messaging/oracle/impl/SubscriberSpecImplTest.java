@@ -2,6 +2,7 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.orm.DataModel;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -40,28 +41,27 @@ public class SubscriberSpecImplTest {
     @Mock
     private DestinationSpec destination;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private OracleConnection connection;
     @Mock
     private AQMessage message;
     @Mock
     private PreparedStatement preparedStatement;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() throws SQLException {
 
         when(destination.getName()).thenReturn(DESTINATION);
         when(destination.getPayloadType()).thenReturn(PAYLOAD_TYPE);
-        when(serviceLocator.getConnection()).thenReturn(connection);
         when(message.getPayload()).thenReturn(PAYLOAD_BYTES);
         when(connection.unwrap(any(Class.class))).thenReturn(connection);
         when(destination.isTopic()).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel));
+        when(dataModel.getConnection(false)).thenReturn(connection);
 
-        subscriberSpec = new SubscriberSpecImpl(destination, NAME);
-
-        Bus.setServiceLocator(serviceLocator);
+        subscriberSpec = SubscriberSpecImpl.from(dataModel, destination, NAME);
     }
 
     @After

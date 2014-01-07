@@ -11,27 +11,26 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Osgi Component class.
  */
 @Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
-	property = { "name=" + Bus.COMPONENTNAME } )
-public class MessageServiceImpl implements MessageService, InstallService , ServiceLocator {
+	property = { "name=" + MessageService.COMPONENTNAME } )
+public class MessageServiceImpl implements MessageService, InstallService {
 
     private final DefaultAQFacade defaultAQMessageFactory = new DefaultAQFacade();
-    private volatile OrmClient ormClient;
 	private volatile TransactionService transactionService;
     private volatile Publisher publisher;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile DataModel dataModel;
 
     public MessageServiceImpl() {
     }
@@ -43,17 +42,15 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
         activate();
-        getOrmClient().install();
+        dataModel.install(true, true);
     }
 
     @Reference
 	public void setOrmService(OrmService ormService) {
-		DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Messaging");
+		dataModel = ormService.newDataModel(MessageService.COMPONENTNAME, "Jupiter Messaging");
 		for (TableSpecs each : TableSpecs.values()) {
 			each.addTo(dataModel);
 		}
-        dataModel.register();
-		this.ormClient = new OrmClientImpl(dataModel);
 	}
 	
 	@Reference
@@ -61,61 +58,47 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
 		this.transactionService = transactionService;
 	}
 	
-	public Connection getConnection() throws SQLException {
-		return ormClient.getConnection();
-	}
-	
 	@Activate
 	public void activate() {
-		Bus.setServiceLocator(this);
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(AQFacade.class).toInstance(defaultAQMessageFactory);
+                bind(Publisher.class).toInstance(publisher);
+            }
+        });
 	}
 	
 	@Deactivate
 	public void deactivate() {
-		Bus.clearServiceLocator(this);
 	}
 	
 	@Override
 	public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
-		QueueTableSpecImpl result = new QueueTableSpecImpl(name, payloadType, multiConsumer);
-		ormClient.getQueueTableSpecFactory().persist(result);
+		QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer);
+        result.save();
 		result.activate();
 		return result;
 	}
 
 	@Override
-	public OrmClient getOrmClient() {
-		return ormClient;
-	}
-	
-	@Override
-	public TransactionService getTransactionService() {
-		return transactionService;
-	}
-	
-	@Override
 	public void install() {
-		new InstallerImpl().install(this);
+		new InstallerImpl(dataModel).install(this);
 	}
 
 	@Override
 	public Optional<QueueTableSpec> getQueueTableSpec(String name) {
-		return Bus.getOrmClient().getQueueTableSpecFactory().getOptional(name);
+		return dataModel.mapper(QueueTableSpec.class).getOptional(name);
 	}
 
 	@Override
 	public Optional<DestinationSpec> getDestinationSpec(String name) {
-		return Bus.getOrmClient().getDestinationSpecFactory().getOptional(name);
+		return dataModel.mapper(DestinationSpec.class).getOptional(name);
 	}
 
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
-        return Bus.getOrmClient().getConsumerSpecFactory().getOptional(destinationSpecName, name);
-    }
-
-    @Override
-    public Publisher getPublisher() {
-        return publisher;
+        return dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name);
     }
 
     @Reference
@@ -123,20 +106,9 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
         this.publisher = publisher;
     }
 
-    @Override
-    public ThreadPrincipalService getThreadPrincipalService() {
-        return threadPrincipalService;
-    }
-
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Override
-    public AQFacade getAQFacade() {
-    	return null;
-        //return defaultAQMessageFactory;
     }
 
 }

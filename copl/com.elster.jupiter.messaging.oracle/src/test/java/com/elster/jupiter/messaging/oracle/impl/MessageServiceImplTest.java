@@ -72,6 +72,7 @@ public class MessageServiceImplTest {
         when(dataModel.addTable(anyString(),any(Class.class))).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, null));
 
         service = new MessageServiceImpl();
         service.setOrmService(ormService);

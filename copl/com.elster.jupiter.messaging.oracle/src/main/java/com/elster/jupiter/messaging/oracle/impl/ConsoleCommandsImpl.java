@@ -1,8 +1,12 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.RunAs;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.google.common.base.Optional;
 import oracle.jdbc.aq.AQMessage;
@@ -20,15 +24,18 @@ import java.util.logging.Logger;
 /**
  * MSG console commands
  */
-@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class, property = { "name=" + Bus.COMPONENTNAME + "2" , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain", "osgi.command.function=subscribe" } )
+@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class, property = { "name=" + MessageService.COMPONENTNAME + "2" , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain", "osgi.command.function=subscribe" } )
 public class ConsoleCommandsImpl {
 
     private static final Logger LOGGER = Logger.getLogger(ConsoleCommandsImpl.class.getName());
 
     private PrintStream output = System.out;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile TransactionService transactionService;
+    private volatile DataModel dataModel;
 
 
-	@Activate
+    @Activate
 	public void activate(BundleContext context) {
 	}
 
@@ -39,7 +46,7 @@ public class ConsoleCommandsImpl {
     public void aqcreatetable(String in) {
         output.println("About to create Queue table " + in);
         try {
-            new QueueTableSpecImpl(in, "RAW", false).activate();
+            QueueTableSpecImpl.from(dataModel, in, "RAW", false).activate();
         } catch (RuntimeException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -47,14 +54,14 @@ public class ConsoleCommandsImpl {
 
     public void aqdroptable(String in) {
         try {
-            new QueueTableSpecImpl(in, "RAW", false).deactivate();
+            QueueTableSpecImpl.from(dataModel, in, "RAW", false).deactivate();
         } catch (RuntimeException ex) {
             ex.printStackTrace();
         }
     }
 
     public void drain(String subscriberName, String destinationName) {
-        Optional<SubscriberSpec> spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName, subscriberName);
+        Optional<SubscriberSpec> spec = dataModel.mapper(SubscriberSpec.class).get(destinationName, subscriberName);
         try {
             AQMessage message = ((SubscriberSpecImpl) spec.get()).receiveNow();
             while (message != null) {
@@ -67,10 +74,10 @@ public class ConsoleCommandsImpl {
     }
 
     public void subscribe(final String subscriberName, final String destinationName) {
-        Bus.getTransactionService().execute(new VoidTransaction() {
+        transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                new RunAs(Bus.getThreadPrincipalService(), new Principal() {
+                new RunAs(threadPrincipalService, new Principal() {
                     @Override
                     public String getName() {
                         return "Command line";
@@ -78,7 +85,7 @@ public class ConsoleCommandsImpl {
                 }, new Runnable() {
                     @Override
                     public void run() {
-                        Optional<DestinationSpec> destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
+                        Optional<DestinationSpec> destination = dataModel.mapper(DestinationSpec.class).getOptional(destinationName);
                         if (!destination.isPresent()) {
                             System.err.println("No such destination " + destinationName);
                         }

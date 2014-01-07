@@ -3,23 +3,21 @@ package com.elster.jupiter.messaging.oracle.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.UtcInstant;
-
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
-
 import org.joda.time.Seconds;
 
+import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
-
-import javax.inject.Inject;
 
 /**
  * SubscriberSpec implementation.
@@ -47,13 +45,21 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private final Object cancelLock = new Object();
 
+    private final DataModel dataModel;
+
     @Inject
-    private SubscriberSpecImpl() {
+    SubscriberSpecImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
-    SubscriberSpecImpl(DestinationSpec destination, String name) {
+    SubscriberSpecImpl init(DestinationSpec destination, String name) {
         this.destination.set(destination);
         this.name = name;
+        return this;
+    }
+
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name) {
+        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name);
     }
 
     @Override
@@ -76,7 +82,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     private Message tryReceive() throws SQLException {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             cancellableConnection = connection.unwrap(OracleConnection.class);
             AQMessage aqMessage = null;
             try {
@@ -94,6 +100,10 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             cancellableConnection = null;
         }
         return null;
+    }
+
+    private Connection getConnection() throws SQLException {
+        return dataModel.getConnection(false);
     }
 
     private AQMessage dequeueMessage() throws SQLException {
@@ -136,7 +146,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
      * @return the message if one is immediately available, null otherwise
      */
     AQMessage receiveNow() {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
             return oraConnection.dequeue(destination.get().getName(), optionsNoWait(), getDestination().getPayloadType());
         } catch (SQLTimeoutException e) {
@@ -164,7 +174,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     void doSubscribe() throws SQLException {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(subscribeSql())) {
                 statement.setString(1, name);
                 statement.setString(2, destination.get().getName());
@@ -182,7 +192,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     void doUnSubscribe(String subscriberName) throws SQLException {
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(unSubscribeSql())) {
                 statement.setString(1, subscriberName);
                 statement.setString(2, destination.get().getName());

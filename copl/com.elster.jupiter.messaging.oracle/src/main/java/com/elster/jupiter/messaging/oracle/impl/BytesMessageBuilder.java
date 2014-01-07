@@ -2,7 +2,9 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.pubsub.Publisher;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -23,12 +25,19 @@ class BytesMessageBuilder implements MessageBuilder {
 
     private final byte[] bytes;
     private DestinationSpec destinationSpec;
+    private final AQFacade aqFacade;
+    private final DataModel dataModel;
+    private final Publisher publisher;
 
     /**
+     * @param aqFacade
      * @param destinationSpec the intented DestinationSpec
      * @param bytes the payload.
      */
-    BytesMessageBuilder(DestinationSpec destinationSpec, byte[] bytes) {
+    BytesMessageBuilder(DataModel dataModel, AQFacade aqFacade, Publisher publisher, DestinationSpec destinationSpec, byte[] bytes) {
+        this.dataModel = dataModel;
+        this.publisher = publisher;
+        this.aqFacade = aqFacade;
         this.destinationSpec = destinationSpec;
         this.bytes = Arrays.copyOf(bytes, bytes.length);
     }
@@ -56,7 +65,7 @@ class BytesMessageBuilder implements MessageBuilder {
 
     private AQMessageProperties getMessageProperties() throws SQLException {
         if (props == null) {
-            props = Bus.getAQFacade().createAQMessageProperties();
+            props = aqFacade.createAQMessageProperties();
         }
         return props;
     }
@@ -67,12 +76,12 @@ class BytesMessageBuilder implements MessageBuilder {
     }
 
     private void trySend(byte[] bytes) throws SQLException {
-        AQMessage message = Bus.getAQFacade().create(getMessageProperties());
+        AQMessage message = aqFacade.create(getMessageProperties());
         message.setPayload(bytes);
-        try (Connection connection = Bus.getConnection()) {
+        try (Connection connection = dataModel.getConnection(false)) {
             OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
             oraConnection.enqueue(destinationSpec.getName(), new AQEnqueueOptions() , message);
-            Bus.fire(message);
+            publisher.publish(message);
         }
     }
 }
