@@ -58,13 +58,10 @@ public class TransactionServiceImplTest {
         transactionService.setPublisher(publisher);
         transactionalDataSource = new TransactionalDataSource();
         transactionalDataSource.setTransactionService(transactionService);
-
-        Bus.setServiceLocator(transactionService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(transactionService);
     }
 
     @Test(expected = NestedTransactionException.class)

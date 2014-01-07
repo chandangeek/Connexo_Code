@@ -21,21 +21,15 @@ public class TransactionContextImplTest {
     private TransactionServiceImpl transactionService;
     @Mock
     private Connection connection;
-    @Mock
-    private ServiceLocator serviceLocator;
 
     @Before
     public void setUp() throws SQLException {
-        Bus.setServiceLocator(serviceLocator);
-
         doReturn(connection).when(transactionService).newConnection(false);
-
         transactionContext = new TransactionState(transactionService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

@@ -35,8 +35,10 @@ class MonitoredStatement implements PreparedStatement {
     private final StopWatch stopWatch;
     private final String text;
     private MonitoredResultSet resultSet;
+    private final TransactionServiceImpl transactionService;
 
-    MonitoredStatement(PreparedStatement statement, String text) {
+    MonitoredStatement(TransactionServiceImpl transactionService, PreparedStatement statement, String text) {
+    	this.transactionService = transactionService;
         this.statement = statement;
         this.text = text;
         this.stopWatch = new StopWatch();
@@ -87,8 +89,8 @@ class MonitoredStatement implements PreparedStatement {
     public void close() throws SQLException {
         stopWatch.stop();
         statement.close();
-        Bus.publish(new SqlEvent(stopWatch, text, parameters, resultSet == null ? -1 : resultSet.getFetchCount()));
-        if (Bus.printSql()) {
+        transactionService.publish(new SqlEvent(stopWatch, text, parameters, resultSet == null ? -1 : resultSet.getFetchCount()));
+        if (transactionService.printSql()) {
         	if (resultSet == null) {
         		System.out.println("Executed Sql: " + text );
         	} else {

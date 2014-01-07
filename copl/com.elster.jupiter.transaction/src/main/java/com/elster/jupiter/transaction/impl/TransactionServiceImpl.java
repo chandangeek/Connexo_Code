@@ -15,21 +15,22 @@ import java.sql.SQLException;
 
 
 @Component(name="com.elster.jupiter.transaction", service=TransactionService.class)
-public class TransactionServiceImpl implements TransactionService, ServiceLocator {
+public class TransactionServiceImpl implements TransactionService {
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile DataSource dataSource;
 	private volatile Publisher publisher;
 	private final ThreadLocal<TransactionState> transactionStateHolder = new ThreadLocal<>();
+	private volatile boolean printSql;
 	
-	public TransactionServiceImpl() {		
+	public TransactionServiceImpl() {
 	}
-
+	
     @Inject
-    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher) {
-        this.threadPrincipalService = threadPrincipalService;
-        this.publisher = publisher;
-        doSetBootstrapService(bootstrapService);
-        doActivate();
+    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher, TransactionServiceConfig config) {
+        setThreadPrincipalService(threadPrincipalService);
+        setPublisher(publisher);
+        setBootstrapService(bootstrapService);
+        printSql = config.printSql();
     }
 
     @Override
@@ -86,15 +87,6 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 	public void setPublisher(Publisher publisher) {
 		this.publisher = publisher;		
 	}
-	
-	@Activate
-    public void activate() {
-        doActivate();
-    }
-
-    private void doActivate() {
-        Bus.setServiceLocator(this);
-    }
 
     public void setRollbackOnly() {
         if (isInTransaction()) {
@@ -129,19 +121,28 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
         return transactionStateHolder.get() != null;
     }
     
-    @Override 
-    public void addThreadSubscriber(Subscriber subscriber) {
+    void addThreadSubscriber(Subscriber subscriber) {
     	publisher.addThreadSubscriber(subscriber);
     }
     
-    @Override 
-    public void removeThreadSubscriber(Subscriber subscriber) {
+    void removeThreadSubscriber(Subscriber subscriber) {
     	publisher.removeThreadSubscriber(subscriber);
     }
     
-    @Override
-    public void publish(Object event) {
+    void publish(Object event) {
     	publisher.publish(event);
     }
   
+    boolean printSql() {
+    	return printSql;
+    }
+    
+    void printSql(boolean printSql) {
+    	this.printSql = printSql;
+    }
+    
+    interface TransactionServiceConfig {
+    	boolean printSql();
+    }
+    
 }

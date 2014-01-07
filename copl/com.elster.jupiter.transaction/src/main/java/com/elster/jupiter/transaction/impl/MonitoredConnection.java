@@ -4,13 +4,16 @@ import java.sql.*;
 
 class MonitoredConnection extends ConnectionWrapper {
 
-	MonitoredConnection(Connection connection) {
-		super(connection);
+	private final TransactionServiceImpl transactionService;
+	
+	MonitoredConnection(TransactionServiceImpl transactionService) throws SQLException {
+		super(transactionService.getConnection());
+		this.transactionService = transactionService;
 	}
 	
 	@Override
 	PreparedStatement wrap(PreparedStatement statement,String text) {
-		return new MonitoredStatement(statement,text);
+		return new MonitoredStatement(transactionService , statement,text);
 	}
 
 

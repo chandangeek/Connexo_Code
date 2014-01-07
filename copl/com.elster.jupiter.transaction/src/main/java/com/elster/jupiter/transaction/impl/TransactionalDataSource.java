@@ -26,7 +26,7 @@ public class TransactionalDataSource implements DataSource {
 
     @Override
 	public Connection getConnection() throws SQLException {		
-		return new MonitoredConnection(transactionService.getConnection());
+		return new MonitoredConnection(transactionService);
 	}
 
 	@Override

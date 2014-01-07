@@ -19,7 +19,7 @@ class TransactionState implements Subscriber {
 	TransactionState(TransactionServiceImpl transactionService)  {
 		this.transactionService = transactionService;
 		stopWatch = new StopWatch(true);
-		Bus.addThreadSubscriber(this);
+		transactionService.addThreadSubscriber(this);
 	}
 
 	Connection getConnection() throws SQLException {
@@ -46,9 +46,9 @@ class TransactionState implements Subscriber {
 			}
 		} finally {
 			stopWatch.stop();
-			Bus.removeThreadSubscriber(this);
+			transactionService.removeThreadSubscriber(this);
 			event = new TransactionEvent(rollback,stopWatch,statementCount,fetchCount);
-			Bus.publish(event);
+			transactionService.publish(event);
 		}
 		return event;
 	}
