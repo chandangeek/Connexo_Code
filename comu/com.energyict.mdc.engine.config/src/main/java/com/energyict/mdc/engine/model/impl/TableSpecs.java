@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 
 import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
@@ -13,7 +14,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
 
-    MDCCOMPORTPOOL {
+    MDCCOMPORTPOOL(ComPortPool.class) {
         @Override
         void describeTable(Table table) {
             table.map(ComPortPoolImpl.class);
@@ -31,11 +32,10 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
         }
     },
-    MDCCOMPORT {
+    MDCCOMPORT(ServerComPort.class) {
         @Override
         void describeTable(Table table) {
             table.map(ComPortImpl.IMPLEMENTERS);
-            this.apiClass = ServerComPort.class;
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").map("name").add();
@@ -88,10 +88,9 @@ public enum TableSpecs {
             table.foreignKey("FK_COMPORT_COMPORTPOOL").on(comPortPoolId).references(MDCCOMPORTPOOL.name()).map("comPortPool").reverseMap("comPorts").composition().add();
         }
     },
-    MDCCOMPORTINPOOL {
+    MDCCOMPORTINPOOL(ComPortPoolMember.class) {
    		void describeTable(Table table) {
    			table.map(ComPortPoolMemberImpl.class);
-            this.apiClass=ComPortPoolMember.class;
    			Column comPortPoolIdColumn = table.column("COMPORTPOOLID").number().notNull().conversion(NUMBER2LONG).map("comPortPool").add();
    			Column comPortIdColumn = table.column("COMPORTID").number().notNull().conversion(NUMBER2LONG).map("comPort").add();
    			table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
@@ -104,11 +103,10 @@ public enum TableSpecs {
                     map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
    		}
    	},
-    MDCCOMSERVER {
+    MDCCOMSERVER(ServerComServer.class) {
         @Override
         void describeTable(Table table) {
             table.map(ComServerImpl.IMPLEMENTERS);
-            this.apiClass = ServerComServer.class;
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.primaryKey("CEM_PK_COMSERVER").on(idColumn).add();
@@ -141,8 +139,12 @@ public enum TableSpecs {
 
     private Class apiClass;
 
+    private TableSpecs(Class apiClass) {
+        this.apiClass = apiClass;
+    }
+
     public void addTo(DataModel component) {
-   		Table table = component.addTable(name(), apiClass); // TODO fix me
+   		Table table = component.addTable(name(), apiClass);
    		describeTable(table);
    	}
 
