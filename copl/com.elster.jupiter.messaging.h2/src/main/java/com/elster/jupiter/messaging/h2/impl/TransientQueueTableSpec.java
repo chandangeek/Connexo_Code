@@ -109,4 +109,8 @@ class TransientQueueTableSpec implements QueueTableSpec {
     public String getName() {
         return name;
     }
+
+    @Override
+    public void save() {
+    }
 }

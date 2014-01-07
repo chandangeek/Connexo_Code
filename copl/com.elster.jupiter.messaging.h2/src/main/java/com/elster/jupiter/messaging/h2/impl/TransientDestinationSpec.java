@@ -100,6 +100,10 @@ class TransientDestinationSpec implements DestinationSpec {
         return name;
     }
 
+    @Override
+    public void save() {
+    }
+
     private class TransientMessageBuilder implements MessageBuilder {
 
         private final byte[] data;
