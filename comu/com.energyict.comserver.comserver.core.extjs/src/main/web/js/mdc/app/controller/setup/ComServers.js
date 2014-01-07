@@ -203,7 +203,8 @@ Ext.define('Mdc.controller.setup.ComServers', {
             record = this.comserver,
             values = form.getValues();
         if(!record){
-            record = Ext.create(Mdc.model.ComServer);
+            this.comserver = Ext.create(Mdc.model.ComServer);
+            record = this.comserver;
             record.set(values);
             record.set('comServerType',this.createComServerType);
         } else {
