@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 
 import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -34,6 +35,7 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ComPortImpl.IMPLEMENTERS);
+            this.apiClass = ServerComPort.class;
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").map("name").add();
@@ -89,6 +91,7 @@ public enum TableSpecs {
     MDCCOMPORTINPOOL {
    		void describeTable(Table table) {
    			table.map(ComPortPoolMemberImpl.class);
+            this.apiClass=ComPortPoolMember.class;
    			Column comPortPoolIdColumn = table.column("COMPORTPOOLID").number().notNull().conversion(NUMBER2LONG).map("comPortPool").add();
    			Column comPortIdColumn = table.column("COMPORTID").number().notNull().conversion(NUMBER2LONG).map("comPort").add();
    			table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
@@ -105,6 +108,7 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ComServerImpl.IMPLEMENTERS);
+            this.apiClass = ServerComServer.class;
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.primaryKey("CEM_PK_COMSERVER").on(idColumn).add();
@@ -116,8 +120,8 @@ public enum TableSpecs {
             table.column("CHANGESDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("changesInterPollDelay.count").add();
             table.column("CHANGESDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("changesInterPollDelay.timeUnitCode").add();
 
-            table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("").add();
-            table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("").add();
+            table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.count").add();
+            table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
             table.column("QUERYAPIPOSTURI").type("varchar2(512)").notNull().map("queryAPIPostUri").add();
             table.column("QUERYAPIUSERNAME").type("varchar2(255)").notNull().map("queryAPIUsername").add();
@@ -135,8 +139,10 @@ public enum TableSpecs {
         }
     };
 
+    private Class apiClass;
+
     public void addTo(DataModel component) {
-   		Table table = component.addTable(name());
+   		Table table = component.addTable(name(), apiClass); // TODO fix me
    		describeTable(table);
    	}
 
