@@ -26,4 +26,6 @@ public interface QueueTableSpec extends HasName {
     DestinationSpec createDestinationSpec(String name, int retryDelay);
 
     boolean isJms();
+
+    void save();
 }

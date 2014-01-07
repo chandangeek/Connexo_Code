@@ -9,6 +9,7 @@ public interface MessageService {
 
     String DESTINATION_NAME = "destination";
     String SUBSCRIBER_NAME = "subscriber";
+    String COMPONENTNAME = "MSG";
 
     /**
      * Creates a new persisted and activated QueueTableSpec

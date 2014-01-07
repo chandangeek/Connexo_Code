@@ -70,4 +70,6 @@ public interface DestinationSpec extends HasName {
      */
     @TransactionRequired
     SubscriberSpec subscribe(String name);
+
+    void save();
 }
