@@ -35,6 +35,7 @@ public class InstallerImpl {
 	
 	private void createAdmin(GroupImpl administrators) {
 		UserImpl user = UserImpl.from(dataModel, "admin", "System Administrator");
+		user.setPassword("admin");
 		user.save();
 		user.join(administrators);
 	}

@@ -7,7 +7,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.CommandExecutor;
 import com.elster.jupiter.users.PrivilegedCommand;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,7 +18,6 @@ public class CommandExecutorImpl implements CommandExecutor {
 	
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile Publisher publisher;
-    private volatile UserService userService;
     private volatile TransactionService transactionService;
 	
 	@Override
@@ -55,11 +53,6 @@ public class CommandExecutorImpl implements CommandExecutor {
 	void setPublisher(Publisher publisher) {
 		this.publisher = publisher;
 	}
-
-    @Reference
-    void setUserService(UserService userService) {
-        this.userService = userService;
-    }
 
     @Reference
     void setTransactionService(TransactionService transactionService) {

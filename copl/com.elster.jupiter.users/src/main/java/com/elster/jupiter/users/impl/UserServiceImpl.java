@@ -45,7 +45,9 @@ public class UserServiceImpl implements UserService, InstallService {
     	setQueryService(queryService);
     	setOrmService(ormService);
     	activate();
-        install();
+    	if (!dataModel.isInstalled()) {
+    		install();
+    	}
     }
     
     @Activate

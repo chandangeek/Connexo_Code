@@ -1,67 +1,97 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.users.User;
-import org.junit.After;
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.sql.SQLException;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.UtilModule;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceImplTest {
 
     private static final String DESCRIPTION = "description";
     private static final String AUTH_NAME = "authName";
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    private UserServiceImpl userService;
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {       
+           bind(BundleContext.class).toInstance(mock(BundleContext.class));  
+           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+        }
+    }
+    
+    private static final boolean printSql = true;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private OrmService ormService;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private DataModel dataModel;
-    @Mock
-    private DataMapper<User> userFactory;
-
-    @Before
-    public void setUp() {
-
-        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-        when(dataModel.mapper(User.class)).thenReturn(userFactory);
-        when(dataModel.getInstance(UserImpl.class)).thenReturn(new UserImpl(dataModel));
-
-        userService = new UserServiceImpl();
-
-        userService.setOrmService(ormService);
+    @BeforeClass
+    public static void setUp() throws SQLException {
+        injector = Guice.createInjector(
+        			new MockModule(), 
+        			inMemoryBootstrapModule,  
+        			new UserModule(),
+        			//new EventsModule(),
+        			//new InMemoryMessagingModule(),
+        			new DomainUtilModule(), 
+        			new OrmModule(),
+        			new UtilModule(), 
+        			new ThreadSecurityModule(), 
+        			new PubSubModule(), 
+        			new TransactionModule(printSql));
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+        	injector.getInstance(UserService.class);
+        	ctx.commit();
+        }
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() throws SQLException {
+    	inMemoryBootstrapModule.deactivate();
     }
 
     @Test
     public void testCreateUser() {
-        User user = userService.createUser(AUTH_NAME, DESCRIPTION);
-
-        assertThat(user.getName()).isEqualTo(AUTH_NAME);
-        assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
+    	UserService userService = injector.getInstance(UserService.class);
+    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+    		User user = userService.createUser(AUTH_NAME, DESCRIPTION);
+    		assertThat(user.getName()).isEqualTo(AUTH_NAME);
+    		assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
+    		// skip cxt.commit()
+    	}
 
     }
 
     @Test
     public void testCreateUserPersists() {
-        User user = userService.createUser(AUTH_NAME, DESCRIPTION);
-
-        verify(userFactory).persist(user);
+    	UserService userService = injector.getInstance(UserService.class);
+    	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+    		userService.createUser(AUTH_NAME, DESCRIPTION);
+    		assertThat(userService.findUser(AUTH_NAME)).isPresent();
+    		// skip cxt.commit()
+    	}
 
     }
 
