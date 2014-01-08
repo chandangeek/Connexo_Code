@@ -105,7 +105,6 @@ public class PartyCrudTest {
         	address.getStreetDetail().setName("Stasegemsesteenweg");
         	address.getStreetDetail().setNumber("114");
         	organization.setStreetAddress(address);
-        	System.out.println(organization);
         	organization.save();
         	Query<Party> query = partyService.getPartyQuery();
         	query.setLazy();
