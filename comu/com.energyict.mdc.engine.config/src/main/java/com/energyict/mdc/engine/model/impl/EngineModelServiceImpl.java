@@ -95,6 +95,10 @@ public class EngineModelServiceImpl implements EngineModelService,OrmClient {
     }
 
     @Override
+    public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer) {
+        return convertComServerListToRemoteComServers(getComServerFactory().find("class", REMOTE_COMSERVER_DISCRIMINATOR, "onlineComServer", onlineComServer));    }
+
+    @Override
     public List<OfflineComServer> findAllOfflineComServers() {
         return convertComServerListToOfflineComServers(getComServerFactory().find("class", OFFLINE_COMSERVER_DISCRIMINATOR));
     }
