@@ -72,4 +72,8 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 		return !getTable().isCached();
 	}
 	
+	boolean skipFetch(boolean marked, boolean anyChildMarked) {
+		return getTable().isCached();
+	}
+	
 }

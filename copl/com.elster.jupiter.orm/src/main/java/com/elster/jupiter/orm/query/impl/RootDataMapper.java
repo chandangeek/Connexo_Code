@@ -45,6 +45,11 @@ class RootDataMapper<T> extends JoinDataMapper<T> {
 	public boolean isReachable() {
 		return true;
 	}
+	
+	boolean skipFetch(boolean marked, boolean anyChildMarked) {
+		return false;
+	}
 }
+
 
 

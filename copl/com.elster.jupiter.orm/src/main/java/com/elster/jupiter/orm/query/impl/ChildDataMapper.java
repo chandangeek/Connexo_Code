@@ -76,6 +76,10 @@ public class ChildDataMapper<T> extends AbstractChildDataMapper<T> {
 		return !getConstraint().isOneToOne();
 	}
 
+	boolean skipFetch(boolean marked, boolean anyChildMarked) {
+		return isChild() && (marked || anyChildMarked);
+	}
+	
 	
 
 }
