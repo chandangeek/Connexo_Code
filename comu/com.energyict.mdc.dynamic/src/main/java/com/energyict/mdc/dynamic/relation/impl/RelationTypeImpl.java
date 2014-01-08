@@ -2,30 +2,9 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.BusinessObject;
-import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.DuplicateException;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.PropertiesMetaData;
-import com.energyict.mdc.common.ShadowList;
-import com.energyict.mdc.common.SoftTypeId;
-import com.energyict.mdc.common.TypeId;
-import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.common.*;
 import com.energyict.mdc.dynamic.ValueFactory;
-import com.energyict.mdc.dynamic.relation.Constraint;
-import com.energyict.mdc.dynamic.relation.ConstraintShadow;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
-import com.energyict.mdc.dynamic.relation.RelationTransaction;
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
+import com.energyict.mdc.dynamic.relation.*;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 import com.google.common.collect.ImmutableList;
 
@@ -34,12 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -183,9 +157,9 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         this.validateUpdate(shadow);
         this.copyUpdate(shadow);
         this.processAttributes(shadow.getAttributeTypeShadows());
-        this.processConstraints(shadow.getConstraintShadows());
         this.post();
         this.lockAttributeTypeId = this.findLockAttributeByName(shadow.getLockAttributeTypeShadow().getName()).getId();
+        this.processConstraints(shadow.getConstraintShadows());
         this.post();
     }
 
@@ -264,9 +238,9 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         this.validateNew(shadow);
         this.copyNew(shadow);
         this.processAttributes(shadow.getAttributeTypeShadows());
-        this.processConstraints(shadow.getConstraintShadows());
         this.postNew();
         this.lockAttributeTypeId = this.findLockAttributeByName(shadow.getLockAttributeTypeShadow().getName()).getId();
+        this.processConstraints(shadow.getConstraintShadows());
         this.post();
     }
 

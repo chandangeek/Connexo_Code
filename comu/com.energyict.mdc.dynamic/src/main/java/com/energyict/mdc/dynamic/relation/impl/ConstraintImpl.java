@@ -4,18 +4,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.DuplicateException;
-import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.dynamic.relation.Constraint;
-import com.energyict.mdc.dynamic.relation.ConstraintShadow;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
-import com.energyict.mdc.dynamic.relation.RelationTransaction;
-import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.common.*;
+import com.energyict.mdc.dynamic.relation.*;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 
 import java.sql.PreparedStatement;
@@ -152,9 +142,19 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     }
 
     private void doInsertMembers(List<RelationAttributeTypeShadow> newShadows) {
-        for (RelationAttributeTypeShadow relationAttributeTypeShadow : newShadows) {
-            this.members.add(new ConstraintMember(this, relationAttributeTypeShadow.getId()));
+        for (RelationAttributeTypeShadow relationAttributeType : newShadows) {
+            int attributeTypeId = this.findAttributeTypeByName(relationAttributeType.getName()).getId();
+            this.members.add(new ConstraintMember(this, attributeTypeId));
         }
+    }
+
+    private RelationAttributeType findAttributeTypeByName(String name) {
+        for (RelationAttributeType attributeType : this.getRelationType().getAttributeTypes()) {
+            if (name.equals(attributeType.getName())) {
+                return attributeType;
+            }
+        }
+        return null;
     }
 
     public synchronized List<RelationAttributeType> getAttributeTypes() {
@@ -210,8 +210,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
             Object object = transaction.get(type);
             if (first) {
                 first = false;
-            }
-            else {
+            } else {
                 builder.append(" and ");
             }
             builder.append(type.getName());

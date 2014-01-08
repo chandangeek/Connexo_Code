@@ -53,7 +53,7 @@ public enum TableSpecs {
             table.column("HIDDEN").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("hidden").add();
             table.column("ROLENAME").type("varchar2(80)").map("roleName").add();
             table.foreignKey("FK_RAT_RELATIONTYPE").on(relationTypeColumn).references(EISRELATIONTYPE.name()).
-                    map("relationType").reverseMap("attributeTypes").reverseMapOrder("ordinal").composition().add();
+                    map("relationType").reverseMap("attributeTypes").composition().add();
         }
     },
     EISCONSTRAINT(Constraint.class) {
@@ -77,9 +77,9 @@ public enum TableSpecs {
             Column constraintColumn = table.column("CONSTRAINTID").number().notNull().add();
             Column attributeTypeColumn = table.column("ATTRIBUTETYPEID").number().notNull().map("attributeTypeId").add();
             table.primaryKey("CDR_PK_CONSTRAINT").on(constraintColumn, attributeTypeColumn).add();
-            table.foreignKey("FK_CONSTR_MEMBER_CONSTR").on(constraintColumn).references(EISCONSTRAINT.name()).
+            table.foreignKey("FK_CONSTRAINTMEMBER_CONSTRAINT").on(constraintColumn).references(EISCONSTRAINT.name()).
                     map("constraint").reverseMap("members").composition().add();
-            table.foreignKey("FK_CONSTR_MEMBER_ATTR").
+            table.foreignKey("FK_CONSTRAINTMEMBER_ATTRIBUTE").
                     on(constraintColumn).references(EISRELATIONATTRIBUTETYPE.name()).
                     map("attributeTypeId").add();
         }
