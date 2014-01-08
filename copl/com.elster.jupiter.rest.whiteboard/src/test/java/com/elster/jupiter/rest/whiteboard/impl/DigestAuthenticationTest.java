@@ -27,7 +27,7 @@ public class DigestAuthenticationTest {
     @Mock
     private HttpServletRequest request;
     @Mock
-    private ServiceLocator serviceLocator;
+    private WhiteBoardConfigurationProvider serviceLocator;
     @Mock
     private UserService userService;
     @Mock
@@ -35,16 +35,11 @@ public class DigestAuthenticationTest {
 
     @Before
     public void setUp() throws Exception {
-        digestAuthentication = new DigestAuthentication();
-
-        when(serviceLocator.getUserService()).thenReturn(userService);
-
-        Bus.setServiceLocator(serviceLocator);
+        digestAuthentication = new DigestAuthentication(userService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

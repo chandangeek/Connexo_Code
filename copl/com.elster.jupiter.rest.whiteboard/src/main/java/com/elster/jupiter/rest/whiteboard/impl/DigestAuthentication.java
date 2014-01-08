@@ -1,12 +1,15 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
+
 import org.osgi.service.http.HttpContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DigestAuthentication implements Authentication {
+	private final UserService userService;
+	
+	public DigestAuthentication(UserService userService) {
+		this.userService = userService;
+	}
 
 	@Override
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -22,7 +30,6 @@ public class DigestAuthentication implements Authentication {
 		if (authentication == null) {
 			return denyDigest(response);
 		} else {
-			System.out.println(authentication);
 			Principal user = verifyDigest(request.getMethod(), authentication.split(" ",2)[1]);
 			if (user == null) {
 			    return denyDigest(response);			    
@@ -33,7 +40,7 @@ public class DigestAuthentication implements Authentication {
 	}
 		
 	private boolean denyDigest(HttpServletResponse response) {
-		String realm = Bus.getUserService().getRealm();
+		String realm = userService.getRealm();
 		StringBuilder header = new StringBuilder("Digest realm=");
 		appendQuoted(header,realm);
 		header.append(",nonce=");
@@ -64,12 +71,12 @@ public class DigestAuthentication implements Authentication {
 		
     private boolean allow(HttpServletRequest request, Principal user) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
-        request.setAttribute(ServiceLocator.USERPRINCIPAL, user);
+        request.setAttribute(WhiteBoardConfiguration.USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         return true;
     }
 
-    private static class DigestResponse {
+    private class DigestResponse {
     	private final String method;
     	private final String in;
     	private final Map<String,String> attributes = new HashMap<>();
@@ -89,9 +96,6 @@ public class DigestAuthentication implements Authentication {
     			}
     			attributes.put(subParts[0].trim(),value);
     		}
-    		for (Map.Entry<String,String> each : attributes.entrySet()) {
-    			System.out.println(each.getKey() + ":" + each.getValue());
-    		}
     	}
     	    	    	
     	boolean matchHa1(String ha1) {
@@ -101,7 +105,7 @@ public class DigestAuthentication implements Authentication {
     	}
     	
     	Principal getPrincipal() {
-    		Optional<User> user = Bus.getUserService().findUser(attributes.get("username"));
+    		Optional<User> user = userService.findUser(attributes.get("username"));
     		if (!user.isPresent()) {
     			return null;
     		}

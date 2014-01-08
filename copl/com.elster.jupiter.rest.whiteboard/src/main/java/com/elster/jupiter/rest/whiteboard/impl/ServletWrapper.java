@@ -12,9 +12,11 @@ import java.io.IOException;
 public class ServletWrapper extends HttpServlet  {
 	private static final long serialVersionUID = 1L;
 	private final HttpServlet servlet;
+	private final ThreadPrincipalService threadPrincipalService;
 	
-	public ServletWrapper(HttpServlet servlet) {
+	public ServletWrapper(HttpServlet servlet,ThreadPrincipalService threadPrincipalService) {
 		this.servlet = servlet;
+		this.threadPrincipalService = threadPrincipalService;
 	}
 	
 	@Override
@@ -30,12 +32,11 @@ public class ServletWrapper extends HttpServlet  {
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		request = new RequestWrapper(request);
-		ThreadPrincipalService service = Bus.getThreadPrincipalService();
-		service.set(request.getUserPrincipal(),getModule(request),request.getMethod());
+		threadPrincipalService.set(request.getUserPrincipal(),getModule(request),request.getMethod());
 		try {
 			servlet.service(request,response);
 		} finally {
-			service.clear();
+			threadPrincipalService.clear();
 		}
 	}
 	

@@ -13,7 +13,7 @@ class RequestWrapper extends HttpServletRequestWrapper {
 	
 	@Override
 	public Principal getUserPrincipal() {
-		return (Principal) getRequest().getAttribute(ServiceLocator.USERPRINCIPAL);
+		return (Principal) getRequest().getAttribute(WhiteBoardConfiguration.USERPRINCIPAL);
 	}
 
 }

@@ -1,17 +1,20 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
+
 import java.security.Principal;
 
 public class SecurityContextImpl implements SecurityContext {
 	
 	private final SecurityContext oldContext;
+	private final ThreadPrincipalService threadPrincipalService;
 	
-	SecurityContextImpl(ContainerRequestContext request) {
+	SecurityContextImpl(ContainerRequestContext request, ThreadPrincipalService threadPrincipalService) {
 		this.oldContext = request.getSecurityContext();
+		this.threadPrincipalService = threadPrincipalService;
 	}
 	
 	@Override
@@ -21,7 +24,7 @@ public class SecurityContextImpl implements SecurityContext {
 
 	@Override
 	public Principal getUserPrincipal() {
-		return Bus.getThreadPrincipalService().getPrincipal();
+		return threadPrincipalService.getPrincipal();
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,59 +15,107 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
-@Component (name = "com.elster.jupiter.rest.whiteboard2" , immediate = true , service = {}  )
+@Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
 	
 	private volatile HttpContext httpContext;
 	private volatile HttpService httpService;
-	private volatile ServiceLocator serviceLocator;
-    private volatile boolean debug;
-
-    public WhiteBoard() {    
-    }
+	private volatile UserService userService;
+	private volatile ThreadPrincipalService threadPrincipalService;
+	private volatile Publisher publisher;
+	private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
+	private volatile WhiteBoardConfiguration configuration;
 
     private Authentication createAuthentication(String method) {
     	switch(Strings.nullToEmpty(method)) {
     		case HttpServletRequest.DIGEST_AUTH:
-    			return new DigestAuthentication();
+    			return new DigestAuthentication(userService);
     		// case fall through to document default 
     		case HttpServletRequest.BASIC_AUTH:
     		default:
-    			return new BasicAuthentication();    			    			
+    			return new BasicAuthentication(userService);    			    			
     	}
     }
     
-    void open(BundleContext bundleContext,String authenticationMethod , boolean debug) {
-    	this.httpContext = new HttpContextImpl(createAuthentication(authenticationMethod));     		
-    	this.debug = debug;
-    }
-   
-    @Reference(name="A_HttpService")
+	UserService getUserService() {
+		return userService;
+	}
+
+
+	ThreadPrincipalService getThreadPrincipalService() {
+		return threadPrincipalService;
+	}
+
+	@Reference
+	public void setUserService(UserService userService) {
+		this.userService = userService;
+	}
+
+	@Reference
+	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+		this.threadPrincipalService = threadPrincipalService;
+	}
+
+	@Reference
     public void setHttpService(HttpService httpService) {
     	this.httpService = httpService;
     }
+	
+	@Reference
+	public void setPublisher(Publisher publisher) {
+		this.publisher = publisher;
+	}
+	
+	Publisher getPublisher() {
+		return publisher;
+	}
+	
+	@Reference(cardinality=ReferenceCardinality.OPTIONAL, policy=ReferencePolicy.DYNAMIC)
+	public void setEventAdmin(EventAdmin eventAdmin) {
+		eventAdminHolder.set(eventAdmin);
+	}
+	    
+	public void unsetEventAdmin(EventAdmin eventAdmin) {
+	    eventAdminHolder.compareAndSet(eventAdmin, null);
+	}
     
-    @Reference(name="B_ServiceLocator")
-    public void setServiceLocator(ServiceLocator serviceLocator) {
-    	this.serviceLocator = serviceLocator;
-    	this.httpContext = new HttpContextImpl(createAuthentication(serviceLocator.getAuthenticationMethhod()));     		
-    	this.debug = this.serviceLocator.debug();
+    @Reference(name="YServiceLocator")
+    public void setConfiguration(WhiteBoardConfigurationProvider provider) {
+    	this.configuration = provider.getConfiguration();
+    	this.httpContext = new HttpContextImpl(createAuthentication(configuration.authenticationMethod()));     		
     }
     
-    @Reference(name="Z_Application",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
+	void fire(RestCallExecutedEvent event) {
+		publisher.publish(event);
+		if (configuration.log()) {
+			Logger.getLogger("com.elster.jupiter.rest.whiteboard").info(event.toString());
+		}
+		if (configuration.throwEvents()) {			
+			EventAdmin eventAdmin = eventAdminHolder.get();
+			if (eventAdmin != null) {
+				eventAdmin.postEvent(event.toOsgiEvent());
+			}
+		}
+	}
+    
+    @Reference(name="ZApplication",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
     public void addResource(Application application, Map<String,Object> properties) {
     	Optional<String> alias = getAlias(properties);
     	if (!alias.isPresent()) {
@@ -74,17 +124,17 @@ public class WhiteBoard {
         ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
-        secureConfig.register(RoleFilter.class);
+        secureConfig.register(new RoleFilter(threadPrincipalService));
         secureConfig.register(RolesAllowedDynamicFeature.class);
         if (application instanceof BinderProvider) {
         	secureConfig.register(((BinderProvider) application).getBinder());
         }
-        if (debug) {        	       
+        if (configuration.debug()) {        	       
         	secureConfig.register(LoggingFilter.class);
         }
         try {
         	ServletContainer container = new ServletContainer(secureConfig);
-        	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container));
+        	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
         	httpService.registerServlet(alias.get(), wrapper, null, httpContext);
         } catch (ServletException | NamespaceException e) {
             e.printStackTrace();
@@ -92,7 +142,7 @@ public class WhiteBoard {
         }
     }
 
-    void removeResource(Application application,Map<String,Object> properties) {
+    public void removeResource(Application application,Map<String,Object> properties) {
     	Optional<String> alias = getAlias(properties);
     	if (alias.isPresent()) {
     		httpService.unregister(alias.get());

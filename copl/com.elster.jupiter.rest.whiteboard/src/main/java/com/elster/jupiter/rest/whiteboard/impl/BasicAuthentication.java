@@ -7,9 +7,15 @@ import javax.servlet.http.*;
 import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Optional;
 
 public class BasicAuthentication implements Authentication {
+	private final UserService userService;
+	
+	BasicAuthentication(UserService userService) {
+		this.userService = userService;
+	}
 
 	@Override
 	public boolean handleSecurity(HttpServletRequest request,HttpServletResponse response) throws IOException {
@@ -17,19 +23,19 @@ public class BasicAuthentication implements Authentication {
         if (authentication == null) {
             return deny(response);
         }
-        Optional<User> user = Bus.getUserService().authenticateBase64(authentication.split(" ")[1]);
+        Optional<User> user = userService.authenticateBase64(authentication.split(" ")[1]);
         return user.isPresent() ? allow(request, user.get()) : deny(response);
     }
 
     private boolean allow(HttpServletRequest request, User user) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
-        request.setAttribute(ServiceLocator.USERPRINCIPAL, user);
+        request.setAttribute(WhiteBoardConfiguration.USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         return true;
     }
 
     private boolean deny(HttpServletResponse response) {
-        String realm = Bus.getUserService().getRealm();
+        String realm = userService.getRealm();
         response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         return false;

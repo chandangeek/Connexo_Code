@@ -18,9 +18,11 @@ import java.net.URL;
 public class EventServletWrapper extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final HttpServlet servlet;
+    private final WhiteBoard whiteBoard;
 
-    public EventServletWrapper(HttpServlet servlet) {
+    public EventServletWrapper(HttpServlet servlet, WhiteBoard whiteBoard) {
         this.servlet = servlet;
+        this.whiteBoard = whiteBoard;
     }
 
     @Override
@@ -36,17 +38,17 @@ public class EventServletWrapper extends HttpServlet {
 
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         Tracker tracker = new Tracker(new URL(request.getRequestURL().toString()));
-        Bus.getPublisher().addThreadSubscriber(tracker);
+        whiteBoard.getPublisher().addThreadSubscriber(tracker);
         try {
         	servlet.service(request,response);        	
         } finally {
         	tracker.stop();
-        	Bus.getPublisher().removeThreadSubscriber(tracker);
+        	whiteBoard.getPublisher().removeThreadSubscriber(tracker);
         }       
-        Bus.fire(tracker);        
+        whiteBoard.fire(tracker);        
     }
     
-    static class Tracker implements Subscriber , RestCallExecutedEvent {
+    private static class Tracker implements Subscriber , RestCallExecutedEvent {
     	
     	private final URL url;
     	private StopWatch stopWatch;
