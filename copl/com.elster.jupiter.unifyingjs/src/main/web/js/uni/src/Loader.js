@@ -24,8 +24,7 @@ Ext.define('Uni.Loader', {
         this.loadStateManager();
         this.loadOverrides();
         this.loadStores();
-
-        callback.call();
+        this.loadScripts(callback);
     },
 
     loadFont: function () {
@@ -56,6 +55,25 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
         Ext.require('Uni.store.Translations');
+    },
+
+    loadScript: function (src, callback) {
+        var script = document.createElement('script'),
+            loaded;
+        script.setAttribute('src', src);
+        if (callback) {
+            script.onreadystatechange = script.onload = function () {
+                if (!loaded) {
+                    callback();
+                }
+                loaded = true;
+            };
+        }
+        document.getElementsByTagName('head')[0].appendChild(script);
+    },
+
+    loadScripts: function (callback) {
+        this.loadScript('../uni/resources/js/moment/min/moment.min.js', callback);
     }
 
 });

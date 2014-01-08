@@ -8,12 +8,21 @@ function I18n() {
 Ext.require('Uni.store.Translations');
 
 /**
+ * Initializes the internationalization language that should be used.
+ *
+ * @param {String} language Language to use
+ */
+I18n.lang = function (language) {
+    // TODO Initialize the language.
+};
+
+/**
  * Uses a regular expression to find and replace all instances of a translation parameter.
  *
- * @param translation Translation to find and replace the index parameters
- * @param searchIndex Index value to replace with the value
- * @param replaceValue Value to replace search results with
- * @returns string  Replaced translation
+ * @param {String} translation Translation to find and replace the index parameters
+ * @param {Number} searchIndex Index value to replace with the value
+ * @param {String} replaceValue Value to replace search results with
+ * @returns {String} Replaced translation
  */
 I18n.replaceAll = function (translation, searchIndex, replaceValue) {
     var lookup = '\{[' + searchIndex + ']\}';
@@ -25,14 +34,18 @@ I18n.replaceAll = function (translation, searchIndex, replaceValue) {
  *
  * The 't' short notation stands for 'translate'.
  *
- * @param key Translation key to look up
- * @param values Values to replace in the translation
- * @returns string
+ * @param {String} key Translation key to look up
+ * @param {String[]} [values] Values to replace in the translation
+ * @returns {String} Translation.
  */
 I18n.t = function (key, values) {
-    var translation = Uni.store.Translations.getById(key).data.value;
+    var translation = Uni.store.Translations.getById(key);
 
-    if (translation !== undefined && values !== undefined) {
+    if (translation !== undefined && translation !== null) {
+        translation = translation.data.value;
+    }
+
+    if (values !== undefined) {
         for (var i = 0; i < values.length; i++) {
             translation = I18n.replaceAll(translation, i, values[i]);
         }
@@ -49,8 +62,8 @@ I18n.t = function (key, values) {
  *
  * The 'p' short notation stands for 'plural'.
  *
- * @param key Translation key to look up
- * @param number Number to translate with
+ * @param {String} key Translation key to look up
+ * @param {Number} number Number to translate with
  */
 I18n.p = function (key, number) {
     var lookup = key + '[' + number + ']',
@@ -67,8 +80,37 @@ I18n.p = function (key, number) {
     return translation;
 };
 
-// TODO Support for number formatting.
+/**
+ * Formats a date based on a translation key. If no date has been given, the current date is used.
+ * The date is formatted based on the browser's locale if no valid parse format has been found.
+ * The used parse syntax is that of Moment.js which can be found here:
+ * http://www.momentjs.com/docs/#/parsing/string-format/
+ *
+ * The 'd' short notation stands for 'date'.
+ *
+ * @param {String} key Translation key to format the date with
+ * @param {Date} [date] Date to format
+ * @returns {String} Formatted date as a string value
+ */
+I18n.d = function (key, date) {
+    // TODO Use a fallback format by loading in languages from Moment.js.
+    date = date ? date : new Date();
 
-// TODO Support for currency formatting.
+    var format = this.t(key, undefined),
+        formattedDate = date.toLocaleString();
 
-// TODO Support for date formatting.
+    if (format !== null) {
+        formattedDate = moment(date).format(format);
+    }
+
+    return formattedDate;
+};
+
+I18n.n = function (key) {
+    // TODO Support for number formatting.
+};
+
+
+I18n.c = function (key) {
+    // TODO Support for currency formatting.
+};
