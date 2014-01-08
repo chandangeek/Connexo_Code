@@ -94,7 +94,7 @@ public class TypedProperties {
     /**
      * Set a value for the property with the specified name.
      * Note that the value that was inherited will be overrule
-     * by the one that is set now. It will remain overrule until
+     * by the one that is set now. It will remain overruled until
      * the value of the property is removed.
      *
      * @param propertyName The name of the property for which a value is set
