@@ -69,11 +69,11 @@ I18n.p = function (key, number) {
     var lookup = key + '[' + number + ']',
         translation = Uni.store.Translations.getById(lookup).data.value;
 
-    if (translation === undefined) {
+    if (typeof translation === 'undefined') {
         translation = Uni.store.Translations.getById(key).data.value;
     }
 
-    if (translation !== undefined && number !== undefined) {
+    if (typeof number !== 'undefined') {
         translation = I18n.replaceAll(translation, 0, number);
     }
 
@@ -94,7 +94,7 @@ I18n.p = function (key, number) {
  */
 I18n.d = function (key, date) {
     // TODO Use a fallback format by loading in languages from Moment.js.
-    date = date ? date : new Date();
+    date = date || new Date();
 
     var format = this.t(key, undefined),
         formattedDate = date.toLocaleString();
@@ -106,11 +106,64 @@ I18n.d = function (key, date) {
     return formattedDate;
 };
 
-I18n.n = function (key) {
-    // TODO Support for number formatting.
+/**
+ * Formats a number based on parameters for the number of trailing decimal places, what decimal
+ * separator should be used, and what the thousands separator is. If the number of trailing
+ * decimals is not specified, 2 decimals are used. By default the decimal separator is '.' and
+ * the thousands separator is ','.
+ *
+ * Adapted from: http://stackoverflow.com/a/149099/682311
+ *
+ * @param {Number} number Number to format
+ * @param {Number} [decimals] Number of required decimal places
+ * @param {String} [decimalSeparator] Required decimal separator
+ * @param {String} [thousandsSeparator] Required thousand separator
+ * @returns {String} Formatted number
+ */
+I18n.formatNumber = function (number, decimals, decimalSeparator, thousandsSeparator) {
+    var n = parseFloat(number),
+        c = isNaN(decimals) ? 2 : Math.abs(decimals),
+        d = decimalSeparator || '.',
+        t = (typeof thousandsSeparator === 'undefined') ? ',' : thousandsSeparator,
+        sign = (n < 0) ? '-' : '',
+        i = parseInt(n = Math.abs(n).toFixed(c)) + '',
+        j = ((j = i.length) > 3) ? j % 3 : 0;
+
+    return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 };
 
+/**
+ * Internationalizes a number based on the number of trailing decimals, decimal separator, and thousands
+ * separator for the currently active locale. If the number of trailing decimals is not specified,
+ * 2 decimals are used. The translation lookup key for the decimal separator is 'decimalSeparator,
+ * while the thousands separator has the lookup key 'thousandsSeparator'.
+ *
+ * The 'n' short notation stands for 'number'.
+ *
+ * @param {Number} number Number to internationalize
+ * @param {Number} [decimals] Number of required decimal places
+ * @returns {String} Internationalized number
+ */
+I18n.n = function (number, decimals) {
+    var decimalSeparator = this.t('decimalSeparator'),
+        thousandsSeparator = this.t('thousandsSeparator');
 
-I18n.c = function (key) {
-    // TODO Support for currency formatting.
+    return this.formatNumber(number, decimals, decimalSeparator, thousandsSeparator);
+};
+
+/**
+ * Internationalizes a value into its correct currency format based on the active locale. If the number of
+ * trailing decimals is not specified, 2 decimals are used. The lookup key for the currency format
+ * is 'currencyFormat'. If the currency format is not found, the formatted numeric value is used.
+ *
+ * The 'c' short notation stands for 'currency'.
+ *
+ * @param {Number} value Currency value to internationalize
+ * @param {Number} [decimals] Number of required decimal places
+ * @returns {String} Internationalized currency value
+ */
+I18n.c = function (value, decimals) {
+    var formattedValue = this.n(value, decimals);
+
+    return this.t('currencyFormat', [formattedValue]) || formattedValue;
 };
