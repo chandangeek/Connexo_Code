@@ -17,16 +17,6 @@ Ext.define('Uni.view.navigation.Footer', {
                 'Elster EnergyICT Jupiter 1.0.0' +
                 '</a>, <a href="http://www.energyict.com/en/smart-grid" target="_blank">' +
                 'Smart data management</a>'
-        },
-        {
-            xtype: 'component',
-            cls: 'separator',
-            html: '&#8226;'
-        },
-        {
-            xtype: 'component',
-            cls: 'report-a-bug',
-            html: '<a href="http://www.energyict.com/en/contact" target="_blank">Report a bug</a>'
         }
     ],
 
