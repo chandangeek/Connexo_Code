@@ -13,4 +13,6 @@ public interface ServiceLocator {
     ThreadPrincipalService getThreadPrincipalService();
     Publisher getPublisher();
     void fire(RestCallExecutedEvent event);
+    String getAuthenticationMethhod();
+    boolean debug();
 }

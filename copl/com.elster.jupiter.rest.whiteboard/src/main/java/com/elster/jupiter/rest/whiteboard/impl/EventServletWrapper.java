@@ -118,7 +118,7 @@ public class EventServletWrapper extends HttpServlet {
     	@Override
 		public String toString() {
 			return 
-				"Rest call to " + url + " took " + stopWatch.getElapsed() / 1000L + " �s, executed " +
+				"Rest call to " + url + " took " + stopWatch.getElapsed() / 1000L + " \u00B5s, executed " +
 				getSqlCount() + " sql statements, fetched " + getFetchCount() + " tuples and executed " + getTransactionCount() +  
 				" transactions";
 		}

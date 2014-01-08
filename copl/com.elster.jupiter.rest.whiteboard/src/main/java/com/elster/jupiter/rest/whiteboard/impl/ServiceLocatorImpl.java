@@ -1,23 +1,27 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.google.common.base.*;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.*;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.google.common.base.Optional;
 
 
 /*
@@ -44,15 +48,9 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     private AtomicReference<EventAdmin> eventAdminServiceHolder = new AtomicReference<>();
     
     private volatile BundleTracker<Bundle> tracker;
-    private volatile WhiteBoard whiteBoard;
     private volatile Publisher publisher;
 
     public ServiceLocatorImpl() {            
-    }
-
-    @Reference
-    public void setHttpService(HttpService httpService) {    	
-    	this.whiteBoard = new WhiteBoard(httpService);
     }
     
     @Activate
@@ -80,8 +78,7 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     
     @Deactivate
     public void deactivate() {
-    	tracker.close();    	
-    	whiteBoard.close();    	
+    	tracker.close();    	  	
     	Bus.clearServiceLocator(this);
     }
     
@@ -107,7 +104,8 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 
 	
 	void startWhiteBoard(BundleContext bundleContext) {		
-		whiteBoard.open(bundleContext,authenticationMethod.orNull(),debug);
+		bundleContext.registerService(ServiceLocator.class,this,null);
+		//whiteBoard.open(bundleContext,authenticationMethod.orNull(),debug);
 	}
 		
     @Override
@@ -177,5 +175,15 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 				eventAdmin.postEvent(event.toOsgiEvent());
 			}
 		}
+	}
+
+	@Override
+	public String getAuthenticationMethhod() {
+		return authenticationMethod.orNull();
+	}
+
+	@Override
+	public boolean debug() {
+		return debug;
 	}
 }
