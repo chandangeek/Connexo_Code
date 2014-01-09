@@ -369,4 +369,40 @@ public class EngineModelServiceImpl implements EngineModelService,OrmClient {
     public List<ComPortPool> findAllComPortPools() {
         return getComPortPoolFactory().find();
     }
+
+    @Override
+    public ComPort newComPort() {
+        //todo
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool) {
+        //todo
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<OutboundComPort> findOutboundInPool(OutboundComPortPool comPortPool) {
+        //todo
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<OutboundComPort> findOutboundComPortsWithComPortType(ComPortType comPortType) {
+        //todo
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<InboundComPort> findInboundComPortsWithComPortType(ComPortType comPortType) {
+        //todo
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<ComPort> findAllWithDeleted() {
+        //todo
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
