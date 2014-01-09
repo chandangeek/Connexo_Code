@@ -34,7 +34,6 @@ public class ConsoleCommandsImpl {
     private volatile TransactionService transactionService;
     private volatile DataModel dataModel;
 
-
     @Activate
 	public void activate(BundleContext context) {
 	}
