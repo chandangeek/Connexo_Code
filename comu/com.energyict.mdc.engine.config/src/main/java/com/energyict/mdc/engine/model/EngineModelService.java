@@ -51,6 +51,8 @@ public interface EngineModelService {
      */
     public List<RemoteComServer> findAllRemoteComServers ();
 
+    List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer);
+
     /**
      * Returns the number of offline servers
      * @return the number of offline servers
