@@ -8,12 +8,48 @@ function I18n() {
 Ext.require('Uni.store.Translations');
 
 /**
- * Initializes the internationalization language that should be used.
+ * Loads the internationalization locale that should be used.
  *
- * @param {String} language Language to use
+ * @param {String} locale Locale to use
+ * @param {String} component Component to load
+ * @param {Function} [callback] Callback after loading
  */
-I18n.lang = function (language) {
-    // TODO Initialize the language.
+I18n.loadLocale = function (locale, component, callback) {
+    locale = (typeof locale !== 'undefined') ? locale : 'en-GB';
+    Uni.store.Translations.setLocale(locale);
+
+    component = (typeof component !== 'undefined') ? component : 'all';
+    Uni.store.Translations.setComponent(component);
+
+    callback = (typeof callback !== 'undefined') ? callback : function () {
+    };
+
+    Uni.store.Translations.load({
+        callback: callback
+    });
+};
+
+/**
+ * Looks up the translation for a certain key. If there is a missing translation, the key
+ * will be returned surrounded by square brackets like [this]. In debug there will also
+ * be an extra warning that is logged in the debug console.
+ *
+ * @param {String} key Key to look up the translation for
+ * @returns {String} Translation
+ */
+I18n.lookupTranslation = function (key) {
+    var translation = Uni.store.Translations.getById(key);
+
+    if (typeof translation !== 'undefined' && translation !== null) {
+        translation = translation.data.value;
+    } else {
+        translation = '[' + key + ']';
+        //<debug>
+        console.warn('Missing translation for key: ' + key);
+        //</debug>
+    }
+
+    return translation;
 };
 
 /**
@@ -39,13 +75,9 @@ I18n.replaceAll = function (translation, searchIndex, replaceValue) {
  * @returns {String} Translation.
  */
 I18n.t = function (key, values) {
-    var translation = Uni.store.Translations.getById(key);
+    var translation = I18n.lookupTranslation(key);
 
-    if (translation !== undefined && translation !== null) {
-        translation = translation.data.value;
-    }
-
-    if (values !== undefined) {
+    if (typeof translation !== 'undefined' && translation !== null && typeof values !== 'undefined') {
         for (var i = 0; i < values.length; i++) {
             translation = I18n.replaceAll(translation, i, values[i]);
         }
@@ -67,10 +99,10 @@ I18n.t = function (key, values) {
  */
 I18n.p = function (key, number) {
     var lookup = key + '[' + number + ']',
-        translation = Uni.store.Translations.getById(lookup).data.value;
+        translation = I18n.lookupTranslation(lookup);
 
     if (typeof translation === 'undefined') {
-        translation = Uni.store.Translations.getById(key).data.value;
+        translation = I18n.lookupTranslation(key);
     }
 
     if (typeof number !== 'undefined') {
