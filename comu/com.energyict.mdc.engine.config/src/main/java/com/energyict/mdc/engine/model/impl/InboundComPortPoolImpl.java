@@ -41,7 +41,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     }
 
     @Override
-    public Long getDiscoveryProtocolPluggableClassId() {
+    public long getDiscoveryProtocolPluggableClassId() {
         return this.discoveryProtocolPluggableClassId;
     }
 

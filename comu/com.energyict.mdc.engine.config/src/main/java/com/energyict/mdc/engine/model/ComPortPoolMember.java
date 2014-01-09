@@ -9,4 +9,6 @@ public interface ComPortPoolMember {
     public ComPort getComPort();
 
     public void setComPort(ComPort comPort);
+
+    public void remove();
 }

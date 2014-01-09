@@ -332,4 +332,32 @@ public class EngineModelServiceImpl implements EngineModelService,OrmClient {
     public DataMapper<ComPortPoolMember> getComPortPoolMemberFactory() {
         return dataModel.mapper(ComPortPoolMember.class);
     }
+
+    @Override
+    public void removeComPortFromPools(ComPort comPort) {
+        for (ComPortPoolMember comPortPoolMember : getComPortPoolMemberFactory().find("comPort", comPort)) {
+            comPortPoolMember.remove();
+        }
+
+    }
+
+    @Override
+    public List<ComPortPool> findContainingComPortPoolsForComPort(ComPort comPort) {
+        List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberFactory().find("comPort", comPort);
+        List<ComPortPool> comPortPools = new ArrayList<>();
+        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
+            comPortPools.add(comPortPoolMember.getComPortPool());
+        }
+        return comPortPools;
+    }
+
+    @Override
+    public List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer) {
+        List<ComPortPool> comPortPools = new ArrayList<>();
+        for (ComPort comPort : comServer.getComPorts()) {
+            comPortPools.addAll(findContainingComPortPoolsForComPort(comPort));
+        }
+
+        return comPortPools;
+    }
 }

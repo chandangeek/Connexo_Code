@@ -45,4 +45,9 @@ public class ComPortPoolMemberImpl implements ComPortPoolMember {
         Objects.requireNonNull(comPort);
         this.comPort.set(comPort);
     }
+
+    @Override
+    public void remove() {
+        Bus.getServiceLocator().getOrmClient().getComPortPoolMemberFactory().remove(this);
+    }
 }

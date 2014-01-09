@@ -29,7 +29,7 @@ public interface InboundComPortPool extends ComPortPool {
      *
      * @return The discovery pluggable class
      */
-    public Long getDiscoveryProtocolPluggableClassId();
+    public long getDiscoveryProtocolPluggableClassId();
 
     void setDiscoveryProtocolPluggableClassId(long discoveryProtocolPluggableClassId);
 }
