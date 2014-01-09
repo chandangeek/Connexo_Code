@@ -201,4 +201,6 @@ public interface EngineModelService {
     List<ComPortPool> findContainingComPortPoolsForComPort(ComPort comPort);
 
     List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer);
+
+    List<ComPortPool> findAllComPortPools();
 }

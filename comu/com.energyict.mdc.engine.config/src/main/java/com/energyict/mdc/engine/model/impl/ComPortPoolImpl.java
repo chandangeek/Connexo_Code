@@ -162,6 +162,13 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         }
     }
 
+    @Override
+    public void delete() {
+        validateDelete();
+        getComPortPoolFactory().remove(this);
+    }
+
+
     protected void validateDelete() {
         // NO-OP so far
     }

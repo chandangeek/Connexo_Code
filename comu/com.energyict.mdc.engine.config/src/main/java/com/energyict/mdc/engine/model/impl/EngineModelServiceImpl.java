@@ -360,4 +360,9 @@ public class EngineModelServiceImpl implements EngineModelService,OrmClient {
 
         return comPortPools;
     }
+
+    @Override
+    public List<ComPortPool> findAllComPortPools() {
+        return getComPortPoolFactory().find();
+    }
 }

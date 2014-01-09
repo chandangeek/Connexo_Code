@@ -75,4 +75,5 @@ public interface ComPortPool {
 
     public void save();
 
+    void delete();
 }
