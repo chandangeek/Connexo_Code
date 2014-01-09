@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.engine.model.ComPort;
@@ -21,6 +22,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -32,10 +34,24 @@ import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVE
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.model", service = EngineModelService.class)
-public class EngineModelServiceImpl implements EngineModelService,OrmClient {
+@Component(name = "com.energyict.mdc.engine.model", service = {EngineModelService.class, InstallService.class} )
+public class EngineModelServiceImpl implements EngineModelService, InstallService, OrmClient {
 
     private volatile DataModel dataModel;
+
+    @Inject
+    public EngineModelServiceImpl(OrmService ormService) {
+        this.setOrmService(ormService);
+        activate();
+        if (!dataModel.isInstalled()) {
+        	install();
+        }
+    }
+
+    @Override
+    public void install() {
+        dataModel.install(true, true);
+    }
 
     @Reference
     public void setOrmService(OrmService ormService) {
