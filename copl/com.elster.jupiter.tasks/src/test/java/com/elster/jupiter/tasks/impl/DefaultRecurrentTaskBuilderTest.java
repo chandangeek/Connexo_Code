@@ -1,6 +1,8 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -10,7 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Date;
 
@@ -34,25 +38,30 @@ public class DefaultRecurrentTaskBuilderTest {
     @Mock
     private Clock clock;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private CronExpression cronExpression;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private MessageService messageService;
 
     @Before
     public void setUp() {
-        defaultRecurrentTaskBuilder = new DefaultRecurrentTaskBuilder(cronExpressionParser);
+        when(dataModel.getInstance(RecurrentTaskImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock);
+            }
+        });
 
-        when(serviceLocator.getClock()).thenReturn(clock);
+        defaultRecurrentTaskBuilder = new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
+
         when(clock.now()).thenReturn(NOW);
         when(cronExpressionParser.parse(CRON_STRING)).thenReturn(cronExpression);
         when(cronExpression.nextAfter(NOW)).thenReturn(FIRST);
-
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

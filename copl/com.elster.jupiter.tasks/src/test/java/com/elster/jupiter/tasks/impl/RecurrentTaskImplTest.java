@@ -1,17 +1,22 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Date;
 
@@ -30,10 +35,6 @@ public class RecurrentTaskImplTest {
     private RecurrentTaskImpl recurrentTask;
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
-    private OrmClient ormClient;
-    @Mock
     private CronExpression cronExpression;
     @Mock
     private DestinationSpec destination;
@@ -43,25 +44,32 @@ public class RecurrentTaskImplTest {
     private DataMapper<TaskOccurrence> taskOccurrenceFactory;
     @Mock
     private DataMapper<RecurrentTask> recurrentTaskFactory;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private CronExpressionParser cronExpressionParser;
+    @Mock
+    private MessageService messageService;
 
     @Before
     public void setUp() {
-        recurrentTask = new RecurrentTaskImpl(NAME, cronExpression, destination, PAYLOAD);
+        when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new TaskOccurrenceImpl(dataModel);
+            }
+        });
+        when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
+        when(dataModel.mapper(RecurrentTask.class)).thenReturn(recurrentTaskFactory);
 
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(serviceLocator.getClock()).thenReturn(clock);
-        when(ormClient.getTaskOccurrenceFactory()).thenReturn(taskOccurrenceFactory);
-        when(ormClient.getRecurrentTaskFactory()).thenReturn(recurrentTaskFactory);
+        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+
         when(clock.now()).thenReturn(NOW);
         when(cronExpression.nextAfter(NOW)).thenReturn(NEXT);
-
-
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

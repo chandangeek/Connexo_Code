@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.json.JsonService;
@@ -29,8 +30,6 @@ public class TaskExecutionMessageHandlerTest {
     private TaskOccurrenceMessage taskOccurrenceMessage;
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private JsonService jsonService;
     @Mock
     private TaskExecutor taskExecutor;
@@ -39,32 +38,27 @@ public class TaskExecutionMessageHandlerTest {
     @Mock
     private TaskOccurrence taskOccurrence;
     @Mock
-    private OrmClient ormClient;
-    @Mock
     private DataMapper<TaskOccurrence> taskOccurrenceFactory;
     @Mock
     private SQLException sqlException;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() {
 
-        taskExecutionMessageHandler = new TaskExecutionMessageHandler(taskExecutor);
+        taskExecutionMessageHandler = new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService);
 
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getTaskOccurrenceFactory()).thenReturn(taskOccurrenceFactory);
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(taskOccurrence.getId()).thenReturn(ID);
         taskOccurrenceMessage = new TaskOccurrenceMessage(taskOccurrence);
         when(taskOccurrenceFactory.getOptional(ID)).thenReturn(Optional.of(taskOccurrence));
         when(jsonService.deserialize(PAYLOAD, TaskOccurrenceMessage.class)).thenReturn(taskOccurrenceMessage);
-
-        Bus.setServiceLocator(serviceLocator);
+        when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

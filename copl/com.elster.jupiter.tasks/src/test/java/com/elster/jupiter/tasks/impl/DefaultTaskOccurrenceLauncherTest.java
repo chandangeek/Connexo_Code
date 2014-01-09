@@ -35,8 +35,6 @@ public class DefaultTaskOccurrenceLauncherTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private JsonService jsonService;
     @Mock
     private TaskOccurrence taskOccurrence1, taskOccurrence2;
@@ -49,12 +47,12 @@ public class DefaultTaskOccurrenceLauncherTest {
 
     @Before
     public void setUp() {
-        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(dueTaskFetcher);
+        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, jsonService, dueTaskFetcher);
 
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(task1, task2));
-        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-        when(serviceLocator.getClock()).thenReturn(clock);
+//        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
+//        when(serviceLocator.getJsonService()).thenReturn(jsonService);
+//        when(serviceLocator.getClock()).thenReturn(clock);
         when(task1.createTaskOccurrence()).thenReturn(taskOccurrence1);
         when(task2.createTaskOccurrence()).thenReturn(taskOccurrence2);
         when(task1.getDestination()).thenReturn(destination1);
@@ -62,14 +60,10 @@ public class DefaultTaskOccurrenceLauncherTest {
         when(destination1.message(SERIALIZED1)).thenReturn(builder1);
         when(destination2.message(SERIALIZED2)).thenReturn(builder2);
         when(jsonService.serialize(any(TaskOccurrenceMessage.class))).thenReturn(SERIALIZED1, SERIALIZED2);
-
-        Bus.setServiceLocator(serviceLocator);
-
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

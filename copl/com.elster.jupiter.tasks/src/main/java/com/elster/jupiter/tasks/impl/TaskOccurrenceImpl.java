@@ -1,9 +1,11 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 class TaskOccurrenceImpl implements TaskOccurrence {
@@ -13,15 +15,24 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private RecurrentTask recurrentTask;
     private UtcInstant triggerTime;
 
+    private final DataModel dataModel;
+
     @SuppressWarnings("unused")
-	private TaskOccurrenceImpl() {
+    @Inject
+	TaskOccurrenceImpl(DataModel dataModel) {
         // for persistence
+        this.dataModel = dataModel;
     }
 
-    TaskOccurrenceImpl(RecurrentTask recurrentTask, Date triggerTime) {
+    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Date triggerTime) {
         this.recurrentTask = recurrentTask;
         this.recurrentTaskId = recurrentTask.getId();
         this.triggerTime = new UtcInstant(triggerTime);
+        return this;
+    }
+
+    static TaskOccurrenceImpl from(DataModel dataModel, RecurrentTask recurrentTask, Date triggerTime) {
+        return dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime);
     }
 
     @Override
@@ -42,7 +53,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public RecurrentTask getRecurrentTask() {
         if (recurrentTask == null) {
-            recurrentTask = Bus.getOrmClient().getRecurrentTaskFactory().getExisting(recurrentTaskId);
+            recurrentTask = dataModel.mapper(RecurrentTask.class).getExisting(recurrentTaskId);
         }
         return recurrentTask;
     }
@@ -50,9 +61,9 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public void save() {
         if (id == 0) {
-            Bus.getOrmClient().getTaskOccurrenceFactory().persist(this);
+            dataModel.mapper(TaskOccurrence.class).persist(this);
         } else {
-            Bus.getOrmClient().getTaskOccurrenceFactory().update(this);
+            dataModel.mapper(TaskOccurrence.class).update(this);
         }
     }
 }

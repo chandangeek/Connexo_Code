@@ -2,8 +2,10 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.json.JsonService;
 
 /**
  * Handles Messages that contain a TaskOccurrenceMessage and passes the matching TaskOccurrence instance to the configured TaskExecutor
@@ -11,9 +13,13 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 class TaskExecutionMessageHandler implements MessageHandler {
 
     private final TaskExecutor taskExecutor;
+    private final DataModel dataModel;
+    private final JsonService jsonService;
 
-    public TaskExecutionMessageHandler(TaskExecutor taskExecutor) {
+    public TaskExecutionMessageHandler(DataModel dataModel, TaskExecutor taskExecutor, JsonService jsonService) {
+        this.dataModel = dataModel;
         this.taskExecutor = taskExecutor;
+        this.jsonService = jsonService;
     }
 
     @Override
@@ -25,11 +31,11 @@ class TaskExecutionMessageHandler implements MessageHandler {
     }
 
     private TaskOccurrence getTaskOccurrence(Message message) {
-        return Bus.getOrmClient().getTaskOccurrenceFactory().getOptional(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
+        return dataModel.mapper(TaskOccurrence.class).getOptional(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
     }
 
     private TaskOccurrenceMessage getTaskOccurrenceMessage(Message message) {
-        return Bus.getJsonService().deserialize(message.getPayload(), TaskOccurrenceMessage.class);
+        return jsonService.deserialize(message.getPayload(), TaskOccurrenceMessage.class);
 
     }
 }

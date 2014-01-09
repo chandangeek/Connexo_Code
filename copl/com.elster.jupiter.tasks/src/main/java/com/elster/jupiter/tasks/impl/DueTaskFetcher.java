@@ -1,8 +1,12 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.time.Clock;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,8 +25,20 @@ class DueTaskFetcher {
     private static final int PAYLOAD_INDEX = 5;
     private static final int DESTINATION_INDEX = 6;
 
+    private final DataModel dataModel;
+    private final Clock clock;
+    private final MessageService messageService;
+    private final CronExpressionParser cronExpressionParser;
+
+    DueTaskFetcher(DataModel dataModel, MessageService messageService, CronExpressionParser cronExpressionParser, Clock clock) {
+        this.dataModel = dataModel;
+        this.messageService = messageService;
+        this.cronExpressionParser = cronExpressionParser;
+        this.clock = clock;
+    }
+
     Iterable<RecurrentTask> dueTasks() {
-        try (Connection connection = Bus.getOrmClient().getConnection()) {
+        try (Connection connection = dataModel.getConnection(false)) {
             return dueTasks(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -30,7 +46,7 @@ class DueTaskFetcher {
     }
 
     private Iterable<RecurrentTask> dueTasks(Connection connection) throws SQLException {
-        Date now = Bus.getClock().now();
+        Date now = clock.now();
         try (PreparedStatement statement = connection.prepareStatement("select id, name, cronstring, nextexecution, payload, destination from TSK_RECURRENT_TASK where nextExecution < ?")) {
             statement.setLong(1, now.getTime());
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -55,8 +71,8 @@ class DueTaskFetcher {
         Date nextExecution = resultSet.wasNull() ? null : new Date(nextExecutionLong);
         String payload = resultSet.getString(PAYLOAD_INDEX);
         String destination = resultSet.getString(DESTINATION_INDEX);
-        DestinationSpec destinationSpec = Bus.getMessageService().getDestinationSpec(destination).get();
-        RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, Bus.getCronExpressionParser().parse(cronString), destinationSpec, payload);
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).get();
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, cronExpressionParser.parse(cronString), destinationSpec, payload);
         recurrentTask.setNextExecution(nextExecution);
         recurrentTask.setId(id);
         return recurrentTask;

@@ -5,6 +5,8 @@ import com.google.common.base.Optional;
 
 public interface TaskService {
 
+    String COMPONENTNAME = "TSK";
+
     RecurrentTaskBuilder newBuilder();
 
     MessageHandler createMessageHandler(TaskExecutor taskExecutor);

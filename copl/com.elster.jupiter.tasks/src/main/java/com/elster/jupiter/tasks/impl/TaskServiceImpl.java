@@ -17,18 +17,18 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
 import java.util.concurrent.TimeUnit;
 
-@Component(name = "com.elster.jupiter.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
-public class TaskServiceImpl implements TaskService, ServiceLocator, InstallService {
+@Component(name = "com.elster.jupiter.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENTNAME, immediate = true)
+public class TaskServiceImpl implements TaskService, InstallService {
 
-    private DueTaskFetcher dueTaskFetcher = new DueTaskFetcher();
+    private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
     private volatile MessageService messageService;
-    private volatile OrmClient ormClient;
     private volatile LogService logService;
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
@@ -36,15 +36,26 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     private volatile JsonService jsonService;
 
     private Thread schedulerThread;
+    private volatile DataModel dataModel;
 
     @Activate
     public void activate() {
-        Bus.setServiceLocator(this);
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(Clock.class).toInstance(clock);
+                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                bind(JsonService.class).toInstance(jsonService);
+                bind(QueryService.class).toInstance(queryService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TransactionService.class).toInstance(transactionService);
+            }
+        });
     }
 
     @Override
     public MessageHandler createMessageHandler(TaskExecutor taskExecutor) {
-        return new TaskExecutionMessageHandler(taskExecutor);
+        return new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService);
     }
 
     @Deactivate
@@ -57,57 +68,16 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     			Thread.currentThread().interrupt();
     		}
         }
-        Bus.clearServiceLocator(this);
-    }
-
-    @Override
-    public Clock getClock() {
-        return clock;
-    }
-
-    @Override
-    public CronExpressionParser getCronExpressionParser() {
-        return cronExpressionParser;
-    }
-
-    @Override
-    public JsonService getJsonService() {
-        return jsonService;
-    }
-
-    @Override
-    public LogService getLogService() {
-        return logService;
-    }
-
-    @Override
-    public MessageService getMessageService() {
-        return messageService;
-    }
-
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
-    }
-
-    @Override
-    public QueryService getQueryService() {
-        return queryService;
     }
 
     @Override
     public Optional<RecurrentTask> getRecurrentTask(long id) {
-        return getOrmClient().getRecurrentTaskFactory().getOptional(id);
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
+        return dataModel.mapper(RecurrentTask.class).getOptional(id);
     }
 
     @Override
     public void install() {
-        new InstallerImpl().install();
+        new InstallerImpl(dataModel).install();
     }
 
     @Override
@@ -120,7 +90,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
         if (isLaunched()) {
             throw new TaskServiceAlreadyLaunched();
         }
-        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(getDueTaskFetcher());
+        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, jsonService, getDueTaskFetcher());
         TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES);
         schedulerThread = new Thread(taskScheduler);
         schedulerThread.setName("SchedulerThread");
@@ -129,7 +99,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
 
     @Override
     public RecurrentTaskBuilder newBuilder() {
-        return new DefaultRecurrentTaskBuilder(getCronExpressionParser());
+        return new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
     }
 
     @Reference
@@ -159,11 +129,11 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Tasks");
+        DataModel dataModel = ormService.newDataModel(TaskService.COMPONENTNAME, "Jupiter Tasks");
         for (TableSpecs each : TableSpecs.values()) {
             each.addTo(dataModel);
         }
-        this.ormClient = new OrmClientImpl(dataModel);
+        this.dataModel = dataModel;
     }
 
     @Reference
@@ -181,6 +151,9 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     }
 
     private DueTaskFetcher getDueTaskFetcher() {
+        if (dueTaskFetcher == null) {
+            dueTaskFetcher = new DueTaskFetcher(dataModel, messageService, cronExpressionParser, clock);
+        }
         return dueTaskFetcher;
     }
 }

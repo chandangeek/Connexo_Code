@@ -8,12 +8,10 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,8 +32,6 @@ public class TaskOccurrenceLauncherTest {
 
     private TaskOccurrenceLauncher launcher;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private DestinationSpec destinationSpec1, destinationSpec2;
     @Mock
@@ -55,14 +51,11 @@ public class TaskOccurrenceLauncherTest {
 
     @Before
     public void setUp() {
-        Bus.setServiceLocator(serviceLocator);
-
-        when(serviceLocator.getClock()).thenReturn(clock);
-
-        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME1)).thenReturn(Optional.of(destinationSpec1));
-        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME2)).thenReturn(Optional.of(destinationSpec2));
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
+//        when(serviceLocator.getClock()).thenReturn(clock);
+//        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
+//        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME1)).thenReturn(Optional.of(destinationSpec1));
+//        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME2)).thenReturn(Optional.of(destinationSpec2));
+//        when(serviceLocator.getJsonService()).thenReturn(jsonService);
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
         when(recurrentTask1.getDestination()).thenReturn(destinationSpec1);
         when(recurrentTask1.createTaskOccurrence()).thenReturn(taskOccurrence1);
@@ -86,12 +79,11 @@ public class TaskOccurrenceLauncherTest {
             }
         });
 
-        launcher = new DefaultTaskOccurrenceLauncher(dueTaskFetcher);
+        launcher = new DefaultTaskOccurrenceLauncher(transactionService, jsonService, dueTaskFetcher);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

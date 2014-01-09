@@ -1,6 +1,7 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -17,8 +18,10 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     private String payload;
     private DestinationSpec destination;
     private boolean scheduleImmediately;
+    private final DataModel dataModel;
 
-    public DefaultRecurrentTaskBuilder(CronExpressionParser cronExpressionParser) {
+    public DefaultRecurrentTaskBuilder(DataModel dataModel, CronExpressionParser cronExpressionParser) {
+        this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
     }
 
@@ -54,7 +57,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
     @Override
     public RecurrentTask build() {
-        RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, cronExpressionParser.parse(cronString), destination, payload);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, cronExpressionParser.parse(cronString), destination, payload);
         if (scheduleImmediately) {
             recurrentTask.updateNextExecution();
         }

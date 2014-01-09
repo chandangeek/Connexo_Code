@@ -62,11 +62,7 @@ public class TaskServiceImplTest {
     @Mock
     private RecurrentTask recurrentTask;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private TransactionService transactionService;
-    @Mock
-    private OrmClient ormClient;
     @Mock
     private Connection connection;
     @Mock
@@ -88,31 +84,24 @@ public class TaskServiceImplTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
         when(dataModel.mapper(any(Class.class))).thenReturn(recurrentTaskFactory);
-        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
         when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
             }
         });
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getConnection()).thenReturn(connection);
-        when(serviceLocator.getClock()).thenReturn(clock);
         when(clock.now()).thenReturn(NOW);
-        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 
         taskService = new TaskServiceImpl();
         taskService.setDueTaskFetcher(dueTaskFetcher);
-
         taskService.setCronExpressionParser(cronExpressionParser);
         taskService.setOrmService(ormService);
-
-        Bus.setServiceLocator(serviceLocator);
+        taskService.setTransactionService(transactionService);
+        taskService.setJsonService(jsonService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
@@ -164,7 +153,7 @@ public class TaskServiceImplTest {
         try {
             taskService.launch();
 
-            assertThat(jobEndedLatch.await(1, TimeUnit.MINUTES)).isTrue(); // ensure jobs get executed
+            assertThat(jobEndedLatch.await(10, TimeUnit.MINUTES)).isTrue(); // ensure jobs get executed
         } finally {
             taskService.deactivate();
         }

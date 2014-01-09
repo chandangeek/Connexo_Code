@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -13,7 +14,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,10 +39,6 @@ public class DueTaskFetcherTest {
     private static final String PAYLOAD = "PAYLOAD";
     private static final String DESTINATION = "destination";
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
-    private OrmClient ormClient;
-    @Mock
     private Connection connection;
     @Mock
     private Clock clock;
@@ -56,34 +55,41 @@ public class DueTaskFetcherTest {
     @Mock
     private CronExpression cronExpression;
     private DueTaskFetcher dueTaskFetcher;
+    @Mock
+    private DataModel dataModel;
 
     @Before
     public void setUp() throws SQLException {
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
-        when(ormClient.getConnection()).thenReturn(connection);
-        when(serviceLocator.getClock()).thenReturn(clock);
-        when(serviceLocator.getCronExpressionParser()).thenReturn(cronExpressionParser);
+//        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
+//        when(ormClient.getConnection()).thenReturn(connection);
+//        when(serviceLocator.getClock()).thenReturn(clock);
+//        when(serviceLocator.getCronExpressionParser()).thenReturn(cronExpressionParser);
+//        when(serviceLocator.getMessageService()).thenReturn(messageService);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(clock.now()).thenReturn(NOW);
-        when(serviceLocator.getMessageService()).thenReturn(messageService);
         when(messageService.getDestinationSpec(DESTINATION)).thenReturn(Optional.of(destination));
         when(cronExpressionParser.parse(CRON)).thenReturn(cronExpression);
+        when(dataModel.getConnection(false)).thenReturn(connection);
+        when(dataModel.getInstance(RecurrentTaskImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock);
+            }
+        });
 
-        Bus.setServiceLocator(serviceLocator);
-        dueTaskFetcher = new DueTaskFetcher();
+        dueTaskFetcher = new DueTaskFetcher(dataModel, messageService, cronExpressionParser, clock);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
     public void testNoTasks() throws SQLException {
         when(resultSet.next()).thenReturn(false);
 
-        assertThat(new DueTaskFetcher().dueTasks()).isEmpty();
+        assertThat(new DueTaskFetcher(dataModel, messageService, cronExpressionParser, clock).dueTasks()).isEmpty();
 
         verify(resultSet).close();
     }
