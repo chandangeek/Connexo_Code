@@ -1,10 +1,8 @@
 package com.energyict.mdc.dynamic;
 
-import com.energyict.mdc.common.Password;
-import com.energyict.mdc.dynamic.AbstractValueFactory;
-import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.common.DataVault;
 import com.energyict.mdc.common.DataVaultProvider;
+import com.energyict.mdc.common.Password;
 
 import java.sql.SQLException;
 
