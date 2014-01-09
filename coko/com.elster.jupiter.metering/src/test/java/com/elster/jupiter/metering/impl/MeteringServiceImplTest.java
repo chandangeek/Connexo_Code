@@ -68,7 +68,6 @@ public class MeteringServiceImplTest {
         when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
         when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryTypeCache);
         meteringService = new MeteringServiceImpl();
-        Bus.setServiceLocator(meteringService);
 
         meteringService.setOrmService(ormService);
         meteringService.setIdsService(idsService);
@@ -76,7 +75,6 @@ public class MeteringServiceImplTest {
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(meteringService);
     }
 
     @Test

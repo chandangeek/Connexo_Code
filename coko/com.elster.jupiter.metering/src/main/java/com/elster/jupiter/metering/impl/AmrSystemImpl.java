@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -22,16 +24,26 @@ public class AmrSystemImpl implements AmrSystem {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
-	@SuppressWarnings("unused")
-    @Inject
-	private AmrSystemImpl() {
-	}
 
-	AmrSystemImpl(int id , String name) {
+    private final DataModel dataModel;
+    private final MeteringService meteringService;
+
+    @SuppressWarnings("unused")
+    @Inject
+	AmrSystemImpl(DataModel dataModel, MeteringService meteringService) {
+        this.dataModel = dataModel;
+        this.meteringService = meteringService;
+    }
+
+	AmrSystemImpl init(int id , String name) {
 		this.id = id;
 		this.name = name;
+        return this;
 	}
+
+    static AmrSystemImpl from(DataModel dataModel, int id, String name) {
+        return dataModel.getInstance(AmrSystemImpl.class).init(id, name);
+    }
 	
 	@Override
 	public int getId() {	
@@ -44,23 +56,23 @@ public class AmrSystemImpl implements AmrSystem {
 	}
 	
 	void save() {
-		Bus.getOrmClient().getAmrSystemFactory().persist(this);
+		dataModel.mapper(AmrSystem.class).persist(this);
 	}
 
 	@Override 
 	public Meter newMeter(String amrId) {
-		return new MeterImpl(this, amrId, null);
+		return MeterImpl.from(dataModel, this, amrId, null);
 	}
 	@Override
 	public Meter newMeter(String amrId, String mRID) {
-		return new MeterImpl(this, amrId, mRID);
+		return MeterImpl.from(dataModel, this, amrId, mRID);
 	}
 
 	@Override
 	public Optional<Meter> findMeter(String amrId) {
 		Condition condition = Operator.EQUAL.compare("amrSystemId", getId());
 		condition = condition.and(Operator.EQUAL.compare("amrId",amrId));
-		List<Meter> candidates = Bus.getMeteringService().getMeterQuery().select(condition);
+		List<Meter> candidates = meteringService.getMeterQuery().select(condition);
 		switch(candidates.size()) {
 			case 0:
 				return Optional.absent();

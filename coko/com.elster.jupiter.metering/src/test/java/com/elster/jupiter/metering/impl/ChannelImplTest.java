@@ -7,10 +7,14 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -20,9 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -64,8 +69,6 @@ public class ChannelImplTest extends EqualsContractTest {
     private MeterActivation meterActivation;
     @Mock
     private IdsService idsService;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    ServiceLocator serviceLocator;
     @Mock
     private TimeSeries timeSeries, regularTimeSeries;
     @Mock
@@ -74,39 +77,54 @@ public class ChannelImplTest extends EqualsContractTest {
     private RecordSpec recordSpec;
     @Mock
     private TimeSeriesEntry timeSeriesEntry;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private Clock clock;
+    @Mock
+    private DataMapper<ReadingTypeInChannel> readingTypeInChannelFactory;
 
     @Before
     public void setUp() {
-        readingType1 = new ReadingTypeImpl(MRID1, "1");
-        readingType2 = new ReadingTypeImpl(MRID2, "2");
-        readingType3 = new ReadingTypeImpl(MRID3, "3");
-        readingType4 = new ReadingTypeImpl(MRID4, "4");
+        when(dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, clock));
+        when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ReadingTypeImpl(dataModel);
+            }
+        });
+        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenReturn(new ReadingTypeInChannel(dataModel));
+        when(dataModel.mapper(ReadingTypeInChannel.class)).thenReturn(readingTypeInChannelFactory);
 
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
-        when(serviceLocator.getClock().getTimeZone()).thenReturn(TIME_ZONE);
-        when(serviceLocator.getIdsService().getRecordSpec(Bus.COMPONENTNAME, 4)).thenReturn(Optional.of(recordSpec));
-        when(serviceLocator.getIdsService().getVault(Bus.COMPONENTNAME, 2)).thenReturn(Optional.of(vault));
-        when(serviceLocator.getIdsService().getRecordSpec(Bus.COMPONENTNAME, 1)).thenReturn(Optional.of(recordSpec));
-        when(serviceLocator.getIdsService().getVault(Bus.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
+        when(clock.getTimeZone()).thenReturn(TIME_ZONE);
+        when(idsService.getVault(MessageService.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
+        when(idsService.getVault(MessageService.COMPONENTNAME, 2)).thenReturn(Optional.of(vault));
+        when(idsService.getVault(MessageService.COMPONENTNAME, 3)).thenReturn(Optional.of(vault));
+        when(idsService.getVault(MessageService.COMPONENTNAME, 4)).thenReturn(Optional.of(vault));
+        when(idsService.getRecordSpec(MessageService.COMPONENTNAME, 1)).thenReturn(Optional.of(recordSpec));
+        when(idsService.getRecordSpec(MessageService.COMPONENTNAME, 4)).thenReturn(Optional.of(recordSpec));
         when(vault.createIrregularTimeSeries(recordSpec, TIME_ZONE)).thenReturn(timeSeries);
         when(vault.createRegularTimeSeries(recordSpec, TIME_ZONE, 1, IntervalLengthUnit.DAY, 0)).thenReturn(regularTimeSeries);
         when(timeSeries.getId()).thenReturn(TIMESERIES_ID);
         when(regularTimeSeries.getId()).thenReturn(TIMESERIES_ID);
 
-        channel = new ChannelImpl(meterActivation);
+        readingType1 = ReadingTypeImpl.from(dataModel, MRID1, "1");
+        readingType2 = ReadingTypeImpl.from(dataModel, MRID2, "2");
+        readingType3 = ReadingTypeImpl.from(dataModel, MRID3, "3");
+        readingType4 = ReadingTypeImpl.from(dataModel, MRID4, "4");
 
-        Bus.setServiceLocator(serviceLocator);
+        channel = ChannelImpl.from(dataModel, meterActivation);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Override
     protected Object getInstanceA() {
         if (channelInstanceA == null) {
-            channelInstanceA = new ChannelImpl(meterActivation);
+            channelInstanceA = new ChannelImpl(dataModel, idsService, clock).init(meterActivation);
             field("id").ofType(Long.TYPE).in(channelInstanceA).set(ID);
         }
         return channelInstanceA;
@@ -114,7 +132,7 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ChannelImpl channel1 = new ChannelImpl(meterActivation);
+        ChannelImpl channel1 = new ChannelImpl(dataModel, idsService, clock).init(meterActivation);
         field("id").ofType(Long.TYPE).in(channel1).set(ID);
 
         return channel1;
@@ -122,9 +140,9 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ChannelImpl channel1 = new ChannelImpl(meterActivation);
+        ChannelImpl channel1 = ChannelImpl.from(dataModel, meterActivation);
         field("id").ofType(Long.TYPE).in(channel1).set(ID + 1);
-        return ImmutableList.of(channel1, new ChannelImpl(meterActivation));
+        return ImmutableList.of(channel1, ChannelImpl.from(dataModel, meterActivation));
     }
 
     @Override
@@ -152,8 +170,8 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test
     public void testInitIrregularTimeSeries() {
-        readingType1 = new ReadingTypeImpl(MRID1_IRR, "1");
-        readingType2 = new ReadingTypeImpl(MRID2_IRR, "2");
+        readingType1 = ReadingTypeImpl.from(dataModel, MRID1_IRR, "1");
+        readingType2 = ReadingTypeImpl.from(dataModel, MRID2_IRR, "2");
 
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
@@ -186,9 +204,9 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test
     public void testInitIrregularTimeSeriesWithAdditionalReadingTypes() {
-        readingType1 = new ReadingTypeImpl(MRID1_IRR, "1");
-        readingType2 = new ReadingTypeImpl(MRID2_IRR, "2");
-        readingType4 = new ReadingTypeImpl(MRID4_IRR, "4");
+        readingType1 = ReadingTypeImpl.from(dataModel, MRID1_IRR, "1");
+        readingType2 = ReadingTypeImpl.from(dataModel, MRID2_IRR, "2");
+        readingType4 = ReadingTypeImpl.from(dataModel, MRID4_IRR, "4");
 
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2, readingType4));
 

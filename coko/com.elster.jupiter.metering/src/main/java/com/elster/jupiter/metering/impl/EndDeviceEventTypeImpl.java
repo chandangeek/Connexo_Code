@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -35,13 +36,21 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     @SuppressWarnings("unused")
     private String userName;
 
+    private final DataModel dataModel;
+
     @Inject
-    private EndDeviceEventTypeImpl() {
+    EndDeviceEventTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
-    public EndDeviceEventTypeImpl(String mRID) {
+    EndDeviceEventTypeImpl init(String mRID) {
         this.mRID = mRID;
         setTransientFields();
+        return this;
+    }
+
+    static EndDeviceEventTypeImpl from(DataModel dataModel, String mRID) {
+        return dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
     }
 
     @Override
@@ -130,7 +139,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     }
 
     public void persist() {
-        Bus.getOrmClient().getEndDeviceEventTypeFactory().persist(this);
+        dataModel.mapper(EndDeviceEventType.class).persist(this);
     }
 
     @Override

@@ -2,8 +2,10 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
@@ -27,18 +29,28 @@ public class ReadingQualityImpl implements ReadingQuality {
     @SuppressWarnings("unused")
     private String userName;
 
+    private final DataModel dataModel;
+    private final MeteringService meteringService;
+
     @Inject
-    private ReadingQualityImpl() {
+    ReadingQualityImpl(DataModel dataModel, MeteringService meteringService) {
+        this.dataModel = dataModel;
         // for persistence
+        this.meteringService = meteringService;
     }
 
-    public ReadingQualityImpl(ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
+    ReadingQualityImpl init(ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
         this.channel = channel;
         this.channelId = channel.getId();
         this.baseReadingRecord = baseReadingRecord;
         readingTimestamp = new UtcInstant(baseReadingRecord.getTimeStamp());
         this.type = type;
         this.typeCode = type.getCode();
+        return this;
+    }
+
+    static ReadingQualityImpl from(DataModel dataModel, ReadingQualityType type, Channel channel, BaseReadingRecord baseReadingRecord) {
+        return dataModel.getInstance(ReadingQualityImpl.class).init(type, channel, baseReadingRecord);
     }
 
     @Override
@@ -59,7 +71,7 @@ public class ReadingQualityImpl implements ReadingQuality {
     @Override
     public Channel getChannel() {
         if (channel == null) {
-            channel = Bus.getMeteringService().findChannel(channelId).get();
+            channel = meteringService.findChannel(channelId).get();
         }
         return channel;
     }
@@ -87,9 +99,9 @@ public class ReadingQualityImpl implements ReadingQuality {
 
     public void save() {
         if (id == 0) {
-            Bus.getOrmClient().getReadingQualityFactory().persist(this);
+            dataModel.mapper(ReadingQuality.class).persist(this);
         } else {
-            Bus.getOrmClient().getReadingQualityFactory().update(this);
+            dataModel.mapper(ReadingQuality.class).update(this);
         }
     }
 }

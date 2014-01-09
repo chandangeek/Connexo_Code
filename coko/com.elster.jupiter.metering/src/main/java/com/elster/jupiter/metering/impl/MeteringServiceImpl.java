@@ -29,12 +29,12 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 
+import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -45,18 +45,16 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
+public class MeteringServiceImpl implements MeteringService, InstallService {
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
-public class MeteringServiceImpl implements MeteringService, InstallService, ServiceLocator {
-
-    private volatile OrmClient ormClient;
     private volatile IdsService idsService;
     private volatile QueryService queryService;
     private volatile PartyService partyService;
     private volatile Clock clock;
     private volatile UserService userService;
     private volatile EventService eventService;
+    private volatile DataModel dataModel;
 
     public MeteringServiceImpl() {
     }
@@ -64,7 +62,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     @Inject
     public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService) {
         this.clock = clock;
-        initOrmClient(ormService);
+        setOrmService(ormService);
         this.idsService = idsService;
         this.eventService = eventService;
         this.partyService = partyService;
@@ -76,141 +74,108 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
-        return getOrmClient().getServiceCategoryFactory().getOptional(kind);
+        return dataModel.mapper(ServiceCategory.class).getOptional(kind);
     }
 
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
-        return getOrmClient().getReadingTypeFactory().getOptional(mRid);
+        return dataModel.mapper(ReadingType.class).getOptional(mRid);
     }
 
     @Override
     public void install() {
-        new InstallerImpl().install(true, true, true);
+        new InstallerImpl(dataModel, idsService, partyService, userService, eventService).install(true, true, true);
     }
 
     @Override
     public ServiceLocation newServiceLocation() {
-        return new ServiceLocationImpl();
+        return new ServiceLocationImpl(dataModel, eventService);
     }
 
     @Override
     public Optional<ServiceLocation> findServiceLocation(String mRID) {
-        return getOrmClient().getServiceLocationFactory().getUnique("mRID", mRID);
+        return dataModel.mapper(ServiceLocation.class).getUnique("mRID", mRID);
     }
 
     @Override
     public Optional<ServiceLocation> findServiceLocation(long id) {
-        return getOrmClient().getServiceLocationFactory().getOptional(id);
+        return dataModel.mapper(ServiceLocation.class).getOptional(id);
     }
 
     @Override
     public Optional<UsagePoint> findUsagePoint(long id) {
-        return getOrmClient().getUsagePointFactory().getOptional(id);
+        return dataModel.mapper(UsagePoint.class).getOptional(id);
     }
 
     @Override
     public ReadingStorer createOverrulingStorer() {
-        return new ReadingStorerImpl(true);
+        return new ReadingStorerImpl(idsService, eventService, true);
     }
 
     @Override
     public ReadingStorer createNonOverrulingStorer() {
-        return new ReadingStorerImpl(false);
+        return new ReadingStorerImpl(idsService, eventService, false);
     }
 
     @Override
     public EndDevice createEndDevice(AmrSystem amrSystem, String amrId, String mRID) {
-        return new EndDeviceImpl(amrSystem, amrId, mRID);
+        return EndDeviceImpl.from(dataModel, amrSystem, amrId, mRID);
     }
 
     @Override
     public Query<UsagePoint> getUsagePointQuery() {
-        return getQueryService().wrap(
-                getOrmClient().getDataModel().query(
-                		UsagePoint.class, 
-                		ServiceLocation.class, 
-                		MeterActivation.class,
-                		EndDevice.class,
-                		UsagePointAccountability.class,
-                		Party.class,
-                		PartyRepresentation.class));                		
+        return queryService.wrap(
+                dataModel.query(
+                        UsagePoint.class,
+                        ServiceLocation.class,
+                        MeterActivation.class,
+                        EndDevice.class,
+                        UsagePointAccountability.class,
+                        Party.class,
+                        PartyRepresentation.class));
     }
     
     @SuppressWarnings("unchecked")
 	@Override
     public Query<Meter> getMeterQuery() {
-    	QueryExecutor<?> executor = getOrmClient().getEndDeviceFactory().with(
-    			getOrmClient().getMeterActivationFactory(),
-    			getOrmClient().getUsagePointFactory(),
-    			getOrmClient().getServiceLocationFactory(),
-    			getOrmClient().getChannelFactory());
+    	QueryExecutor<?> executor = dataModel.query(EndDevice.class,
+                MeterActivation.class,
+                UsagePoint.class,
+                ServiceLocation.class,
+                Channel.class);
     	executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
-    	return getQueryService().wrap((QueryExecutor<Meter>) executor);
+    	return queryService.wrap((QueryExecutor<Meter>) executor);
     }
 
     @Override
     public Query<MeterActivation> getMeterActivationQuery() {
-        return getQueryService().wrap(
-                getOrmClient().getMeterActivationFactory().with(
-                        getOrmClient().getUsagePointFactory(),
-                        getOrmClient().getEndDeviceFactory(),
-                        getOrmClient().getServiceLocationFactory()));
+        return queryService.wrap(
+                dataModel.query(MeterActivation.class,
+                        UsagePoint.class,
+                        EndDevice.class,
+                        ServiceLocation.class));
     }
 
     @Override
     public Query<ServiceLocation> getServiceLocationQuery() {
-        return getQueryService().wrap(
-                getOrmClient().getServiceLocationFactory().with(
-                        getOrmClient().getUsagePointFactory(),
-                        getOrmClient().getMeterActivationFactory(),
-                        //getOrmClient().getChannelFactory(),
-                        getOrmClient().getEndDeviceFactory()));
+        return queryService.wrap(
+                dataModel.query(ServiceLocation.class,
+                        UsagePoint.class,
+                        MeterActivation.class,
+                        EndDevice.class));
     }
 
     @Override
     public List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id) {
-        return getOrmClient().getServiceLocationFactory().getJournal(id);
+        return dataModel.mapper(ServiceLocation.class).getJournal(id);
     }
-
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
-    }
-
-    @Override
-    public IdsService getIdsService() {
-        return idsService;
-    }
-
-    @Override
-    public QueryService getQueryService() {
-        return queryService;
-    }
-
-    @Override
-    public PartyService getPartyService() {
-        return partyService;
-    }
-
-	@Override
-	public UserService getUserService() {
-		return userService;
-	}
-	
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        initOrmClient(ormService);
-    }
-
-    private void initOrmClient(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        dataModel.register();
-        this.ormClient = new OrmClientImpl(dataModel);
     }
 
     @Reference
@@ -244,12 +209,21 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Activate
     public void activate() {
-        Bus.setServiceLocator(this);
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(ChannelBuilder.class).toInstance(new ChannelBuilderImpl(dataModel));
+                bind(MeteringService.class).toInstance(MeteringServiceImpl.this);
+                bind(DataModel.class).toInstance(dataModel);
+                bind(EventService.class).toInstance(eventService);
+                bind(IdsService.class).toInstance(idsService);
+                bind(PartyService.class).toInstance(partyService);
+            }
+        });
     }
 
     @Deactivate
     public void deactivate() {
-        Bus.clearServiceLocator(this);
     }
 
     @Override
@@ -263,7 +237,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     		Where.where("accountabilities.interval").isEffective(when).and(
     		Where.where("accountabilities.party.representations.interval").isEffective(when).and(
     		Where.where("accountabilities.party.representations.delegate").
-    			isEqualTo(Bus.getOrmClient().getDataModel().getPrincipal().getName())));
+    			isEqualTo(dataModel.getPrincipal().getName())));
     }
 
     public Clock getClock() {
@@ -276,57 +250,50 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public ChannelBuilder getChannelBuilder() {
-        return new ChannelBuilderImpl();
-    }
-
-    @Override
     public QueryUsagePointGroup createQueryUsagePointGroup(Condition condition) {
-        QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl();
+        QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl(dataModel, this);
         queryUsagePointGroup.setCondition(condition);
         return queryUsagePointGroup;
     }
 
     @Override
     public Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id) {
-        return getOrmClient().getQueryUsagePointGroupFactory().getOptional(id);
+        return dataModel.mapper(QueryUsagePointGroup.class).getOptional(id);
     }
 
     @Override
     public EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name) {
-        EnumeratedUsagePointGroup group = new EnumeratedUsagePointGroupImpl();
+        EnumeratedUsagePointGroup group = new EnumeratedUsagePointGroupImpl(dataModel);
         group.setName(name);
         return group;
     }
 
     @Override
     public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
-        return getOrmClient().getEnumeratedUsagePointGroupFactory().getOptional(id);
+        return dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(id);
     }
 
     @Override
     public Optional<MeterActivation> findMeterActivation(long id) {
-        return getOrmClient().getMeterActivationFactory().getOptional(id);
+        return dataModel.mapper(MeterActivation.class).getOptional(id);
     }
 
     @Override
     public Optional<Channel> findChannel(long id) {
-        return getOrmClient().getChannelFactory().getOptional(id);
+        return dataModel.mapper(Channel.class).getOptional(id);
     }
 
     @Override
     public List<ReadingType> getAvailableReadingTypes() {
-        return getOrmClient().getReadingTypeFactory().find();
+        return dataModel.mapper(ReadingType.class).find();
     }
-
-    @Override
-	public MeteringService getMeteringService() {
-		return this;
-	}
 
     @Override
     public Optional<AmrSystem> findAmrSystem(long id) {
-        return getOrmClient().getAmrSystemFactory().getOptional(id);
+        return dataModel.mapper(AmrSystem.class).getOptional(id);
     }
 
+    DataModel getDataModel() {
+        return dataModel;
+    }
 }

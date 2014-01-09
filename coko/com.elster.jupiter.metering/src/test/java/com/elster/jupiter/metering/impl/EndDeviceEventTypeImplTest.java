@@ -44,6 +44,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,8 +60,6 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
-    @Mock
-    private DataModel dataModel;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -74,7 +73,6 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(DataModel.class).toInstance(dataModel);
         }
     }
 
@@ -111,17 +109,17 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() throws SQLException {
-
+        final DataModel dataModel = ((MeteringServiceImpl) injector.getInstance(MeteringService.class)).getDataModel();
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
-                EndDeviceEventTypeImpl endDeviceEventType = new EndDeviceEventTypeImpl(code);
+                EndDeviceEventTypeImpl endDeviceEventType = EndDeviceEventTypeImpl.from(dataModel, code);
                 endDeviceEventType.persist();
 
-                Optional<EndDeviceEventType> found = Bus.getOrmClient().getEndDeviceEventTypeFactory().getOptional(code);
-                assertThat(found).contains(new EndDeviceEventTypeImpl(code));
+                Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(code);
+                assertThat(found).contains(EndDeviceEventTypeImpl.from(dataModel, code));
             }
         });
 
@@ -143,24 +141,30 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceA() {
+        DataModel dataModel = mock(DataModel.class);
+        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel));
         if (instanceA == null) {
-            instanceA = new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+            instanceA = EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
         }
         return instanceA;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+        DataModel dataModel = mock(DataModel.class);
+        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel));
+        return EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
+        DataModel dataModel = mock(DataModel.class);
+        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel));
         return ImmutableList.of(
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                new EndDeviceEventTypeImpl(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.INCREASED).toCode())
+                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
+                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
+                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
+                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.INCREASED).toCode())
         );
     }
 

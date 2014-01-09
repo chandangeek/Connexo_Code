@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -13,11 +15,13 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
@@ -32,7 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
-import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements Channel {
@@ -62,15 +65,27 @@ public final class ChannelImpl implements Channel {
 	private ReadingType mainReadingType;
 	private ReadingType cumulativeReadingType;
 	private List<ReadingType> additionalReadingTypes;
-	
-	@SuppressWarnings("unused")
+
+    private final IdsService idsService;
+    private final Clock clock;
+    private final DataModel dataModel;
+
+    @SuppressWarnings("unused")
     @Inject
-	private ChannelImpl() {	
-	}
+	ChannelImpl(DataModel dataModel, IdsService idsService, Clock clock) {
+        this.dataModel = dataModel;
+        this.idsService = idsService;
+        this.clock = clock;
+    }
 	
-	ChannelImpl(MeterActivation meterActivation) {
+	ChannelImpl init(MeterActivation meterActivation) {
 		this.meterActivation.set(meterActivation);
+        return this;
 	}
+
+    static ChannelImpl from(DataModel dataModel, MeterActivation meterActivation) {
+        return dataModel.getInstance(ChannelImpl.class).init(meterActivation);
+    }
 	
 	@Override
 	public long getId() {
@@ -85,7 +100,7 @@ public final class ChannelImpl implements Channel {
 	@Override
 	public TimeSeries getTimeSeries() {
 		if (timeSeries == null) {
-            Optional<TimeSeries> result = Bus.getIdsService().getTimeSeries(timeSeriesId);
+            Optional<TimeSeries> result = idsService.getTimeSeries(timeSeriesId);
             if (result.isPresent()) {
                 timeSeries = result.get();
             } else {
@@ -132,16 +147,16 @@ public final class ChannelImpl implements Channel {
 		boolean regular = intervalLength.isPresent();
         Vault vault = getVault(regular);
         RecordSpec recordSpec = getRecordSpec(regular);
-        TimeZone timeZone = Bus.getClock().getTimeZone();
+        TimeZone timeZone = clock.getTimeZone();
 		return regular ? 
-			vault.createRegularTimeSeries(recordSpec, Bus.getClock().getTimeZone(), intervalLength.get().getLength() , intervalLength.get().getUnitCode(),0) :
+			vault.createRegularTimeSeries(recordSpec, clock.getTimeZone(), intervalLength.get().getLength() , intervalLength.get().getUnitCode(),0) :
 			vault.createIrregularTimeSeries(recordSpec, timeZone);
 	
 	}
 
     private RecordSpec getRecordSpec(boolean regular) {
         int id = regular ? REGULARRECORDSPECID : IRREGULARRECORDSPECID;
-        Optional<RecordSpec> result = Bus.getIdsService().getRecordSpec(COMPONENTNAME, id);
+        Optional<RecordSpec> result = idsService.getRecordSpec(MessageService.COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
         }
@@ -150,7 +165,7 @@ public final class ChannelImpl implements Channel {
 
     private Vault getVault(boolean regular) {
         int id = regular ? REGULARVAULTID : IRREGULARVAULTID;
-        Optional<Vault> result = Bus.getIdsService().getVault(COMPONENTNAME, id);
+        Optional<Vault> result = idsService.getVault(MessageService.COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
         }
@@ -159,16 +174,16 @@ public final class ChannelImpl implements Channel {
 
     void persistReadingTypes() {
 		int offset = 1;
-		DataMapper<ReadingTypeInChannel> factory = Bus.getOrmClient().getReadingTypeInChannelFactory();
+		DataMapper<ReadingTypeInChannel> factory = dataModel.mapper(ReadingTypeInChannel.class);
 		for (ReadingType readingType : getAdditionalReadingTypes()) {
-			factory.persist(new ReadingTypeInChannel(this, readingType, offset++));
+			factory.persist(ReadingTypeInChannel.from(dataModel, this, readingType, offset++));
 		}
 	}
 	
 	private List<ReadingType> getAdditionalReadingTypes() {
 		if (additionalReadingTypes == null) {
 			additionalReadingTypes = new ArrayList<>();
-			for (ReadingTypeInChannel each : Bus.getOrmClient().getReadingTypeInChannelFactory().find("channel",this)) {
+			for (ReadingTypeInChannel each : dataModel.mapper(ReadingTypeInChannel.class).find("channel",this)) {
 				additionalReadingTypes.add(each.getReadingType());
 			}
 		}
@@ -271,7 +286,7 @@ public final class ChannelImpl implements Channel {
 	@Override
 	public ReadingType getMainReadingType() {
 		if (mainReadingType == null) {
-			mainReadingType = Bus.getOrmClient().getReadingTypeFactory().getExisting(mainReadingTypeMRID);
+			mainReadingType = dataModel.mapper(ReadingType.class).getExisting(mainReadingTypeMRID);
 		}
 		return mainReadingType;
 	}
@@ -282,14 +297,14 @@ public final class ChannelImpl implements Channel {
 			return null;
 		}
 		if (cumulativeReadingType == null) {
-			cumulativeReadingType = Bus.getOrmClient().getReadingTypeFactory().getExisting(cumulativeReadingTypeMRID);
+			cumulativeReadingType = dataModel.mapper(ReadingType.class).getExisting(cumulativeReadingTypeMRID);
 		}
 		return cumulativeReadingType;
 	}
 
     @Override
     public ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord) {
-        return new ReadingQualityImpl(type, this, baseReadingRecord);
+        return ReadingQualityImpl.from(dataModel, type, this, baseReadingRecord);
     }
 
     @Override
@@ -300,7 +315,7 @@ public final class ChannelImpl implements Channel {
     @Override
     public List<ReadingQuality> findReadingQuality(Interval interval) {
         Condition condition = inInterval(interval).and(ofThisChannel());
-        return Bus.getOrmClient().getReadingQualityFactory().with().select(condition, null, true, null);
+        return dataModel.mapper(ReadingQuality.class).with().select(condition, null, true, null); // TODO replace deprecated call
     }
 
     private Condition inInterval(Interval interval) {        
@@ -314,7 +329,7 @@ public final class ChannelImpl implements Channel {
     @Override
     public Optional<ReadingQuality> findReadingQuality(ReadingQualityType type, Date timestamp) {
         Condition condition = ofThisChannel().and(withTimestamp(timestamp));
-        List<ReadingQuality> list = Bus.getOrmClient().getReadingQualityFactory().select(condition);
+        List<ReadingQuality> list = dataModel.mapper(ReadingQuality.class).select(condition);
         return FluentIterable.from(list).first();
     }
 
@@ -325,13 +340,13 @@ public final class ChannelImpl implements Channel {
     @Override
     public List<ReadingQuality> findReadingQuality(ReadingQualityType type, Interval interval) {
         Condition ofTypeAndInInterval = inInterval(interval).and(Operator.EQUAL.compare("typeCode", type.getCode()));
-        return Bus.getOrmClient().getReadingQualityFactory().select(ofTypeAndInInterval,"readingTimestamp");
+        return dataModel.mapper(ReadingQuality.class).select(ofTypeAndInInterval,"readingTimestamp");
     }
 
     @Override
     public List<ReadingQuality> findReadingQuality(Date timestamp) {
         Condition atTimestamp = withTimestamp(timestamp);
-        return Bus.getOrmClient().getReadingQualityFactory().select(atTimestamp, "readingTimestamp");
+        return dataModel.mapper(ReadingQuality.class).select(atTimestamp, "readingTimestamp");
     }
 
     @Override

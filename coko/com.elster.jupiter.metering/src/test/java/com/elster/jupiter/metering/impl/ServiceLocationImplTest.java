@@ -6,13 +6,16 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.cbo.TownDetail;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.Position;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -21,7 +24,6 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,21 +34,26 @@ public class ServiceLocationImplTest {
 
     private ServiceLocationImpl serviceLocation;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private UsagePoint usagePoint1, usagePoint2;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private DataMapper<ServiceLocation> serviceLocationFactory;
+    @Mock
+    private DataMapper<UsagePoint> usagePointFactory;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void setUp() {
-        serviceLocation = new ServiceLocationImpl();
-
-        Bus.setServiceLocator(serviceLocator);
+        when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
+        when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
+        serviceLocation = new ServiceLocationImpl(dataModel, eventService);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
@@ -189,7 +196,7 @@ public class ServiceLocationImplTest {
     public void testSaveNew() {
         serviceLocation.save();
 
-        verify(serviceLocator.getOrmClient().getServiceLocationFactory()).persist(serviceLocation);
+        verify(serviceLocationFactory).persist(serviceLocation);
     }
 
     @Test
@@ -197,7 +204,7 @@ public class ServiceLocationImplTest {
         simulateSavedServiceLocation();
         serviceLocation.save();
 
-        verify(serviceLocator.getOrmClient().getServiceLocationFactory()).update(serviceLocation);
+        verify(serviceLocationFactory).update(serviceLocation);
     }
 
     @Test
@@ -205,12 +212,12 @@ public class ServiceLocationImplTest {
         simulateSavedServiceLocation();
         serviceLocation.delete();
 
-        verify(serviceLocator.getOrmClient().getServiceLocationFactory()).remove(serviceLocation);
+        verify(serviceLocationFactory).remove(serviceLocation);
     }
 
     @Test
     public void testGetUsagePoints() {
-        when(serviceLocator.getOrmClient().getUsagePointFactory().find("serviceLocation", serviceLocation)).thenReturn(Arrays.asList(usagePoint1, usagePoint2));
+        when(usagePointFactory.find("serviceLocation", serviceLocation)).thenReturn(Arrays.asList(usagePoint1, usagePoint2));
 
         assertThat(serviceLocation.getUsagePoints()).hasSize(2)
                 .contains(usagePoint1)

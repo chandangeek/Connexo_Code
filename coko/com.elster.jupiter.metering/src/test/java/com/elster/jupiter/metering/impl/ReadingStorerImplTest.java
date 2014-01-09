@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
@@ -9,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -27,28 +28,28 @@ public class ReadingStorerImplTest {
 
     private ReadingStorerImpl readingStorer;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private TimeSeriesDataStorer storer;
     @Mock
     private Channel channel;
     @Mock
     private TimeSeries timeSeries;
+    @Mock
+    private IdsService idsService;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getIdsService().createStorer(true)).thenReturn(storer);
-        Bus.setServiceLocator(serviceLocator);
         when(channel.getTimeSeries()).thenReturn(timeSeries);
+        when(idsService.createStorer(true)).thenReturn(storer);
 
-        readingStorer = new ReadingStorerImpl(true);
+        readingStorer = new ReadingStorerImpl(idsService, eventService, true);
 
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

@@ -1,54 +1,59 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-import java.util.List;
-
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
 
-public class MeterImpl extends AbstractEndDeviceImpl implements Meter {
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
+
+public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 	
 	@SuppressWarnings("unused")
 	private AmrSystem amrSystem;
 	private List<MeterActivation> meterActivations;
 	@SuppressWarnings("unused")
 	private MeterActivation currentMeterActivation;
-	
-	@SuppressWarnings("unused")
-	private MeterImpl() {
-		super();
-	}
-	
-	MeterImpl(AmrSystem system, String amrId, String mRID) {
-		super(system,amrId,mRID);				
-	}
-	
-	
+    private MeteringService meteringService;
 
-	@Override
+    @SuppressWarnings("unused")
+    @Inject
+	MeterImpl(DataModel dataModel, EventService eventService) {
+        super(dataModel, eventService, MeterImpl.class);
+    }
+	
+	static MeterImpl from(DataModel dataModel, AmrSystem system, String amrId, String mRID) {
+		 return dataModel.getInstance(MeterImpl.class).init(system, amrId, mRID);
+	}
+
+    @Override
 	public List<MeterActivation> getMeterActivations() {
 		return ImmutableList.copyOf(doGetMeterActivations());
 	}
-	
-	private  List<MeterActivation> doGetMeterActivations() {
-		if (meterActivations == null) {
-			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("meter",this);
-		}
-		return meterActivations;
-	}
+
+    private List<MeterActivation> doGetMeterActivations() {
+        if (meterActivations == null) {
+            meterActivations = getDataModel().mapper(MeterActivation.class).find("meter", this);
+        }
+        return meterActivations;
+    }
 		
 	@Override
 	public void store(MeterReading meterReading) {
-		new MeterReadingStorer(this, meterReading).store();
+		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading).store();
 	}
 	
 	@Override
 	public MeterActivation activate(Date start) {
-		MeterActivation result = new MeterActivationImpl(this, start);
-		Bus.getOrmClient().getMeterActivationFactory().persist(result);
+		MeterActivation result = MeterActivationImpl.from(getDataModel(), this, start);
+        getDataModel().mapper(MeterActivation.class).persist(result);
 		return result;
 	}
+
 }

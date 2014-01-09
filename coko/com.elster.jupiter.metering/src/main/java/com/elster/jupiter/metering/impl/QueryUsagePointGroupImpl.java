@@ -1,10 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
@@ -13,9 +16,18 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
     private List<QueryBuilderOperation> operations;
     private transient QueryBuilder queryBuilder;
 
+    private final MeteringService meteringService;
+    private final DataModel dataModel;
+
+    @Inject
+    public QueryUsagePointGroupImpl(DataModel dataModel, MeteringService meteringService) {
+        this.dataModel = dataModel;
+        this.meteringService = meteringService;
+    }
+
     @Override
     public List<UsagePoint> getMembers(Date date) {
-        return Bus.getMeteringService().getUsagePointQuery().select(getCondition());
+        return meteringService.getUsagePointQuery().select(getCondition());
     }
 
     @Override
@@ -43,11 +55,11 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
     }
 
     private DataMapper<QueryBuilderOperation> operationFactory() {
-        return Bus.getOrmClient().getQueryBuilderOperationFactory();
+        return dataModel.mapper(QueryBuilderOperation.class);
     }
 
     private DataMapper<QueryUsagePointGroup> groupFactory() {
-        return Bus.getOrmClient().getQueryUsagePointGroupFactory();
+        return dataModel.mapper(QueryUsagePointGroup.class);
     }
 
     private Condition getCondition() {

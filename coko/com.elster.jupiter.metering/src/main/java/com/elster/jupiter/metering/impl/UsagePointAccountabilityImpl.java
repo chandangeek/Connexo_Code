@@ -2,11 +2,15 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 public class UsagePointAccountabilityImpl implements UsagePointAccountability {
@@ -24,12 +28,20 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	private UsagePoint usagePoint;
 	private Party party;
 	private PartyRole role;
+
+    private final DataModel dataModel;
+    private final PartyService partyService;
+    private final Clock clock;
+
+    @SuppressWarnings("unused")
+    @Inject
+	UsagePointAccountabilityImpl(DataModel dataModel, PartyService partyService, Clock clock) {
+        this.dataModel = dataModel;
+        this.partyService = partyService;
+        this.clock = clock;
+    }
 	
-	@SuppressWarnings("unused")
-	private UsagePointAccountabilityImpl() {		
-	}
-	
-	UsagePointAccountabilityImpl(UsagePoint usagePoint , Party party , PartyRole role , Date start) {
+	UsagePointAccountabilityImpl init(UsagePoint usagePoint , Party party , PartyRole role , Date start) {
 		this.usagePoint = usagePoint;
 		this.usagePointId = usagePoint.getId();
 		this.party = party;
@@ -37,7 +49,12 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 		this.role = role;
 		this.roleMRID = role.getMRID();
 		this.interval = Interval.startAt(start);
+        return this;
 	}
+
+    static UsagePointAccountabilityImpl from(DataModel dataModel, UsagePoint usagePoint , Party party , PartyRole role , Date start) {
+        return dataModel.getInstance(UsagePointAccountabilityImpl.class).init(usagePoint, party, role, start);
+    }
 
 	public long getUsagePointId() {
 		return usagePointId;
@@ -73,21 +90,21 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 
 	public UsagePoint getUsagePoint() {
         if (usagePoint == null) {
-            usagePoint = Bus.getOrmClient().getUsagePointFactory().getOptional(usagePointId).get();
+            usagePoint = dataModel.mapper(UsagePoint.class).getOptional(usagePointId).get();
         }
 		return usagePoint;
 	}
 
 	public Party getParty() {
         if (party == null) {
-            party = Bus.getPartyService().findParty(partyId).get();
+            party = partyService.findParty(partyId).get();
         }
         return party;
 	}
 
 	public PartyRole getRole() {
         if (role == null) {
-            role = Bus.getPartyService().findPartyRoleByMRID(roleMRID).get();
+            role = partyService.findPartyRoleByMRID(roleMRID).get();
         }
 		return role;
 	}
@@ -104,6 +121,6 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent(Bus.getClock());
+		return interval.isCurrent(clock);
 	}
 }

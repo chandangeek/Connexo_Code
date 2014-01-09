@@ -50,6 +50,7 @@ import java.util.Date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,8 +67,6 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
-    @Mock
-    private DataModel dataModel;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -85,11 +84,10 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(EndDeviceEventRecord.class).to(EndDeviceEventRecordImpl.class);
-            bind(EndDevice.class).to(EndDeviceImpl.class);
-            bind(EndDeviceEventType.class).to(EndDeviceEventTypeImpl.class);
+//            bind(EndDeviceEventRecord.class).to(EndDeviceEventRecordImpl.class);
+//            bind(EndDevice.class).to(EndDeviceImpl.class);
+//            bind(EndDeviceEventType.class).to(EndDeviceEventTypeImpl.class);
             bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(DataModel.class).toInstance(dataModel);
         }
     }
 
@@ -130,9 +128,10 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                DataModel dataModel = ((MeteringServiceImpl) getMeteringService()).getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
-                EndDeviceEventTypeImpl eventType = new EndDeviceEventTypeImpl(code);
+                EndDeviceEventTypeImpl eventType = EndDeviceEventTypeImpl.from(dataModel, code);
                 eventType.persist();
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
@@ -141,7 +140,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
 
-                assertThat(Bus.getOrmClient().getEndDeviceEventRecordFactory().getOptional(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
+                assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date)).contains(endDeviceEventRecord);
             }
         });
 
@@ -153,9 +152,10 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                DataModel dataModel = ((MeteringServiceImpl) getMeteringService()).getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
-                EndDeviceEventTypeImpl eventType = new EndDeviceEventTypeImpl(code);
+                EndDeviceEventTypeImpl eventType = EndDeviceEventTypeImpl.from(dataModel, code);
                 eventType.persist();
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
@@ -166,7 +166,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 endDeviceEventRecord.addProperty("D", "C");
                 endDeviceEventRecord.save();
 
-                Optional<EndDeviceEventRecord> found = Bus.getOrmClient().getEndDeviceEventRecordFactory().getOptional(endDevice.getId(), eventType.getMRID(), date);
+                Optional<EndDeviceEventRecord> found = dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date);
                 assertThat(found).contains(endDeviceEventRecord);
                 assertThat(found.get().getProperties()).contains(entry("A", "C"), entry("D", "C"));
             }
@@ -190,27 +190,32 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceA() {
+        DataModel dataModel = mock(DataModel.class);
         if (instanceA == null) {
             when(endDevice.getId()).thenReturn(END_DEVICE_ID);
             when(endDevice2.getId()).thenReturn(END_DEVICE_ID + 1);
             when(endDeviceEventType.getMRID()).thenReturn("A");
             when(endDeviceEventType2.getMRID()).thenReturn("B");
-            instanceA = new EndDeviceEventRecordImpl(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
+            instanceA = new EndDeviceEventRecordImpl(dataModel).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
         }
         return instanceA;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new EndDeviceEventRecordImpl(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
+        DataModel dataModel = mock(DataModel.class);
+        when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel));
+        return new EndDeviceEventRecordImpl(dataModel).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
+        DataModel dataModel = mock(DataModel.class);
+        when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel));
         return ImmutableList.of(
-                new EndDeviceEventRecordImpl(endDevice2, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
-                new EndDeviceEventRecordImpl(endDevice, endDeviceEventType2, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
-                new EndDeviceEventRecordImpl(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 42, 0).toDate())
+                EndDeviceEventRecordImpl.from(dataModel, endDevice2, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
+                EndDeviceEventRecordImpl.from(dataModel, endDevice, endDeviceEventType2, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
+                EndDeviceEventRecordImpl.from(dataModel, endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 42, 0).toDate())
         );
     }
 

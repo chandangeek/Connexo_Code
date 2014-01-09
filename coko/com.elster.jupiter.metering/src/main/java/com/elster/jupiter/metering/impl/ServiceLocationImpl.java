@@ -4,12 +4,15 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.Position;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -42,9 +45,19 @@ public class ServiceLocationImpl implements ServiceLocation {
 	private String userName;
 	// associations
 	private List<UsagePoint> usagePoints;
-	
-	public ServiceLocationImpl() {
-	}
+
+    private final DataModel dataModel;
+    private final EventService eventService;
+
+    @Inject
+    public ServiceLocationImpl(DataModel dataModel, EventService eventService) {
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+    }
+
+    static ServiceLocationImpl from(DataModel dataModel) {
+        return dataModel.getInstance(ServiceLocationImpl.class);
+    }
 	
 	@Override
 	public long getId() {
@@ -213,18 +226,18 @@ public class ServiceLocationImpl implements ServiceLocation {
 	@Override
 	public void save() {
 		if (id == 0) {
-			Bus.getOrmClient().getServiceLocationFactory().persist(this);
-            Bus.getEventService().postEvent(EventType.SERVICELOCATION_CREATED.topic(), this);
+            dataModel.mapper(ServiceLocation.class).persist(this);
+            eventService.postEvent(EventType.SERVICELOCATION_CREATED.topic(), this);
 		} else {
-			Bus.getOrmClient().getServiceLocationFactory().update(this);
-            Bus.getEventService().postEvent(EventType.SERVICELOCATION_UPDATED.topic(), this);
+			dataModel.mapper(ServiceLocation.class).update(this);
+            eventService.postEvent(EventType.SERVICELOCATION_UPDATED.topic(), this);
 		}
 	}
 
     @Override
     public void delete() {
-        Bus.getOrmClient().getServiceLocationFactory().remove(this);
-        Bus.getEventService().postEvent(EventType.SERVICELOCATION_DELETED.topic(), this);
+        dataModel.mapper(ServiceLocation.class).remove(this);
+        eventService.postEvent(EventType.SERVICELOCATION_DELETED.topic(), this);
     }
 	
 	@Override
@@ -234,7 +247,7 @@ public class ServiceLocationImpl implements ServiceLocation {
 
     private List<UsagePoint> doGetUsagePoints() {
         if (usagePoints == null) {
-            usagePoints = Bus.getOrmClient().getUsagePointFactory().find("serviceLocation",this);
+            usagePoints = dataModel.mapper(UsagePoint.class).find("serviceLocation",this);
         }
         return usagePoints;
     }

@@ -15,6 +15,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.IllegalCurrencyCodeException;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -76,18 +77,26 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private MetricMultiplier multiplier;
 	private ReadingTypeUnit unit;
 	private Currency currency;
+
+    private final DataModel dataModel;
 	
 	@SuppressWarnings("unused")
     @Inject
-	private ReadingTypeImpl() {		
-	}
+	ReadingTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 	
-	public ReadingTypeImpl(String mRID, String aliasName) {
+	ReadingTypeImpl init(String mRID, String aliasName) {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
 		setTransientFields();
+        return this;
 	}
-	
+
+    static ReadingTypeImpl from(DataModel dataModel, String mRID, String aliasName) {
+        return dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
+    }
+
 	static Currency getCurrency(int isoCode) {
 		if (isoCode == 0) {
 			isoCode = 999;
@@ -229,7 +238,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     }
 
     public void persist() {
-		Bus.getOrmClient().getReadingTypeFactory().persist(this);
+        dataModel.mapper(ReadingType.class).persist(this);
 	}
 
 	Optional<IntervalLength> getIntervalLength() {

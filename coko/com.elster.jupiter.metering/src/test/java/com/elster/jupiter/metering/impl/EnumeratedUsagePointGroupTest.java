@@ -3,16 +3,18 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -36,23 +38,29 @@ public class EnumeratedUsagePointGroupTest {
 
     @Mock
     private UsagePoint usagePoint1, usagePoint2, usagePoint3;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private DataMapper<EnumeratedUsagePointGroup.Entry> entryFactory;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private DataMapper<EnumeratedUsagePointGroup> groupFactory;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getOrmClient().getEnumeratedUsagePointGroupEntryFactory()).thenReturn(entryFactory);
+        when(dataModel.mapper(EnumeratedUsagePointGroup.Entry.class)).thenReturn(entryFactory);
+        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel);
+            }
+        });
+        when(dataModel.mapper(EnumeratedUsagePointGroup.class)).thenReturn(groupFactory);
 
-        usagePointGroup = new EnumeratedUsagePointGroupImpl();
-
-        Bus.setServiceLocator(serviceLocator);
+        usagePointGroup = new EnumeratedUsagePointGroupImpl(dataModel);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
@@ -162,7 +170,7 @@ public class EnumeratedUsagePointGroupTest {
     public void testSaveNew() {
         usagePointGroup.save();
 
-        verify(serviceLocator.getOrmClient().getEnumeratedUsagePointGroupFactory()).persist(usagePointGroup);
+        verify(dataModel.mapper(EnumeratedUsagePointGroup.class)).persist(usagePointGroup);
     }
 
     @Test
@@ -171,7 +179,7 @@ public class EnumeratedUsagePointGroupTest {
 
         usagePointGroup.save();
 
-        verify(serviceLocator.getOrmClient().getEnumeratedUsagePointGroupFactory()).persist(usagePointGroup);
+        verify(dataModel.mapper(EnumeratedUsagePointGroup.class)).persist(usagePointGroup);
         ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
         verify(entryFactory).persist(listCaptor.capture());
 
@@ -188,7 +196,7 @@ public class EnumeratedUsagePointGroupTest {
 
         usagePointGroup.save();
 
-        verify(serviceLocator.getOrmClient().getEnumeratedUsagePointGroupFactory()).update(usagePointGroup);
+        verify(dataModel.mapper(EnumeratedUsagePointGroup.class)).update(usagePointGroup);
     }
 
 
@@ -196,14 +204,13 @@ public class EnumeratedUsagePointGroupTest {
     public void testSaveUpdateWithEntries() {
         simulateSaved();
 
-        EnumeratedUsagePointGroup.Entry entry1 = new EnumeratedUsagePointGroupImpl.EntryImpl(usagePointGroup, usagePoint1, Interval.startAt(START));
-        EnumeratedUsagePointGroup.Entry entry2 = new EnumeratedUsagePointGroupImpl.EntryImpl(usagePointGroup, usagePoint2, Interval.startAt(START));
+        EnumeratedUsagePointGroup.Entry entry1 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint1, Interval.startAt(START));
+        EnumeratedUsagePointGroup.Entry entry2 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint2, Interval.startAt(START));
 
         when(entryFactory.find("usagePointGroup", usagePointGroup)).thenReturn(Arrays.asList(entry1, entry2));
 
         usagePointGroup.endMembership(usagePoint1, END);
         usagePointGroup.add(usagePoint3, Interval.startAt(END));
-
 
         usagePointGroup.save();
 

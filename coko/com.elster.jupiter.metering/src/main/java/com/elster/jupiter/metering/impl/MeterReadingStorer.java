@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -12,6 +13,7 @@ import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
@@ -28,11 +30,15 @@ public class MeterReadingStorer {
 	private final Meter meter;
 
     private static final Logger logger = Logger.getLogger(MeterReadingStorer.class.getName());
+    private final MeteringService meteringService;
+    private final DataModel dataModel;
 
-	MeterReadingStorer(Meter meter , MeterReading meterReading) {
-		this.meter= meter;
+    MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter, MeterReading meterReading) {
+        this.dataModel = dataModel;
+        this.meteringService = meteringService;
+        this.meter= meter;
 		this.facade = new MeterReadingFacade(meterReading);
-		this.readingStorer = Bus.getMeteringService().createOverrulingStorer();
+		this.readingStorer = this.meteringService.createOverrulingStorer();
 	}
 	
 	void store() {
@@ -50,9 +56,9 @@ public class MeterReadingStorer {
     private void storeEvents(List<EndDeviceEvent> events) {
         List<EndDeviceEventRecord> records = new ArrayList<>(events.size());
         for (EndDeviceEvent sourceEvent : events) {
-            Optional<EndDeviceEventType> found = Bus.getOrmClient().getEndDeviceEventTypeFactory().getOptional(sourceEvent.getEventTypeCode());
+            Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(sourceEvent.getEventTypeCode());
             if (found.isPresent()) {
-                EndDeviceEventRecordImpl eventRecord = new EndDeviceEventRecordImpl(meter, found.get(), sourceEvent.getCreatedDateTime());
+                EndDeviceEventRecordImpl eventRecord = EndDeviceEventRecordImpl.from(dataModel, meter, found.get(), sourceEvent.getCreatedDateTime());
                 for (Map.Entry<String, String> entry : sourceEvent.getEventData().entrySet()) {
                     eventRecord.addProperty(entry.getKey(), entry.getValue());
                 }
@@ -61,7 +67,7 @@ public class MeterReadingStorer {
                 logger.log(Level.INFO, MessageFormat.format("Ignored event {0} on meter {1}, since it is not defined in the system", sourceEvent.getEventTypeCode(), meter.getMRID()));
             }
         }
-        Bus.getOrmClient().getEndDeviceEventRecordFactory().persist(records);
+        dataModel.mapper(EndDeviceEventRecord.class).persist(records);
     }
 
     private void createDefaultMeterActivation() {
@@ -110,7 +116,7 @@ public class MeterReadingStorer {
 	}
 	
 	private Optional<ReadingType> getReadingType(String code) {
-		return Bus.getOrmClient().getReadingTypeFactory().getOptional(code);
+		return dataModel.mapper(ReadingType.class).getOptional(code);
 	}
 	
 	private Channel findOrCreateChannel(Reading reading , MeterActivation meterActivation) {

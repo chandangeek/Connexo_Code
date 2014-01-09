@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, PersistenceAware {
+
     static class EndDeviceEventDetailRecord {
         private EndDeviceEventRecord eventRecord;
         private String eventTypeCode;
@@ -71,6 +73,8 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @SuppressWarnings("unused")
     private String userName;
 
+    private final DataModel dataModel;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -103,7 +107,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public EndDevice getEndDevice() {
         if (endDevice == null) {
-            endDevice = Bus.getOrmClient().getEndDeviceFactory().getOptional(endDeviceId).get();
+            endDevice = dataModel.mapper(EndDevice.class).getOptional(endDeviceId).get();
         }
         return endDevice;
     }
@@ -116,7 +120,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public EndDeviceEventType getEventType() {
         if (eventType == null) {
-            eventType = Bus.getOrmClient().getEndDeviceEventTypeFactory().getOptional(eventTypeCode).get();
+            eventType = dataModel.mapper(EndDeviceEventType.class).getOptional(eventTypeCode).get();
         }
         return eventType;
     }
@@ -193,7 +197,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public void save() {
-        Bus.getOrmClient().getEndDeviceEventRecordFactory().persist(this);
+        dataModel.mapper(EndDeviceEventRecord.class).persist(this);
     }
 
     @Override
@@ -258,17 +262,23 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
 
 
-    EndDeviceEventRecordImpl(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
+    EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
         this.endDevice = endDevice;
         this.endDeviceId = endDevice.getId();
         this.createdDateTime = new UtcInstant(createdDateTime);
         this.eventType = eventType;
         this.eventTypeCode = eventType.getMRID();
+        return this;
     }
 
     @Inject
-    private EndDeviceEventRecordImpl() {
+    EndDeviceEventRecordImpl(DataModel dataModel) {
         // for persistence
+        this.dataModel = dataModel;
+    }
+
+    static EndDeviceEventRecordImpl from(DataModel dataModel, EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
+        return dataModel.getInstance(EndDeviceEventRecordImpl.class).init(endDevice, eventType, createdDateTime);
     }
 
     @Override

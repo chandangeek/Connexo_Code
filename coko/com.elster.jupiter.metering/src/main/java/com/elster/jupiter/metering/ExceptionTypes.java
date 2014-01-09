@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.impl.Bus;
 import com.elster.jupiter.util.exception.ExceptionType;
 
 public enum ExceptionTypes implements ExceptionType {
@@ -14,7 +13,7 @@ public enum ExceptionTypes implements ExceptionType {
 
     @Override
     public String getModule() {
-        return Bus.COMPONENTNAME;
+        return MeteringService.COMPONENTNAME;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.IntermittentInterval;
@@ -12,6 +13,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,9 +27,16 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     private final List<UsagePointMembership> memberships = new ArrayList<>();
 
+    private final DataModel dataModel;
+
+    @Inject
+    EnumeratedUsagePointGroupImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
     private List<EntryImpl> getEntries() {
         if (entries == null) {
-            List<Entry> entryList = Bus.getOrmClient().getEnumeratedUsagePointGroupEntryFactory().find("usagePointGroup", this);
+            List<Entry> entryList = dataModel.mapper(Entry.class).find("usagePointGroup", this);
             entries = new ArrayList<>(entryList.size());
             for (Entry entry : entryList) {
                 entries.add((EntryImpl) entry);
@@ -96,16 +105,24 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         private Interval interval;
         private long usagePointId;
 
-        private EntryImpl() {
+        private final DataModel dataModel;
 
+        @Inject
+        EntryImpl(DataModel dataModel) {
+            this.dataModel = dataModel;
         }
 
-        public EntryImpl(EnumeratedUsagePointGroup usagePointGroup, UsagePoint usagePoint, Interval interval) {
+        EntryImpl init(EnumeratedUsagePointGroup usagePointGroup, UsagePoint usagePoint, Interval interval) {
             this.usagePointGroup = usagePointGroup;
             this.groupId = usagePointGroup.getId();
             this.usagePoint = usagePoint;
             this.usagePointId = usagePoint.getId();
             this.interval = interval;
+            return this;
+        }
+
+        static EntryImpl from(DataModel dataModel, EnumeratedUsagePointGroup usagePointGroup, UsagePoint usagePoint, Interval interval) {
+            return dataModel.getInstance(EntryImpl.class).init(usagePointGroup, usagePoint, interval);
         }
 
         @Override
@@ -116,15 +133,15 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         @Override
         public UsagePoint getUsagePoint() {
             if (usagePoint == null) {
-                usagePoint = Bus.getOrmClient().getUsagePointFactory().getOptional(usagePointId).get();
+                usagePoint = dataModel.mapper(UsagePoint.class).getOptional(usagePointId).get();
             }
             return usagePoint;
         }
 
         public EnumeratedUsagePointGroup getUsagePointGroup() {
             if (usagePointGroup == null) {
-                usagePointGroup = factory().getOptional(groupId).get();
-            }
+                usagePointGroup = dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(groupId).get();
+        }
             return usagePointGroup;
         }
 
@@ -157,7 +174,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             getMemberships().add(membership);
         }
         membership.addInterval(interval);
-        EntryImpl entry = new EntryImpl(this, usagePoint, membership.resultingInterval(interval));
+        EntryImpl entry = EntryImpl.from(dataModel, this, usagePoint, membership.resultingInterval(interval));
         getEntries().add(entry);
         return entry;
     }
@@ -193,7 +210,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             entryDiff.clear();
             for (UsagePointMembership membership : memberships) {
                 for (Interval interval : membership.getIntervals().getIntervals()) {
-                    entryDiff.add(new EntryImpl(this, membership.getUsagePoint(), interval));
+                    entryDiff.add(EntryImpl.from(dataModel, this, membership.getUsagePoint(), interval));
                 }
             }
             entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
@@ -203,12 +220,12 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     }
 
-    private static DataMapper<EnumeratedUsagePointGroup> factory() {
-        return Bus.getOrmClient().getEnumeratedUsagePointGroupFactory();
+    private DataMapper<EnumeratedUsagePointGroup> factory() {
+        return dataModel.mapper(EnumeratedUsagePointGroup.class);
     }
 
     private DataMapper<Entry> entryFactory() {
-        return Bus.getOrmClient().getEnumeratedUsagePointGroupEntryFactory();
+        return dataModel.mapper(Entry.class);
     }
 
     @Override

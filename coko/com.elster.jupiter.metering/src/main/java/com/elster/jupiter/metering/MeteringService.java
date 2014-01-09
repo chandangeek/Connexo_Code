@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface MeteringService {
+    String COMPONENTNAME = "MTR";
 
     ServiceLocation newServiceLocation();
 

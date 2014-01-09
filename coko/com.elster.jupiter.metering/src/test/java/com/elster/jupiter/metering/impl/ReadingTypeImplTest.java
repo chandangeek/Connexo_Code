@@ -1,22 +1,33 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Currency;
-
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
+import java.util.Currency;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeImplTest extends EqualsContractTest {
 
     private static final String MRID = "0.0.7.4.0.8.2.8.16.9.11.0.0.0.0.0.0.0";
     private static final String MRID2 = "0.0.7.1.0.8.2.9.16.9.110.0.0.0.0.0.0.0";
     private static final String ALIAS = "alias";
-    private ReadingTypeImpl readingType = new ReadingTypeImpl(MRID, ALIAS);
+
+    @Mock
+    private DataModel dataModel;
+
+    private ReadingTypeImpl readingType;
 
 
     @Override
@@ -26,17 +37,20 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceA() {
+        if (readingType == null) {
+            readingType = new ReadingTypeImpl(dataModel).init(MRID, ALIAS);
+        }
         return readingType;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new ReadingTypeImpl(MRID, ALIAS);
+        return new ReadingTypeImpl(dataModel).init(MRID, ALIAS);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new ReadingTypeImpl(MRID2, ALIAS));
+        return ImmutableList.of(new ReadingTypeImpl(dataModel).init(MRID2, ALIAS));
     }
 
     @Override
@@ -46,6 +60,11 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
+        when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ReadingTypeImpl(dataModel);            }
+        });
     }
 
     @After
@@ -65,7 +84,7 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testIsCumulativeReadingType() {
-        assertThat(readingType.isCumulativeReadingType(new ReadingTypeImpl(MRID2, "2"))).isTrue();
+        assertThat(readingType.isCumulativeReadingType(ReadingTypeImpl.from(dataModel, MRID2, "2"))).isTrue();
     }
 
     @Test

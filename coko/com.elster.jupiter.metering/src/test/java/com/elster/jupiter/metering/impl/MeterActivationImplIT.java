@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -95,10 +96,11 @@ public class MeterActivationImplIT {
 
     @Test
     public void testPersistence() {
+        final DataModel dataModel = ((MeteringServiceImpl) injector.getInstance(MeteringService.class)).getDataModel();
         injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                MeterActivationImpl meterActivation = new MeterActivationImpl((Meter) null, new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
+                MeterActivationImpl meterActivation = MeterActivationImpl.from(dataModel, (Meter) null, new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
                 meterActivation.save();
 
                 ReadingType readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -107,7 +109,7 @@ public class MeterActivationImplIT {
 
                 meterActivation.save();
 
-                MeterActivation loaded = Bus.getOrmClient().getMeterActivationFactory().getOptional(meterActivation.getId()).get();
+                MeterActivation loaded = injector.getInstance(MeteringService.class).findMeterActivation(meterActivation.getId()).get();
 
                 assertThat(loaded.getChannels()).hasSize(1).contains(channel);
             }

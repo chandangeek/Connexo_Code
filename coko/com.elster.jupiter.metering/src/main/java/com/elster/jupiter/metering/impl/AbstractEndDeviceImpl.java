@@ -1,18 +1,20 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Date;
 import java.util.Map;
 
-public abstract class AbstractEndDeviceImpl implements EndDevice {
+public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements EndDevice {
 	static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
 	// persistent fields
 	private long id;
@@ -33,18 +35,26 @@ public abstract class AbstractEndDeviceImpl implements EndDevice {
 	
 	// associations
 	private AmrSystem amrSystem;
-	
-	AbstractEndDeviceImpl() {
-		this.electronicAddress = new ElectronicAddress();
+
+    private final DataModel dataModel;
+    private final EventService eventService;
+    private final S self;
+
+    AbstractEndDeviceImpl(DataModel dataModel, EventService eventService, Class<? extends S> selfType) {
+        this.eventService = eventService;
+        this.electronicAddress = new ElectronicAddress();
+        this.dataModel = dataModel;
+        self = selfType.cast(this);
 	}
 	
-	AbstractEndDeviceImpl(AmrSystem system, String amrId, String mRID) {
+	S init(AmrSystem system, String amrId, String mRID) {
 		this.amrSystemId = system.getId();
 		this.amrSystem = system;
 		this.amrId = amrId;
 		this.mRID = mRID;
+        return self;
 	}
-	
+
 	@Override
 	public long getId() {
 		return id;
@@ -73,18 +83,18 @@ public abstract class AbstractEndDeviceImpl implements EndDevice {
 	@Override
 	public void save() {
 		if (id == 0) {
-			Bus.getOrmClient().getEndDeviceFactory().persist(this);
-            Bus.getEventService().postEvent(EventType.METER_CREATED.topic(), this);
+			dataModel.mapper(EndDevice.class).persist(this);
+            eventService.postEvent(EventType.METER_CREATED.topic(), this);
         } else {
-			Bus.getOrmClient().getEndDeviceFactory().update(this);
-            Bus.getEventService().postEvent(EventType.METER_UPDATED.topic(), this);
+            dataModel.mapper(EndDevice.class).update(this);
+            eventService.postEvent(EventType.METER_UPDATED.topic(), this);
 		}
 	}
 
     @Override
     public void delete() {
-        Bus.getOrmClient().getEndDeviceFactory().remove(this);
-        Bus.getEventService().postEvent(EventType.METER_DELETED.topic(), this);
+        dataModel.mapper(EndDevice.class).remove(this);
+        eventService.postEvent(EventType.METER_DELETED.topic(), this);
     }
 
 	@Override
@@ -105,7 +115,7 @@ public abstract class AbstractEndDeviceImpl implements EndDevice {
 	@Override
 	public AmrSystem getAmrSystem() {
 		if (amrSystem == null) {
-			amrSystem = Bus.getOrmClient().getAmrSystemFactory().getExisting(amrSystemId);
+			amrSystem = dataModel.mapper(AmrSystem.class).getExisting(amrSystemId);
 		}
 		return amrSystem;
 	}
@@ -116,12 +126,12 @@ public abstract class AbstractEndDeviceImpl implements EndDevice {
 	
     @Override
     public Date getCreateTime() {
-        return createTime == null ? createTime.toDate() : null;
+        return createTime == null ? null : createTime.toDate();
     }
 
     @Override
     public Date getModTime() {
-        return modTime == null ? modTime.toDate() : null;
+        return modTime == null ? null :  modTime.toDate();
     }
 
     @Override
@@ -131,6 +141,10 @@ public abstract class AbstractEndDeviceImpl implements EndDevice {
 
     @Override
     public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date) {
-        return new EndDeviceEventRecordImpl(this, type, date);
+        return EndDeviceEventRecordImpl.from(dataModel, this, type, date);
+    }
+
+    DataModel getDataModel() {
+        return dataModel;
     }
 }

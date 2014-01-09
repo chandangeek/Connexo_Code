@@ -1,15 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -34,8 +36,12 @@ public class UsagePointAccountabilityImplTest {
     private Party party;
     @Mock
     private PartyRole role;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private Clock clock;
+    @Mock
+    private PartyService partyService;
 
     @Before
     public void setUp() {
@@ -43,14 +49,11 @@ public class UsagePointAccountabilityImplTest {
         when(party.getId()).thenReturn(PARTY_ID);
         when(role.getMRID()).thenReturn(ROLE_MRID);
 
-        usagePointAccountability = new UsagePointAccountabilityImpl(usagePoint, party, role, START);
-
-        Bus.setServiceLocator(serviceLocator);
+        usagePointAccountability = new UsagePointAccountabilityImpl(dataModel, partyService, clock).init(usagePoint, party, role, START);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
@@ -105,14 +108,14 @@ public class UsagePointAccountabilityImplTest {
 
     @Test
     public void testIsCurrentFalse() {
-        when(serviceLocator.getClock().now()).thenReturn(new Date(START.getTime() - 1));
+        when(clock.now()).thenReturn(new Date(START.getTime() - 1));
 
         assertThat(usagePointAccountability.isCurrent()).isFalse();
     }
 
     @Test
     public void testIsCurrentTrue() {
-        when(serviceLocator.getClock().now()).thenReturn(new Date(START.getTime()));
+        when(clock.now()).thenReturn(new Date(START.getTime()));
 
         assertThat(usagePointAccountability.isCurrent()).isTrue();
     }

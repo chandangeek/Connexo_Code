@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
@@ -18,15 +19,23 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
+
+    private final DataModel dataModel;
 	
 	@SuppressWarnings("unused")
     @Inject
-	private ServiceCategoryImpl() {	
-	}
+	ServiceCategoryImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 	
-	public ServiceCategoryImpl(ServiceKind kind) {
-		this.kind = kind;		
+	ServiceCategoryImpl init(ServiceKind kind) {
+		this.kind = kind;
+        return this;
 	}
+
+    static ServiceCategoryImpl from(DataModel dataModel, ServiceKind serviceKind) {
+        return dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
+    }
 	
 	public ServiceKind getKind() {	
 		return kind;
@@ -60,10 +69,10 @@ public class ServiceCategoryImpl implements ServiceCategory {
     }
 
     public void persist() {
-		Bus.getOrmClient().getServiceCategoryFactory().persist(this);
+		dataModel.mapper(ServiceCategory.class).persist(this);
 	}
 	
 	public UsagePoint newUsagePoint(String mRid) {
-		return new UsagePointImpl(mRid,this);
+		return UsagePointImpl.from(dataModel, mRid,this);
 	}
 }

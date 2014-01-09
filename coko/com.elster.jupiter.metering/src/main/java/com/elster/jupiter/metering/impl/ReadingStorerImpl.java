@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingStorer;
@@ -17,9 +19,13 @@ public class ReadingStorerImpl implements ReadingStorer {
     private final TimeSeriesDataStorer storer;
 
     private final Map<Channel, Interval> scope = new HashMap<>();
+    private final IdsService idsService;
+    private final EventService eventService;
 
-	public ReadingStorerImpl(boolean overrules) {
-		this.storer = Bus.getIdsService().createStorer(overrules);
+    public ReadingStorerImpl(IdsService idsService, EventService eventService, boolean overrules) {
+        this.idsService = idsService;
+        this.eventService = eventService;
+        this.storer = idsService.createStorer(overrules);
 	}
 	
 	@Override
@@ -56,7 +62,7 @@ public class ReadingStorerImpl implements ReadingStorer {
 	@Override
 	public void execute() {
 		storer.execute();
-        Bus.getEventService().postEvent(EventType.READINGS_CREATED.topic(), this);
+        eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
 	}
 	
 	@Override

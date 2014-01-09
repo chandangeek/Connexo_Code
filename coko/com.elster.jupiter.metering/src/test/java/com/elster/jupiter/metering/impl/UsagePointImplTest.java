@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -9,10 +10,13 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import org.joda.time.DateTime;
@@ -20,9 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -49,8 +54,6 @@ public class UsagePointImplTest {
 
     @Mock
     private ServiceCategory serviceCategory;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private DataMapper<UsagePoint> usagePointFactory;
     @Mock
@@ -69,25 +72,44 @@ public class UsagePointImplTest {
     private User user1, user2, user3, user4, user5;
     @Mock
     private PartyRepresentation representation1, representation2, representation3, representation4;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private PartyService partyService;
+    @Mock
+    private Clock clock;
+    @Mock
+    private ChannelBuilder channelBuilder;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getOrmClient().getUsagePointFactory()).thenReturn(usagePointFactory);
-        when(serviceLocator.getOrmClient().getMeterActivationFactory()).thenReturn(meterActivationFactory);
-        when(serviceLocator.getOrmClient().getUsagePointAccountabilityFactory()).thenReturn(usagePointAccountabilityFactory);
+        when(dataModel.mapper(UsagePointAccountability.class)).thenReturn(usagePointAccountabilityFactory);
+        when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationFactory);
+        when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
+        when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new UsagePointAccountabilityImpl(dataModel, partyService, clock);
+            }
+        });
+        when(dataModel.getInstance(MeterActivationImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new MeterActivationImpl(dataModel, eventService, clock, channelBuilder);
+            }
+        });
         when(representation1.getDelegate()).thenReturn(user1);
         when(representation2.getDelegate()).thenReturn(user2);
         when(representation3.getDelegate()).thenReturn(user3);
         when(representation4.getDelegate()).thenReturn(user4);
 
-        usagePoint = new UsagePointImpl(MR_ID, serviceCategory);
-
-        Bus.setServiceLocator(serviceLocator);
+        usagePoint = new UsagePointImpl(dataModel, eventService).init(MR_ID, serviceCategory);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

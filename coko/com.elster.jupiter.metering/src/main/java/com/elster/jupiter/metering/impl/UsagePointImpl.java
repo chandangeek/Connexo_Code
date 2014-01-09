@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -9,6 +10,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
@@ -60,13 +62,17 @@ public class UsagePointImpl implements UsagePoint {
 	private ServiceLocation serviceLocation;
 	private List<MeterActivation> meterActivations;
 	private List<UsagePointAccountability> accountabilities;
-	
-	@SuppressWarnings("unused")
+    private final DataModel dataModel;
+    private final EventService eventService;
+
+    @SuppressWarnings("unused")
     @Inject
-	private UsagePointImpl() {
-	}
+	UsagePointImpl(DataModel dataModel, EventService eventService) {
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+    }
 	
-	UsagePointImpl(String mRID , ServiceCategory serviceCategory) {
+	UsagePointImpl init(String mRID , ServiceCategory serviceCategory) {
 		this.mRID = mRID;
 		this.serviceKind = serviceCategory.getKind();
 		this.serviceCategory = serviceCategory;
@@ -74,7 +80,12 @@ public class UsagePointImpl implements UsagePoint {
 		this.amiBillingReady = AmiBillingReadyKind.UNKNOWN;
 		this.connectionState = UsagePointConnectedKind.UNKNOWN;
 		this.phaseCode = PhaseCode.UNKNOWN;
+        return this;
 	}
+
+    static UsagePointImpl from(DataModel dataModel, String mRID , ServiceCategory serviceCategory) {
+        return dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
+    }
 	
 	@Override
 	public long getId() {
@@ -194,7 +205,7 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public ServiceCategory getServiceCategory() {
 		if (serviceCategory == null) {
-			serviceCategory = Bus.getOrmClient().getServiceCategoryFactory().getExisting(serviceKind);
+			serviceCategory = dataModel.mapper(ServiceCategory.class).getExisting(serviceKind);
 		}
 		return serviceCategory;
 	}
@@ -205,7 +216,7 @@ public class UsagePointImpl implements UsagePoint {
 			return null;
 		}
 		if (serviceLocation == null ) {
-			serviceLocation = Bus.getOrmClient().getServiceLocationFactory().getExisting(serviceLocationId);
+			serviceLocation = dataModel.mapper(ServiceLocation.class).getExisting(serviceLocationId);
 		}
 		return serviceLocation;
 	}
@@ -304,18 +315,18 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public void save() {
 		if (id == 0) {
-			Bus.getOrmClient().getUsagePointFactory().persist(this);
-            Bus.getEventService().postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
-		} else { 
-			Bus.getOrmClient().getUsagePointFactory().update(this);
-            Bus.getEventService().postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
+			dataModel.mapper(UsagePoint.class).persist(this);
+            eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
+		} else {
+            dataModel.mapper(UsagePoint.class).update(this);
+            eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
 		}
 	}
 
     @Override
     public void delete() {
-        Bus.getOrmClient().getUsagePointFactory().remove(this);
-        Bus.getEventService().postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+        dataModel.mapper(UsagePoint.class).remove(this);
+        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
 	@Override
@@ -346,7 +357,7 @@ public class UsagePointImpl implements UsagePoint {
 	
 	private  List<MeterActivation> doGetMeterActivations() {
 		if (meterActivations == null) {
-			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this);
+			meterActivations = dataModel.mapper(MeterActivation.class).find("usagePoint",this);
 		}
 		return meterActivations;
 	}
@@ -389,23 +400,23 @@ public class UsagePointImpl implements UsagePoint {
 
     private List<UsagePointAccountability> doGetUsagePointAccountabilities() {
         if (accountabilities == null) {
-            accountabilities = Bus.getOrmClient().getUsagePointAccountabilityFactory().find("usagePoint",this);
+            accountabilities = dataModel.mapper(UsagePointAccountability.class).find("usagePoint",this);
         }
         return accountabilities;
     }
 
     @Override
 	public MeterActivation activate(Date start) {
-		MeterActivation result = new MeterActivationImpl(this, start);
-		Bus.getOrmClient().getMeterActivationFactory().persist(result);
+		MeterActivation result = MeterActivationImpl.from(dataModel, this, start);
+		dataModel.mapper(MeterActivation.class).persist(result);
 		return result;
 	}
 	
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Date start) {
-		UsagePointAccountability accountability = new UsagePointAccountabilityImpl(this,party,role,start);		
+		UsagePointAccountability accountability = UsagePointAccountabilityImpl.from(dataModel, this, party, role, start);
 		doGetUsagePointAccountabilities().add(accountability);
-		Bus.getOrmClient().getUsagePointAccountabilityFactory().persist(accountability);
+		dataModel.mapper(UsagePointAccountability.class).persist(accountability);
 		return accountability;
 	}
 	

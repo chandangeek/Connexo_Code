@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {
@@ -19,10 +21,10 @@ public enum EventType {
     METER_DELETED("meter/DELETED", true),
     READINGS_CREATED("reading/CREATED") {
         @Override
-        public void install() {
-            Bus.getEventService().buildEventTypeWithTopic(topic())
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
                     .name(name())
-                    .component(Bus.COMPONENTNAME)
+                    .component(MeteringService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System")
                     .shouldPublish().create().save();
@@ -47,10 +49,10 @@ public enum EventType {
     }
 
     @TransactionRequired
-    public void install() {
-        EventTypeBuilder builder = Bus.getEventService().buildEventTypeWithTopic(topic())
+    public void install(EventService eventService) {
+        EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(Bus.COMPONENTNAME)
+                .component(MeteringService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
                 .shouldPublish()

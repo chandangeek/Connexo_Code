@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -119,18 +120,19 @@ public class UsagePointCrudTest {
     }
 
     private void doTest(MeteringService meteringService, Date date) {
+        DataModel dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
         usagePoint.save();
         long id = usagePoint.getId();
-        assertThat(Bus.getOrmClient().getUsagePointFactory().find()).hasSize(1);
+        assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
         usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
         usagePoint.save();
-        assertThat(Bus.getOrmClient().getUsagePointFactory().find("amiBillingReady",AmiBillingReadyKind.AMIDISABLED)).hasSize(1);
+        assertThat(dataModel.mapper(UsagePoint.class).find("amiBillingReady",AmiBillingReadyKind.AMIDISABLED)).hasSize(1);
         assertThat(usagePoint.getVersion()).isEqualTo(2);
         usagePoint.delete();
-        assertThat(Bus.getOrmClient().getUsagePointFactory().find()).hasSize(0);
-        assertThat(Bus.getOrmClient().getUsagePointFactory().getJournal(id)).hasSize(2);
+        assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(0);
+        assertThat(dataModel.mapper(UsagePoint.class).getJournal(id)).hasSize(2);
      }
 
 }

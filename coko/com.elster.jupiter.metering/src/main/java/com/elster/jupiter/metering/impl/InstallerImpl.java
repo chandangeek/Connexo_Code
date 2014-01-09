@@ -6,11 +6,15 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
@@ -26,7 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.elster.jupiter.ids.FieldType.*;
-import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 public class InstallerImpl {
 
@@ -34,9 +37,23 @@ public class InstallerImpl {
     private static final int MONTHS_PER_YEAR = 12;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
 
+    private final DataModel dataModel;
+    private final IdsService idsService;
+    private final PartyService partyService;
+    private final UserService userService;
+    private final EventService eventService;
+
+    public InstallerImpl(DataModel dataModel, IdsService idsService, PartyService partyService, UserService userService, EventService eventService) {
+        this.dataModel = dataModel;
+        this.idsService = idsService;
+        this.partyService = partyService;
+        this.userService = userService;
+        this.eventService = eventService;
+    }
+
     public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
         try {
-            Bus.getOrmClient().install(executeDdl, updateOrm);
+            dataModel.install(executeDdl, updateOrm);
             if (createMasterData) {
                 createMasterData();
             }
@@ -48,18 +65,17 @@ public class InstallerImpl {
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            eventType.install();
+            eventType.install(eventService);
         }
     }
 
     private void createMasterData() {
-        IdsService idsService = Bus.getIdsService();
         createVaults(idsService);
         createRecordSpecs(idsService);
         createServiceCategories();
         createReadingTypes();
-        createPartyRoles(Bus.getPartyService());
-        createPrivileges(Bus.getUserService());
+        createPartyRoles(partyService);
+        createPrivileges(userService);
         createAmrSystems();
         createEndDeviceEventTypes();
     }
@@ -80,7 +96,7 @@ public class InstallerImpl {
                                         .subDomain(subDomain)
                                         .eventOrAction(eventOrAction)
                                         .toCode();
-                                Bus.getOrmClient().getEndDeviceEventTypeFactory().persist(new EndDeviceEventTypeImpl(code));
+                                dataModel.mapper(EndDeviceEventType.class).persist(EndDeviceEventTypeImpl.from(dataModel, code));
                             }
                         }
                     }
@@ -113,17 +129,17 @@ public class InstallerImpl {
     }
 
     private void createAmrSystems() {
-        AmrSystemImpl mdc = new AmrSystemImpl(1, "MDC");
+        AmrSystemImpl mdc = AmrSystemImpl.from(dataModel, 1, "MDC");
         mdc.save();
-        AmrSystemImpl energyAxis = new AmrSystemImpl(2, "EnergyAxis");
+        AmrSystemImpl energyAxis = AmrSystemImpl.from(dataModel, 2, "EnergyAxis");
         energyAxis.save();
     }
 
     private void createVaults(IdsService idsService) {
-        Vault intervalVault = idsService.newVault(COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
+        Vault intervalVault = idsService.newVault(MessageService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
         intervalVault.persist();
         createPartitions(intervalVault);
-        Vault registerVault = idsService.newVault(COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
+        Vault registerVault = idsService.newVault(MessageService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
         registerVault.persist();
         createPartitions(registerVault);
     }
@@ -142,18 +158,18 @@ public class InstallerImpl {
 
     private void createRecordSpecs(IdsService service) {
         int id = 0;
-        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Single Interval Data");
+        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Single Interval Data");
         singleIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         singleIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         singleIntervalRecordSpec.addFieldSpec("Value", NUMBER);
         singleIntervalRecordSpec.persist();
-        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Dual Interval Data");
+        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Dual Interval Data");
         dualIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         dualIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         dualIntervalRecordSpec.addFieldSpec("Value", NUMBER);
         dualIntervalRecordSpec.addFieldSpec("Cumulative", NUMBER);
         dualIntervalRecordSpec.persist();
-        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Multi Interval Data");
+        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Multi Interval Data");
         multiIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         multiIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         multiIntervalRecordSpec.addFieldSpec("Value1", NUMBER);
@@ -163,16 +179,16 @@ public class InstallerImpl {
         multiIntervalRecordSpec.addFieldSpec("Value5", NUMBER);
         multiIntervalRecordSpec.addFieldSpec("Value6", NUMBER);
         multiIntervalRecordSpec.persist();
-        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Base Register");
+        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Base Register");
         singleRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         singleRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         singleRegisterRecordSpec.persist();
-        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Billing Period Register");
+        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Billing Period Register");
         billingPeriodRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         billingPeriodRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         billingPeriodRegisterRecordSpec.addFieldSpec("From Time", DATE);
         billingPeriodRegisterRecordSpec.persist();
-        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Demand Register");
+        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Demand Register");
         demandRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         demandRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         demandRegisterRecordSpec.addFieldSpec("From Time", DATE);
@@ -181,34 +197,34 @@ public class InstallerImpl {
     }
 
     private void createServiceCategories() {
-        new ServiceCategoryImpl(ServiceKind.ELECTRICITY).persist();
-        new ServiceCategoryImpl(ServiceKind.GAS).persist();
-        new ServiceCategoryImpl(ServiceKind.WATER).persist();
-        new ServiceCategoryImpl(ServiceKind.TIME).persist();
-        new ServiceCategoryImpl(ServiceKind.HEAT).persist();
-        new ServiceCategoryImpl(ServiceKind.REFUSE).persist();
-        new ServiceCategoryImpl(ServiceKind.SEWERAGE).persist();
-        new ServiceCategoryImpl(ServiceKind.RATES).persist();
-        new ServiceCategoryImpl(ServiceKind.TVLICENSE).persist();
-        new ServiceCategoryImpl(ServiceKind.INTERNET).persist();
-        new ServiceCategoryImpl(ServiceKind.OTHER).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.ELECTRICITY).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.GAS).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.WATER).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.TIME).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.HEAT).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.REFUSE).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.SEWERAGE).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.RATES).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.TVLICENSE).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.INTERNET).persist();
+        ServiceCategoryImpl.from(dataModel, ServiceKind.OTHER).persist();
     }
 
     private void createReadingTypes() {
-        for (ReadingTypeImpl readingType : ReadingTypeGenerator.generate()) {
+        for (ReadingTypeImpl readingType : ReadingTypeGenerator.generate(dataModel)) {
             readingType.persist();
         }
     }
 
     private void createPartyRoles(PartyService partyService) {
         for (MarketRoleKind role : MarketRoleKind.values()) {
-            partyService.createRole(Bus.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
+            partyService.createRole(MessageService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
         }
     }
 
     private void createPrivileges(UserService userService) {
         for (String each : getPrivileges()) {
-            userService.createPrivilege(Bus.COMPONENTNAME, each, "");
+            userService.createPrivilege(MessageService.COMPONENTNAME, each, "");
         }
     }
 

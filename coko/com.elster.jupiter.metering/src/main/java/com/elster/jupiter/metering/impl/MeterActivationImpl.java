@@ -1,11 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
@@ -35,26 +39,39 @@ public class MeterActivationImpl implements MeterActivation {
 	private UsagePoint usagePoint;
     private Meter meter;
     private final List<Channel> channels = new ArrayList<>();
-	
-	@SuppressWarnings("unused")
+    private final DataModel dataModel;
+    private final EventService eventService;
+    private final Clock clock;
+    private final ChannelBuilder channelBuilder;
+
+    @SuppressWarnings("unused")
     @Inject
-	private MeterActivationImpl() {	
-	}
+	MeterActivationImpl(DataModel dataModel, EventService eventService, Clock clock, ChannelBuilder channelBuilder) {
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+        this.clock = clock;
+        this.channelBuilder = channelBuilder;
+    }
 	
-	MeterActivationImpl(Meter meter , UsagePoint usagePoint , Date start ) {
+	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Date start ) {
 		this.meterId = meter == null ? 0 : meter.getId();
 		this.meter = meter;
 		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
 		this.usagePoint = usagePoint;
 		this.interval = Interval.startAt(start);
-	}
-	
-	public MeterActivationImpl(UsagePoint usagePoint, Date at) {
-		this(null,usagePoint,at);
+        return this;
 	}
 
-	public MeterActivationImpl(Meter meter, Date at) {
-		this(meter,null,at);
+    static MeterActivationImpl from(DataModel dataModel, Meter meter , UsagePoint usagePoint , Date start) {
+        return dataModel.getInstance(MeterActivationImpl.class).init(meter, usagePoint, start);
+    }
+
+	static MeterActivationImpl from(DataModel dataModel, UsagePoint usagePoint, Date at) {
+		return from(dataModel, null, usagePoint, at);
+	}
+
+	static MeterActivationImpl from(DataModel dataModel, Meter meter, Date at) {
+		return from(dataModel, meter, null, at);
 	}
 	
 	@Override
@@ -73,7 +90,7 @@ public class MeterActivationImpl implements MeterActivation {
 			return Optional.absent();
         }
 		if (usagePoint == null) {
-			usagePoint = Bus.getOrmClient().getUsagePointFactory().getExisting(usagePointId);
+			usagePoint = dataModel.mapper(UsagePoint.class).getExisting(usagePointId);
 		}			
 		return Optional.of(usagePoint);
 	}
@@ -84,7 +101,7 @@ public class MeterActivationImpl implements MeterActivation {
 			return Optional.absent();
         }
 		if (meter == null) {
-			meter = (Meter) Bus.getOrmClient().getEndDeviceFactory().getExisting(meterId);
+			meter = (Meter) dataModel.mapper(EndDevice.class).getExisting(meterId);
 		}
 		return Optional.of(meter);
 	}
@@ -107,9 +124,9 @@ public class MeterActivationImpl implements MeterActivation {
 	@Override
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
 		//TODO: check for duplicate channel
-        Channel channel = Bus.getChannelBuilder().meterActivation(this).readingTypes(main, readingTypes).build();
+        Channel channel = channelBuilder.meterActivation(this).readingTypes(main, readingTypes).build();
         channels.add(channel);
-        Bus.getEventService().postEvent(EventType.CHANNEL_CREATED.topic(), channel);
+        eventService.postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;
 	}
 
@@ -138,7 +155,7 @@ public class MeterActivationImpl implements MeterActivation {
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent(Bus.getClock());
+		return interval.isCurrent(clock);
 	}
 
     @Override
@@ -154,9 +171,9 @@ public class MeterActivationImpl implements MeterActivation {
 
     public void save() {
         if (id == 0) {
-            Bus.getOrmClient().getMeterActivationFactory().persist(this);
+            dataModel.mapper(MeterActivation.class).persist(this);
         } else {
-            Bus.getOrmClient().getMeterActivationFactory().update(this);
+            dataModel.mapper(MeterActivation.class).update(this);
         }
     }
 }

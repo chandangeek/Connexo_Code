@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.orm.DataModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +21,12 @@ public class ReadingTypeGenerator {
 
 	private static final TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
 	private static final String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
-	
-	private enum Root {
+
+    public ReadingTypeGenerator(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    private enum Root {
 		FORWARDENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO,WATTHOUR),"Forward Energy"),
 		REVERSEENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO,WATTHOUR),"Reverse Energy"),
 		NETENERGY (ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(NET).measure(ENERGY).in(KILO,WATTHOUR),"Net Energy"),
@@ -36,7 +41,7 @@ public class ReadingTypeGenerator {
 	
 		private final ReadingTypeCodeBuilder builder;
 		private final String name;
-		
+
 		Root(ReadingTypeCodeBuilder builder , String name) {
 			this.builder = builder;
 			this.name = name;
@@ -44,9 +49,10 @@ public class ReadingTypeGenerator {
 	}
 	
 	private final List<ReadingTypeImpl> readingTypes = new ArrayList<>();
+    private final DataModel dataModel;
 	
-	static List<ReadingTypeImpl> generate() {
-		return new ReadingTypeGenerator().readingTypes();
+	static List<ReadingTypeImpl> generate(DataModel dataModel) {
+		return new ReadingTypeGenerator(dataModel).readingTypes();
 	}
 	
 	private List<ReadingTypeImpl> readingTypes() {
@@ -60,7 +66,7 @@ public class ReadingTypeGenerator {
 		for (int i = 0 ; i < timeAttributes.length ; i++) {
 			String code = root.builder.period(timeAttributes[i]).accumulate(DELTADELTA).code();
 			String name = timeAttributeNames[i] + " " + root.name;		
-			readingTypes.add(new ReadingTypeImpl(code, name));
+			readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
 		}
 	}
 }
