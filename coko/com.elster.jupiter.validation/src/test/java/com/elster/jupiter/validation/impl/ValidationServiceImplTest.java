@@ -3,7 +3,12 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
@@ -13,9 +18,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,11 +39,7 @@ public class ValidationServiceImplTest {
     private ValidationServiceImpl validationService;
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private EventService eventService;
-    @Mock
-    private OrmClient ormClient;
     @Mock
     private ValidatorFactory factory;
     @Mock
@@ -52,40 +56,69 @@ public class ValidationServiceImplTest {
     private Channel channel1, channel2;
     @Mock
     private DataMapper<ChannelValidation> channelValidationFactory;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private OrmService ormService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private Table table;
+    @Mock
+    private Clock clock;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void setUp() {
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+        when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
+        when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
+        when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
+        when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
+        when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+
         validationService = new ValidationServiceImpl();
-        when(serviceLocator.getEventService()).thenReturn(eventService);
-        when(serviceLocator.getValidationService()).thenReturn(validationService);
-        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
+        validationService.setOrmService(ormService);
+//        when(serviceLocator.getEventService()).thenReturn(eventService);
+//        when(serviceLocator.getValidationService()).thenReturn(validationService);
+//        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
-        when(ormClient.getValidationRuleSetFactory()).thenReturn(validationRuleSetFactory);
-        when(ormClient.getValidationRuleFactory()).thenReturn(validationRuleFactory);
-        when(ormClient.getMeterActivationValidationFactory()).thenReturn(meterActivationValidationFactory);
-        when(ormClient.getChannelValidationFactory()).thenReturn(channelValidationFactory);
-
-        Bus.setServiceLocator(serviceLocator);
+        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRuleSetImpl(dataModel, eventService);
+            }
+        });
+        when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new MeterActivationValidationImpl(dataModel, meteringService, clock);
+            }
+        });
+        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ChannelValidationImpl(dataModel, meteringService);
+            }
+        });
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
     public void testGetImplementation() {
         validationService.addResource(factory);
 
-        Validator found = validationService.getValidator(validator.getClass().getName(), null);
+        Validator found = validationService.new DefaultValidatorCreator().getValidator(validator.getClass().getName(), null);
 
         assertThat(found).isNotNull().isEqualTo(validator);
     }
 
     @Test(expected = ValidatorNotFoundException.class)
     public void testGetValidatorThrowsNotFoundExceptionIfNoFactoryProvidesImplementation() {
-        validationService.getValidator(validator.getClass().getName(), null);
+        validationService.new DefaultValidatorCreator().getValidator(validator.getClass().getName(), null);
     }
 
     @Test

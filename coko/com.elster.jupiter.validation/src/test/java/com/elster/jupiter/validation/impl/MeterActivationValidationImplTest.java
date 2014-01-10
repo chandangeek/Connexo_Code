@@ -2,6 +2,10 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import org.joda.time.DateMidnight;
@@ -11,7 +15,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,34 +43,44 @@ public class MeterActivationValidationImplTest {
     private MeterActivation meterActivation;
     @Mock
     private IValidationRuleSet validationRuleSet;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private Channel channel1, channel2;
     @Mock
     private IValidationRule rule1, rule2;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private DataModel dataModel;
+    @Mock
+    private Clock clock;
+    @Mock
+    private MeteringService meteringService;
+    @Mock
+    private DataMapper<ChannelValidation> channelValidationFactory;
 
     @Before
     public void setUp() {
-        Bus.setServiceLocator(serviceLocator);
-
-        when(serviceLocator.getClock().now()).thenReturn(DATE3);
+        when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ChannelValidationImpl(dataModel, meteringService);
+            }
+        });
+        when(clock.now()).thenReturn(DATE3);
+        when(meteringService.findChannel(FIRST_CHANNEL_ID)).thenReturn(Optional.of(channel1));
+        when(meteringService.findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(FIRST_CHANNEL_ID);
         when(channel2.getId()).thenReturn(SECOND_CHANNEL_ID);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
-        when(serviceLocator.getMeteringService().findChannel(FIRST_CHANNEL_ID)).thenReturn(Optional.of(channel1));
-        when(serviceLocator.getMeteringService().findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
 
-        meterActivationValidation = new MeterActivationValidationImpl(meterActivation);
+        meterActivationValidation = new MeterActivationValidationImpl(dataModel, meteringService, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

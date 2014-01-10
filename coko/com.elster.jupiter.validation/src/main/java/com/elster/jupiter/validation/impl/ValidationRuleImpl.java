@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
@@ -48,13 +49,26 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private transient ValidationRuleSet ruleSet;
 
     private List<ValidationRuleProperties> properties;
+    private final DataModel dataModel;
+    private final ValidatorCreator validatorCreator;
 
-    public ValidationRuleImpl(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
+    @Inject
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator) {
+        this.dataModel = dataModel;
+        this.validatorCreator = validatorCreator;
+    }
+
+    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
         this.ruleSet = ruleSet;
         this.action = action;
         this.implementation = implementation;
         this.position = position;
         this.ruleSetId = ruleSet.getId();
+        return this;
+    }
+
+    static ValidationRuleImpl from(DataModel dataModel, ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
+        return dataModel.getInstance(ValidationRuleImpl.class).init(ruleSet, action, implementation, position);
     }
 
     @Override
@@ -64,15 +78,14 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     @Override
     public ValidationRuleProperties addProperty(String name, Quantity value) {
-        ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl(this, name, value);
+        ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, name, value);
         doGetProperties().add(newProperty);
         return newProperty;
     }
 
     @Override
     public ReadingTypeInValidationRule addReadingType(ReadingType readingType) {
-        ReadingTypeInValidationRuleImpl readingTypeInValidationRule =
-                new ReadingTypeInValidationRuleImpl(this, readingType);
+        ReadingTypeInValidationRuleImpl readingTypeInValidationRule = ReadingTypeInValidationRuleImpl.from(dataModel, this, readingType);
         doGetReadingTypesInValidationRule().add(readingTypeInValidationRule);
         return readingTypeInValidationRule;
     }
@@ -165,7 +178,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @Override
     public ValidationRuleSet getRuleSet() {
         if (ruleSet == null) {
-            ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().getOptional(ruleSetId).get();
+            ruleSet = dataModel.mapper(ValidationRuleSet.class).getOptional(ruleSetId).get();
         }
         return ruleSet;
     }
@@ -246,13 +259,8 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         this.ruleSetId = ruleSetId;
     }
 
-    @Inject
-    ValidationRuleImpl() {
-        //for persistence
-    }
-
     private Validator createNewValidator() {
-        Validator validator = Bus.getValidator(this.implementation, getProps());
+        Validator validator = validatorCreator.getValidator(this.implementation, getProps());
         if (validator == null) {
             throw new ValidatorNotFoundException(implementation);
         }
@@ -306,15 +314,15 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory() {
-        return Bus.getOrmClient().getReadingTypesInValidationRuleFactory();
+        return dataModel.mapper(ReadingTypeInValidationRule.class);
     }
 
     private DataMapper<IValidationRule> ruleFactory() {
-        return Bus.getOrmClient().getValidationRuleFactory();
+        return dataModel.mapper(IValidationRule.class);
     }
 
     private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {
-        return Bus.getOrmClient().getValidationRulePropertiesFactory();
+        return dataModel.mapper(ValidationRuleProperties.class);
     }
 
     private void setActive(boolean active) {

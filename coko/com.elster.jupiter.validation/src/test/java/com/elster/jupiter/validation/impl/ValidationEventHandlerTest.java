@@ -5,6 +5,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import org.joda.time.DateTime;
@@ -12,7 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -45,15 +45,14 @@ public class ValidationEventHandlerTest {
     private MeterActivation meterActivation1, meterActivation2;
     @Mock
     private ValidationService validationService;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private LocalEvent localEvent;
+    @Mock
+    private Clock clock;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getClock().now()).thenReturn(date6);
-        Bus.setServiceLocator(serviceLocator);
+        when(clock.now()).thenReturn(date6);
         handler = new ValidationEventHandler();
         handler.setValidationService(validationService);
 
@@ -78,7 +77,6 @@ public class ValidationEventHandlerTest {
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

@@ -23,6 +23,7 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationStats;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
@@ -122,6 +123,8 @@ public class ValidationIT {
     private ReadingStorer readingStorer;
     @Mock
     private IntervalReadingRecord reading1_1, reading1_2, reading1_3, reading1_4, reading1_5, reading2_1, reading2_2, reading2_3, reading2_4, reading2_5;
+    @Mock
+    private ValidatorCreator validatorCreator;
 
     @Before
     public void setUp() {
@@ -133,9 +136,9 @@ public class ValidationIT {
 
         when(clock.now()).thenReturn(new DateTime(2012, 12, 24, 17, 14, 22, 124).toDate());
 
-        when(validatorFactory.available()).thenReturn(Arrays.asList(CONSECUTIVE_ZEROES, MIN_MAX));
-        when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), anyMap())).thenReturn(consecutiveZeroesValidator);
-        when(validatorFactory.create(eq(MIN_MAX), anyMap())).thenReturn(minMaxValidator);
+//        when(validatorFactory.available()).thenReturn(Arrays.asList(CONSECUTIVE_ZEROES, MIN_MAX));
+        when(validatorCreator.getValidator(eq(CONSECUTIVE_ZEROES), anyMap())).thenReturn(consecutiveZeroesValidator);
+        when(validatorCreator.getValidator(eq(MIN_MAX), anyMap())).thenReturn(minMaxValidator);
         when(consecutiveZeroesValidator.getRequiredKeys()).thenReturn(Arrays.asList(MAX_NUMBER_IN_SEQUENCE));
         when(consecutiveZeroesValidator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.PASS);
         when(consecutiveZeroesValidator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
@@ -143,7 +146,7 @@ public class ValidationIT {
         when(minMaxValidator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.PASS);
         when(minMaxValidator.getReadingQualityTypeCode()).thenReturn(Optional.<ReadingQualityType>absent());
 
-        when(ormService.newDataModel(Bus.COMPONENTNAME, "Validation")).thenReturn(dataModel);
+        when(ormService.newDataModel(ValidationService.COMPONENTNAME, "Validation")).thenReturn(dataModel);
         when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(validationRulePropertyFactory);
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(ruleSetFactory);
@@ -151,6 +154,42 @@ public class ValidationIT {
         when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypeInRuleFactory);
         when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRuleSetImpl(dataModel, eventService);
+            }
+        });
+        when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRuleImpl(dataModel, validatorCreator);
+            }
+        });
+        when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ReadingTypeInValidationRuleImpl(dataModel, meteringService);
+            }
+        });
+        when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRulePropertiesImpl(dataModel);
+            }
+        });
+        when(dataModel.getInstance(MeterActivationValidationImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new MeterActivationValidationImpl(dataModel, meteringService, clock);
+            }
+        });
+        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ChannelValidationImpl(dataModel, meteringService);
+            }
+        });
 
         doAnswer(new AssignId()).when(ruleSetFactory).persist(isA(ValidationRuleSetImpl.class));
 

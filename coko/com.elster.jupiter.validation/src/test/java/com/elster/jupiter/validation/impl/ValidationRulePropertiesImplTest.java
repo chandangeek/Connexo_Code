@@ -1,15 +1,22 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.collect.ImmutableList;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRulePropertiesImplTest extends EqualsContractTest {
@@ -22,23 +29,46 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
 
     @Mock
     private ValidationRule rule;
+    @Mock
+    private DataModel dataModel;
+
+    @Before
+    public void setUp() {
+        when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRulePropertiesImpl(dataModel);
+            }
+        });
+    }
+
+    @After
+    public void tearDown() {
+
+    }
 
     @Override
     protected Object getInstanceA() {
+        when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRulePropertiesImpl(dataModel);
+            }
+        });
         if (property == null) {
-            property = new ValidationRulePropertiesImpl(rule, MIN, VALUE);
+            property = ValidationRulePropertiesImpl.from(dataModel, rule, MIN, VALUE);
         }
         return property;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new ValidationRulePropertiesImpl(rule, MIN, OTHER_VALUE);
+        return ValidationRulePropertiesImpl.from(dataModel, rule, MIN, OTHER_VALUE);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new ValidationRulePropertiesImpl(rule, MAX, OTHER_VALUE));
+        return ImmutableList.of(ValidationRulePropertiesImpl.from(dataModel, rule, MAX, OTHER_VALUE));
     }
 
     @Override

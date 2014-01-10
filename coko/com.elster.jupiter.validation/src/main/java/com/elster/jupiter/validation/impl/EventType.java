@@ -1,8 +1,10 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.validation.ValidationService;
 
 public enum EventType {
     VALIDATIONRULESET_CREATED("validationruleset/CREATED", true),
@@ -27,10 +29,10 @@ public enum EventType {
     }
 
     @TransactionRequired
-    public void install() {
-        EventTypeBuilder builder = Bus.getEventService().buildEventTypeWithTopic(topic())
+    public void install(EventService eventService) {
+        EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(Bus.COMPONENTNAME)
+                .component(ValidationService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System")
                 .shouldPublish()

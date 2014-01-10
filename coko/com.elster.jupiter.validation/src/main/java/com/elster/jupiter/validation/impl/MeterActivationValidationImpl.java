@@ -2,9 +2,12 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -25,22 +28,35 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private transient IValidationRuleSet ruleSet;
     private UtcInstant lastRun;
     private Set<ChannelValidation> channelValidations;
-    private transient boolean saved;
+    private transient boolean saved = true;
+
+    private final MeteringService meteringService;
+    private final DataModel dataModel;
+    private final Clock clock;
 
     @Inject
-    private MeterActivationValidationImpl() {
-        saved = true;
+    MeterActivationValidationImpl(DataModel dataModel, MeteringService meteringService, Clock clock) {
+        this.dataModel = dataModel;
+        this.meteringService = meteringService;
+        this.clock = clock;
     }
 
-    public MeterActivationValidationImpl(MeterActivation meterActivation) {
+    MeterActivationValidationImpl init(MeterActivation meterActivation) {
         id = meterActivation.getId();
         this.meterActivation = meterActivation;
+        return this;
+    }
+
+    static MeterActivationValidationImpl from(DataModel dataModel, MeterActivation meterActivation) {
+        MeterActivationValidationImpl meterActivationValidation = dataModel.getInstance(MeterActivationValidationImpl.class);
+        meterActivationValidation.saved = false;
+        return meterActivationValidation.init(meterActivation);
     }
 
     @Override
     public MeterActivation getMeterActivation() {
         if (meterActivation == null) {
-            meterActivation = Bus.getMeteringService().findMeterActivation(id).get();
+            meterActivation = meteringService.findMeterActivation(id).get();
         }
         return meterActivation;
     }
@@ -53,7 +69,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     @Override
     public IValidationRuleSet getRuleSet() {
         if (ruleSet == null) {
-            ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().getOptional(ruleSetId).get();
+            ruleSet = dataModel.mapper(IValidationRuleSet.class).getOptional(ruleSetId).get();
         }
         return ruleSet;
     }
@@ -66,7 +82,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     @Override
     public ChannelValidation addChannelValidation(Channel channel) {
-        ChannelValidation channelValidation = new ChannelValidationImpl(this, channel);
+        ChannelValidation channelValidation = ChannelValidationImpl.from(dataModel, this, channel);
         doGetChannelValidations().add(channelValidation);
 
         return channelValidation;
@@ -74,13 +90,13 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     private Set<ChannelValidation> doGetChannelValidations() {
         if (channelValidations == null) {
-            channelValidations = loadChanelValidations();
+            channelValidations = loadChannelValidations();
         }
         return channelValidations;
     }
 
-    private HashSet<ChannelValidation> loadChanelValidations() {
-        return new HashSet<>(Bus.getOrmClient().getChannelValidationFactory().find("meterActivationValidation", this));
+    private HashSet<ChannelValidation> loadChannelValidations() {
+        return new HashSet<>(dataModel.mapper(ChannelValidation.class).find("meterActivationValidation", this));
     }
 
     @Override
@@ -88,21 +104,21 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
         if (!saved) {
             saved = true;
             meterActivationValidationFactory().persist(this);
-            Bus.getOrmClient().getChannelValidationFactory().persist(FluentIterable.from(getChannelValidations()).toList());
+            dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(getChannelValidations()).toList());
         } else {
             meterActivationValidationFactory().update(this);
-            HashSet<ChannelValidation> channelValidations = loadChanelValidations();
+            HashSet<ChannelValidation> channelValidations = loadChannelValidations();
             DiffList<ChannelValidation> diffList = ArrayDiffList.fromOriginal(channelValidations);
             diffList.clear();
             diffList.addAll(getChannelValidations());
-            Bus.getOrmClient().getChannelValidationFactory().persist(FluentIterable.from(diffList.getAdditions()).toList());
-            Bus.getOrmClient().getChannelValidationFactory().update(FluentIterable.from(diffList.getRemaining()).toList());
-            Bus.getOrmClient().getChannelValidationFactory().remove(FluentIterable.from(diffList.getRemovals()).toList());
+            dataModel.mapper(ChannelValidation.class).persist(FluentIterable.from(diffList.getAdditions()).toList());
+            dataModel.mapper(ChannelValidation.class).update(FluentIterable.from(diffList.getRemaining()).toList());
+            dataModel.mapper(ChannelValidation.class).remove(FluentIterable.from(diffList.getRemovals()).toList());
         }
     }
 
     private DataMapper<MeterActivationValidation> meterActivationValidationFactory() {
-        return Bus.getOrmClient().getMeterActivationValidationFactory();
+        return dataModel.mapper(MeterActivationValidation.class);
     }
 
     @Override
@@ -115,7 +131,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
         for (Channel channel : getMeterActivation().getChannels()) {
             validateChannel(interval, channel);
         }
-        lastRun = new UtcInstant(Bus.getClock().now());
+        lastRun = new UtcInstant(clock.now());
         save();
     }
 

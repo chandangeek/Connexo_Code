@@ -1,17 +1,22 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 
@@ -28,31 +33,44 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private static final String NAME = "name";
     private ValidationRuleSetImpl validationRuleSet;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
-
     @Mock
     private DataMapper<IValidationRule> ruleFactory;
     @Mock
     private DataMapper<IValidationRuleSet> setFactory;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private ValidatorCreator validatorCreator;
+    @Mock
+    private DataMapper<ValidationRuleProperties> rulePropertiesSet;
+    @Mock
+    private DataMapper<ReadingTypeInValidationRule> readingTypeInValidationFactory;
 
     @Before
     public void setUp() {
-        when(serviceLocator.getOrmClient().getValidationRuleSetFactory()).thenReturn(setFactory);
-        when(serviceLocator.getOrmClient().getValidationRuleFactory()).thenReturn(ruleFactory);
-        validationRuleSet = new ValidationRuleSetImpl(NAME);
+        when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);
+        when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(setFactory);
+        when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesSet);
+        when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypeInValidationFactory);
+        when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new ValidationRuleImpl(dataModel, validatorCreator);
+            }
+        });
 
-        Bus.setServiceLocator(serviceLocator);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
     }
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Override
     protected Object getInstanceA() {
         if (validationRuleSet == null) {
-            validationRuleSet = new ValidationRuleSetImpl(NAME);
+            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
             setId(validationRuleSet, ID);
         }
         return validationRuleSet;
@@ -64,14 +82,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(NAME);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(NAME);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService).init(NAME, null);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }

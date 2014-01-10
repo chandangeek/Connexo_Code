@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -14,22 +15,30 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private transient ValidationRule rule;
 
+    private final DataModel dataModel;
+
     @Inject
-    private ValidationRulePropertiesImpl() {
+    ValidationRulePropertiesImpl(DataModel dataModel) {
         //for persistence
+        this.dataModel = dataModel;
     }
 
-    public ValidationRulePropertiesImpl(ValidationRule rule, String name, Quantity value) {
+    ValidationRulePropertiesImpl init(ValidationRule rule, String name, Quantity value) {
         this.rule = rule;
         this.name = name;
         this.value = value;
         this.ruleId = rule.getId();
+        return this;
+    }
+
+    static ValidationRulePropertiesImpl from(DataModel dataModel, ValidationRule rule, String name, Quantity value) {
+        return dataModel.getInstance(ValidationRulePropertiesImpl.class).init(rule, name, value);
     }
 
     @Override
     public ValidationRule getRule() {
         if (rule == null) {
-            rule = Bus.getOrmClient().getValidationRuleFactory().getOptional(ruleId).get();
+            rule = dataModel.mapper(ValidationRule.class).getOptional(ruleId).get();
         }
         return rule;
     }

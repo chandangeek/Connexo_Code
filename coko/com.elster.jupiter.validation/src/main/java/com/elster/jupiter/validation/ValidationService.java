@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ValidationService {
 
+    String COMPONENTNAME = "VAL";
+
     ValidationRuleSet createValidationRuleSet(String name);
 
     ValidationRuleSet createValidationRuleSet(String name, String description);

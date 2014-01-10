@@ -31,12 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
-public class ValidationServiceImpl implements ValidationService, InstallService, ServiceLocator{
+@Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
+public class ValidationServiceImpl implements ValidationService, InstallService {
 
     private static final Upcast<IValidationRuleSet,ValidationRuleSet> UPCAST = new Upcast<>();
     private static final Upcast<IValidationRule,ValidationRule> RULE_UPCAST = new Upcast<>();
-    private volatile OrmClient ormClient;
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
@@ -58,7 +57,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Activate
     public void activate() {
-        Bus.setServiceLocator(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -66,42 +64,27 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 bind(EventService.class).toInstance(eventService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
+                bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
             }
         });
     }
 
     @Deactivate
     public void deactivate() {
-        Bus.clearServiceLocator(this);
     }
 
     @Override
     public void install() {
-        new InstallerImpl().install(true, true);
-    }
-
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
-    }
-
-    @Override
-    public MeteringService getMeteringService() {
-        return meteringService;
-    }
-
-    @Override
-    public EventService getEventService() {
-        return eventService;
+        new InstallerImpl(dataModel, eventService).install(true, true);
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Validation");
+        dataModel = ormService.newDataModel(ValidationService.COMPONENTNAME, "Validation");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        this.ormClient = new OrmClientImpl(dataModel);
     }
 
     @Reference
@@ -120,38 +103,33 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public Clock getClock() {
-        return clock;
-    }
-
-    @Override
     public ValidationRuleSet createValidationRuleSet(String name) {
-        return new ValidationRuleSetImpl(name);
+        return ValidationRuleSetImpl.from(dataModel, name);
     }
 
     @Override
     public ValidationRuleSet createValidationRuleSet(String name, String description) {
-        return new ValidationRuleSetImpl(name, description);
+        return ValidationRuleSetImpl.from(dataModel, name, description);
     }
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
-        return getOrmClient().getValidationRuleSetFactory().getOptional(id).transform(UPCAST);
+        return dataModel.mapper(IValidationRuleSet.class).getOptional(id).transform(UPCAST);
     }
 
     @Override
     public Optional<ValidationRule> getValidationRule(long id) {
-        return getOrmClient().getValidationRuleFactory().getOptional(id).transform(RULE_UPCAST);
+        return dataModel.mapper(ValidationRule.class).getOptional(id);
     }
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
-        return new ArrayList<ValidationRuleSet>(getOrmClient().getValidationRuleSetFactory().find());
+        return new ArrayList<>(dataModel.mapper(ValidationRuleSet.class).find());
     }
 
     @Override
     public void validate(MeterActivation meterActivation, Interval interval) {
-        Optional<MeterActivationValidation> found = getOrmClient().getMeterActivationValidationFactory().getOptional(meterActivation.getId());
+        Optional<MeterActivationValidation> found = dataModel.mapper(MeterActivationValidation.class).getOptional(meterActivation.getId());
         if (found.isPresent()) {
             found.get().validate(interval);
         }
@@ -178,25 +156,23 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         validatorFactories.remove(validatorfactory);
     }
 
-    @Override
-    public Validator getValidator(String implementation, Map<String, Quantity> props) {
-        for (ValidatorFactory factory : validatorFactories) {
-            if (factory.available().contains(implementation)) {
-                return factory.create(implementation, props);
-            }
-        }
-        throw new ValidatorNotFoundException(implementation);
-    }
+    class DefaultValidatorCreator implements ValidatorCreator {
 
-    @Override
-    public ValidationService getValidationService() {
-        return this;
+        @Override
+        public Validator getValidator(String implementation, Map<String, Quantity> props) {
+            for (ValidatorFactory factory : validatorFactories) {
+                if (factory.available().contains(implementation)) {
+                    return factory.create(implementation, props);
+                }
+            }
+            throw new ValidatorNotFoundException(implementation);
+        }
     }
 
     @Override
     public void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        Optional<MeterActivationValidation> found = Bus.getOrmClient().getMeterActivationValidationFactory().getOptional(meterActivation.getId());
-        MeterActivationValidation meterActivationValidation = found.or(new MeterActivationValidationImpl(meterActivation));
+        Optional<MeterActivationValidation> found = dataModel.mapper(MeterActivationValidation.class).getOptional(meterActivation.getId());
+        MeterActivationValidation meterActivationValidation = found.or(MeterActivationValidationImpl.from(dataModel, meterActivation));
         meterActivationValidation.setRuleSet(ruleSet);
 
         for (Channel channel : meterActivation.getChannels()) {
@@ -206,5 +182,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         meterActivationValidation.save();
     }
 
-
+    DataModel getDataModel() {
+        return dataModel;
+    }
 }

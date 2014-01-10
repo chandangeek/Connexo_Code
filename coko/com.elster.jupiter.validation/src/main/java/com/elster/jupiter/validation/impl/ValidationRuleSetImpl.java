@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -28,18 +30,28 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private List<IValidationRule> rules;
 
+    private final EventService eventService;
+    private final DataModel dataModel;
+
     @Inject
-    private ValidationRuleSetImpl() {
+    ValidationRuleSetImpl(DataModel dataModel, EventService eventService) {
         // for persistence
+        this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
-    public ValidationRuleSetImpl(String name) {
-        this.name = name;
-    }
-
-    public ValidationRuleSetImpl(String name, String description) {
+    ValidationRuleSetImpl init(String name, String description) {
         this.name = name;
         this.description = description;
+        return this;
+    }
+
+    static ValidationRuleSetImpl from(DataModel dataModel, String name) {
+        return from(dataModel, name, null);
+    }
+
+    static ValidationRuleSetImpl from(DataModel dataModel, String name, String description) {
+        return dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
     }
 
 
@@ -152,7 +164,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         for (IValidationRule rule : entryDiff.getAdditions()) {
             rule.save();
         }
-        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
+        eventService.postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
     private void doPersist() {
@@ -161,18 +173,18 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
             ((ValidationRuleImpl) rule).setRuleSetId(getId());
             ((ValidationRuleImpl) rule).save();
         }
-        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
+        eventService.postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }
 
     private DataMapper<IValidationRule> ruleFactory() {
-        return Bus.getOrmClient().getValidationRuleFactory();
+        return dataModel.mapper(IValidationRule.class);
     }
 
 
     @Override
     public void delete() {
         validationRuleSetFactory().remove(this);
-        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
+        eventService.postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
     }
 
     @Override
@@ -193,7 +205,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public IValidationRule addRule(ValidationAction action, String implementation) {
-        ValidationRuleImpl newRule = new ValidationRuleImpl(this, action, implementation, doGetRules().size() + 1);
+        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, this, action, implementation, doGetRules().size() + 1);
         rules.add(newRule);
         return newRule;
     }
@@ -219,7 +231,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     private DataMapper<IValidationRuleSet> validationRuleSetFactory() {
-        return Bus.getOrmClient().getValidationRuleSetFactory();
+        return dataModel.mapper(IValidationRuleSet.class);
     }
 
 
