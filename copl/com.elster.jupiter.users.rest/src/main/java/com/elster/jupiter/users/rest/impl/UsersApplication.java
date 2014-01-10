@@ -17,7 +17,7 @@ import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.users.rest" , service=Application.class , immediate = true , property = {"alias=/usr"} )
-public class UsersApplication extends Application implements ServiceLocator, BinderProvider {
+public class UsersApplication extends Application implements BinderProvider {
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -28,26 +28,14 @@ public class UsersApplication extends Application implements ServiceLocator, Bin
         return ImmutableSet.of(GroupResource.class, UserResource.class, PrivilegeResource.class);
     }
 
-    public UserService getUserService() {
-        return userService;
-    }
-
     @Reference
     public void setUserService(UserService partyService) {
         this.userService = partyService;
     }
 
-    public RestQueryService getRestQueryService() {
-        return restQueryService;
-    }
-
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
-    }
-
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 
     @Reference
