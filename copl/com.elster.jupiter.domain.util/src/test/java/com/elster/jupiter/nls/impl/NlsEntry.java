@@ -1,5 +1,6 @@
 package com.elster.jupiter.nls.impl;
 
+import java.util.List;
 import java.util.Locale;
 
 import com.elster.jupiter.orm.associations.Reference;
