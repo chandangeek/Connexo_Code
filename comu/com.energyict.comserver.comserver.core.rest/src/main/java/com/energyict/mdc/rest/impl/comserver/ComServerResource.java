@@ -1,12 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.services.ComServerService;
-import com.energyict.mdc.shadow.servers.ComServerShadow;
-import java.sql.SQLException;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -89,8 +86,10 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
         try {
-            ComServer comServer = engineModelService.
-            return ComServerInfoFactory.asInfo(engineModelService.create(comServerInfo.asShadow()));
+            OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
+            comServerInfo.writeTo(onlineComServer);
+            onlineComServer.save();
+            return ComServerInfoFactory.asInfo(onlineComServer);
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -100,7 +99,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServerShadow> comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
         try {
             if (comServerInfo.inboundComPorts==null) {
                 throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
@@ -117,10 +116,10 @@ public class ComServerResource {
                     Response.status(Response.Status.NOT_FOUND).build());
             }
 
-            ComServerShadow comServerShadow = comServerInfo.writeToShadow(comServer.getShadow());
-            comServer.update(comServerShadow);
+            comServerInfo.writeTo(comServer);
+            comServer.save();
             return ComServerInfoFactory.asInfo(comServer);
-        } catch (IllegalArgumentException | SQLException | BusinessException e) {
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(e, Response.serverError().build());
         }
     }

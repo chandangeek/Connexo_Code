@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
-public abstract class ComPortInfo<T extends ComPortShadow> {
+public abstract class ComPortInfo<T extends ComPort> {
 
-    public int id;
+    public long id;
     public String direction;
     public String name;
     public String description;
@@ -27,7 +27,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public boolean bound;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType comPortType;
-    public int comServer_id;
+    public long comServer_id;
     public int numberOfSimultaneousConnections;
     public Date modificationDate;
     public Integer ringCount;
@@ -51,7 +51,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public FlowControl flowControl;
     @XmlJavaTypeAdapter(ParitiesAdapter.class)
     public Parities parity;
-    public Integer comPortPool_id;
+    public Long comPortPool_id;
     public Integer portNumber;
     public Integer bufferSize;
     public Boolean useHttps;
@@ -76,13 +76,12 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
         this.modificationDate = comPort.getModificationDate();
     }
 
-    protected void writeToShadow(T shadow) {
-        shadow.setName(name);
-        shadow.setDescription(description);
-        shadow.setComServerId(comServer_id);
-        shadow.setActive(active);
-        shadow.setType(this.comPortType);
+    protected void writeTo(T source) {
+        source.setName(name);
+        source.setDescription(description);
+        source.setComServer(comServer_id);
+        source.setActive(active);
+        source.setComPortType(this.comPortType);
     }
 
-    public abstract T asShadow();
 }

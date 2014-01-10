@@ -1,7 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.shadow.ports.InboundComPortShadow;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -13,7 +12,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP"),
         @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "SERVLET"),
         @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "SERIAL") })
-public abstract class InboundComPortInfo<T extends InboundComPortShadow> extends ComPortInfo<T> {
+public abstract class InboundComPortInfo<T extends InboundComPort> extends ComPortInfo<T> {
 
     protected InboundComPortInfo() {
         this.direction = "inbound";
@@ -22,12 +21,12 @@ public abstract class InboundComPortInfo<T extends InboundComPortShadow> extends
     public InboundComPortInfo(InboundComPort comPort) {
         super(comPort);
         this.direction = "inbound";
-        this.comPortPool_id = comPort.getComPortPool()!=null?comPort.getComPortPool().getId():0;
+        this.comPortPool_id = comPort.getComPortPool()!=null?comPort.getComPortPool().getId():0L;
     }
 
     @Override
-    protected void writeToShadow(T shadow) {
-        super.writeToShadow(shadow);
-        shadow.setInboundComPortPoolId(this.comPortPool_id);
+    protected void writeTo(T source) {
+        super.writeTo(source);
+        source.setComPortPool(this.comPortPool_id);
     }
 }

@@ -1,7 +1,11 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
+import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -9,7 +13,9 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 @XmlRootElement
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
-public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServerShadow> {
+public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServer> {
+
+    private EngineModelService engineModelService;
 
     public OnlineComServerInfo() {
     }
@@ -40,25 +46,30 @@ public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComS
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
     }
 
-    public OnlineComServerShadow writeToShadow(OnlineComServerShadow comServerShadow) {
-        super.writeToShadow(comServerShadow);
-        comServerShadow.setQueryAPIPostUri(queryAPIPostUri);
-        comServerShadow.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri);
-        comServerShadow.setEventRegistrationUri(eventRegistrationUri);
-        comServerShadow.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
-        comServerShadow.setStoreTaskQueueSize(storeTaskQueueSize);
-        comServerShadow.setStoreTaskThreadPriority(storeTaskThreadPriority);
-        comServerShadow.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
+    public OnlineComServer writeTo(OnlineComServer comServerSource) {
+        super.writeTo(comServerSource);
+        comServerSource.setQueryAPIPostUri(queryAPIPostUri);
+        comServerSource.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri);
+        comServerSource.setEventRegistrationUri(eventRegistrationUri);
+        comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+        comServerSource.setStoreTaskQueueSize(storeTaskQueueSize);
+        comServerSource.setStoreTaskThreadPriority(storeTaskThreadPriority);
+        comServerSource.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
 
-        updateInboundComPorts(comServerShadow);
-        updateOutboundComPorts(comServerShadow);
+        for (InboundComPortInfo<? extends ComPort> inboundComPort : this.inboundComPorts) {
+            TCPBasedInboundComPort newPort = (TCPBasedInboundComPort) engineModelService.newTCPBasedInbound(comServerSource);
+            inboundComPort.writeTo(newPort);
+        }
 
-        return comServerShadow;
+        updateInboundComPorts(comServerSource);
+        updateOutboundComPorts(comServerSource);
+
+        return comServerSource;
     }
 
     public OnlineComServerShadow asShadow() {
         OnlineComServerShadow shadow = new OnlineComServerShadow();
-        this.writeToShadow(shadow);
+        this.writeTo(shadow);
         return shadow;
     }
 

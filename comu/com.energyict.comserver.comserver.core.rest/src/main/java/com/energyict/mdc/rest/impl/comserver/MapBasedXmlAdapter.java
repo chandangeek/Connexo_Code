@@ -18,8 +18,8 @@ public class MapBasedXmlAdapter<V> extends XmlAdapter<String, V>{
 
     private final Map<String, V> map = new HashMap<>();
 
-    protected final void register(String displayValue, V serverValue) {
-        map.put(displayValue, serverValue);
+    protected final void register(String jsonValue, V serverValue) {
+        map.put(jsonValue, serverValue);
     }
 
     public final List<String> getClientSideValues() {

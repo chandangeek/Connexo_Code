@@ -36,23 +36,23 @@ public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComS
         this.queryAPIPassword = remoteComServer.getQueryAPIPassword();
     }
 
-    public RemoteComServerShadow writeToShadow(RemoteComServerShadow comServerShadow) {
-        super.writeToShadow(comServerShadow);
-        comServerShadow.setEventRegistrationUri(eventRegistrationUri);
-        comServerShadow.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
-        comServerShadow.setOnlineComServerId(onlineComServerId);
-        comServerShadow.setQueryAPIPassword(queryAPIPassword);
-        comServerShadow.setQueryAPIUsername(queryAPIUsername);
+    public RemoteComServerShadow writeTo(RemoteComServerShadow comServerSource) {
+        super.writeTo(comServerSource);
+        comServerSource.setEventRegistrationUri(eventRegistrationUri);
+        comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+        comServerSource.setOnlineComServerId(onlineComServerId);
+        comServerSource.setQueryAPIPassword(queryAPIPassword);
+        comServerSource.setQueryAPIUsername(queryAPIUsername);
 
-        updateInboundComPorts(comServerShadow);
-        updateOutboundComPorts(comServerShadow);
+        updateInboundComPorts(comServerSource);
+        updateOutboundComPorts(comServerSource);
 
-        return comServerShadow;
+        return comServerSource;
     }
 
     public RemoteComServerShadow asShadow() {
         RemoteComServerShadow shadow = new RemoteComServerShadow();
-        this.writeToShadow(shadow);
+        this.writeTo(shadow);
         return shadow;
     }
 

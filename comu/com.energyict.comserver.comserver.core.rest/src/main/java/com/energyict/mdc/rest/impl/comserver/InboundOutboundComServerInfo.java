@@ -12,7 +12,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public abstract class InboundOutboundComServerInfo<S extends InboundOutboundComServerShadow> extends ComServerInfo<S> {
+public abstract class InboundOutboundComServerInfo<S extends ComServer> extends ComServerInfo<S> {
 
     public InboundOutboundComServerInfo() {
     }
@@ -25,15 +25,15 @@ public abstract class InboundOutboundComServerInfo<S extends InboundOutboundComS
         super(comServer, comPorts);
     }
 
-    protected final void updateInboundComPorts(InboundOutboundComServerShadow shadow) {
-        ShadowList<InboundComPortShadow> inboundComPortShadows = shadow.getInboundComPortShadows();
+    protected final void updateInboundComPorts(ComServer comServer) {
+        List<InboundComPortShadow> inboundComPortShadows = comServer.getInboundComPort();
         List<InboundComPortShadow> toBeDeletedInbound = new ArrayList<>(inboundComPortShadows);
         for (InboundComPortInfo comPort : inboundComPorts) {
             boolean configuredComPortFound = false;
             for (InboundComPortShadow comPortShadow : inboundComPortShadows) {
                 if (comPort.id==comPortShadow.getId()) {
                     configuredComPortFound=true;
-                    comPort.writeToShadow(comPortShadow);
+                    comPort.writeTo(comPortShadow);
                     toBeDeletedInbound.remove(comPortShadow);
                 }
             }
@@ -55,7 +55,7 @@ public abstract class InboundOutboundComServerInfo<S extends InboundOutboundComS
             for (OutboundComPortShadow comPortShadow : outboundComPortShadows) {
                 if (comPort.id==comPortShadow.getId()) {
                     configuredComPortFound=true;
-                    comPort.writeToShadow(comPortShadow);
+                    comPort.writeTo(comPortShadow);
                     toBeDeletedOutbound.remove(comPortShadow);
                 }
             }

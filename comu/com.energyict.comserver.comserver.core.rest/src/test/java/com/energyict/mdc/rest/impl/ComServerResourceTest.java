@@ -3,14 +3,13 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.services.ComPortPoolService;
-import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
@@ -46,21 +45,18 @@ import static org.mockito.Mockito.when;
  * @author bvn
  */
 public class ComServerResourceTest extends JerseyTest {
-
-    private static ComServerService comServerService;
-    private static ComPortPoolService comPortPoolService;
+    private static EngineModelService engineModelService;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        comServerService = mock(ComServerService.class);
-        comPortPoolService = mock(ComPortPoolService.class);
+        engineModelService = mock(EngineModelService.class);
     }
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(comServerService);
+        reset(engineModelService);
     }
 
     @Override
@@ -72,7 +68,7 @@ public class ComServerResourceTest extends JerseyTest {
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(comServerService).to(ComServerService.class);
+                bind(engineModelService).to(EngineModelService.class);
             }
         });
         return resourceConfig;
@@ -100,12 +96,12 @@ public class ComServerResourceTest extends JerseyTest {
     @Test
     public void testGetExistingComServerJSStyle() {
         OnlineComServer mock = mock(OnlineComServer.class);
-        List<ComServer<? extends ComServerShadow>> comServers = new ArrayList<>();
+        List<ComServer> comServers = new ArrayList<>();
         comServers.add(mock);
-        when(comServerService.findAll()).thenReturn(comServers);
+        when(engineModelService.findAllComServers()).thenReturn(comServers);
         when(mock.getName()).thenReturn("Test");
         when(mock.getQueryApiPostUri()).thenReturn("/test");
-        when(mock.getId()).thenReturn(1);
+        when(mock.getId()).thenReturn(1L);
         when(mock.getEventRegistrationUri()).thenReturn("/event/registration/uri");
         when(mock.getNumberOfStoreTaskThreads()).thenReturn(2);
         when(mock.getStoreTaskQueueSize()).thenReturn(3);
@@ -154,13 +150,11 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Test
     public void testUpdateExistingComServer() throws Exception {
-        int comServer_id = 3;
+        long comServer_id = 3;
 
-        ComServer serverSideComServer = mock(OnlineComServer.class);
-        OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
-        onlineComServerShadow.setId(comServer_id);
-        when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
-        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -181,34 +175,30 @@ public class ComServerResourceTest extends JerseyTest {
         final Response response = target("/comservers/3").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        ArgumentCaptor<OnlineComServerShadow> onlineComServerShadowArgumentCaptor = ArgumentCaptor.forClass(OnlineComServerShadow.class);
-        verify(serverSideComServer).update(onlineComServerShadowArgumentCaptor.capture());
-        OnlineComServerShadow updatingValue = onlineComServerShadowArgumentCaptor.getValue();
-        assertThat(updatingValue.getName()).isEqualTo("new name");
-        assertThat(updatingValue.getEventRegistrationUri()).isEqualTo("/new/uri");
-        assertThat(updatingValue.isUsesDefaultEventRegistrationUri()).isEqualTo(false);
-        assertThat(updatingValue.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(6));
-        assertThat(updatingValue.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
-        assertThat(updatingValue.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
-        assertThat(updatingValue.getStoreTaskQueueSize()).isEqualTo(7);
-        assertThat(updatingValue.getStoreTaskThreadPriority()).isEqualTo(8);
-        assertThat(updatingValue.getNumberOfStoreTaskThreads()).isEqualTo(9);
+        verify(serverSideComServer).save();
+        assertThat(serverSideComServer.getName()).isEqualTo("new name");
+        assertThat(serverSideComServer.getEventRegistrationUri()).isEqualTo("/new/uri");
+        assertThat(serverSideComServer.usesDefaultEventRegistrationUri()).isEqualTo(false);
+        assertThat(serverSideComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(6));
+        assertThat(serverSideComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
+        assertThat(serverSideComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
+        assertThat(serverSideComServer.getStoreTaskQueueSize()).isEqualTo(7);
+        assertThat(serverSideComServer.getStoreTaskThreadPriority()).isEqualTo(8);
+        assertThat(serverSideComServer.getNumberOfStoreTaskThreads()).isEqualTo(9);
     }
 
     @Test
     public void testUpdateExistingComServerAddSerialInboundComPort() throws Exception {
-        int comServer_id = 3;
-        int comPortPool_id = 16;
+        long comServer_id = 3;
+        long comPortPool_id = 16;
 
         ComServer serverSideComServer = mock(OnlineComServer.class);
-        OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
-        onlineComServerShadow.setId(comServer_id);
-        when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
-        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
 
         ComPortPool comPortPool = mock(ComPortPool.class);
         when(comPortPool.getId()).thenReturn(comPortPool_id);
-        when(comPortPoolService.find(comPortPool_id)).thenReturn(comPortPool);
+        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(comPortPool);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -275,7 +265,7 @@ public class ComServerResourceTest extends JerseyTest {
         OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
         onlineComServerShadow.setId(comServer_id);
         when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
-        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+        when(engineModelService.find(comServer_id)).thenReturn(serverSideComServer);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -292,7 +282,7 @@ public class ComServerResourceTest extends JerseyTest {
         int comServer_id = 5;
 
         ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+        when(engineModelService.find(comServer_id)).thenReturn(serverSideComServer);
 
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

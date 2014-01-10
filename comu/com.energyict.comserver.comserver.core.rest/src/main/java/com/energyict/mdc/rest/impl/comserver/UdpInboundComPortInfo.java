@@ -4,7 +4,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.UDPBasedInboundComPortShadow;
 
-public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPortShadow> {
+public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPort> {
 
     public UdpInboundComPortInfo() {
         this.comPortType = ComPortType.UDP;
@@ -20,17 +20,11 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     }
 
     @Override
-    protected void writeToShadow(UDPBasedInboundComPortShadow shadow) {
-        super.writeToShadow(shadow);
-        shadow.setInboundComPortPoolId(this.comPortPool_id);
-        shadow.setPortNumber(this.portNumber);
-        shadow.setBufferSize(this.bufferSize);
+    protected void writeTo(UDPBasedInboundComPort source) {
+        super.writeTo(source);
+        source.setComPortPool(this.comPortPool_id);
+        source.setPortNumber(this.portNumber);
+        source.setBufferSize(this.bufferSize);
     }
 
-    @Override
-    public UDPBasedInboundComPortShadow asShadow() {
-        UDPBasedInboundComPortShadow shadow = new UDPBasedInboundComPortShadow();
-        this.writeToShadow(shadow);
-        return shadow;
-    }
 }

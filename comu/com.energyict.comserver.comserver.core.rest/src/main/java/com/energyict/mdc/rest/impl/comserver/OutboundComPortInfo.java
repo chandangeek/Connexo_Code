@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
 
-public class OutboundComPortInfo extends ComPortInfo<OutboundComPortShadow> {
+public class OutboundComPortInfo extends ComPortInfo<OutboundComPort> {
 
     public OutboundComPortInfo() {
         this.direction = "outbound";
@@ -15,15 +15,9 @@ public class OutboundComPortInfo extends ComPortInfo<OutboundComPortShadow> {
     }
 
     @Override
-    protected void writeToShadow(OutboundComPortShadow shadow) {
-        super.writeToShadow(shadow);
-        shadow.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
+    protected void writeTo(OutboundComPort source) {
+        super.writeTo(source);
+        source.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
     }
 
-    @Override
-    public OutboundComPortShadow asShadow() {
-        OutboundComPortShadow shadow = new OutboundComPortShadow();
-        this.writeToShadow(shadow);
-        return shadow;
-    }
 }

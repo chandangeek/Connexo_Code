@@ -1,10 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.rest.impl.filter.Filter;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.services.ComPortService;
-import com.energyict.mdc.services.ComServerService;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -20,13 +19,11 @@ import org.json.JSONArray;
 @Path("/comports")
 public class ComPortResource {
 
-    private final ComPortService comPortService;
-    private final ComServerService comServerService;
+    private final EngineModelService engineModelService;
 
     @Inject
-    public ComPortResource(ComPortService comPortService, ComServerService comServerService) {
-        this.comPortService = comPortService;
-        this.comServerService = comServerService;
+    public ComPortResource(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
     }
 
     @GET
@@ -36,20 +33,20 @@ public class ComPortResource {
         if (filter != null) {
             Filter comPortFilter = new Filter(filter);
             if(comPortFilter.getFilterProperties().get("comserver_id")!=null){
-                ComServer comServer = comServerService.find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
-                for (ComPort comPort : comPortService.findByComServer(comServer)) {
+                ComServer comServer = engineModelService.findComServer(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
+                for (ComPort comPort : comServer.getComPorts()) {
                     wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
                 }
             } else if (comPortFilter.getFilterProperties().get("direction")!=null){
                 List<? extends ComPort> comPorts = ("inbound".equals(comPortFilter.getFilterProperties().get("direction")))?
-                        comPortService.findAllInboundComPorts():
-                        comPortService.findAllOutboundComPorts();
+                        engineModelService.findAllInboundComPorts():
+                        engineModelService.findAllOutboundComPorts();
                 for (ComPort comPort :comPorts) {
                     wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
                 }
             }
         } else {
-            for (ComPort comPort : comPortService.findAll()) {
+            for (ComPort comPort : engineModelService.findAllWithDeleted()) {
                 wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
             }
         }
@@ -60,7 +57,7 @@ public class ComPortResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortInfo getComPort(@PathParam("id") int id) {
-        ComPort comPort = comPortService.find(id);
+        ComPort comPort = engineModelService.findComPort(id);
         if (comPort==null) {
             throw new WebApplicationException("No ComPort with id "+id,
                 Response.status(Response.Status.NOT_FOUND).build());

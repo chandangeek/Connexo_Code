@@ -1,16 +1,15 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPortShadow> {
+public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPort> {
 
     public static final String MAP_KEY = "modemInitString";
 
@@ -41,40 +40,33 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     @Override
-    protected void writeToShadow(ModemBasedInboundComPortShadow shadow) {
-        super.writeToShadow(shadow);
-        shadow.setRingCount(this.ringCount);
-        shadow.setMaximumNumberOfDialErrors(this.maximumNumberOfDialErrors);
+    protected void writeTo(ModemBasedInboundComPort source) {
+        super.writeTo(source);
+        source.setRingCount(this.ringCount);
+        source.setMaximumDialErrors(this.maximumNumberOfDialErrors);
         if (this.connectTimeout!=null) {
-            shadow.setConnectTimeout(this.connectTimeout.asTimeDuration());
+            source.setConnectTimeout(this.connectTimeout.asTimeDuration());
         }
         if (this.delayAfterConnect!=null) {
-            shadow.setDelayAfterConnect(this.delayAfterConnect.asTimeDuration());
+            source.setDelayAfterConnect(this.delayAfterConnect.asTimeDuration());
         }
         if (this.delayBeforeSend!=null) {
-            shadow.setDelayBeforeSend(this.delayBeforeSend.asTimeDuration());
+            source.setDelayBeforeSend(this.delayBeforeSend.asTimeDuration());
         }
         if (this.atCommandTimeout!=null) {
-            shadow.setAtCommandTimeout(this.atCommandTimeout.asTimeDuration());
+            source.setAtCommandTimeout(this.atCommandTimeout.asTimeDuration());
         }
-        shadow.setAtCommandTry(this.atCommandTry);
-        shadow.setModemInitStrings(fromMaps(MAP_KEY,this.modemInitStrings));
-        shadow.setAddressSelector(this.addressSelector);
-        shadow.setPostDialCommands(this.postDialCommands);
-        shadow.setSerialPortConfiguration(new SerialPortConfiguration(
+        source.setAtCommandTry(this.atCommandTry);
+        source.setModemInitStrings(fromMaps(MAP_KEY,this.modemInitStrings));
+        source.setAddressSelector(this.addressSelector);
+        source.setPostDialCommands(this.postDialCommands);
+        source.setSerialPortConfiguration(new SerialPortConfiguration(
                 this.comPortName,
                 this.baudrate,
                 this.nrOfDataBits,
                 this.nrOfStopBits,
                 this.parity,
                 this.flowControl));
-    }
-
-    @Override
-    public ModemBasedInboundComPortShadow asShadow() {
-        ModemBasedInboundComPortShadow shadow = new ModemBasedInboundComPortShadow();
-        this.writeToShadow(shadow);
-        return shadow;
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {

@@ -4,7 +4,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
 
-public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPortShadow> {
+public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPort> {
 
     public TcpInboundComPortInfo() {
         this.comPortType = ComPortType.TCP;
@@ -15,16 +15,9 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
         this.portNumber = comPort.getPortNumber();
     }
 
-    protected void writeToShadow(TCPBasedInboundComPortShadow shadow) {
-        super.writeToShadow(shadow);
-        shadow.setPortNumber(this.portNumber);
+    protected void writeTo(TCPBasedInboundComPort source) {
+        super.writeTo(source);
+        source.setPortNumber(this.portNumber);
     }
-
-    public TCPBasedInboundComPortShadow asShadow() {
-        TCPBasedInboundComPortShadow shadow = new TCPBasedInboundComPortShadow();
-        this.writeToShadow(shadow);
-        return shadow;
-    }
-
 
 }

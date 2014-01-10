@@ -19,7 +19,7 @@ import java.util.List;
      @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "Online"),
      @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "Offline"),
      @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote") })
-public abstract class ComServerInfo<S extends ComServerShadow> {
+public abstract class ComServerInfo<S extends ComServer> {
 
     public long id;
     public String name;
@@ -28,7 +28,7 @@ public abstract class ComServerInfo<S extends ComServerShadow> {
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
-    public List<InboundComPortInfo<? extends ComPortShadow>> inboundComPorts;
+    public List<InboundComPortInfo<? extends InboundComPort>> inboundComPorts;
     public List<OutboundComPortInfo> outboundComPorts;
     public Integer onlineComServerId;
     public String queryAPIUsername;
@@ -73,19 +73,19 @@ public abstract class ComServerInfo<S extends ComServerShadow> {
         }
     }
 
-    public S writeToShadow(S shadow) {
-        shadow.setName(name);
-        shadow.setActive(active);
-        shadow.setServerLogLevel(serverLogLevel);
-        shadow.setCommunicationLogLevel(communicationLogLevel);
+    public S writeTo(S source) {
+        source.setName(name);
+        source.setActive(active);
+        source.setServerLogLevel(serverLogLevel);
+        source.setCommunicationLogLevel(communicationLogLevel);
         if (changesInterPollDelay!=null) {
-            shadow.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
+            source.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
         }
         if (schedulingInterPollDelay!=null) {
-            shadow.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
+            source.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
         }
 
-        return shadow;
+        return source;
     }
 
     abstract public S asShadow();

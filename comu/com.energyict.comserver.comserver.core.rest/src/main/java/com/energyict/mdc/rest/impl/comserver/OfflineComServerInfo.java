@@ -25,15 +25,15 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServerShadow> 
     }
 
     @Override
-    public OfflineComServerShadow writeToShadow(OfflineComServerShadow shadow) {
-        super.writeToShadow(shadow);
-        updateOutboundComPorts(shadow);
-        return shadow;
+    public OfflineComServerShadow writeTo(OfflineComServerShadow source) {
+        super.writeTo(source);
+        updateOutboundComPorts(source);
+        return source;
     }
 
     public OfflineComServerShadow asShadow() {
         OfflineComServerShadow offlineComServerShadow = new OfflineComServerShadow();
-        this.writeToShadow(offlineComServerShadow);
+        this.writeTo(offlineComServerShadow);
         return offlineComServerShadow;
     }
 
@@ -45,7 +45,7 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServerShadow> 
             for (OutboundComPortShadow comPortShadow : outboundComPortShadows) {
                 if (comPort.id==comPortShadow.getId()) {
                     configuredComPortFound=true;
-                    comPort.writeToShadow(comPortShadow);
+                    comPort.writeTo(comPortShadow);
                     toBeDeletedOutbound.remove(comPortShadow);
                 }
             }

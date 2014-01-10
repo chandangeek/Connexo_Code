@@ -1,12 +1,10 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.services.ComPortPoolService;
-import com.energyict.mdc.services.ComPortService;
-import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
 import com.google.common.collect.ImmutableSet;
@@ -28,9 +26,7 @@ public class MdcApplication extends Application {
     private volatile DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
     private volatile LicensedProtocolService licensedProtocolService;
-    private volatile ComServerService comServerService;
-    private volatile ComPortService comPortService;
-    private volatile ComPortPoolService comPortPoolService;
+    private volatile EngineModelService engineModelService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -60,18 +56,8 @@ public class MdcApplication extends Application {
     }
 
     @Reference
-    public void setComPortPoolService(ComPortPoolService comPortPoolService) {
-        this.comPortPoolService = comPortPoolService;
-    }
-
-    @Reference
-    public void setComServerService(ComServerService comServerService) {
-        this.comServerService = comServerService;
-    }
-
-    @Reference
-    public void setComPortService(ComPortService comPortService) {
-        this.comPortService = comPortService;
+    public void setEngineModelService(EngineModelService engineModelService) {
+        this.engineModelService = engineModelService;
     }
 
     @Reference
@@ -89,12 +75,10 @@ public class MdcApplication extends Application {
         @Override
         protected void configure() {
             LOGGER.fine("Binding services using HK2");
-            bind(comServerService).to(ComServerService.class);
-            bind(comPortService).to(ComPortService.class);
+            bind(engineModelService).to(EngineModelService.class);
             bind(deviceProtocolPluggableClassService).to(DeviceProtocolPluggableClassService.class);
             bind(inboundDeviceProtocolPluggableClassService).to(InboundDeviceProtocolPluggableClassService.class);
             bind(licensedProtocolService).to(LicensedProtocolService.class);
-            bind(comPortPoolService).to(ComPortPoolService.class);
         }
     }
 }
