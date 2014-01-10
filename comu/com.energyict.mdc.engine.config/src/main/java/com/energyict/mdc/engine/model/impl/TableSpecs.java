@@ -131,10 +131,8 @@ public enum TableSpecs {
    			table.unique("CEM_U_COMPORTINPOOL").on(comPortPoolIdColumn , comPortIdColumn).add();
    			table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).onDelete(DeleteRule.CASCADE).
    				map("comPort").reverseMap("comPortPoolMembers").composition().add();
-            table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).onDelete(DeleteRule.CASCADE).
-                    map("comPort").reverseMap("comPortPoolMembers").composition().add();
             table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORTPOOL").on(comPortPoolIdColumn).references(MDCCOMPORTPOOL.name()).onDelete(DeleteRule.CASCADE).
-                    map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
+                map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
    		}
    	};
 

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -19,7 +20,7 @@ import java.util.List;
 public class OutboundComPortPoolImpl extends ComPortPoolImpl implements OutboundComPortPool {
 
     private TimeDuration taskExecutionTimeout;
-    private final List<OutboundComPort> outboundComPorts = new ArrayList<>();
+    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     public static OutboundComPortPool from(DataModel dataModel) {
         return dataModel.getInstance(OutboundComPortPoolImpl.class);
@@ -41,13 +42,19 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     public List<OutboundComPort> getComPorts () {
-        return ImmutableList.copyOf(this.outboundComPorts);
+        List<OutboundComPort> outboundComPorts = new ArrayList<>();
+        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
+            outboundComPorts.add((OutboundComPort) comPortPoolMember.getComPort());
+        }
+        return ImmutableList.copyOf(outboundComPorts);
     }
 
     @Override
     public void setComPorts(List<OutboundComPort> comPorts) {
-        this.outboundComPorts.clear();
-        this.outboundComPorts.addAll(comPorts);
+        this.comPortPoolMembers.clear();
+        for (OutboundComPort comPort : comPorts) {
+            this.comPortPoolMembers.add(new ComPortPoolMemberImpl(this, comPort));
+        }
     }
 
     @Override
@@ -58,7 +65,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     protected void validate() {
         super.validate();
         this.validateNotNull(this.taskExecutionTimeout, "outboundComPortPool.taskExecutionTimeout");
-        this.validateComPorts(this.outboundComPorts, this.getComPortType());
+        this.validateComPorts(this.getComPorts(), this.getComPortType());
     }
 
     /**
@@ -102,7 +109,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     protected void makeMembersObsolete () {
-        this.outboundComPorts.clear();
+        this.comPortPoolMembers.clear();
     }
 
 

@@ -2,8 +2,10 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -19,7 +21,7 @@ import java.util.List;
 public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
 
     private long discoveryProtocolPluggableClassId;
-    private final List<InboundComPort> comPorts = new ArrayList<>();
+    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
 
     public static InboundComPortPool from(DataModel dataModel) {
@@ -37,7 +39,11 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     @Override
     public List<InboundComPort> getComPorts() {
-        return ImmutableList.copyOf(this.comPorts);
+        List<InboundComPort> outboundComPorts = new ArrayList<>();
+        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
+            outboundComPorts.add((InboundComPort) comPortPoolMember.getComPort());
+        }
+        return ImmutableList.copyOf(outboundComPorts);
     }
 
     @Override
@@ -52,7 +58,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     protected void validate() {
         super.validate();
-        this.validateComPorts(this.comPorts, this.getComPortType());
+        this.validateComPorts(this.getComPorts(), this.getComPortType());
         this.validateDiscoveryProtocolPluggableClass(this.discoveryProtocolPluggableClassId);
     }
 
