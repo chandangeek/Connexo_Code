@@ -37,7 +37,7 @@ public class AmrSystemImplTest {
     @Before
     public void setUp() {
         when(dataModel.getInstance(AmrSystemImpl.class)).thenReturn(new AmrSystemImpl(dataModel, meteringService));
-        when(dataModel.getInstance(MeterImpl.class)).thenReturn(new MeterImpl(dataModel, eventService));
+        when(dataModel.getInstance(MeterImpl.class)).thenReturn(new MeterImpl(dataModel, eventService, meteringService));
 
         amrSystem = AmrSystemImpl.from(dataModel, ID, NAME);
     }

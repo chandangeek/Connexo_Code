@@ -20,12 +20,13 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 	private List<MeterActivation> meterActivations;
 	@SuppressWarnings("unused")
 	private MeterActivation currentMeterActivation;
-    private MeteringService meteringService;
+    private final MeteringService meteringService;
 
     @SuppressWarnings("unused")
     @Inject
-	MeterImpl(DataModel dataModel, EventService eventService) {
+	MeterImpl(DataModel dataModel, EventService eventService, MeteringService meteringService) {
         super(dataModel, eventService, MeterImpl.class);
+        this.meteringService = meteringService;
     }
 	
 	static MeterImpl from(DataModel dataModel, AmrSystem system, String amrId, String mRID) {
@@ -53,6 +54,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 	public MeterActivation activate(Date start) {
 		MeterActivation result = MeterActivationImpl.from(getDataModel(), this, start);
         getDataModel().mapper(MeterActivation.class).persist(result);
+        meterActivations.add(result);
 		return result;
 	}
 
