@@ -1,21 +1,22 @@
 package com.elster.jupiter.events.rest.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.ws.rs.core.Application;
-
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import org.glassfish.hk2.utilities.Binder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
+import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.event.rest" , service=Application.class , immediate = true , property = {"alias=/evt"} )
-public class EventApplication extends Application implements ServiceLocator {
+public class EventApplication extends Application implements BinderProvider {
 	
 	private final Set<Class<?>> classes = new HashSet<>();
 	private volatile EventService eventService;
@@ -28,21 +29,6 @@ public class EventApplication extends Application implements ServiceLocator {
 
 	public Set<Class<?>> getClasses() {
 		return classes;
-	}
-
-	@Override
-	public EventService getEventService() {
-		return eventService;
-	}
-
-	@Override
-	public TransactionService getTransactionService() {
-		return transactionService;
-	}
-
-	@Override
-	public RestQueryService getRestQueryService() {
-		return restQueryService;
 	}
 
 	@Reference
@@ -62,11 +48,21 @@ public class EventApplication extends Application implements ServiceLocator {
 	
 	@Activate
 	public void activate() {
-		Bus.setServiceLocator(this);
 	}
 	
 	@Deactivate
 	public void deactivate() {
-		Bus.setServiceLocator(null);
 	}
+
+    @Override
+    public Binder getBinder() {
+        return new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(restQueryService).to(RestQueryService.class);
+                bind(transactionService).to(TransactionService.class);
+                bind(eventService).to(EventService.class);
+            }
+        };
+    }
 }

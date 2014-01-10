@@ -1,18 +1,21 @@
 package com.elster.jupiter.events.rest.impl;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.transaction.Transaction;
 import com.google.common.base.Optional;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 public class UpdateEventTypeTransaction implements Transaction<EventType> {
 	
 	private final EventTypeInfo info;
+    private final EventService eventService;
 
-    public UpdateEventTypeTransaction(EventTypeInfo info) {
+    public UpdateEventTypeTransaction(EventTypeInfo info, EventService eventService) {
         this.info = info;
+        this.eventService = eventService;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class UpdateEventTypeTransaction implements Transaction<EventType> {
     }
 
     private EventType fetchEventType() {
-        Optional<EventType> eventType = Bus.getEventService().getEventType(info.topic);
+        Optional<EventType> eventType = eventService.getEventType(info.topic);
         if (eventType.isPresent()) {
             return eventType.get();
         }
