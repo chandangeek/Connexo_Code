@@ -31,6 +31,7 @@ public enum TableSpecs {
 		void addTo(DataModel dataModel) {
 			Table<ServiceCategory> table = dataModel.addTable(name(),ServiceCategory.class);
             table.map(ServiceCategoryImpl.class);
+            table.cache();
 			table.setJournalTableName("MTR_SERVICECATEGORYJRNL");
 			Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
 			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();

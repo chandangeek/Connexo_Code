@@ -63,13 +63,15 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService) {
         this.clock = clock;
         setOrmService(ormService);
-        this.idsService = idsService;
-        this.eventService = eventService;
-        this.partyService = partyService;
-        this.queryService = queryService;
-        this.userService = userService;
+        setIdsService(idsService);
+        setEventService(eventService);
+        setPartyService(partyService);
+        setQueryService(queryService);
+        setUserService(userService);
         activate();
-        install();
+        if (!dataModel.isInstalled()) {
+        	install();
+        }
     }
 
     @Override
