@@ -3,6 +3,7 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.PrivilegeInfo;
 import com.google.common.base.Optional;
@@ -15,9 +16,11 @@ import java.util.Set;
 public class UpdateGroupTransaction implements Transaction<Group> {
 
     private final GroupInfo info;
+    private final UserService userService;
 
-    public UpdateGroupTransaction(GroupInfo info) {
+    public UpdateGroupTransaction(GroupInfo info, UserService userService) {
         this.info = info;
+        this.userService = userService;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class UpdateGroupTransaction implements Transaction<Group> {
     private Set<Privilege> targetGrants() {
         Set<Privilege> target = new LinkedHashSet<>();
         for (PrivilegeInfo privilegeInfo : info.privileges) {
-            Optional<Privilege> privilege = Bus.getUserService().getPrivilege(privilegeInfo.name);
+            Optional<Privilege> privilege = userService.getPrivilege(privilegeInfo.name);
             if (privilege.isPresent()) {
                 target.add(privilege.get());
             } else {
@@ -82,7 +85,7 @@ public class UpdateGroupTransaction implements Transaction<Group> {
     }
 
     private Group fetchGroup() {
-        Optional<Group> group = Bus.getUserService().getGroup(info.id);
+        Optional<Group> group = userService.getGroup(info.id);
         if (group.isPresent()) {
             return group.get();
         }

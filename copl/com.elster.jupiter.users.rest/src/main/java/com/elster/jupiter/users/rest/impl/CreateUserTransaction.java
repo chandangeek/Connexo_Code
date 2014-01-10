@@ -3,6 +3,7 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.google.common.base.Optional;
@@ -15,19 +16,22 @@ public class CreateUserTransaction implements Transaction<User> {
 
     private final UserInfo info;
 
-    public CreateUserTransaction(UserInfo info) {
+    private final UserService userService;
+
+    public CreateUserTransaction(UserInfo info, UserService userService) {
         this.info = info;
+        this.userService = userService;
     }
 
     @Override
     public User perform() {
-        User user = Bus.getUserService().newUser(info.authenticationName);
+        User user = userService.newUser(info.authenticationName);
         user.setDescription(info.description);
 
         user.save();
 
         for (GroupInfo groupInfo : info.groups) {
-            Optional<Group> group = Bus.getUserService().getGroup(groupInfo.id);
+            Optional<Group> group = userService.getGroup(groupInfo.id);
             if (group.isPresent()) {
                 user.join(group.get());
             } else {

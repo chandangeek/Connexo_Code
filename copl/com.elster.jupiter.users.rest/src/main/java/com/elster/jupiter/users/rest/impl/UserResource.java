@@ -3,11 +3,15 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -26,12 +30,23 @@ import java.util.List;
 @Path("/users")
 public class UserResource {
 
+    private final TransactionService transactionService;
+    private final UserService userService;
+    private final RestQueryService restQueryService;
+
+    @Inject
+    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService) {
+        this.transactionService = transactionService;
+        this.userService = userService;
+        this.restQueryService = restQueryService;
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos createUser(UserInfo info) {
         UserInfos result = new UserInfos();
-        result.add(Bus.getTransactionService().execute(new CreateUserTransaction(info)));
+        result.add(transactionService.execute(new CreateUserTransaction(info, userService)));
         return result;
     }
 
@@ -40,7 +55,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos deleteUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new DeleteUserTransaction(info));
+        transactionService.execute(new DeleteUserTransaction(info, userService));
         return new UserInfos();
     }
 
@@ -48,7 +63,7 @@ public class UserResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfos getUser(@PathParam("id") long id) {
-        Optional<User> party = Bus.getUserService().getUser(id);
+        Optional<User> party = userService.getUser(id);
         if (party.isPresent()) {
             return new UserInfos(party.get());
         }
@@ -71,13 +86,13 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new UpdateUserTransaction(info));
+        transactionService.execute(new UpdateUserTransaction(info, userService));
         return getUser(info.id);
     }
 
     private RestQuery<User> getUserRestQuery() {
-        Query<User> query = Bus.getUserService().getUserQuery();
-        return Bus.getRestQueryService().wrap(query);
+        Query<User> query = userService.getUserQuery();
+        return restQueryService.wrap(query);
     }
 
 }

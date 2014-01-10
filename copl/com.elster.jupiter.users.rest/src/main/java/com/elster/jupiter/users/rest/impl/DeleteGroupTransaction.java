@@ -2,6 +2,7 @@ package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.google.common.base.Optional;
 
@@ -11,9 +12,11 @@ import javax.ws.rs.core.Response;
 public class DeleteGroupTransaction extends VoidTransaction {
 
     private final GroupInfo info;
+    private final UserService userService;
 
-    public DeleteGroupTransaction(GroupInfo info) {
+    public DeleteGroupTransaction(GroupInfo info, UserService userService) {
         this.info = info;
+        this.userService = userService;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class DeleteGroupTransaction extends VoidTransaction {
     }
 
     private Group fetchGroup() {
-        Optional<Group> group = Bus.getUserService().getGroup(info.id);
+        Optional<Group> group = userService.getGroup(info.id);
         if (group.isPresent()) {
             return group.get();
         }

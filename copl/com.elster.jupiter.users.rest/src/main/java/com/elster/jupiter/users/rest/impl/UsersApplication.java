@@ -1,18 +1,23 @@
 package com.elster.jupiter.users.rest.impl;
 
+import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.Binder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.users.rest" , service=Application.class , immediate = true , property = {"alias=/usr"} )
-public class UsersApplication extends Application implements ServiceLocator {
+public class UsersApplication extends Application implements ServiceLocator, BinderProvider {
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -50,13 +55,24 @@ public class UsersApplication extends Application implements ServiceLocator {
         this.transactionService = transactionService;
     }
 
+    @Activate
     public void activate(ComponentContext context) {
-        Bus.setServiceLocator(this);
     }
 
+    @Deactivate
     public void deactivate(ComponentContext context) {
-        Bus.clearServiceLocator(this);
     }
 
 
+    @Override
+    public Binder getBinder() {
+        return new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(userService).to(UserService.class);
+                bind(transactionService).to(TransactionService.class);
+                bind(restQueryService).to(RestQueryService.class);
+            }
+        };
+    }
 }

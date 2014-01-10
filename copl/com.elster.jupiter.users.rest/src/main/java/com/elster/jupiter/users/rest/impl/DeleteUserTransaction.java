@@ -2,6 +2,7 @@ package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.google.common.base.Optional;
 
@@ -11,9 +12,11 @@ import javax.ws.rs.core.Response;
 public class DeleteUserTransaction extends VoidTransaction {
 
     private final UserInfo info;
+    private final UserService userService;
 
-    public DeleteUserTransaction(UserInfo info) {
+    public DeleteUserTransaction(UserInfo info, UserService userService) {
         this.info = info;
+        this.userService = userService;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class DeleteUserTransaction extends VoidTransaction {
     }
 
     private User fetchUser() {
-        Optional<User> user = Bus.getUserService().getUser(info.id);
+        Optional<User> user = userService.getUser(info.id);
         if (user.isPresent()) {
             return user.get();
         }
