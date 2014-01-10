@@ -5,11 +5,11 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -156,7 +156,7 @@ public final class ChannelImpl implements Channel {
 
     private RecordSpec getRecordSpec(boolean regular) {
         int id = regular ? REGULARRECORDSPECID : IRREGULARRECORDSPECID;
-        Optional<RecordSpec> result = idsService.getRecordSpec(MessageService.COMPONENTNAME, id);
+        Optional<RecordSpec> result = idsService.getRecordSpec(MeteringService.COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
         }
@@ -165,7 +165,7 @@ public final class ChannelImpl implements Channel {
 
     private Vault getVault(boolean regular) {
         int id = regular ? REGULARVAULTID : IRREGULARVAULTID;
-        Optional<Vault> result = idsService.getVault(MessageService.COMPONENTNAME, id);
+        Optional<Vault> result = idsService.getVault(MeteringService.COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
         }

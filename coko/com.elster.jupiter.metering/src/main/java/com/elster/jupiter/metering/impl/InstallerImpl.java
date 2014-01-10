@@ -10,7 +10,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.security.Privileges;
@@ -136,10 +136,10 @@ public class InstallerImpl {
     }
 
     private void createVaults(IdsService idsService) {
-        Vault intervalVault = idsService.newVault(MessageService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
+        Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
         intervalVault.persist();
         createPartitions(intervalVault);
-        Vault registerVault = idsService.newVault(MessageService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
+        Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
         registerVault.persist();
         createPartitions(registerVault);
     }
@@ -158,18 +158,18 @@ public class InstallerImpl {
 
     private void createRecordSpecs(IdsService service) {
         int id = 0;
-        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Single Interval Data");
+        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Single Interval Data");
         singleIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         singleIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         singleIntervalRecordSpec.addFieldSpec("Value", NUMBER);
         singleIntervalRecordSpec.persist();
-        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Dual Interval Data");
+        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Dual Interval Data");
         dualIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         dualIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         dualIntervalRecordSpec.addFieldSpec("Value", NUMBER);
         dualIntervalRecordSpec.addFieldSpec("Cumulative", NUMBER);
         dualIntervalRecordSpec.persist();
-        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Multi Interval Data");
+        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Multi Interval Data");
         multiIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         multiIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         multiIntervalRecordSpec.addFieldSpec("Value1", NUMBER);
@@ -179,16 +179,16 @@ public class InstallerImpl {
         multiIntervalRecordSpec.addFieldSpec("Value5", NUMBER);
         multiIntervalRecordSpec.addFieldSpec("Value6", NUMBER);
         multiIntervalRecordSpec.persist();
-        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Base Register");
+        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Base Register");
         singleRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         singleRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         singleRegisterRecordSpec.persist();
-        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Billing Period Register");
+        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Billing Period Register");
         billingPeriodRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         billingPeriodRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         billingPeriodRegisterRecordSpec.addFieldSpec("From Time", DATE);
         billingPeriodRegisterRecordSpec.persist();
-        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(MessageService.COMPONENTNAME, ++id, "Demand Register");
+        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Demand Register");
         demandRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         demandRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         demandRegisterRecordSpec.addFieldSpec("From Time", DATE);
@@ -218,13 +218,13 @@ public class InstallerImpl {
 
     private void createPartyRoles(PartyService partyService) {
         for (MarketRoleKind role : MarketRoleKind.values()) {
-            partyService.createRole(MessageService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
+            partyService.createRole(MeteringService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
         }
     }
 
     private void createPrivileges(UserService userService) {
         for (String each : getPrivileges()) {
-            userService.createPrivilege(MessageService.COMPONENTNAME, each, "");
+            userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
         }
     }
 
