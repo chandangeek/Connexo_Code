@@ -25,8 +25,6 @@ public class CreateUsagePointTransactionTest {
     private UsagePointInfo info;
 
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private MeteringService meteringService;
     @Mock
     private ServiceCategory serviceCategory;
@@ -35,7 +33,6 @@ public class CreateUsagePointTransactionTest {
 
     @Before
     public void setUp() {
-        when(serviceLocator.getMeteringService()).thenReturn(meteringService);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
 
         info = new UsagePointInfo();
@@ -43,16 +40,13 @@ public class CreateUsagePointTransactionTest {
         info.mRID = MR_ID;
         info.phaseCode = PhaseCode.A;
 
-        transaction = new CreateUsagePointTransaction(info);
-
-        Bus.setServiceLocator(serviceLocator);
+        transaction = new CreateUsagePointTransaction(info, meteringService);
     }
 
 
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

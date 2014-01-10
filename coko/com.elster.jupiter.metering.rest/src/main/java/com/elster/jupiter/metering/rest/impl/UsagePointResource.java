@@ -4,12 +4,15 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
@@ -17,6 +20,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 
 import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -37,11 +41,20 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.elster.jupiter.metering.rest.impl.Bus.getMeteringService;
-import static com.elster.jupiter.metering.rest.impl.Bus.getQueryService;
 
 @Path("/usagepoints")
 public class UsagePointResource {
+
+    private final RestQueryService queryService;
+    private final MeteringService meteringService;
+    private final TransactionService transactionService;
+
+    @Inject
+    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TransactionService transactionService) {
+        this.queryService = queryService;
+        this.meteringService = meteringService;
+        this.transactionService = transactionService;
+    }
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
@@ -63,14 +76,14 @@ public class UsagePointResource {
     }
 
     private List<UsagePoint> queryUsagePoints(boolean maySeeAny, QueryParameters queryParameters) {
-        Query<UsagePoint> query = getMeteringService().getUsagePointQuery();
+        Query<UsagePoint> query = meteringService.getUsagePointQuery();
         query.setLazy("serviceLocation");
-        RestQuery<UsagePoint> restQuery = getQueryService().wrap(query);
+        RestQuery<UsagePoint> restQuery = queryService.wrap(query);
         List<UsagePoint> list;
         if (maySeeAny) {
             list = restQuery.select(queryParameters);
         } else {
-            list = restQuery.select(queryParameters, Bus.getMeteringService().hasAccountability());
+            list = restQuery.select(queryParameters, meteringService.hasAccountability());
         }
         return list;
     }
@@ -85,7 +98,7 @@ public class UsagePointResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        Bus.getTransactionService().execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal()));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService));
         return getUsagePoint(info.id, securityContext);
 	}
 	  
@@ -106,7 +119,7 @@ public class UsagePointResource {
 	@Consumes(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos createUsagePoint(UsagePointInfo info) {
 		UsagePointInfos result = new UsagePointInfos();
-        result.add(Bus.getTransactionService().execute(new CreateUsagePointTransaction(info)));
+        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)));
 		return result;
 	}
 
@@ -174,7 +187,7 @@ public class UsagePointResource {
     @Path("/readingtypes")
     @Produces(MediaType.APPLICATION_JSON)
     public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
-        return new ReadingTypeInfos(Bus.getMeteringService().getAvailableReadingTypes());
+        return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
     }
 
     @GET
@@ -217,7 +230,7 @@ public class UsagePointResource {
     }
 
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
-        Optional<UsagePoint> found = Bus.getMeteringService().findUsagePoint(id);
+        Optional<UsagePoint> found = meteringService.findUsagePoint(id);
         if (!found.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }

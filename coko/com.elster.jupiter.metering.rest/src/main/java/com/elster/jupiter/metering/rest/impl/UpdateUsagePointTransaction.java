@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.security.Privileges;
@@ -8,6 +9,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
@@ -17,15 +19,18 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private final UsagePointInfo info;
     private final Principal principal;
+    private final MeteringService meteringService;
 
-    UpdateUsagePointTransaction(UsagePointInfo info, Principal principal) {
+    @Inject
+    UpdateUsagePointTransaction(UsagePointInfo info, Principal principal, MeteringService meteringService) {
         this.info = info;
         this.principal = principal;
+        this.meteringService = meteringService;
     }
 
     @Override
     public UsagePoint perform() {
-        Optional<UsagePoint> usagePoint = Bus.getMeteringService().findUsagePoint(info.id);
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(info.id);
         if (usagePoint.isPresent()) {
             return doPerform(usagePoint.get());
         } else {
