@@ -1,18 +1,23 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 public class UpdatePartyTransaction implements Transaction<Party> {
 
     private final PartyInfo info;
+    private final PartyService partyService;
 
-    public UpdatePartyTransaction(PartyInfo info) {
+    @Inject
+    public UpdatePartyTransaction(PartyInfo info, PartyService partyService) {
         this.info = info;
+        this.partyService = partyService;
     }
 
     @Override
@@ -23,7 +28,7 @@ public class UpdatePartyTransaction implements Transaction<Party> {
     }
 
     private Party fetchParty() {
-        Optional<Party> party = Bus.getPartyService().findParty(info.id);
+        Optional<Party> party = partyService.findParty(info.id);
         if (party.isPresent()) {
             return party.get();
         }

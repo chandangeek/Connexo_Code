@@ -4,11 +4,17 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -29,12 +35,27 @@ import java.util.List;
 @Path("/parties")
 public class PartiesResource {
 
+    private final PartyService partyService;
+    private final TransactionService transactionService;
+    private final UserService userService;
+    private final RestQueryService restQueryService;
+    private final Clock clock;
+
+    @Inject
+    public PartiesResource(PartyService partyService, TransactionService transactionService, UserService userService, RestQueryService restQueryService, Clock clock) {
+        this.partyService = partyService;
+        this.transactionService = transactionService;
+        this.userService = userService;
+        this.restQueryService = restQueryService;
+        this.clock = clock;
+    }
+
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInfos deleteParty(PartyInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new DeletePartyTransaction(info));
+        transactionService.execute(new DeletePartyTransaction(info, partyService));
         return new PartyInfos();
     }
 
@@ -56,7 +77,7 @@ public class PartiesResource {
     }
 
     private Party partyWithId(long id) {
-        Optional<Party> party = Bus.getPartyService().findParty(id);
+        Optional<Party> party = partyService.findParty(id);
         if (party.isPresent()) {
             return party.get();
         }
@@ -69,7 +90,7 @@ public class PartiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyInfos updateParty(PartyInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new UpdatePartyTransaction(info));
+        transactionService.execute(new UpdatePartyTransaction(info, partyService));
         return getParty(info.id);
     }
 
@@ -87,7 +108,7 @@ public class PartiesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInRoleInfos addRole(@PathParam("id") long id, PartyInRoleInfo info) {
         PartyInRoleInfos result = new PartyInRoleInfos();
-        result.add(Bus.getTransactionService().execute(new AddRoleTransaction(id, info)));
+        result.add(transactionService.execute(new AddRoleTransaction(id, info, userService, partyService)));
         return result;
     }
 
@@ -98,7 +119,7 @@ public class PartiesResource {
     public PartyInRoleInfos updatePartyInRole(PartyInRoleInfo info, @PathParam("id") long id,  @PathParam("roleId") long roleId) {
         info.partyId = id;
         info.id = roleId;
-        PartyInRole partyInRole = Bus.getTransactionService().execute(new TerminatePartyRoleTransaction(info));
+        PartyInRole partyInRole = transactionService.execute(new TerminatePartyRoleTransaction(info, userService, partyService));
         return new PartyInRoleInfos(partyInRole);
     }
 
@@ -115,7 +136,7 @@ public class PartiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRepresentationInfos addRole(@PathParam("id") long id, PartyRepresentationInfo info) {
-        Bus.getTransactionService().execute(new AddDelegateTransaction(id, info));
+        transactionService.execute(new AddDelegateTransaction(id, info, userService, partyService));
         return getDelegates(id);
     }
 
@@ -124,7 +145,7 @@ public class PartiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRepresentationInfos updateRoles(@PathParam("id") long id, PartyRepresentationInfos infos) {
-        new UpdatePartyRepresentationsTransaction(id, infos);
+        new UpdatePartyRepresentationsTransaction(id, infos, partyService, clock, userService);
         return getDelegates(id);
     }
 
@@ -135,13 +156,13 @@ public class PartiesResource {
     public PartyRepresentationInfos updatePartyInRole(PartyRepresentationInfo info, @PathParam("id") long id,  @PathParam("authenticationName") String authenticationName) {
         info.partyId = id;
         info.userInfo.authenticationName = authenticationName;
-        PartyRepresentation partyRepresentation = Bus.getTransactionService().execute(new UpdatePartyRepresentationTransaction(info));
+        PartyRepresentation partyRepresentation = transactionService.execute(new UpdatePartyRepresentationTransaction(userService, partyService, info));
         return new PartyRepresentationInfos(partyRepresentation);
     }
 
 
     private RestQuery<Party> getPartyRestQuery() {
-        Query<Party> query = Bus.getPartyService().getPartyQuery();
-        return Bus.getQueryService().wrap(query);
+        Query<Party> query = partyService.getPartyQuery();
+        return restQueryService.wrap(query);
     }
 }

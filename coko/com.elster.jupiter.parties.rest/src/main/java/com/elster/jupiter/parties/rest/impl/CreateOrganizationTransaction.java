@@ -1,19 +1,25 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Organization;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
+
+import javax.inject.Inject;
 
 public class CreateOrganizationTransaction implements Transaction<Organization> {
 
     private final OrganizationInfo info;
+    private final PartyService partyService;
 
-    public CreateOrganizationTransaction(OrganizationInfo info) {
+    @Inject
+    public CreateOrganizationTransaction(OrganizationInfo info, PartyService partyService) {
         this.info = info;
+        this.partyService = partyService;
     }
 
     @Override
     public Organization perform() {
-        Organization organization = Bus.getPartyService().newOrganization(info.mRID);
+        Organization organization = partyService.newOrganization(info.mRID);
         organization.setName(info.name);
         organization.setAliasName(info.aliasName);
         organization.setDescription(info.description);

@@ -1,7 +1,9 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
@@ -19,15 +21,23 @@ import javax.ws.rs.core.UriInfo;
 @Path("/roles")
 public class RolesResource {
 
+    private final TransactionService transactionService;
+    private final PartyService partyService;
+
+    public RolesResource(TransactionService transactionService, PartyService partyService) {
+        this.transactionService = transactionService;
+        this.partyService = partyService;
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRoleInfos createPartyRole(final PartyRoleInfo info) {
         PartyRoleInfos result = new PartyRoleInfos();
-        result.add(Bus.getTransactionService().execute(new Transaction<PartyRole>() {
+        result.add(transactionService.execute(new Transaction<PartyRole>() {
             @Override
             public PartyRole perform() {
-                return Bus.getPartyService().createRole(info.componentName, info.mRID, info.name, info.aliasName, info.description);
+                return partyService.createRole(info.componentName, info.mRID, info.name, info.aliasName, info.description);
             }
         }));
         return result;
@@ -38,7 +48,7 @@ public class RolesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRoleInfos deletePartyRole(PartyRoleInfo info, @PathParam("id") String id) {
         info.mRID = id;
-        Bus.getTransactionService().execute(new DeletePartyRoleTransaction(info));
+        transactionService.execute(new DeletePartyRoleTransaction(info, partyService));
         return new PartyRoleInfos();
     }
 
@@ -46,7 +56,7 @@ public class RolesResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRoleInfos getPartyRole(@PathParam("id") String id) {
-        Optional<PartyRole> found = Bus.getPartyService().findPartyRoleByMRID(id);
+        Optional<PartyRole> found = partyService.findPartyRoleByMRID(id);
         if (!found.isPresent()) {
             return new PartyRoleInfos();
         }
@@ -56,7 +66,7 @@ public class RolesResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PartyRoleInfos getPartyRoles(@Context UriInfo uriInfo) {
-        return new PartyRoleInfos(Bus.getPartyService().getPartyRoles());
+        return new PartyRoleInfos(partyService.getPartyRoles());
     }
 
     @PUT
@@ -65,7 +75,7 @@ public class RolesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyRoleInfos updatePartyRole(PartyRoleInfo info, @PathParam("id") String id) {
         info.mRID = id;
-        Bus.getTransactionService().execute(new UpdatePartyRoleTransaction(info));
+        transactionService.execute(new UpdatePartyRoleTransaction(info, partyService));
         return getPartyRole(info.mRID);
     }
 

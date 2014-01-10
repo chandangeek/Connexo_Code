@@ -1,20 +1,26 @@
 package com.elster.jupiter.parties.rest.impl;
 
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.transaction.Transaction;
+
+import javax.inject.Inject;
 
 /**
  */
 final class CreatePersonTransaction implements Transaction<Person> {
     private final PersonInfo info;
+    private final PartyService partyService;
 
-    CreatePersonTransaction(PersonInfo info) {
+    @Inject
+    CreatePersonTransaction(PersonInfo info, PartyService partyService) {
         this.info = info;
+        this.partyService = partyService;
     }
 
     @Override
     public Person perform() {
-        Person person = Bus.getPartyService().newPerson(info.firstName, info.lastName);
+        Person person = partyService.newPerson(info.firstName, info.lastName);
         person.setMRID(info.mRID);
         person.setName(info.name);
         person.setAliasName(info.aliasName);

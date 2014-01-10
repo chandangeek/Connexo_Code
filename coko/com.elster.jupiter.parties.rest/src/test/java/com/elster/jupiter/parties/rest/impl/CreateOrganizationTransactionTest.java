@@ -8,11 +8,11 @@ import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.cbo.TownDetail;
 import com.elster.jupiter.parties.Organization;
+import com.elster.jupiter.parties.PartyService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -39,26 +39,23 @@ public class CreateOrganizationTransactionTest {
     @Captor
     private ArgumentCaptor<TelephoneNumber> telephoneCaptor;
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ServiceLocator serviceLocator;
     @Mock
     private Organization organization;
+    @Mock
+    private PartyService partyService;
 
     @Before
     public void setUp() {
-        Bus.setServiceLocator(serviceLocator);
-
-        when(serviceLocator.getPartyService().newOrganization(MRID)).thenReturn(organization);
+        when(partyService.newOrganization(MRID)).thenReturn(organization);
     }
 
     @After
     public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
     public void testPerformTrivial() throws Exception {
-        CreateOrganizationTransaction transaction = new CreateOrganizationTransaction(organizationInfo());
+        CreateOrganizationTransaction transaction = new CreateOrganizationTransaction(organizationInfo(), partyService);
 
         Organization result = transaction.perform();
 

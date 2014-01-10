@@ -2,9 +2,11 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -13,9 +15,12 @@ import javax.ws.rs.core.Response;
 public class DeleteOrganizationTransaction extends VoidTransaction {
 
     private final OrganizationInfo info;
+    private final PartyService partyService;
 
-    public DeleteOrganizationTransaction(OrganizationInfo info) {
+    @Inject
+    public DeleteOrganizationTransaction(OrganizationInfo info, PartyService partyService) {
         this.info = info;
+        this.partyService = partyService;
     }
 
     @Override
@@ -36,7 +41,7 @@ public class DeleteOrganizationTransaction extends VoidTransaction {
     }
 
     private Organization fetchOrganization() {
-        Optional<Party> party = Bus.getPartyService().findParty(info.id);
+        Optional<Party> party = partyService.findParty(info.id);
         if (party.isPresent() || !(party.get() instanceof Organization)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }

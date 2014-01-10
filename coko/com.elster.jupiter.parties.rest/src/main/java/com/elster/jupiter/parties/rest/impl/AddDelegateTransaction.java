@@ -2,19 +2,28 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+
+import javax.inject.Inject;
 
 public class AddDelegateTransaction implements Transaction<PartyRepresentation> {
 
     private final long partyId;
     private final PartyRepresentationInfo info;
-    private final Fetcher fetcher = new Fetcher();
+    private final Fetcher fetcher;
+    private final UserService userService;
+    private final PartyService partyService;
 
-
-    public AddDelegateTransaction(long partyId, PartyRepresentationInfo info) {
+    @Inject
+    public AddDelegateTransaction(long partyId, PartyRepresentationInfo info, UserService userService, PartyService partyService) {
         this.partyId = partyId;
         this.info = info;
+        this.userService = userService;
+        this.partyService = partyService;
+        this.fetcher = new Fetcher(this.partyService, this.userService);
     }
 
     @Override

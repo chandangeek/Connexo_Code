@@ -2,12 +2,16 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,12 +31,23 @@ import java.util.List;
 @Path("/persons")
 public class PersonsResource {
 
+    private final TransactionService transactionService;
+    private final PartyService partyService;
+    private final RestQueryService restQueryService;
+
+    @Inject
+    public PersonsResource(TransactionService transactionService, PartyService partyService, RestQueryService restQueryService) {
+        this.transactionService = transactionService;
+        this.partyService = partyService;
+        this.restQueryService = restQueryService;
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos createPerson(PersonInfo info) {
         PersonInfos result = new PersonInfos();
-        result.add(Bus.getTransactionService().execute(new CreatePersonTransaction(info)));
+        result.add(transactionService.execute(new CreatePersonTransaction(info, partyService)));
         return result;
     }
 
@@ -41,7 +56,7 @@ public class PersonsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new DeletePersonTransaction(info));
+        transactionService.execute(new DeletePersonTransaction(info, partyService));
         return new PersonInfos();
     }
 
@@ -49,7 +64,7 @@ public class PersonsResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos getPerson(@PathParam("id") long id) {
-        Optional<Party> party = Bus.getPartyService().findParty(id);
+        Optional<Party> party = partyService.findParty(id);
         if (party.isPresent() && party.get() instanceof Person) {
             return new PersonInfos((Person) party.get());
         } else {
@@ -77,13 +92,13 @@ public class PersonsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public PersonInfos updatePerson(PersonInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new UpdatePersonTransaction(info));
+        transactionService.execute(new UpdatePersonTransaction(info, partyService));
         return getPerson(info.id);
     }
 
     private RestQuery<Party> getPartyRestQuery() {
-        Query<Party> query = Bus.getPartyService().getPartyQuery();
-        return Bus.getQueryService().wrap(query);
+        Query<Party> query = partyService.getPartyQuery();
+        return restQueryService.wrap(query);
     }
 
 

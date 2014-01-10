@@ -1,9 +1,11 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -11,8 +13,12 @@ public class UpdatePartyRoleTransaction implements Transaction<PartyRole> {
 
     private final PartyRoleInfo info;
 
-    public UpdatePartyRoleTransaction(PartyRoleInfo info) {
+    private final PartyService partyService;
+
+    @Inject
+    public UpdatePartyRoleTransaction(PartyRoleInfo info, PartyService partyService) {
         this.info = info;
+        this.partyService = partyService;
     }
 
     @Override
@@ -23,7 +29,7 @@ public class UpdatePartyRoleTransaction implements Transaction<PartyRole> {
     }
 
     private PartyRole fetchRole() {
-        Optional<PartyRole> role = Bus.getPartyService().findPartyRoleByMRID(info.mRID);
+        Optional<PartyRole> role = partyService.findPartyRoleByMRID(info.mRID);
         if (role.isPresent()) {
             return role.get();
         }
@@ -40,7 +46,7 @@ public class UpdatePartyRoleTransaction implements Transaction<PartyRole> {
     	partyRole.setName(info.name);
         partyRole.setAliasName(info.aliasName);
         partyRole.setDescription(info.description);
-        Bus.getPartyService().updateRole(partyRole);
+        partyService.updateRole(partyRole);
         return partyRole;
     }
 

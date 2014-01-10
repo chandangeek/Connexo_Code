@@ -2,10 +2,14 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
+import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -17,15 +21,22 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
 
     private final PartyRepresentationInfos infos;
     private final long id;
+    private final PartyService partyService;
+    private final Clock clock;
+    private final UserService userService;
 
-    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos) {
+    @Inject
+    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, PartyService partyService, Clock clock, UserService userService) {
         this.id = id;
         this.infos = infos;
+        this.partyService = partyService;
+        this.clock = clock;
+        this.userService = userService;
     }
 
     @Override
     public List<? extends PartyRepresentation> perform() {
-        Optional<Party> found = Bus.getPartyService().findParty(id);
+        Optional<Party> found = partyService.findParty(id);
         if (!found.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -38,11 +49,11 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
     }
 
     private void handleRemovals(List<PartyRepresentation> preEdit) {
-        Date now = Bus.getClock().now();
+        Date now = clock.now();
         for (PartyRepresentation partyRepresentation : preEdit) {
             PartyRepresentationInfo delegate = new PartyRepresentationInfo(partyRepresentation);
             delegate.end = now;
-            new UpdatePartyRepresentationTransaction(delegate).perform();
+            new UpdatePartyRepresentationTransaction(userService, partyService, delegate).perform();
         }
     }
 
@@ -50,10 +61,10 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
         for (PartyRepresentationInfo delegate : infos.delegates) {
             PartyRepresentation match = pickOriginal(preEdit, delegate);
             if (match == null) { // addition
-                new AddDelegateTransaction(id, delegate).perform(); // perform directly since already within transaction context
+                new AddDelegateTransaction(id, delegate, userService, partyService).perform(); // perform directly since already within transaction context
             } else {
                 if (!Objects.equal(delegate.end, match.getInterval().getEnd())) {
-                    new UpdatePartyRepresentationTransaction(delegate).perform();
+                    new UpdatePartyRepresentationTransaction(userService, partyService, delegate).perform();
                 }
             }
         }
