@@ -205,4 +205,17 @@ public interface EngineModelService {
     List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer);
 
     List<ComPortPool> findAllComPortPools();
+
+    ComPort newComPort();
+
+    List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool);
+
+    List<OutboundComPort> findOutboundInPool(OutboundComPortPool comPortPool);
+
+    List<OutboundComPort> findOutboundComPortsWithComPortType(ComPortType comPortType);
+
+    List<InboundComPort> findInboundComPortsWithComPortType(ComPortType comPortType);
+
+    List<ComPort> findAllWithDeleted();
+
 }
