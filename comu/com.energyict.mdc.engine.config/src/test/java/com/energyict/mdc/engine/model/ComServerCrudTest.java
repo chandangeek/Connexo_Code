@@ -27,11 +27,6 @@ public class ComServerCrudTest {
     public static void setUp() throws SQLException {
         injector = Guice.createInjector(
                 inMemoryBootstrapModule,
-//                new PartyModule(),
-//                new UserModule(),
-//                new EventsModule(),
-//                new InMemoryMessagingModule(),
-//                new DomainUtilModule(),
                 new EngineModelModule(),
                 new OrmModule(),
                 new UtilModule(),

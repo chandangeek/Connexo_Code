@@ -5,9 +5,11 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Serves as the root for all concrete {@link com.energyict.mdc.engine.model.ComPortPool} interfaces.
@@ -16,6 +18,13 @@ import java.util.List;
  * @since 2012-04-26 (08:47)
  */
 public abstract class ComPortPoolImpl implements ComPortPool {
+    protected static final String INBOUND_COMPORTPOOL_DISCRIMINATOR = "0";
+    protected static final String OUTBOUND_COMPORTPOOL_DISCRIMINATOR = "1";
+
+    static final Map<String, Class<? extends ComPortPool>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ComPortPool>>of(
+                    INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
+                    OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
 
     private long id;
     private String name;

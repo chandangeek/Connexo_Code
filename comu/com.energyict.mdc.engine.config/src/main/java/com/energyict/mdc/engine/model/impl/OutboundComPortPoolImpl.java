@@ -36,7 +36,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     public TimeDuration getTaskExecutionTimeout () {
-        return taskExecutionTimeout;
+        return new TimeDuration(this.taskExecutionTimeout.getCount(), this.taskExecutionTimeout.getTimeUnitCode());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     public void setTaskExecutionTimeout(TimeDuration taskExecutionTimeout) {
-        this.taskExecutionTimeout = taskExecutionTimeout;
+        this.taskExecutionTimeout = new TimeDuration(taskExecutionTimeout.getCount(), taskExecutionTimeout.getTimeUnitCode());
     }
 
     protected void validate() {
@@ -71,7 +71,6 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     private void validateComPorts(List<OutboundComPort> outboundComPortIds, ComPortType comPortType) {
         for (OutboundComPort comPortId : outboundComPortIds) {
             this.validateComPortForComPortType(comPortId, comPortType);
-
         }
     }
 

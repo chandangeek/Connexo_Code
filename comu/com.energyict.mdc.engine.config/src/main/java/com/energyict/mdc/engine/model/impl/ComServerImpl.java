@@ -343,12 +343,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
     @Override
     public TimeDuration getChangesInterPollDelay () {
-        return changesInterPollDelay;
+        return new TimeDuration(this.changesInterPollDelay.getCount(), this.changesInterPollDelay.getTimeUnitCode());
     }
 
     @Override
     public TimeDuration getSchedulingInterPollDelay () {
-        return schedulingInterPollDelay;
+        return new TimeDuration(this.schedulingInterPollDelay.getCount(), this.schedulingInterPollDelay.getTimeUnitCode());
     }
 
     @Override
@@ -382,11 +382,11 @@ public abstract class ComServerImpl implements ServerComServer {
     }
 
     public void setChangesInterPollDelay(TimeDuration changesInterPollDelay) {
-        this.changesInterPollDelay = changesInterPollDelay;
+        this.changesInterPollDelay = new TimeDuration(changesInterPollDelay.getCount(), changesInterPollDelay.getTimeUnitCode());
     }
 
     public void setSchedulingInterPollDelay(TimeDuration schedulingInterPollDelay) {
-        this.schedulingInterPollDelay = schedulingInterPollDelay;
+        this.schedulingInterPollDelay = new TimeDuration(schedulingInterPollDelay.getCount(), schedulingInterPollDelay.getTimeUnitCode());
     }
 
     @Override

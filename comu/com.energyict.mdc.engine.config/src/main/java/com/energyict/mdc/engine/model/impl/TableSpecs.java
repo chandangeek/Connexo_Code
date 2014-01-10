@@ -17,7 +17,7 @@ public enum TableSpecs {
     MDCCOMPORTPOOL(ComPortPool.class) {
         @Override
         void describeTable(Table table) {
-            table.map(ComPortPoolImpl.class);
+            table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").map("name").add();
             table.column("ACTIVE").type("INTEGER(1)").notNull().map("active").add();
@@ -26,7 +26,7 @@ public enum TableSpecs {
             table.column("OBSOLETEDATE").type("DATE").map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().map("comPortType").conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.count").add();
-            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.timeCodeUnit").add();
+            table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map("discoveryProtocolPluggableClassId").add();
 
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
@@ -88,8 +88,8 @@ public enum TableSpecs {
             // ModemBasedInboundComPortImpl
             table.column("RINGCOUNT").number().conversion(ColumnConversion.NUMBER2INT).map("ringCount").add();
             table.column("maximumDialErrors").number().conversion(ColumnConversion.NUMBER2INT).map("maximumDialErrors").add();
-            table.column("CONNECTTIMEOUT").number().conversion(ColumnConversion.NUMBER2INT).map("connectionTimeout.count").add();
-            table.column("CONNECTTIMEOUTCODE").number().conversion(ColumnConversion.NUMBER2INT).map("connectionTimeout.timeUnitCode").add();
+            table.column("CONNECTTIMEOUT").number().conversion(ColumnConversion.NUMBER2INT).map("connectTimeout.count").add();
+            table.column("CONNECTTIMEOUTCODE").number().conversion(ColumnConversion.NUMBER2INT).map("connectTimeout.timeUnitCode").add();
             table.column("DELAYAFTERCONNECT").number().conversion(ColumnConversion.NUMBER2INT).map("delayAfterConnect.count").add();
             table.column("DELAYAFTERCONNECTCODE").number().conversion(ColumnConversion.NUMBER2INT).map("delayAfterConnect.timeUnitCode").add();
             table.column("DELAYBEFORESEND").number().conversion(ColumnConversion.NUMBER2INT).map("delayBeforeSend.count").add();
