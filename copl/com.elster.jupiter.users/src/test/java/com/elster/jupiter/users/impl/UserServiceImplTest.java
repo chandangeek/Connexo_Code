@@ -79,7 +79,7 @@ public class UserServiceImplTest {
     		User user = userService.createUser(AUTH_NAME, DESCRIPTION);
     		assertThat(user.getName()).isEqualTo(AUTH_NAME);
     		assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
-    		// skip cxt.commit()
+    		// skip ctx.commit()
     	}
 
     }
@@ -90,7 +90,7 @@ public class UserServiceImplTest {
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
     		userService.createUser(AUTH_NAME, DESCRIPTION);
     		assertThat(userService.findUser(AUTH_NAME)).isPresent();
-    		// skip cxt.commit()
+    		// skip ctx.commit()
     	}
 
     }
