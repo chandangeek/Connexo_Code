@@ -151,12 +151,19 @@ public abstract class ComServerImpl implements ServerComServer {
 
 
     @Override
-    public List<ComPort> getComPorts () {
+    public List<ComPort> getComPorts() {
         List<ComPort> comPorts = new ArrayList<>();
         for (ComPort comPort : this.getServerComPorts()) {
             comPorts.add(comPort);
         }
-        return comPorts;
+        return ImmutableList.copyOf(comPorts);
+    }
+
+    public void setComPorts(List<ComPort> comPorts) {
+        this.comPorts.clear();
+        for (ComPort comPort : comPorts) {
+            this.comPorts.add((ServerComPort) comPort);
+        }
     }
 
     public final  List<InboundComPort> getInboundComPorts () {
@@ -167,7 +174,7 @@ public abstract class ComServerImpl implements ServerComServer {
                 inboundComPorts.add(inboundComPort);
             }
         }
-        return inboundComPorts;
+        return ImmutableList.copyOf(inboundComPorts);
     }
 
     public final List<OutboundComPort> getOutboundComPorts() {
@@ -178,18 +185,22 @@ public abstract class ComServerImpl implements ServerComServer {
                 outboundComPorts.add(outboundComPort);
             }
         }
-        return outboundComPorts;
+        return ImmutableList.copyOf(outboundComPorts);
     }
 
     @Override
     public OutboundComPort.OutboundComPortBuilder newOutbound() {
-        return new OutboundBuilder();
+        return new OutboundBuilder(this);
     }
 
+    /**
+     * Builders are used to facilitate validating ComPorts??
+     */
     class OutboundBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
-        private OutboundBuilder() {
+        private OutboundBuilder(ComServer comServer) {
             super();
+            comPort.setComServer(comServer);
         }
 
         @Override

@@ -194,7 +194,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      */
 
     @Override
-    public ComPort findComport(int id) {
+    public ComPort findComPort(long id) {
         return getComPortFactory().getUnique("id",id).orNull();
     }
 
@@ -266,7 +266,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      */
 
     @Override
-    public ComPortPool findComPortPool(int id) {
+    public ComPortPool findComPortPool(long id) {
         return getComPortPoolFactory().getUnique("id",id).orNull();
     }
 

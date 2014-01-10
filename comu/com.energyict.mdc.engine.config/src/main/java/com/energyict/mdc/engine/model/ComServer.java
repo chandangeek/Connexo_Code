@@ -205,6 +205,7 @@ public interface ComServer {
      */
     public List<ComPort> getComPorts ();
 
+    public void setComPorts(List<ComPort> comPorts);
     /**
      * Makes this ComServer obsolete, i.e. it will no longer execute
      * nor will it be returned by ComServerFactory finder methods.

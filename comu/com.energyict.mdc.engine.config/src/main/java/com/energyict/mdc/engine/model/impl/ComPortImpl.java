@@ -275,12 +275,6 @@ public abstract class ComPortImpl implements ServerComPort {
         }
 
         @Override
-        public B comServer(ComServer comServer) {
-            comPort.setComServer(comServer);
-            return self;
-        }
-
-        @Override
         public B active(boolean active) {
             comPort.setActive(active);
             return self;

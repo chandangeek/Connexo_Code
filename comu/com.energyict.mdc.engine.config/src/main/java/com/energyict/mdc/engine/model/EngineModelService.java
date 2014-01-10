@@ -84,7 +84,7 @@ public interface EngineModelService {
      * @param id the ComPort id
      * @return The ComPort or <code>null</code> if no such ComPort exists
      */
-    public ComPort findComport(int id);
+    public ComPort findComPort(long id);
 
     /**
      * Finds all the {@link ComPort}s that are owned by the specified {@link ComServer}.
@@ -134,7 +134,7 @@ public interface EngineModelService {
      * @param id The unique identifier
      * @return The ComPortPool or <code>null</code> if no such ComPortPool exists
      */
-    public ComPortPool findComPortPool (int id);
+    public ComPortPool findComPortPool (long id);
 
     /**
      * Finds the {@link com.energyict.mdc.engine.model.InboundComPortPool} with the specified unique identifier.

@@ -62,7 +62,7 @@ public enum TableSpecs {
             table.column("EVENTREGISTRATIONURI").type("varchar2(512)").notNull().map("eventRegistrationUri").add();
             table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2INT).map("usesDefaultQueryAPIPostUri").add();
             table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2INT).map("usesDefaultEventRegistrationUri").add();
-            table.foreignKey("FK_REMOTE_ONLINE").on(onlineComServerId).references(MDCCOMSERVER.name()).map("onlineComserver").add();
+            table.foreignKey("FK_REMOTE_ONLINE").on(onlineComServerId).references(MDCCOMSERVER.name()).map("onlineComServer").add();
         }
     },
     MDCCOMPORT(ServerComPort.class) {
@@ -118,8 +118,8 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMPORT").on(idColumn).add();
             table.foreignKey("FK_COMPORT_COMSERVER").on(comServerColumn).references(MDCCOMSERVER.name()).
                     map("comServer").reverseMap("comPorts").composition().add();
-            table.foreignKey("FK_COMPORT_COMPORTPOOL").on(comPortPoolId).references(MDCCOMPORTPOOL.name()).
-                    map("comPortPool").reverseMap("comPorts").composition().add();
+//            table.foreignKey("FK_COMPORT_COMPORTPOOLMEMBER").on(comPortPoolId).references(MDCCOMPORTINPOOL.name()).
+//                    map("comPortPoolMembers").reverseMap("comPort").composition().add();
         }
     },
     MDCCOMPORTINPOOL(ComPortPoolMember.class) {

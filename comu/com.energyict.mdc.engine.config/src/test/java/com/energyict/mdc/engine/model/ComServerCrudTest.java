@@ -8,7 +8,9 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
@@ -16,7 +18,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerCrudTest {
@@ -25,8 +31,11 @@ public class ComServerCrudTest {
 
     @BeforeClass
     public static void setUp() throws SQLException {
+        BundleContext bundleContext = mock(BundleContext.class);
         injector = Guice.createInjector(
+                new MockModule(bundleContext),
                 inMemoryBootstrapModule,
+                new MdcCommonModule(),
                 new EngineModelModule(),
                 new OrmModule(),
                 new UtilModule(),
@@ -62,4 +71,19 @@ public class ComServerCrudTest {
             context.commit();
         }
     }
+
+    private static class MockModule extends AbstractModule {
+        private BundleContext bundleContext;
+
+        private MockModule(BundleContext bundleContext) {
+            super();
+            this.bundleContext = bundleContext;
+        }
+
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(bundleContext);
+        }
+    }
+
 }
