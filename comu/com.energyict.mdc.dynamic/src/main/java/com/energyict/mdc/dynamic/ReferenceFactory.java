@@ -124,6 +124,11 @@ public class ReferenceFactory<T extends IdBusinessObject> extends AbstractValueF
         public Class<T> getImplementedInterface () {
             return domainClass;
         }
+
+        @Override
+        public ClassLoader getClassLoader() {
+            return this.factory.getClass().getClassLoader();
+        }
     }
 
 }
