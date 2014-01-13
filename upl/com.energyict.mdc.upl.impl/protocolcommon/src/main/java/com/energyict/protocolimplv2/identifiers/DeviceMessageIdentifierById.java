@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
@@ -20,7 +21,11 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
 
     @Override
     public DeviceMessage getDeviceMessage() {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageFactory().find(messageId);
+        DeviceMessage deviceMessage = MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageFactory().find(messageId);
+        if (deviceMessage == null) {
+            throw new NotFoundException("DeviceMessage with messageID " + messageId + " not found");
+        }
+        return deviceMessage;
     }
 
     @Override

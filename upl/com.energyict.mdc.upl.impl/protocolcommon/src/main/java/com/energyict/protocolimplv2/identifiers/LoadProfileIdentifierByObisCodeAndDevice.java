@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.LoadProfile;
@@ -41,6 +42,9 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
                     break;
                 }
             }
+        }
+        if (this.loadProfile == null) {
+            throw new NotFoundException("LoadProfile with ObisCode " + loadProfileObisCode + " for device with " + deviceIdentifier.toString() + " not found");
         }
         return loadProfile;
     }

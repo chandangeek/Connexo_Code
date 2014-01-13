@@ -5,14 +5,12 @@ import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
-import org.junit.*;
+import org.junit.Test;
 
 import java.util.Arrays;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link FirstLoadProfileOnDevice} component.
@@ -34,7 +32,7 @@ public class FirstLoadProfileOnDeviceTest {
         // Asserts: expected the NotFoundException reported by the DeviceIdentifier to be thrown or rethrown
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void testWithDeviceWithoutLoadProfiles () {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -43,9 +41,6 @@ public class FirstLoadProfileOnDeviceTest {
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.getLoadProfile();
-
-        // Asserts
-        assertThat(loadProfile).isNull();
     }
 
     @Test

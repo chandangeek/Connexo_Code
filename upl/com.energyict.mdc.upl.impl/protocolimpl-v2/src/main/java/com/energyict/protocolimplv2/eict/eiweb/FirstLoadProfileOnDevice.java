@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
@@ -29,7 +30,7 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
         Device device = this.deviceIdentifier.findDevice();
         List<LoadProfile> loadProfiles = device.getLoadProfiles();
         if (loadProfiles.isEmpty()) {
-            return null;
+            throw new NotFoundException("Device with " + deviceIdentifier.toString() + " has no load profiles");
         }
         else {
             return loadProfiles.get(0);

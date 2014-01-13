@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.amr.Register;
@@ -38,14 +39,14 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
                 // first need to check the DeviceObisCde
                 if (register.getRegisterSpec().getDeviceObisCode() != null && register.getRegisterSpec().getDeviceObisCode().equals(registerObisCode)){
                     this.register = register;
-                    break;
+                    return this.register;
                 } else if(register.getRegisterMapping().getObisCode().equals(registerObisCode)){
                     this.register = register;
-                    break;
+                    return this.register;
                 }
             }
         }
-        return this.register;
+        throw new NotFoundException("Register " + this.registerObisCode.toString() + " for device with " + this.deviceIdentifier + " not found");
     }
 
     @Override
