@@ -32,6 +32,11 @@ Ext.define('Mdc.view.setup.Browse', {
                             xtype: 'component',
                             cls: 'content-container',
                             html: '<a href="#/setup/devicecommunicationprotocols">device communication protocols</a>'
+                        },
+                        {
+                            xtype: 'component',
+                            cls: 'content-container',
+                            html: '<a href="#/setup/licensedprotocols">licensed protocols</a>'
                         }
                     ],
                     columnWidth: 0.5,

@@ -3,8 +3,7 @@ Ext.define('Mdc.model.LicensedProtocol', {
     fields: [
         {name: 'licensedProtocolRuleCode', type: 'int', useNull: true},
         'protocolName',
-        'protocolJavaClassName',
-        'protocolFamilies'
+        'protocolJavaClassName'
     ],
     associations: [
         {name: 'protocolFamilies', type: 'hasMany', model: 'Mdc.model.ProtocolFamily', associationKey: 'protocolFamilies',

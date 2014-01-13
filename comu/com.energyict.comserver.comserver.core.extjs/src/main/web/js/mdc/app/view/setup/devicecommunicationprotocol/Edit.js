@@ -12,14 +12,15 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
     autoWidth: true,
     requires: [
         'Mdc.store.LicensedProtocols',
-        'Mdc.view.setup.protocolfamily.List'
+        'Mdc.view.setup.protocolfamily.List',
+        'Mdc.view.setup.property.Edit'
     ],
     initComponent: function () {
         var licensedProtocols = Ext.create('Mdc.store.LicensedProtocols');
         this.items = [
             {
                 xtype: 'form',
-                id: 'devicecommunicationprotocolform',
+                itemId: 'devicecommunicationprotocolform',
                 shrinkWrap: 1,
                 padding: 10,
                 border: 0,
@@ -40,7 +41,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
                                 xtype: 'textfield',
                                 name: 'id',
                                 fieldLabel: 'Id',
-                                id: 'deviceCommunicationProtocolId',
+                                itemId: 'deviceCommunicationProtocolId',
                                 readOnly: true,
                                 autoWidth: true,
                                 size: 10,
@@ -65,7 +66,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
                             {
                                 xtype: 'combobox',
                                 name: 'licensedProtocol',
-                                id: 'licensedProtocol',
+                                itemId: 'licensedProtocol',
                                 fieldLabel: 'Licensed protocol',
                                 store: licensedProtocols,
                                 queryMode: 'local',
@@ -79,7 +80,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
             },
             {
                 xtype: 'form',
-                id: 'licensedprotocolform',
+                itemId: 'licensedprotocolform',
                 shrinkWrap: 1,
                 padding: 10,
                 border: 0,
@@ -101,16 +102,18 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
                                 xtype: 'textfield',
                                 name: 'protocolJavaClassName',
                                 fieldLabel: 'Java Class Name',
-                                id: 'protocolJavaClassName',
+                                itemId: 'protocolJavaClassName',
                                 readOnly: true,
                                 autoWidth: true,
                                 size: 75
                             },
-
                             {"xtype": 'setupProtocolFamilies'}
                         ]
                     }
                 ]
+            },
+            {
+                xtype: 'propertyEdit'
             }
         ];
 
