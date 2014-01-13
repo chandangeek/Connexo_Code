@@ -206,8 +206,6 @@ public interface EngineModelService {
 
     List<ComPortPool> findAllComPortPools();
 
-    ComPort newComPort();
-
     List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool);
 
     List<OutboundComPort> findOutboundInPool(OutboundComPortPool comPortPool);

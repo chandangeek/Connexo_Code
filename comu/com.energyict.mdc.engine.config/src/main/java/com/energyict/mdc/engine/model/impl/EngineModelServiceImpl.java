@@ -22,14 +22,15 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
@@ -387,33 +388,24 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public ComPort newComPort() {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool) {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return comPortPool.getComPorts();
     }
 
     @Override
     public List<OutboundComPort> findOutboundInPool(OutboundComPortPool comPortPool) {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return comPortPool.getComPorts();
     }
 
     @Override
     public List<OutboundComPort> findOutboundComPortsWithComPortType(ComPortType comPortType) {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return convertComportListToOutBoundComPorts(getComPortFactory().find("comPortType", comPortType,"class",OUTBOUND_DISCRIMINATOR));
     }
 
     @Override
     public List<InboundComPort> findInboundComPortsWithComPortType(ComPortType comPortType) {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Condition condition = Where.where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(Where.where("comPortType").isEqualTo(comPortType));
+        return convertComportListToInBoundComPorts(getComPortFactory().select(condition));
     }
 
     @Override
