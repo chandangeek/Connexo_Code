@@ -19,4 +19,9 @@ public interface LazyLoader<T> {
      * @return the interface class that the proxy should implement.
      */
     Class<T> getImplementedInterface();
+
+    /**
+     * @return the ClassLoader which should be used to create an instance of the lazy object
+     */
+    ClassLoader getClassLoader();
 }

@@ -28,6 +28,11 @@ public class LazyLoadProxyTest {
             return MeaningOfLifeTheUniverseAndEverythingCalculator.class;
         }
 
+        @Override
+        public ClassLoader getClassLoader() {
+            return MeaningOfLifeTheUniverseAndEverythingCalculator.class.getClassLoader();
+        }
+
         public MeaningOfLifeTheUniverseAndEverythingCalculator load() {
             loaded = true;
             return new DeepThought();

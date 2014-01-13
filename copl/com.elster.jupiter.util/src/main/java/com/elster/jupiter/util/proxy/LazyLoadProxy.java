@@ -18,7 +18,7 @@ public final class LazyLoadProxy<T> implements java.lang.reflect.InvocationHandl
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(LazyLoader<T> initializer) {
         return (T) java.lang.reflect.Proxy.newProxyInstance(
-            initializer.getClass().getClassLoader(),
+            initializer.getClassLoader(),
             new Class[] {initializer.getImplementedInterface()},
             new LazyLoadProxy(initializer));
     }
