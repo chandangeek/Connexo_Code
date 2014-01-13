@@ -30,4 +30,8 @@ public final class NlsString {
 	public String getString() {
 		return thesaurus.getString(key, defaultMessage);
 	}
+	
+	public String getComponent() {
+		return thesaurus.getComponent();
+	}
 }

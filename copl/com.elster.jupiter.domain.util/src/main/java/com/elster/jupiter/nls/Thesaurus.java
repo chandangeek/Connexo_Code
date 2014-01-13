@@ -31,5 +31,12 @@ public interface Thesaurus {
 	// we could add (mainly for the maintenance app)
 	//
 	Pair<String,String> getTranslations(Locale local) ;
-	
+	//
+	//
+	//
+	String getComponent();
+	//
+	//
+	//
+	NlsMessageFormat getFormat(MessageSeed seed);
 }
