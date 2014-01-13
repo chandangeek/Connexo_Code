@@ -12,6 +12,7 @@ import com.energyict.mdc.common.DuplicateException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.dynamic.ReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
@@ -128,7 +129,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
             this.validateConstraint(newName, relationType);
         }
         try {
-            this.newValueFactory(shadow.getValueFactoryClassName());
+            this.newValueFactory(shadow.getValueFactoryClassName(), shadow.getObjectFactoryId());
         }
         catch (ApplicationException ex) {
             throw new BusinessException(ex.getCause());
@@ -219,11 +220,14 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     private ValueFactory newValueFactory () {
-        return this.newValueFactory(this.valueFactoryClassName);
+        return this.newValueFactory(this.valueFactoryClassName, this.objectFactoryId);
     }
 
-    private ValueFactory newValueFactory (String valueFactoryClassName) {
+    private ValueFactory newValueFactory (String valueFactoryClassName, int objectFactoryId) {
         try {
+            if(valueFactoryClassName.equals(ReferenceFactory.class.getCanonicalName())){
+                return new ReferenceFactory((IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(objectFactoryId));
+            }
             return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
         }
         catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
