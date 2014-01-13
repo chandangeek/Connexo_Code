@@ -35,15 +35,15 @@ public class MdcPropertyUtils {
         Object propertyValue = getPropertyValue(properties, propertySpec);
         Object inheritedProperty = getInheritedProperty(properties, propertySpec);
         Object defaultValue = getDefaultValue(propertySpec);
-        if(propertyValue == null && inheritedProperty == null && defaultValue == null){
+        if (propertyValue == null && inheritedProperty == null && defaultValue == null) {
             return null;
         }
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue);
     }
 
     private static SimplePropertyType getSimplePropertyType(PropertySpec propertySpec) {
-        SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getValueFactory().getValueType());
-        if(simplePropertyType.equals(SimplePropertyType.UNKNOWN)){
+        SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getValueFactory());
+        if (simplePropertyType.equals(SimplePropertyType.UNKNOWN)) {
             return MdcPropertyReferenceInfoFactory.getReferencedSimplePropertyType(propertySpec, simplePropertyType);
         } else {
             return simplePropertyType;
@@ -55,7 +55,7 @@ public class MdcPropertyUtils {
     }
 
     private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
-        if(simplePropertyType.isReference()){
+        if (simplePropertyType.isReference()) {
             return MdcPropertyReferenceInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getValueFactory().getValueType());
         } else {
             return null;
@@ -63,7 +63,7 @@ public class MdcPropertyUtils {
     }
 
     private static PropertyValidationRule getPropertyValidationRule(PropertySpec propertySpec) {
-        if (BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
+        if (BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())) {
             BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec = (BoundedBigDecimalPropertySpec) propertySpec;
             return createBoundedBigDecimalValidationRules(boundedBigDecimalPropertySpec);
         } else {
@@ -88,26 +88,25 @@ public class MdcPropertyUtils {
         if (possibleValues == null) {
             return null;
         } else {
-            Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
-            for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-                possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
+            if (possibleValues.getAllValues().size() <= 1) {
+                // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
+                return null;
+            } else {
+                Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
+                for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
+                    possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
+                }
+                PropertySelectionMode selectionMode = PropertySelectionMode.COMBOBOX;
+
+                return new PredefinedPropertyValuesInfo<>(
+                        possibleObjects,
+                        selectionMode,
+                        propertySpec.getPossibleValues().isExhaustive());
             }
-            PropertySelectionMode selectionMode = PropertySelectionMode.SEARCH_AND_SELECT;
-            if (possibleObjects.length > 1) {
-                /*
-                We set the selectionMode to ComboBox if we have more than 1 possible value (otherwise it can be it is the default value)
-                and the current selectionMode is not specified (otherwise the frontEnd will not be able to show them)
-                 */
-                selectionMode = PropertySelectionMode.COMBOBOX;
-            }
-            return new PredefinedPropertyValuesInfo<>(
-                    possibleObjects,
-                    selectionMode,
-                    propertySpec.getPossibleValues().isExhaustive());
         }
     }
 
-    private static  Object getDefaultValue(PropertySpec propertySpec) {
+    private static Object getDefaultValue(PropertySpec propertySpec) {
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
@@ -115,7 +114,7 @@ public class MdcPropertyUtils {
         return MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
-    private static  Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {
+    private static Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {
         TypedProperties inheritedProperties = properties.getInheritedProperties();
         if (inheritedProperties == null) {
             return null;
