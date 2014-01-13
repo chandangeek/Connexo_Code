@@ -34,4 +34,14 @@ public class MethodInvocationCheckerTest {
 		}
 		assertThat(found).isTrue();
 	}
+	
+	@Test
+	public void testSloc() throws IOException {
+		Set<ClassPath.ClassInfo> classInfos = ClassPath.from(this.getClass().getClassLoader()).getTopLevelClassesRecursive("com.elster");
+		int sloc = 0;
+		for (ClassPath.ClassInfo classInfo : classInfos) {
+			sloc += SlocMetric.sloc(classInfo.getName());
+		}
+		assertThat(sloc).isGreaterThan(10);
+	}
 }

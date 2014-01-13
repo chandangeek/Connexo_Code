@@ -13,14 +13,14 @@ import com.google.common.reflect.ClassPath;
 
 public class MethodInvocationChecker {
 
-	private final ClassPath.ClassInfo classInfo;
+	private final String invokerClassName;
 	private final String className;
 	private final String methodName;
 	private final String descriptor;
 	private boolean found;
 	
-	MethodInvocationChecker(ClassPath.ClassInfo classInfo, String className , String methodName, String descriptor) {
-		this.classInfo = classInfo;
+	MethodInvocationChecker(String invokerClassName, String className , String methodName, String descriptor) {
+		this.invokerClassName = invokerClassName.replace(".","/");
 		this.className = className.replace(".","/");
 		this.methodName = methodName;
 		this.descriptor = descriptor;
@@ -29,7 +29,7 @@ public class MethodInvocationChecker {
 	
 	public static boolean invokes(ClassPath.ClassInfo classInfo, java.lang.reflect.Method method) throws IOException {
 		return new MethodInvocationChecker(
-				classInfo,
+				classInfo.getName(),
 				method.getDeclaringClass().getName(),
 				method.getName(),
 				Method.getMethod(method).getDescriptor()).invokes();
@@ -38,14 +38,14 @@ public class MethodInvocationChecker {
 	public static boolean invokes(ClassPath.ClassInfo classInfo, Constructor<?> constructor) throws IOException {
 		Method method = Method.getMethod(constructor);
 		return new MethodInvocationChecker(
-				classInfo,
+				classInfo.getName(),
 				constructor.getDeclaringClass().getName(), 
 				"<init>", 
 				method.getDescriptor()).invokes();
 	}
 	
 	boolean invokes() throws IOException {
-		new ClassReader(classInfo.getName()).accept(new MethodInvocationClassVisitor(),0);
+		new ClassReader(invokerClassName).accept(new MethodInvocationClassVisitor(),0);
 		return found;
 	}
 	
@@ -53,6 +53,17 @@ public class MethodInvocationChecker {
 
 		public MethodInvocationClassVisitor() {
 			super(Opcodes.ASM4);
+		}
+		
+		@Override 
+		public void visitInnerClass(String name , String outer, String inner, int mode) {
+			if (invokerClassName.equals(outer) && !invokerClassName.equals(name)) {
+				try {
+					found |= new MethodInvocationChecker(name, className, methodName, descriptor).invokes();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 	
 		@Override
