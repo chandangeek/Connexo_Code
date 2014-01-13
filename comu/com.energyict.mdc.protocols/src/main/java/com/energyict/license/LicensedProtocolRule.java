@@ -232,6 +232,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
+    //test with all properties
+    SDK_SAMPLE_PROTOCOL_TEST_WITH_ALL_PROPERTIES(199, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", FamilyRule.TEST),
+
     // Deprecated
     AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
