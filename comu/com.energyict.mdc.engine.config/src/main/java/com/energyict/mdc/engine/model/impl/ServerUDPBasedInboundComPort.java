@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.ServerComChannelBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 
@@ -11,4 +12,6 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
  * @since 2012-06-14 (11:14)
  */
 public interface ServerUDPBasedInboundComPort extends ServerComChannelBasedInboundComPort, UDPBasedInboundComPort {
+
+    public void init(ComServer owner);
 }

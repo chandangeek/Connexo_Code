@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -67,6 +68,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(ServerServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);
             }
         };
     }
@@ -239,32 +241,38 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ServerOutboundComPort newOutbound(ComServer owner){
-        return OutboundComPortImpl.from(dataModel,owner);
+        ServerOutboundComPort instance = dataModel.getInstance(ServerOutboundComPort.class);
+        instance.init(owner);
+        return instance;
     }
 
     @Override
     public ServerModemBasedInboundComPort newModemBasedInbound(ComServer owner){
-        return ModemBasedInboundComPortImpl.from(dataModel,owner);
+        ServerModemBasedInboundComPort instance = dataModel.getInstance(ServerModemBasedInboundComPort.class);
+        instance.init(owner);
+        return instance;
     }
 
     @Override
     public ServerTCPBasedInboundComPort newTCPBasedInbound(ComServer owner){
-        return TCPBasedInboundComPortImpl.from(dataModel,owner);
+        ServerTCPBasedInboundComPort instance = dataModel.getInstance(ServerTCPBasedInboundComPort.class);
+        instance.init(owner);
+        return instance;
     }
 
     @Override
     public ServerUDPBasedInboundComPort newUDPBasedInbound(ComServer owner){
-        return UDPBasedInboundComPortImpl.from(dataModel,owner);
+        ServerUDPBasedInboundComPort instance = dataModel.getInstance(ServerUDPBasedInboundComPort.class);
+        instance.init(owner);
+        return instance;
     }
 
     @Override
     public ServerServletBasedInboundComPort newServletBasedInbound(ComServer owner){
-        return ServletBasedInboundComPortImpl.from(dataModel,owner);
+        ServerServletBasedInboundComPort instance = dataModel.getInstance(ServerServletBasedInboundComPort.class);
+        instance.init(owner);
+        return instance;
     }
-
-    /**
-     * COMPORTPOOLS
-     */
 
     @Override
     public ComPortPool findComPortPool(long id) {

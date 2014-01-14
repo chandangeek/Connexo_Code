@@ -6,15 +6,18 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.RemoteComServer;
 import com.google.common.collect.Range;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OnlineComServer} interface.
@@ -24,6 +27,7 @@ import java.util.List;
  */
 public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineComServer {
 
+    private final EngineModelService engineModelService;
     private String queryAPIPostUri;
     private String eventRegistrationUri;
     private boolean usesDefaultQueryAPIPostUri;
@@ -32,12 +36,10 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     private int numberOfStoreTaskThreads;
     private int storeTaskThreadPriority;
 
-    public static OnlineComServer from(DataModel dataModel) {
-        return dataModel.getInstance(OnlineComServerImpl.class);
-    }
-
-    protected OnlineComServerImpl () {
-        super();
+    @Inject
+    public OnlineComServerImpl (DataModel dataModel, EngineModelService engineModelService) {
+        super(dataModel, engineModelService);
+        this.engineModelService = engineModelService;
     }
 
     @Override
@@ -117,14 +119,10 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     }
 
     private void validateNotUsedByRemoteComServers() {
-        List<ComServer> remoteComServersWithOnlineComServer = getComServerFactory().find("onlineComServer", this, "class", REMOTE_COMSERVER_DISCRIMINATOR);
+        List<RemoteComServer> remoteComServersWithOnlineComServer = engineModelService.findRemoteComServersWithOnlineComServer(this);
         if (!remoteComServersWithOnlineComServer.isEmpty()) {
             throw new TranslatableApplicationException("onlineComServerXStillReferenced", "Online Comserver {0} is still referenced by {1} remote comserver(s)", this.getName(), remoteComServersWithOnlineComServer.size());
         }
-    }
-
-    private DataMapper<ComServer> getComServerFactory() {
-        return Bus.getServiceLocator().getOrmClient().getComServerFactory();
     }
 
     @Override

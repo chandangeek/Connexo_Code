@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -16,8 +17,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements InboundC
 
     private Reference<InboundComPortPool> comPortPool;
 
-    protected InboundComPortImpl () {
-        super();
+    protected InboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     public InboundComPortPool getComPortPool () {

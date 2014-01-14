@@ -2,6 +2,9 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComServer;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort} interface.
@@ -18,17 +21,13 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     private String trustStoreSpecsPassword;
     private String contextPath;
 
-    public static ServerServletBasedInboundComPort from(DataModel dataModel, ComServer owner) {
-        return dataModel.getInstance(ServletBasedInboundComPortImpl.class).init(owner);
-    }
-
-    private ServerServletBasedInboundComPort init(ComServer owner) {
+    public void init(ComServer owner) {
         this.setComServer(owner);
-        return this;
     }
 
-    protected ServletBasedInboundComPortImpl () {
-        super();
+    @Inject
+    protected ServletBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

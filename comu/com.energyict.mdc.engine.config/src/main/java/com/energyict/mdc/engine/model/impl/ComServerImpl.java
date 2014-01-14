@@ -1,17 +1,20 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -41,6 +44,8 @@ public abstract class ComServerImpl implements ServerComServer {
     public static final int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
     public static final int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
 
+    private final DataModel dataModel;
+    private final EngineModelService engineModelService;
 
     private long id;
     private String name;
@@ -54,8 +59,11 @@ public abstract class ComServerImpl implements ServerComServer {
     private boolean obsoleteFlag;
     private Date obsoleteDate;
 
-    protected ComServerImpl() {
+    @Inject
+    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService) {
         super();
+        this.dataModel = dataModel;
+        this.engineModelService = engineModelService;
     }
 
     private List<ServerComPort> getServerComPorts () {
@@ -90,13 +98,9 @@ public abstract class ComServerImpl implements ServerComServer {
     }
 
     protected void validateConstraint (String name) {
-        List<ComServer> comServersWithTheSameName = getComServerFactory().find("name", name);
-        if (!comServersWithTheSameName.isEmpty()) {
-            for (ComServer comServer : comServersWithTheSameName) {
-                if (this.getId() != comServer.getId() && !comServer.isObsolete()) {
-                    throw new TranslatableApplicationException("duplicateComServerX", "A ComServer by the name of \"{0}\" already exists (id={1})", name, comServer.getId());
-                }
-            }
+        ComServer comServerWithTheSameName = engineModelService.findComServer(name);
+        if (comServerWithTheSameName!=null && this.getId() != comServerWithTheSameName.getId() && !comServerWithTheSameName.isObsolete()) {
+            throw new TranslatableApplicationException("duplicateComServerX", "A ComServer by the name of \"{0}\" already exists (id={1})", name, comServerWithTheSameName.getId());
         }
     }
 
@@ -116,11 +120,7 @@ public abstract class ComServerImpl implements ServerComServer {
         this.validateMakeObsolete();
         this.makeComPortsObsolete();
         this.obsoleteFlag = true;
-        getComServerFactory().update(this);
-    }
-
-    private DataMapper<ComServer> getComServerFactory() {
-        return Bus.getServiceLocator().getOrmClient().getComServerFactory();
+        dataModel.update(this);
     }
 
     private void makeComPortsObsolete () {
@@ -136,13 +136,6 @@ public abstract class ComServerImpl implements ServerComServer {
 //                    this.getId(),
 //                    this.getObsoleteDate());
         }
-    }
-
-    @Override
-    public void delete() {
-        validateDelete();
-        this.comPorts.clear();
-        getComServerFactory().remove(this);
     }
 
     protected void validateDelete() {
@@ -199,13 +192,13 @@ public abstract class ComServerImpl implements ServerComServer {
     class OutboundBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
         private OutboundBuilder(ComServer comServer) {
-            super();
-            comPort.setComServer(comServer);
+            super(dataModel);
+            comPort.init(comServer);
         }
 
         @Override
-        public OutboundComPort add() {
-            ServerOutboundComPort comPort = (ServerOutboundComPort) super.add();
+        public ServerOutboundComPort add() {
+            ServerOutboundComPort comPort = super.add();
             ComServerImpl.this.comPorts.add(comPort);
             return comPort;
         }
@@ -419,12 +412,17 @@ public abstract class ComServerImpl implements ServerComServer {
     public void save() {
         validate();
         if (this.getId()==0) {
-            Bus.getServiceLocator().getOrmClient().getComServerFactory().persist(this);
+            dataModel.persist(this);
         } else {
             validateUpdateAllowed();
-            Bus.getServiceLocator().getOrmClient().getComServerFactory().update(this);
+            dataModel.update(this);
         }
     }
 
-
+    @Override
+    public void delete() {
+        validateDelete();
+        this.comPorts.clear();
+        dataModel.remove(this);
+    }
 }

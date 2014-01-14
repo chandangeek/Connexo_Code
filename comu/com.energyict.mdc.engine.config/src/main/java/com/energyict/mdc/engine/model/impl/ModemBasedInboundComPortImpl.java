@@ -9,6 +9,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.ModemBasedInboundComPort} interface.
@@ -30,17 +31,14 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     private String postDialCommands;
     private SerialPortConfiguration serialPortConfiguration;
 
-    public static ServerModemBasedInboundComPort from(DataModel dataModel, ComServer owner) {
-        return dataModel.getInstance(ModemBasedInboundComPortImpl.class).init(owner);
-    }
-
-    private ServerModemBasedInboundComPort init(ComServer owner) {
+    @Override
+    public void init(ComServer owner) {
         this.setComServer(owner);
-        return this;
     }
 
-    protected ModemBasedInboundComPortImpl () {
-        super();
+    @Inject
+    protected ModemBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     public int getRingCount() {

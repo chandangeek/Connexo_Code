@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
 /**
@@ -10,4 +11,6 @@ import com.energyict.mdc.engine.model.OutboundComPort;
  * @since 2012-04-19 (10:02)
  */
 public interface ServerOutboundComPort extends ServerComPort, OutboundComPort {
+
+    void init(ComServer owner);
 }

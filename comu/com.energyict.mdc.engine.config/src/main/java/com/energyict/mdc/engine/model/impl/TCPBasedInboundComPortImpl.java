@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComServer;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.TCPBasedInboundComPort} interface.
@@ -11,17 +12,13 @@ import com.energyict.mdc.engine.model.ComServer;
  */
 public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServerTCPBasedInboundComPort {
 
-    protected TCPBasedInboundComPortImpl () {
-        super();
+    @Inject
+    protected TCPBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
-    public static ServerTCPBasedInboundComPort from(DataModel dataModel, ComServer owner) {
-        return dataModel.getInstance(TCPBasedInboundComPortImpl.class).init(owner);
-    }
-
-    private ServerTCPBasedInboundComPort init(ComServer owner) {
+    public void init(ComServer owner) {
         this.setComServer(owner);
-        return this;
     }
 
     @Override

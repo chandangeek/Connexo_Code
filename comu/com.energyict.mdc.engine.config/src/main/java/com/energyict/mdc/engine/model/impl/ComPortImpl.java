@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.InvalidValueException;
@@ -14,12 +15,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.inject.Inject;
 
 /**
  * Serves as the root of class hierarchy that will provide
@@ -43,6 +47,7 @@ public abstract class ComPortImpl implements ServerComPort {
                     SERVLET_DISCRIMINATOR, ServletBasedInboundComPortImpl.class,
                     UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
                     OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
+    private final DataModel dataModel;
 
     private long id=0;
     private String name;
@@ -55,11 +60,13 @@ public abstract class ComPortImpl implements ServerComPort {
     private ComPortType type;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
-    protected ComPortImpl() {
-    }
-
-    protected ComPortImpl(ComServer comServer) {
-        this.comServer.set(comServer);
+    /**
+     * Constructor for Kore persistence
+     * @param dataModel
+     */
+    @Inject
+    protected ComPortImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     public void setName(String name) {
@@ -215,24 +222,20 @@ public abstract class ComPortImpl implements ServerComPort {
         }
     }
 
-    private DataMapper<ComPort> getComPortFactory() {
-        return Bus.getServiceLocator().getOrmClient().getComPortFactory();
-    }
-
     @Override
     public void save() {
         validate();
         if (this.getId()==0) {
-            getComPortFactory().persist(this);
+            dataModel.persist(this);
         } else {
             validateUpdateAllowed();
-            getComPortFactory().update(this);
+            dataModel.update(this);
         }
     }
 
     @Override
     public void delete() {
-        getComPortFactory().remove(this);
+        dataModel.remove(this);
     }
 
     @Override
@@ -240,7 +243,7 @@ public abstract class ComPortImpl implements ServerComPort {
         this.validateMakeObsolete();
         this.obsoleteFlag = true;
         removeFromComPortPools();
-        getComPortFactory().update(this);
+        dataModel.update(this);
     }
 
     private void removeFromComPortPools() {

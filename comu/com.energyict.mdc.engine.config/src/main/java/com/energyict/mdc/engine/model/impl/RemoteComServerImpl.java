@@ -6,10 +6,12 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.RemoteComServer} interface.
@@ -29,8 +31,9 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
         return dataModel.getInstance(RemoteComServerImpl.class);
     }
 
-    protected RemoteComServerImpl () {
-        super();
+    @Inject
+    public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService) {
+        super(dataModel, engineModelService);
     }
 
     protected void validate()  {

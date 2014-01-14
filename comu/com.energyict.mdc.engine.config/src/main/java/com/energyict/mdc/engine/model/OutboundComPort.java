@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.model;
 
+import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
+
 /**
  * Models a {@link ComPort} that is dedicated to outbound communication.
  * Outbound ComPorts will sit in a {@link ComPortPool pool}
@@ -19,7 +21,7 @@ public interface OutboundComPort extends ComPort {
      */
     public static final int MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 1000;
 
-    interface OutboundComPortBuilder extends ComPort.Builder<OutboundComPortBuilder, OutboundComPort>{
+    interface OutboundComPortBuilder extends ComPort.Builder<OutboundComPortBuilder, ServerOutboundComPort>{
         public OutboundComPortBuilder numberOfSimultaneousConnections(int number);
     }
 

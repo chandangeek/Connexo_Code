@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
 
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPort} interface.
@@ -21,17 +22,14 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
 
     private int numberOfSimultaneousConnections;
 
-    public static ServerOutboundComPort from(DataModel dataModel, ComServer owner) {
-        return dataModel.getInstance(OutboundComPortImpl.class).init(owner);
+    @Inject
+    protected OutboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
-    private ServerOutboundComPort init(ComServer owner) {
+    @Override
+    public void init(ComServer owner) {
         this.setComServer(owner);
-        return this;
-    }
-
-    protected OutboundComPortImpl () {
-        super();
     }
 
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
@@ -68,9 +66,9 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
         }
     }
 
-    static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, OutboundComPort> implements OutboundComPortBuilder {
-        protected OutboundComPortBuilderImpl() {
-            super(new OutboundComPortImpl(), OutboundComPortBuilder.class);
+    static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, ServerOutboundComPort> implements OutboundComPortBuilder {
+        protected OutboundComPortBuilderImpl(DataModel dataModel) {
+            super(new OutboundComPortImpl(dataModel), OutboundComPortBuilder.class);
         }
 
         public OutboundComPortBuilder numberOfSimultaneousConnections(int number) {

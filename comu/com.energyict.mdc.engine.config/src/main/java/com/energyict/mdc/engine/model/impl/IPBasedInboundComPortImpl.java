@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
@@ -15,8 +16,8 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     private int portNumber;
     private int numberOfSimultaneousConnections;
 
-    protected IPBasedInboundComPortImpl () {
-        super();
+    protected IPBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

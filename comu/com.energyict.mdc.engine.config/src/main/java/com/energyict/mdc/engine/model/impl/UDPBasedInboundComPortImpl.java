@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComServer;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.UDPBasedInboundComPort} interface.
@@ -13,17 +14,13 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
 
     private int bufferSize;
 
-    public static ServerUDPBasedInboundComPort from(DataModel dataModel, ComServer owner) {
-        return dataModel.getInstance(UDPBasedInboundComPortImpl.class).init(owner);
-    }
-
-    private ServerUDPBasedInboundComPort init(ComServer owner) {
+    public void init(ComServer owner) {
         this.setComServer(owner);
-        return this;
     }
 
-    protected UDPBasedInboundComPortImpl () {
-        super();
+    @Inject
+    protected UDPBasedInboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override
