@@ -1,9 +1,11 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.util.HasName;
+import com.google.common.base.Optional;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 
 public interface User extends Principal, HasName {
 
@@ -38,13 +40,19 @@ public interface User extends Principal, HasName {
     boolean isMemberOf(Group group);
 
     List<Group> getGroups();
-    
+
     /*
      * Returns the Ha1 used in Digest Authentication for the given user,
      * can be null if the user does not have interactive access
      * 
      */
     String getDigestHa1();
-	void setPassword(String password);
-	boolean check(String password);
+
+    void setPassword(String password);
+
+    boolean check(String password);
+
+    Optional<Locale> getLocale();
+
+    void setLocale(Locale locale);
 }

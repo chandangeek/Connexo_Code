@@ -5,6 +5,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -14,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -29,6 +31,7 @@ public class UserImpl implements User {
     private long version;
     private UtcInstant createTime;
     private UtcInstant modTime;
+    private String languageTag;
 
     // transient
     private List<UserInGroup> memberships;
@@ -233,5 +236,18 @@ public class UserImpl implements User {
 	@Override
 	public boolean check(String password) {
         return !is(password).empty() && createHa1(password).equals(ha1);
+    }
+
+    @Override
+    public Optional<Locale> getLocale() {
+        if (languageTag == null) {
+            return Optional.absent();
+        }
+        return Optional.of(Locale.forLanguageTag(languageTag));
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        languageTag = locale == null ? null : locale.toLanguageTag();
     }
 }

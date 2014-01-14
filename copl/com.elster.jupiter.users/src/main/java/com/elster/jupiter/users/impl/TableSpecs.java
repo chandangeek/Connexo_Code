@@ -43,6 +43,7 @@ public enum TableSpecs {
 			Column authenticationNameColumn = table.column("AUTHNAME").type("varchar2(80)").notNull().map("authenticationName").add();
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
 			table.column("HA1").type("varchar2(32)").map("ha1").add();
+            table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
