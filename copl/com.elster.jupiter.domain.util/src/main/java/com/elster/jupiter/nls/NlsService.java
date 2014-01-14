@@ -1,13 +1,16 @@
 package com.elster.jupiter.nls;
 
 public interface NlsService {
-	Thesaurus getThesaurus(String componentName); 
+
+    String COMPONENTNAME = "NLS";
+
+	Thesaurus getThesaurus(String componentName, Layer layer);
 	
-	// optional api
-	// equivalent to getThesaurus(componentName.get(key,defaultMessage);
-	//
-	String getString(String componentName, String key, String defaultMessage);
+//	// optional api TODO no optional API :)
+//	// equivalent to getThesaurus(componentName.get(key,defaultMessage);
+//	//
+//	String getString(String componentName, String key, String defaultMessage);
 	
 	// create time api
-	Thesaurus newThesaurus(String componentName);
+	Thesaurus newThesaurus(String componentName, Layer layer);
 }
