@@ -1,15 +1,18 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 
 /**
  * Serves as the root for all concrete {@link com.energyict.mdc.engine.model.ComPortPool} interfaces.
@@ -25,6 +28,8 @@ public abstract class ComPortPoolImpl implements ComPortPool {
             ImmutableMap.<String, Class<? extends ComPortPool>>of(
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
+    private final DataModel dataModel;
+    private final EngineModelService engineModelService;
 
     private long id;
     private String name;
@@ -34,7 +39,10 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private Date obsoleteDate;
     private ComPortType comPortType;
 
-    protected ComPortPoolImpl() {
+    @Inject
+    protected ComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
+        this.dataModel = dataModel;
+        this.engineModelService = engineModelService;
     }
 
     @Override
@@ -84,9 +92,9 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     @Override
     public Date getObsoleteDate () {
         if (this.obsoleteFlag && this.obsoleteDate == null) {
-            List<ComPortPool> comPortPools = getComPortPoolFactory().find("id", this.getId());
-            if (comPortPools != null && !comPortPools.isEmpty()) {
-                this.obsoleteDate = Iterables.getOnlyElement(comPortPools).getObsoleteDate();
+            ComPortPool comPortPool = engineModelService.findComPortPool(this.getId());
+            if (comPortPool != null) {
+                this.obsoleteDate = comPortPool.getObsoleteDate();
             }
             else {
                 this.obsoleteDate = null;
@@ -105,18 +113,10 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     protected void validateConstraint (String name) {
-        List<ComPortPool> comPortPools = getComPortPoolFactory().find("name", this.getName());
-        if (comPortPools != null && !comPortPools.isEmpty()) {
-            for (ComPortPool comPortPool : comPortPools) {
-                if (!comPortPool.isObsolete()) {
-                    throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
-                }
-            }
+        ComPortPool comPortPool = engineModelService.findComPortPool(this.getName());
+        if (comPortPool != null && comPortPool.getId()!=this.getId() && !comPortPool.isObsolete()) {
+            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
         }
-    }
-
-    private DataMapper<ComPortPool> getComPortPoolFactory() {
-        return Bus.getServiceLocator().getOrmClient().getComPortPoolFactory();
     }
 
     protected void validateNotNull (Object propertyValue, String propertyName) {
@@ -164,17 +164,17 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     public void save() {
         validate();
         if (this.getId()==0) {
-            getComPortPoolFactory().persist(this);
+            dataModel.persist(this);
         } else {
             validateUpdateAllowed();
-            getComPortPoolFactory().update(this);
+            dataModel.update(this);
         }
     }
 
     @Override
     public void delete() {
         validateDelete();
-        getComPortPoolFactory().remove(this);
+        dataModel.remove(this);
     }
 
 

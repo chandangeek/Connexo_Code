@@ -132,17 +132,17 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public OnlineComServer newOnlineComServerInstance() {
-        return OnlineComServerImpl.from(dataModel);
+        return dataModel.getInstance(OnlineComServerImpl.class);
     }
 
     @Override
     public OfflineComServer newOfflineComServerInstance() {
-        return OfflineComServerImpl.from(dataModel);
+        return dataModel.getInstance(OfflineComServerImpl.class);
     }
 
     @Override
     public RemoteComServer newRemoteComServerInstance() {
-        return RemoteComServerImpl.from(dataModel);
+        return dataModel.getInstance(RemoteComServerImpl.class);
     }
 
     /**
@@ -326,12 +326,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public InboundComPortPool newInboundComPortPool() {
-        return InboundComPortPoolImpl.from(dataModel);
+        return dataModel.getInstance(InboundComPortPoolImpl.class);
     }
 
     @Override
     public OutboundComPortPool newOutboundComPortPool() {
-        return OutboundComPortPoolImpl.from(dataModel);
+        return dataModel.getInstance(OutboundComPortPoolImpl.class);
     }
 
     @Override

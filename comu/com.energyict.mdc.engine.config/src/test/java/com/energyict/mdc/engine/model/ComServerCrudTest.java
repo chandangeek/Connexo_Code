@@ -8,6 +8,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.google.inject.AbstractModule;
@@ -35,15 +37,16 @@ public class ComServerCrudTest {
         injector = Guice.createInjector(
                 new MockModule(bundleContext),
                 inMemoryBootstrapModule,
-                new MdcCommonModule(),
-                new EngineModelModule(),
                 new OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(true));
+                new MdcCommonModule(),
+                new TransactionModule(true),
+                new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(EngineModelService.class);
+        	injector.getInstance(EnvironmentImpl.class); // fake call to make sure component is initialized
         	ctx.commit();
         }
     }
@@ -66,6 +69,10 @@ public class ComServerCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
             offlineComServer.setName("Offliner");
+            offlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
+            offlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+            offlineComServer.setChangesInterPollDelay(new TimeDuration(600));
+            offlineComServer.setSchedulingInterPollDelay(new TimeDuration(900));
             offlineComServer.setActive(false);
             offlineComServer.save();
             context.commit();

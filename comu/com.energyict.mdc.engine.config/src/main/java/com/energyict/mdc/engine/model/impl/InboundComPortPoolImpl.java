@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
@@ -11,6 +12,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.InboundComPortPool} interface.
@@ -23,13 +25,9 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     private long discoveryProtocolPluggableClassId;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
-
-    public static InboundComPortPool from(DataModel dataModel) {
-        return dataModel.getInstance(InboundComPortPoolImpl.class);
-    }
-
-    protected InboundComPortPoolImpl() {
-        super();
+    @Inject
+    protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
+        super(dataModel, engineModelService);
     }
 
     @Override

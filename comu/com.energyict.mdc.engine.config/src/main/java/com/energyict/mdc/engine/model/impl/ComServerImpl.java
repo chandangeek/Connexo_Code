@@ -354,12 +354,18 @@ public abstract class ComServerImpl implements ServerComServer {
 
     @Override
     public TimeDuration getChangesInterPollDelay () {
-        return new TimeDuration(this.changesInterPollDelay.getCount(), this.changesInterPollDelay.getTimeUnitCode());
+        if (this.changesInterPollDelay!=null) {
+            return new TimeDuration(this.changesInterPollDelay.getCount(), this.changesInterPollDelay.getTimeUnitCode());
+        }
+        return null;
     }
 
     @Override
     public TimeDuration getSchedulingInterPollDelay () {
-        return new TimeDuration(this.schedulingInterPollDelay.getCount(), this.schedulingInterPollDelay.getTimeUnitCode());
+        if (this.schedulingInterPollDelay!=null) {
+            return new TimeDuration(this.schedulingInterPollDelay.getCount(), this.schedulingInterPollDelay.getTimeUnitCode());
+        }
+        return null;
     }
 
     @Override
