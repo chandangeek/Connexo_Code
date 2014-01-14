@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Provider;
 
 public class VaultImplTest extends EqualsContractTest {
 
@@ -17,8 +18,10 @@ public class VaultImplTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private Clock clock;
+    @Mock
+    private Provider<TimeSeriesImpl> provider;
     
-    private Object a = new VaultImpl(dataModel,clock).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,true);
+    private Object a = new VaultImpl(dataModel,clock,provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,true);
 
     @Override
     protected Object getInstanceA() {
@@ -27,12 +30,12 @@ public class VaultImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new VaultImpl(dataModel,clock).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, true);
+        return new VaultImpl(dataModel,clock,provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, true);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new VaultImpl(dataModel,clock).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT, true));
+        return ImmutableList.of(new VaultImpl(dataModel,clock,provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT, true));
     }
 
     @Override

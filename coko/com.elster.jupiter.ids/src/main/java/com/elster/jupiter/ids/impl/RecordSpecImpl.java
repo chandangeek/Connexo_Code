@@ -6,12 +6,15 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Provider;
 
 public final class RecordSpecImpl implements RecordSpec {
 	// persistent fields
@@ -31,10 +34,12 @@ public final class RecordSpecImpl implements RecordSpec {
 	private List<FieldSpec> fieldSpecs = new ArrayList<>();
 	
 	private final DataModel dataModel;
+	private final Provider<FieldSpecImpl> fieldSpecProvider;
 	
 	@Inject
-	RecordSpecImpl(DataModel dataModel) {
+	RecordSpecImpl(DataModel dataModel,Provider<FieldSpecImpl> fieldSpecProvider) {
 		this.dataModel = dataModel;
+		this.fieldSpecProvider = fieldSpecProvider;
 	}
 	
 	RecordSpecImpl init(String componentName , long id , String name) {
@@ -42,10 +47,6 @@ public final class RecordSpecImpl implements RecordSpec {
 		this.id = id;
 		this.name = Objects.requireNonNull(name);
 		return this;
-	}
-	
-	public static RecordSpecImpl from(DataModel dataModel, String componentName, long id,String name ) {
-		return dataModel.getInstance(RecordSpecImpl.class).init(componentName, id, name);
 	}
 	
 	@Override
@@ -70,10 +71,17 @@ public final class RecordSpecImpl implements RecordSpec {
 
 
 	@Override
-	public FieldSpec addFieldSpec(String name, FieldType fieldType) {		
-		FieldSpec fieldSpec = FieldSpecImpl.from(dataModel,this,name, fieldType);
+	public FieldSpecImpl addFieldSpec(String name, FieldType fieldType) {		
+		FieldSpecImpl fieldSpec = fieldSpecProvider.get().init(this,name, fieldType);
 		fieldSpecs.add(fieldSpec);
 		return fieldSpec;
+	}
+	
+	@Override
+	public Pair<FieldSpecImpl,FieldSpecImpl> addDerivedFieldSpec(String derivedName, String rawName, FieldType fieldType, FieldDerivationRule rule) {
+		FieldSpecImpl derived = fieldSpecProvider.get().init(this,derivedName,fieldType,rule);
+		fieldSpecs.add(derived);
+		return Pair.of(derived, addFieldSpec(rawName,fieldType));
 	}
 	
 	public void persist() {
@@ -98,6 +106,16 @@ public final class RecordSpecImpl implements RecordSpec {
     @Override
     public int hashCode() {
         return Objects.hash(id, componentName);
+    }
+    
+    int derivedFieldCount() {
+    	int result = 0;
+    	for (FieldSpec field : getFieldSpecs()) {
+    		if (field.isDerived()) {
+    			result++;
+    		}
+    	}
+    	return result;
     }
 	
 }

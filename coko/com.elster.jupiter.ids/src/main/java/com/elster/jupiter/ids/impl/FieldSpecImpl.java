@@ -30,23 +30,20 @@ public class FieldSpecImpl implements FieldSpec {
 	//associations
 	private Reference<RecordSpec> recordSpec = ValueReference.absent();
 	
-	private final DataModel dataModel;
-
     @Inject
-	private FieldSpecImpl(DataModel dataModel)  {
-    	this.dataModel = dataModel;
+	FieldSpecImpl(DataModel dataModel)  {
 	}
 	
-	FieldSpecImpl init(RecordSpec recordSpec , String name , FieldType fieldType) {
+	FieldSpecImpl init(RecordSpec recordSpec , String name , FieldType fieldType, FieldDerivationRule derivationRule) {
 		this.recordSpec.set(recordSpec);
 		this.name = name;
 		this.fieldType = fieldType;
-		this.derivationRule = FieldDerivationRule.NODERIVATION;
+		this.derivationRule = derivationRule;
 		return this;
 	}
 	
-	static FieldSpecImpl from(DataModel dataModel, RecordSpec recordSpec , String name , FieldType fieldType) {
-		return dataModel.getInstance(FieldSpecImpl.class).init(recordSpec,name,fieldType);
+	FieldSpecImpl init(RecordSpec recordSpec, String name, FieldType fieldType) {
+		return init (recordSpec, name, fieldType, FieldDerivationRule.NODERIVATION);
 	}
 	
 	private FieldType getFieldSpecType() {
@@ -78,14 +75,6 @@ public class FieldSpecImpl implements FieldSpec {
 		return getDerivationRule() != FieldDerivationRule.NODERIVATION;
 	}
 	
-	void persist() {
-		dataModel.persist(this);		
-	}
-
-	void doSetPosition(int position) {
-		this.position = position;		
-	}
-
 	Object getValue(ResultSet resultSet, int i) throws SQLException {
 		return getFieldSpecType().getValue(resultSet,i);
 	}

@@ -12,14 +12,15 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
-public class TimeSeriesEntryImpl implements TimeSeriesEntry {
+public class TimeSeriesEntryImpl implements TimeSeriesEntry , Cloneable {
 	private final TimeSeries timeSeries;
 	private final long timeStamp;
 	private final long version;
 	private final long recordTime;
-	private final Object[] values;
+	private Object[] values;
 	
 	TimeSeriesEntryImpl(TimeSeries timeSeries, ResultSet resultSet) throws SQLException {		
 		this.timeSeries = timeSeries;
@@ -27,7 +28,7 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
 		this.timeStamp = resultSet.getLong(offset++);
 		this.version = resultSet.getLong(offset++);
 		this.recordTime = resultSet.getLong(offset++);
-		List<FieldSpec> fieldSpecs = timeSeries.getRecordSpec().getFieldSpecs();
+		List<? extends FieldSpec> fieldSpecs = timeSeries.getRecordSpec().getFieldSpecs();
 		values = new Object[fieldSpecs.size()];
 		for (int i = 0 ; i < fieldSpecs.size() ; i++) {			
 			values[i] = ((FieldSpecImpl) fieldSpecs.get(i)).getValue(resultSet , offset++);
@@ -39,7 +40,18 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
 		this.timeStamp = timeStamp.getTime();
 		this.version = 0;
 		this.recordTime = 0;
-		this.values = Arrays.copyOf(values, values.length);
+		int derivedFieldCount = ((RecordSpecImpl) timeSeries.getRecordSpec()).derivedFieldCount();
+		this.values = new Object[values.length + derivedFieldCount];
+		Iterator<? extends FieldSpec> it = timeSeries.getRecordSpec().getFieldSpecs().iterator();
+		int offset = 0;
+		for (int i = 0 ; i < values.length ; i++) {
+			FieldSpec fieldSpec = it.next();
+			while (fieldSpec.isDerived()) {
+				offset++;
+				fieldSpec = it.next();
+			}
+			this.values[i+offset] = values[i];
+		}
 	}
 	
 	@Override 
@@ -127,4 +139,19 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
 		statement.setLong(offset++, timeStamp);		
 	}
 	
+	void set(int offset,Object value) {
+		values[offset] = value;
+	}
+	
+	TimeSeriesEntryImpl copy() {
+		TimeSeriesEntryImpl copy;
+		try {
+			copy = (TimeSeriesEntryImpl) clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+		copy.values = new Object[values.length];
+		System.arraycopy(values,0,copy.values,0,values.length);
+		return copy;
+	}
 }

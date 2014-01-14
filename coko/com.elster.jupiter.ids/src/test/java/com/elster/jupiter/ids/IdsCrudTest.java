@@ -4,8 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.TimeZone;
 
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +27,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -71,6 +76,24 @@ public class IdsCrudTest {
         assertThat(idsService.getVault("IDS", 1)).isPresent();
         assertThat(idsService.getRecordSpec("IDS", 1)).isPresent();
         assertThat(idsService.getRecordSpec("IDS", 1).get().getFieldSpecs()).isNotEmpty();
+        Vault vault = idsService.getVault("IDS",1).get();
+        RecordSpec recordSpec = idsService.getRecordSpec("IDS", 1).get();
+        TimeSeries ts = null;
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+	        ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), 15, IntervalLengthUnit.MINUTE,0);
+	        TimeSeriesDataStorer storer = idsService.createStorer(true);
+	        DateTime dateTime = new DateTime(2014, 1, 1, 0, 0,0);
+	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(10));
+	        dateTime = dateTime.plus(15*60000L);
+	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(20));
+	        storer.execute();
+	        ctx.commit();
+        }
+        DateTime dateTime = new DateTime(2014,1,1,0,0);
+        List<TimeSeriesEntry> entries = ts.getEntries(new Interval(dateTime.minus(15*60000L).toDate(),dateTime.plus(15*60000L).toDate()));
+        assertThat(entries).hasSize(2);
+        assertThat(entries.get(0).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(10));
+        assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(20));
     }
    
     

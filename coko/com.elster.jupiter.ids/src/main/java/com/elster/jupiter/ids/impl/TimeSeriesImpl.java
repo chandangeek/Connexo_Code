@@ -80,14 +80,6 @@ public final class TimeSeriesImpl implements TimeSeries {
 		this.offset = offsetInHours;
 		return this;
 	}
-
-    static TimeSeriesImpl from(DataModel dataModel, Vault vault, RecordSpec recordSpec, TimeZone timeZone) {
-    	return dataModel.getInstance(TimeSeriesImpl.class).init(vault,recordSpec,timeZone);
-    }
-    
-    static TimeSeriesImpl from(DataModel dataModel, Vault vault, RecordSpec recordSpec, TimeZone timeZone,int intervalLength, IntervalLengthUnit intervalLengthUnit,int ofsetInHours) {
-    	return dataModel.getInstance(TimeSeriesImpl.class).init(vault,recordSpec,timeZone,intervalLength,intervalLengthUnit,ofsetInHours);
-    }
     
     private void validate(int intervalLength, IntervalLengthUnit intervalLengthUnit) {
         if (IntervalLengthUnit.MINUTE.equals(intervalLengthUnit)) {
@@ -154,8 +146,8 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 	
 	@Override
-	public RecordSpec getRecordSpec() {
-		return recordSpec.get();
+	public RecordSpecImpl getRecordSpec() {
+		return (RecordSpecImpl) recordSpec.get();
 	}
 	
 	@Override
@@ -277,5 +269,21 @@ public final class TimeSeriesImpl implements TimeSeries {
 	@Override
 	public int hashCode() {
 		return new Long(this.id).hashCode();
+	}
+	
+	Date next(Date date , int numberOfEntries) {
+		if (!isRegular()) {
+			throw new UnsupportedOperationException();
+		}
+		if (!isValid(date)) {
+			throw new IllegalArgumentException();
+		}
+		if (getIntervalLengthUnit() == IntervalLengthUnit.MINUTE) {
+			return new Date(date.getTime() + numberOfEntries * getIntervalLength() * 60000L);
+		}
+		Calendar cal = Calendar.getInstance(getTimeZone());
+		cal.setTime(date);
+		cal.add(getIntervalLengthUnit().getCalendarCode(), numberOfEntries * getIntervalLength());
+		return cal.getTime();
 	}
 }

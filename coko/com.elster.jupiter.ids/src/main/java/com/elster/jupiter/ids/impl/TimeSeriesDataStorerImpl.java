@@ -1,5 +1,6 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
@@ -10,6 +11,7 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.Clock;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -215,6 +217,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 						storer.add(rs);
 					}
 				}
+				for (SingleTimeSeriesStorer storer: storers) {
+					storer.prepare();
+				}
 			}
 		}
 		
@@ -276,11 +281,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		private Date maxDate;
 		private int insertCount = 0;
 		private int updateCount = 0;
-		private TimeSeries timeSeries;
+		private TimeSeriesImpl timeSeries;
 		
 		SingleTimeSeriesStorer(TimeSeriesEntryImpl entry) {
 			newEntries.add(entry);
-			timeSeries = entry.getTimeSeries();
+			timeSeries = (TimeSeriesImpl) entry.getTimeSeries();
+			entryDates.add(entry.getTimeStamp());
 		}
 		
 		void add(TimeSeriesEntryImpl entry) {
@@ -291,7 +297,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		void updateTimeSeries(TimeSeries timeSeries) {
-			this.timeSeries = timeSeries;
+			this.timeSeries = (TimeSeriesImpl) timeSeries;
 		}
 		
 		TimeSeries getTimeSeries() {
@@ -323,14 +329,82 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		int bindWhere(PreparedStatement statement,int offset) throws SQLException {
+			Date first = getFirstDate();
+			Date last = getLastDate();
+			if (timeSeries.isRegular() && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
+				first = timeSeries.next(first, -1);
+				last = timeSeries.next(last,1);
+			}
 			statement.setLong(offset++,getTimeSeries().getId());
-			statement.setLong(offset++,getFirstDate().getTime());
-			statement.setLong(offset++,getLastDate().getTime());
+			statement.setLong(offset++,first.getTime());
+			statement.setLong(offset++,last.getTime());
 			return offset;
 		}
 	
 		void add(ResultSet rs) throws SQLException {
 			oldEntries.add(new TimeSeriesEntryImpl(getTimeSeries(),rs));
+		}
+		
+		void prepare() {
+			if (!timeSeries.isRegular() || timeSeries.getRecordSpec().derivedFieldCount() == 0) {
+				return;
+			}
+			TimeSeriesEntryImpl last = null;
+			for (TimeSeriesEntryImpl entry : newEntries) {
+				TimeSeriesEntryImpl previous = previous(entry,last);
+				if (previous != null) {
+					updateFromPrevious(entry, previous);
+				}
+				last = previous;
+			}
+			for (TimeSeriesEntryImpl entry : oldEntries) {
+				if (entryDates.contains(entry.getTimeStamp())) {
+					continue;
+				}
+				TimeSeriesEntryImpl previous = previous(entry, null);
+				if (previous != null) {
+					TimeSeriesEntryImpl current = entry.copy();
+					updateFromPrevious(current, previous);
+					entryDates.add(current.getTimeStamp());
+					newEntries.add(current);
+				}
+			}
+		}
+		
+		private void updateFromPrevious(TimeSeriesEntryImpl current, TimeSeriesEntryImpl previous) {
+			for (int i = 0 ; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
+				FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
+				if (fieldSpec.isDerived()) {
+					BigDecimal currentValue = current.getBigDecimal(i+1);
+					if (currentValue != null) {
+						BigDecimal previousValue = previous.getBigDecimal(i+1);
+						if (previousValue != null) {
+							current.set(i,currentValue.subtract(previousValue));
+						}
+					}
+				}
+			}
+		}
+		
+		private TimeSeriesEntryImpl previous(TimeSeriesEntryImpl current, TimeSeriesEntryImpl guess) {
+			Date when = timeSeries.next(current.getTimeStamp(), -1);
+			if (guess != null && guess.getTimeStamp().equals(when)) {
+				return guess;
+			}
+			for (TimeSeriesEntryImpl each : newEntries) {
+				if (each.getTimeStamp().equals(when)) {
+					return each;
+				}
+				if (each == current) {
+					break;
+				}
+			}
+			for (TimeSeriesEntryImpl each : oldEntries) {
+				if (each.getTimeStamp().equals(when)) {
+					return each;
+				}
+			}
+			return null;
 		}
 		
 		boolean isInsert(TimeSeriesEntryImpl entry) {

@@ -14,6 +14,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+import com.google.inject.Provider;
 
 import javax.inject.Inject;
 
@@ -60,11 +61,13 @@ public final class VaultImpl implements Vault {
 	
 	private final DataModel dataModel;
 	private final Clock clock;
+	private final Provider<TimeSeriesImpl> timeSeriesProvider;
 	
     @Inject
-	VaultImpl(DataModel dataModel, Clock clock)  {
+	VaultImpl(DataModel dataModel, Clock clock,Provider<TimeSeriesImpl> timeSeriesProvider)  {
     	this.dataModel = dataModel;
     	this.clock = clock;
+    	this.timeSeriesProvider = timeSeriesProvider;
 	}
 	
 	VaultImpl init(String componentName , long id , String description , int slotCount , boolean regular) {
@@ -80,11 +83,6 @@ public final class VaultImpl implements Vault {
 		this.minTime = new UtcInstant(0);
 		return this;
 	}
-	
-	public static VaultImpl from(DataModel dataModel, String componentName, long id, String description, int slotCount, boolean regular) {
-		return dataModel.getInstance(VaultImpl.class).init(componentName, id, description, slotCount, regular);
-	}
-	
 
 	@Override 
 	public String getComponentName() {
@@ -285,15 +283,15 @@ public final class VaultImpl implements Vault {
 	}
 
 	@Override
-	public TimeSeries createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, int intervalLength, IntervalLengthUnit unit, int hourOffset) {
-		TimeSeriesImpl timeSeries = TimeSeriesImpl.from(dataModel,this, spec,timeZone, intervalLength , unit, hourOffset);
+	public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, int intervalLength, IntervalLengthUnit unit, int hourOffset) {
+		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec,timeZone, intervalLength , unit, hourOffset);
 		timeSeries.persist();		
 		return timeSeries;
 	}
 
 	@Override
-	public TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
-		TimeSeriesImpl timeSeries = TimeSeriesImpl.from(dataModel, this, spec,timeZone);
+	public TimeSeriesImpl createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
+		TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec,timeZone);
 		timeSeries.persist();		
 		return timeSeries;
 	}
@@ -500,7 +498,7 @@ public final class VaultImpl implements Vault {
 		
 	StringBuilder selectSql(RecordSpec recordSpec) {
 		StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
-		List<FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
+		List<? extends FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
 		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
 			builder.append(",SLOT");
 			builder.append(i);
@@ -519,7 +517,7 @@ public final class VaultImpl implements Vault {
 		if (hasLocalTime()) {
 			builder.append(",LOCALDATE");
 		}		
-		List<FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
+		List<? extends FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
 		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
 			builder.append(",SLOT");
 			builder.append(i);
@@ -539,7 +537,7 @@ public final class VaultImpl implements Vault {
 		StringBuilder builder = new StringBuilder("update ");
 		builder.append(getTableName());
 		builder.append(" SET VERSIONCOUNT = VERSIONCOUNT + 1, RECORDTIME = ?");
-		List<FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
+		List<? extends FieldSpec> fieldSpecs = recordSpec.getFieldSpecs();
 		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
 			builder.append(",SLOT");
 			builder.append(i);

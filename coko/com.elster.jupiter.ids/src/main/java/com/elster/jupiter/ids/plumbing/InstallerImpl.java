@@ -1,18 +1,20 @@
 package com.elster.jupiter.ids.plumbing;
 
 import com.elster.jupiter.ids.FieldType;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.impl.RecordSpecImpl;
-import com.elster.jupiter.ids.impl.VaultImpl;
 import com.elster.jupiter.orm.DataModel;
 
 import java.util.Calendar;
 
 public class InstallerImpl {
 	
+	private final IdsService idsService;
 	private final DataModel dataModel;
 	
-	public InstallerImpl(DataModel dataModel) {
+	public InstallerImpl(IdsService idsService,DataModel dataModel) {
+		this.idsService = idsService;
 		this.dataModel = dataModel;
 	}
 
@@ -31,7 +33,7 @@ public class InstallerImpl {
 	}
 
 	private void createVaults() {
-		Vault newVault = VaultImpl.from(dataModel,"IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, true);
+		Vault newVault = idsService.newVault("IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, true);
 		newVault.persist();
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MONTH,1);
@@ -46,7 +48,7 @@ public class InstallerImpl {
 	}
 	
 	private void createRecordSpecs() {
-		RecordSpecImpl recordSpec = RecordSpecImpl.from(dataModel,"IDS",1,"Simple");
+		RecordSpec recordSpec = idsService.newRecordSpec("IDS",1,"Simple");
 		recordSpec.addFieldSpec("value" , FieldType.NUMBER);
 		recordSpec.persist();
 	}
