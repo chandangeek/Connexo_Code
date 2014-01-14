@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Component;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 
 import static oracle.jdbc.OracleConnection.*;
 
@@ -15,9 +16,9 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	private ThreadLocal<ThreadContext> threadContexts = new ThreadLocal<>();
 			
 	@Override
-	public void runAs(Principal user, Runnable runnable) {
+	public void runAs(Principal user, Runnable runnable, Locale locale) {
 		ThreadContext oldContext = threadContexts.get();
-		threadContexts.set(new ThreadContext(user));
+		threadContexts.set(new ThreadContext(user, null, null, locale));
 		try {
 			runnable.run();
 		} finally {
@@ -53,9 +54,15 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 		return context == null ? null : context.getAction();	
 	}
 
-	@Override
-	public void set(Principal principal, String module, String action) {
-		threadContexts.set(new ThreadContext(principal,module,action));
+    @Override
+    public Locale getLocale() {
+        ThreadContext context = threadContexts.get();
+        return context == null ? Locale.getDefault() : context.getLocale();
+    }
+
+    @Override
+	public void set(Principal principal, String module, String action, Locale locale) {
+		threadContexts.set(new ThreadContext(principal,module,action, locale));
 		
 	}
 
@@ -63,7 +70,7 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	public void set(String module, String action) {
 		ThreadContext context = threadContexts.get();
 		if (context == null) {
-			threadContexts.set(new ThreadContext(null,module,action));
+			threadContexts.set(new ThreadContext(null,module,action, null));
 		} else {
 			context.set(module,action);
 		}
@@ -71,7 +78,7 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	
 	@Override
 	public void setEndToEndMetrics(Connection connection) throws SQLException {
-        OracleConnection oraConnection = null;
+        OracleConnection oraConnection;
         try {
             oraConnection = connection.unwrap(OracleConnection.class);
         } catch (SQLException e) {

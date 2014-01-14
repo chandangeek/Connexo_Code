@@ -3,6 +3,7 @@ package com.elster.jupiter.security.thread;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Locale;
 
 public interface ThreadPrincipalService {
 
@@ -22,13 +23,19 @@ public interface ThreadPrincipalService {
     String getAction();
 
     /**
+     * @return the current locale
+     */
+    Locale getLocale();
+
+    /**
      * Sets the given principal module and action as the current ones.
      *
      * @param principal
      * @param module
      * @param action
+     * @param locale
      */
-    void set(Principal principal, String module, String action);
+    void set(Principal principal, String module, String action, Locale locale);
 
     /**
      * Sets the given principal as the current one.
@@ -54,8 +61,9 @@ public interface ThreadPrincipalService {
      * Runs the given Runnable as the given Principal.
      * @param principal
      * @param runnable
+     * @param locale
      */
-    void runAs(Principal principal, Runnable runnable);
+    void runAs(Principal principal, Runnable runnable, Locale locale);
 
 
     void setEndToEndMetrics(Connection connection) throws SQLException;
