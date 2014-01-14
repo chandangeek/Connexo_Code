@@ -1,16 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldSpec;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.StorerStats;
-import com.elster.jupiter.ids.TimeSeries;
-import com.elster.jupiter.ids.TimeSeriesDataStorer;
-import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.time.Clock;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,17 +11,28 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.StorerStats;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.time.Clock;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	private final boolean overrules;
 	private final Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
 	private final StorerStatsImpl stats = new StorerStatsImpl();
-	private final Map<Long, TimeSeries> lockedTimeSeriesMap = new HashMap<>();
+	private final Map<Long, TimeSeriesImpl> lockedTimeSeriesMap = new HashMap<>();
 	private final DataModel dataModel;
 	private final Clock clock;
 
@@ -52,8 +52,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		if (!timeSeries.isValidDateTime(timeStamp)) {
 			throw new IllegalArgumentException();
 		}
-		TimeSeriesEntryImpl entry = new TimeSeriesEntryImpl(timeSeries, timeStamp, values);
-		RecordSpecInVault recordSpecInVault = new RecordSpecInVault(timeSeries);
+		TimeSeriesImpl timeSeriesImpl = (TimeSeriesImpl) timeSeries;
+		TimeSeriesEntryImpl entry = new TimeSeriesEntryImpl(timeSeriesImpl, timeStamp, values);
+		RecordSpecInVault recordSpecInVault = new RecordSpecInVault(timeSeriesImpl);
 		SlaveTimeSeriesDataStorer slaveStorer = storerMap.get(recordSpecInVault);
 		if (slaveStorer == null) {
 			slaveStorer = new SlaveTimeSeriesDataStorer(dataModel,clock,entry);
@@ -77,8 +78,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		return stats;
 	}
 	
-	private List<TimeSeries> getAllTimeSeries() {
-		List<TimeSeries> result = new ArrayList<>();
+	private List<TimeSeriesImpl> getAllTimeSeries() {
+		List<TimeSeriesImpl> result = new ArrayList<>();
 		for (SlaveTimeSeriesDataStorer storer : storerMap.values()) {
 			result.addAll(storer.getAllTimeSeries());
 		}
@@ -86,9 +87,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		return result;
 	}
 	
-	private Comparator<TimeSeries> getTimeSeriesComparator() {
-		return new Comparator<TimeSeries>() {
-			public int compare(TimeSeries t1 , TimeSeries t2) {
+	private Comparator<TimeSeriesImpl> getTimeSeriesComparator() {
+		return new Comparator<TimeSeriesImpl>() {
+			public int compare(TimeSeriesImpl t1 , TimeSeriesImpl t2) {
 				long t1Id = t1.getId();
 				long t2Id = t2.getId();
 				return t1Id == t2Id ? 0 : ((t1Id < t2Id) ? -1 : 1); 
@@ -97,9 +98,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	}
 	
 	private void doExecute() throws SQLException {		
-		for (TimeSeries timeSeries : getAllTimeSeries())   {
+		for (TimeSeriesImpl timeSeries : getAllTimeSeries())   {
 			long key = timeSeries.getId();
-			lockedTimeSeriesMap.put(key,((TimeSeriesImpl) timeSeries).lock());
+			lockedTimeSeriesMap.put(key,timeSeries.lock());
 		}
 		for(SlaveTimeSeriesDataStorer storer : storerMap.values()) {
 			storer.updateTimeSeries(lockedTimeSeriesMap);
@@ -111,7 +112,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		private final Vault vault;
 		private final RecordSpec recordSpec;
 		
-		RecordSpecInVault(TimeSeries timeSeries) {
+		RecordSpecInVault(TimeSeriesImpl timeSeries) {
 			this.vault = timeSeries.getVault();
 			this.recordSpec = timeSeries.getRecordSpec();
 		}
@@ -151,8 +152,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			
 		}
 		
-		List<TimeSeries> getAllTimeSeries() {
-			List<TimeSeries> result = new ArrayList<>();
+		List<TimeSeriesImpl> getAllTimeSeries() {
+			List<TimeSeriesImpl> result = new ArrayList<>();
 			for (SingleTimeSeriesStorer each : storerMap.values()) {
 				result.add(each.getTimeSeries());
 			}
@@ -194,7 +195,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			return vault.journalSql();
 		}
 		
-		void updateTimeSeries(Map<Long,TimeSeries> timeSeriesMap) {
+		void updateTimeSeries(Map<Long,TimeSeriesImpl> timeSeriesMap) {
 			for (SingleTimeSeriesStorer storer : storerMap.values()) {
 				storer.updateTimeSeries(timeSeriesMap.get(storer.getTimeSeries().getId()));
 			}
@@ -274,9 +275,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	}
 
 	private static class SingleTimeSeriesStorer {
-		private final List<TimeSeriesEntryImpl> newEntries = new ArrayList<>();
-		private final List<TimeSeriesEntryImpl> oldEntries = new ArrayList<>();
-        private final Set<Date> entryDates = new HashSet<>();
+		private final SortedMap<Date,TimeSeriesEntryImpl> newEntries = new TreeMap<>(); 
+		private final SortedMap<Date,TimeSeriesEntryImpl> oldEntries = new TreeMap<>();
 		private Date minDate;
 		private Date maxDate;
 		private int insertCount = 0;
@@ -284,44 +284,24 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		private TimeSeriesImpl timeSeries;
 		
 		SingleTimeSeriesStorer(TimeSeriesEntryImpl entry) {
-			newEntries.add(entry);
+			newEntries.put(entry.getTimeStamp(), entry);
 			timeSeries = (TimeSeriesImpl) entry.getTimeSeries();
-			entryDates.add(entry.getTimeStamp());
 		}
 		
 		void add(TimeSeriesEntryImpl entry) {
-            if (!entryDates.add(entry.getTimeStamp())) {
-                throw new IllegalArgumentException();
+			Date date = entry.getTimeStamp();
+            if (newEntries.containsKey(date)) {
+                throw new IllegalArgumentException("Duplicate date in timeSeries " + entry.getTimeSeries() );
             }
-			newEntries.add(entry);
+			newEntries.put(date,entry);
 		}
 		
-		void updateTimeSeries(TimeSeries timeSeries) {
-			this.timeSeries = (TimeSeriesImpl) timeSeries;
+		void updateTimeSeries(TimeSeriesImpl timeSeries) {
+			this.timeSeries = timeSeries;
 		}
 		
-		TimeSeries getTimeSeries() {
+		TimeSeriesImpl getTimeSeries() {
 			return timeSeries;
-		}
-		
-		Date getFirstDate() {
-			Date result = null;
-			for ( TimeSeriesEntryImpl entry : newEntries) {
-				if (result == null || entry.getTimeStamp().before(result)) {
-					result = entry.getTimeStamp();
-				} 
-			}
-			return result;
-		}
-		
-		Date getLastDate() {
-			Date result = null;
-			for ( TimeSeriesEntryImpl entry : newEntries) {
-				if (result == null || entry.getTimeStamp().after(result)) {
-					result = entry.getTimeStamp();
-				} 
-			}
-			return result;
 		}
 		
 		void appendWhereClause(StringBuilder builder) {
@@ -329,8 +309,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		int bindWhere(PreparedStatement statement,int offset) throws SQLException {
-			Date first = getFirstDate();
-			Date last = getLastDate();
+			Date first = newEntries.firstKey();
+			Date last = newEntries.lastKey();
 			if (timeSeries.isRegular() && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
 				first = timeSeries.next(first, -1);
 				last = timeSeries.next(last,1);
@@ -342,7 +322,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 	
 		void add(ResultSet rs) throws SQLException {
-			oldEntries.add(new TimeSeriesEntryImpl(getTimeSeries(),rs));
+			TimeSeriesEntryImpl oldEntry = new TimeSeriesEntryImpl(getTimeSeries(),rs);
+			oldEntries.put(oldEntry.getTimeStamp(), oldEntry);
 		}
 		
 		void prepare() {
@@ -350,23 +331,22 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 				return;
 			}
 			TimeSeriesEntryImpl last = null;
-			for (TimeSeriesEntryImpl entry : newEntries) {
+			for (TimeSeriesEntryImpl entry : newEntries.values()) {
 				TimeSeriesEntryImpl previous = previous(entry,last);
 				if (previous != null) {
 					updateFromPrevious(entry, previous);
 				}
 				last = previous;
 			}
-			for (TimeSeriesEntryImpl entry : oldEntries) {
-				if (entryDates.contains(entry.getTimeStamp())) {
+			for (TimeSeriesEntryImpl entry : oldEntries.values()) {
+				if (newEntries.containsKey(entry.getTimeStamp())) {
 					continue;
 				}
 				TimeSeriesEntryImpl previous = previous(entry, null);
 				if (previous != null) {
 					TimeSeriesEntryImpl current = entry.copy();
 					updateFromPrevious(current, previous);
-					entryDates.add(current.getTimeStamp());
-					newEntries.add(current);
+					newEntries.put(current.getTimeStamp(),current);
 				}
 			}
 		}
@@ -391,42 +371,24 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			if (guess != null && guess.getTimeStamp().equals(when)) {
 				return guess;
 			}
-			for (TimeSeriesEntryImpl each : newEntries) {
-				if (each.getTimeStamp().equals(when)) {
-					return each;
-				}
-				if (each == current) {
-					break;
-				}
+			TimeSeriesEntryImpl result = newEntries.get(when);
+			if (result == null) {
+				result = oldEntries.get(when);
 			}
-			for (TimeSeriesEntryImpl each : oldEntries) {
-				if (each.getTimeStamp().equals(when)) {
-					return each;
-				}
-			}
-			return null;
+			return result;
 		}
 		
 		boolean isInsert(TimeSeriesEntryImpl entry) {
-			for (TimeSeriesEntryImpl oldEntry : oldEntries) {
-				if (oldEntry.getTimeStamp().equals(entry.getTimeStamp())) {
-					return false;
-				}					
-			}
-			return true;
+			return !oldEntries.containsKey(entry.getTimeStamp());
 		}
 		
 		boolean isUpdate(TimeSeriesEntryImpl entry) {
-			for (TimeSeriesEntryImpl oldEntry : oldEntries) {
-				if (entry.getTimeStamp().equals(oldEntry.getTimeStamp())) {
-					return !entry.matches(oldEntry);
-				}
-			}
-			return false;
+			TimeSeriesEntryImpl oldEntry = oldEntries.get(entry.getTimeStamp());
+			return oldEntry != null && !entry.matches(oldEntry); 
 		}
 		
 		void addInserts(PreparedStatement statement, long now) throws SQLException {
-			for (TimeSeriesEntryImpl entry : newEntries) {
+			for (TimeSeriesEntryImpl entry : newEntries.values()) {
 				if (isInsert(entry)) {
 					entry.insert(statement,now);
 					insertCount++;
@@ -446,7 +408,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}
 		
 		void addUpdates(PreparedStatement updateStatement, PreparedStatement journalStatement , long now) throws SQLException {
-			for (TimeSeriesEntryImpl entry : newEntries) {
+			for (TimeSeriesEntryImpl entry : newEntries.values()) {
 				if (isUpdate(entry)) {
 					if (journalStatement != null) {
 						entry.journal(journalStatement,now);

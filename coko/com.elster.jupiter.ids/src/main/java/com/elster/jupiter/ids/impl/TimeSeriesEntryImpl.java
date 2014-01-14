@@ -15,14 +15,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class TimeSeriesEntryImpl implements TimeSeriesEntry , Cloneable {
-	private final TimeSeries timeSeries;
+public class TimeSeriesEntryImpl implements TimeSeriesEntry  {
+	private final TimeSeriesImpl timeSeries;
 	private final long timeStamp;
 	private final long version;
 	private final long recordTime;
 	private Object[] values;
 	
-	TimeSeriesEntryImpl(TimeSeries timeSeries, ResultSet resultSet) throws SQLException {		
+	TimeSeriesEntryImpl(TimeSeriesImpl timeSeries, ResultSet resultSet) throws SQLException {		
 		this.timeSeries = timeSeries;
 		int offset = 2;
 		this.timeStamp = resultSet.getLong(offset++);
@@ -35,10 +35,10 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry , Cloneable {
 		}			
 	}
 
-	TimeSeriesEntryImpl(TimeSeries timeSeries , Date timeStamp , Object[] values) {
+	TimeSeriesEntryImpl(TimeSeriesImpl timeSeries , Date timeStamp , Object[] values) {
 		this.timeSeries = timeSeries;
 		this.timeStamp = timeStamp.getTime();
-		this.version = 0;
+		this.version = 1;
 		this.recordTime = 0;
 		int derivedFieldCount = ((RecordSpecImpl) timeSeries.getRecordSpec()).derivedFieldCount();
 		this.values = new Object[values.length + derivedFieldCount];
@@ -52,6 +52,14 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry , Cloneable {
 			}
 			this.values[i+offset] = values[i];
 		}
+	}
+	
+	private TimeSeriesEntryImpl(TimeSeriesEntryImpl source) {
+		this.timeSeries = source.timeSeries;
+		this.timeStamp = source.timeStamp;
+		this.version = source.version;
+		this.recordTime = source.recordTime;
+		this.values = Arrays.copyOf(source.values, source.values.length);
 	}
 	
 	@Override 
@@ -144,14 +152,11 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry , Cloneable {
 	}
 	
 	TimeSeriesEntryImpl copy() {
-		TimeSeriesEntryImpl copy;
-		try {
-			copy = (TimeSeriesEntryImpl) clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-		copy.values = new Object[values.length];
-		System.arraycopy(values,0,copy.values,0,values.length);
-		return copy;
+		return new TimeSeriesEntryImpl(this);
 	}
+	
+	long getTimeStampMs() {
+		return timeStamp;
+	}
+	
 }

@@ -344,7 +344,7 @@ public final class VaultImpl implements Vault {
 		return builder.toString();
 	}
 	
-	private TimeSeriesEntry doGet(TimeSeries timeSeries, long when) throws SQLException {
+	private TimeSeriesEntry doGet(TimeSeriesImpl timeSeries, long when) throws SQLException {
 		try (Connection connection = getConnection(false)) {
 			try (PreparedStatement statement = connection.prepareStatement(findSql(timeSeries))) {
 				statement.setLong(1,timeSeries.getId());
@@ -522,7 +522,7 @@ public final class VaultImpl implements Vault {
 			builder.append(",SLOT");
 			builder.append(i);
 		}
-		builder.append(") VALUES (?,?,0,?");
+		builder.append(") VALUES (?,?,1,?");
 		if (hasLocalTime()) {
 			builder.append(",?");			
 		}

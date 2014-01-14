@@ -251,8 +251,8 @@ public final class TimeSeriesImpl implements TimeSeries {
     	return ((VaultImpl) getVault()).getEntry(this,when);
     }
     
-    TimeSeries lock() {
-		return dataModel.mapper(TimeSeries.class).lock(getId());
+    TimeSeriesImpl lock() {
+		return dataModel.mapper(TimeSeriesImpl.class).lock(getId());
 	}
 	
 	@Override
