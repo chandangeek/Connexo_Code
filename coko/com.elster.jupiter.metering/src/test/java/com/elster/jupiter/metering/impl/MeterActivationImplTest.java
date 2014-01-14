@@ -14,6 +14,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+import com.google.inject.Provider;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -64,7 +66,7 @@ public class MeterActivationImplTest {
     private EventService eventService;
     @Mock
     private Clock clock;
-    private ChannelBuilder channelBuilder;
+    private Provider<ChannelBuilder> channelBuilder;
     @Mock
     private IdsService idsService;
     @Mock
@@ -77,13 +79,13 @@ public class MeterActivationImplTest {
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
+        when((Object) dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new ReadingTypeImpl(dataModel);
             }
         });
-        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(new Answer<Object>() {
+        when((Object) dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new ReadingTypeInChannel(dataModel);
@@ -92,13 +94,18 @@ public class MeterActivationImplTest {
         readingType1 = ReadingTypeImpl.from(dataModel, MRID1, "readingType1");
         readingType2 = ReadingTypeImpl.from(dataModel, MRID2, "readingType2");
         readingType3 = ReadingTypeImpl.from(dataModel, MRID3, "readingType3");
-        channelBuilder = new ChannelBuilderImpl(dataModel);
-        when(dataModel.getInstance(MeterActivationImpl.class)).thenReturn(new MeterActivationImpl(dataModel, eventService, clock, channelBuilder));
+        channelBuilder = new Provider<ChannelBuilder>() {
+			@Override
+			public ChannelBuilder get() {
+				return new ChannelBuilderImpl(dataModel);
+			}
+        };
+        when((Object) dataModel.getInstance(MeterActivationImpl.class)).thenReturn(new MeterActivationImpl(dataModel, eventService, clock, channelBuilder));
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
         when(channel1.getReadingTypes()).thenReturn(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(channel2.getReadingTypes()).thenReturn(Arrays.<ReadingType>asList(readingType3));
-        when(dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, clock));
+        when((Object) dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, clock));
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(clock.getTimeZone()).thenReturn(timeZone);

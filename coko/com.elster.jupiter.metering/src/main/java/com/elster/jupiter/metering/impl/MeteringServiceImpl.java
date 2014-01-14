@@ -214,7 +214,6 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
-                bind(ChannelBuilder.class).toInstance(new ChannelBuilderImpl(dataModel));
                 bind(MeteringService.class).toInstance(MeteringServiceImpl.this);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);

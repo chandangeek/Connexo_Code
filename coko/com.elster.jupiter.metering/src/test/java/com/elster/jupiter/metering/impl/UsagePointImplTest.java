@@ -19,6 +19,8 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
+import com.google.inject.Provider;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -94,10 +96,16 @@ public class UsagePointImplTest {
                 return new UsagePointAccountabilityImpl(dataModel, partyService, clock);
             }
         });
+        final Provider<ChannelBuilder> channelBuilderProvider = new Provider<ChannelBuilder>() {
+			@Override
+			public ChannelBuilder get() {
+				return channelBuilder;
+			}
+        };
         when(dataModel.getInstance(MeterActivationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterActivationImpl(dataModel, eventService, clock, channelBuilder);
+                return new MeterActivationImpl(dataModel, eventService, clock, channelBuilderProvider);
             }
         });
         when(representation1.getDelegate()).thenReturn(user1);

@@ -315,7 +315,7 @@ public final class ChannelImpl implements Channel {
     @Override
     public List<ReadingQuality> findReadingQuality(Interval interval) {
         Condition condition = inInterval(interval).and(ofThisChannel());
-        return dataModel.mapper(ReadingQuality.class).with().select(condition, null, true, null); // TODO replace deprecated call
+        return dataModel.mapper(ReadingQuality.class).select(condition); 
     }
 
     private Condition inInterval(Interval interval) {        

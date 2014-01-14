@@ -14,8 +14,10 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Provider;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,11 +44,11 @@ public class MeterActivationImpl implements MeterActivation {
     private final DataModel dataModel;
     private final EventService eventService;
     private final Clock clock;
-    private final ChannelBuilder channelBuilder;
+    private final Provider<ChannelBuilder> channelBuilder;
 
     @SuppressWarnings("unused")
     @Inject
-	MeterActivationImpl(DataModel dataModel, EventService eventService, Clock clock, ChannelBuilder channelBuilder) {
+	MeterActivationImpl(DataModel dataModel, EventService eventService, Clock clock, Provider<ChannelBuilder> channelBuilder) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.clock = clock;
@@ -124,7 +126,7 @@ public class MeterActivationImpl implements MeterActivation {
 	@Override
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
 		//TODO: check for duplicate channel
-        Channel channel = channelBuilder.meterActivation(this).readingTypes(main, readingTypes).build();
+        Channel channel = channelBuilder.get().meterActivation(this).readingTypes(main, readingTypes).build();
         channels.add(channel);
         eventService.postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;

@@ -10,6 +10,7 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.IllegalCurrencyCodeException;
@@ -22,6 +23,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
 import java.util.Currency;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -227,7 +229,26 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		return builder.toString();
 	}
 
-    @Override
+	ReadingTypeCodeBuilder builder() {
+		return 
+			ReadingTypeCodeBuilder.of(commodity)
+				.period(macroPeriod)
+				.aggregate(aggregate)
+				.period(measuringPeriod)
+				.accumulate(accumulation)
+				.flow(flowDirection)
+				.measure(measurementKind)
+				.harmonic((int) interharmonic.getNumerator(), (int) interharmonic.getDenominator())
+				.argument((int) argument.getNumerator(), (int) argument.getDenominator())
+				.tou(tou)
+				.cpp(cpp)
+				.tier(consumptionTier)
+				.phase(phases)
+				.in(multiplier,unit)
+				.currency(currency);
+	}
+
+	@Override
     public String getDescription() {
         return description;
     }
@@ -265,7 +286,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     @Override 
     public boolean isRegular() {
-    	return getIntervalLength() != null;
+    	return getIntervalLength().isPresent();
     }
     
     @Override
