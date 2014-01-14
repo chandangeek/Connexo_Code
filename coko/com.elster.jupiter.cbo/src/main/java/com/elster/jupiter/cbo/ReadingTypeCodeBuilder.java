@@ -119,6 +119,11 @@ public final class ReadingTypeCodeBuilder {
 		return in(MetricMultiplier.ZERO,unit);
 	}
 	
+	public ReadingTypeCodeBuilder currency(Currency currency) {
+		this.currency = currency;
+		return this;
+	}
+	
 	public String code() {
 		return 
 			"" +
