@@ -45,6 +45,7 @@ public class Generic extends Modbus {
 
     private static final String START_REGISTERS = "StartRegisters";
     private static final String START_REGISTERS_ZERO_BASED = "StartRegistersZeroBased";
+    private static final String CONNECTION = "Connection";
 
     private boolean startRegistersZeroBased;
     private Map<Integer, Integer> customStartRegisterMap = new HashMap<Integer, Integer>();
@@ -60,7 +61,7 @@ public class Generic extends Modbus {
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateAndSetCustomStartRegisterMap(properties.getProperty(START_REGISTERS));
-        validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS, "1"));
+        validateAndSetStartRegistesZeroBasedFlag(properties.getProperty(START_REGISTERS_ZERO_BASED, "1"));
     }
 
     private void validateAndSetCustomStartRegisterMap(String registerMap) throws InvalidPropertyException {
@@ -96,6 +97,7 @@ public class Generic extends Modbus {
         List result = new ArrayList();
         result.add(START_REGISTERS);
         result.add(START_REGISTERS_ZERO_BASED);
+        result.add(CONNECTION);
         return result;
     }
 
@@ -145,7 +147,7 @@ public class Generic extends Modbus {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2009-03-26 09:30:20 +0100 (do, 26 mrt 2009) $";
+        return "$Date$";
     }
 
     public DiscoverResult discover(DiscoverTools discoverTools) {
