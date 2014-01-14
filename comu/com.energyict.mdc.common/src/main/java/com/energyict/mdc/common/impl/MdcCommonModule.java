@@ -7,6 +7,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
 import javax.sql.DataSource;
+import org.osgi.framework.BundleContext;
 
 /**
  * Insert your comments here.
@@ -18,6 +19,7 @@ public class MdcCommonModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        requireBinding(BundleContext.class);
         requireBinding(DataSource.class);
         requireBinding(TransactionService.class);
         requireBinding(ThreadPrincipalService.class);
