@@ -54,10 +54,10 @@ Ext.define('Mdc.controller.setup.Properties', {
             'propertyEdit textfield': {
                 change: this.changeProperty
             },
-            'propertyEdit radiogroup': {
+            'propertyEdit radio': {
                 change: this.changeRadioGroupProperty
             },
-            'propertyEdit checkbox': {
+            'propertyEdit checkbox[cls=check]': {
                 change: this.changeProperty
             }
         });
@@ -276,12 +276,16 @@ Ext.define('Mdc.controller.setup.Properties', {
         }
     },
     changeRadioGroupProperty: function (field, value, options) {
+        console.log(field);
         if (this.propertiesStore != null) {
-            var property = this.propertiesStore.findRecord('key', field.itemId.substring(2));
+            var property = this.propertiesStore.findRecord('key', field.itemId.substring(5));
             property.data.isInheritedOrDefaultValue = false;
             this.propertiesStore.commitChanges();
             var required = property.data.required;
-            this.enableDeleteButton(field.itemId.substring(2), required, false);
+            this.enableDeleteButton(field.itemId.substring(5), required, false);
+            console.log('change radio group property');
+            console.log(field);
+            console.log(value);
         }
     },
     updateProperties: function () {

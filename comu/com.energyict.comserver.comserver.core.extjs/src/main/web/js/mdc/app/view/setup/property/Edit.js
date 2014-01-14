@@ -242,7 +242,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     inputvalue: value,
                     uncheckedValue: 'false',
                     margin: '0 5 0 0',
-                    width: 350
+                    width: 350,
+                    cls: 'check'
                 },
                 {
                     xtype: 'button',
@@ -276,7 +277,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                         {
                             boxLabel: 'true',
                             name: 'rb',
-                            itemId: key + '_radio_true',
+                            itemId: 'rb_1_' + key,
                             checked: value1,
                             inputValue: 1,
                             margin: '0 10 0 0'
@@ -284,7 +285,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                         {
                             boxLabel: 'false',
                             name: 'rb',
-                            itemId: key + '_radio_false',
+                            itemId: 'rb_2_' + key,
                             checked: value2,
                             inputValue: 2,
                             margin: '0 10 0 0'
@@ -292,7 +293,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                         {
                             boxLabel: 'None',
                             name: 'rb',
-                            itemId: key + '_radio_null',
+                            itemId: 'rb_3_' + key,
                             checked: value3,
                             inputValue: 3,
                             margin: '0 10 0 0'
