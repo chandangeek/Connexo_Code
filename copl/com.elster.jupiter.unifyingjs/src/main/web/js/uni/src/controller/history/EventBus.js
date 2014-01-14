@@ -54,7 +54,7 @@ Ext.define('Uni.controller.history.EventBus', {
      *                  for every history change.
      */
     addTokenObserver: function (callback, token) {
-        if (token === undefined) {
+        if (typeof token === 'undefined') {
             this.getRootObservers().push(callback);
         } else {
             this.getObservers()[token] = callback;
@@ -64,7 +64,12 @@ Ext.define('Uni.controller.history.EventBus', {
     tokenize: function (token) {
         var tokens = [];
 
-        if (token !== undefined) {
+        if (typeof token !== 'undefined') {
+            var queryStringIndex = token.indexOf('?');
+            if (queryStringIndex > 0) {
+                token = token.substring(0, queryStringIndex);
+            }
+
             var uncheckedTokens = token.split(Uni.controller.history.Settings.tokenDelimiter);
 
             for (var i = 0; i < uncheckedTokens.length; i++) {
@@ -88,7 +93,7 @@ Ext.define('Uni.controller.history.EventBus', {
         var errorController = this.getController('Uni.controller.Error'),
             callback = this.getObservers()[tokens[0]];
 
-        if (callback != undefined && callback != null) {
+        if (typeof callback !== 'undefined' && callback != null) {
             callback(tokens, Uni.controller.history.Settings.tokenDelimiter);
         } else {
             // TODO Design the basic error controller.
