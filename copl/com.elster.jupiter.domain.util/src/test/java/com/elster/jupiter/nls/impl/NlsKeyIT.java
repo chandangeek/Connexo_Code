@@ -103,7 +103,7 @@ public class NlsKeyIT {
         assertThat(nlsKey.getLayer()).isEqualTo(Layer.DOMAIN);
         assertThat(nlsKey.getKey()).isEqualTo("fiets");
         assertThat(nlsKey.getDefaultMessage()).isEqualTo("defaultMsg");
-        assertThat(nlsKey.translate(Locale.GERMAN)).contains("Fahrrat");
+        assertThat(nlsKey.translate(Locale.GERMAN)).contains("Fahrrad");
         assertThat(nlsKey.translate(Locale.FRENCH)).contains("bicyclette");
     }
 
