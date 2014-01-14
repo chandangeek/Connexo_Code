@@ -1,6 +1,6 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
-import java.security.Principal;
+import com.elster.jupiter.users.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -12,8 +12,8 @@ class RequestWrapper extends HttpServletRequestWrapper {
 	}
 	
 	@Override
-	public Principal getUserPrincipal() {
-		return (Principal) getRequest().getAttribute(WhiteBoardConfiguration.USERPRINCIPAL);
+	public User getUserPrincipal() {
+		return (User) getRequest().getAttribute(WhiteBoardConfiguration.USERPRINCIPAL);
 	}
 
 }

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
 
 
 public class ServletWrapper extends HttpServlet  {
@@ -31,16 +32,23 @@ public class ServletWrapper extends HttpServlet  {
 	}
 	
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		request = new RequestWrapper(request);
-		threadPrincipalService.set(request.getUserPrincipal(),getModule(request),request.getMethod());
-		try {
-			servlet.service(request,response);
-		} finally {
-			threadPrincipalService.clear();
-		}
+        doService(new RequestWrapper(request), response);
 	}
-	
-	// returns the first two parts 
+
+    private void doService(RequestWrapper request, HttpServletResponse response) throws ServletException, IOException {
+        threadPrincipalService.set(request.getUserPrincipal(), getModule(request), request.getMethod(), determineLocale(request));
+        try {
+            servlet.service(request,response);
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    private Locale determineLocale(RequestWrapper request) {
+        return request.getUserPrincipal().getLocale().or(request.getLocale());
+    }
+
+    // returns the first two parts
 	private String getModule(HttpServletRequest request) {
 		String result = request.getServletPath();
 		String path = request.getPathInfo();
