@@ -5,6 +5,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
 
@@ -20,11 +21,13 @@ import javax.inject.Inject;
  */
 public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundComPort {
 
+    private final EngineModelService engineModelService;
     private int numberOfSimultaneousConnections;
 
     @Inject
-    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> provider) {
+    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> provider, EngineModelService engineModelService) {
         super(dataModel, provider);
+        this.engineModelService = engineModelService;
     }
 
     @Override
@@ -59,9 +62,9 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
      */
     private void validatePoolType(ComPortType newType) {
         if (newType != this.getComPortType()) {
-         List<ComPortPoolMember> comPortPools = Bus.getServiceLocator().getOrmClient().getComPortPoolMemberFactory().find("comPort", this);
+         List<ComPortPool> comPortPools = engineModelService.findContainingComPortPoolsForComPort(this);
          if (!comPortPools.isEmpty()) {
-             throw new TranslatableApplicationException("outboundComPortXStillMemberOfPool", "Outbound comport {0} is still a member of comport pool {1}. The comport type cannot be changed.", this.getName(), comPortPools.get(0).getComPortPool().getName());
+             throw new TranslatableApplicationException("outboundComPortXStillMemberOfPool", "Outbound comport {0} is still a member of comport pool {1}. The comport type cannot be changed.", this.getName(), comPortPools.get(0).getName());
          }
         }
     }
