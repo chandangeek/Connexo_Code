@@ -236,9 +236,9 @@ public enum TableSpecs {
             table.map(ChannelImpl.class);
 			Column idColumn = table.addAutoIdColumn();
 			Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).add();
-			Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).map("timeSeriesId").add();
-			Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").type("varchar2(80)").notNull().map("mainReadingTypeMRID").add();
-			Column cumulativeReadingTypeMRIDColumn = table.column("CUMULATIVEREADINGTYPEMRID").type("varchar2(80)").map("cumulativeReadingTypeMRID").add();
+			Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).add();
+			Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").type("varchar2(80)").notNull().add();
+			Column cumulativeReadingTypeMRIDColumn = table.column("CUMULATIVEREADINGTYPEMRID").type("varchar2(80)").add();
 			table.addAuditColumns();
 			table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
 			table.foreignKey("MTR_FK_CHANNELACTIVATION").references(MTR_METERACTIVATION.name()).onDelete(RESTRICT).map("meterActivation").reverseMap("channels").on(meterActivationIdColumn).composition().add();

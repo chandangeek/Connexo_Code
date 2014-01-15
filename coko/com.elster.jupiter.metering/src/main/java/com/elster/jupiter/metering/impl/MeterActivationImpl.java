@@ -46,7 +46,6 @@ public class MeterActivationImpl implements MeterActivation {
     private final Clock clock;
     private final Provider<ChannelBuilder> channelBuilder;
 
-    @SuppressWarnings("unused")
     @Inject
 	MeterActivationImpl(DataModel dataModel, EventService eventService, Clock clock, Provider<ChannelBuilder> channelBuilder) {
         this.dataModel = dataModel;

@@ -157,57 +157,13 @@ public class InstallerImpl {
     }
 
     private void createRecordSpecs(IdsService service) {
-        int id = 0;
-        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Single Interval Data");
-        singleIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
-        singleIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
-        singleIntervalRecordSpec.addFieldSpec("Value", NUMBER);
-        singleIntervalRecordSpec.persist();
-        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Dual Interval Data");
-        dualIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
-        dualIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
-        dualIntervalRecordSpec.addFieldSpec("Value", NUMBER);
-        dualIntervalRecordSpec.addFieldSpec("Cumulative", NUMBER);
-        dualIntervalRecordSpec.persist();
-        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Multi Interval Data");
-        multiIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
-        multiIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
-        multiIntervalRecordSpec.addFieldSpec("Value1", NUMBER);
-        multiIntervalRecordSpec.addFieldSpec("Value2", NUMBER);
-        multiIntervalRecordSpec.addFieldSpec("Value3", NUMBER);
-        multiIntervalRecordSpec.addFieldSpec("Value4", NUMBER);
-        multiIntervalRecordSpec.addFieldSpec("Value5", NUMBER);
-        multiIntervalRecordSpec.addFieldSpec("Value6", NUMBER);
-        multiIntervalRecordSpec.persist();
-        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Base Register");
-        singleRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
-        singleRegisterRecordSpec.addFieldSpec("Value", NUMBER);
-        singleRegisterRecordSpec.persist();
-        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Billing Period Register");
-        billingPeriodRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
-        billingPeriodRegisterRecordSpec.addFieldSpec("Value", NUMBER);
-        billingPeriodRegisterRecordSpec.addFieldSpec("From Time", DATE);
-        billingPeriodRegisterRecordSpec.persist();
-        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(MeteringService.COMPONENTNAME, ++id, "Demand Register");
-        demandRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
-        demandRegisterRecordSpec.addFieldSpec("Value", NUMBER);
-        demandRegisterRecordSpec.addFieldSpec("From Time", DATE);
-        demandRegisterRecordSpec.addFieldSpec("Event Time", DATE);
-        demandRegisterRecordSpec.persist();
+    	RecordSpecs.createAll(service);
     }
 
     private void createServiceCategories() {
-        ServiceCategoryImpl.from(dataModel, ServiceKind.ELECTRICITY).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.GAS).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.WATER).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.TIME).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.HEAT).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.REFUSE).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.SEWERAGE).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.RATES).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.TVLICENSE).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.INTERNET).persist();
-        ServiceCategoryImpl.from(dataModel, ServiceKind.OTHER).persist();
+    	for (ServiceKind kind : ServiceKind.values()) {
+    		ServiceCategoryImpl.from(dataModel, kind).persist();
+    	}
     }
 
     private void createReadingTypes() {

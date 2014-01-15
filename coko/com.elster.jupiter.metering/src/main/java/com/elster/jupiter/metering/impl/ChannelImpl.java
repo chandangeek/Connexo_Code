@@ -42,14 +42,9 @@ public final class ChannelImpl implements Channel {
 	
 	private static final int REGULARVAULTID = 1;
 	private static final int IRREGULARVAULTID = 2;
-	private static final int REGULARRECORDSPECID = 1;
-	private static final int IRREGULARRECORDSPECID = 4;
-	
+
 	// persistent fields
 	private long id;
-	private long timeSeriesId;
-	private String mainReadingTypeMRID;
-	private String cumulativeReadingTypeMRID;
 	private long version;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
@@ -61,16 +56,15 @@ public final class ChannelImpl implements Channel {
 	
 	// associations
 	private Reference<MeterActivation> meterActivation = ValueReference.absent();
-	private TimeSeries timeSeries;
-	private ReadingType mainReadingType;
-	private ReadingType cumulativeReadingType;
-	private List<ReadingType> additionalReadingTypes;
+	private Reference<TimeSeries> timeSeries = ValueReference.absent();
+	private Reference<ReadingType> mainReadingType = ValueReference.absent();
+	private Reference<ReadingType> cumulativeReadingType = ValueReference.absent();
+	private List<ReadingType> additionalReadingTypes = new ArrayList<>();
 
     private final IdsService idsService;
     private final Clock clock;
     private final DataModel dataModel;
 
-    @SuppressWarnings("unused")
     @Inject
 	ChannelImpl(DataModel dataModel, IdsService idsService, Clock clock) {
         this.dataModel = dataModel;
@@ -99,33 +93,22 @@ public final class ChannelImpl implements Channel {
 	
 	@Override
 	public TimeSeries getTimeSeries() {
-		if (timeSeries == null) {
-            Optional<TimeSeries> result = idsService.getTimeSeries(timeSeriesId);
-            if (result.isPresent()) {
-                timeSeries = result.get();
-            } else {
-                throw new DoesNotExistException(String.valueOf(timeSeriesId));
-            }
-		}
-		return timeSeries;
+		return timeSeries.get();
 	}
 
 	void init(List<ReadingType> readingTypes) {
-		this.mainReadingType = readingTypes.get(0);
-		this.mainReadingTypeMRID = mainReadingType.getMRID();
+		this.mainReadingType.set(readingTypes.get(0));
 		int index = 1;
 		if (readingTypes.size() > 1) {
-			if (mainReadingType.isCumulativeReadingType(readingTypes.get(index))) {
-				cumulativeReadingType = readingTypes.get(index++);
-				cumulativeReadingTypeMRID = cumulativeReadingType.getMRID();
+			if (mainReadingType.get().isCumulativeReadingType(readingTypes.get(index))) {
+				cumulativeReadingType.set(readingTypes.get(index++));
 			} 
 		}
 		this.additionalReadingTypes = new ArrayList<>();
 		for (; index < readingTypes.size() ; index++) {
 			this.additionalReadingTypes.add(readingTypes.get(index));
 		}
-		this.timeSeries = createTimeSeries();
-		this.timeSeriesId = timeSeries.getId();
+		this.timeSeries.set(createTimeSeries());
 		persistReadingTypes();
 	}
 	
@@ -155,12 +138,17 @@ public final class ChannelImpl implements Channel {
 	}
 
     private RecordSpec getRecordSpec(boolean regular) {
-        int id = regular ? REGULARRECORDSPECID : IRREGULARRECORDSPECID;
-        Optional<RecordSpec> result = idsService.getRecordSpec(MeteringService.COMPONENTNAME, id);
-        if (result.isPresent()) {
-            return result.get();
-        }
-        throw new DoesNotExistException(String.valueOf(id));
+    	RecordSpecs definition;
+    	if (regular) {
+    		if (cumulativeReadingType == null) {
+    			definition = RecordSpecs.SINGLEINTERVAL;
+    		} else {
+    			definition = RecordSpecs.CUMULATIVEINTERVAL;
+    		}
+    	} else {
+    		definition = RecordSpecs.BASEREGISTER;
+    	}
+        return definition.get(idsService);
     }
 
     private Vault getVault(boolean regular) {
@@ -285,21 +273,12 @@ public final class ChannelImpl implements Channel {
 	
 	@Override
 	public ReadingType getMainReadingType() {
-		if (mainReadingType == null) {
-			mainReadingType = dataModel.mapper(ReadingType.class).getExisting(mainReadingTypeMRID);
-		}
-		return mainReadingType;
+		return mainReadingType.get();
 	}
 	
 	@Override
 	public ReadingType getCumulativeReadingType() {
-		if (cumulativeReadingTypeMRID == null) {
-			return null;
-		}
-		if (cumulativeReadingType == null) {
-			cumulativeReadingType = dataModel.mapper(ReadingType.class).getExisting(cumulativeReadingTypeMRID);
-		}
-		return cumulativeReadingType;
+		return cumulativeReadingType.orNull();
 	}
 
     @Override

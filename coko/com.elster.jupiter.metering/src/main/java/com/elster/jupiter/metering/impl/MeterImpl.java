@@ -7,19 +7,22 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 	
 	@SuppressWarnings("unused")
-	private AmrSystem amrSystem;
-	private List<MeterActivation> meterActivations;
-	@SuppressWarnings("unused")
-	private MeterActivation currentMeterActivation;
+	private Reference<AmrSystem> amrSystem = ValueReference.absent();
+	private List<MeterActivation> meterActivations = new ArrayList<>();
+	
     private final MeteringService meteringService;
 
     @SuppressWarnings("unused")

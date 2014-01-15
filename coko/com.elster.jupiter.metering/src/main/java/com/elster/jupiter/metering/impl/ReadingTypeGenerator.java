@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.orm.DataModel;
@@ -66,6 +67,9 @@ public class ReadingTypeGenerator {
 		for (int i = 0 ; i < timeAttributes.length ; i++) {
 			String code = root.builder.period(timeAttributes[i]).accumulate(DELTADELTA).code();
 			String name = timeAttributeNames[i] + " " + root.name;		
+			readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
+			code = root.builder.period(timeAttributes[i]).accumulate(Accumulation.BULKQUANTITY).code();
+			name = timeAttributeNames[i] + " " + root.name + " Cumulative index";
 			readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
 		}
 	}
