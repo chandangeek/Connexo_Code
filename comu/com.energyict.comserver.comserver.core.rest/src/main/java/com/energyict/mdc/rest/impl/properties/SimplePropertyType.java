@@ -1,9 +1,14 @@
 package com.energyict.mdc.rest.impl.properties;
 
+import com.energyict.mdc.dynamic.*;
+import com.energyict.mdc.metering.mapping.ReadingTypeFactory;
+import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.protocol.dynamic.PasswordFactory;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
+import com.energyict.mdw.core.CodeFactory;
+import com.energyict.mdw.core.TimeZoneInUseFactory;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -20,40 +25,138 @@ public enum SimplePropertyType {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'UNKNOWN'");
         }
     },
-    NUMBER(false, Number.class) {
+    PASSWORD(false, PasswordFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'PASSWORD', JSON should have properly deserialized this");
+        }
+    },
+    HEXSTRING(false, HexStringFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'HEXSTRING', JSON should have properly deserialized this");
+        }
+    },
+    NUMBER(false, BigDecimalFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'NUMBER', JSON should have properly deserialized this");
         }
     },
-    TEXT(false, String.class) {
+
+    NULLABLE_BOOLEAN(false, ThreeStateFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
-            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TEXT', JSON should have properly deserialized this");
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'NULLABLE_BOOLEAN', JSON should have properly deserialized this");
         }
     },
-    BOOLEAN(false, Boolean.class) {
+    BOOLEAN(false, BooleanFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'BOOLEAN', JSON should have properly deserialized this");
         }
     },
-    CLOCK(false, Date.class) {
+    TIMEDURATION(false, TimeDurationValueFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TIMEDURATION', JSON should have properly deserialized this");
+        }
+    },
+    TIMEOFDAY(false, TimeOfDayFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TIMEOFDAY', JSON should have properly deserialized this");
+        }
+    },
+    CLOCK(false, DateAndTimeFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'CLOCK', JSON should have properly deserialized this");
         }
     },
-    CODETABLE(true, CodeTableInfo.class) {
+    CODETABLE(true, CodeFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new CodeTableInfo(map);
         }
     },
-    TIMEZONEINUSE(true, TimeZoneInUseInfo.class) {
+    TIMEZONEINUSE(true, TimeZoneInUseFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new TimeZoneInUseInfo(map);
+        }
+    },
+  /*  USERFILEREFERENCE(true, UserFileFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            return new UserFileInfo(map);
+        }
+    },
+    LOADPROFILETYPE(true, LoadProfileTypeFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            return new LoadProfiletypeInfo(map);
+        }
+    },
+    LOADPROFILE(true, LoadProfileTypeFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            return new LoadProfileInfo(map);
+        }
+    },*/
+    EAN13(false, Ean13Factory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'EAN13', JSON should have properly deserialized this");
+        }
+    },
+    EAN18(false, Ean18Factory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'EAN13', JSON should have properly deserialized this");
+        }
+    },
+    SPATIAL_COORDINATES(false, SpatialCoordinatesFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'EAN13', JSON should have properly deserialized this");
+        }
+    },
+    DATE(false, DateFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'DATE', JSON should have properly deserialized this");
+        }
+    },
+
+    TEXTAREA(false, LargeStringFactory.class) {
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TEXTAREA', JSON should have properly deserialized this");
+        }
+    },
+
+    ENCRYPTED_STRING(false, EncryptedStringFactory.class) {
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'ENCRYPTED_STRING', JSON should have properly deserialized this");
+        }
+    },
+
+    OBISCODE(false, ObisCodeValueFactory.class) {
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'OBISCODE', JSON should have properly deserialized this");
+        }
+    },
+
+    READINGTYPE(false, ReadingTypeFactory.class) {
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'READINTYPE', JSON should have properly deserialized this");
+        }
+    },
+
+    TEXT(false, StringFactory.class) {
+        @Override
+        public Object getInfoObject(Map<String, Object> map) {
+            throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'TEXT', JSON should have properly deserialized this");
         }
     };
 
@@ -71,16 +174,17 @@ public enum SimplePropertyType {
      * @param map the Map JSON created from the PropertyValueInfo object value
      * @return the corresponding known xxxInfo object
      */
+
     public abstract Object getInfoObject(Map<String, Object> map);
 
     public boolean isReference() {
         return isReference;
     }
 
-    public static SimplePropertyType getTypeFrom(Class valueType) {
+    public static SimplePropertyType getTypeFrom(ValueFactory valueFactory) {
         for (SimplePropertyType simplePropertyType : values()) {
             for (Class aClass : simplePropertyType.classes) {
-                if (aClass.isAssignableFrom(valueType)) {
+                if (aClass.isAssignableFrom(valueFactory.getClass())) {
                     return simplePropertyType;
                 }
             }
