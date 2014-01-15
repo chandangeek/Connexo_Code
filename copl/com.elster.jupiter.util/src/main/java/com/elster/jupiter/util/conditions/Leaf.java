@@ -31,4 +31,9 @@ public abstract class Leaf implements Condition {
     public final Condition not() {
 		return new Not(this);
 	}
+	
+	@Override
+	public boolean implies(Condition condition) {
+		return this.equals(condition);
+	}
 }

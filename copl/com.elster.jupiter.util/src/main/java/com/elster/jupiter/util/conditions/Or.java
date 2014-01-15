@@ -37,4 +37,14 @@ public class Or extends Composite {
 		sb.append(")");
 		return sb.toString();
 	}
+	
+	@Override
+	public boolean implies(Condition condition) {
+		for (Condition part : getConditions()) {
+			if (!part.implies(condition)) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

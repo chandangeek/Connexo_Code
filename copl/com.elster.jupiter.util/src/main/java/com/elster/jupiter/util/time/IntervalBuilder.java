@@ -15,6 +15,11 @@ public final class IntervalBuilder {
 		}
 	}
 	
+	public void add(Date when, long length) {
+		add(when);
+		add(new Date(when.getTime() + length));
+	}
+	
 	public boolean hasInterval() {
 		return earliest != null && latest != null;
 	}

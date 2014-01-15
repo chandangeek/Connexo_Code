@@ -47,4 +47,11 @@ public interface Condition {
      * @param visitor
      */
     void visit(Visitor visitor);
+    
+    /*
+     * 
+     * 
+     */
+    boolean implies(Condition condition);
+  
 }

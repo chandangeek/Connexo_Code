@@ -38,4 +38,14 @@ public class And extends Composite {
 		return sb.toString();
 	}
 
+	@Override
+	public boolean implies(Condition condition) {
+		for (Condition part : getConditions()) {
+			if (part.implies(condition)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

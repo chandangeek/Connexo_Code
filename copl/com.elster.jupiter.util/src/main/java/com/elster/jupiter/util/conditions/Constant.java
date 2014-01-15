@@ -29,6 +29,11 @@ public enum Constant implements Condition {
 		public String toString() {
 			return "TRUE";
 		}
+
+		@Override
+		public boolean implies(Condition condition) {
+			return false;
+		}
 	},
 	FALSE {
 		@Override
@@ -54,6 +59,11 @@ public enum Constant implements Condition {
 		@Override
 		public String toString() {
 			return "FALSE";
+		}
+
+		@Override
+		public boolean implies(Condition condition) {
+			return false;
 		}
 
 	}

@@ -39,4 +39,9 @@ public class Not implements Condition {
 	public String toString() {
 		return "NOT " + negated.toString();
 	}
+
+	@Override
+	public boolean implies(Condition condition) {
+		return this.equals(condition);
+	}
 }

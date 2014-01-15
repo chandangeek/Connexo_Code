@@ -1,8 +1,6 @@
 package com.elster.jupiter.util.conditions;
 
 import java.util.Date;
-import java.util.Objects;
-
 import com.elster.jupiter.util.time.Interval;
 
 public final class Where {
