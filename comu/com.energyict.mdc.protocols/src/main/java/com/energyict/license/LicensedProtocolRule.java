@@ -30,8 +30,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ABBA1500(2, "com.energyict.protocolimpl.iec1107.abba1500.ABBA1500"),
     EIWEB(3, "com.energyict.rtuprotocol.EIWeb", FamilyRule.EICT_RTU_EMS),
     EK88(4, "com.elster.protocolimpl.lis100.EK88"),
-    INSTROMET444(5, "com.energyict.protocolimpl.instromet.v555.Instromet444"),
-    INSTROMET555(6, "com.energyict.protocolimpl.instromet.v444.Instromet444"),
+    INSTROMET444(5, "com.energyict.protocolimpl.instromet.v444.Instromet444"),
+    INSTROMET555(6, "com.energyict.protocolimpl.instromet.v555.Instromet555"),
     MEDO(7, "com.energyict.protocolimpl.kenda.medo.Medo"),
     MK10(8, "com.energyict.protocolimpl.edmi.mk10.MK10", FamilyRule.EDMI),
     QUANTUM1000_ITRON(9, "com.energyict.protocolimpl.itron.quantum1000.Quantum1000"),
@@ -231,6 +231,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
+
+    //test with all properties
+    SDK_SAMPLE_PROTOCOL_TEST_WITH_ALL_PROPERTIES(199, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", FamilyRule.TEST),
 
     // Deprecated
     AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),
