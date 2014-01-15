@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -93,13 +94,13 @@ public class DataModelTest {
     
     @Test
     public void testInheritance()  {
+    	PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
+    	DataModel dataModel = partyService.getDataModel();
         try (TransactionContext context = getTransactionService().getContext()) {
-        	PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
          	Organization organization = partyService.newOrganization("Melrose");
         	organization.setAliasName("Melrose Place");
         	organization.setDescription("Buy and Improve");
         	organization.save();
-        	com.elster.jupiter.orm.DataModel dataModel = partyService.getDataModel();
         	assertThat(dataModel.mapper(Party.class).find()).hasSize(1);
         	assertThat(dataModel.mapper(Organization.class).find()).hasSize(1);
         	assertThat(dataModel.mapper(Person.class).find()).hasSize(0);
@@ -121,6 +122,18 @@ public class DataModelTest {
         	representation = dataModel.mapper(PartyRepresentation.class).getOptional(user.getName(),organization.getId(),start.getTime()).get();
         	dataModel.touch(representation);
         	context.commit();
+        }
+        Party party = dataModel.mapper(Party.class).find().get(0);
+        PartyRole role = partyService.getRole("YYY").get();
+        try (TransactionContext context = getTransactionService().getContext()) {
+        	Condition condition = Where.where("party").isEqualTo(party).and(Where.where("role").isEqualTo(role));
+        	List<PartyInRole> representations = dataModel.query(PartyInRole.class).select(condition);
+        	assertThat(representations).isNotEmpty();
+        	for (PartyInRole each : representations) {
+        		each.getParty().getAliasName();
+        	}
+        	context.commit();
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(1);
         }
     }
     
