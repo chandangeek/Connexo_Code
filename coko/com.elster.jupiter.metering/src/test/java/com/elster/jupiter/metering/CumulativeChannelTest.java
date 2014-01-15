@@ -120,7 +120,7 @@ public class CumulativeChannelTest {
             Channel channel = activation.createChannel(readingType);
             assertThat(channel.getCumulativeReadingType()).isNotNull();
             ReadingStorer storer = meteringService.createOverrulingStorer();
-            DateTime dateTime = new DateTime(2014,1,1,0,15,0);
+            DateTime dateTime = new DateTime(2014,1,1,0,0,0);
             storer.addIntervalReading(channel, dateTime.toDate(), 0,BigDecimal.valueOf(1000));
             storer.addIntervalReading(channel, dateTime.plus(15*60*1000L).toDate(), 0,BigDecimal.valueOf(1100));
             storer.execute();

@@ -1,5 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.Date;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -23,8 +27,10 @@ public class MeterReadingFacade {
 			builder.add(reading.getTimeStamp());
 		}
 		for (IntervalBlock block : meterReading.getIntervalBlocks()) {
-			for (IntervalReading reading : block.getIntervals()) {
-				builder.add(reading.getTimeStamp());
+			TimeAttribute timeAttribute = ReadingTypeImpl.extractTimeAttribute(block.getReadingTypeCode());
+			long length = -timeAttribute.getMinutes() * 60000L;
+			for (IntervalReading reading : block.getIntervals()) {			
+				builder.add(reading.getTimeStamp(),length);
 			}
 		}
 		for (EndDeviceEvent event : meterReading.getEvents()) {

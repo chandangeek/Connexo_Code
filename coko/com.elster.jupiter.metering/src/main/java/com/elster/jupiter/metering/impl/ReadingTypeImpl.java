@@ -82,7 +82,6 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     private final DataModel dataModel;
 	
-	@SuppressWarnings("unused")
     @Inject
 	ReadingTypeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -381,6 +380,14 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     @Override
     public Currency getCurrency() {
 		return currency;
+	}
+    
+    static TimeAttribute extractTimeAttribute(String mRID) {
+		String[] parts = mRID.split("\\.");
+		if (parts.length != MRID_FIELD_COUNT) {
+			throw new IllegalArgumentException();
+		}
+		return TimeAttribute.values()[Integer.parseInt(parts[2])];
 	}
 
 }

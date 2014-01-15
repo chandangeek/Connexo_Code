@@ -156,7 +156,8 @@ public class MeterReadingStorer {
 		for (MeterActivation meterActivation : meter.getMeterActivations()) {
 			if (meterActivation.getInterval().contains(reading.getTimeStamp(),Interval.EndpointBehavior.OPEN_CLOSED)) {
 				for (Channel channel : meterActivation.getChannels()) {
-					if (channel.getMainReadingType().getMRID().equals(readingTypeCode)) {
+					if (channel.getMainReadingType().getMRID().equals(readingTypeCode) || 
+							(channel.getCumulativeReadingType() != null && channel.getCumulativeReadingType().getMRID().equals(readingTypeCode))) {
 						return channel;
 					}
 				}
