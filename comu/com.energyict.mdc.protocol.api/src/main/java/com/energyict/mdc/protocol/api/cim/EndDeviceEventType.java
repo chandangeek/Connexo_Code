@@ -1,5 +1,10 @@
 package com.energyict.mdc.protocol.api.cim;
 
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+
 import java.util.StringTokenizer;
 
 /**
@@ -16,16 +21,16 @@ public class EndDeviceEventType {
     private int typeId;
     private EndDeviceDomain domain;
     private int domainId;
-    private EndDeviceSubdomain subdomain;
+    private EndDeviceSubDomain subdomain;
     private int subDomainId;
-    private EndDeviceEventOrAction eventOrAction;
+    private EndDeviceEventorAction eventOrAction;
     private int eventOrActionId;
 
     public EndDeviceEventType(String code) {
         this.code = code;
     }
 
-    public EndDeviceEventType(EndDeviceType type, EndDeviceDomain domain, EndDeviceSubdomain subdomain, EndDeviceEventOrAction eventOrAction) {
+    public EndDeviceEventType(EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subdomain, EndDeviceEventorAction eventOrAction) {
         this.type = type;
         this.typeId=type.getValue();
         this.domain = domain;
@@ -55,14 +60,14 @@ public class EndDeviceEventType {
         return domain;
     }
 
-    public EndDeviceSubdomain getSubdomain() {
+    public EndDeviceSubDomain getSubdomain() {
         if (subdomain == null) {
             parseCode();
         }
         return subdomain;
     }
 
-    public EndDeviceEventOrAction getEventOrAction() {
+    public EndDeviceEventorAction getEventOrAction() {
         if (eventOrAction == null) {
             parseCode();
         }
@@ -76,13 +81,13 @@ public class EndDeviceEventType {
     private void parseCode() {
         StringTokenizer tok = new StringTokenizer(code, ".");
         this.typeId = Integer.parseInt(tok.nextToken());
-        this.type = EndDeviceType.fromValue(this.typeId);
+        this.type = EndDeviceType.get(this.typeId);
         this.domainId = Integer.parseInt(tok.nextToken());
-        this.domain = EndDeviceDomain.fromValue(this.domainId);
+        this.domain = EndDeviceDomain.get(this.domainId);
         this.subDomainId = Integer.parseInt(tok.nextToken());
-        this.subdomain = EndDeviceSubdomain.fromValue(this.subDomainId);
+        this.subdomain = EndDeviceSubDomain.get(this.subDomainId);
         this.eventOrActionId = Integer.parseInt(tok.nextToken());
-        this.eventOrAction = EndDeviceEventOrAction.fromValue(this.eventOrActionId);
+        this.eventOrAction = EndDeviceEventorAction.get(this.eventOrActionId);
     }
 
     public int getTypeId() {
@@ -106,10 +111,10 @@ public class EndDeviceEventType {
             throw new IllegalArgumentException(codeString);
         }
         try {
-            EndDeviceType type = EndDeviceType.fromValue(Integer.parseInt(tokenizer.nextToken()));
-            EndDeviceDomain domain = EndDeviceDomain.fromValue(Integer.parseInt(tokenizer.nextToken()));
-            EndDeviceSubdomain subdomain = EndDeviceSubdomain.fromValue(Integer.parseInt(tokenizer.nextToken()));
-            EndDeviceEventOrAction eventOrAction = EndDeviceEventOrAction.fromValue(Integer.parseInt(tokenizer.nextToken()));
+            EndDeviceType type = EndDeviceType.get(Integer.parseInt(tokenizer.nextToken()));
+            EndDeviceDomain domain = EndDeviceDomain.get(Integer.parseInt(tokenizer.nextToken()));
+            EndDeviceSubDomain subdomain = EndDeviceSubDomain.get(Integer.parseInt(tokenizer.nextToken()));
+            EndDeviceEventorAction eventOrAction = EndDeviceEventorAction.get(Integer.parseInt(tokenizer.nextToken()));
             if (type == null || domain == null || subdomain == null || eventOrAction == null) {
                 throw new IllegalArgumentException(codeString);
             }

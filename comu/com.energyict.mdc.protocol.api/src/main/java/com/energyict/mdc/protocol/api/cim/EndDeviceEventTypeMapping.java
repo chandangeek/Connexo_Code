@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.cim;
 
 /**
- * Enum containing the mapping between the {@link com.energyict.protocol.MeterProtocolEvent}s  EIServer code and their corresponding CIM {@link EndDeviceEventType}.
+ * Enum containing the mapping between the {@link com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent}s  EIServer code and their corresponding CIM {@link EndDeviceEventType}.
  *
  * @author sva
  * @since 3/06/13 - 15:00

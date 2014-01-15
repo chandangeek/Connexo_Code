@@ -65,6 +65,10 @@
       <groupId>com.energyict.dataconcentrator.external</groupId>
       <artifactId>serialio</artifactId>
     </dependency>
+      <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>cbo</artifactId>
+      </dependency>
 
     <!-- Testing -->
     <dependency>
