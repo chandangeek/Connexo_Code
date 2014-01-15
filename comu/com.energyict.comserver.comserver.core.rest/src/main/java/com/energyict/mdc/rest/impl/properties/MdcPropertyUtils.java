@@ -2,7 +2,7 @@ package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.dynamic.PropertySpecPossibleValues;
+import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
 import com.energyict.mdc.protocol.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.rest.impl.properties.validators.NumberValidationRules;
 
