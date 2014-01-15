@@ -209,6 +209,12 @@ public enum CommonExceptionReferences implements ExceptionReference<CommonRefere
     UNSUPPORTED_LEGACY_PROTOCOL_TYPE(148, 1),
 
     /**
+     * Indicates that no {@link com.energyict.mdc.common.ApplicationComponent}
+     * was found that implements an expected interface.
+     */
+    MISSING_MODULE(149, 1),
+
+    /**
      * Indication of a scenario in which, for any reason, the meter does not respond to any requests anymore
      */
     CONNECTION_TIMEOUT(200, 1),

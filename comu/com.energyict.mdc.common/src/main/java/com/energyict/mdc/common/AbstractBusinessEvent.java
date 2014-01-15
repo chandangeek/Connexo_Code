@@ -1,8 +1,5 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.BusinessEvent;
-import com.energyict.mdc.common.BusinessObject;
-
 /**
  * This class provides an implementation of the <code>BusinessEvent</code> interface.
  *
@@ -29,4 +26,5 @@ public class AbstractBusinessEvent<T extends BusinessObject> implements Business
     public String toString() {
         return "Event from " + source + " (" + source.getClass().getName() + ")";
     }
+
 }
