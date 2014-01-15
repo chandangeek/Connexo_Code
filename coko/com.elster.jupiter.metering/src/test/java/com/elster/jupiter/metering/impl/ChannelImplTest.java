@@ -93,7 +93,7 @@ public class ChannelImplTest extends EqualsContractTest {
                 return new ReadingTypeImpl(dataModel);
             }
         });
-        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenReturn(new ReadingTypeInChannel(dataModel));
+        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenReturn(new ReadingTypeInChannel());
         when(dataModel.mapper(ReadingTypeInChannel.class)).thenReturn(readingTypeInChannelFactory);
 
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);

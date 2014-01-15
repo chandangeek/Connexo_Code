@@ -88,7 +88,7 @@ public class MeterActivationImplTest {
         when((Object) dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeInChannel(dataModel);
+                return new ReadingTypeInChannel();
             }
         });
         readingType1 = ReadingTypeImpl.from(dataModel, MRID1, "readingType1");

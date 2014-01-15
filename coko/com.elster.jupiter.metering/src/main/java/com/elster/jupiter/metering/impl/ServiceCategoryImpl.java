@@ -22,7 +22,6 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     private final DataModel dataModel;
 	
-	@SuppressWarnings("unused")
     @Inject
 	ServiceCategoryImpl(DataModel dataModel) {
         this.dataModel = dataModel;

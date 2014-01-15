@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 public class EndDeviceImpl extends AbstractEndDeviceImpl<EndDeviceImpl> implements EndDevice {
 	
-	@SuppressWarnings("unused")
     @Inject
 	EndDeviceImpl(DataModel dataModel, EventService eventService) {
 		super(dataModel, eventService, EndDeviceImpl.class);

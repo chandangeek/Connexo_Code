@@ -15,11 +15,8 @@ public class ReadingTypeInChannel {
     private final Reference<Channel> channel = ValueReference.absent();
     private final Reference<ReadingType> readingType = ValueReference.absent();
 
-    private final DataModel dataModel;
-
     @Inject
-    ReadingTypeInChannel(DataModel dataModel) {
-        this.dataModel = dataModel;
+    ReadingTypeInChannel() {
     }
 
     ReadingTypeInChannel init(Channel channel, ReadingType readingType) {

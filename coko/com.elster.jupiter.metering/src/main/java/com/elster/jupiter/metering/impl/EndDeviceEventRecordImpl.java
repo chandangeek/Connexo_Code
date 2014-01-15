@@ -70,7 +70,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private UtcInstant createTime;
     @SuppressWarnings("unused")
     private UtcInstant modTime;
-    @SuppressWarnings("unused")
     private String userName;
 
     private final DataModel dataModel;

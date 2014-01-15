@@ -1,25 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cbo.MarketRoleKind;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.streams.BufferedReaderIterable;
-import org.joda.time.MutableDateTime;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +9,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.elster.jupiter.ids.FieldType.*;
+import org.joda.time.MutableDateTime;
+
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 public class InstallerImpl {
 

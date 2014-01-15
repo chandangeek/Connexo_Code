@@ -65,7 +65,6 @@ public class UsagePointImpl implements UsagePoint {
     private final DataModel dataModel;
     private final EventService eventService;
 
-    @SuppressWarnings("unused")
     @Inject
 	UsagePointImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;

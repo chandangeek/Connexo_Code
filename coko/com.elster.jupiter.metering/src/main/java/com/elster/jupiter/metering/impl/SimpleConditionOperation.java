@@ -17,7 +17,8 @@ public class SimpleConditionOperation extends ConditionOperation {
     private String operator = Operator.EQUAL.getSymbol();
     private Object[] values;
 
-    private SimpleConditionOperation() {
+    @SuppressWarnings("unused")
+	private SimpleConditionOperation() {
         // for persistence
     }
 

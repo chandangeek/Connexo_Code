@@ -33,7 +33,6 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
     private final PartyService partyService;
     private final Clock clock;
 
-    @SuppressWarnings("unused")
     @Inject
 	UsagePointAccountabilityImpl(DataModel dataModel, PartyService partyService, Clock clock) {
         this.dataModel = dataModel;

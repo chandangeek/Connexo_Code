@@ -28,7 +28,6 @@ public class AmrSystemImpl implements AmrSystem {
     private final DataModel dataModel;
     private final MeteringService meteringService;
 
-    @SuppressWarnings("unused")
     @Inject
 	AmrSystemImpl(DataModel dataModel, MeteringService meteringService) {
         this.dataModel = dataModel;

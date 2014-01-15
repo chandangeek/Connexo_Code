@@ -25,7 +25,6 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 	
     private final MeteringService meteringService;
 
-    @SuppressWarnings("unused")
     @Inject
 	MeterImpl(DataModel dataModel, EventService eventService, MeteringService meteringService) {
         super(dataModel, eventService, MeterImpl.class);

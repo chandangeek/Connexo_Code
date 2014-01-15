@@ -1,5 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -14,7 +25,6 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -27,16 +37,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.TimeZone;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements Channel {
 	
