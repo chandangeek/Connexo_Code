@@ -25,6 +25,11 @@
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>metering</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc-issues</artifactId>
       <version>${comserver.version}</version>
@@ -36,8 +41,17 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.pluggable</artifactId>
+      <version>${comserver.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc-common</artifactId>
       <version>${comserver.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
@@ -46,6 +60,10 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict.dataconcentrator.external</groupId>
+      <artifactId>serialio</artifactId>
     </dependency>
 
     <!-- Testing -->

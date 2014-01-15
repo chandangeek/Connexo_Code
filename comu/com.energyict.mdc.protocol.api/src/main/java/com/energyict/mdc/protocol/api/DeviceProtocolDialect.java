@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.protocol.api.dynamic.HasDynamicProperties;
+import com.energyict.mdc.dynamic.HasDynamicProperties;
 
 /**
  * Models a component that will contain several properties for a specific DeviceProtocol.

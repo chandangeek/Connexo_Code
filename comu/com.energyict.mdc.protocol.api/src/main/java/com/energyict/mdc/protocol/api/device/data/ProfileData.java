@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
