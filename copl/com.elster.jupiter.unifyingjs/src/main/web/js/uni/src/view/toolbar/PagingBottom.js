@@ -2,8 +2,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
     extend: 'Ext.toolbar.Paging',
     xtype: 'pagingtoolbarbottom',
 
+    currStart: 0,
     totalPages: 0,
-    pageSizeParam: 'size',
+    pageSizeParam: 'limit',
     pageStartParam: 'start',
     pageSizeStore: Ext.create('Ext.data.Store', {
         fields: ['value'],
@@ -22,14 +23,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         var pagingCombo = this.child('#pagingCombo');
         pagingCombo.setRawValue('' + this.store.pageSize);
-
-        this.on('beforechange', this.onBeforeChange, this);
     },
-
     initPageSizeAndStartFromQueryString: function () {
-        var token = Ext.util.History.getToken(),
-            queryStringIndex = token.indexOf('?'),
-            queryString = token.substring(queryStringIndex + 1),
+        var queryString = this.getCurrentQueryString(),
             queryStrings = Ext.Object.fromQueryString(queryString),
             pageSize = queryStrings[this.pageSizeParam],
             pageStart = queryStrings[this.pageStartParam];
@@ -42,9 +38,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         pageSize = this.adjustPageSize(pageSize);
         this.store.pageSize = pageSize;
 
-        pageStart = pageStart || 0;
-        var pageNum = Math.max(Math.ceil((pageStart + 1) / pageSize), 1);
-        this.store.loadPage(pageNum);
+        this.currStart = pageStart || 0;
+        var pageNum = Math.max(Math.ceil((this.currStart + 1) / pageSize), 1);
+
+        if (this.store.currentPage !== pageNum) {
+            this.store.currentPage = pageNum;
+            this.store.loadPage(pageNum);
+        }
     },
 
     adjustPageSize: function (pageSize) {
@@ -64,15 +64,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         return match;
     },
 
-    onBeforeChange: function (toolbar, page) {
-        this.resetQueryString();
-    },
-
     onPageSizeChange: function (combobox, value) {
         var me = this,
-            pageSize = parseInt(value);
+            pageSize = parseInt(value, 10);
+
         me.resetPageSize(pageSize);
-        me.resetQueryString();
     },
 
     resetPageSize: function (pageSize) {
@@ -82,16 +78,34 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     resetQueryString: function () {
         var me = this,
-            pageData = me.getPageData(),
-            currPage = pageData.currentPage,
-            pageCount = pageData.pageCount,
-            start = me.store.pageSize * (currPage - 1),
-            queryString = Ext.Object.toQueryString({
-                size: me.store.pageSize,
-                start: start
-            });
+            url = location.href.split('?')[0],
+            queryString = me.buildQueryString(),
+            result = url + '?' + queryString;
 
-        // TODO Set the page querystring.
+        if (location.href !== result) {
+            location.href = result;
+        }
+    },
+
+    buildQueryString: function (start) {
+        var me = this,
+            pageData = me.getPageData(),
+            queryString = me.getCurrentQueryString(),
+            queryObject = Ext.Object.fromQueryString(queryString);
+
+        start = (Math.floor(pageData.toRecord / me.store.pageSize) - 1) * me.store.pageSize;
+        Ext.apply(queryObject, {
+            limit: me.store.pageSize,
+            start: start
+        });
+
+        return Ext.Object.toQueryString(queryObject);
+    },
+
+    getCurrentQueryString: function () {
+        var token = Ext.util.History.getToken(),
+            queryStringIndex = token.indexOf('?');
+        return token.substring(queryStringIndex + 1);
     },
 
     getPagingItems: function () {
@@ -123,7 +137,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                     scope: me
                 }
             },
-            '-',
+            {
+                xtype: 'component',
+                html: '&nbsp;',
+                flex: 0.7
+            },
             {
                 itemId: 'first',
                 tooltip: me.firstText,
@@ -143,32 +161,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 scope: me
             },
             '-',
-            me.beforePageText,
-            {
-                xtype: 'numberfield',
-                itemId: 'inputItem',
-                name: 'inputItem',
-                cls: Ext.baseCSSPrefix + 'tbar-page-number',
-                allowDecimals: false,
-                minValue: 1,
-                hideTrigger: true,
-                enableKeyEvents: true,
-                keyNavEnabled: false,
-                selectOnFocus: true,
-                submitValue: false,
-                isFormField: false,
-                width: me.inputItemWidth,
-                margins: '-1 2 3 2',
-                listeners: {
-                    scope: me,
-                    keydown: me.onPagingKeyDown,
-                    blur: me.onPagingBlur
-                }
-            },
             {
                 xtype: 'tbtext',
-                itemId: 'afterTextItem',
-                text: Ext.String.format(me.afterPageText, 1)
+                itemId: 'pageNavItem'
             },
             '-',
             {
@@ -179,6 +174,11 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 disabled: true,
                 handler: me.moveNext,
                 scope: me
+            },
+            {
+                xtype: 'component',
+                html: '&nbsp;',
+                flex: 1
             }
         ];
     },
@@ -200,41 +200,34 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             currPage = pageData.currentPage;
             pageCount = pageData.pageCount;
 
-            // Check for invalid current page.
-            if (currPage > pageCount) {
-                me.store.loadPage(pageCount);
-                return;
-            }
-
             if (me.totalPages < pageCount) {
                 me.totalPages = pageCount;
             }
-
-            afterText = Ext.String.format(me.afterPageText, isNaN(me.totalPages) ? 1 : me.totalPages);
         } else {
             currPage = 0;
             pageCount = 0;
-            afterText = Ext.String.format(me.afterPageText, 0);
         }
 
         Ext.suspendLayouts();
-        item = me.child('#afterTextItem');
-        if (item) {
-            item.setText(afterText);
-        }
-        item = me.getInputItem();
-        if (item) {
-            item.setDisabled(isEmpty).setValue(currPage);
-        }
+        item = me.child('#pageNavItem');
+        item.setText(me.formatPageNavItemText(currPage, me.totalPages));
+
         me.setChildDisabled('#first', currPage === 1 || isEmpty);
         me.setChildDisabled('#prev', currPage === 1 || isEmpty);
         me.setChildDisabled('#next', currPage === pageCount || isEmpty);
-        me.setChildDisabled('#last', currPage === pageCount || isEmpty);
-        me.setChildDisabled('#refresh', false);
         me.updateInfo();
         Ext.resumeLayouts(true);
 
         me.fireEvent('change', me, pageData);
+        me.resetQueryString();
+    },
+
+    formatPageNavItemText: function (currPage, pageCount) {
+        var me = this,
+            querystring = me.buildQueryString();
+
+        // TODO Add the querystring to each page link except for the current page.
+        return querystring;
     }
 
 });
