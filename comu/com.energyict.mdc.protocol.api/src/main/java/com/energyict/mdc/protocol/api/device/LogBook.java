@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface LogBook extends IdBusinessObject, Protectable, CanGoOffline<OfflineLogBook> {
 
+    int getDeviceId();
+
     Device getDevice();
 
     ObisCode getDeviceObisCode();
@@ -30,5 +32,7 @@ public interface LogBook extends IdBusinessObject, Protectable, CanGoOffline<Off
     void store(List<MeterProtocolEvent> event) throws BusinessException, SQLException;
 
     String getPath();
+
+    void updateLastLogbookIfLater(Date lastDate) throws BusinessException, SQLException;
 
 }
