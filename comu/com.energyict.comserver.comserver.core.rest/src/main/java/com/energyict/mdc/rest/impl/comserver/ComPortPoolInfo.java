@@ -3,21 +3,21 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
-import java.util.Date;
-import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Date;
+import java.util.List;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "direction")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InboundComPortPoolInfo.class, name = "inbound"),
         @JsonSubTypes.Type(value = OutboundComPortPoolInfo.class, name = "outbound")})
-public abstract class ComPortPoolInfo<T extends ComPortPoolShadow> {
-    public int id;
+public abstract class ComPortPoolInfo<S extends ComPortPool> {
+    public long id;
     public String name;
     public boolean active;
     public String description;
@@ -43,14 +43,11 @@ public abstract class ComPortPoolInfo<T extends ComPortPoolShadow> {
         this.type = comPortPool.getComPortType();
     }
 
-    protected void writeToShadow(T shadow) {
-        shadow.setName(this.name);
-        shadow.setDescription(this.description);
-        shadow.setType(this.type);
-        shadow.setActive(this.active);
-        shadow.setId(this.id);
+    protected S writeTo(S source) {
+        source.setName(this.name);
+        source.setDescription(this.description);
+        source.setComPortType(this.type);
+        source.setActive(this.active);
+        return source;
     }
-
-    abstract public T asShadow();
-
 }

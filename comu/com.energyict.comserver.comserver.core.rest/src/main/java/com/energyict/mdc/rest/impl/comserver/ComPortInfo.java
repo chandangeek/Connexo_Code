@@ -8,7 +8,6 @@ import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;

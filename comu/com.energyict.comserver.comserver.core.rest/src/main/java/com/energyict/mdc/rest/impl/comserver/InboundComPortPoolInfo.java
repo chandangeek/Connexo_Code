@@ -6,7 +6,7 @@ import com.energyict.mdc.shadow.ports.InboundComPortPoolShadow;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPoolShadow> {
+public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> {
 
     public InboundComPortPoolInfo() {
     }
