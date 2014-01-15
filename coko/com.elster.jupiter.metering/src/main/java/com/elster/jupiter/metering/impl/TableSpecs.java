@@ -254,10 +254,12 @@ public enum TableSpecs {
             table.map(ReadingTypeInChannel.class);
 			Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-			Column readingTypeMRidColumn = table.column("READINGTYPEMRID").type("varchar2(80)").notNull().map("readingTypeMRID").add();
+			Column readingTypeMRidColumn = table.column("READINGTYPEMRID").type("varchar2(80)").notNull().add();
 			table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn , positionColumn).add();
-			table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1").references(MTR_CHANNEL.name()).onDelete(CASCADE).map("channel").on(channelIdColumn).add();
-            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2").references(MTR_READINGTYPE.name()).onDelete(RESTRICT).map("readingType").on(readingTypeMRidColumn).add();
+			table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1").on(channelIdColumn).references(MTR_CHANNEL.name()).
+				onDelete(CASCADE).map("channel").reverseMap("readingTypeInChannels").reverseMapOrder("position").add();
+            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2").on(readingTypeMRidColumn).references(MTR_READINGTYPE.name()).
+            	onDelete(RESTRICT).map("readingType").add();
 		}
 	},
 	MTR_UPACCOUNTABILITY {

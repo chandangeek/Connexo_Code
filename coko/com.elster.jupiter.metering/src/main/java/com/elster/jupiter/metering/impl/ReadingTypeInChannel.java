@@ -8,37 +8,31 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 
 public class ReadingTypeInChannel {
-
-    private final Reference<Channel> channel = ValueReference.absent();
+	
     @SuppressWarnings("unused")
     private int position;
-    private transient ReadingType readingType;
-    private String readingTypeMRID;
+    
+    private final Reference<Channel> channel = ValueReference.absent();
+    private final Reference<ReadingType> readingType = ValueReference.absent();
 
     private final DataModel dataModel;
 
-    @SuppressWarnings("unused")
     @Inject
     ReadingTypeInChannel(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    ReadingTypeInChannel init(Channel channel, ReadingType readingType, int position) {
+    ReadingTypeInChannel init(Channel channel, ReadingType readingType) {
         this.channel.set(channel);
-        this.position = position;
-        this.readingTypeMRID = readingType.getMRID();
-        this.readingType = readingType;
+        this.readingType.set(readingType);
         return this;
     }
 
-    static ReadingTypeInChannel from(DataModel dataModel, Channel channel, ReadingType readingType, int position) {
-        return dataModel.getInstance(ReadingTypeInChannel.class).init(channel, readingType, position);
+    static ReadingTypeInChannel from(DataModel dataModel, Channel channel, ReadingType readingType) {
+        return dataModel.getInstance(ReadingTypeInChannel.class).init(channel, readingType);
     }
 
-    public ReadingType getReadingType() {
-        if (readingType == null) {
-            readingType = dataModel.mapper(ReadingType.class).getExisting(readingTypeMRID);
-        }
-        return readingType;
+    public ReadingType getReadingType() {        
+        return readingType.get();
     }
 }

@@ -59,7 +59,7 @@ public final class ChannelImpl implements Channel {
 	private Reference<TimeSeries> timeSeries = ValueReference.absent();
 	private Reference<ReadingType> mainReadingType = ValueReference.absent();
 	private Reference<ReadingType> cumulativeReadingType = ValueReference.absent();
-	private List<ReadingType> additionalReadingTypes = new ArrayList<>();
+	private List<ReadingTypeInChannel> readingTypeInChannels = new ArrayList<>();
 
     private final IdsService idsService;
     private final Clock clock;
@@ -104,12 +104,10 @@ public final class ChannelImpl implements Channel {
 				cumulativeReadingType.set(readingTypes.get(index++));
 			} 
 		}
-		this.additionalReadingTypes = new ArrayList<>();
 		for (; index < readingTypes.size() ; index++) {
-			this.additionalReadingTypes.add(readingTypes.get(index));
+			this.readingTypeInChannels.add(ReadingTypeInChannel.from(dataModel, this, readingTypes.get(index)));
 		}
 		this.timeSeries.set(createTimeSeries());
-		persistReadingTypes();
 	}
 	
 	Optional<IntervalLength> getIntervalLength() {		
@@ -159,24 +157,6 @@ public final class ChannelImpl implements Channel {
         }
         throw new DoesNotExistException(String.valueOf(id));
     }
-
-    void persistReadingTypes() {
-		int offset = 1;
-		DataMapper<ReadingTypeInChannel> factory = dataModel.mapper(ReadingTypeInChannel.class);
-		for (ReadingType readingType : getAdditionalReadingTypes()) {
-			factory.persist(ReadingTypeInChannel.from(dataModel, this, readingType, offset++));
-		}
-	}
-	
-	private List<ReadingType> getAdditionalReadingTypes() {
-		if (additionalReadingTypes == null) {
-			additionalReadingTypes = new ArrayList<>();
-			for (ReadingTypeInChannel each : dataModel.mapper(ReadingTypeInChannel.class).find("channel",this)) {
-				additionalReadingTypes.add(each.getReadingType());
-			}
-		}
-		return additionalReadingTypes;
-	}
 	
 	@Override
 	public List<ReadingType> getReadingTypes() {
@@ -186,7 +166,9 @@ public final class ChannelImpl implements Channel {
 		if (next != null) {
 			builder.add(next);
 		}
-		builder.addAll(getAdditionalReadingTypes());
+		for (ReadingTypeInChannel each : readingTypeInChannels) {
+			builder.add(each.getReadingType());
+		}
 		return builder.build();
 	}
 
@@ -347,6 +329,5 @@ public final class ChannelImpl implements Channel {
     public boolean isRegular() {
     	return getIntervalLength() != null;
     }
-   
     
 }

@@ -120,13 +120,13 @@ public class MeterReadingStorer {
 	}
 	
 	private Channel findOrCreateChannel(Reading reading , MeterActivation meterActivation) {
-		for (Channel each : meterActivation.getChannels()) {
-			if (each.getMainReadingType().getMRID().equals(reading.getReadingTypeCode())) {
-				return each;
-			}
-		}
 		Optional<ReadingType> readingTypeHolder = getReadingType(reading.getReadingTypeCode());
 		if (readingTypeHolder.isPresent()) {
+			for (Channel each : meterActivation.getChannels()) {
+				if (each.getReadingTypes().contains(readingTypeHolder.get())) {
+					return each;
+				}
+			}
 			return meterActivation.createChannel(readingTypeHolder.get());
 		} else {
 			return null;
@@ -134,16 +134,15 @@ public class MeterReadingStorer {
 	}
 	
 	private Channel findOrCreateChannel(IntervalReading reading , String readingTypeCode) {
-		Channel channel = getChannel(reading,readingTypeCode);
+		Optional<ReadingType> readingTypeHolder = getReadingType(readingTypeCode);
+		if (!readingTypeHolder.isPresent()) {
+			return null;
+		}
+		Channel channel = getChannel(reading,readingTypeHolder.get());
 		if (channel == null) {
 			for (MeterActivation meterActivation : meter.getMeterActivations()) {
 				if (meterActivation.getInterval().contains(reading.getTimeStamp(),Interval.EndpointBehavior.OPEN_CLOSED)) {
-					Optional<ReadingType> readingTypeHolder = getReadingType(readingTypeCode);
-					if (readingTypeHolder.isPresent()) {
-						return meterActivation.createChannel(readingTypeHolder.get());
-					} else {
-						return null;
-					}
+					return meterActivation.createChannel(readingTypeHolder.get());
 				}
 			}
 			return null;
@@ -152,15 +151,15 @@ public class MeterReadingStorer {
 		}
 	}
 	
-	private Channel getChannel(IntervalReading reading, String readingTypeCode) {
+	private Channel getChannel(IntervalReading reading, ReadingType readingType) {
 		for (MeterActivation meterActivation : meter.getMeterActivations()) {
 			if (meterActivation.getInterval().contains(reading.getTimeStamp(),Interval.EndpointBehavior.OPEN_CLOSED)) {
 				for (Channel channel : meterActivation.getChannels()) {
-					if (channel.getMainReadingType().getMRID().equals(readingTypeCode) || 
-							(channel.getCumulativeReadingType() != null && channel.getCumulativeReadingType().getMRID().equals(readingTypeCode))) {
+					if (channel.getReadingTypes().contains(readingType)) {
 						return channel;
 					}
 				}
+				return null;
 			}
 		}
 		return null;
