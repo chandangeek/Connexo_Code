@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -38,6 +39,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private static final int UPDATE_SENT_MASK = 0b0001;
     private static final int EXECUTE_PENDING_MASK = 0b0010;
 
+    private DataModel dataModel;
     private DeviceProtocolMessageService deviceProtocolMessageService;
     private MessageProtocol messageProtocol;
     private String serialNumber = "";
@@ -66,6 +68,11 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
     private CollectedDataFactory collectedDataFactory;
+
+    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel) {
+        super();
+        this.dataModel = dataModel;
+    }
 
     /**
      * Creates a new instance of a {@link LegacyMessageConverter} component based on the given className
@@ -267,6 +274,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private MessageAdapterMappingFactory getMessageAdapterMappingFactory() {
-        return MessageAdapterMappingFactoryProvider.INSTANCE.get().getMessageAdapterMappingFactory();
+        return new MessageAdapterMappingFactoryImpl(this.dataModel);
     }
+
 }

@@ -1,11 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -18,9 +22,6 @@ import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpecFactory;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -42,6 +43,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
     public static final String NETWORK_ID_PROPERTY_NAME = "networkId";
 
+    private DataModel dataModel;
     private ProtocolPluggableService protocolPluggableService;
 
     /**
@@ -58,13 +60,18 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService) {
+    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, DataModel dataModel) {
         super();
         this.protocolPluggableService = protocolPluggableService;
+        this.dataModel = dataModel;
     }
 
     protected ProtocolPluggableService getProtocolPluggableService() {
         return protocolPluggableService;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     protected List<ConnectionType> getSupportedConnectionTypes() {
@@ -154,7 +161,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        CapabilityAdapterMappingFactory factory = DeviceCapabilityAdapterMappingFactoryProvider.INSTANCE.get().getCapabilityAdapterMappingFactory();
+        CapabilityAdapterMappingFactory factory = new CapabilityAdapterMappingFactoryImpl(this.dataModel);
         Integer mapping = factory.getCapabilitiesMappingForDeviceProtocol(getProtocolClass().getCanonicalName());
         if (mapping != null) {
             return getCapabilitesListFromFlags(mapping);

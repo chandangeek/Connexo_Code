@@ -45,11 +45,11 @@ import java.util.List;
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private volatile DataModel dataModel;
-    private volatile PluggableService pluggableService;
     private volatile EventService eventService;
+    private volatile PluggableService pluggableService;
+    private volatile RelationService relationService;
     private volatile DeviceProtocolService deviceProtocolService;
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
-    private volatile RelationService relationService;
     private volatile ConnectionTypeService connectionTypeService;
 
     ProtocolPluggableServiceImpl() {
@@ -60,16 +60,18 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public ProtocolPluggableServiceImpl(
             OrmService ormService,
             EventService eventService,
+            PluggableService pluggableService,
+            RelationService relationService,
             DeviceProtocolService deviceProtocolService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
-            RelationService relationService,
             ConnectionTypeService connectionTypeService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
+        this.setRelationService(relationService);
+        this.setPluggableService(pluggableService);
         this.setDeviceProtocolService(deviceProtocolService);
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
-        this.setRelationService(relationService);
         this.setConnectionTypeService(connectionTypeService);
     }
 
@@ -159,7 +161,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName) {
         DeviceProtocolDialect deviceProtocolDialect = this.getDeviceProtocolDialectFor(pluggableClass.getDeviceProtocol(), dialectName);
-        return new DeviceProtocolDialectUsagePluggableClassImpl(pluggableClass, deviceProtocolDialect, this.dataModel);
+        return new DeviceProtocolDialectUsagePluggableClassImpl(pluggableClass, deviceProtocolDialect, this.dataModel, this.relationService);
     }
 
     private DeviceProtocolDialect getDeviceProtocolDialectFor(DeviceProtocol deviceProtocol, String name) {

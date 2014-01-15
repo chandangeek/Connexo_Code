@@ -13,7 +13,9 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
@@ -37,6 +39,8 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Inject
     private ProtocolPluggableService protocolPluggableService;
+    @Inject
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     @Inject
     private RelationService relationService;
     @Inject
@@ -87,10 +91,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService);
+            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         }
         else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapter((MeterProtocol) protocol, this.protocolPluggableService);
+            return new MeterProtocolAdapter((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         }
         else {
             throw new ProtocolCreationException(protocol.getClass());
@@ -121,13 +125,13 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     private void createSecurityPropertiesRelationType () throws BusinessException, SQLException {
-        DeviceProtocolSecurityRelationTypeCreator.createRelationType(this.dataModel, this.protocolPluggableService, this);
+        DeviceProtocolSecurityRelationTypeCreator.createRelationType(this.dataModel, this.protocolPluggableService, this.relationService, this);
     }
 
     private void createDialectRelationTypes () throws BusinessException, SQLException {
         for (DeviceProtocolDialect deviceProtocolDialect : this.getDeviceProtocol().getDeviceProtocolDialects()) {
-            ServerDeviceProtocolDialectUsagePluggableClass dialectUsagePluggableClass =
-                    new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel);
+            DeviceProtocolDialectUsagePluggableClass dialectUsagePluggableClass =
+                    new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService);
             dialectUsagePluggableClass.findOrCreateRelationType(true);
         }
     }
@@ -142,7 +146,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private void deleteDialectRelationTypes() throws BusinessException, SQLException {
         DeviceProtocolDialectUsagePluggableClassImpl deviceProtocolDialectUsagePluggableClass;
         for (DeviceProtocolDialect deviceProtocolDialect : this.newInstance().getDeviceProtocolDialects()) {
-            deviceProtocolDialectUsagePluggableClass = new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel);
+            deviceProtocolDialectUsagePluggableClass = new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService);
             deviceProtocolDialectUsagePluggableClass.deleteRelationType();
         }
     }

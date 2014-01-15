@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.energyict.comserver.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
@@ -52,4 +52,5 @@ public class MeterProtocolClockAdapter implements DeviceClockSupport {
             throw new LegacyProtocolException(e);
         }
     }
+
 }

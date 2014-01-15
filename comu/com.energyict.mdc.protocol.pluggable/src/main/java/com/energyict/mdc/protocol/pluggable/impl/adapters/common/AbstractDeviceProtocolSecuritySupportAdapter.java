@@ -26,10 +26,12 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
     private DeviceProtocolSecurityCapabilities legacySecuritySupport;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     private final PropertiesAdapter propertiesAdapter;
+    private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
-    protected AbstractDeviceProtocolSecuritySupportAdapter(PropertiesAdapter propertiesAdapter) {
+    protected AbstractDeviceProtocolSecuritySupportAdapter(PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
         super();
         this.propertiesAdapter = propertiesAdapter;
+        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
     }
 
     public void setLegacySecuritySupport(DeviceProtocolSecurityCapabilities legacySecuritySupport) {
@@ -125,15 +127,11 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
      * @return the className of the DeviceSecuritySupport to use
      */
     protected String getDeviceSecuritySupportMappingFor(String deviceProtocolJavaClassname) {
-        final String securitySupportJavaClassName = getSecuritySupportAdapterMappingFactory().getSecuritySupportJavaClassNameForDeviceProtocol(deviceProtocolJavaClassname);
+        final String securitySupportJavaClassName = this.securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol(deviceProtocolJavaClassname);
         if (securitySupportJavaClassName == null) {
             throw DeviceProtocolAdapterCodingExceptions.mappingElementDoesNotExist(this.getClass(), "securitySupportAdapter", deviceProtocolJavaClassname);
         }
         return securitySupportJavaClassName;
-    }
-
-    private SecuritySupportAdapterMappingFactory getSecuritySupportAdapterMappingFactory() {
-        return SecuritySupportAdapterMappingFactoryProvider.INSTANCE.get().getSecuritySupportAdapterMappingFactory();
     }
 
     @Override

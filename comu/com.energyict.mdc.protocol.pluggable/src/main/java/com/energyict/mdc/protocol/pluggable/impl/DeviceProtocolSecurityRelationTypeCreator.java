@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -22,13 +23,15 @@ import java.sql.SQLException;
  */
 public class DeviceProtocolSecurityRelationTypeCreator {
 
-    public static void createRelationType(DataModel dataModel, ProtocolPluggableService protocolPluggableService, DeviceProtocolPluggableClass deviceProtocolPluggableClass) throws BusinessException, SQLException {
+    public static void createRelationType(DataModel dataModel, ProtocolPluggableService protocolPluggableService, RelationService relationService, DeviceProtocolPluggableClass deviceProtocolPluggableClass) throws BusinessException, SQLException {
         DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
         SecurityPropertySetRelationTypeSupport relationTypeSupport =
                 new SecurityPropertySetRelationTypeSupport(
                         dataModel,
                         protocolPluggableService,
-                        deviceProtocol, deviceProtocolPluggableClass);
+                        relationService,
+                        deviceProtocol,
+                        deviceProtocolPluggableClass);
         relationTypeSupport.findOrCreateRelationType(true);
     }
 

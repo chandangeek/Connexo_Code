@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceP
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
@@ -17,8 +18,8 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
  */
 public class MeterProtocolSecuritySupportAdapter extends AbstractDeviceProtocolSecuritySupportAdapter {
 
-    public MeterProtocolSecuritySupportAdapter(MeterProtocol meterProtocol, PropertiesAdapter propertiesAdapter) {
-        super(propertiesAdapter);
+    public MeterProtocolSecuritySupportAdapter(MeterProtocol meterProtocol, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+        super(propertiesAdapter, securitySupportAdapterMappingFactory);
         boolean matchingTypeFound = false;
         Object securityInstance = createNewSecurityInstance(getDeviceSecuritySupportMappingFor(meterProtocol.getClass().getName()));
         if (DeviceProtocolSecurityCapabilities.class.isAssignableFrom(securityInstance.getClass())) {

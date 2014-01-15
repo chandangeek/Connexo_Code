@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -33,7 +34,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
@@ -42,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelOutpu
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
@@ -119,6 +120,9 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
      */
     private PropertiesAdapter propertiesAdapter;
 
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private DataModel dataModel;
+
     /**
      * The logger used by the protocol
      */
@@ -129,13 +133,8 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
      */
     private HHUEnabler hhuEnabler;
 
-    /**
-     * Default constructor. Will initialize the different adapters.
-     *
-     * @param meterProtocol the {@link MeterProtocol} to glue with the {@link DeviceProtocol}
-     */
-    public MeterProtocolAdapter(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService) {
-        super(protocolPluggableService);
+    public MeterProtocolAdapter(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+        super(protocolPluggableService, dataModel);
         this.meterProtocol = meterProtocol;
         if (meterProtocol instanceof RegisterProtocol) {
             this.registerProtocol = (RegisterProtocol) meterProtocol;
@@ -143,9 +142,13 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
         else {
             this.registerProtocol = null;
         }
-
+        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         initializeAdapters();
         initInheritors();
+    }
+
+    protected SecuritySupportAdapterMappingFactory getSecuritySupportAdapterMappingFactory() {
+        return securitySupportAdapterMappingFactory;
     }
 
     /**
@@ -168,7 +171,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter();
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol);
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.dataModel);
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -176,7 +179,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
 
         if (!DeviceSecuritySupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.meterProtocolSecuritySupportAdapter = new MeterProtocolSecuritySupportAdapter(this.meterProtocol, this.propertiesAdapter);
+            this.meterProtocolSecuritySupportAdapter = new MeterProtocolSecuritySupportAdapter(this.meterProtocol, this.propertiesAdapter, this.securitySupportAdapterMappingFactory);
         }
         else {
             this.deviceSecuritySupport = (DeviceSecuritySupport) this.meterProtocol;

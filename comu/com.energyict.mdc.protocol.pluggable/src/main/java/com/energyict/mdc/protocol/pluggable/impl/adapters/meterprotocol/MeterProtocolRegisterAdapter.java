@@ -1,21 +1,22 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.mdc.issues.Bus;
-import com.energyict.mdc.meterdata.AdapterDeviceRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
-import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,16 +55,17 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
     @Override
     public List<CollectedRegister> readRegisters(final List<OfflineRegister> registers) {
         if (registers != null) {
+            CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             for (OfflineRegister register : registers) {
                 try {
                     RegisterValue registerValue = this.registerProtocol.readRegister(register.getObisCode());
-                    AdapterDeviceRegister adapterDeviceRegister = new AdapterDeviceRegister(getRegisterIdentifier(register));
+                    CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(getRegisterIdentifier(register));
                     adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     adapterDeviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
                     collectedRegisters.add(adapterDeviceRegister);
                 } catch (UnsupportedException | NoSuchRegisterException e) {
-                    DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
+                    CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
                     defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 }
@@ -82,8 +84,18 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
     }
 
 
-    private CanFindRegister getRegisterIdentifier(OfflineRegister offlineRegister){
+    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
         return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), new DeviceIdentifierById(offlineRegister.getDeviceId()));
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
     }
 
 }

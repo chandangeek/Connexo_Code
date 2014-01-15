@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceP
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
@@ -17,8 +18,8 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
  */
 public class SmartMeterProtocolSecuritySupportAdapter extends AbstractDeviceProtocolSecuritySupportAdapter {
 
-    public SmartMeterProtocolSecuritySupportAdapter(SmartMeterProtocol smartMeterProtocol, PropertiesAdapter propertiesAdapter) {
-        super(propertiesAdapter);
+    public SmartMeterProtocolSecuritySupportAdapter(SmartMeterProtocol smartMeterProtocol, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+        super(propertiesAdapter, securitySupportAdapterMappingFactory);
         Object securityInstance = createNewSecurityInstance(getDeviceSecuritySupportMappingFor(smartMeterProtocol.getClass().getName()));
         if (DeviceProtocolSecurityCapabilities.class.isAssignableFrom(securityInstance.getClass())) {
             setLegacySecuritySupport((DeviceProtocolSecurityCapabilities) securityInstance);

@@ -1,11 +1,13 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.meterdata.DeviceLogBook;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
-import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
@@ -32,13 +34,13 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
 
     @Override
     public List<CollectedLogBook> getLogBookData(final List<LogBookReader> logBookReaders) {
+        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
         if (logBookReaders != null && this.smartMeterProtocol != null) {
-
             for (LogBookReader reader : logBookReaders) {
-                DeviceLogBook deviceLogBook = new DeviceLogBook(reader.getLogBookIdentifier());
+                CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(reader.getLogBookIdentifier());
                 try {
-                    if (reader.getLogBookObisCode().equals(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
+                    if (reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                         final List<MeterEvent> meterEvents = smartMeterProtocol.getMeterEvents(reader.getLastLogBook());
                         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                     } else {
@@ -51,6 +53,16 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
             }
         }
         return collectedLogBooks;
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
     }
 
 }

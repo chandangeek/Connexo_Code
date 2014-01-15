@@ -2,9 +2,10 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.ReferenceFactory;
@@ -14,15 +15,14 @@ import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.dynamic.relation.RelationTypeFactory;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
-import com.energyict.mdw.core.MeteringWarehouse;
 
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -37,19 +37,21 @@ import java.util.List;
  * Date: 1/10/12
  * Time: 15:36
  */
-public class DeviceProtocolDialectUsagePluggableClassImpl implements ServerDeviceProtocolDialectUsagePluggableClass {
+public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProtocolDialectUsagePluggableClass {
 
     public static final String DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME = "deviceProtocolDialect";
 
     private final DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private final DeviceProtocolDialect deviceProtocolDialect;
     private final DataModel dataModel;
+    private final RelationService relationService;
     private RelationType relationType;  // Cache
 
-    public DeviceProtocolDialectUsagePluggableClassImpl(DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceProtocolDialect deviceProtocolDialect, DataModel dataModel) {
+    public DeviceProtocolDialectUsagePluggableClassImpl(DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceProtocolDialect deviceProtocolDialect, DataModel dataModel, RelationService relationService) {
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
         this.deviceProtocolDialect = deviceProtocolDialect;
         this.dataModel = dataModel;
+        this.relationService = relationService;
     }
 
     @Override
@@ -82,7 +84,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements ServerDevic
     }
 
     private RelationType findRelationType(String relationTypeName) {
-        return getRelationTypeFactory().find(relationTypeName);
+        return this.relationService.findRelationType(relationTypeName);
     }
 
     private RelationType createRelationType(DeviceProtocolDialect deviceProtocolDialect) throws BusinessException, SQLException {
@@ -97,13 +99,8 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements ServerDevic
             relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec, false));   // Not required because the user can decide to specify a value on the config level
         }
         relationTypeShadow.add(this.constraintShadowFor(defaultAttribute));
-        return getRelationTypeFactory().create(relationTypeShadow);
+        return this.relationService.createRelationType(relationTypeShadow);
     }
-
-    private RelationTypeFactory getRelationTypeFactory () {
-        return ManagerFactory.getCurrent().getMdwInterface().getRelationTypeFactory();
-    }
-
 
     private ConstraintShadow constraintShadowFor(RelationAttributeTypeShadow defaultAttributeTypeShadow) {
         ConstraintShadow shadow = new ConstraintShadow();
@@ -125,7 +122,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements ServerDevic
         ValueFactory valueFactory = propertySpec.getValueFactory();
         shadow.setValueFactoryClass(valueFactory.getClass());
         if (valueFactory.isReference()) {
-            shadow.setObjectFactoryId(MeteringWarehouse.getCurrent().findFactory(valueFactory.getValueType().getName()).getId());
+            shadow.setObjectFactoryId(Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName()).getId());
         }
         return shadow;
     }
@@ -135,7 +132,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements ServerDevic
         shadow.setName(DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
         shadow.setRequired(true);
         shadow.setIsDefault(true);
-        shadow.setObjectFactoryId(ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory().getId());
+        shadow.setObjectFactoryId(FactoryIds.DEVICE_PROTOCOL_DIALECT.id());
         shadow.setValueFactoryClass(ReferenceFactory.class);
         return shadow;
     }

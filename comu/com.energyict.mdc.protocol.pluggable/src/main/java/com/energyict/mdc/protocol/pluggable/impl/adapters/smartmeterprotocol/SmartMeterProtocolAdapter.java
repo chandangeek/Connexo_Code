@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
@@ -36,6 +37,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelOutpu
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
@@ -108,6 +110,8 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private SmartMeterProtocolSecuritySupportAdapter smartMeterProtocolSecuritySupportAdapter;
 
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+
     /**
      * The logger used by the protocol
      */
@@ -123,11 +127,16 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService) {
-        super(protocolPluggableService);
+    public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+        super(protocolPluggableService, dataModel);
         this.meterProtocol = meterProtocol;
+        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         initializeAdapters();
         initInheritors();
+    }
+
+    protected SecuritySupportAdapterMappingFactory getSecuritySupportAdapterMappingFactory() {
+        return securitySupportAdapterMappingFactory;
     }
 
     /**
@@ -152,7 +161,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol());
+            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel());
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -160,7 +169,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
         if (!DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(getSmartMeterProtocol(), this.propertiesAdapter);
+            this.smartMeterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(getSmartMeterProtocol(), this.propertiesAdapter, this.securitySupportAdapterMappingFactory);
         }
         else {
             this.deviceSecuritySupport = (DeviceSecuritySupport) this.meterProtocol;
@@ -508,4 +517,5 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     protected AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter() {
         return this.smartMeterProtocolSecuritySupportAdapter;
     }
+
 }

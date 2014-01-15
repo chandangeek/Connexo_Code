@@ -1,23 +1,21 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.energyict.mdc.dynamic.relation.impl.ServiceLocator;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingFactoryProvider;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.LegacyPropertySpecSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryProvider;
-import com.energyict.comserver.adapters.common.SimpleTestDeviceSecuritySupport;
-import com.energyict.comserver.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
-import com.energyict.comserver.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.pluggable.LegacyPropertySpecSupport;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -29,10 +27,11 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.services.impl.ServiceLocator;
-import com.energyict.mdw.testutils.TestDeviceProtocol;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -79,8 +78,6 @@ public class MeterProtocolAdapterTest {
     private static final String AS220_PROTOCOL = "com.energyict.protocolimpl.dlms.as220.AS220";
 
     @Mock
-    private SecuritySupportAdapterMappingFactoryImpl securitySupportAdapterMappingFactory;
-    @Mock
     private CapabilityAdapterMappingFactoryImpl capabilityAdapterMappingFactory;
     @Mock
     private Environment environment;
@@ -90,14 +87,15 @@ public class MeterProtocolAdapterTest {
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     @Mock
     private DeviceProtocolSecurityService deviceProtocolSecurityService;
+    @Mock
+    private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
     @Before
     public void before() {
-        final SecuritySupportAdapterMappingFactoryProvider securitySupportAdapterMappingFactoryProvider = mock(SecuritySupportAdapterMappingFactoryProvider.class);
-        when(securitySupportAdapterMappingFactoryProvider.getSecuritySupportAdapterMappingFactory()).thenReturn(securitySupportAdapterMappingFactory);
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (PROTOCOL_CLASS)).thenReturn("com.energyict.comserver.adapters.common.SimpleTestDeviceSecuritySupport");
-        SecuritySupportAdapterMappingFactoryProvider.INSTANCE.set(securitySupportAdapterMappingFactoryProvider);
 
         final DeviceCapabilityAdapterMappingFactoryProvider deviceCapabilityAdapterMappingFactoryProvider = mock(DeviceCapabilityAdapterMappingFactoryProvider.class);
         when(deviceCapabilityAdapterMappingFactoryProvider.getCapabilityAdapterMappingFactory()).thenReturn(capabilityAdapterMappingFactory);
@@ -134,8 +132,8 @@ public class MeterProtocolAdapterTest {
         Environment.DEFAULT.set(null);
     }
 
-    private ComPortRelatedComChannel getMockedComChannel() {
-        ComPortRelatedComChannel mock = mock(ComPortRelatedComChannel.class);
+    private ComChannel getMockedComChannel() {
+        ComChannel mock = mock(ComChannel.class);
         when(mock.getProperties()).thenReturn(TypedProperties.empty());
         return mock;
     }
@@ -148,7 +146,7 @@ public class MeterProtocolAdapterTest {
     public void meterProtocolAdaptersNotNullTest() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertNotNull(meterProtocolAdapter.getMeterProtocolClockAdapter());
         assertNotNull(meterProtocolAdapter.getMeterProtocolLoadProfileAdapter());
@@ -160,7 +158,7 @@ public class MeterProtocolAdapterTest {
     public void dummyRegisterProtocolTest() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertTrue(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol() instanceof DeviceRegisterReadingNotSupported);
     }
@@ -169,7 +167,7 @@ public class MeterProtocolAdapterTest {
     public void notTheDummyRegisterProtocolTest() {
         RegisterSupportedMeterProtocol meterProtocol = mock(RegisterSupportedMeterProtocol.class, withSettings().extraInterfaces(DeviceSecuritySupport.class, DeviceMessageSupport.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertFalse(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol() instanceof DeviceRegisterReadingNotSupported);
         assertTrue(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol() instanceof RegisterSupportedMeterProtocol);
@@ -185,7 +183,7 @@ public class MeterProtocolAdapterTest {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         doThrow(new IOException("Could not terminate/release the protocol")).when(meterProtocol).release();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         meterProtocolAdapter.terminate();
     }
@@ -199,7 +197,7 @@ public class MeterProtocolAdapterTest {
         requiredKeys.add(PropertySpecFactory.stringPropertySpec("r3"));
         when(meterProtocol.getRequiredProperties()).thenReturn(requiredKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertThat(getRequiredPropertiesFromSet(meterProtocolAdapter.getPropertySpecs())).isEmpty(); // the optional properties are replaced by the hardcoded legacy values
     }
@@ -223,7 +221,7 @@ public class MeterProtocolAdapterTest {
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         List<PropertySpec> optionalPropertiesFromSet = getOptionalPropertiesFromSet(meterProtocolAdapter.getPropertySpecs());
         assertThat(optionalPropertiesFromSet).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
@@ -269,7 +267,7 @@ public class MeterProtocolAdapterTest {
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         final List<DeviceProtocolDialect> deviceProtocolDialects = meterProtocolAdapter.getDeviceProtocolDialects();
 
@@ -286,7 +284,7 @@ public class MeterProtocolAdapterTest {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         when(meterProtocol.getProtocolVersion()).thenReturn(version);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertEquals(version, meterProtocolAdapter.getVersion());
     }
@@ -297,7 +295,7 @@ public class MeterProtocolAdapterTest {
         TypedProperties properties = TypedProperties.empty();
         doThrow(new InvalidPropertyException("Invalid property received")).when(meterProtocol).setProperties(Matchers.<Properties>any());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
 
         meterProtocolAdapter.copyProperties(properties); // should be successful
@@ -311,7 +309,7 @@ public class MeterProtocolAdapterTest {
         TypedProperties properties = TypedProperties.empty();
         doThrow(new MissingPropertyException("Missing property")).when(meterProtocol).setProperties(Matchers.<Properties>any());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
 
         meterProtocolAdapter.copyProperties(properties); // should be successful
@@ -325,7 +323,7 @@ public class MeterProtocolAdapterTest {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(meterSerialNumber);
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
         assertEquals(meterSerialNumber, meterProtocolAdapter.getSerialNumber());
     }
@@ -335,7 +333,7 @@ public class MeterProtocolAdapterTest {
         final Object cacheObject = new BigDecimal("1256.6987");
         final int deviceId = 123;
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // Calling all business method on CachingProtocol
         meterProtocolAdapter.setCache(cacheObject);
@@ -353,7 +351,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void logOnWithoutViolationsTest() throws IOException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // call the logOn business method
         meterProtocolAdapter.logOn();
@@ -366,7 +364,7 @@ public class MeterProtocolAdapterTest {
     public void logOnWithExceptionTest() throws CommunicationException, IOException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         doThrow(new IOException("Connection failed for a test reason")).when(meterProtocol).connect();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         try {
             // call the logOn business method
@@ -381,7 +379,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void logOffWithoutViolationsTest() throws IOException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // call the business method
         meterProtocolAdapter.logOff();
@@ -394,7 +392,7 @@ public class MeterProtocolAdapterTest {
     public void logOffWithExceptionTest() throws IOException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         doThrow(new IOException("Disconnect failed for a test reason")).when(meterProtocol).disconnect();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         try {
             // call the business method
@@ -409,7 +407,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void enableHHUSignOnWithoutExceptionsTest() throws ConnectionException {
         HhuEnabledMeterProtocol meterProtocol = mock(HhuEnabledMeterProtocol.class, withSettings().extraInterfaces(DeviceSecuritySupport.class, DeviceMessageSupport.class));
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // call the business method
         meterProtocolAdapter.enableHHUSignOn(any(SerialCommunicationChannel.class));
@@ -421,7 +419,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void enableHHUSignOnWithoutExceptionsWithDataReadOut() throws ConnectionException {
         HhuEnabledMeterProtocol meterProtocol = mock(HhuEnabledMeterProtocol.class, withSettings().extraInterfaces(DeviceSecuritySupport.class, DeviceMessageSupport.class));
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // call the business method
         meterProtocolAdapter.enableHHUSignOn(any(SerialCommunicationChannel.class), anyBoolean());
@@ -433,7 +431,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void getHHUDataReadoutTest() {
         HhuEnabledMeterProtocol meterProtocol = mock(HhuEnabledMeterProtocol.class, withSettings().extraInterfaces(DeviceSecuritySupport.class, DeviceMessageSupport.class));
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // call the business method
         meterProtocolAdapter.getHHUDataReadout();
@@ -445,7 +443,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void getHHUDataReadoutEmptyByteArray() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol);
+        MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // call the business method
         byte[] hhuDataReadout = meterProtocolAdapter.getHHUDataReadout();
@@ -458,7 +456,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void getCapabilitiesTest() throws ClassNotFoundException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        MeterProtocolAdapter meterProtocolAdapter = spy(new MeterProtocolAdapter(meterProtocol));
+        MeterProtocolAdapter meterProtocolAdapter = spy(new MeterProtocolAdapter(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel));
         when(meterProtocolAdapter.getProtocolClass()).thenReturn(TestDeviceProtocol.class);
 
         // assert that the adapter provides all capabilities
@@ -469,7 +467,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertiesWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         MeterProtocol adaptedProtocol = new SimpleTestMeterProtocol();
-        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
         List<PropertySpec> securityProperties = adapter.getSecurityProperties();
@@ -481,7 +479,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertiesWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // Business method
         adapter.getSecurityProperties();
@@ -493,7 +491,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertySpecWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         MeterProtocol adaptedProtocol = new SimpleTestMeterProtocol();
-        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
         PropertySpec whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
@@ -507,7 +505,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertySpecWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // Business method
         adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
@@ -519,7 +517,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetAuthenticationAccessLevelsWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         MeterProtocol adaptedProtocol = new SimpleTestMeterProtocol();
-        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = adapter.getAuthenticationAccessLevels();
@@ -532,7 +530,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetAuthenticationAccessLevelsWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // Business method
         adapter.getAuthenticationAccessLevels();
@@ -544,7 +542,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetEncryptionAccessLevelsWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         MeterProtocol adaptedProtocol = new SimpleTestMeterProtocol();
-        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = adapter.getEncryptionAccessLevels();
@@ -557,7 +555,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetEncryptionAccessLevelsWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // Business method
         adapter.getEncryptionAccessLevels();
@@ -569,7 +567,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetSecurityRelationTypeNameWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         MeterProtocol adaptedProtocol = new SimpleTestMeterProtocol();
-        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Asserts
         assertThat(SimpleTestDeviceSecuritySupport.DUMMY_RELATION_TYPE_NAME).isEqualTo(adapter.getSecurityRelationTypeName());
@@ -578,7 +576,7 @@ public class MeterProtocolAdapterTest {
     @Test
     public void testGetSecurityRelationTypeNameWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol);
+        MeterProtocolAdapter adapter = new MeterProtocolAdapter(adaptedProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
 
         // Business method
         adapter.getSecurityRelationTypeName();
@@ -593,13 +591,13 @@ public class MeterProtocolAdapterTest {
 
     private class TestMeterProtocolAdapter extends MeterProtocolAdapter {
 
-        private TestMeterProtocolAdapter(final MeterProtocol meterProtocol) {
-            super(meterProtocol);
+        private TestMeterProtocolAdapter(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+            super(meterProtocol, protocolPluggableService, securitySupportAdapterMappingFactory, this.dataModel);
         }
 
         @Override
         protected void initializeAdapters() {
-            setMeterProtocolSecuritySupportAdapter(new MeterProtocolSecuritySupportAdapter(getMeterProtocol(), mock(PropertiesAdapter.class)));
+            setMeterProtocolSecuritySupportAdapter(new MeterProtocolSecuritySupportAdapter(getMeterProtocol(), mock(PropertiesAdapter.class), this.getSecuritySupportAdapterMappingFactory()));
         }
     }
 }
