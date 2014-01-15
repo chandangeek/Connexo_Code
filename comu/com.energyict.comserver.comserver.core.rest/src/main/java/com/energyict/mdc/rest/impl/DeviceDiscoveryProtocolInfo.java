@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.PluggableClassShadow;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,7 +36,7 @@ public class DeviceDiscoveryProtocolInfo {
     }
 
     public PluggableClassShadow asShadow() {
-        PluggableClassShadow shadow = new PluggableClassShadow(com.energyict.mdc.protocol.api.PluggableClassType.DiscoveryProtocol);
+        PluggableClassShadow shadow = new PluggableClassShadow(PluggableClassType.DiscoveryProtocol);
         shadow.setName(this.name);
         shadow.setJavaClassName(this.javaClassName);
         return shadow;

@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.PluggableClassType;
+import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.pluggable.PluggableClassShadow;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
@@ -25,7 +25,7 @@ import java.util.Map;
 @XmlRootElement
 public class DeviceCommunicationProtocolInfo {
 
-    public int id;
+    public long id;
     public String name;
     public LicensedProtocolInfo licensedProtocol;
     public String deviceProtocolVersion;
@@ -89,4 +89,9 @@ public class DeviceCommunicationProtocolInfo {
         }
         return typedProperties;
     }
+
+    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        // Todo
+    }
+
 }

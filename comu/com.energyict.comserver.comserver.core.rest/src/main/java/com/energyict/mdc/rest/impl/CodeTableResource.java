@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdw.core.Code;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdw.coreimpl.CodeFactoryImpl;
 
 import javax.ws.rs.GET;

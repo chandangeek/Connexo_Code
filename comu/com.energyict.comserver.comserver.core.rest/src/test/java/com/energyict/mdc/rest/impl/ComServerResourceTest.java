@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;

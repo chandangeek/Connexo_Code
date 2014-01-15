@@ -1,10 +1,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;

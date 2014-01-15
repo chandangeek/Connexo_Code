@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 
 public class NrOfStopBitsAdapter extends MapBasedXmlAdapter<NrOfStopBits> {
     public NrOfStopBitsAdapter() {
