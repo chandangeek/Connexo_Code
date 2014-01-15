@@ -193,7 +193,5 @@ public abstract class JoinDataMapper<T> {
 
 	abstract public boolean isReachable();
 	
-	boolean skipFetch(boolean marked, boolean anyChildMarked) {
-		return isChild() && (marked || anyChildMarked);
-	}
+	abstract boolean skipFetch(boolean marked, boolean anyChildMarked);
 }
