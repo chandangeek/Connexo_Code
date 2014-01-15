@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.TimeDuration;
 import java.util.Date;
 import java.util.List;
@@ -128,7 +129,7 @@ public interface ComServer {
      *
      * @return The timestamp of the last modification
      */
-    public Date getModificationDate ();
+    public UtcInstant getModificationDate();
 
     /**
      * Returns <code>true</code> iff this ComServer is

@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.ApplicationException;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -55,7 +55,7 @@ public abstract class ComServerImpl implements ServerComServer {
     private LogLevel communicationLogLevel;
     private TimeDuration changesInterPollDelay;
     private TimeDuration schedulingInterPollDelay;
-    private Date modificationDate;
+    private UtcInstant modificationDate;
     private final List<ServerComPort> comPorts = new ArrayList<>();
     private boolean obsoleteFlag;
     private Date obsoleteDate;
@@ -133,10 +133,10 @@ public abstract class ComServerImpl implements ServerComServer {
 
     protected void validateMakeObsolete () {
         if (this.isObsolete()) {
-            throw new ApplicationException("comServerIsAlreadyObsolete");
-//                    "The ComServer with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
-//                    this.getId(),
-//                    this.getObsoleteDate());
+            throw new TranslatableApplicationException("comServerIsAlreadyObsolete",
+                    "The ComServer with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
+                    this.getId(),
+                    this.getObsoleteDate());
         }
     }
 
@@ -281,7 +281,7 @@ public abstract class ComServerImpl implements ServerComServer {
         return Character.isDigit(c) || Character.isAlphabetic(c) || c == '.' || c == '-';
     }
 
-    public Date getModificationDate () {
+    public UtcInstant getModificationDate() {
         return modificationDate;
     }
 
