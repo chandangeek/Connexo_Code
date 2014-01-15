@@ -80,12 +80,20 @@ public final class ReadingTypeCodeBuilder {
 	}
 	
 	public ReadingTypeCodeBuilder harmonic(int numerator , int denominator) {
-		this.interharmonic = new RationalNumber(numerator, denominator);
+		if (numerator == 0 && denominator == 0) {
+			this.interharmonic = RationalNumber.NOTAPPLICABLE;
+		} else {
+			this.interharmonic = new RationalNumber(numerator, denominator);
+		} 
 		return this;
 	}
 	
 	public ReadingTypeCodeBuilder argument(int numerator , int denominator) {
-		this.argument = new RationalNumber(numerator, denominator);
+		if (numerator == 0 && denominator == 0) {
+			this.argument = RationalNumber.NOTAPPLICABLE;
+		} else {
+			this.argument = new RationalNumber(numerator, denominator);
+		}
 		return this;
 	}
 	
