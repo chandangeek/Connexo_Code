@@ -85,9 +85,9 @@ public class NlsKeyIT {
         injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
             @Override
             public void doPerform() {
-                Provider<NlsKey> provider = injector.getProvider(NlsKey.class);
+                Provider<NlsKeyImpl> provider = injector.getProvider(NlsKeyImpl.class);
 
-                NlsKey nlsKey = provider.get().init(COMPONENT, Layer.DOMAIN, "fiets");
+                NlsKeyImpl nlsKey = provider.get().init(COMPONENT, Layer.DOMAIN, "fiets");
 
                 nlsKey.setDefaultMessage("defaultMsg");
                 nlsKey.add(Locale.FRENCH, "bicyclette");
@@ -96,9 +96,9 @@ public class NlsKeyIT {
 
             }
         });
-        List<NlsKey> nlsKeys = dataModel.mapper(NlsKey.class).find();
+        List<NlsKeyImpl> nlsKeys = dataModel.mapper(NlsKeyImpl.class).find();
         assertThat(nlsKeys).hasSize(1);
-        NlsKey nlsKey = nlsKeys.get(0);
+        NlsKeyImpl nlsKey = nlsKeys.get(0);
         assertThat(nlsKey.getComponent()).isEqualTo(COMPONENT);
         assertThat(nlsKey.getLayer()).isEqualTo(Layer.DOMAIN);
         assertThat(nlsKey.getKey()).isEqualTo("fiets");

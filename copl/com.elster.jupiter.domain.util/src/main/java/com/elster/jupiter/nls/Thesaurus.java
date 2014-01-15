@@ -1,9 +1,6 @@
 package com.elster.jupiter.nls;
 
-import java.util.List;
 import java.util.Locale;
-
-import com.elster.jupiter.util.Pair;
 
 public interface Thesaurus {
 	
@@ -17,20 +14,15 @@ public interface Thesaurus {
 	// Note that the query behind this is more complex than at first sight.
 	// It needs to honor the Locale (or LanguageTag) hierarchy.
 	//
+
 	String getString(String key, String defaultMessage);
-	
-	// install time API:
-	// pair.first is message key, pair.last is defaultMessage
-	//
-	// TODO:
-	//   think of ways how to initial load the thesaurus from 
-	//
-	String add(List<Pair<String,String>> defaults);
-	
-	// 
+
+    String getString(Locale locale, String key, String defaultMessage);
+
+    //
 	// we could add (mainly for the maintenance app)
 	//
-	Pair<String,String> getTranslations(Locale local) ;
+	NlsKey getTranslations(Locale local) ;
 	//
 	//
 	//
@@ -39,4 +31,7 @@ public interface Thesaurus {
 	//
 	//
 	NlsMessageFormat getFormat(MessageSeed seed);
+
+    void addTranslations(Iterable<? extends Translation> translations);
+
 }

@@ -5,6 +5,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -12,11 +15,14 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @Component(name = "com.elster.jupiter.nls")
 public class NlsServiceImpl implements NlsService {
 
     private volatile DataModel dataModel;
+
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Activate
     public void activate() {
@@ -24,6 +30,7 @@ public class NlsServiceImpl implements NlsService {
             @Override
             protected void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         });
     }
@@ -37,22 +44,21 @@ public class NlsServiceImpl implements NlsService {
     }
 
     @Inject
-    public NlsServiceImpl(OrmService ormService) {
+    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService) {
         setOrmService(ormService);
+        setThreadPrincipalService(threadPrincipalService);
         activate();
         dataModel.install(true, true);
     }
 
     @Override
     public Thesaurus getThesaurus(String componentName, Layer layer) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return dataModel.getInstance(ThesaurusImpl.class).init(componentName, getNlsKeys(componentName, layer));
     }
 
-    @Override
-    public Thesaurus newThesaurus(String componentName, Layer layer) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+    private List<NlsKeyImpl> getNlsKeys(String componentName, Layer layer) {
+        Condition condition = Operator.EQUAL.compare("layer", layer).and(Operator.EQUAL.compare("componentName", componentName));
+        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
     }
 
     @Reference
@@ -66,4 +72,10 @@ public class NlsServiceImpl implements NlsService {
     DataModel getDataModel() {
         return dataModel;
     }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
 }

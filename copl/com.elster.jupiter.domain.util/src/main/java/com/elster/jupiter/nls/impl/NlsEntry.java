@@ -1,5 +1,6 @@
 package com.elster.jupiter.nls.impl;
 
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 

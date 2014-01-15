@@ -1,5 +1,6 @@
 package com.elster.jupiter.nls.impl;
 
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -12,7 +13,7 @@ enum TableSpecs {
     NLS_KEY(NlsKey.class) {
         @Override
         void describeTable(Table table) {
-            table.map(NlsKey.class);
+            table.map(NlsKeyImpl.class);
             Column componentColumn = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
             Column layerColumn = table.column("LAYER").type("varchar2(10)").notNull().conversion(ColumnConversion.CHAR2ENUM).map("layer").add();
             Column keyColumn = table.column("KEY").type("varchar2(64)").notNull().map("key").add();
