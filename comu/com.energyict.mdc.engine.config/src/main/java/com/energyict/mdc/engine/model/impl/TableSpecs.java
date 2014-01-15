@@ -60,7 +60,7 @@ public enum TableSpecs {
             table.column("QUERYAPIPASSWORD").type("varchar2(255)").map("queryAPIPassword").add();
             table.addModTimeColumn("MOD_DATE", "modificationDate");
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
-            Column onlineComServerId = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).map("onlineComServer").add();
+            Column onlineComServerId = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();

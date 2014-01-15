@@ -92,6 +92,46 @@ public class ComServerCrudTest {
     }
 
     @Test
+    public void testCreateLoadRemoteComServer() throws Exception {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+            onlineComServer.setName("Online4Remote");
+            onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+            onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
+            onlineComServer.setChangesInterPollDelay(new TimeDuration(120));
+            onlineComServer.setSchedulingInterPollDelay(new TimeDuration(300));
+            onlineComServer.setActive(false);
+            onlineComServer.setUsesDefaultQueryAPIPostUri(true);
+            onlineComServer.setStoreTaskQueueSize(10);
+            onlineComServer.setStoreTaskThreadPriority(3);
+            onlineComServer.setNumberOfStoreTaskThreads(6);
+            onlineComServer.setUsesDefaultEventRegistrationUri(true);
+
+            onlineComServer.save();
+
+            RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+            remoteComServer.setName("Remoter");
+            remoteComServer.setServerLogLevel(ComServer.LogLevel.WARN);
+            remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
+            remoteComServer.setChangesInterPollDelay(new TimeDuration(60));
+            remoteComServer.setSchedulingInterPollDelay(new TimeDuration(90));
+            remoteComServer.setActive(false);
+            remoteComServer.setOnlineComServer((OnlineComServer) getEngineModelService().findComServer("Online4Remote"));
+            remoteComServer.save();
+            context.commit();
+        }
+
+        ComServer offlineComServer = getEngineModelService().findComServer("Remoter");
+        assertTrue(offlineComServer instanceof RemoteComServer);
+        assertThat(offlineComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(60));
+        assertThat(offlineComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(90));
+        assertThat(offlineComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.WARN);
+        assertThat(offlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.TRACE);
+        assertThat(offlineComServer.isActive()).isEqualTo(false);
+        assertThat(((RemoteComServer) offlineComServer).getOnlineComServer().getName()).isEqualTo("Online4Remote");
+    }
+
+    @Test
     public void testCreateLoadOnlineComServerWithDefaultUris() throws Exception {
         try (TransactionContext context = getTransactionService().getContext()) {
             OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
