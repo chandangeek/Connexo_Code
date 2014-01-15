@@ -35,8 +35,8 @@ public abstract class ComServerImpl implements ServerComServer {
     protected static final String OFFLINE_COMSERVER_DISCRIMINATOR = "1";
     protected static final String REMOTE_COMSERVER_DISCRIMINATOR = "2";
 
-    static final Map<String, Class<? extends ServerComServer>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ServerComServer>>of(
+    static final Map<String, Class<? extends ComServer>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ComServer>>of(
                     ONLINE_COMSERVER_DISCRIMINATOR, OnlineComServerImpl.class,
                     OFFLINE_COMSERVER_DISCRIMINATOR, OfflineComServerImpl.class,
                     REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);

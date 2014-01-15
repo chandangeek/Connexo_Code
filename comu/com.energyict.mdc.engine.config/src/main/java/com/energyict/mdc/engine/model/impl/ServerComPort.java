@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComPort;
 
@@ -38,6 +39,6 @@ public interface ServerComPort extends ComPort {
      * @return The date when this ComPort was made obsolete
      *         or <code>null</code> when this ComPort is not obsolete at all.
      */
-    public Date getObsoleteDate ();
+    public UtcInstant getObsoleteDate();
 
 }

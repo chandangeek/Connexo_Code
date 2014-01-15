@@ -2,7 +2,9 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
@@ -38,8 +40,8 @@ public abstract class ComPortImpl implements ServerComPort {
     protected static final String UDP_DISCRIMINATOR = "3";
     protected static final String OUTBOUND_DISCRIMINATOR = "5";
 
-    static final Map<String, Class<? extends ServerComPort>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ServerComPort>>of(
+    static final Map<String, Class<? extends ComPort>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ComPort>>of(
                     MODEM_DISCRIMINATOR, ModemBasedInboundComPortImpl.class,
                     TCP_DISCRIMINATOR, TCPBasedInboundComPortImpl.class,
                     SERVLET_DISCRIMINATOR, ServletBasedInboundComPortImpl.class,
@@ -50,12 +52,12 @@ public abstract class ComPortImpl implements ServerComPort {
 
     private long id=0;
     private String name;
-    private Date modificationDate;
-    private Reference<ComServer> comServer;
+    private UtcInstant modificationDate;
+    private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
     private boolean obsoleteFlag;
-    private Date obsoleteDate;
+    private UtcInstant obsoleteDate;
     private ComPortType type;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
@@ -139,7 +141,7 @@ public abstract class ComPortImpl implements ServerComPort {
         return ComPort.class.getName();
     }
 
-    public Date getModificationDate() {
+    public UtcInstant getModificationDate() {
         return modificationDate;
     }
 
@@ -173,17 +175,13 @@ public abstract class ComPortImpl implements ServerComPort {
     }
 
     @Override
-    public Date getObsoleteDate() {
+    public UtcInstant getObsoleteDate() {
         return obsoleteDate;
     }
 
     @Override
     public ComPortType getComPortType() {
         return type;
-    }
-
-    public void setModificationDate(Date modificationDate) {
-        this.modificationDate = modificationDate;
     }
 
     public void setComServer(ComServer comServer) {

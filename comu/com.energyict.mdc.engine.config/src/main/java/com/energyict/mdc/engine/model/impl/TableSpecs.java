@@ -5,8 +5,10 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
+import com.energyict.mdc.engine.model.ComServer;
 
 import static com.elster.jupiter.orm.ColumnConversion.DATE2DATE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -14,7 +16,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
 
-    MDCCOMPORTPOOL() {
+    MDCCOMPORTPOOL {
 
         @Override
         void addTo(DataModel dataModel) {
@@ -34,10 +36,10 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
         }
     },
-    MDCCOMSERVER() {
+    MDCCOMSERVER {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ServerComServer> table = dataModel.addTable(name(), ServerComServer.class);
+            Table<ComServer> table = dataModel.addTable(name(), ComServer.class);
             table.map(ComServerImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
@@ -63,21 +65,22 @@ public enum TableSpecs {
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();
             table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").add();
-            table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2INT).map("usesDefaultQueryAPIPostUri").add();
-            table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2INT).map("usesDefaultEventRegistrationUri").add();
+            table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").add();
+            table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultEventRegistrationUri").add();
             table.foreignKey("FK_REMOTE_ONLINE").on(onlineComServerId).references(MDCCOMSERVER.name()).map("onlineComServer").add();
         }
     },
-    MDCCOMPORT() {
+    MDCCOMPORT {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ServerComPort> table = dataModel.addTable(name(), ServerComPort.class);
+            Table<ComPort> table = dataModel.addTable(name(), ComPort.class);
             table.map(ComPortImpl.IMPLEMENTERS);
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("NAME").type("varchar2(80)").map("name").add();
             table.addModTimeColumn("MOD_DATE", "modificationDate");
-            Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).map("comServer").add();
+            Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
             table.column("OBSOLETEFLAG").type("varchar2(1)").map("obsoleteFlag").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
@@ -86,9 +89,9 @@ public enum TableSpecs {
             // no mapping required for comPortPoolMembers
             // IPBasedInboundComPortImpl & OutboundComPortImpl
             table.column("PORTNUMBER").number().conversion(ColumnConversion.NUMBER2INT).map("portNumber").add();
-            table.column("nrofsimultaneousconns").number().conversion(ColumnConversion.NUMBER2LONG).map("numberOfSimultaneousConnections").add();
+            table.column("nrofsimultaneousconns").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfSimultaneousConnections").add();
             // InboundComPortImpl
-            Column comPortPoolId = table.column("COMPORTPOOL").number().conversion(NUMBER2LONG).map("comPortPool").add();
+            table.column("COMPORTPOOL").number().conversion(NUMBER2LONG).map("comPortPool").add();
             // ModemBasedInboundComPortImpl
             table.column("RINGCOUNT").number().conversion(ColumnConversion.NUMBER2INT).map("ringCount").add();
             table.column("maximumDialErrors").number().conversion(ColumnConversion.NUMBER2INT).map("maximumDialErrors").add();
@@ -126,13 +129,13 @@ public enum TableSpecs {
 //                    map("comPortPoolMembers").reverseMap("comPort").composition().add();
         }
     },
-    MDCCOMPORTINPOOL() {
+    MDCCOMPORTINPOOL {
         @Override
         void addTo(DataModel dataModel) {
             Table<ComPortPoolMember> table = dataModel.addTable(name(), ComPortPoolMember.class);
    			table.map(ComPortPoolMemberImpl.class);
-   			Column comPortPoolIdColumn = table.column("COMPORTPOOLID").number().notNull().conversion(NUMBER2LONG).map("comPortPool").add();
-   			Column comPortIdColumn = table.column("COMPORTID").number().notNull().conversion(NUMBER2LONG).map("comPort").add();
+   			Column comPortPoolIdColumn = table.column("COMPORTPOOLID").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
+   			Column comPortIdColumn = table.column("COMPORTID").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
    			table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
    			table.unique("CEM_U_COMPORTINPOOL").on(comPortPoolIdColumn , comPortIdColumn).add();
    			table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).onDelete(DeleteRule.CASCADE).

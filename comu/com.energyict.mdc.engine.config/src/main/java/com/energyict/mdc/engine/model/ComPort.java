@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Date;
 
@@ -39,7 +40,7 @@ public interface ComPort {
      *
      * @return The timestamp of the last modification
      */
-    public Date getModificationDate ();
+    public UtcInstant getModificationDate();
 
     /**
      * Gets the {@link ComServer} to which this ComPort belongs.
@@ -102,8 +103,6 @@ public interface ComPort {
 
     public String getName();
     public void setName(String name);
-
-    public void setModificationDate(Date modificationDate);
 
     public void setDescription(String description);
 
