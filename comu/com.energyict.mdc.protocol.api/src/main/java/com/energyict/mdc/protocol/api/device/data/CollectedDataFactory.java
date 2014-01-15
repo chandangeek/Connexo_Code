@@ -25,6 +25,8 @@ public interface CollectedDataFactory {
 
     public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier);
 
+    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier);
+
     public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier);
 
     public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier);
