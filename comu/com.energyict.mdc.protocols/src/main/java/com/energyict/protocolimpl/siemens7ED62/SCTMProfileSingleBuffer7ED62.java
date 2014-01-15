@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.siemens7ED62;
 
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 
 /**
  *

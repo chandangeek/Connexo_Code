@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

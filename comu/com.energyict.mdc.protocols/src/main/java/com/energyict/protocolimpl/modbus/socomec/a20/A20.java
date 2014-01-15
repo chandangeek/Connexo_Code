@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a20;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
@@ -35,37 +35,37 @@ import java.util.logging.Logger;
  * @author Koen
  */
 public class A20 extends Modbus {
-    
+
     ModbusConnection modbusConnection;
     private RegisterFactory registerFactory;
     private MultiplierFactory multiplierFactory=null;
     private String socomecType;
     /**
-     * Creates a new instance of A20 
+     * Creates a new instance of A20
      */
     public A20() {
     }
 
-    
-    
-    
+
+
+
     protected void doTheConnect() throws IOException {
-        
+
     }
-    
+
     protected void doTheDisConnect() throws IOException {
-        
+
     }
-    
+
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
         setSocomecType(properties.getProperty("SocomecType"));
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "unknown";
     }
-    
+
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add("SocomecType");
@@ -76,25 +76,25 @@ public class A20 extends Modbus {
     public String getProtocolDescription() {
         return "Socomec Diris A20";
     }
-    
+
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
-    
+
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
-    
+
     public Date getTime() throws IOException {
         return new Date();
     }
- 
+
     public DiscoverResult discover(DiscoverTools discoverTools) {
         // discovery is implemented in the GenericModbusDiscover protocol
         return null;
-    } 
-    
-    
+    }
+
+
     static public void main(String[] args) {
         try {
             // ********************** Dialer **********************
@@ -105,7 +105,7 @@ public class A20 extends Modbus {
                                                              SerialCommunicationChannel.PARITY_NONE,
                                                              SerialCommunicationChannel.STOPBITS_1);
             dialer.connect();
-            
+
             // ********************** Properties **********************
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "900");
@@ -116,25 +116,25 @@ public class A20 extends Modbus {
             // ********************** EictRtuModbus **********************
             A20 eictRtuModbus = new A20();
             //System.out.println(eictRtuModbus.translateRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            
+
             eictRtuModbus.setProperties(properties);
             eictRtuModbus.setHalfDuplexController(dialer.getHalfDuplexController());
             eictRtuModbus.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             eictRtuModbus.connect();
-            
+
             //System.out.println(eictRtuModbus.getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification());
-            
+
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).getReadHoldingRegistersRequest());
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValue());
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(3034).dateValue());
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).quantityValueWithParser("BigDecimal"));
 //            System.out.println(eictRtuModbus.getRegisterFactory().findRegister(1700).objectValueWithParser("powerfactor"));
-            
+
             //System.out.println(eictRtuModbus.getFirmwareVersion());
             //System.out.println(eictRtuModbus.getClass().getName());
             //System.out.println(eictRtuModbus.getTime());
-            
-            
+
+
             //System.out.println(eictRtuModbus.getRegisterFactory().findRegister("versie").values()[0]);
             System.out.println(eictRtuModbus.getRegistersInfo(1));
             //System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.12.7.0.255")));
@@ -148,20 +148,20 @@ public class A20 extends Modbus {
 //            System.out.println(eictRtuModbus.readRegister(ObisCode.fromString("1.1.1.7.0.255")));
 //            System.out.println(eictRtuModbus.getRegistersInfo(0));
 //            System.out.println(eictRtuModbus.getRegistersInfo(1));
-            
+
             eictRtuModbus.disconnect();
-            
+
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-        
-    } 
+
+    }
 
     public BigDecimal getRegisterMultiplier(int address) throws IOException, UnsupportedException {
         return getMultiplierFactory().getMultiplier(address);
-    }    
-    
+    }
+
     public MultiplierFactory getMultiplierFactory() {
         if (multiplierFactory == null)
             multiplierFactory = new MultiplierFactory(this);
@@ -177,5 +177,5 @@ public class A20 extends Modbus {
     }
 
 
-    
+
 }

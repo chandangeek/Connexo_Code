@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
-import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.util.Calendar;

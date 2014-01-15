@@ -4,6 +4,7 @@ import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -176,7 +177,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -212,7 +213,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

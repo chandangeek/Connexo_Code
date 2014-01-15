@@ -3,10 +3,9 @@ package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 import java.io.IOException;
@@ -55,17 +54,17 @@ public class Mk10Stub extends MK10 {
 	}
 
 	@Override
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		return PROFILE_INTERVAL;
 	}
 
 	@Override
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		return FIRMWARE_VERSION;
 	}
 
 	@Override
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	public int getNumberOfChannels() throws IOException {
 		return NUMBER_OF_CHANNELS;
 	}
 
@@ -80,9 +79,8 @@ public class Mk10Stub extends MK10 {
 	}
 
 	@Override
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-		ProfileData profileData = new ProfileData();
-		return profileData;
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        return new ProfileData();
 	}
 
 	@Override

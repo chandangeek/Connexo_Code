@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;

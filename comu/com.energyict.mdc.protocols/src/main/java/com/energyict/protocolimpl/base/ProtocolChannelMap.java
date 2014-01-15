@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
 
 import java.util.ArrayList;
 import java.util.Iterator;

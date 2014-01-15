@@ -44,19 +44,20 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.mdc.protocol.api.DemandResetProtocol;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocols.messaging.MessageBuilder;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessaging;
+import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
@@ -508,7 +509,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     /**
      * Returns the message builder capable of generating and parsing 'time of use' messages.
      *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
+     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
      */
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return ((ZmdMessages) this.messageProtocol).getTimeOfUseMessageBuilder();

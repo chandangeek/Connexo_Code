@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import com.energyict.cbo.Utils;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -12,14 +11,14 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -38,6 +37,8 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.Checks.*;
 
 
 /**
@@ -63,27 +64,27 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     /**
      * Property keys
      */
-    final static String PK_TIMEOUT = "Timeout";
-    final static String PK_RETRIES = "Retries";
-    final static String PK_EXTENDED_LOGGING = "ExtendedLogging";
-    final static String PK_DATA_RECORDER_NAME = "DataRecorderName";
-    final static String PK_USER_ID = "UserId";
-    final static String PK_DTR_BEHAVIOUR = "DTRBehaviour";
-    final static String PK_FORCE_DELAY = "ForcedDelay";
-    final static String PK_CHANNEL_MAP = "ChannelMap";
+    static final String PK_TIMEOUT = "Timeout";
+    static final String PK_RETRIES = "Retries";
+    static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+    static final String PK_DATA_RECORDER_NAME = "DataRecorderName";
+    static final String PK_USER_ID = "UserId";
+    static final String PK_DTR_BEHAVIOUR = "DTRBehaviour";
+    static final String PK_FORCE_DELAY = "ForcedDelay";
+    static final String PK_CHANNEL_MAP = "ChannelMap";
 
 
     /**
      * Property Default values
      */
-    final static int PD_TIMEOUT = 10000;
-    final static int PD_RETRIES = 5;
-    final static int PD_ROUNDTRIP_CORRECTION = 0;
-    final static String PD_EXTENDED_LOGGING = "0";
-    final static String PD_DATA_RECORDER_NAME = "Revenue Log";
-    final static int PD_DTR_BEHAVIOUR = 2;
-    final static int PD_NODE_ID = 100;
-    final static long PD_FORCE_DELAY = 200;
+    static final int PD_TIMEOUT = 10000;
+    static final int PD_RETRIES = 5;
+    static final int PD_ROUNDTRIP_CORRECTION = 0;
+    static final String PD_EXTENDED_LOGGING = "0";
+    static final String PD_DATA_RECORDER_NAME = "Revenue Log";
+    static final int PD_DTR_BEHAVIOUR = 2;
+    static final int PD_NODE_ID = 100;
+    static final long PD_FORCE_DELAY = 200;
 
     /**
      * Property values Required properties will have NO default value.
@@ -121,7 +122,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     private OutputStream outputStream;
     private InputStream inputStream;
-    final private int source = 0x4e20;
+    private final int source = 0x4e20;
     private ApplicationLayer applicationLayer;
     private Authentication authentication;
     private IonParser parser;
@@ -148,7 +149,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         try {
 
             String anId = p.getProperty(MeterProtocol.NODEID);
-            if (!Utils.isNull(anId)) {
+            if (!is(anId).emptyOrOnlyWhiteSpace()) {
                 pNodeId = Integer.parseInt(anId);
             }
 
@@ -166,7 +167,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         }
 
         try {
-            if (!Utils.isNull(pPassword) && !Utils.isNull(pUserId)) {
+            if (!is(pPassword).emptyOrOnlyWhiteSpace() && !is(pUserId).emptyOrOnlyWhiteSpace()) {
                 this.authentication = new Authentication(pPassword, pUserId);
             }
         } catch (InvalidPasswordException e) {
@@ -182,11 +183,11 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         }
 
         if (p.getProperty(PK_TIMEOUT) != null) {
-            pTimeout = new Integer(p.getProperty(PK_TIMEOUT)).intValue();
+            pTimeout = Integer.parseInt(p.getProperty(PK_TIMEOUT));
         }
 
         if (p.getProperty(PK_RETRIES) != null) {
-            pRetries = new Integer(p.getProperty(PK_RETRIES)).intValue();
+            pRetries = Integer.parseInt(p.getProperty(PK_RETRIES));
         }
 
         if (p.getProperty(MeterProtocol.ROUNDTRIPCORR) != null) {
@@ -206,11 +207,11 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         }
 
         if (p.getProperty(PK_DTR_BEHAVIOUR) != null) {
-            dtrBehaviour = new Integer(p.getProperty(PK_DTR_BEHAVIOUR)).intValue();
+            dtrBehaviour = Integer.parseInt(p.getProperty(PK_DTR_BEHAVIOUR));
         }
 
         if (p.getProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = new Integer(p.getProperty(PK_FORCE_DELAY)).intValue();
+            pForceDelay = Integer.parseInt(p.getProperty(PK_FORCE_DELAY));
         }
 
         if (p.getProperty(PK_CHANNEL_MAP) != null) {
@@ -233,8 +234,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     /**
      * @return a list of strings
      */
-    public List getRequiredKeys() {
-        List result = new ArrayList(1);
+    public List<String> getRequiredKeys() {
+        List<String> result = new ArrayList<>(1);
         result.add(MeterProtocol.NODEID);
         return result;
     }
@@ -242,8 +243,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     /**
      * @return a list of strings
      */
-    public List getOptionalKeys() {
-        List result = new ArrayList();
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<>();
         result.add(PK_TIMEOUT);
         result.add(PK_RETRIES);
         result.add(PK_EXTENDED_LOGGING);
@@ -276,17 +277,26 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         this.outputStream = outputStream;
 
         if (logger.isLoggable(Level.INFO)) {
-            StringBuffer info = new StringBuffer()
+            StringBuilder info = new StringBuilder()
                     .append("Ion protocol init \n")
-                    .append(" NodeId = " + pNodeId + ",")
-                    .append(" SerialNr = " + pSerialNumber + ",")
-                    .append(" Timeout = " + pTimeout + ",")
-                    .append(" Retries = " + pRetries + ",")
-                    .append(" Ext. Logging = " + pExtendedLogging + ",")
-                    .append(" RoundTripCorr = " + pRountTripCorrection + ",")
-                    .append(" ForceDelay = " + pForceDelay + ",")
-                    .append(" Correct Time = " + pCorrectTime + ",")
-                    .append(" TimeZone = " + timeZone.getID());
+                    .append(" NodeId = ")
+                    .append(pNodeId)
+                    .append(",")
+                    .append(" SerialNr = ")
+                    .append(pSerialNumber)
+                    .append(",")
+                    .append(" Timeout = ")
+                    .append(pTimeout)
+                    .append(",")
+                    .append(" Retries = ")
+                    .append(pRetries)
+                    .append(",")
+                    .append(" Ext. Logging = ")
+                    .append(pExtendedLogging)
+                    .append(",")
+                    .append(" RoundTripCorr = ")
+                    .append(pRountTripCorrection)
+                    .append(",").append(" ForceDelay = ").append(pForceDelay).append(",").append(" Correct Time = ").append(pCorrectTime).append(",").append(" TimeZone = ").append(timeZone.getID());
             logger.info(info.toString());
         }
 
@@ -357,7 +367,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     /**
      * A DataCollector always has 16 channels
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return profile.getNumberOfChannels();
     }
 
@@ -397,7 +407,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return pProfileInterval;
     }
 
@@ -437,14 +447,14 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     private void validateSerialNumber() throws IOException {
 
-        if (Utils.isNull(pSerialNumber)) {
+        if (is(pSerialNumber).emptyOrOnlyWhiteSpace()) {
             return;
         }
 
         Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
         applicationLayer.read(c);
 
-        String sn = (String) ((IonObject) c.getResponse()).getValue();
+        String sn = (String) c.getResponse().getValue();
 
         if (pSerialNumber != null && !pSerialNumber.equals(sn)) {
             String msg = "SerialNumber mismatch! meter sn=" + sn +
@@ -463,22 +473,22 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
 
         Command cRevisionNr =
                 toCmd(IonHandle.FAC_1_REVISION_SR, IonMethod.READ_REGISTER_VALUE);
 
         applicationLayer.read(cRevisionNr);
 
-        return ((IonObject) cRevisionNr.getResponse()).getValue().toString();
+        return cRevisionNr.getResponse().getValue().toString();
 
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -486,14 +496,14 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         Command c =
                 toCmd(IonHandle.CLK_1_UNIVERSAL_TIME_NVR, IonMethod.READ_REGISTER_VALUE);
         applicationLayer.read(c);
-        int secs = ((Integer) ((IonObject) c.getResponse()).getValue()).intValue();
+        int secs = ((Integer) c.getResponse().getValue()).intValue();
         return new Date(secs * 1000l);    // must be casted to long
     }
 
     /**
      * (non-Javadoc)
      *
-     * @see com.energyict.protocol.MeterProtocol#setTime()
+     * @see MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
 
@@ -591,17 +601,17 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         return applicationLayer;
     }
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException, NoSuchRegisterException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException, UnsupportedException {
         // TODO Auto-generated method stub
 
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         // TODO Auto-generated method stub
 
     }
@@ -682,18 +692,13 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
                 new Command(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
         applicationLayer.read(c);
 
-        String sn = (String) ((IonObject) c.getResponse()).getValue();
+        String sn = (String) c.getResponse().getValue();
         disconnect();
 
         return sn;
 
     }
 
-    /**
-     * @param handles
-     * @param method
-     * @return
-     */
     List toCmd(List handles, IonMethod method) {
         ArrayList rslt = new ArrayList();
         Iterator i = handles.iterator();
@@ -704,19 +709,10 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         return rslt;
     }
 
-    /**
-     * @param handle
-     * @param method
-     * @return
-     */
     Command toCmd(IonHandle handle, IonMethod method) {
         return new Command(handle, method);
     }
 
-    /**
-     * @param ionIntegers
-     * @return
-     */
     List collectHandles(List ionIntegers) {
         ArrayList rslt = new ArrayList();
         Iterator i = ionIntegers.iterator();

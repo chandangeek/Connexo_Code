@@ -6,15 +6,13 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
-import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,7 +36,8 @@ import java.util.logging.Logger;
 
 /**
  * @deprecated the Generic MK10Push inbound protocol is deprecated,
- * it is replaced by MK10InboundDeviceProtocol (doing the inbound discovery), combined with the regular MK10 protocol.
+ * it is replaced by MK10InboundDeviceProtocol (doing the inbound discovery),
+ * combined with the regular MK10 protocol.
  * The MK10 protocol is slightly adapted for this.
  *
  * {@link com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol}
@@ -105,11 +104,6 @@ public class MK10Push {
         return MK10Executor;
     }
 
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
-    }
-
     public String getErrorString() {
         if (errorString == null) {
             return "";
@@ -121,87 +115,13 @@ public class MK10Push {
         return returnValue;
     }
 //
-//    private void addLogging(CommunicationScheduler cs, int completionCode, String completionMessage, List<AmrJournalEntry> journal, boolean success, Exception exception) throws SQLException, BusinessException {
-//        sendDebug("** addLogging **", 2);
-//
-//        // check if there was an protocol or timeout error
-//        if (!success && (completionCode == AmrJournalEntry.CC_OK)) {
-//            if (exception != null) {
-//                if ((exception.getMessage() != null) && (exception.getMessage().indexOf("timeout") != -1)) {
-//                    completionCode = AmrJournalEntry.CC_IOERROR;
-//                } else {
-//                    completionCode = AmrJournalEntry.CC_PROTOCOLERROR;
-//                }
-//            }
-//        }
-//
-//        if ((cs != null) && (!cs.getActive())) {
-//            clearNextCommunicationDate(cs);
-//
-//            AMRJournalManager amrjm = new AMRJournalManager(getMeter(), cs);
-//            amrjm.journal(new AmrJournalEntry(completionCode));
-//            amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(getDisconnectTime() - getConnectTime()) / 1000));
-//
-//            for (int i = 0; i < journal.size(); i++) {
-//                AmrJournalEntry amrJournalEntry = journal.get(i);
-//                amrjm.journal(amrJournalEntry);
-//            }
-//
-//            if (getErrorString().length() > 0) {
-//                amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, getErrorString()));
-//            }
-//            if (completionMessage.length() > 0) {
-//                amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, completionMessage));
-//            }
-//            if (exception != null) {
-//                amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, "Exception: " + exception.toString()));
-//            }
-//
-//            if (success) {
-//                sendDebug("** updateLastCommunication **", 3);
-//                amrjm.updateLastCommunication();
-//            } else {
-//                sendDebug("** updateRetrials **", 3);
-//                amrjm.updateRetrials();
-//            }
-//        } else {
-//            getLogger().log(Level.INFO, "Failed to enter an AMR journal entry.");
-//        }
-//    }
-//
-//    private void clearNextCommunicationDate(CommunicationScheduler cs) throws SQLException, BusinessException {
-//        CommunicationSchedulerShadow shadow = cs.getShadow();
-//        shadow.setNextCommunication(null);
-//        cs.update(shadow);
-//    }
-//
-//    private void startCommunication(CommunicationScheduler cs) throws SQLException, BusinessException {
-//        if ((cs != null) && (!cs.getActive())) {
-//            cs.startCommunication(cs.getComPortId());
-//        }
-//    }
-
     private Device findMatchingMeter(String serial) {
-        if (serial == null) {
-            return null;
-        }
-        List meterList = mw().getDeviceFactory().findBySerialNumber(serial);
-
-        for (int i = 0; i < meterList.size(); i++) {
-            Device tempMeter = (Device) meterList.get(i);
-//            if (tempMeter.getDialHomeId() != null) {
-//                if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
-//                    return (Device) meterList.get(i);
-//                }
-//            }
-        }
-
         return null;
     }
 
     private Device waitForPushMeter() throws IOException, BusinessException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        Device pushDevice = null;
+        Device pushDevice;
         while (inputStream.available() > 0) {
             buffer.write(inputStream.read() & BYTE_MASK);
         }
@@ -242,115 +162,6 @@ public class MK10Push {
         }
     }
 
-    /*
-      * Public methods
-      */
-
-//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-//        boolean success = true;
-//        Exception exception = null;
-//
-//        this.link = link;
-//        this.logger = logger;
-//        this.inputStream = getLink().getInputStream();
-//        this.outputStream = getLink().getOutputStream();
-//        setConnectTime(System.currentTimeMillis());
-//
-//        try {
-//
-//            // Check if we got a message from the COMMSERVER UDP Listener
-//            if (scheduler != null) {
-//                throw new ProtocolException("scheduler != null. Execute must be triggered by UDP listener.");
-//            }
-//
-//            sendDebug("** A new UDP session is started **", 0);
-//            sendDebug("** ConnectionTime: [" + getConnectTime() + "] **", 0);
-//
-//            Device pushDevice = waitForPushMeter();
-//            getMK10Executor().setMeter(pushDevice);
-//
-//            startCommunication(getMK10Executor().getInboundCommunicationScheduler());
-//            getMK10Executor().doMeterProtocol();
-//            storeMeterData(getMK10Executor().getMeterReadingData(), getMK10Executor().getMeterProfileData());
-//
-//        } catch (ProtocolException e) {
-//            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-//            errorString += e.getMessage();
-//            success = false;
-//            exception = e;
-//            e.printStackTrace();
-//            throw new BusinessException(e.getMessage());
-//        } catch (IOException e) {
-//            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-//            errorString += e.getMessage();
-//            success = false;
-//            exception = e;
-//            e.printStackTrace();
-//            throw new BusinessException(e.getMessage());
-//        } catch (SQLException e) {
-//            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-//            errorString += e.getMessage();
-//            success = false;
-//            exception = e;
-//            e.printStackTrace();
-//            throw new BusinessException(e.getMessage());
-//        } catch (BusinessException e) {
-//            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-//            errorString += e.getMessage();
-//            success = false;
-//            exception = e;
-//            e.printStackTrace();
-//            throw new BusinessException(e.getMessage());
-//        } catch (Exception e) {
-//            sendDebug("** EXCEPTION: " + e.getMessage() + " **", 1);
-//            errorString += e.getMessage();
-//            success = false;
-//            exception = e;
-//            e.printStackTrace();
-//            throw new BusinessException(e.getMessage());
-//        } finally {
-//
-//            setDisconnectTime(System.currentTimeMillis());
-//
-//            sendDebug("** DisconnectTime: [" + getDisconnectTime() + "] **", 0);
-//            sendDebug("** Connection ended after " + (getDisconnectTime() - getConnectTime()) + " ms **", 0);
-//            sendDebug("** Closing the UDP session **", 0);
-//
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            ;
-//
-//            try {
-//                addLogging(
-//                        getMK10Executor().getInboundCommunicationScheduler(),
-//                        getMK10Executor().getCompletionCode(),
-//                        getMK10Executor().getCompletionErrorString(),
-//                        getMK10Executor().getJournal(),
-//                        success,
-//                        exception
-//                );
-//            } catch (BusinessException e) {
-//                sendDebug("** BusinessException **", 1);
-//                e.printStackTrace();
-//                throw e;
-//            } catch (SQLException e) {
-//                sendDebug("** SQLException **", 1);
-//                e.printStackTrace();
-//                // Close the connection after an SQL exception, connection will startup again if requested
-//                EnvironmentImpl.getDefault().closeConnection();
-//                throw e;
-//            }
-//        }
-//
-//    }
-
-    /*
-      * Public getters and setters
-      */
-
     public Logger getLogger() {
         if (logger == null) {
             logger = Logger.getLogger(getClass().getName());
@@ -371,25 +182,6 @@ public class MK10Push {
         getMK10Executor().addProperties(properties);
     }
 
-//    @Override
-//    public void addProperties(TypedProperties properties) {
-//        addProperties(properties.toStringProperties());
-//    }
-//
-//    @Override
-//    public List<PropertySpec> getRequiredProperties() {
-//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-//    }
-//
-//    @Override
-//    public List<PropertySpec> getOptionalProperties() {
-//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-//    }
-
-    /*
-      * Private debugging methods
-      */
-
     public void sendDebug(String message, int debuglvl) {
         String returnMessage = "";
         if (DEBUG == 0) {
@@ -407,14 +199,14 @@ public class MK10Push {
     }
 
     public List<String> getOptionalKeys() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.addAll(getMK10Executor().getOptionalKeys());
         list.add("FullDebug");
         return list;
     }
 
     public List<String> getRequiredKeys() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.addAll(getMK10Executor().getRequiredKeys());
         return list;
     }

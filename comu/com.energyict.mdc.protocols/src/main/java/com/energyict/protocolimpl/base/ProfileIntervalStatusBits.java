@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 
 /**
  * Each {@link com.energyict.mdc.protocol.api.device.data.ProfileData} contains intervals with a status code.

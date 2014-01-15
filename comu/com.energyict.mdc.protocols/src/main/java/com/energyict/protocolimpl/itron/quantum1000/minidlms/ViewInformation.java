@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -20,8 +20,8 @@ import java.util.Date;
  * @author Koen
  */
 public class ViewInformation extends AbstractDataDefinition {
-    
-    
+
+
     private int currentViewID; // VIEW_ID,
     /*
     view ids
@@ -36,11 +36,11 @@ public class ViewInformation extends AbstractDataDefinition {
     9: 97
     10: 98
      */
-    
+
     private int currentObjectIndex; // unsigned16,
     private int numberOfObjects; // unsigned16,
     private ViewableFileId currentObjectID; // VIEWABLE_FILE_ID, 2 bytes
-    
+
     private int currentObjectType; // VIEWABLE_FILE_OBJECT_TYPE, 2 bytes
     /*
     OBJTYPE_MASSMEMORY 1
@@ -49,7 +49,7 @@ public class ViewInformation extends AbstractDataDefinition {
     OBJTYPE_EXTENDED_MASSMEMORY 6
     OBJTYPE_EXTENDED_EVENTLOG, 7
      */
-    
+
     private long recordCapacity; // unsigned32,
     private long currentRecordNum; // unsigned32,
     private long lastRecordNumWritten; // unsigned32,
@@ -60,14 +60,14 @@ public class ViewInformation extends AbstractDataDefinition {
     private Date firstRecordDateTime; // EXTENDED_DATE_TIME,
     private int[] restrictions = new int[12]; // restrictions array(MAX_RESTRICTION_BYTES=12)of unsigned8,
     private long recsPerRead; // unsigned32
-    
+
     /**
      * Creates a new instance of ViewInformation
      */
     public ViewInformation(DataDefinitionFactory dataDefinitionFactory) {
         super(dataDefinitionFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -91,14 +91,14 @@ public class ViewInformation extends AbstractDataDefinition {
         }
         return strBuff.toString();
     }
-    
+
     protected int getVariableName() {
         return 0x0042; // 66 DLMS_VIEW_INFO
     }
-    
+
     protected void parse(byte[] data) throws IOException {
         int offset=0;
-        
+
         setCurrentViewID(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
         setCurrentObjectIndex(ProtocolUtils.getInt(data,offset,2));
@@ -128,7 +128,7 @@ public class ViewInformation extends AbstractDataDefinition {
         for (int i=0;i<getRestrictions().length;i++)
             getRestrictions()[i]=ProtocolUtils.getInt(data,offset++,1);
         setRecsPerRead(ProtocolUtils.getInt(data,offset,4));
-        offset+=4;      
+        offset+=4;
     }
 
     public int getCurrentViewID() {
@@ -250,5 +250,5 @@ public class ViewInformation extends AbstractDataDefinition {
     public void setRecsPerRead(long recsPerRead) {
         this.recsPerRead = recsPerRead;
     }
-    
+
 }

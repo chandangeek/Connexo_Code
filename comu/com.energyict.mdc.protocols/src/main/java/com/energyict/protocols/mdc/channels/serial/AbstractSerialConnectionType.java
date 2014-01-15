@@ -1,17 +1,16 @@
 package com.energyict.protocols.mdc.channels.serial;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
@@ -72,7 +71,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     protected abstract PropertySpec<String> flowControlPropertySpec();
 
     protected final PropertySpec<String> flowControlPropertySpec(boolean required) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(String.class, new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
         builder.
             name(SerialPortConfiguration.FLOW_CONTROL_NAME).
             markExhaustive().
@@ -87,7 +86,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     protected abstract PropertySpec<BigDecimal> nrOfDataBitsPropertySpec();
 
     protected final PropertySpec<BigDecimal> nrOfDataBitsPropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(new BigDecimalFactory());
         builder.
             name(SerialPortConfiguration.NR_OF_DATA_BITS_NAME).
             markExhaustive().
@@ -102,7 +101,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     protected abstract PropertySpec<BigDecimal> nrOfStopBitsPropertySpec();
 
     protected final PropertySpec<BigDecimal> nrOfStopBitsPropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(new BigDecimalFactory());
         builder.
             name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
             markExhaustive().
@@ -117,7 +116,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     protected abstract PropertySpec<String> parityPropertySpec();
 
     protected final PropertySpec<String> parityPropertySpec(boolean required) {
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(String.class, new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
         builder.
             name(SerialPortConfiguration.PARITY_NAME).
             markExhaustive().
@@ -132,7 +131,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     protected abstract PropertySpec<BigDecimal> baudRatePropertySpec();
 
     protected final PropertySpec<BigDecimal> baudRatePropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(new BigDecimalFactory());
         builder.
             name(SerialPortConfiguration.BAUDRATE_NAME).
             markExhaustive().

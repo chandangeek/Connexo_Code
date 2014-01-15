@@ -10,11 +10,11 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;
@@ -64,7 +64,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
                 disconnect();
             }
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(e);
         }
 
         return DiscoverResultType.IDENTIFIER;

@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.common.NestedIOException;

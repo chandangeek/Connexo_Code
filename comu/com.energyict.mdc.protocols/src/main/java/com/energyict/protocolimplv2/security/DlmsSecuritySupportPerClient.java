@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -194,7 +194,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getEncryptionKeyPublicPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString())
                 .markRequired()
                 .finish();
@@ -202,7 +202,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getEncryptionKeyDataPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())
                 .markRequired()
                 .finish();
@@ -210,7 +210,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getEncryptionKeyExtDataPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString())
                 .markRequired()
                 .finish();
@@ -218,7 +218,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getEncryptionKeyManagementPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString())
                 .markRequired()
                 .finish();
@@ -226,7 +226,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getEncryptionKeyFirmwarePropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString())
                 .markRequired()
                 .finish();
@@ -234,7 +234,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getEncryptionKeyManufacturerPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString())
                 .markRequired()
                 .finish();
@@ -242,7 +242,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getAuthenticationKeyPublicPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString())
                 .markRequired()
                 .finish();
@@ -250,7 +250,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getAuthenticationKeyDataPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())
                 .markRequired()
                 .finish();
@@ -258,7 +258,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getAuthenticationKeyExtDataPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString())
                 .markRequired()
                 .finish();
@@ -266,7 +266,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getAuthenticationKeyManagementPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString())
                 .markRequired()
                 .finish();
@@ -274,7 +274,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getAuthenticationKeyFirmwarePropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString())
                 .markRequired()
                 .finish();
@@ -282,7 +282,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getAuthenticationKeyManufacturerPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString())
                 .markRequired()
                 .finish();
@@ -290,7 +290,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getPasswordPublicPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.PASSWORD_PUBLIC.toString())
                 .markRequired()
                 .finish();
@@ -298,7 +298,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getPasswordDataPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.PASSWORD_DATA.toString())
                 .markRequired()
                 .finish();
@@ -306,7 +306,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getPasswordExtDataPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString())
                 .markRequired()
                 .finish();
@@ -314,7 +314,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getPasswordManagementPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString())
                 .markRequired()
                 .finish();
@@ -322,7 +322,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getPasswordFirmwarePropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString())
                 .markRequired()
                 .finish();
@@ -330,7 +330,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpec<String> getPasswordManufacturerPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString())
                 .markRequired()
                 .finish();

@@ -1,11 +1,12 @@
 package com.energyict.genericprotocolimpl.common;
 
+import com.energyict.mdc.protocol.api.device.Register;
 import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.Device;
 
 /**
  * Copyrights EnergyICT
@@ -27,7 +28,7 @@ public class StoreObjectItem {
         this.value = profileData;
     }
 
-    public StoreObjectItem(com.energyict.mdw.amr.Register register, RegisterValue registerValue) {
+    public StoreObjectItem(Register register, RegisterValue registerValue) {
         this.key = register;
         this.value = registerValue;
     }

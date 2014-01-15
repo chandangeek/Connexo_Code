@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -30,15 +30,16 @@ public class HookUp extends AbstractCommand {
        return "HookUp: 0x"+Integer.toHexString(getChannelConfig());
     }
 
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
     }
 
     private void parse(byte[] data) {
-        if (DEBUG>=1)
-           System.out.println(new String(data));
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
         String dataStr = new String(data);
         setChannelConfig(Integer.parseInt(dataStr.replaceAll("\r\n",""),16));
     }
@@ -62,8 +63,9 @@ public class HookUp extends AbstractCommand {
     public int getNrOfChannels() {
         int count=0;
         for (int i=0x0001;i!=0x0100;i<<=1) {
-            if ((channelConfig&i)==i)
-               count++;
+            if ((channelConfig&i)==i) {
+                count++;
+            }
         }
         return count;
     }

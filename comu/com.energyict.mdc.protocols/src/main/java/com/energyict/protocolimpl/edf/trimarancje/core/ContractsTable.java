@@ -3,7 +3,7 @@
  */
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

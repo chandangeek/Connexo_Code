@@ -2,10 +2,11 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.protocols.messaging.MessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessaging;
+import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
@@ -107,7 +108,7 @@ public class ZmdMessages extends ProtocolMessages implements TimeOfUseMessaging{
         /**
      * Returns the message builder capable of generating and parsing 'time of use' messages.
      *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
+     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
      */
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return new ZMDTimeOfUseMessageBuilder();

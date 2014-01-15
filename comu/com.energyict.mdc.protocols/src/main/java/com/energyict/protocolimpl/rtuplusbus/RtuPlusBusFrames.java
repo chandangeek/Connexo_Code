@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -256,8 +256,6 @@ public class RtuPlusBusFrames {
                         liRcvData = doRTUReadFrame( );
                         if( liRcvData != null )
                         {
-
-                            if (DEBUG >= 1) ProtocolUtils.printResponseData(liRcvData);
 
                             if( isProfileReadCommand( abCommand )  )
                             {

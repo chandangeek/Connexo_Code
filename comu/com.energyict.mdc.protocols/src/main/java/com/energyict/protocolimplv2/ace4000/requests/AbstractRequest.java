@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;

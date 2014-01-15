@@ -6,9 +6,7 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -17,7 +15,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 /**
@@ -39,7 +36,7 @@ public class RTC extends AbstractCommand {
         return getDate().toString();
     }
 
-    public void write() throws ConnectionException,IOException {
+    public void write() throws IOException {
         write(0);
     }
 
@@ -62,23 +59,24 @@ public class RTC extends AbstractCommand {
 //        System.out.println(cal2.getTime().getTime());
 //    }
 
-    public void write(int roundTripCorrection) throws ConnectionException,IOException {
+    public void write(int roundTripCorrection) throws IOException {
         TimeZone tz = ez7CommandFactory.getEz7().getTimeZone();
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.setTimeZone(tz);
-        Calendar cal = ProtocolUtils.getCalendar(tz);
+        Calendar cal = Calendar.getInstance(tz);
         cal.add(Calendar.MILLISECOND,roundTripCorrection);
         sdf.applyPattern("MM/dd/yy");
         String date = sdf.format(cal.getTime());
         sdf.applyPattern("HH:mm:ss");
         String time = sdf.format(cal.getTime());
         String writeStr = date+" "+cal.get(Calendar.DAY_OF_WEEK)+" "+time+" "+(tz.inDaylightTime(cal.getTime())?"01":"00");
-        if (DEBUG>=1)
+        if (DEBUG>=1) {
             System.out.println(writeStr);
+        }
         ez7CommandFactory.getEz7().getEz7Connection().sendCommand(WRITECOMMAND,writeStr);
     }
 
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(READCOMMAND);
         parse(data);
@@ -86,30 +84,31 @@ public class RTC extends AbstractCommand {
 
     private void parse(byte[] data) throws IOException {
 
-        List values=null;
-        int baseVal;
-
-        if (DEBUG>=1)
-           System.out.println(new String(data));
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
         String dateTimeStr = new String(data);
         dateTimeStr = dateTimeStr.replaceAll("\r\n"," ");
         StringTokenizer strTok = new StringTokenizer(dateTimeStr," ");
         String date=null,time=null;
         while(strTok.hasMoreTokens()) {
              date = strTok.nextToken();
-             if (date.indexOf("/") >= 0)
+             if (date.contains("/")) {
                  break;
+             }
         }
         while(strTok.hasMoreTokens()) {
              time = strTok.nextToken();
-             if (time.indexOf(":") >= 0)
+             if (time.contains(":")) {
                  break;
+             }
         }
         //String weekDay = strTok.nextToken();
         //String ds = strTok.nextToken();
 
-        if ((time==null) || (date==null))
+        if ((time==null) || (date==null)) {
             throw new IOException("RTC, time and/or date string is null, cannot continue!");
+        }
 
         //Calendar cal = ProtocolUtils.getCleanCalendar(ez7CommandFactory.getEz7().getTimeZone());
         DateFormat sdf = new SimpleDateFormat("MM/dd/yy HH:mm:ss");

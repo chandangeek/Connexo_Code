@@ -1,11 +1,11 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -592,9 +592,6 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         try {
             while (boolAbort == false) {
                 if ((inewKar = readIn()) != -1) {
-                    if (DEBUG >= 1) {
-                        ProtocolUtils.outputHex(inewKar);
-                    }
                     if (sRXCount >= MAX_BUFFER_SIZE) {
                         return HDLC_BADFRAME;
                     }
@@ -760,14 +757,6 @@ public class HDLCConnection extends Connection implements DLMSConnection {
             data[data.length - 1] = HDLC_FLAG;
 
             sendOut(data);
-
-            if (DEBUG == 1) {
-                int i;
-                for (i = 0; i < iLength; i++) {
-                    ProtocolUtils.outputHex(((int) byteBuffer[i]) & 0x000000FF);
-                }
-                System.out.println();
-            }
         } catch (IOException e) {
             throw new NestedIOException(e);
         }

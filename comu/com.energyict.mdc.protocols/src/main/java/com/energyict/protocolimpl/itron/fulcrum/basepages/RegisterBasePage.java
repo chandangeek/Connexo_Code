@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
 import com.energyict.mdc.common.Quantity;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
 

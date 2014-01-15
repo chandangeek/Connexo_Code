@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;

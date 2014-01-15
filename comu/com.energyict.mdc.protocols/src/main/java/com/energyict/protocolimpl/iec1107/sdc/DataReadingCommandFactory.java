@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.Date;

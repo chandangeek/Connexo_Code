@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.messages;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 
 import java.util.Iterator;
 

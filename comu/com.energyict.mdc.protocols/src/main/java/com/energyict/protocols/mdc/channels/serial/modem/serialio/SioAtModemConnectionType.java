@@ -1,14 +1,13 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.mdc.channels.serial.modem.AtModemComponent;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedAtModemProperties;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
 
-        this.atModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newAtModemComponent(new TypedAtModemProperties(properties));
+        this.atModemComponent = new AtModemComponent(new TypedAtModemProperties(properties));
         /*
         create the serial ComChannel and set all property values
          */

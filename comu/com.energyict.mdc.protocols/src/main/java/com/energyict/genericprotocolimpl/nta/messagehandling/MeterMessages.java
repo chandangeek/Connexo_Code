@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.nta.messagehandling;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;

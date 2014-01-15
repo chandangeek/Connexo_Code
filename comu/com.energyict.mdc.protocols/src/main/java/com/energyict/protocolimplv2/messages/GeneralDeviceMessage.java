@@ -1,11 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -26,7 +29,11 @@ public enum GeneralDeviceMessage implements DeviceMessageSpec {
             RequiredPropertySpecFactory.newInstance().boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
             RequiredPropertySpecFactory.newInstance().boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
             RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
-    WRITE_FULL_CONFIGURATION(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName));
+    WRITE_FULL_CONFIGURATION(
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.configUserFileAttributeName,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id())));
 
     private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
 

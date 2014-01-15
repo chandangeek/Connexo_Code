@@ -1,17 +1,12 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.mdw.core.RandomProvider;
-import com.energyict.mdw.cryptoimpl.KeyStoreDataVaultProvider;
-import com.energyict.mdw.cryptoimpl.SecureRandomProvider;
-import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
+import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;

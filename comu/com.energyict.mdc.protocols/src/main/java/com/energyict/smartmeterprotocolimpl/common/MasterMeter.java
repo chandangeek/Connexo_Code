@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.common;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 /**
  * A <CODE>MasterMeter</CODE> provides general information about an master device (concentrator/gateway/...).
@@ -15,7 +15,7 @@ import com.energyict.dialer.connection.ConnectionException;
 public interface MasterMeter {
 
     /**
-     * Search for local slave devices so a general topology can be build up 
+     * Search for local slave devices so a general topology can be build up
      */
     void searchForSlaveDevices() throws ConnectionException;
 

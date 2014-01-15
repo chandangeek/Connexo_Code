@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 
 /**
  * There is 1 register per actual "Meter Register".
  * But a register can also be composed out of several "Meter Registers"
  * Or a register may need another meter register to interpret the value.
- * 
+ *
  * @author jme
  */
 

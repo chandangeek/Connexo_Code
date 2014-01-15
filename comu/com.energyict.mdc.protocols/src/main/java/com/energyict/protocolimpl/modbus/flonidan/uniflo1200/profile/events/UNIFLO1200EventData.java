@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200EventDataParser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;

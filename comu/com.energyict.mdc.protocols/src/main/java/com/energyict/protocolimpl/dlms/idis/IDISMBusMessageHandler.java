@@ -14,11 +14,11 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

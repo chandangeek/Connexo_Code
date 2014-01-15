@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregConnection;

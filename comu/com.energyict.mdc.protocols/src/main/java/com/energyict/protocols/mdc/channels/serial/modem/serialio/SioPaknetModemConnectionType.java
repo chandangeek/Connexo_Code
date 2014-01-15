@@ -1,15 +1,14 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.SerialComChannel;
-import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.mdc.channels.serial.modem.PaknetModemComponent;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedPaknetModemProperties;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
 
-        paknetModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newPaknetModemComponent(new TypedPaknetModemProperties(properties));
+        paknetModemComponent = new PaknetModemComponent(new TypedPaknetModemProperties(properties));
         /*
         create the serial ComChannel and set all property values
          */

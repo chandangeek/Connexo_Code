@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.util.ArrayList;
 import java.util.Iterator;

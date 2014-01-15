@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.tools.InputStreamDecorator;
+import com.energyict.protocols.util.InputStreamDecorator;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +10,7 @@ public class Software7E1InputStream extends InputStreamDecorator {
 
 	private static final int BITMASK = 0x0000007F;
 	private static final int DEBUG = 0;
-	
+
 	public Software7E1InputStream(InputStream stream) {
 		super(stream);
 	}

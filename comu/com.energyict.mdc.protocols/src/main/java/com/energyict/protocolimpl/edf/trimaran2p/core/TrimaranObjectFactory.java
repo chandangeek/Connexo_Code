@@ -3,7 +3,7 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 

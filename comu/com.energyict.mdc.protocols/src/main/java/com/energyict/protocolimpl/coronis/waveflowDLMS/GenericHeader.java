@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -47,7 +48,7 @@ public class GenericHeader {
 					dais.close();
 				}
 				catch(IOException e) {
-					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

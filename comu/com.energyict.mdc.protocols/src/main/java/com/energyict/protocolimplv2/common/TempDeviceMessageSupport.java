@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.common;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,16 +31,27 @@ public class TempDeviceMessageSupport implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
+        return this.getCollectedDataFactory().createEmptyCollectedMessageList();
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return "";
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

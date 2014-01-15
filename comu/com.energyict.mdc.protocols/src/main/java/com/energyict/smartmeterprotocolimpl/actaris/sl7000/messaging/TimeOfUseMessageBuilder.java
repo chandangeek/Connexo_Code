@@ -20,7 +20,7 @@ import java.io.IOException;
  * Date: 3/04/12
  * Time: 13:40
  */
-public class TimeOfUseMessageBuilder extends com.energyict.protocol.messaging.TimeOfUseMessageBuilder {
+public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.TimeOfUseMessageBuilder {
 
       public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -20,17 +20,17 @@ import java.io.IOException;
  * @author Koen
  */
 public class PSEMServiceFactory {
-    
+
     final int DEBUG=0;
     private C12ProtocolLink c12ProtocolLink;
-           
+
     static public final int PASSWORD_BINARY=0;
     static public final int PASSWORD_ASCII=1;
-    
+
     static private final int STATE_BASE=0;
     static private final int STATE_ID=1;
     static private final int STATE_SESSION=2;
-    
+
     int state=STATE_BASE;
     private int tableId; // only for debugging purposes
     public boolean c1222 = false;
@@ -52,7 +52,7 @@ public class PSEMServiceFactory {
     public int getState() {
         return state;
     }
-    
+
     public C12ProtocolLink getC12ProtocolLink() {
         return c12ProtocolLink;
     }
@@ -61,13 +61,13 @@ public class PSEMServiceFactory {
         this.setTableId(-1);
         if (state != STATE_BASE)
             throw new IOException("PSEMServiceFactory, logon, wrong state for logon. Should be in BASE STATE...");
-        
+
         IdentificationRequest identificationRequest = new IdentificationRequest(this);
         identificationRequest.build();
         state = STATE_ID;
         return (IdentificationResponse)identificationRequest.getResponse();
     }
-    
+
     public NegotiateResponse getNegotiateResponse(int packetSize, int nrOfPackets) throws IOException {
         this.setTableId(-1);
         if (state != STATE_ID)
@@ -78,7 +78,7 @@ public class PSEMServiceFactory {
         getC12ProtocolLink().getC12Layer2().setNegotiateResponse((NegotiateResponse)negotiateRequest.getResponse());
         return (NegotiateResponse)negotiateRequest.getResponse();
     }
-    
+
     private void doLogon(int userId, String user) throws IOException {
         this.setTableId(-1);
 
@@ -102,7 +102,7 @@ public class PSEMServiceFactory {
         }
         state=STATE_SESSION;
     }
-    
+
     private void doLogoff() throws IOException {
         this.setTableId(-1);
         if (state != STATE_SESSION)
@@ -111,7 +111,7 @@ public class PSEMServiceFactory {
         logoffRequest.build();
         state=STATE_ID;
     }
-    
+
     public void terminate() throws IOException {
         this.setTableId(-1);
         if ((state != STATE_SESSION) && (state != STATE_ID)) {
@@ -139,7 +139,7 @@ public class PSEMServiceFactory {
         securityRequest.secure(password);
         securityRequest.build();
     }
-    
+
     public void authenticate(int securityLevel, byte[] password, byte[] ticket) throws IOException {
         this.setTableId(-1);
         if (state != STATE_SESSION)
@@ -148,7 +148,7 @@ public class PSEMServiceFactory {
         authenticateRequest.authenticate(securityLevel, password, ticket);
         authenticateRequest.build();
     }
-    
+
     public byte[] partialReadDefault() throws IOException {
         this.setTableId(-1);
         if (state != STATE_SESSION)
@@ -158,7 +158,7 @@ public class PSEMServiceFactory {
         readRequest.build();
         return ((ReadResponse)readRequest.getResponse()).getTableData();
     }
-    
+
     // full read
     public byte[] fullRead(int tableId) throws IOException {
         this.setTableId(tableId);
@@ -169,7 +169,7 @@ public class PSEMServiceFactory {
         readRequest.build();
         return ((ReadResponse)readRequest.getResponse()).getTableData();
     }
-    
+
     // partial read index
     public byte[] partialReadIndex(int tableId, int index, int count) throws IOException {
         this.setTableId(tableId);
@@ -180,7 +180,7 @@ public class PSEMServiceFactory {
         readRequest.build();
         return ((ReadResponse)readRequest.getResponse()).getTableData();
     }
-    
+
     // partial read index
     public byte[] partialReadOffset(int tableId, int offset, int count) throws IOException {
         this.setTableId(tableId);
@@ -191,7 +191,7 @@ public class PSEMServiceFactory {
         readRequest.build();
         return ((ReadResponse)readRequest.getResponse()).getTableData();
     }
- 
+
     public void fullWrite(int tableId, byte[] tableData) throws IOException {
         this.setTableId(tableId);
         if (state != STATE_SESSION)
@@ -199,8 +199,8 @@ public class PSEMServiceFactory {
         WriteRequest writeRequest = new WriteRequest(this);
         writeRequest.fullWrite(tableId, tableData);
         writeRequest.build();
-    }    
-    
+    }
+
     // partial write index
     public void partialWriteIndex(int tableId, int index, byte[] tableData) throws IOException {
         this.setTableId(tableId);
@@ -210,7 +210,7 @@ public class PSEMServiceFactory {
         writeRequest.partialWriteIndex(tableId, index, tableData);
         writeRequest.build();
     }
-    
+
     // partial write offset
     public void partialWriteOffset(int tableId, int offset, byte[] tableData) throws IOException {
         this.setTableId(tableId);
@@ -219,7 +219,7 @@ public class PSEMServiceFactory {
         WriteRequest writeRequest = new WriteRequest(this);
         writeRequest.partialWriteOffset(tableId, offset, tableData);
         writeRequest.build();
-    }    
+    }
 
     protected int getTableId() {
         return tableId;
@@ -228,7 +228,7 @@ public class PSEMServiceFactory {
     private void setTableId(int tableId) {
         this.tableId = tableId;
     }
-    
+
     public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat) throws IOException {
     	if (c1222) {
     		logOnC1222(c12UserId, c12User, password, securityLevel, passwordFormat, 80, 3);

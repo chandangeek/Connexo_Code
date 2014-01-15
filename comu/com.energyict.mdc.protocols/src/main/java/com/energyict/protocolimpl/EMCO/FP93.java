@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -82,9 +82,9 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      * Abstract method to add custom properties
      *
      * @param properties The properties map to get properties from.
-     * @throws com.energyict.protocol.MissingPropertyException
+     * @throws MissingPropertyException
      *          Thrown when a particular proiperty is mandatory.
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          Thrown when a particular property has an invalid value.
      */
     @Override
@@ -178,8 +178,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      *
      * @return String with firmware version. This can also contain other important info of the meter.
      * @throws java.io.IOException thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             Thrown when that method is not supported
+     * @throws UnsupportedException Thrown when that method is not supported
      */
     @Override
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -249,15 +248,13 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
      * @param from          request from
      * @param to            request to
      * @param includeEvents eneble or disable requesting of meterevents
-     * @return ProfileData object
-     * @throws java.io.IOException Thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             Thrown when not supported
+     * @return ProfileDta object
+     * @throws IOException Thrown when something goes wrong
+     * @throws UnsupportedException Thrown when not supported
      */
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        ProfileData profileData = getEventLog().readEvents();
-        return profileData;
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
+        return getEventLog().readEvents();
     }
 
     //-------------------------------- MESSAGING --------------------------------//

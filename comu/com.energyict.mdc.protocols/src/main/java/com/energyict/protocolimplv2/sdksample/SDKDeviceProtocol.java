@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -13,22 +16,22 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -124,7 +127,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().booleanPropertySpec(defaultOptionalProperty));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().codeTableReferencePropertySpec("SDKCodeTableProperty"));
+        optionalProperties.add(
+                OptionalPropertySpecFactory.newInstance().
+                        referencePropertySpec(
+                                "SDKCodeTableProperty",
+                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id())));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
                 ObisCode.fromString("1.0.1.8.0.255"),
                 ObisCode.fromString("1.0.1.8.1.255"),
@@ -203,7 +210,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-            CollectedLoadProfileConfiguration loadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration loadProfileConfiguration = this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
@@ -320,11 +327,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
-        if(!getSlaveOneSerialNumber().equals("")){
+        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
+        if (!"".equals(getSlaveOneSerialNumber())) {
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
-        if(!getSlaveTwoSerialNumber().equals("")){
+        if (!"".equals(getSlaveTwoSerialNumber())) {
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveTwoSerialNumber()));
         }
         return collectedTopology;
@@ -368,6 +375,18 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getConnectionTypeFactory().findAll();
+        // Todo: call the Enum that holds all known connection type classes
+        return Collections.emptyList();
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.wavelog.core.parameter;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

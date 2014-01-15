@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMapping;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.RegisterMappingFactory;
 import com.energyict.protocolimpl.iec1107.kamstrup.unigas300.Unigas300;
@@ -49,21 +48,6 @@ public class Unigas300Main extends AbstractDebuggingMain<Unigas300> {
         properties.setProperty(MeterProtocol.NODEID, "UNILOG10");
 
         return properties;
-    }
-
-    public static void main(String[] args) throws IOException, LinkException {
-        Unigas300Main main = new Unigas300Main();
-        main.setCommPort("COM1");
-        main.setBaudRate(9600);
-        main.setStopBits(SerialCommunicationChannel.STOPBITS_1);
-        main.setParity(SerialCommunicationChannel.PARITY_NONE);
-        main.setDataBits(SerialCommunicationChannel.DATABITS_8);
-        main.setPhoneNumber("00031627858525");
-        main.setModemInit("ATM0");
-        main.setAsciiMode(true);
-        main.set7E1Mode(true);
-        main.setShowCommunication(true);
-        main.run();
     }
 
     @Override

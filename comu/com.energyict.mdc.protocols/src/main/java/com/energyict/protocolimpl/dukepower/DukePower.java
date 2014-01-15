@@ -14,9 +14,9 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 package com.energyict.protocolimpl.dukepower;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
@@ -26,15 +26,15 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.ByteArrayOutputStream;
@@ -957,16 +957,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
     private void sendFrame(byte[] byteBuffer) throws IOException {
         outputStream.write(byteBuffer);
-
-        if (DEBUG == 1) {
-            int i;
-            for (i = 0; i < byteBuffer.length; i++) {
-                ProtocolUtils.outputHex(((int) byteBuffer[i]) & 0x000000FF);
-            }
-            System.out.println();
-        }
-
-    } // private void sendMasterCommandBuffer() throws IOException
+    }
 
     private int calcCRC(byte[] byteBuffer) {
         int iCRC;
@@ -1016,9 +1007,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             while (boolAbort == false) {
                 if (inputStream.available() != 0) {
                     inewKar = inputStream.read();
-                    if (DEBUG == 1) {
-                        ProtocolUtils.outputHex(inewKar);
-                    }
                     switch (bCurrentState) {
                         case WAIT_FOR_FRAME_STX: {
                             switch ((byte) inewKar) {

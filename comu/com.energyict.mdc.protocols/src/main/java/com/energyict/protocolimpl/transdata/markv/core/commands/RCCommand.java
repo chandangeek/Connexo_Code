@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 
 import java.io.BufferedReader;
@@ -34,7 +34,7 @@ public class RCCommand extends AbstractCommand {
     }
 
     public String toString() {
-         StringBuffer strBuff = new StringBuffer();
+         StringBuilder strBuff = new StringBuilder();
          strBuff.append("RCCommand:\n");
          for(int interval=0;interval<intervals.size();interval++) {
              int[] channelValues = (int[])intervals.get(interval);
@@ -58,7 +58,6 @@ public class RCCommand extends AbstractCommand {
         byte[] data = strData.getBytes();
 
         if (DEBUG>=1) {
-            ProtocolUtils.printResponseDataFormatted2(data);
             System.out.println("\nKV_DEBUG> nrOfChannels="+nrOfChannels);
             System.out.println("KV_DEBUG> recordingType="+recordingType);
             System.out.println("KV_DEBUG> protocolChannelMap="+pcm);
@@ -78,8 +77,8 @@ public class RCCommand extends AbstractCommand {
                 }
             }
             intervals.add(channelValues);
-        } // for (int interval=0;interval<nrOfIntervals;interval++)
-    } // protected void parse(String strData) throws IOException
+        }
+    }
 
     public void setNrOfRecords(int nrOfRecords) {
         commandIdentification.setArguments(new String[]{Integer.toString(nrOfRecords)});

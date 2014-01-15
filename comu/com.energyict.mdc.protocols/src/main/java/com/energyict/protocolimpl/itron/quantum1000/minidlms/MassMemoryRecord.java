@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;

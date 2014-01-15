@@ -4,9 +4,9 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 

@@ -1,13 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -35,9 +30,6 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.PPPSetup;
@@ -48,48 +40,43 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.lookups.Lookup;
+import com.energyict.mdc.protocol.api.lookups.LookupEntry;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -108,8 +95,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
-
-    private final StoreObject storeObject = new StoreObject();
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
@@ -207,10 +192,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     setGPRSParameters(messageHandler);
                 } else if (gprsCredentials) {
                     setGPRSCredentials(messageHandler);
-                } else if (testMessage) {
-                    testMessage(messageHandler);
-                } else if (testSecurityMessage) {
-                    msgResult = testSecurityMessage(messageHandler, msgEntry);
                 } else if (globalReset) {
                     doGlobalReset();
                 } else if (factorySettings) {
@@ -278,9 +259,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
             } catch (InterruptedException e) {
-                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-            } catch (SQLException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
             }
@@ -535,193 +513,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         doGlobalReset();
     }
 
-    private MessageResult testSecurityMessage(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, BusinessException, SQLException {
-        log(Level.INFO, "Handling message TestSecurityMessage");
-        String userFileId = messageHandler.getTestUserFileId();
-
-        UserFile uf;
-        try {
-            int id = Integer.parseInt(userFileId);
-            uf = mw().getUserFileFactory().find(id);
-        } catch (NumberFormatException e) {
-            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-        }
-        if (uf == null) {
-            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-        }
-
-        StringBuilder sb = new StringBuilder();
-        try {
-            FileInputStream fstream = new FileInputStream(uf.getShadow().getFile());
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine;
-            //Read File Line By Line
-            while ((strLine = br.readLine()) != null) {
-                String trim = strLine.trim();
-                String line = trim.replaceAll(" ", "");
-                byte[] frame = ProtocolTools.getBytesFromHexString(line, "");
-                DLMSConnection dlmsConnection = dlmsSession.getDLMSConnection();
-                if (dlmsConnection instanceof TCPIPConnection || dlmsConnection instanceof SecureConnection) {
-                    try {
-                        byte[] bytes = dlmsConnection.sendRawBytes(frame);
-                        sb.append(ProtocolTools.getHexStringFromBytes(bytes, " ").trim());
-                    } catch (IOException e) {
-                        String msg = "Error while sending [" + strLine + "]:" + e.getMessage();
-                        log(Level.WARNING, msg);
-                        sb.append(msg);
-                    }
-                    sb.append("\n");
-                } else {
-                    log(Level.SEVERE, "Error while sending bytes to meter, expected a TCP/IP connection, but was " + dlmsConnection.getClass().getSimpleName());
-                    in.close();
-                    return MessageResult.createFailed(messageEntry, "Error while sending bytes to meter, expected a TCP/IP connection, but was " + dlmsConnection.getClass().getSimpleName());
-                }
-            }
-            //Close the input stream
-            in.close();
-        } catch (Exception e) {
-            log(Level.SEVERE, "Error while parsing or sending user file: " + e.getMessage());
-            return MessageResult.createFailed(messageEntry, "Error while parsing or sending user file: " + e.getMessage());
-        }
-
-        UserFileShadow userFileShadow = ProtocolTools.createUserFileShadow(uf.getName() + "_results_" + String.valueOf(new Date().getTime()), sb.toString().getBytes(), uf.getFolderId(), "txt");
-        mw().getUserFileFactory().create(userFileShadow);
-
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
-        log(Level.INFO, "Handling message TestMessage");
-        int failures = 0;
-        String userFileId = messageHandler.getTestUserFileId();
-        Date currentTime;
-        if (!userFileId.equalsIgnoreCase("")) {
-            if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
-                if (uf != null) {
-                    byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser();
-                    csvParser.parse(data);
-                    boolean hasWritten;
-                    TestObject to = new TestObject("");
-                    for (int i = 0; i < csvParser.size(); i++) {
-                        to = csvParser.getTestObject(i);
-                        if (csvParser.isValidLine(to)) {
-                            currentTime = new Date(System.currentTimeMillis());
-                            hasWritten = false;
-                            try {
-                                switch (to.getType()) {
-                                    case 0: { // GET
-                                        GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-                                        to.setResult("0x" + ParseUtils.decimalByteToString(gr.getResponseData()));
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 1: { // SET
-                                        GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-                                        gw.write(ParseUtils.hexStringToByteArray(to.getData()));
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 2: { // ACTION
-                                        GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
-                                            gi.invoke();
-                                        } else {
-                                            gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
-                                        }
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 3: { // MESSAGE
-                                        //TODO this form of Messages is not supported, change it according to the new DeviceMessage support
-//                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-//                                        rms.setContents(csvParser.getTestObject(i).getData());
-//                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-//                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-//                                        doMessage(rm);
-//                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-//                                            to.setResult("OK");
-//                                        } else {
-//                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-//                                        }
-//                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 4: { // WAIT
-                                        waitCyclus(Integer.parseInt(to.getData()));
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 5: {
-                                        // do nothing, it's no valid line
-                                    }
-                                    break;
-                                    default: {
-                                        throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
-                                    }
-                                }
-                                to.setTime(currentTime.getTime());
-
-                                // Check if the expected value is the same as the result
-                                if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
-                                    to.setResult("Failed - " + to.getResult());
-                                    failures++;
-                                    log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
-                                } else {
-                                    log(Level.INFO, "Test " + i + " has successfully finished.");
-                                }
-
-                            } catch (Exception e) {
-                                if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
-                                        to.setResult(e.getMessage());
-                                        log(Level.INFO, "Test " + i + " has successfully finished.");
-                                        hasWritten = true;
-                                    } else {
-                                        log(Level.INFO, "Test " + i + " has failed.");
-                                        String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
-                                            eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
-                                        } else {
-                                            eMessage = e.getMessage();
-                                        }
-                                        to.setResult("Failed. " + eMessage);
-                                        hasWritten = true;
-                                        failures++;
-                                    }
-                                    to.setTime(currentTime.getTime());
-                                }
-                            } finally {
-                                if (!hasWritten) {
-                                    to.setResult("Failed - Unknow exception ...");
-                                    failures++;
-                                    to.setTime(currentTime.getTime());
-                                }
-                            }
-                        }
-                    }
-                    if (failures == 0) {
-                        csvParser.addLine("All the tests are successfully finished.");
-                    } else {
-                        csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
-                    }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
-                } else {
-                    throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
-                }
-            } else {
-                throw new IOException("UserFileId is not a valid number");
-            }
-        } else {
-            throw new IOException("No userfile id is given.");
-        }
+    private UserFile findUserFile(int id) {
+        IdBusinessObjectFactory<UserFile> factory = (IdBusinessObjectFactory<UserFile>) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id());
+        return factory.get(id);
     }
 
     private void setGPRSCredentials(MessageHandler messageHandler) throws IOException {
@@ -813,7 +607,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+            Code ct = this.findCode(codeTable);
             if (ct == null) {
                 throw new IOException("No CodeTable defined with id '" + codeTable + "'");
             } else {
@@ -850,6 +644,11 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private Code findCode(String codeTable) {
+        IdBusinessObjectFactory<Code> factory = (IdBusinessObjectFactory<Code>) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
+        return factory.get(Integer.parseInt(codeTable));
+    }
+
     protected void upgradeCalendar(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Set Activity calendar");
 
@@ -866,7 +665,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
         if (codeTable != null) {
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+            Code ct = this.findCode(codeTable);
             if (ct == null) {
                 throw new IOException("No CodeTable defined with id '" + codeTable + "'");
             } else {
@@ -903,7 +702,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
         Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
         try {
-            Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
+            Lookup lut = this.findLookup(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
             if (lut == null) {
                 throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
             } else {
@@ -918,6 +717,11 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         } catch (NumberFormatException e) {
             throw new IOException("The given lookupTable id is not a valid entry. Error : " + e.getMessage());
         }
+    }
+
+    private Lookup findLookup(int lookupId) {
+        IdBusinessObjectFactory<Lookup> factory = (IdBusinessObjectFactory<Lookup>) Environment.DEFAULT.get().findFactory(FactoryIds.LOOKUP.id());
+        return factory.get(lookupId);
     }
 
     protected void loadLimitConfiguration(MessageHandler messageHandler) throws IOException {
@@ -1126,11 +930,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
 
         byte[] imageData = uf.loadFileInByteArray();
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
@@ -1383,12 +1183,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     /*****************************************************************************/
     private Device getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();
-        Device rtu = mw().getDeviceFactory().findBySerialNumber(serial).get(0);
+        DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);
         ProtocolTools.closeConnection();
-        return rtu;
+        return deviceIdentifier.findDevice();
     }
 
-    protected MeteringWarehouse mw() {
-        return ProtocolTools.mw();
-    }
 }

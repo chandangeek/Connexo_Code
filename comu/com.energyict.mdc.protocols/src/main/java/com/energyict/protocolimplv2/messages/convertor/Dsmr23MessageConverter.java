@@ -2,12 +2,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.lookups.Lookup;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;

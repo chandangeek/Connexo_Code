@@ -1,16 +1,19 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdw.core.Code;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -763,12 +766,12 @@ public class ObjectFactory {
             try {
                 document = builder.parse(new InputSource(new StringReader(xml)));
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(xml, e.getMessage());
+                throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
             }
             Element topElement = document.getDocumentElement();
             parseElements(topElement);
         } catch (ParserConfigurationException | SAXException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(xml, e.getMessage());
+            throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
         }
     }
 
@@ -921,18 +924,28 @@ public class ObjectFactory {
         return createCommonRegister(registerValue, getAce4000().getDeviceIdentifier());
     }
 
-    private CollectedRegister createCommonRegister(RegisterValue registerValue, CanFindDevice deviceIdentifier) {
+    private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
         //TODO should this be max demand register?
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(
-                new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), registerValue.getObisCode(), deviceIdentifier));
+        CollectedRegister deviceRegister =
+                this.getCollectedDataFactory().
+                        createMaximumDemandCollectedRegister(
+                                new RegisterDataIdentifierByObisCodeAndDevice(
+                                        registerValue.getObisCode(),
+                                        registerValue.getObisCode(),
+                                        deviceIdentifier));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
     }
 
     private CollectedRegister createBillingRegister(RegisterValue registerValue) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(
-                new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
+        CollectedRegister deviceRegister =
+                this.getCollectedDataFactory().
+                        createBillingCollectedRegister(
+                                new RegisterDataIdentifierByObisCodeAndDevice(
+                                        registerValue.getObisCode(),
+                                        registerValue.getObisCode(),
+                                        getAce4000().getDeviceIdentifier()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;
@@ -944,7 +957,12 @@ public class ObjectFactory {
 
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
-        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));
+        CollectedLoadProfile collectedLoadProfile =
+                this.getCollectedDataFactory().
+                        createCollectedLoadProfile(
+                                new LoadProfileIdentifierByObisCodeAndDevice(
+                                        obisCode,
+                                        getAce4000().getDeviceIdentifier()));
         collectedLoadProfile.setCollectedData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());
         collectedLoadProfiles.add(collectedLoadProfile);
         return collectedLoadProfiles;
@@ -1031,8 +1049,8 @@ public class ObjectFactory {
         return meter.getTime();
     }
 
-    public CollectedLogBook getDeviceLogBook(CanFindLogBook identifier) {
-        CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(identifier);
+    public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
+        CollectedLogBook deviceLogBook = this.getCollectedDataFactory().createCollectedLogBook(identifier);
         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
         return deviceLogBook;
     }
@@ -1052,4 +1070,15 @@ public class ObjectFactory {
         }
         return allEvents;
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.io.IOException;
 
 public class NrOfLoggedRecords extends AbstractParameter {
 
 	int nrOfRecords;
-	
+
 	final int getNrOfRecords() {
 		return nrOfRecords;
 	}
@@ -35,6 +35,6 @@ public class NrOfLoggedRecords extends AbstractParameter {
 	byte[] prepare() throws IOException {
 		throw new UnsupportedException();
 	}
-	
+
 
 }

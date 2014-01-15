@@ -16,7 +16,7 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.util.HashMap;
 import java.util.Map;

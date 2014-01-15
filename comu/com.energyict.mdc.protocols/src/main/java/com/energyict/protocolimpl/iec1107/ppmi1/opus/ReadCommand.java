@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 import java.io.IOException;
 

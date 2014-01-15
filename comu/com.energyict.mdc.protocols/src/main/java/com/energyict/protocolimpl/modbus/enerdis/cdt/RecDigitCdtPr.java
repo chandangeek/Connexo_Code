@@ -4,11 +4,11 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
 import java.io.IOException;

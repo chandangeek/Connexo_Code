@@ -1,21 +1,10 @@
 package com.energyict.protocols.mdc.channels.serial.modem;
 
-import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
-import com.energyict.comserver.monitor.EventAPIStatistics;
-import com.energyict.comserver.monitor.ManagementBeanFactory;
-import com.energyict.comserver.monitorimpl.ComServerMonitor;
-import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
-import com.energyict.comserver.scheduling.RunningComServer;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.SerialComChannel;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.TranslatorProvider;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
+import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -24,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,13 +24,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractModemTests {
-
-    @Mock
-    private ManagementBeanFactory managementBeanFactory;
-    @Mock(extraInterfaces = ComServerMonitor.class)
-    private ComServerMonitorImplMBean comServerMonitor;
-    @Mock
-    private EventAPIStatistics eventAPIStatistics;
 
     protected static final String RUBBISH_FOR_FLUSH = "rubbishForFlush";
     protected static final String PHONE_NUMBER = "00123456789";
@@ -67,13 +48,6 @@ public abstract class AbstractModemTests {
                 return (String) args[0];
             }
         };
-    }
-
-    @Before
-    public void initializeMocks () {
-        ManagementBeanFactoryImpl.setInstance(managementBeanFactory);
-        when(managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(comServerMonitor);
-        when(((ComServerMonitor)comServerMonitor).getEventApiStatistics()).thenReturn(eventAPIStatistics);
     }
 
     protected class TestableSerialComChannel extends SerialComChannel {

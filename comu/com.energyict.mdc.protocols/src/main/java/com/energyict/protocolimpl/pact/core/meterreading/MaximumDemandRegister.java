@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
 
 import java.util.Date;

@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.mdc.common.NotFoundException;
 
 import java.util.Iterator;
 import java.util.TimeZone;
@@ -20,12 +20,12 @@ public class TypeIdentificationFactory {
     TreeMap mnemoMap = new TreeMap();
 
     TimeZone timeZone;
-    
+
     public TypeIdentification get( int id ){
         Integer anId = new Integer( id );
         return (TypeIdentification)idMap.get(anId);
     }
-    
+
     /**
      * Creates a new instance of TypeIdentificationFactory
      */
@@ -37,7 +37,7 @@ public class TypeIdentificationFactory {
         map(0x08, "M_IT_TG_2", new Type8Parser());
         //Periodically reset operational integrated totals, four octets each
         map(0x0b, "M_IT_TK_2", new Type8Parser() );
-        
+
         //Manufacturer and product specification of integrated total DTE
         map(0x47, "P_MP_NA_2", new Type47Parser());
         //Current system time of integrated total DTE
@@ -48,10 +48,10 @@ public class TypeIdentificationFactory {
         map(0x66, "C_SP_NB_2" );
         //Read current system time of integrated total DTE
         map(103, "C_TI_NA_2");
-        //Read operational integrated totals of a selected time range 
+        //Read operational integrated totals of a selected time range
         //and of a selected range of addresses"
         map(0x7a, "C_CI_NT_2" );
-        //Read periodically reset operational integrated totals of a 
+        //Read periodically reset operational integrated totals of a
         //selected time range and of a selected range of addresses
         map(0x7b, "C_CI_NU_2" );
         map(128, "M_DS_TA_2");
@@ -119,13 +119,13 @@ public class TypeIdentificationFactory {
         mnemoMap.put(mnemo, type);
         return type;
     }
-    
+
     protected TypeIdentification map(
             int id, String mnemo, TypeParser typeParser) {
-        
-        TypeIdentification type = 
+
+        TypeIdentification type =
             new TypeIdentification(id, mnemo, typeParser);
-        
+
         idMap.put(new Integer(id), type);
         mnemoMap.put(mnemo, type);
         return type;

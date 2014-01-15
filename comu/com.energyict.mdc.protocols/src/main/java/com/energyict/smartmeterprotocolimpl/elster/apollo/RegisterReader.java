@@ -21,7 +21,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 

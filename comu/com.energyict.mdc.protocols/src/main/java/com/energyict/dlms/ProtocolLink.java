@@ -6,7 +6,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;

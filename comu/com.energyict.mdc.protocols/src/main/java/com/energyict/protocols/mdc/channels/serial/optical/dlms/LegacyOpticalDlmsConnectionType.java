@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.protocols.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 
 import java.math.BigDecimal;

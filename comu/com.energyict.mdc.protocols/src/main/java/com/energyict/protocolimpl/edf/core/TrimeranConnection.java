@@ -10,12 +10,13 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.ConnectionV25;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -59,6 +60,15 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
     int commandTimeout;
     int flushTimeout;
     boolean firstCommand=true;
+    private final int TYPE_DATA= 0x0;
+    private final int TYPE_ACK = 0x6;
+    private final int TYPE_NACK = 0xB;
+    private final int WAIT_FOR_LENGTH=0;
+    private final int WAIT_FOR_CONTROL=1;
+    private final int WAIT_FOR_DATA=2;
+    private final int WAIT_FOR_CRC=3;
+    private final short ERROR_NAK=-30;
+    private final short ERROR_LENGTH=-31;
 
     /** Creates a new instance of TrimeranConnection */
     public TrimeranConnection(InputStream inputStream,
@@ -68,7 +78,7 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
             long forcedDelay,
             int echoCancelling,
             HalfDuplexController halfDuplexController,
-            String serialNumber,int securityLevel,int halfDuplex,int interKarTimeoutValue,int ackTimeoutTL,int commandTimeout,int flushTimeout) throws ConnectionException {
+            String serialNumber,int securityLevel,int halfDuplex,int interKarTimeoutValue,int ackTimeoutTL,int commandTimeout,int flushTimeout) {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeoutTSE = timeoutTSE;
         this.maxRetries=maxRetries;
@@ -80,9 +90,9 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
         this.commandTimeout=commandTimeout;
         this.flushTimeout=flushTimeout;
 
-    } // EZ7Connection(...)
+    }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         this.nodeId=nodeId;
         return null;
     }
@@ -115,10 +125,13 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
         int retry=0;
 
         try {
-            if (DEBUG >= 1) System.out.println("before sendCommand, wait for retry from meter...");
+            if (DEBUG >= 1) {
+                System.out.println("before sendCommand, wait for retry from meter...");
+            }
             if (!firstCommand) {
-                if (flushTimeout != 0)
+                if (flushTimeout != 0) {
                     receiveData(flushTimeout);
+                }
             }
             else {
                 firstCommand=false;
@@ -126,7 +139,9 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
         }
         catch(IOException e) {
             // absorb
-            if (DEBUG >= 1) System.out.println("before sendCommand, Exception..."+e.toString());
+            if (DEBUG >= 1) {
+                System.out.println("before sendCommand, Exception..." + e.toString());
+            }
         }
 
         assembleCommand(cmdData);
@@ -143,15 +158,16 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
 
                 // KV new timeout behaviour
                 if (e.getReason() == TIMEOUT_ERROR) {
-                    if (timeoutType==TSE)
-                        throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
+                    if (timeoutType==TSE) {
+                        throw new ProtocolConnectionException("sendCommand() error maxRetries (" + maxRetries + "), " + e.getMessage());
+                    }
                 }
 
-                if ((e.getReason() != ERROR_NAK) && (e.getReason() != TIMEOUT_ERROR))
+                if ((e.getReason() != ERROR_NAK) && (e.getReason() != TIMEOUT_ERROR)) {
                     assembleCommand(cmdData); // YES, we must adjust the sequence number!
-
+                }
             }
-        } // while(true)
+        }
     }
 
     private void assembleCommand(byte[] rawData) throws IOException {
@@ -164,7 +180,7 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
         txOutputStream.write(crc&0xFF);
         txOutputStream.write((crc>>8)&0xFF);
         setType(rawData[0]);
-    } // void sendData(byte[] cmdData) throws ConnectionException
+    }
 
 
     private void sendAck() throws IOException {
@@ -174,17 +190,18 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
     private void sendAck(int seq) throws IOException {
         byte[] ack = new byte[4];
         ack[0]=4;
-        if (seq == -1)
-            ack[1]=(byte)(0x60|getNSEQ());
-        else
-            ack[1]=(byte)(0x60|seq);
+        if (seq == -1) {
+            ack[1] = (byte) (0x60 | getNSEQ());
+        }
+        else {
+            ack[1] = (byte) (0x60 | seq);
+        }
 
         int crc = CRCGenerator.calcCRC(ack,2);
         ack[2] = (byte)(crc&0xFF);
         ack[3] = (byte)((crc>>8)&0xFF);
-        //delayAndFlush(forcedDelay); // KV_DEBUG
         sendFrame(ack);
-    } // private void sendAck()
+    }
 
     private void sendNAck() throws IOException {
         sendAck(-1);
@@ -193,84 +210,70 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
     private void sendNAck(int seq) throws IOException {
         byte[] ack = new byte[4];
         ack[0]=4;
-        if (seq == -1)
-            ack[1]=(byte)(0xB0|getNSEQ());
-        else
-            ack[1]=(byte)(0xB0|seq);
+        if (seq == -1) {
+            ack[1] = (byte) (0xB0 | getNSEQ());
+        }
+        else {
+            ack[1] = (byte) (0xB0 | seq);
+        }
 
         int crc = CRCGenerator.calcCRC(ack,2);
         ack[2] = (byte)(crc&0xFF);
         ack[3] = (byte)((crc>>8)&0xFF);
-        //delayAndFlush(forcedDelay); // KV_DEBUG
         sendFrame(ack);
-    } // private void sendAck()
-
-
-    private final short ERROR_NAK=-30;
-    private final short ERROR_LENGTH=-31;
-
+    }
 
     public byte[] getSessionData(int len) throws IOException {
-        int retry = 0;
-        ResponseData responseData=null;
+        ResponseData responseData;
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
-        int state;
         boolean firstTry=true;
         while(true) {
-
             if (firstTry) {
                 responseData = receiveData(commandTimeout);
                 firstTry=false;
             }
-            else
+            else {
                 responseData = receiveData();
-
-
-            if (responseData==null)
+            }
+            if (responseData==null) {
                 return null;
-
+            }
             if (responseData.getSPDUType() == AbstractSPDU.SPDU_DAT) {
-
-                if (DEBUG >= 2) System.out.println("GetSession received AbstractSPDU.SPDU_DAT frame...");
-
+                if (DEBUG >= 2) {
+                    System.out.println("GetSession received AbstractSPDU.SPDU_DAT frame...");
+                }
                 if (responseData.getData().length > 0) {
                     if ((len>0) && (resultArrayOutputStream.toByteArray().length >= len)) {
-                        if (DEBUG >= 2) System.out.println("Error, GetSession received AbstractSPDU.SPDU_DAT frame...");
+                        if (DEBUG >= 2) {
+                            System.out.println("Error, GetSession received AbstractSPDU.SPDU_DAT frame...");
+                        }
                         throw new ProtocolConnectionException("getSessionData() Length error received="+resultArrayOutputStream.toByteArray().length+", allowed receive="+len,ERROR_LENGTH);
                     }
                 }
-                else if (DEBUG >= 2) System.out.println("Error, DO NOT THROW EXCEPTION !! GetSession received AbstractSPDU.SPDU_DAT frame...");
-
+                else if (DEBUG >= 2) {
+                    System.out.println("Error, DO NOT THROW EXCEPTION !! GetSession received AbstractSPDU.SPDU_DAT frame...");
+                }
                 resultArrayOutputStream.write(responseData.getData());
-
-
             } else if (responseData.getSPDUType() == AbstractSPDU.SPDU_EOD) {
-
-                if (DEBUG >= 2) System.out.println("GetSession received AbstractSPDU.SPDU_EOD frame...");
-
+                if (DEBUG >= 2) {
+                    System.out.println("GetSession received AbstractSPDU.SPDU_EOD frame...");
+                }
                 if ((len>0) && (resultArrayOutputStream.toByteArray().length != len)) {
-                    if (DEBUG >= 2) System.out.println("Error, GetSession received AbstractSPDU.SPDU_EOD frame...");
+                    if (DEBUG >= 2) {
+                        System.out.println("Error, GetSession received AbstractSPDU.SPDU_EOD frame...");
+                    }
                     throw new ProtocolConnectionException("getSessionData() Length error received="+resultArrayOutputStream.toByteArray().length+", allowed receive="+len,ERROR_LENGTH);
                 }
-
                 return resultArrayOutputStream.toByteArray();
-
             } else if (responseData.getSPDUType() == AbstractSPDU.SPDU_XID) {
-
-                if (DEBUG >= 2) System.out.println("GetSession received AbstractSPDU.SPDU_XID frame...");
-
+                if (DEBUG >= 2) {
+                    System.out.println("GetSession received AbstractSPDU.SPDU_XID frame...");
+                }
                 return responseData.getData();
-
             }
 
-        } // while(true)
-    } // public byte[] getSessionData() throws NestedIOException, IOException
-
-    private final int TYPE_DATA= 0x0;
-    private final int TYPE_ACK = 0x6;
-    private final int TYPE_NACK = 0xB;
-
-
+        }
+    }
 
     private ResponseData receiveData() throws IOException {
         return receiveData(ackTimeoutTL);
@@ -278,9 +281,11 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
 
     private ResponseData receiveData(int useTimeout) throws IOException {
         int retry = 0;
-        ResponseFrame responseFrame=null;
+        ResponseFrame responseFrame;
         localTimeout=useTimeout; //ackTimeoutTL;
-        if (DEBUG >= 1) System.out.println("set localTimeout to "+localTimeout+" ms");
+        if (DEBUG >= 1) {
+            System.out.println("set localTimeout to " + localTimeout + " ms");
+        }
         timeoutType=TL;
         while(true) {
 
@@ -290,17 +295,17 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
                 retry=0;
             } catch(ConnectionException e) {
                 if (e.getReason() == CRC_ERROR) {
-                    if (retry++>=maxRetries)
+                    if (retry++>=maxRetries) {
                         throw e;
+                    }
                     else {
                         sendNAck(getNSEQRx());
                         continue;
                     }
                 }
-//                else if (e.getReason() == TIMEOUT_ERROR) {
-//
-//                }
-                else throw e;
+                else {
+                    throw e;
+                }
             }
 
             if (responseFrame.getType() == TYPE_DATA) {
@@ -308,21 +313,28 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
                 if ((lastResponseFrame != null) && (lastResponseFrame.getNSEQRx() == getNSEQRx())) {
                     // absorb
                     sendAck(getNSEQRx());
-                    if (DEBUG >= 1) System.out.println("Error in sequence nr... send same ACK...");
+                    if (DEBUG >= 1) {
+                        System.out.println("Error in sequence nr... send same ACK...");
+                    }
                     lastResponseFrame=responseFrame;
                     return new ResponseData(ProtocolUtils.getSubArray2(responseFrame.getData(), 0, 1));
                 } else {
                     setNSEQ(getNSEQRx());
                     sendAck();
-                    if (DEBUG >= 2) System.out.println("Data received, send ACK...");
+                    if (DEBUG >= 2) {
+                        System.out.println("Data received, send ACK...");
+                    }
                     lastResponseFrame=responseFrame;
                     return new ResponseData(responseFrame.getData());
                 }
             } else if (responseFrame.getType() == TYPE_ACK) {
                 //absorb...
-                if (DEBUG >= 2) System.out.println("ACK received...");
-                if (getType() == AbstractSPDU.SPDU_EOS)
+                if (DEBUG >= 2) {
+                    System.out.println("ACK received...");
+                }
+                if (getType() == AbstractSPDU.SPDU_EOS) {
                     return null;
+                }
 
                 long temp = System.currentTimeMillis();
                 // to avoid rubish received... wait for an extra CD toggle and flush the input buffer before continue!
@@ -336,34 +348,28 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
                 // KV 09082006 control timeout
                 localTimeout=timeoutTSE-(int)(System.currentTimeMillis()-temp); //-(int)forcedDelay; // 1 sec to wait before retry! because we received already an ACK!
                 timeoutType=TSE;
-                if (DEBUG >= 1) System.out.println("set localTimeout to "+localTimeout+" ms");
+                if (DEBUG >= 1) {
+                    System.out.println("set localTimeout to " + localTimeout + " ms");
+                }
 
             } else if (responseFrame.getType() == TYPE_NACK) {
-                if (DEBUG >= 1) System.out.println("NACK received...");
+                if (DEBUG >= 1) {
+                    System.out.println("NACK received...");
+                }
                 throw new ProtocolConnectionException("receiveData() NACK received ",ERROR_NAK);
             }
             else {
                 delayAndFlush(forcedDelay);
                 throw new ProtocolConnectionException("receiveData() invalid frametype responseFrame.getType()="+responseFrame.getType(),PROTOCOL_ERROR);
             }
-
-        } // while(true)
-    } // private ResponseData receiveData() throws IOException
-
-    private final int WAIT_FOR_LENGTH=0;
-    private final int WAIT_FOR_CONTROL=1;
-    private final int WAIT_FOR_DATA=2;
-    private final int WAIT_FOR_CRC=3;
+        }
+    }
 
     private ResponseFrame receiveFrame(int localTimeout) throws IOException {
 
         long interFrameTimeout,interKarTimeout;
         int kar;
-        int count=0;
-        int retry=0;
         int len=0;
-        int checksum=0;
-        int checksumRx=0;
         ByteArrayOutputStream frameArrayOutputStream = new ByteArrayOutputStream();
         int state = WAIT_FOR_LENGTH;
 
@@ -378,35 +384,31 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
 
         copyEchoBuffer();
         while(true) {
-
             if ((kar = readIn()) != -1) {
-
                 // KV 09082006 inter karacter timeout
                 if (state!=WAIT_FOR_LENGTH) {
-
-                    if (((long) (System.currentTimeMillis() - interKarTimeout)) > 0) {
-                        if (DEBUG>=1) System.out.println("KV_DEBUG> TrimaranConnection, receiveFrame(), interkar timeout at len="+len+", kar = "+Integer.toHexString(kar));
+                    if (System.currentTimeMillis() - interKarTimeout > 0) {
+                        if (DEBUG>=1) {
+                            System.out.println("KV_DEBUG> TrimaranConnection, receiveFrame(), interkar timeout at len=" + len + ", kar = " + Integer.toHexString(kar));
+                        }
                         delayAndFlush(1000);
                         throw new ProtocolConnectionException("receiveFrame() interkar timeout error",TIMEOUT_ERROR);
                     }
                 }
                 interKarTimeout = System.currentTimeMillis() + interKarTimeoutValue;
-
-//                if (DEBUG >= 2) {
-//                    System.out.print(",0x");
-//                    ProtocolUtils.outputHex( ((int)kar));
-//                }
-
                 frameArrayOutputStream.write(kar);
-
                 switch(state) {
                     case WAIT_FOR_LENGTH:
                         len=kar;
                         if ((len >= 4) && (len <= 0x7E)) {
-                            if (DEBUG >= 1) System.out.println("KV_DEBUG> collect frame with len="+len);
+                            if (DEBUG >= 1) {
+                                System.out.println("KV_DEBUG> collect frame with len=" + len);
+                            }
                             state = WAIT_FOR_CONTROL;
                             len--;
-                        } else frameArrayOutputStream.reset();
+                        } else {
+                            frameArrayOutputStream.reset();
+                        }
 
                         break; // WAIT_FOR_LENGTH
 
@@ -419,37 +421,37 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
                         break; // WAIT_FOR_CONTROL
 
                     case WAIT_FOR_DATA:
-                        if (--len<=2)
+                        if (--len<=2) {
                             state = WAIT_FOR_CRC;
+                        }
                         break; // WAIT_FOR_DATA
 
                     case WAIT_FOR_CRC:
                         if (--len<=0) {
                             byte[] frame = frameArrayOutputStream.toByteArray();
 
-                            if (DEBUG >= 1) System.out.println("KV_DEBUG> frame="+ProtocolUtils.outputHexString(frame));
-
+                            if (DEBUG >= 1) {
+                                System.out.println("KV_DEBUG> frame=" + ProtocolUtils.outputHexString(frame));
+                            }
                             if (CRCGenerator.calcCRC(frame)==0) {
                                 return new ResponseFrame(ProtocolUtils.getSubArray2(frame, 2, frame.length-4), type, getNSEQRx());
                             } else {
-                                if (DEBUG >= 1) System.out.println("KV_DEBUG> ******************************************* CRC NOK *************************************************");
+                                if (DEBUG >= 1) {
+                                    System.out.println("KV_DEBUG> ******************************************* CRC NOK *************************************************");
+                                }
                                 throw new ProtocolConnectionException("receiveFrame() CRC error",CRC_ERROR);
                             }
 
                         }
                         break; // WAIT_FOR_CRC
 
-                } // switch(state)
-
-            } // if ((kar = readIn()) != -1)
-
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                }
+            }
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
-
-        } // while(true)
-
-    } // public void receiveFrame() throws ConnectionException
+        }
+    }
 
 
     public void setNSEQ(int nSEQ) {
@@ -463,8 +465,9 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
 
     public int getNextNSEQ() {
         ++nSEQ;
-        if (nSEQ >= 0x10)
+        if (nSEQ >= 0x10) {
             nSEQ = 0;
+        }
         return nSEQ;
     }
 
@@ -484,5 +487,4 @@ public class TrimeranConnection extends ConnectionV25  implements ProtocolConnec
         this.nSEQRx = nSEQRx;
     }
 
-
-} // public class TrimeranConnection extends Connection  implements ProtocolConnection
+}

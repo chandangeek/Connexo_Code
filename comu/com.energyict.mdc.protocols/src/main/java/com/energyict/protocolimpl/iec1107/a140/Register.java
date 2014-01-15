@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 

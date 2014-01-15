@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityContext;

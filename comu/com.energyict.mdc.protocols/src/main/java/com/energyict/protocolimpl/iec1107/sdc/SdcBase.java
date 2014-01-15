@@ -6,36 +6,30 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import com.energyict.cbo.TimeZoneManager;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 // com.energyict.protocolimpl.iec1107.sdc.Sdc
 /**
  *
@@ -45,15 +39,13 @@ import java.util.logging.Logger;
  *@endchanges
  *
  */
-abstract public class SdcBase extends AbstractProtocol {
+public abstract class SdcBase extends AbstractProtocol {
 
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
     SdcLoadProfile sdcLoadProfile=null;
     ObisCodeMapper ocm = null;
-	private int iSecurityLevelProperty;
-	private int extendedLogging;
-	private boolean software7E1;
+    private boolean software7E1;
 
 
     protected abstract RegisterConfig getRegs();
@@ -69,45 +61,13 @@ abstract public class SdcBase extends AbstractProtocol {
 
     protected void doConnect() throws IOException {
         dataReadingCommandFactory = new DataReadingCommandFactory(this);
-//        if (extendedLogging >= 1)
-//            getRegistersInfo();
-    }
-
-    private void getRegistersInfo() throws IOException{
-//        StringBuffer strBuff = new StringBuffer();
-////        if (getDataReadoutRequest()==1) {
-////            strBuff.append("******************* ExtendedLogging *******************\n");
-////            strBuff.append(new String(getDataReadout()));
-////        }
-////        else {
-//            strBuff.append("******************* ExtendedLogging *******************\n");
-//            strBuff.append("1.0.1.8.128.255: Active Energy tariff HV" + "\n");
-//            strBuff.append("1.0.1.8.129.255: Active Energy tariff HP" + "\n");
-//            strBuff.append("1.0.1.8.130.255: Active Energy tariff HC" + "\n");
-//            strBuff.append("1.0.1.8.131.255: Active Energy tariff HSV" + "\n");
-//            strBuff.append("1.0.3.8.128.255: Reactive Energy inductive tariff HV" + "\n");
-//            strBuff.append("1.0.3.8.132.255: Reactive Energy inductive tariff HFV" + "\n");
-//            strBuff.append("1.0.4.8.128.255: Reactive Energy capacitive tariff HV" + "\n");
-//            strBuff.append("1.0.4.8.132.255: Reactive Energy capacitive tariff HFV" + "\n");
-//            strBuff.append("1.0.1.6.128.255: Active Energy maximum demand tariff HV" + "\n");
-//            strBuff.append("1.0.1.6.132.255: Active Energy maximum demand tariff HFV" + "\n");
-//            strBuff.append("1.0.3.6.128.255: Reactive Energy maximum demand inductive tariff HV" + "\n");
-//            strBuff.append("1.0.3.6.132.255: Reactive Energy maximum demand inductive tariff HFV" + "\n");
-//            strBuff.append("1.0.4.6.128.255: Reactive Energy maximum demand capacitive tariff HV" + "\n");
-//            strBuff.append("1.0.4.6.132.255: Reactive Energy maximum demand capacitive tariff HFV" + "\n");
-//            strBuff.append("1.0.1.8.0.255: Active Energy total (all phases)" + "\n");
-//            strBuff.append("1.0.3.8.0.255: Reactive Energy inductive total (all phases)" + "\n");
-//            strBuff.append("1.0.4.8.0.255: Reactive Energy capacitive total (all phases)" + "\n");
-//            strBuff.append("*******************************************************\n");
-////        }
-//        getLogger().info(strBuff.toString());
     }
 
     protected void doDisConnect() throws IOException {
     }
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
-    	StringBuffer strBuff = new StringBuffer();
+    	StringBuilder strBuff = new StringBuilder();
     	strBuff.append("******************* ExtendedLogging *******************\n");
     	strBuff.append("1.0.1.8.128.255: Active Energy tariff HV" + "\n");
     	strBuff.append("1.0.1.8.129.255: Active Energy tariff HP" + "\n");
@@ -131,12 +91,12 @@ abstract public class SdcBase extends AbstractProtocol {
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
        return getSdcLoadProfile().getNrOfChannels();
     }
 
-    protected List doGetOptionalKeys() {
-        return null;
+    protected List<String> doGetOptionalKeys() {
+        return Collections.emptyList();
     }
 
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
@@ -152,13 +112,12 @@ abstract public class SdcBase extends AbstractProtocol {
         return iec1107Connection;
     }
 
-    protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 //    	properties.setProperty("SecurityLevel","0");
-    	extendedLogging=Integer.parseInt(properties.getProperty("ExtendedLogging","0").trim());
         this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return "Unknown";
     }
 
@@ -206,10 +165,10 @@ abstract public class SdcBase extends AbstractProtocol {
      *  This code has been taken from a real protocol implementation.
      */
 
-    static public final String COMMAND_CANNOT_BE_EXECUTED="([4])";
-    static public final String ERROR_SIGNATURE="([";
+    public static final String COMMAND_CANNOT_BE_EXECUTED="([4])";
+    public static final String ERROR_SIGNATURE="([";
 
-    static Map exceptionInfoMap = new HashMap();
+    static Map<String, String> exceptionInfoMap = new HashMap<>();
     static {
         exceptionInfoMap.put("([1])","General error, insufficient access rights");
         exceptionInfoMap.put("([2])","The nr of command parameters is not correct");
@@ -221,11 +180,13 @@ abstract public class SdcBase extends AbstractProtocol {
 
     public String getExceptionInfo(String id) {
 
-        String exceptionInfo = (String)exceptionInfoMap.get(id);
-        if (exceptionInfo != null)
-            return id+", "+exceptionInfo;
-        else
-            return "No meter specific exception info for "+id;
+        String exceptionInfo = exceptionInfoMap.get(id);
+        if (exceptionInfo != null) {
+            return id + ", " + exceptionInfo;
+        }
+        else {
+            return "No meter specific exception info for " + id;
+        }
     }
 
     /*
@@ -240,150 +201,15 @@ abstract public class SdcBase extends AbstractProtocol {
     	String str = readRegister(oc).getText();
     	str = str.substring(str.indexOf(",") + 2 );
     	if(!getInfoTypeNodeAddress().equalsIgnoreCase("")){
-	    	if ( str.compareTo(getInfoTypeNodeAddress().substring(getInfoTypeNodeAddress().indexOf(str.charAt(0)))) == -1 )
-	    		throw new IOException("Incorrect node Address!");
+	    	if ( str.compareTo(getInfoTypeNodeAddress().substring(getInfoTypeNodeAddress().indexOf(str.charAt(0)))) == -1 ) {
+                throw new IOException("Incorrect node Address!");
+            }
     	}
-    	else
-    		throw new IOException("Incorrect node Address!");
+    	else {
+            throw new IOException("Incorrect node Address!");
+        }
 
     	return;
-    }
-
-
-
-    /*******************************************************************************************
-     * m a i n ( )  i m p l e m e n t a t i o n ,  u n i t  t e s t i n g
-     *******************************************************************************************/
-    private static void main(String[] args) {
-        Dialer dialer=null;
-        Sdc sdc=null;
-        try {
-
-            // ********************************** DIALER ***********************************$
-            // modem dialup connection
-            //            dialer =DialerFactory.getDefault().newDialer();
-            //            dialer.init("COM1","AT+MS=2,0,1200,1200");
-            //            dialer.getSerialCommunicationChannel().setParams(1200,
-            //                                                             SerialCommunicationChannel.DATABITS_7,
-            //                                                             SerialCommunicationChannel.PARITY_EVEN,
-            //                                                             SerialCommunicationChannel.STOPBITS_1);
-            //            dialer.connect("000351249559970",60000);
-            //
-            // optical head connection
-            dialer =DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("",60000);
-
-            // direct rs232 connection
-            //            dialer =DialerFactory.getDirectDialer().newDialer();
-            //            dialer.init("COM1");
-            //            dialer.connect("",60000);
-
-            // *********************************** PROTOCOL ******************************************$
-            sdc = new Sdc(); // instantiate the protocol
-
-            // setup the properties (see AbstractProtocol for default properties)
-            // protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            properties.setProperty("SecurityLevel","1");
-            properties.setProperty(MeterProtocol.PASSWORD,"2");
-            properties.setProperty("ProfileInterval", "900");
-
-            // depending on the dialer, set the NodeAddress property
-            if (DialerMarker.hasModemMarker(dialer))
-                properties.setProperty(MeterProtocol.NODEID,"");
-            else
-                properties.setProperty(MeterProtocol.NODEID,"");
-
-            // transfer the properties to the protocol
-            sdc.setProperties(properties);
-
-            // depending on the dialer, set the initial (pre-connect) communication parameters
-            if (DialerMarker.hasModemMarker(dialer))
-                dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                SerialCommunicationChannel.DATABITS_7,
-                SerialCommunicationChannel.PARITY_EVEN,
-                SerialCommunicationChannel.STOPBITS_1);
-            else
-                dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                SerialCommunicationChannel.DATABITS_7,
-                SerialCommunicationChannel.PARITY_EVEN,
-                SerialCommunicationChannel.STOPBITS_1);
-
-            // initialize the protocol
-            sdc.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZoneManager.getTimeZone("GMT"),Logger.getLogger("name"));
-
-            // if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)sdc).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            System.out.println("*********************** connect() ***********************");
-
-            //for (int i=0;i<100;i++) {
-
-                // connect to the meter
-                sdc.connect();
-                //System.out.println(Sdc.getFirmwareVersion());
-                //System.out.println(Sdc.getTime());
-
-//                System.out.println(sdc.getDataReadingCommandFactory().getSerialNumber());
-
-
-                //            System.out.println(Sdc.getDataReadingCommandFactory().getRegisterSet(0).toString());
-                //            System.out.println(Sdc.getDataReadingCommandFactory().getRegisterSet(1).toString());
-                //            System.out.println(Sdc.getDataReadingCommandFactory().getRegisterSet(2).toString());
-                //            System.out.println(Sdc.getDataReadingCommandFactory().getRegisterSet(3).toString());
-
-                byte[] ba;
-                String strBa;
-                //            Sdc.getIec1107Connection().sendRawCommandFrame(IEC1107Connection.READ1,"HSR(1,100,2004,10,27,00,00,00)".getBytes());
-                //            ba = Sdc.getIec1107Connection().receiveRawData();
-                //            strBa = new String(ba);
-                //            System.out.println(strBa);
-                //            Sdc.getIec1107Connection().sendRawCommandFrame(IEC1107Connection.READ1,"HSR(1,96,2004,10,28,00,00,00)".getBytes());
-                //            ba = Sdc.getIec1107Connection().receiveRawData();
-                //            strBa = new String(ba);
-                //            System.out.println(strBa);
-                //            Sdc.getIec1107Connection().sendRawCommandFrame(IEC1107Connection.READ1,"HSZ(1,96,2004,10,28,00,00,00)".getBytes());
-                //            ba = Sdc.getIec1107Connection().receiveRawData();
-                //            strBa = new String(ba);
-                //            System.out.println(strBa);
-                //    System.out.println(Sdc.getEnermetLoadProfile().getProfileData(new Date((new Date()).getTime()-(3600000L*24*3))));
-                //System.out.println("nr of channels:"+Sdc.getEnermetLoadProfile().getNrOfChannels());
-                //System.out.println(Sdc.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-                //System.out.println(Sdc.readRegister(ObisCode.fromString("1.1.1.8.0.0")));
-                //System.out.println(Sdc.readRegister(ObisCode.fromString("1.1.1.8.0.1")));
-                //System.out.println(Sdc.readRegister(ObisCode.fromString("1.1.5.6.2.255")));
-
-                //Sdc.setTime();
-                System.out.println(sdc.getTime());
-
-                //Sdc.getDataReadingCommandFactory().getEventLog();
-                //Calendar calendar = Calendar.getInstance(TimeZoneManager.getTimeZone("GMT"));
-                //calendar.add(Calendar.HOUR_OF_DAY,-2);
-                //calendar.add(Calendar.MINUTE, -3);
-
-                //Sdc.getEnermetLoadProfile().retrieveEventLog(calendar.getTime());
-                //System.out.println(Sdc.getProfileData(calendar.getTime(),false));
-
-                // temporary...
-             //   Sdc.disconnect();
-
-            //} // for (int i=0;i<100;i++)
-
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally{
-            try {
-                System.out.println("*********************** disconnect() ***********************");
-                sdc.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -394,7 +220,6 @@ abstract public class SdcBase extends AbstractProtocol {
         return dataReadingCommandFactory;
     }
 
-
     /*******************************************************************************************
      * R e g i s t e r P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
@@ -403,8 +228,9 @@ abstract public class SdcBase extends AbstractProtocol {
     }
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
 
-    	if (ocm == null)
-    		ocm = new ObisCodeMapper(getDataReadingCommandFactory(),getTimeZone(),getRegs());
+    	if (ocm == null) {
+            ocm = new ObisCodeMapper(getDataReadingCommandFactory(), getTimeZone(), getRegs());
+        }
 
         return ocm.getRegisterValue(obisCode);
     }
@@ -419,4 +245,4 @@ abstract public class SdcBase extends AbstractProtocol {
 
 
 
-} // class Sdc
+}

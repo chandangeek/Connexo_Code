@@ -1,7 +1,7 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
 import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

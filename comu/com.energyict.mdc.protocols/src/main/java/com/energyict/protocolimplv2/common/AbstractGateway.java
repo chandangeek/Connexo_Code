@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.common;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -19,9 +20,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.Date;
 import java.util.List;
@@ -40,27 +40,27 @@ public abstract class AbstractGateway implements DeviceProtocol {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "init");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "init");
     }
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceProtocolCapabilities");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getDeviceProtocolCapabilities");
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs () {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getPropertySpecs");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getPropertySpecs");
     }
 
     @Override
     public PropertySpec getPropertySpec (String name) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getPropertySpec");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getPropertySpec");
     }
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSupportedConnectionTypes");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getSupportedConnectionTypes");
     }
 
     @Override
@@ -90,97 +90,97 @@ public abstract class AbstractGateway implements DeviceProtocol {
 
     @Override
     public String getSerialNumber() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSerialNumber");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getSerialNumber");
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setDeviceCache");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "setDeviceCache");
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceCache");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getDeviceCache");
     }
 
     @Override
     public void setTime(Date timeToSet) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setTime");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "setTime");
     }
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "fetchLoadProfileConfiguration");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "fetchLoadProfileConfiguration");
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLoadProfileData");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getLoadProfileData");
     }
 
     @Override
     public Date getTime() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getTime");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getTime");
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLogBookData");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getLogBookData");
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getSupportedMessages");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getSupportedMessages");
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "executePendingMessages");
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "updateSentMessages");
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "format");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "format");
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceProtocolDialects");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getDeviceProtocolDialects");
     }
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "addDeviceProtocolDialectProperties");
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setSecurityPropertySet");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "setSecurityPropertySet");
     }
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "readRegisters");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "readRegisters");
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceTopology");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getDeviceTopology");
     }
 
     @Override
     public String getVersion() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getVersion");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "getVersion");
     }
 
     @Override
     public void copyProperties(TypedProperties properties) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addProperties");
+        throw CommunicationException.unsupportedMethod(this.getClass(), "addProperties");
     }
 
 }

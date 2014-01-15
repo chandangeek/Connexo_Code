@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 /**
  * Contains the serialNumber of the device
@@ -10,12 +10,12 @@ import com.energyict.protocol.ProtocolUtils;
 public class S4sSerialNumber {
 
 	private byte[] rawBytes;
-	
+
 	public S4sSerialNumber(byte[] rawBytes){
 		byte[] temp = S4sObjectUtils.switchNibbles(rawBytes);
 		this.rawBytes = S4sObjectUtils.hexStringToByteArray(new String(temp));		// strange way of parsing a decimal byteArray to a String, back to an ASCII byteArray...
 	}
-	
+
 	/**
 	 * @return the SerialNumber as a String without the ending zeros
 	 */

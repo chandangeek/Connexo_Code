@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.common;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 
 import java.io.IOException;
 import java.io.InputStream;

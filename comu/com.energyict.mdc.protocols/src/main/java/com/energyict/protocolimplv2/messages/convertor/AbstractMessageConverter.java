@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdw.core.Code;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
@@ -73,14 +73,14 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw new GeneralParseException(e);
         }
     }
     protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw new GeneralParseException(e);
         }
     }
 }

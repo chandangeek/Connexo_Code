@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 import java.io.ByteArrayInputStream;
@@ -133,7 +133,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
             if (baos != null) {
@@ -141,7 +141,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
                     baos.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -212,7 +212,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -286,7 +286,7 @@ public class TransparentGet extends AbstractTransparentObjectAccess {
                     baos.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

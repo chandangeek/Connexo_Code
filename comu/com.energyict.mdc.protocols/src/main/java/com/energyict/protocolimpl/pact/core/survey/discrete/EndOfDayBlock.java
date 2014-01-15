@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
 

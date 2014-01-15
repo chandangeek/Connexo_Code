@@ -5,7 +5,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;

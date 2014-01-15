@@ -10,24 +10,19 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C1222Buffer;
 import com.energyict.protocolimpl.ansi.c12.C1222Layer;
@@ -47,6 +42,7 @@ import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFact
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +52,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -244,8 +239,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
 	    	}
 			}
 
-    	if (result != null)
-    	{
+    	if (result != null) {
     		c1222 = true;
     		result.setCalledApTitle(calledAPTitle);
     		result.setSecurityKey(securityKey);
@@ -256,7 +250,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
 
     	return result;
     }
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         psemServiceFactory = new PSEMServiceFactory(this);
 
         C1222Buffer c1222Buffer = checkForC1222();
@@ -458,143 +453,6 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 
     public TimeZone gettimeZone() {
         return super.getTimeZone();
-    }
-
-    static public void main(String[] args) {
-        try {
-
-            String[] phones          = new String[]{"18306292036","17854256640","1660-595-2100,,,88+,,88,,88","1830 221 2281"};
-            String[] passwords       = new String[]{"13726687",   "07041776",   "00000000",                   "45072617"};
-            String[] securityLevels  = new String[]{"2",          "1",          "1",                          "0"};
-            int select=0;
-            String dialInternational="000";
-
-            // ********************** Dialer **********************
-            //Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            //Dialer dialer = DialerFactory.getOpticalDialer().newDialer();
-            Dialer dialer = DialerFactory.getDefault().newDialer();
-            dialer.init("COM1","AT&FM0E0Q0V1&C1&D2");
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                                                             SerialCommunicationChannel.DATABITS_8,
-                                                             SerialCommunicationChannel.PARITY_NONE,
-                                                             SerialCommunicationChannel.STOPBITS_1);
-
-            dialer.connect(dialInternational+phones[select],90000);
-
-            // ********************** Properties **********************
-            Properties properties = new Properties();
-            properties.setProperty("ProfileInterval", "900");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            //properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[select]);
-            properties.setProperty("SecurityLevel",securityLevels[select]);
-            properties.setProperty("ChannelMap","1,1");
-            //properties.setProperty("HalfDuplex", "10");
-
-            // ********************** EictRtuModbus **********************
-            AlphaA3 alphaA3 = new AlphaA3();
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)alphaA3).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            alphaA3.setHalfDuplexController(dialer.getHalfDuplexController());
-            alphaA3.setProperties(properties);
-            alphaA3.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("CST"),Logger.getLogger("name"));
-            alphaA3.connect();
-
-
-//            System.out.println(alphaA3.getStandardTableFactory().getConfigurationTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getManufacturerIdentificationTable());
-//            System.out.println(alphaA3.getManufacturerTableFactory().getElectricitySpecificProductSpec());
-            System.out.println(alphaA3.getManufacturerTableFactory().getPrimaryMeteringInformation());
-
-            System.out.println(alphaA3.getManufacturerTableFactory().getSourceDefinitionTable());
-
-//            System.out.println(alphaA3.getStandardTableFactory().getEndDeviceModeAndStatusTable());
-//            System.out.println(alphaA3.getManufacturerTableFactory().getStatusTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getUtilityInformationTable());
-//
-//            System.out.println(alphaA3.getStandardTableFactory().getDeviceIdentificationTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getClockStateTable()); // getClockTable seems not to be supported...
-
-//            System.out.println(alphaA3.getTime());
-
-//            try {
-//               System.out.println(alphaA3.getStandardTableFactory().getActualLogTable());
-//            }
-//            catch(IOException e) {
-//                System.out.println("Table not supported! "+e.toString());
-//            }
-//            try {
-//               System.out.println(alphaA3.getStandardTableFactory().getEventsIdentificationTable());
-//            }
-//            catch(IOException e) {
-//                System.out.println("Table not supported! "+e.toString());
-//            }
-//            System.out.println(alphaA3.getStandardTableFactory().getEventLogDataTableHeader());
-//            System.out.println(alphaA3.getStandardTableFactory().getEventLogDataTableEventEntries(0, 10));
-//
-//
-//
-
-//            System.out.println(alphaA3.getManufacturerProcedureFactory().getCallIdentification());
-//
-//            System.out.println(alphaA3.getStandardTableFactory().getActualSourcesLimitingTable());
-            System.out.println(alphaA3.getStandardTableFactory().getDemandControlTable());
-//            //System.out.println(alphaA3.getStandardTableFactory().getDataControlTable());
-            System.out.println(alphaA3.getStandardTableFactory().getConstantsTable());
-//            //System.out.println(alphaA3.getStandardTableFactory().getSourceDefinitionTable());
-            System.out.println(alphaA3.getStandardTableFactory().getActualRegisterTable());
-            System.out.println(alphaA3.getStandardTableFactory().getDataSelectionTable());
-            System.out.println(alphaA3.getStandardTableFactory().getCurrentRegisterDataTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getPreviousSeasonDataTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getPreviousDemandResetDataTable());
-//
-//            System.out.println(alphaA3.getStandardTableFactory().getSelfReadDataTable()); // ?
-//            System.out.println(alphaA3.getStandardTableFactory().getPresentRegisterSelectionTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getPresentRegisterDataTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getActualTimeAndTOUTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getTimeOffsetTable());
-//            System.out.println(alphaA3.getStandardTableFactory().getCalendarTable());
-
-            // set time
-            //alphaA3.setTime();
-
-            //System.out.println(alphaA3.getStandardTableFactory().getActualLoadProfileTable());
-            //System.out.println(alphaA3.getStandardTableFactory().getLoadProfileControlTable());
-            //System.out.println(alphaA3.getStandardTableFactory().getLoadProfileStatusTable());
-
-
-//            byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            alphaA3.getPSEMServiceFactory().secure(password);
-
-
-//System.out.println("KV_DEBUG> program manufacturer specific table");
-//alphaA3.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//alphaA3.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//alphaA3.getManufacturerTableFactory().getMeterProgramConstants1().transfer();
-
-
-
-//            Calendar cal = Calendar.getInstance();
-//            cal.add(Calendar.DAY_OF_MONTH,-4);
-//            System.out.println(alphaA3.getProfileData(cal.getTime(),true));
-
-            System.out.println(alphaA3.getObisCodeInfoFactory().toString());
-
-            System.out.println(alphaA3.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-
-            System.out.println(alphaA3.getFirmwareVersion());
-
-
-            alphaA3.disconnect();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     public PSEMServiceFactory getPSEMServiceFactory() {

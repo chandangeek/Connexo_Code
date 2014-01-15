@@ -1,33 +1,31 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.comserver.exceptions.DeviceConfigurationException;
-import com.energyict.comserver.time.Clocks;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCodeImpl;
-import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.protocol.api.crypto.Cryptographer;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
-import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
-import com.energyict.mdw.core.LogBookTypeFactory;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
+import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.protocols.util.LittleEndianInputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -46,19 +44,19 @@ public class ProtocolHandler {
 
     private ContentType contentType;
     private ResponseWriter responseWriter;
-    private InboundDAO inboundDAO;
+    private InboundDiscoveryContext inboundDiscoveryContext;
     private Cryptographer cryptographer;
     private PacketBuilder packetBuilder;
     private ProfileBuilder profileBuilder;
     private List<CollectedRegister> registerData = new ArrayList<>();
     private CollectedConfigurationInformation configurationInformation;
-    private DeviceLogBook deviceLogBook;
+    private CollectedLogBook deviceLogBook;
     private LegacyMessageConverter messageConverter = null;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer) {
         super();
         this.responseWriter = responseWriter;
-        this.inboundDAO = inboundDAO;
+        this.inboundDiscoveryContext = inboundDiscoveryContext;
         this.cryptographer = cryptographer;
     }
 
@@ -125,7 +123,7 @@ public class ProtocolHandler {
     }
 
     private CollectedData getLogBookEvents() {
-        DeviceLogBook deviceLogBook = this.getDeviceLogBook();
+        CollectedLogBook deviceLogBook = this.getDeviceLogBook();
         if (deviceLogBook != null) {
             List<MeterEvent> meterEvents = this.profileBuilder.getProfileData().getMeterEvents();
             if (meterEvents != null && !meterEvents.isEmpty()) {
@@ -141,19 +139,19 @@ public class ProtocolHandler {
     }
 
     private void processMeterReadings(ProfileBuilder profileBuilder) {
-        Date now = Clocks.getAppServerClock().now();
+        Date now = Bus.getClock().now();
         List<BigDecimal> meterReadings = profileBuilder.getMeterReadings();
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
             ChannelInfo channelInfo = profileBuilder.getProfileData().getChannel(i);
-            PrimeRegisterForChannelIdentifier registerIdentifier = null;
+            PrimeRegisterForChannelIdentifier registerIdentifier;
             try {
                 registerIdentifier = new PrimeRegisterForChannelIdentifier(
                         this.getDeviceIdentifier(), channelInfo.getChannelObisCode(), channelInfo.getChannelObisCode(), channelInfo.getChannelId());
             } catch (IOException e) {
                 throw DeviceConfigurationException.channelNameNotAnObisCode(channelInfo.getName());
             }
-            DefaultDeviceRegister reading = new DefaultDeviceRegister(registerIdentifier);
+            CollectedRegister reading = this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
             reading.setReadTime(now);
             reading.setCollectedData(new Quantity(value, Unit.get(BaseUnit.COUNT)), "???");
             this.registerData.add(reading);
@@ -161,7 +159,7 @@ public class ProtocolHandler {
     }
 
     private void processConfigurationInformation(ProfileBuilder profileBuilder) {
-        this.configurationInformation = new DeviceUserFileConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
+        this.configurationInformation = this.getCollectedDataFactory().createCollectedConfigurationInformation(this.getDeviceIdentifier(), "xml", profileBuilder.getConfigFile());
     }
 
     public void handle(HttpServletRequest request, Logger logger) {
@@ -190,7 +188,7 @@ public class ProtocolHandler {
         if (this.packetBuilder.getNrOfAcceptedMessages() != null) {
             nrOfAcceptedMessages = this.packetBuilder.getNrOfAcceptedMessages();
         }
-        List<OfflineDeviceMessage> pendingMessages = this.inboundDAO.confirmSentMessagesAndGetPending((CanFindDevice) this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        List<OfflineDeviceMessage> pendingMessages = this.inboundDiscoveryContext.confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
         this.sendMessages(pendingMessages);
     }
 
@@ -230,7 +228,7 @@ public class ProtocolHandler {
 
     private Date sevenDaysFromNow() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(Clocks.getAppServerClock().now());
+        calendar.setTime(Bus.getClock().now());
         calendar.add(Calendar.DATE, 7);
         return calendar.getTime();
     }
@@ -291,12 +289,15 @@ public class ProtocolHandler {
         return result;
     }
 
-    private DeviceLogBook getDeviceLogBook() {
+    private CollectedLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCodeImpl((CanFindDevice) getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByDeviceAndObisCode(getDeviceIdentifier(), LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
     }
 
+    private CollectedDataFactory getCollectedDataFactory() {
+        return this.packetBuilder.getCollectedDataFactory();
+    }
 
 }

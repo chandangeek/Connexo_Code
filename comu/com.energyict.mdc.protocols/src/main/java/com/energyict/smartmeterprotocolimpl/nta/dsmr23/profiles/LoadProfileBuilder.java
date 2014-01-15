@@ -17,11 +17,12 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -36,7 +37,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+ * Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link SmartMeterProtocol}
  * <p/>
  * <pre>
  * Copyrights EnergyICT
@@ -70,7 +71,8 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
 
     /**
-     * Keeps track of the link between a {@link LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
+     * Keeps track of the link between a {@link LoadProfileReader} and a list of
+     * {@link com.energyict.mdc.protocol.api.device.Register} which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
@@ -91,7 +93,8 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
-     * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
+     * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.Register}
+     * and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();
 
@@ -262,7 +265,7 @@ public class LoadProfileBuilder {
      */
     private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<CapturedRegisterObject> registers, boolean supportsBulkRequest) {
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (CapturedRegisterObject register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
@@ -300,9 +303,9 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
@@ -338,7 +341,7 @@ public class LoadProfileBuilder {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -413,7 +416,7 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {

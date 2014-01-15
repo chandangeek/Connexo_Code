@@ -2,10 +2,9 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.shadow.protocol.task.MessagesTaskShadow;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.mdc.common.DataVault;
+import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdw.xml.MdwXmlSerializer;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.util.ArrayDiffList;
 import java.beans.XMLDecoder;
 import java.io.ByteArrayInputStream;

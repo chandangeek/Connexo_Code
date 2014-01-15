@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -16,24 +17,21 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.sdksample.SDKSampleProtocolConnection;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -169,8 +167,6 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * @return the version of the meter firmware
      *         </p>
      * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
@@ -216,11 +212,11 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
 
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
-     * Build up a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects and return them so the
+     * Build up a list of {@link LoadProfileConfiguration} objects and return them so the
      * framework can validate them to the configuration in EIServer
      *
      * @param loadProfileObisCodes the list of LoadProfile ObisCodes
-     * @return a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects corresponding with the meter
+     * @return a list of {@link LoadProfileConfiguration} objects corresponding with the meter
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileObisCodes) {
         return getSMartMeterProfile().fetchLoadProfileConfiguration(loadProfileObisCodes);
@@ -372,23 +368,15 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) {
         MessageResult result = MessageResult.createFailed(messageEntry);
-        try {
-            if (messageEntry.getContent().contains(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
-                result = doReadPartialLoadProfile(messageEntry);
-            } else if (messageEntry.getContent().contains(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
-                result = doReadLoadProfileRegisters(messageEntry);
-            }
-        } catch (BusinessException e) {
-            result = MessageResult.createFailed(messageEntry);
-        } catch (SQLException e) {
-            result = MessageResult.createFailed(messageEntry);
-        } catch (IOException e) {
-            result = MessageResult.createFailed(messageEntry);
+        if (messageEntry.getContent().contains(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
+            result = doReadPartialLoadProfile(messageEntry);
+        } else if (messageEntry.getContent().contains(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
+            result = doReadLoadProfileRegisters(messageEntry);
         }
         return result;
     }
 
-    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) throws IOException, BusinessException, SQLException {
+    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             getLogger().info("Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();

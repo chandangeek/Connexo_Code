@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

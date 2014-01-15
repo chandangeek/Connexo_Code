@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.IOException;

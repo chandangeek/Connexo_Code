@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc;
 
-import com.energyict.mdc.protocol.api.PluggableClassDefinition;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.pluggable.PluggableClassDefinition;
+import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol;
 import com.energyict.protocolimplv2.ace4000.ACE4000Inbound;
 import com.energyict.protocols.mdc.inbound.general.DialHomeIdRequestDiscover;

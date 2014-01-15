@@ -6,21 +6,21 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 /**
  *
  * @author  Koen
  */
 public class IEC870ConnectionException extends ConnectionException {
-    
+
   private short sReason;
 
   public short getReason()
   {
      return sReason;
   }
-   
+
   public IEC870ConnectionException(String str)
   {
       super(str);
@@ -31,7 +31,7 @@ public class IEC870ConnectionException extends ConnectionException {
   {
       super();
       this.sReason = -1;
-      
+
   } // public IEC870ConnectionException()
 
   public IEC870ConnectionException(String str, short sReason)
@@ -39,6 +39,6 @@ public class IEC870ConnectionException extends ConnectionException {
       super(str);
       this.sReason = sReason;
 
-  } // public IEC870ConnectionException(String str)    
-    
+  } // public IEC870ConnectionException(String str)
+
 }

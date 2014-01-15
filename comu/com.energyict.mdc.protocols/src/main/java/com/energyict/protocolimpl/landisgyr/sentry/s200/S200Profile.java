@@ -15,7 +15,7 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.DataDumpFactory;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.S200EventsFactory;
@@ -136,8 +136,6 @@ if (DEBUG>=1) System.out.println("KV_DEBUG> 2 cal="+cal.getTime());
 
 // KV_DEBUG
 if (DEBUG>=1) System.out.println("KV_DEBUG> nrOfBlocks="+nrOfBlocks);
-
-if (DEBUG>=2) ProtocolUtils.printResponseData(rawData);
 
         List intervalDatas = new ArrayList();
         Calendar cal = ddf.getDumpCommand().getLastEndingInterval();

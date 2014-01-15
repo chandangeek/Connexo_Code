@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.PluggableClassDefinition;
+import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.mdc.channels.ip.InboundIpConnectionType;

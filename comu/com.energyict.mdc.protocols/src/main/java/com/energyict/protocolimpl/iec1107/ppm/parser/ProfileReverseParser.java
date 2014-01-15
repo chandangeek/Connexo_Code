@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppm.parser;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppm.Profile;
 
 import java.io.IOException;

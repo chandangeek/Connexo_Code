@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
 
 import java.io.IOException;

@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
 import org.junit.Test;

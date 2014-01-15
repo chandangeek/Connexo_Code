@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 /**
@@ -22,23 +22,23 @@ public class ReadResponse extends AbstractResponse {
     private int count;
     private byte[] tableData;
     private int checkSum;
-    
+
     /** Creates a new instance of ReadResponse */
     public ReadResponse(PSEMServiceFactory psemServiceFactory) {
         super(psemServiceFactory);
     }
-    
+
     public String toString() {
         return ProtocolUtils.outputHexString(tableData);
     }
-    
+
     protected void parse(ResponseData responseData) throws IOException {
         // in case of <ok>
         byte[] data = responseData.getData();
         if (data.length >1) {
             count = ProtocolUtils.getInt(data,1, 2);
-            
-           
+
+
 //System.out.println("KV_DEBUG> count="+count);
 
             tableData = ProtocolUtils.getSubArray2(data, 3, count);

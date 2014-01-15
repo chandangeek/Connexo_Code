@@ -1,11 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +26,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
 public enum AdvancedTestMessage implements DeviceMessageSpec {
 
     XML_CONFIG(RequiredPropertySpecFactory.newInstance().stringPropertySpec(xmlConfigAttributeName)),
-    USERFILE_CONFIG(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(UserFileConfigAttributeName)),
+    USERFILE_CONFIG(RequiredPropertySpecFactory.newInstance().referencePropertySpec(UserFileConfigAttributeName, (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
     LogObjectList();
 
     private static final DeviceMessageCategory advancedTestCategory = DeviceMessageCategories.ADVANCED_TEST;

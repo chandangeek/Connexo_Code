@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
@@ -8,12 +8,12 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;

@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterReading;
-import com.energyict.mdw.core.Device;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.Register;
+import com.energyict.mdc.protocol.api.device.RegisterReading;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -57,23 +57,23 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
         }
     }
 
-    private List<CanFindDevice> parseIds (String deviceIds) {
+    private List<DeviceIdentifier> parseIds (String deviceIds) {
         try {
             String[] stringIds = deviceIds.split(",");
-            List<CanFindDevice> ids = new ArrayList<>(stringIds.length);
+            List<DeviceIdentifier> ids = new ArrayList<>(stringIds.length);
             for (String stringId : stringIds) {
                 ids.add(new DeviceIdentifierById(stringId));
             }
             return ids;
         }
         catch (NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw new GeneralParseException(e);
         }
     }
 
-    private List<Device> findDevices (List<CanFindDevice> deviceIds) {
+    private List<Device> findDevices (List<DeviceIdentifier> deviceIds) {
         List<Device> devices = new ArrayList<>(deviceIds.size());
-        for (CanFindDevice deviceId : deviceIds) {
+        for (DeviceIdentifier deviceId : deviceIds) {
             Device device = deviceId.findDevice();
             devices.add(device);
         }
@@ -104,15 +104,15 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
                         index++;
                     } else {
                         ApplicationException e = new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");
-                        throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+                        throw new GeneralParseException(e);
                     }
                 } else {
                     ApplicationException e = new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!");
-                    throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+                    throw new GeneralParseException(e);
                 }
             }
         } catch (ClassCastException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw new GeneralParseException(e);
         }
         return builder.toString();
     }

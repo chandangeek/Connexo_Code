@@ -1,6 +1,6 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.cbo.SerialCommunicationSettings;
+import com.energyict.mdc.protocol.api.SerialCommunicationSettings;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.Integer8;

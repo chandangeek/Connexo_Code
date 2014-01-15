@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.protocol.Calculate;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.Calculate;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.List;
 import java.util.TimeZone;
 
 /** @author  Koen */
@@ -15,16 +14,16 @@ public class ABBA1140ProfileEntry {
 
     // type attribute:
     // markers
-    static public final int POWERUP=0xE5;
-    static public final int CONFIGURATIONCHANGE=0xE8;
-    static public final int POWERDOWN=0xE6;
-    static public final int NEWDAY=0xE4;
-    static public final int TIMECHANGE=0xEA;
-    static public final int DAYLIGHTSAVING=0xED;
-    static public final int LOADPROFILECLEARED=0xEB;
-    static public final int FORCEDENDOFDEMAND=0xE9;
+    public static final int POWERUP=0xE5;
+    public static final int CONFIGURATIONCHANGE=0xE8;
+    public static final int POWERDOWN=0xE6;
+    public static final int NEWDAY=0xE4;
+    public static final int TIMECHANGE=0xEA;
+    public static final int DAYLIGHTSAVING=0xED;
+    public static final int LOADPROFILECLEARED=0xEB;
+    public static final int FORCEDENDOFDEMAND=0xE9;
     // when last packet does not contain 64 (normal mode) or 256 (DS mode) bytes
-    static public final int ENDOFDATA=0xFF;
+    public static final int ENDOFDATA=0xFF;
 
     ABBA1140RegisterFactory registerFactory;
     ByteArrayInputStream bai;
@@ -38,7 +37,6 @@ public class ABBA1140ProfileEntry {
     boolean isDst;
     int channelMask;
     LoadProfileConfigRegister loadProfileConfigRegister;
-    List intervalValues = null;
 
     ABBA1140ProfileEntry( ABBA1140RegisterFactory registerFactory, ByteArrayInputStream bai, int nrOfChannels)
     throws IOException {
@@ -83,7 +81,7 @@ public class ABBA1140ProfileEntry {
             isValue = true;
             for (int i=0;i<nrOfChannels;i++) {
                 long val = (int)Long.parseLong(Long.toHexString(ProtocolUtils.getLong(bai,3)));
-                values[i] = (val/10) * Calculate.exp(val%10);
+                values[i] = (val/10) * Calculate.exp(val % 10);
             }
         }
     }
@@ -144,22 +142,22 @@ public class ABBA1140ProfileEntry {
     }
 
     public String toString(TimeZone timeZone, boolean dst) {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         if (!isMarker()) {
             strBuff.append("Demanddata:\n");
-            strBuff.append("   Status: 0x"+Integer.toHexString(status)+"\n");
+            strBuff.append("   Status: 0x").append(Integer.toHexString(status)).append("\n");
             for(int i=0;i<values.length;i++) {
-                strBuff.append("   Channel "+i+": "+values[i]+"\n");
+                strBuff.append("   Channel ").append(i).append(": ").append(values[i]).append("\n");
             }
         } else if(isEndOfData()) {
             strBuff.append("End of data\n");
         } else {
             Calendar cal = ProtocolUtils.getCalendar(timeZone,date);
-            strBuff.append("Marker: 0x"+Integer.toHexString(type)+" at "+cal.getTime()+" "+date+"\n");
+            strBuff.append("Marker: 0x").append(Integer.toHexString(type)).append(" at ").append(cal.getTime()).append(" ").append(date).append("\n");
             if (isNewDay() || isConfigurationChange() ) {
-                strBuff.append("   ChannelMask: 0x"+Integer.toHexString(getChannelmask()));
-                strBuff.append("   IntegrationTime: "+Integer.toString(getIntegrationPeriod()));
-                strBuff.append("   dst: "+isDST());
+                strBuff.append("   ChannelMask: 0x").append(Integer.toHexString(getChannelmask()));
+                strBuff.append("   IntegrationTime: ").append(Integer.toString(getIntegrationPeriod()));
+                strBuff.append("   dst: ").append(isDST());
             }
         }
         return strBuff.toString();

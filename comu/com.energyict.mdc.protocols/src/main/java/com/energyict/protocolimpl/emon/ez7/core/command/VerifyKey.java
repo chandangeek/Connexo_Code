@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -30,19 +29,19 @@ public class VerifyKey extends AbstractCommand {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("VerifyKey:\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("VerifyKey:\n");
         for (int value=0;value<NR_OF_VALUES;value++) {
-            strBuff.append("0x"+Integer.toHexString(values[value])+" ");
+            builder.append("0x").append(Integer.toHexString(values[value])).append(" ");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     public boolean useEncoding() {
         return (values[0]/0x100)!=0;
     }
 
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
@@ -50,8 +49,9 @@ public class VerifyKey extends AbstractCommand {
     }
 
     private void parse(byte[] data) {
-        if (DEBUG>=1)
-           System.out.println(new String(data));
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
         CommandParser cp = new CommandParser(data);
         List vals = cp.getValues("LINE-1");
         for (int value=0;value<NR_OF_VALUES;value++) {

@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
-import com.energyict.cbo.Utils;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
@@ -12,9 +10,10 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -124,7 +123,7 @@ public class MeterTopology implements MasterMeter {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      *
      * @return a List of <CODE>DeviceMappings</CODE>
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *          if interframeTimeout has passed and maximum retries have been reached
      */
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
@@ -249,82 +248,13 @@ public class MeterTopology implements MasterMeter {
      * @throws BusinessException when a business related error occurs
      */
     private Device findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
-        List<Device> mbusList = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serialNumber);
-        if (mbusList.size() == 1) {
-            Device mbusRtu = mbusList.get(0);
-            // Check if gateway has changed, and update if it has
-            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
-                mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
-            }
-            return mbusRtu;
-        } else if (mbusList.size() > 1) {
-            log(Level.SEVERE, "Multiple meters where found with serial: " + serialNumber + ". Meter will not be handled.");
-            return null;
+        DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
+        Device mbusRtu = deviceIdentifier.findDevice();
+        // Check if gateway has changed, and update if it has
+        if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
+            mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
         }
-
-        DeviceType rtuType = getRtuType();
-        if (rtuType == null) {
-            return null;
-        } else {
-            // we don't create any meters anymore!
-            return null;
-//            return createMeter(rtuType, serialNumber);
-        }
-    }
-
-    /**
-     * Create a new Device based on the given DeviceType and SerialNumber
-     *
-     * @param rtuType      the DeviceType to create a new mete from
-     * @param serialNumber the name/serialnumber to give to the new Device
-     * @return the new Device
-     * @throws SQLException      when a database exception occurs
-     * @throws BusinessException when a business related error occurs
-     */
-    // we don't create any meters anymore!
-//    private Device createMeter(DeviceType rtuType, String serialNumber) throws SQLException, BusinessException {
-//        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
-//
-//        shadow.setName(serialNumber);
-//        shadow.setSerialNumber(serialNumber);
-//
-//        String folderExtName = (String) this.protocol.getProperties().getProtocolProperties().get("FolderExtName");
-//        if (folderExtName != null) {
-//            Folder result = ProtocolTools.mw().getFolderFactory().findByExternalName(folderExtName);
-//            if (result != null) {
-//                shadow.setFolderId(result.getId());
-//            } else {
-//                log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-//            }
-//        } else {
-//            log(Level.INFO, "New meter will be placed in prototype folder.");
-//        }
-//
-//        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
-//        return ProtocolTools.mw().getDeviceFactory().create(shadow);
-//    }
-
-    /**
-     * Create an DeviceType based on the custom property DeviceType
-     *
-     * @return the requested DeviceType
-     */
-    private DeviceType getRtuType() {
-        String type = (String) this.protocol.getProperties().getProtocolProperties().get("DeviceType");
-        if (Utils.isNull(type)) {
-            log(Level.WARNING, "No automatic meter creation: no property DeviceType defined.");
-            return null;
-        } else {
-            DeviceType rtuType = ProtocolTools.mw().getDeviceTypeFactory().find(type);
-            if (rtuType == null) {
-                log(Level.INFO, "No rtutype defined with name '" + type + "'");
-                return null;
-            } else if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
-                log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
-                return null;
-            }
-            return rtuType;
-        }
+        return mbusRtu;
     }
 
     /**
@@ -335,7 +265,8 @@ public class MeterTopology implements MasterMeter {
     protected Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = this.protocol.getSerialNumber();
-            this.rtu = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serial).get(0);
+            DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);
+            this.rtu = deviceIdentifier.findDevice();
         }
         return rtu;
     }

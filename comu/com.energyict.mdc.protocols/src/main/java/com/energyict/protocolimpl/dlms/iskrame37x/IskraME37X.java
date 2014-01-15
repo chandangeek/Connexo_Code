@@ -14,13 +14,13 @@ GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't hav
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -46,32 +46,32 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.mdc.protocol.api.DemandResetProtocol;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -374,10 +374,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         byte[] responseData;
         responseData = getDLMSConnection().sendRequest(aarq);
         CheckAARE(responseData);
-        if (DEBUG >= 2) {
-            ProtocolUtils.printResponseData(responseData);
-        }
-    } // public void doRequestApplAssoc(int iLevel) throws IOException
+    }
 
     private void CheckAARE(byte[] responseData) throws IOException {
         int i;

@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -274,7 +275,7 @@ public class PoregConnection implements ProtocolConnection {
         if (!CONNECTED.equals(response)) {
             throw new IOException("Error connecting to the Poreg 2 data recorder, returned " + response);
         }
-        return new MeterType("Poreg");
+        return new MeterTypeImpl("Poreg");
     }
 
     public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {

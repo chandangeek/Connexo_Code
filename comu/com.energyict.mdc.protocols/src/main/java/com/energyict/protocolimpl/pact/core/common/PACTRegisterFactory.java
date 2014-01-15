@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 

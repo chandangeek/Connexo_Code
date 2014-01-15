@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.itron.fulcrum.Fulcrum;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePageFactory;
 import com.energyict.protocolimpl.itron.protocol.ProtocolLink;

@@ -1,16 +1,22 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.messages.DeviceMessage;
-import com.energyict.mdc.meterdata.identifiers.CanFindDeviceMessage;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageFactory;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+
+import java.util.List;
 
 /**
+ * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
+ * based on the ID of the DeviceMessage.
  * Copyrights EnergyICT
  * Date: 7/06/13
  * Time: 9:59
  * Author: khe
  */
-public class DeviceMessageIdentifierById implements CanFindDeviceMessage {
+public class DeviceMessageIdentifierById implements MessageIdentifier {
 
     private final int messageId;
 
@@ -20,7 +26,7 @@ public class DeviceMessageIdentifierById implements CanFindDeviceMessage {
 
     @Override
     public DeviceMessage getDeviceMessage() {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageFactory().find(messageId);
+        return this.getDeviceMessageFactory().findDeviceMessage(this.messageId);
     }
 
     @Override
@@ -45,4 +51,13 @@ public class DeviceMessageIdentifierById implements CanFindDeviceMessage {
         return messageId;
     }
 
+    private DeviceMessageFactory getDeviceMessageFactory () {
+        List<DeviceMessageFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceMessageFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(DeviceMessageFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
 }

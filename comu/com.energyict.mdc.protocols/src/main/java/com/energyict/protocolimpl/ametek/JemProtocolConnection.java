@@ -11,11 +11,11 @@
 package com.energyict.protocolimpl.ametek;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -120,11 +120,6 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 		while(true) {
 
 			if ((kar = readIn()) != -1) {
-
-				if (DEBUG >= 2) {
-					System.out.print(",0x");
-					ProtocolUtils.outputHex( ((int)kar));
-				}
 				switch(state) {
 
 				case WAIT_FOR_START: {
@@ -136,8 +131,9 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 						resultArrayOutputStream.write(kar);
 						return resultArrayOutputStream;
 					}
-					else
-						throw new ProtocolConnectionException("receiveResponse() 0x"+Integer.toHexString(kar)+" received instead of DLE at beginning of response.",PROTOCOL_ERROR);
+					else {
+                        throw new ProtocolConnectionException("receiveResponse() 0x" + Integer.toHexString(kar) + " received instead of DLE at beginning of response.", PROTOCOL_ERROR);
+                    }
 
 				} break; // WAIT_FOR_START
 

@@ -1,27 +1,29 @@
 package com.energyict.protocolimpl.actarissevc;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.StreamConnection;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -309,7 +311,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
-     * @see AbstractMeterProtocol#validateProperties
      */
     public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         validateProperties(properties);
@@ -570,11 +571,11 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     }
 
     // KV 02022004
-    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws com.energyict.dialer.connection.ConnectionException {
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
         enableHHUSignOn(commChannel, false);
     }
 
-    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws com.energyict.dialer.connection.ConnectionException {
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
                 (HHUSignOn) new IEC1107HHUConnection(commChannel, iIEC1107TimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_MANUFACTURER_SPECIFIC_SEVCD);
@@ -587,10 +588,10 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return getSEVCIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    public void enableHHUSignOn(com.energyict.dialer.core.StreamConnection streamConnection) throws com.energyict.dialer.connection.ConnectionException {
+    public void enableHHUSignOn(StreamConnection streamConnection) throws ConnectionException {
     }
 
-    public void enableHHUSignOn(com.energyict.dialer.core.StreamConnection streamConnection, boolean enableDataReadout) throws com.energyict.dialer.connection.ConnectionException {
+    public void enableHHUSignOn(StreamConnection streamConnection, boolean enableDataReadout) throws ConnectionException {
     }
 
     public int getForcedDelay() {

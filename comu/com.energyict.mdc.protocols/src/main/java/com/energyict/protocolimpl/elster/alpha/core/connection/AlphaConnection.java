@@ -11,12 +11,11 @@
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -30,7 +29,7 @@ import java.io.OutputStream;
  *
  * @author Koen
  */
-public class AlphaConnection extends Connection  implements ProtocolConnection {
+public class AlphaConnection extends Connection implements ProtocolConnection {
 
     private static final int DEBUG=0;
     private static final long TIMEOUT=60*30*1000; // 30 minutes
@@ -41,11 +40,11 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
     long whoAreYouTimeout;
     private boolean optical=false;
 
-    static public final int FRAME_RESPONSE_TYPE_ACK_NAK=0;
-    static public final int FRAME_RESPONSE_TYPE_WHO_ARE_YOU=1;
-    static public final int FRAME_RESPONSE_TYPE_DATA_SINGLE=2;
-    static public final int FRAME_RESPONSE_TYPE_DATA_MULTIPLE=3;
-    static public final int FRAME_RESPONSE_TYPE_SHORT_FORMAT=4;
+    public static final int FRAME_RESPONSE_TYPE_ACK_NAK=0;
+    public static final int FRAME_RESPONSE_TYPE_WHO_ARE_YOU=1;
+    public static final int FRAME_RESPONSE_TYPE_DATA_SINGLE=2;
+    public static final int FRAME_RESPONSE_TYPE_DATA_MULTIPLE=3;
+    public static final int FRAME_RESPONSE_TYPE_SHORT_FORMAT=4;
 
 
     /** Creates a new instance of AlphaConnection */
@@ -55,13 +54,13 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                          int maxRetries,
                          long forcedDelay,
                          int echoCancelling,
-                         HalfDuplexController halfDuplexController,long whoAreYouTimeout) throws ConnectionException {
+                         HalfDuplexController halfDuplexController,long whoAreYouTimeout) {
           super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
           this.timeout = timeout;
           this.maxRetries=maxRetries;
           this.forcedDelay=forcedDelay;
           this.whoAreYouTimeout=whoAreYouTimeout;
-    } // EZ7Connection(...)
+    }
 
 
 
@@ -116,7 +115,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
         }
     }
 
-    private void delayUsingBaudForDatalength(byte[] data,int baudrate,long extra) throws NestedIOException, ConnectionException {
+    private void delayUsingBaudForDatalength(byte[] data,int baudrate,long extra) throws NestedIOException {
         // calc sleeptime using baudrate and length of data
         try {
             long val = (data.length*10*1000)/baudrate;
@@ -137,19 +136,25 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                 sendFrame(data);
                 if (response) {
                     ResponseFrame responseFrame = receiveFrame(expectedFrameType);
-                    if (!responseFrame.isAck())
-                        throw new ProtocolConnectionException("sendCommand() NAK received, reason: "+responseFrame.getNakReason(),PROTOCOL_ERROR);
+                    if (!responseFrame.isAck()) {
+                        throw new ProtocolConnectionException("sendCommand() NAK received, reason: " + responseFrame.getNakReason(), PROTOCOL_ERROR);
+                    }
                     return responseFrame;
                 }
-                else return null;
+                else {
+                    return null;
+                }
             }
-            catch(ConnectionException e) {
+            catch (ConnectionException e) {
 
-                if (DEBUG >= 2) e.printStackTrace();
+                if (DEBUG >= 2) {
+                    e.printStackTrace();
+                }
 
                 int mr=getMaxRetries();
-                if (expectedFrameType == FRAME_RESPONSE_TYPE_WHO_ARE_YOU)
+                if (expectedFrameType == FRAME_RESPONSE_TYPE_WHO_ARE_YOU) {
                     mr = 30;
+                }
                 if (retry++>=mr) {
                     throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage());
                 }
@@ -193,12 +198,11 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
     private static final byte STATE_WAIT_FOR_CRC=6;
     private static final byte STATE_WAIT_FOR_CRC_ON_ARE_YOU_OK=7;
 
-    private ResponseFrame receiveFrame(int expectedFrameType) throws NestedIOException, IOException {
+    private ResponseFrame receiveFrame(int expectedFrameType) throws IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state;
         int len=0;
-        int sequence=0;
         boolean lastPacket=true;
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream allDataArrayOutputStream = new ByteArrayOutputStream();
@@ -209,24 +213,27 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
         int areYouOk=0;
 
         // Should send the who are you frames very quickly!!
-        if (expectedFrameType == FRAME_RESPONSE_TYPE_WHO_ARE_YOU)
+        if (expectedFrameType == FRAME_RESPONSE_TYPE_WHO_ARE_YOU) {
             interFrameTimeout = System.currentTimeMillis() + whoAreYouTimeout;
-        else
+        }
+        else {
             interFrameTimeout = System.currentTimeMillis() + timeout;
+        }
 
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
         resultArrayOutputStream.reset();
         allDataArrayOutputStream.reset();
 
-        if (DEBUG >= 2) System.out.println("doReceiveData(...):");
+        if (DEBUG >= 2) {
+            System.out.println("doReceiveData(...):");
+        }
         copyEchoBuffer();
         while(true) {
 
             if ((kar = readIn()) != -1) {
                 if (DEBUG >= 2) {
                     System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
                 }
                 allDataArrayOutputStream.write(kar);
 
@@ -257,8 +264,9 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                         if ((kar == ShortFormatCommand.COMMANDBYTE_ARE_YOU_OK) && (!isOptical())) {
                             count=1;
                             state = STATE_WAIT_FOR_CRC_ON_ARE_YOU_OK;
-                            if (DEBUG >= 1)
+                            if (DEBUG >= 1) {
                                 System.out.println("KV_DEBUG> STATE_WAIT_FOR_CRC_ON_ARE_YOU_OK receivd!");
+                            }
                         }
                         else {
                             if (expectedFrameType == FRAME_RESPONSE_TYPE_SHORT_FORMAT) {
@@ -282,8 +290,9 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                             resultArrayOutputStream.reset();
                             allDataArrayOutputStream.reset();
                             count=0;
-                            if (areYouOk++ >=2)
-                                throw new ProtocolConnectionException("receiveFrame(), are you ok sequence for dial in meter!",PROTOCOL_ERROR);
+                            if (areYouOk++ >=2) {
+                                throw new ProtocolConnectionException("receiveFrame(), are you ok sequence for dial in meter!", PROTOCOL_ERROR);
+                            }
                         }
 
                     } break;
@@ -313,8 +322,9 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                         else {
                             // NAK received, check
                             state = STATE_WAIT_FOR_STAT;
-                            if (kar < NAKSTR.length)
+                            if (kar < NAKSTR.length) {
                                 responseFrame.setNakReason(NAKSTR[kar]);
+                            }
                             responseFrame.setAck(false);
                         }
                     } break; // STATE_WAIT_FOR_ACK_NAK
@@ -324,8 +334,9 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                         len|=(count==1?kar<<8:kar);
                         if (count-- <= 0) {
 
-                            if (DEBUG >= 2)
-                                System.out.println("KV_DEBUG> AlphaConnection, receiveData, STATE_WAIT_FOR_LEN, len = 0x"+Integer.toHexString(len)+", expectedFrameType=0x"+Integer.toHexString(expectedFrameType));
+                            if (DEBUG >= 2) {
+                                System.out.println("KV_DEBUG> AlphaConnection, receiveData, STATE_WAIT_FOR_LEN, len = 0x" + Integer.toHexString(len) + ", expectedFrameType=0x" + Integer.toHexString(expectedFrameType));
+                            }
 
                             switch(expectedFrameType) {
                                 case FRAME_RESPONSE_TYPE_DATA_SINGLE : {
@@ -334,7 +345,6 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                                 } break; // FRAME_RESPONSE_TYPE_DATA_SINGLE
                                 case FRAME_RESPONSE_TYPE_DATA_MULTIPLE : {
                                     lastPacket = (len&0x8000)==0x8000;
-                                    sequence = (len & 0x7000)>>12;
                                     len &= 0x0FFF;
                                 } break; // FRAME_RESPONSE_TYPE_DATA_MULTIPLE
                                 default: {
@@ -354,8 +364,9 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                         responseFrame.setStat(kar);
                         switch(expectedFrameType) {
                             case FRAME_RESPONSE_TYPE_DATA_SINGLE : {
-                                if (responseFrame.isAck())
+                                if (responseFrame.isAck()) {
                                     state = STATE_WAIT_FOR_LEN;
+                                }
                                 else {
                                     state = STATE_WAIT_FOR_CRC;
                                     count=1;
@@ -388,9 +399,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                         if (count-- <= 0) {
                             // validate CRC
                             byte[] data = allDataArrayOutputStream.toByteArray();
-                            if (CRCGenerator.isCRCAlphaValid(data))
-//System.out.print("RX FRAME: ");
-//ProtocolUtils.printResponseDataFormatted2(data);
+                            if (CRCGenerator.isCRCAlphaValid(data)) {
                                 if (lastPacket) {
                                     responseFrame.setData(resultArrayOutputStream.toByteArray());
                                     return responseFrame;
@@ -398,30 +407,26 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
                                 else {
                                     allDataArrayOutputStream.reset();
                                     state = STATE_WAIT_FOR_STX;
-                                    lastPacket=true;
-                                    sendFrame(new byte[]{(byte)ShortFormatCommand.COMMANDBYTE_CONTINUE_READ});
+                                    lastPacket = true;
+                                    sendFrame(new byte[]{(byte) ShortFormatCommand.COMMANDBYTE_CONTINUE_READ});
                                 }
+                            }
                             else {
                                 throw new ProtocolConnectionException("receiveFrame() response crc error",CRC_ERROR);
                             }
                         }
                     } break; // STATE_WAIT_FOR_CRC
 
-                } // switch(iState)
+                }
+            }
 
-            } // if ((iNewKar = readIn()) != -1)
-
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
-        } // while(true)
-    } // private ResponseFrame receiveFrame(int expectedFrameType) throws NestedIOException, IOException
-
-    private byte[] assembleFrame(int data) {
-        return assembleFrame(new byte[]{(byte)data});
+        }
     }
 
     private byte[] assembleFrame(byte[] data) {
@@ -448,9 +453,11 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
 
     }
-    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+
+    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException {
         return null;
     }
+
     public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;
     }

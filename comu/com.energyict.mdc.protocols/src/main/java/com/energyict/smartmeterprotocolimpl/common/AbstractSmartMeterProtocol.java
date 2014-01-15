@@ -1,13 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.common;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 
 import java.io.IOException;

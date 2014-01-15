@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -21,25 +21,25 @@ import java.util.TimeZone;
  * @author kvds
  */
 public class DataRecordTypeF_CP32 extends AbstractDataRecordType {
-    
+
     private Calendar calendar;
     TimeZone timeZone;
     private boolean inValid;
     private boolean summerTime;
-    
+
     /**
-     * Creates a new instance of DataRecordTypeF_CP32 
+     * Creates a new instance of DataRecordTypeF_CP32
      */
     public DataRecordTypeF_CP32(TimeZone timeZone) {
         this.timeZone=timeZone;
     }
-    
+
 //        public DataRecordTypeF_CP32() {
 //        }
 //        public static void main(String[] args) {
 //            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new DataRecordTypeF_CP32()));
-//        }         
-    
+//        }
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -48,8 +48,8 @@ public class DataRecordTypeF_CP32 extends AbstractDataRecordType {
         strBuff.append("   inValid="+isInValid()+"\n");
         strBuff.append("   summerTime="+isSummerTime()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected void doParse(byte[] data) throws IOException {
         setCalendar(Calendar.getInstance(timeZone));
         getCalendar().set(Calendar.MINUTE,ProtocolUtils.getInt(data,0,1)&0x3F);
@@ -58,11 +58,11 @@ public class DataRecordTypeF_CP32 extends AbstractDataRecordType {
         getCalendar().set(Calendar.MONTH,(ProtocolUtils.getInt(data,3,1)&0x0F)-1);
         getCalendar().set(Calendar.YEAR,2000 + (((ProtocolUtils.getInt(data,3,1)&0xf0)>>1)|((ProtocolUtils.getInt(data,2,1)&0xe0)>>5)));
         //getCalendar().set(Calendar.YEAR,1900 + (((ProtocolUtils.getInt(data,2,1)&0xe0)>>1)|((ProtocolUtils.getInt(data,3,1)&0xf0)>>4)));
-        
+
         setInValid((ProtocolUtils.getInt(data,0,1)&0x80)==0x80 ? true : false);
         setSummerTime((ProtocolUtils.getInt(data,1,1)&0x80)==0x80 ? true : false);
     }
-    
+
     static public void main(String[] args) {
 
         try {
@@ -74,7 +74,7 @@ public class DataRecordTypeF_CP32 extends AbstractDataRecordType {
         catch(IOException e) {
             e.printStackTrace();
         }
-        
+
     }
 
     public Calendar getCalendar() {

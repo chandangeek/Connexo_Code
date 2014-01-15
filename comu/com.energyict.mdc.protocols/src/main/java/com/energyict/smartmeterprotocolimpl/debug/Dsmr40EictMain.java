@@ -1,14 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol;
 

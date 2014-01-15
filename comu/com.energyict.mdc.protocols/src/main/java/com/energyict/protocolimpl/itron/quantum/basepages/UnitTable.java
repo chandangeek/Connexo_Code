@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.itron.quantum.basepages;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 import com.energyict.protocolimpl.base.ParseUtils;
 

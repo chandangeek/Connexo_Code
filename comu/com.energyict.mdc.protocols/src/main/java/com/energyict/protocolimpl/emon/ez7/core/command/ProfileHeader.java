@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -22,24 +22,25 @@ import java.util.List;
 public class ProfileHeader extends AbstractCommand {
     private static final int DEBUG=0;
     private static final String COMMAND="RPH";
-    
+
     Date[] blockDate=null;
     int nrOfBlocks;
     /** Creates a new instance of ProfileHeader */
     public ProfileHeader(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
     }
-    
+
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("ProfileHeader:\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("ProfileHeader:\n");
         for (int dayBlockNr=0;dayBlockNr<nrOfBlocks;dayBlockNr++) {
-            if (getBlockDate(dayBlockNr)!=null)
-               strBuff.append("dayBlockNr "+dayBlockNr+" = "+getBlockDate(dayBlockNr)+"\n");  
+            if (getBlockDate(dayBlockNr)!=null) {
+                builder.append("dayBlockNr ").append(dayBlockNr).append(" = ").append(getBlockDate(dayBlockNr)).append("\n");
+            }
         }
-        return strBuff.toString();
+        return builder.toString();
     }
-    
+
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
         nrOfBlocks=ez7CommandFactory.getProfileStatus().getNrOfDayBlocks();
@@ -47,12 +48,13 @@ public class ProfileHeader extends AbstractCommand {
         parse(data);
     }
 
-    private void parse(byte[] data) throws ConnectionException, IOException {
-        
+    private void parse(byte[] data) throws IOException {
+
         blockDate = new Date[ez7CommandFactory.getProfileStatus().getNrOfDayBlocks()];
-        
-        if (DEBUG>=1) 
-           System.out.println(new String(data)); 
+
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
         CommandParser cp = new CommandParser(data);
         for (int dayBlockNr = 0; dayBlockNr < nrOfBlocks; dayBlockNr++) {
             List values = cp.getValues(ProtocolUtils.buildStringDecimal((dayBlockNr + 1), 2));
@@ -77,9 +79,9 @@ public class ProfileHeader extends AbstractCommand {
                 blockDate[dayBlockNr] = null;
             }
         }
-        
+
     }
-    
+
     /**
      * Getter for property blockDate.
      * @return Value of property blockDate.
@@ -87,7 +89,7 @@ public class ProfileHeader extends AbstractCommand {
     public java.util.Date getBlockDate(int dayBlockNr) {
         return this.blockDate[dayBlockNr];
     }
-    
 
-    
+
+
 }

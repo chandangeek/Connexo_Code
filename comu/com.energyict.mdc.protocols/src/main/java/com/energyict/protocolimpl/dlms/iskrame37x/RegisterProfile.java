@@ -13,7 +13,7 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.rmi.NoSuchObjectException;

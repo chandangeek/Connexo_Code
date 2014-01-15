@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.IOException;
@@ -189,8 +189,8 @@ public class LogicalAddressFactory {
      * Getter for property meterExceptionInfo.
      * @return Value of property meterExceptionInfo.
      */
-    public com.energyict.protocol.MeterExceptionInfo getMeterExceptionInfo() {
+    public MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
 
- } // public class LogicalAddressFactory
+ }

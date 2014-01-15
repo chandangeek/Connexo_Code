@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -133,7 +134,7 @@ abstract public class AbstractRadioCommand {
                         baos.close();
                     }
                     catch (IOException e) {
-                        getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        getWaveTherm().getLogger().severe(ProtocolUtils.stack2string(e));
                     }
                 }
             }
@@ -161,7 +162,7 @@ abstract public class AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -203,7 +204,7 @@ abstract public class AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

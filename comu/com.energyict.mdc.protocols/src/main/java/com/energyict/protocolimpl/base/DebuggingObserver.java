@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.tools.InputStreamObserver;
-import com.energyict.protocol.tools.OutputStreamObserver;
+import com.energyict.mdc.protocol.api.dialer.core.InputStreamObserver;
+import com.energyict.mdc.protocol.api.dialer.core.OutputStreamObserver;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Date;

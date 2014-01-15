@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 
 public class ABBA1140MeterTypeParser {
 
@@ -12,7 +12,7 @@ public class ABBA1140MeterTypeParser {
 	private String meterVersion = null;
 	private String deviceType	= null;
 	private String fixedId		= null;
-	
+
 	/*
 	 * Constructors
 	 */
@@ -35,19 +35,19 @@ public class ABBA1140MeterTypeParser {
 			this.deviceType = "Unknown [" + deviceType + "]";
 		}
 	}
-	
+
 	private void setMeterVariant(String meterVariant) {
 		this.meterVariant = meterVariant;
 	}
-	
+
 	private void setMeterType(MeterType meterType) {
 		this.meterType = meterType;
 	}
-	
+
 	private void setMeterVersion(String meterVersion) {
 		this.meterVersion = meterVersion;
 	}
-	
+
 	private void setFullId(String fullId) {
 		this.fullId = fullId;
 	}
@@ -55,7 +55,7 @@ public class ABBA1140MeterTypeParser {
 	private void setFixedId(String fixedId) {
 		this.fixedId = fixedId;
 	}
-	
+
 	/*
 	 * Public methods
 	 */
@@ -68,7 +68,7 @@ public class ABBA1140MeterTypeParser {
 		setDeviceType(getFullId().substring(2, 5));
 		setMeterVariant(getFullId().substring(5, 8));
 		setMeterVersion(getFullId().substring(8, 10));
-		
+
 		return;
 	}
 
@@ -79,19 +79,19 @@ public class ABBA1140MeterTypeParser {
 	public String getDeviceType() {
 		return deviceType;
 	}
-	
+
 	public String getMeterVersion() {
 		return meterVersion;
 	}
-	
+
 	public String getMeterVariant() {
 		return meterVariant;
 	}
-	
+
 	public String getFullId() {
 		return fullId;
 	}
-	
+
 	public MeterType getMeterType() {
 		return meterType;
 	}
@@ -99,12 +99,12 @@ public class ABBA1140MeterTypeParser {
 	public String getFixedId() {
 		return fixedId;
 	}
-	
+
 	public String toString() {
-		String returnValue = 
-			getDeviceType() + " " + 
-			getFixedId() + "." + 
-			getMeterVariant() +	"v" + 
+		String returnValue =
+			getDeviceType() + " " +
+			getFixedId() + "." +
+			getMeterVariant() +	"v" +
 			getMeterVersion();
 		return returnValue;
 	}

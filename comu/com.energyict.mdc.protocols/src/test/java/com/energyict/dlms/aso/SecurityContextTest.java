@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockSecurityProvider;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import static org.junit.Assert.*;
 

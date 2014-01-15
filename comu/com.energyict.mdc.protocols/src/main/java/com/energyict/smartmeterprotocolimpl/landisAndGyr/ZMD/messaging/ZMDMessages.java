@@ -1,21 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.messaging.MessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessaging;
+import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -280,7 +281,7 @@ public class ZMDMessages extends ProtocolMessages implements TimeOfUseMessaging{
     /**
      * Returns the message builder capable of generating and parsing 'time of use' messages.
      *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
+     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
      */
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return new ZMDTimeOfUseMessageBuilder();

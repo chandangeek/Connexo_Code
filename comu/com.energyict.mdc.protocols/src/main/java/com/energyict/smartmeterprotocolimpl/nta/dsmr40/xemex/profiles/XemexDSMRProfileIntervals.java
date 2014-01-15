@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.profiles;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;

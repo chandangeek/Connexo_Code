@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;

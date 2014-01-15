@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class ApplicationStatus extends AbstractParameter {
 	bit2, Link fault with	energy meter
 	*/
 	private int status;
-	
+
 	final int getStatus() {
 		return status;
 	}

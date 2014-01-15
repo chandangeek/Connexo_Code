@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 
 import java.util.Arrays;

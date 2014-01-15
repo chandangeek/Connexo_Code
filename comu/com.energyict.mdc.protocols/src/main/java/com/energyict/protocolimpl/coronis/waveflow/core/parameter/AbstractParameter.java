@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.ParameterType;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,7 +13,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-abstract public class AbstractParameter extends AbstractRadioCommand {
+public abstract class AbstractParameter extends AbstractRadioCommand {
 
     static final int PARAM_UPDATE_OK = 0x00;
     protected ParameterType parameterType = ParameterType.WaveFlowV2; //By default, a parameter is handled as if it's a WaveFlow V2 parameter.
@@ -214,13 +215,13 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
     }
 
-    private final void parseWriteResponse(final byte[] data) throws IOException {
+    private void parseWriteResponse(final byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -261,7 +262,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -290,7 +291,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -340,7 +341,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -363,7 +364,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -410,7 +411,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     }
 
 
-    private final void parseBubbleUpConfigResponse(final byte[] data) throws IOException {
+    private void parseBubbleUpConfigResponse(final byte[] data) throws IOException {
         DataInputStream dais = null;
         try {
             dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -441,7 +442,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

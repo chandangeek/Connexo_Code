@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 
 import java.io.IOException;
@@ -9,12 +9,12 @@ import java.util.Date;
 public class BackflowDetectionDate extends AbstractParameter {
 
 	int portId;
-	
+
 	/**
 	 * Detection date for the backflow...
 	 */
 	Date date=null;
-	
+
 	final Date getDate() {
 		return date;
 	}
@@ -41,6 +41,6 @@ public class BackflowDetectionDate extends AbstractParameter {
 	byte[] prepare() throws IOException {
 		return new byte[0];
 	}
-	
+
 }
 

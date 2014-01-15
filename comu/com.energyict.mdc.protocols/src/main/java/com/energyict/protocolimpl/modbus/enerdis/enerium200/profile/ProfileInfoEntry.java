@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ToStringBuilder;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -26,13 +26,13 @@ public class ProfileInfoEntry {
 	private static final int STARTTIME_OFFSET 	= 4;
 	private static final int ENDTIME_OFFSET 	= 8;
 	private static final int INTERVAL_OFFSET 	= 12;
-	
+
 	private static final int CHANNEL_SIZE 		= 4;
 	private static final int STATUS_SIZE 		= 4;
 	private static final int TIMESTAMP_SIZE		= 4;
-	
+
 	private Modbus modBus	= null;
-	
+
 	private int entryID		= 0;
 	private int channels	= 0;
 	private Date startTime	= null;
@@ -40,7 +40,7 @@ public class ProfileInfoEntry {
 	private int interval	= 0;
 	private int entries		= 0;
 	private int entryBytes 	= 0;
-	
+
 	private int numberOfchannels		= 0;
 	private boolean startOnBoundary 	= false;
 	private boolean endOnBoundary 		= false;
@@ -66,7 +66,7 @@ public class ProfileInfoEntry {
 
 	private void parse(byte[] rawData) throws IOException {
 		TimeDateParser td_parser = new TimeDateParser(this.modBus.gettimeZone());
-		
+
 		this.entryID = ProtocolUtils.getShort(rawData, ENTRYID_OFFSET);
         loadCurveStatus = ProtocolUtils.getShort(rawData, CHANNELS_OFFSET);
 
@@ -82,16 +82,16 @@ public class ProfileInfoEntry {
 				this.numberOfchannels++;
 			}
 		}
-		
+
 		this.entryBytes = (getNumberOfchannels() * CHANNEL_SIZE) + STATUS_SIZE + TIMESTAMP_SIZE;
-		
+
 		this.startTime = td_parser.parseTime(ProtocolUtils.getSubArray2(rawData, STARTTIME_OFFSET, DATE_LENGTH));
 		this.endTime = td_parser.parseTime(ProtocolUtils.getSubArray2(rawData, ENDTIME_OFFSET, DATE_LENGTH));
 		this.interval = ProtocolUtils.getShort(rawData, INTERVAL_OFFSET);
-		
+
 		if (this.interval > 0) {
-			this.startOnBoundary = ParseUtils.isOnIntervalBoundary(getStartCalendar(), getInterval()); 
-			this.endOnBoundary = ParseUtils.isOnIntervalBoundary(getEndCalendar(), getInterval()); 
+			this.startOnBoundary = ParseUtils.isOnIntervalBoundary(getStartCalendar(), getInterval());
+			this.endOnBoundary = ParseUtils.isOnIntervalBoundary(getEndCalendar(), getInterval());
 
 			Calendar tempStartCal = getStartCalendar();
 			Calendar tempEndCal = getEndCalendar();
@@ -99,9 +99,9 @@ public class ProfileInfoEntry {
 			ParseUtils.roundUp2nearestInterval(tempEndCal, getInterval());
 
 			this.entries = (int) ((tempEndCal.getTimeInMillis() - tempStartCal.getTimeInMillis()) / (getInterval() * 1000)) + 1;
-			if (this.entries > 1) this.entries++; 
+			if (this.entries > 1) this.entries++;
 		}
-		
+
 	}
 
 	/*
@@ -152,7 +152,7 @@ public class ProfileInfoEntry {
 	public Modbus getModBus() {
 		return modBus;
 	}
-	
+
 	public void setEntryID(int entryID) {
 		this.entryID = entryID;
 	}
@@ -176,7 +176,7 @@ public class ProfileInfoEntry {
 	public static void main(String[] args) {
 	        System.out.println(ToStringBuilder.genCode(new ProfileInfoEntry()));
 	}
-	
+
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ProfileInfoEntry:");
@@ -192,5 +192,5 @@ public class ProfileInfoEntry {
         strBuff.append(" entries=" + getEntries());
         return strBuff.toString();
     }
-	
+
 }

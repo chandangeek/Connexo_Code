@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.mdc.common.DataVault;
+import com.energyict.mdc.common.DataVaultProvider;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;

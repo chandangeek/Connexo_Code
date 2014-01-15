@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;

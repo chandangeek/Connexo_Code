@@ -7,8 +7,8 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 

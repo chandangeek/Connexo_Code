@@ -7,9 +7,9 @@
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
 
 import java.io.ByteArrayOutputStream;
@@ -173,10 +173,6 @@ public class IEC870Connection extends Connection {
                 		lMSTimeoutDiscovery = System.currentTimeMillis() + DISCOVERY_TIMEOUT;
                 		received=true;
                 	}
-
-
-
-                    if (DEBUG >= 2) ProtocolUtils.outputHex( ((int)kar));
                     bos.write(kar);
                     switch(state) {
                         case STATE_WAIT_FOR_START:

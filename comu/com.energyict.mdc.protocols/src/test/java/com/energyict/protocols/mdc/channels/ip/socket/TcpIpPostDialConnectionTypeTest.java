@@ -2,9 +2,9 @@ package com.energyict.protocols.mdc.channels.ip.socket;
 
 
 import com.energyict.mdc.common.InvalidValueException;
-import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.ServerComChannel;
+import com.energyict.mdc.protocol.api.ComChannel;
+import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,7 +29,7 @@ public class TcpIpPostDialConnectionTypeTest {
     private final BigDecimal POST_DIAL_DELAY = new BigDecimal(500);
 
     @Mock
-    private ServerComChannel comChannel;
+    private ComChannel comChannel;
 
     @Test (expected = InvalidValueException.class)
     public void invalidPostDialTriesTest() throws Exception {
@@ -84,10 +84,10 @@ public class TcpIpPostDialConnectionTypeTest {
         // Asserts
         long timeAfterPostDial = System.currentTimeMillis();
         long durationOfPostDial = timeAfterPostDial - timeBeforePostDial;
-        long secs = durationOfPostDial / TimeConstants.MILLISECONDS_IN_SECOND;
+        long secs = durationOfPostDial / DateTimeConstants.MILLIS_PER_SECOND;
 
         // Asserts
-        assertThat(secs).isEqualTo(POST_DIAL_DELAY.intValue() * POST_DIAL_TRIES.intValue() / TimeConstants.MILLISECONDS_IN_SECOND);
+        assertThat(secs).isEqualTo(POST_DIAL_DELAY.intValue() * POST_DIAL_TRIES.intValue() / DateTimeConstants.MILLIS_PER_SECOND);
         verify(comChannel, times(POST_DIAL_TRIES.intValue())).startWriting();
         verify(comChannel, times(POST_DIAL_TRIES.intValue())).write(POST_DIAL_COMMAND.getBytes());
     }

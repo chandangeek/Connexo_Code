@@ -6,7 +6,7 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.UNIFLO1200;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileData;

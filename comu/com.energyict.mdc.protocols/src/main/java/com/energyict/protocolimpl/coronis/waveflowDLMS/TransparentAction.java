@@ -4,6 +4,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -86,7 +87,7 @@ public class TransparentAction extends AbstractTransparentObjectAccess {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -112,7 +113,7 @@ public class TransparentAction extends AbstractTransparentObjectAccess {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

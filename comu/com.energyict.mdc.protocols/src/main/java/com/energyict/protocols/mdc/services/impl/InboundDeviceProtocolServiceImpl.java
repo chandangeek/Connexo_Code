@@ -1,10 +1,10 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.protocol.api.PluggableClass;
-import com.energyict.mdc.protocol.api.PluggableClassDefinition;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.services.InboundDeviceProtocolService;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.PluggableClassDefinition;
+import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +23,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         try {
             return (InboundDeviceProtocol) (Class.forName(pluggableClass.getJavaClassName())).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw CodingException.genericReflectionError(e, pluggableClass.getJavaClassName());
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, pluggableClass.getJavaClassName());
         }
     }
 
@@ -32,7 +32,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         try {
             return (InboundDeviceProtocol) (Class.forName(javaClassName)).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw CodingException.genericReflectionError(e, javaClassName);
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, javaClassName);
         }
     }
 

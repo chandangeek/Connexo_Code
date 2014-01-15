@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.Date;
 

@@ -11,7 +11,7 @@ package com.energyict.dlms.axrdencoding;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

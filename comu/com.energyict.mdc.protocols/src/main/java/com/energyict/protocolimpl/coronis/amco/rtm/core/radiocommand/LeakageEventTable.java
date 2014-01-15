@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -63,7 +64,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

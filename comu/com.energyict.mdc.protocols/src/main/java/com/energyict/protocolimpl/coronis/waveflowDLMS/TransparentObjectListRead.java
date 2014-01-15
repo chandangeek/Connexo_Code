@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -8,7 +8,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
@@ -120,7 +120,7 @@ public class TransparentObjectListRead {
                     baos.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -168,7 +168,7 @@ public class TransparentObjectListRead {
                         baos.close();
                     }
                     catch(IOException e) {
-                        abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                     }
                 }
             }
@@ -217,7 +217,7 @@ public class TransparentObjectListRead {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -252,7 +252,7 @@ public class TransparentObjectListRead {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -316,7 +316,7 @@ public class TransparentObjectListRead {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -367,7 +367,7 @@ public class TransparentObjectListRead {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

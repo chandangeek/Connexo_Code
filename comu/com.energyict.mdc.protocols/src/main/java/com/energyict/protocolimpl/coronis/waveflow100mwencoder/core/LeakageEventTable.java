@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.LeakageEvent;
 import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -129,7 +130,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow100mW().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

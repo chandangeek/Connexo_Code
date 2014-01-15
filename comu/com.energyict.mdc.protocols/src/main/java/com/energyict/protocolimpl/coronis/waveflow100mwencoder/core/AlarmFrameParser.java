@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
@@ -79,7 +79,7 @@ public class AlarmFrameParser {
 					dais.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					waveFlow100mW.getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

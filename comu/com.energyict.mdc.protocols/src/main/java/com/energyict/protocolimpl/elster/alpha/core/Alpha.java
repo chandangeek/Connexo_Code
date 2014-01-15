@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.alpha.core;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
 import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;

@@ -7,9 +7,9 @@
 package com.energyict.protocolimpl.iec870;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -290,7 +290,6 @@ public class IEC870Connection extends Connection {
         try {
             while(true) {
                 if ((kar = readIn()) != -1) {
-                    if (DEBUG >= 2) ProtocolUtils.outputHex( ((int)kar));
                     bos.write(kar);
                     switch(state) {
                         case STATE_WAIT_FOR_START:

@@ -5,9 +5,9 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Date;
 import java.util.List;
@@ -52,7 +52,9 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
             setResult(getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode()));
         } else if (isFailedRequest(RequestType.LoadProfile)) {
             List<CollectedLoadProfile> collectedLoadProfiles = getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode());
-            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(getInput(), "Requested LP data, meter returned NACK." + getReasonDescription(), getInput().getProfileObisCode());
+            Issue<LoadProfileReader> problem = Bus.getIssueService()
+                    .newIssueCollector()
+                    .addProblem(getInput(), "Requested LP data, meter returned NACK." + getReasonDescription(), getInput().getProfileObisCode());
             collectedLoadProfiles.get(0).setFailureInformation(ResultType.NotSupported, problem);
             setResult(collectedLoadProfiles);
         }

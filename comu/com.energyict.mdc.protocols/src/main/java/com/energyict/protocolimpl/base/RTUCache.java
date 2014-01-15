@@ -5,7 +5,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdw.core.MeteringWarehouse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,7 +83,7 @@ public class RTUCache {
     public synchronized void setBlob(final Object cacheObject) throws SQLException, BusinessException {
 		Transaction tr = new SetBlobTransaction(cacheObject);
 		try {
-			MeteringWarehouse.getCurrent().execute(tr);
+			Environment.DEFAULT.get().execute(tr);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			throw new BusinessException("Failed to execute the stopCacheMechanism." + e);

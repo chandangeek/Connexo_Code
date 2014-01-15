@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 
 /**
  * Provides an implementation for the {@link MD5Seed} interface

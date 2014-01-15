@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

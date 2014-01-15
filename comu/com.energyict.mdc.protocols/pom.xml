@@ -43,25 +43,6 @@
           <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc-all</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.aspectj</groupId>
-                    <artifactId>aspectjrt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.perf4j</groupId>
-                    <artifactId>perf4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>${protocol.mockito.version}</version>
@@ -94,6 +75,11 @@
             <groupId>com.energyict.dataconcentrator.external</groupId>
             <artifactId>serialio</artifactId>
         </dependency>
+
+      <dependency>
+        <groupId>org.rxtx</groupId>
+        <artifactId>rxtx</artifactId>
+      </dependency>
 
         <dependency>
             <groupId>com.energyict</groupId>

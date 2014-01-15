@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -123,7 +124,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 						baos.close();
 					}
 					catch(IOException e) {
-						getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+						getProtocolLink().getLogger().severe(ProtocolUtils.stack2string(e));
 					}
 				}
 			}
@@ -167,7 +168,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getProtocolLink().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}
@@ -215,7 +216,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 						baos.close();
 					}
 					catch(IOException e) {
-						getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+						getProtocolLink().getLogger().severe(ProtocolUtils.stack2string(e));
 					}
 				}
 			}
@@ -265,7 +266,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getProtocolLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getProtocolLink().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

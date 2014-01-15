@@ -4,6 +4,7 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-abstract public class AbstractRadioCommand {
+public abstract class AbstractRadioCommand {
 
 	protected enum RadioCommandId {
 
@@ -171,14 +172,14 @@ abstract public class AbstractRadioCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}
 	}
 
 
-	private final void parseResponse(byte[] data) throws IOException {
+	private void parseResponse(byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -225,7 +226,7 @@ abstract public class AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

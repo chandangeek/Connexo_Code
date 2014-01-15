@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -128,7 +128,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw new GeneralParseException(e);
         }
     }
 }

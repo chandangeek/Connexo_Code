@@ -10,23 +10,22 @@
 
 package com.energyict.protocolimpl.ge.kv2;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
@@ -47,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -55,9 +55,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author  Koen
- * @beginchanges
-KV|04012007|reengineered protocol to allow Eiserver 7 new channel properties
- * @endchanges
+   KV|04012007|reengineered protocol to allow Eiserver 7 new channel properties
  */
 public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
 
@@ -84,7 +82,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         return getProfileData(lastReading,new Date(),includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return gekv2LoadProfile.getProfileData(from,to,includeEvents);
     }
 
@@ -106,10 +104,13 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
     }
 
     protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getStandardTableFactory().getManufacturerIdentificationTable().getManufacturerSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
 
@@ -131,10 +132,12 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
                                   SerialCommunicationChannel.DATABITS_8,
                                   SerialCommunicationChannel.PARITY_NONE,
                                   SerialCommunicationChannel.STOPBITS_1);
-            if (getDtrBehaviour() == 0)
+            if (getDtrBehaviour() == 0) {
                 commChannel.setDTR(false);
-            else if (getDtrBehaviour() == 1)
+            }
+            else if (getDtrBehaviour() == 1) {
                 commChannel.setDTR(true);
+            }
         }
         getPSEMServiceFactory().logOn(c12UserId,c12User,getInfoTypePassword(),getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
 
@@ -145,8 +148,9 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
                 getLogger().info("KV2c meter");
             }
             catch(ResponseIOException e) {
-                if (e.getReason()==AbstractResponse.ONP) // operation not possible
-                   getLogger().info("Snapshot procedure not possible, KV2 meter or KV meter!");
+                if (e.getReason()==AbstractResponse.ONP) { // operation not possible
+                    getLogger().info("Snapshot procedure not possible, KV2 meter or KV meter!");
+                }
                 if (e.getReason()==AbstractResponse.SNAPSHOT_ERROR) {
                    getLogger().info("It appears that some KV2 meters are not happy with the use of the snapshot command. therefor, set the 'UseSnapshotProcedure' custom property to 0!");
                    throw e;
@@ -171,14 +175,8 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         setUseSnapshotProcedure(Integer.parseInt(properties.getProperty("UseSnapshotProcedure","1").trim()));
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-
-        result.add("C12User");
-        result.add("C12UserId");
-        result.add("UseSnapshotProcedure");
-
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList("C12User", "C12UserId", "UseSnapshotProcedure");
     }
 
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
@@ -203,9 +201,9 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
             return getStandardTableFactory().getTime();
         }
         catch(ResponseIOException e) {
-            if (e.getReason()==AbstractResponse.IAR) // table does not exist!
+            if (e.getReason()==AbstractResponse.IAR) {// table does not exist!
                getLogger().warning("No clock table available, use system clock. Probably a demand only meter!");
-            else {
+            } else {
                throw e;
              //   getLogger().warning(e.toString());
             }
@@ -217,19 +215,23 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
 
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
-            if (lps!=null)
+            if (lps!=null) {
                 return lps.getNrOfChannelsSet()[0];
-            else
+            }
+            else {
                 return 0;
+            }
         }
         catch(ResponseIOException e) {
-            if (e.getReason()==AbstractResponse.IAR) // table does not exist!
-               getLogger().warning("No profile channels available. Probably a demand only meter!");
-            else
-               throw e;
+            if (e.getReason()==AbstractResponse.IAR) { // table does not exist!
+                getLogger().warning("No profile channels available. Probably a demand only meter!");
+            }
+            else {
+                throw e;
+            }
         }
         return 0;
     }
@@ -243,7 +245,7 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturer()+", "+
                getStandardTableFactory().getManufacturerIdentificationTable().getModel()+", "+
                "Firmware version.revision="+getStandardTableFactory().getManufacturerIdentificationTable().getFwVersion()+"."+getStandardTableFactory().getManufacturerIdentificationTable().getFwRevision()+", "+
@@ -253,14 +255,14 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
     /*
      * Override this method if the subclass wants to set a specific register
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException, UnsupportedException {
 
     }
 
     /*
      * Override this method if the subclass wants to get a specific register
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException, NoSuchRegisterException {
         throw new UnsupportedException();
     }
 
@@ -280,61 +282,62 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         int skip=0;
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("----------------------------------------------STANDARD TABLES--------------------------------------------------\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("----------------------------------------------STANDARD TABLES--------------------------------------------------\n");
         while(true) {
             try {
-                if (skip<=0) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getManufacturerIdentificationTable());}
-                if (skip<=1) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConfigurationTable());}
-                if (skip<=2) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEndDeviceModeAndStatusTable());}
-                if (skip<=3) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
-                if (skip<=4) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualSourcesLimitingTable());}
-                if (skip<=5) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getUnitOfMeasureEntryTable());}
+                if (skip<=0) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getManufacturerIdentificationTable());}
+                if (skip<=1) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getConfigurationTable());}
+                if (skip<=2) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getEndDeviceModeAndStatusTable());}
+                if (skip<=3) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getDeviceIdentificationTable());}
+                if (skip<=4) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getActualSourcesLimitingTable());}
+                if (skip<=5) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getUnitOfMeasureEntryTable());}
 
-                if (skip<=6) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDemandControlTable());}
-                if (skip<=7) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataControlTable());}
-                if (skip<=8) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConstantsTable());}
-                if (skip<=9) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSourceDefinitionTable());}
-                if (skip<=10) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualRegisterTable());}
-                if (skip<=11) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataSelectionTable());}
-                if (skip<=12) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCurrentRegisterDataTable());}
-                if (skip<=13) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousSeasonDataTable());}
-                if (skip<=14) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousDemandResetDataTable());}
-                if (skip<=15) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSelfReadDataTable());}
-                if (skip<=16) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPresentRegisterDataTable());}
-                if (skip<=17) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualTimeAndTOUTable());}
-                if (skip<=18) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getTimeOffsetTable());}
-                if (skip<=19) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCalendarTable());}
-                if (skip<=20) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getClockTable());}
-                if (skip<=21) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLoadProfileTable());}
-                if (skip<=22) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileControlTable());}
-                if (skip<=23) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileStatusTable());}
-                if (skip<=24) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLogTable());}
-                if (skip<=25) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventsIdentificationTable());}
-                if (skip<=26) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogControlTable());}
-if (skip<=27) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
-                if (skip<=28) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogControlTable());}
-if (skip<=29) { skip+=2;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
-//if (skip<=30) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableEventEntries(145, 10));}
-                if (skip<=31) { skip++;strBuff.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getGEDeviceTable());}
-                if (skip<=32) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterProgramConstants1());}
-                if (skip<=33) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterProgramConstants2());}
-                if (skip<=34) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getDisplayConfigurationTable());}
-                if (skip<=35) { skip+=3;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getScaleFactorTable());}
-                //if (skip<=36) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getElectricalServiceConfiguration());}
-                //if (skip<=37) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getElectricalServiceStatus());}
-                if (skip<=38) { skip++;strBuff.append("------------------------------------------------------------------------------------------------\n"+getObisCodeInfoFactory().toString());}
+                if (skip<=6) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getDemandControlTable());}
+                if (skip<=7) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getDataControlTable());}
+                if (skip<=8) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getConstantsTable());}
+                if (skip<=9) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getSourceDefinitionTable());}
+                if (skip<=10) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getActualRegisterTable());}
+                if (skip<=11) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getDataSelectionTable());}
+                if (skip<=12) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getCurrentRegisterDataTable());}
+                if (skip<=13) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getPreviousSeasonDataTable());}
+                if (skip<=14) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getPreviousDemandResetDataTable());}
+                if (skip<=15) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getSelfReadDataTable());}
+                if (skip<=16) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getPresentRegisterDataTable());}
+                if (skip<=17) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getActualTimeAndTOUTable());}
+                if (skip<=18) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getTimeOffsetTable());}
+                if (skip<=19) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getCalendarTable());}
+                if (skip<=20) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getClockTable());}
+                if (skip<=21) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getActualLoadProfileTable());}
+                if (skip<=22) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getLoadProfileControlTable());}
+                if (skip<=23) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getLoadProfileStatusTable());}
+                if (skip<=24) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getActualLogTable());}
+                if (skip<=25) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getEventsIdentificationTable());}
+                if (skip<=26) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getHistoryLogControlTable());}
+if (skip<=27) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getHistoryLogDataTable());}
+                if (skip<=28) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getEventLogControlTable());}
+if (skip<=29) { skip+=2;builder.append("------------------------------------------------------------------------------------------------\n" + getStandardTableFactory().getEventLogDataTableHeader());}
+//if (skip<=30) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableEventEntries(145, 10));}
+                if (skip<=31) { skip++;builder.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n" + getManufacturerTableFactory()
+                        .getGEDeviceTable());}
+                if (skip<=32) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getManufacturerTableFactory().getMeterProgramConstants1());}
+                if (skip<=33) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getManufacturerTableFactory().getMeterProgramConstants2());}
+                if (skip<=34) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getManufacturerTableFactory().getDisplayConfigurationTable());}
+                if (skip<=35) { skip+=3;builder.append("------------------------------------------------------------------------------------------------\n" + getManufacturerTableFactory().getScaleFactorTable());}
+                //if (skip<=36) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getElectricalServiceConfiguration());}
+                //if (skip<=37) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getElectricalServiceStatus());}
+                if (skip<=38) { skip++;builder.append("------------------------------------------------------------------------------------------------\n" + getObisCodeInfoFactory().toString());}
                 break;
             }
             catch(IOException e) {
 //e.printStackTrace();       // KV_DEBUG
-                strBuff.append("Table not supported! "+e.toString()+"\n");
+                builder.append("Table not supported! " + e.toString() + "\n");
             }
         }
 
 
 
-        return strBuff.toString();
+        return builder.toString();
     }
 
 
@@ -391,8 +394,9 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 
             // ********************** EictRtuModbus **********************
             GEKV2 gekv2 = new GEKV2();
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)gekv2).enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            if (DialerMarker.hasOpticalMarker(dialer)) {
+                gekv2.enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            }
 
             gekv2.setHalfDuplexController(dialer.getHalfDuplexController());
             gekv2.setProperties(properties);
@@ -428,58 +432,7 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
                 System.out.println("Table not supported! "+e.toString());
             }
 
-//            System.out.println(gekv2.getManufacturerTableFactory().getMeterProgramConstants2());
-//            System.out.println(gekv2.getManufacturerTableFactory().getDisplayConfigurationTable());
-//            System.out.println(gekv2.getManufacturerTableFactory().getScaleFactorTable());
-//            System.out.println(gekv2.getManufacturerTableFactory().getElectricalServiceConfiguration());
-//            System.out.println(gekv2.getManufacturerTableFactory().getElectricalServiceStatus());
-//
-//            System.out.println(gekv2.getStandardTableFactory().getActualSourcesLimitingTable());
-//            System.out.println(gekv2.getStandardTableFactory().getDemandControlTable());
-//            System.out.println(gekv2.getStandardTableFactory().getDataControlTable());
-//            System.out.println(gekv2.getStandardTableFactory().getConstantsTable());
-//            System.out.println(gekv2.getStandardTableFactory().getSourceDefinitionTable());
-//            System.out.println(gekv2.getStandardTableFactory().getActualRegisterTable());
-//            System.out.println(gekv2.getStandardTableFactory().getDataSelectionTable());
-//            System.out.println(gekv2.getStandardTableFactory().getCurrentRegisterDataTable());
-//            System.out.println(gekv2.getStandardTableFactory().getPreviousSeasonDataTable());
-//            System.out.println(gekv2.getStandardTableFactory().getPreviousDemandResetDataTable());
-//            System.out.println(gekv2.getStandardTableFactory().getSelfReadDataTable());
-            //System.out.println(gekv2.getStandardTableFactory().getPresentRegisterSelectionTable());
-//            System.out.println(gekv2.getStandardTableFactory().getPresentRegisterDataTable());
-//            System.out.println(gekv2.getStandardTableFactory().getActualTimeAndTOUTable());
-//            System.out.println(gekv2.getStandardTableFactory().getTimeOffsetTable());
-//            System.out.println(gekv2.getStandardTableFactory().getCalendarTable());
-
-            // set time
-            //gekv2.setTime();
-
-//            System.out.println(gekv2.getStandardTableFactory().getClockStateTable());
-//            System.out.println(gekv2.getStandardTableFactory().getActualLoadProfileTable());
-//            System.out.println(gekv2.getStandardTableFactory().getLoadProfileControlTable());
-//            System.out.println(gekv2.getStandardTableFactory().getLoadProfileStatusTable());
-
-
-//            byte[] password = {(byte)0x5f,(byte)0x29,(byte)0x6e,(byte)0x00,(byte)0x29,(byte)0xfc,(byte)0x7c,(byte)0x90,(byte)0xce,(byte)0xef,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20,(byte)0x20};
-            //byte[] password = {(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA,(byte)0xAA};
-            //byte[] password = {(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB,(byte)0xBB};
-//            byte[] password = {(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6,(byte)0xA6};
-//            gekv2.getPSEMServiceFactory().secure(password);
-
-
-//System.out.println("KV_DEBUG> program manufacturer specific table");
-//gekv2.getPSEMServiceFactory().fullWrite(66, new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//gekv2.getManufacturerTableFactory().getMeterProgramConstants1().setTableData(new byte[]{0,0,(byte)(1667/256),(byte)(1667%256)});
-//gekv2.getManufacturerTableFactory().getMeterProgramConstants1().transfer();
-
-
-
-//            Calendar cal = Calendar.getInstance();
-//            cal.add(Calendar.DAY_OF_MONTH,-4);
-//            System.out.println(gekv2.getProfileData(cal.getTime(),true));
-
             System.out.println(gekv2.getFirmwareVersion());
-
 
             gekv2.disconnect();
         }
@@ -510,8 +463,9 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {
-        if (obisCodeInfoFactory == null)
-            obisCodeInfoFactory=new ObisCodeInfoFactory(this);
+        if (obisCodeInfoFactory == null) {
+            obisCodeInfoFactory = new ObisCodeInfoFactory(this);
+        }
         return obisCodeInfoFactory;
     }
     public int getMeterConfig() throws IOException {

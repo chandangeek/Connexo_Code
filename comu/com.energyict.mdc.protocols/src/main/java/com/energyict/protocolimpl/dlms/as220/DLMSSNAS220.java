@@ -17,12 +17,7 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -45,21 +40,26 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.util.CacheMechanism;
 
 import java.io.IOException;
 import java.io.InputStream;

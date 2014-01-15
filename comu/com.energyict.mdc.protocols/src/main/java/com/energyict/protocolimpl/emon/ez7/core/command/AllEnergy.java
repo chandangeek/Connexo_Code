@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
@@ -33,38 +32,39 @@ public class AllEnergy extends AbstractCommand {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("AllEnergy:\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("AllEnergy:\n");
         for (int tariff = 0; tariff < NR_OF_TARIFFS; tariff++) {
-           strBuff.append("tariff "+tariff+": ");
+           builder.append("tariff ").append(tariff).append(": ");
            for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
-               strBuff.append("ch "+channel+": "+getQuantity(channel, tariff)+", ");
+               builder.append("ch ").append(channel).append(": ").append(getQuantity(channel, tariff)).append(", ");
            }
-           strBuff.append("\n");
+           builder.append("\n");
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);
     }
 
-    protected void parse(byte[] data) throws ConnectionException, IOException {
-        if (DEBUG>=1)
-           System.out.println(new String(data));
+    protected void parse(byte[] data) throws IOException {
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
 
         CommandParser cp = new CommandParser(data);
         for (int tariff = 0; tariff < NR_OF_TARIFFS; tariff++) {
-           List valuesL = cp.getValues("KWHL-"+(tariff+1));
-           List valuesM = cp.getValues("KWHM-"+(tariff+1));
-           for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
-              int valueL = Integer.parseInt((String)valuesL.get(channel),16);
-              int valueM = Integer.parseInt((String)valuesM.get(channel),16);
-              long value = valueL+valueM*0x10000;
-              BigDecimal bd = ez7CommandFactory.getMeterInformation().calculateValue(channel, value);
-              quantities[channel][tariff] = new Quantity(bd,ez7CommandFactory.getMeterInformation().getUnit(channel, true));
+            List valuesL = cp.getValues("KWHL-" + (tariff + 1));
+            List valuesM = cp.getValues("KWHM-" + (tariff + 1));
+            for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
+                int valueL = Integer.parseInt((String) valuesL.get(channel), 16);
+                int valueM = Integer.parseInt((String) valuesM.get(channel), 16);
+                long value = valueL+valueM*0x10000;
+                BigDecimal bd = ez7CommandFactory.getMeterInformation().calculateValue(channel, value);
+              quantities[channel][tariff] = new Quantity(bd, ez7CommandFactory.getMeterInformation().getUnit(channel, true));
            }
         }
     }

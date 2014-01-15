@@ -1,11 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
 import java.util.Arrays;
@@ -27,7 +30,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
 public enum LoadProfileMessage implements DeviceMessageSpec {
 
     PARTIAL_LOAD_PROFILE_REQUEST(
-            RequiredPropertySpecFactory.newInstance().loadProfilePropertySpec(loadProfileAttributeName),
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            loadProfileAttributeName,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id())),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(toDateAttributeName)
     ),
@@ -39,7 +45,10 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     WRITE_CAPTURE_PERIOD_LP2(RequiredPropertySpecFactory.newInstance().timeDurationPropertySpec(capturePeriodAttributeName)),
     WriteConsumerProducerMode(RequiredPropertySpecFactory.newInstance().stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
     LOAD_PROFILE_REGISTER_REQUEST(
-            RequiredPropertySpecFactory.newInstance().loadProfilePropertySpec(loadProfileAttributeName),
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            loadProfileAttributeName,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOADPROFILE.id())),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(fromDateAttributeName)
     );
 

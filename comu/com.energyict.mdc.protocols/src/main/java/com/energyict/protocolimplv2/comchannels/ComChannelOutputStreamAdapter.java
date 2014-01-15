@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.comchannels;
 
 import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,8 +10,8 @@ import java.io.OutputStream;
 /**
  * Adapts a ComChannel so that it behaves as an OutputStream.
  * This is only required for backwards compatibility with old-style
- * communication protocols such as {@link com.energyict.protocol.MeterProtocol}
- * and {@link com.energyict.protocol.SmartMeterProtocol}
+ * communication protocols such as {@link MeterProtocol}
+ * and {@link SmartMeterProtocol}
  * that need an OutputStream (and an OutputStream) at initialization time.
  * The ComServer statistics however, rely on the fact that all communication
  * goes through the ComChannel methods and no calls are made to

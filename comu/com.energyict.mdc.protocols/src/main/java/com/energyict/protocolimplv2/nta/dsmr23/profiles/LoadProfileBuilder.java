@@ -14,26 +14,29 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.identifiers.CanFindLoadProfile;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.protocol.LoadProfileConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 
@@ -47,7 +50,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
-* Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+* Provides functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData} objects for a {@link SmartMeterProtocol}
 * <p/>
 * <pre>
 * Copyrights EnergyICT
@@ -144,7 +147,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-                DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+                CollectedLoadProfileConfiguration lpc =
+                        this.getCollectedDataFactory().
+                                createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
 
                 ComposedProfileConfig cpc = lpConfigMap.get(lpr);
                 if (cpc != null) {
@@ -167,7 +172,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
             }
             return this.loadProfileConfigurationList;
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(e);
         }
     }
 
@@ -416,8 +421,8 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-            CanFindLoadProfile loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+            LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
+            CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -439,11 +444,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
                     collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                    Issue<LoadProfileReader> problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue<LoadProfileReader> problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);
@@ -483,4 +488,15 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     protected AbstractNtaProtocol getMeterProtocol() {
         return meterProtocol;
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.WaveFlowDLMSException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -151,7 +152,7 @@ abstract public class AbstractRadioCommand {
                     try {
                         baos.close();
                     } catch (IOException e) {
-                        getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        getRTM().getLogger().severe(ProtocolUtils.stack2string(e));
                     }
                 }
             }
@@ -177,7 +178,7 @@ abstract public class AbstractRadioCommand {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -210,7 +211,7 @@ abstract public class AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

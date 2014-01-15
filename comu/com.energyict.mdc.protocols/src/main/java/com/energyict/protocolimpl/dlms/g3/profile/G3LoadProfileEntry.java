@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.profile;
 
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 public class G3LoadProfileEntry {
 

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimaranplus.TrimaranPlus;
 
 import java.io.IOException;

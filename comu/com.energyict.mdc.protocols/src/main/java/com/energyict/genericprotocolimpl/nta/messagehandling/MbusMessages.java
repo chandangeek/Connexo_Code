@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.nta.messagehandling;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 import java.util.ArrayList;
 import java.util.List;

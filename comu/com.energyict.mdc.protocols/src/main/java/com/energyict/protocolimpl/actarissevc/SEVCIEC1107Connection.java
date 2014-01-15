@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.actarissevc;
 
-import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -235,19 +234,12 @@ public class SEVCIEC1107Connection {
             data[data.length-1] = (byte)(crc[0]);
             data[data.length-2] = (byte)(crc[1]);
             outputStream.write(data,0,data.length);
-
-            if (DEBUG==1) {
-                int i;
-                for (i=0;i<data.length;i++)
-                    ProtocolUtils.outputHex( ((int)data[i])  &0x000000FF);
-                System.out.println();
-            }
         }
         catch (IOException e) {
             throw new SEVCIEC1107ConnectionException("sendReadFrame() error "+e.getMessage());
         }
 
-    } // private void sendReadFrame(byte bIdentifier) throws SEVCIEC1107ConnectionException
+    }
 
 
     public void sendWriteFrame(byte bIdentifier,byte[] data) throws SEVCIEC1107ConnectionException {
@@ -291,21 +283,17 @@ public class SEVCIEC1107Connection {
                 }
 
                 receiveACK();
-
-                if (DEBUG==1) {
-                    int i;
-                    for (i=0;i<txbuffer.length;i++)
-                        ProtocolUtils.outputHex( ((int)txbuffer[i])  &0x000000FF);
-                    System.out.println();
-                }
-
                 return;
             }
             catch (SEVCIEC1107ConnectionException e) {
                 if (e.isReasonTimeout()) {
-                    if (iRetries++ >= iMaxRetries) throw new SEVCIEC1107ConnectionException("sendWriteFrame() error, max retries, "+e.getMessage());
+                    if (iRetries++ >= iMaxRetries) {
+                        throw new SEVCIEC1107ConnectionException("sendWriteFrame() error, max retries, " + e.getMessage());
+                    }
                 }
-                else throw new SEVCIEC1107ConnectionException("sendWriteFrame() error "+e.getMessage());
+                else {
+                    throw new SEVCIEC1107ConnectionException("sendWriteFrame() error " + e.getMessage());
+                }
             }
             catch (IOException e) {
                 throw new SEVCIEC1107ConnectionException("sendWriteFrame() error "+e.getMessage());
@@ -324,7 +312,7 @@ public class SEVCIEC1107Connection {
     private byte[] doCalcCRC(byte[] data,int iLength) {
         int CRC=0;
         byte[] crc = new byte[2];
-        int a=0,b=0,Counter=0;
+        int a,b,Counter;
         for (int i=0;i<iLength-2;i++) {
             a=CRC/256;
             a ^= ((int)data[i]&0xff);
@@ -374,7 +362,9 @@ public class SEVCIEC1107Connection {
 
     public void flushInputStream()  throws SEVCIEC1107ConnectionException {
         try {
-            while(inputStream.available() != 0) inputStream.read(); // flush inputbuffer
+            while(inputStream.available() != 0) {
+                inputStream.read(); // flush inputbuffer
+            }
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -397,7 +387,9 @@ public class SEVCIEC1107Connection {
             }
             count = count + data.length;
             sendACK();
-            if (count>=size) break;
+            if (count>=size) {
+                break;
+            }
             //sendACK();
         }
 
@@ -413,7 +405,7 @@ public class SEVCIEC1107Connection {
     public byte[] receiveData() throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar;
-        int iState=STATE_WAIT_FOR_SOH;
+        int iState;
         int iLength=0,iCount=0;
         byte[] receiveBuffer=null;
         byte[] calculatedCRC;
@@ -427,11 +419,13 @@ public class SEVCIEC1107Connection {
 
                     switch(iState) {
                         case STATE_WAIT_FOR_SOH: {
-                            if ((byte)iNewKar == SOH) iState = STATE_WAIT_FOR_LENGTH;
+                            if ((byte)iNewKar == SOH) {
+                                iState = STATE_WAIT_FOR_LENGTH;
+                            }
                         } break; // STATE_WAIT_FOR_SOH
 
                         case STATE_WAIT_FOR_LENGTH: {
-                            iLength = (int)iNewKar&0xff;
+                            iLength = iNewKar &0xff;
                             receiveBuffer= new byte[iLength+5];
                             receiveBuffer[0]=SOH;
                             receiveBuffer[1]=(byte)iLength;
@@ -442,7 +436,9 @@ public class SEVCIEC1107Connection {
 
                         case STATE_WAIT_FOR_DATA: {
                             receiveBuffer[iCount+2] = (byte)iNewKar;
-                            if (iCount++ >= (iLength-1)) iState = STATE_WAIT_FOR_ETX;
+                            if (iCount++ >= (iLength-1)) {
+                                iState = STATE_WAIT_FOR_ETX;
+                            }
 
                         } break; // STATE_WAIT_FOR_DATA
 
@@ -450,10 +446,14 @@ public class SEVCIEC1107Connection {
                             if ((byte)iNewKar == ETX) {
                                 iState = STATE_WAIT_FOR_LENGTH;
                                 receiveBuffer[iCount+2] = (byte)iNewKar;
-                                if (iCount++ >= ((iLength-1)+1)) iState = STATE_WAIT_FOR_CRC;
+                                if (iCount++ >= ((iLength-1)+1)) {
+                                    iState = STATE_WAIT_FOR_CRC;
+                                }
 
                             }
-                            else throw new SEVCIEC1107ConnectionException("receiveData() should receive ETX!");
+                            else {
+                                throw new SEVCIEC1107ConnectionException("receiveData() should receive ETX!");
+                            }
 
                         } break; // STATE_WAIT_FOR_ETX
 
@@ -465,12 +465,14 @@ public class SEVCIEC1107Connection {
                                 (calculatedCRC[1] == receiveBuffer[iLength+3])) {
                                     // remove head and tail from receivebuffer...
                                     byte[] data = new byte[iLength];
-                                    for (int i=0;i<iLength;i++)
-                                        data[i] = receiveBuffer[i+2];
+                                    for (int i=0;i<iLength;i++) {
+                                        data[i] = receiveBuffer[i + 2];
+                                    }
                                     return data;
                                 }
-                                else
+                                else {
                                     throw new SEVCIEC1107ConnectionException("receiveData() bad CRC error");
+                                }
                             }
 
                         } break; // STATE_WAIT_FOR_CRC
@@ -482,7 +484,7 @@ public class SEVCIEC1107Connection {
                     Thread.sleep(100);
                 }
 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     SEVCIEC1107ConnectionException e = new SEVCIEC1107ConnectionException("receiveData() timeout error");
                     e.setReasonTimeout();
                     throw e;
@@ -498,13 +500,7 @@ public class SEVCIEC1107Connection {
             e.printStackTrace();
             throw new SEVCIEC1107ConnectionException("receiveData() error "+e.getMessage());
         }
-
-    } // public byte[] receiveData(String str) throws SEVCIEC1107ConnectionException
-
-
-    private static final int WAIT_FOR_IDENT=0;
-    private static final int WAIT_FOR_COMPLETION=1;
-
+    }
 
     public String receiveIdent(String str) throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
@@ -518,15 +514,20 @@ public class SEVCIEC1107Connection {
                 if (inputStream.available() != 0) {
                     iNewKar = inputStream.read();
 
-                    if ((byte)iNewKar==NAK) sendBreak();
+                    if ((byte)iNewKar==NAK) {
+                        sendBreak();
+                    }
 
                     convert[0] = (byte)iNewKar;
                     convertstr = new String(convert);
                     if ((byte)iNewKar >= 0x20)  // no control characters...
+                    {
                         strIdent += convertstr;
+                    }
 
-                    if (convertstr.compareTo("\\") == 0)
+                    if (convertstr.compareTo("\\") == 0) {
                         strIdent += convertstr;
+                    }
 
                     if ((byte)iNewKar == 0x0A) {
                         if ((str != null) && ("".compareTo(str) != 0)) {
@@ -543,7 +544,7 @@ public class SEVCIEC1107Connection {
                     Thread.sleep(100);
                 }
 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     throw SEVCIEC1107ConnectionException.getSEVCIEC1107ConnectionExceptionTimeout("receiveIdent() timeout error");
                 }
 
@@ -570,13 +571,15 @@ public class SEVCIEC1107Connection {
             while(true) {
                 if (inputStream.available() != 0) {
                     iNewKar = inputStream.read();
-                    if ((byte)iNewKar == 0x06) return;
+                    if ((byte)iNewKar == 0x06) {
+                        return;
+                    }
                 } // if (inputStream.available() != 0)
                 else {
                     Thread.sleep(100);
                 }
 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     SEVCIEC1107ConnectionException e = new SEVCIEC1107ConnectionException("receiveACK() timeout error");
                     e.setReasonTimeout();
                     throw e;
@@ -613,7 +616,9 @@ public class SEVCIEC1107Connection {
                     if (iState==0) {
                         convert[0] = (byte)iNewKar;
                         strIdent += new String(convert);
-                        if (strIdent.compareTo(str) == 0) iState = 1;
+                        if (strIdent.compareTo(str) == 0) {
+                            iState = 1;
+                        }
                     }
                     else if (iState == 1) {
                         receivedCRC[iCount--] = (byte)iNewKar;
@@ -623,18 +628,20 @@ public class SEVCIEC1107Connection {
                             calculatedCRC = calcCRC(strIdent.getBytes(),strIdent.getBytes().length+2);
 
                             if ((calculatedCRC[0] == receivedCRC[0]) &&
-                            (calculatedCRC[1] == receivedCRC[1]))
+                            (calculatedCRC[1] == receivedCRC[1])) {
                                 return;
-                            else
+                            }
+                            else {
                                 throw new SEVCIEC1107ConnectionException("receivePassword() bad CRC error");
-                        } // if (iCount < 0)
-                    } // else if (iState == 1)
-                } // if (inputStream.available() != 0)
+                            }
+                        }
+                    }
+                }
                 else {
                     Thread.sleep(100);
                 }
 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     throw SEVCIEC1107ConnectionException.getSEVCIEC1107ConnectionExceptionTimeout("receivePassword() timeout error");
                 }
 
@@ -654,7 +661,7 @@ public class SEVCIEC1107Connection {
     public void receiveWakeup() throws NestedIOException,SEVCIEC1107ConnectionException {
         long lMSTimeout;
         int iNewKar;
-        short sRXCount=0;
+        short sRXCount;
 
         lMSTimeout = System.currentTimeMillis() + 5000; // KV 12022004
         sRXCount=0;
@@ -665,16 +672,20 @@ public class SEVCIEC1107Connection {
 
                     if ((byte)iNewKar == 0) {
                         sRXCount++;
-                        if (sRXCount == 3) return;
+                        if (sRXCount == 3) {
+                            return;
+                        }
                     }
-                    else throw new SEVCIEC1107ConnectionException("receiveWakeup() wrong kar error");
+                    else {
+                        throw new SEVCIEC1107ConnectionException("receiveWakeup() wrong kar error");
+                    }
 
                 } // if (inputStream.available() != 0)
                 else {
                     Thread.sleep(100);
                 }
 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     throw SEVCIEC1107ConnectionException.getSEVCIEC1107ConnectionExceptionTimeout("receiveWakeup() timeout error");
                 }
 
@@ -690,7 +701,7 @@ public class SEVCIEC1107Connection {
         }
     } // public void receiveWakeup() throws SEVCIEC1107ConnectionException
 
-    private void sendWakeUpData() throws NestedIOException,SEVCIEC1107ConnectionException {
+    private void sendWakeUpData() throws NestedIOException {
         //        byte[] data = {(byte)0};//,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0};
         byte[] data = {(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0};
         try {
@@ -708,8 +719,11 @@ public class SEVCIEC1107Connection {
     public void delay(long lDelay) {
         long lMSTimeout;
         lMSTimeout = System.currentTimeMillis() + lDelay;
-        while(true)
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) return;
+        while(true) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
+                return;
+            }
+        }
     }
 
     // KV 02022004

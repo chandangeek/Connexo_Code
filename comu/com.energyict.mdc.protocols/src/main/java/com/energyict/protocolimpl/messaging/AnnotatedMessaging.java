@@ -3,16 +3,16 @@ package com.energyict.protocolimpl.messaging;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.messaging.proxy.ProxyMessageInvocationHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -95,7 +95,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @param clazz The message specification class.
      * @return The tags that are used by the given message spec.
      */
-    public static final Set<String> getTagsForMessageSpecification(final Class<? extends AnnotatedMessage> clazz) {
+    public static Set<String> getTagsForMessageSpecification(final Class<? extends AnnotatedMessage> clazz) {
         final Set<String> tags = new HashSet<String>();
 
         final List<RtuMessageDescription> descriptions = getDescriptionsForMessageClass(clazz);

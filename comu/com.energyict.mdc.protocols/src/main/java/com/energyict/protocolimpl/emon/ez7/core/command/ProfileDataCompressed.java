@@ -6,12 +6,11 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -45,23 +44,23 @@ public class ProfileDataCompressed extends AbstractCommand {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         if (getProfileStatus().getCurrentBlockStart()!=null) {
-            strBuff.append("ProfileDataCompressed:\n");
-            strBuff.append(getProfileStatus()+"\n");
+            builder.append("ProfileDataCompressed:\n");
+            builder.append(getProfileStatus()).append("\n");
             Iterator it = getIntervalDatas().iterator();
             while(it.hasNext()) {
                 IntervalData intervalData = (IntervalData)it.next();
-                strBuff.append(intervalData.toString()+"\n");
+                builder.append(intervalData.toString()).append("\n");
             }
-            return strBuff.toString();
+            return builder.toString();
         }
         else {
             return null;
         }
     }
 
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         //nrOfBlocks=ez7CommandFactory.getProfileStatus().getNrOfDayBlocks();
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND,ProtocolUtils.buildStringHex(dayBlockNr+1,2).toUpperCase());
@@ -70,18 +69,23 @@ public class ProfileDataCompressed extends AbstractCommand {
 
     private void parse(byte[] data) throws IOException {
 
-        if (DEBUG>=2) System.out.println("KV_DEBUG> "+new String(data));
+        if (DEBUG>=2) {
+            System.out.println("KV_DEBUG> " + new String(data));
+        }
 
         profileStatus = new ProfileStatus(ez7CommandFactory);
         profileStatus.parse(data);
         if (profileStatus.getCurrentBlockStart() != null) {
 
-            if (DEBUG>=1) System.out.println("KV_DEBUG> "+profileStatus);
+            if (DEBUG>=1) {
+                System.out.println("KV_DEBUG> " + profileStatus);
+            }
 
             String strData = new String(data);
             int index=0;
-            for (int i=0;i<3;i++)
-                index = strData.indexOf("\r\n",index)+"\r\n".length();
+            for (int i=0;i<3;i++) {
+                index = strData.indexOf("\r\n", index) + "\r\n".length();
+            }
 
             byte[] intervalData = ProtocolUtils.getSubArray(data,index);
             intervalDatas=new ArrayList();
@@ -107,8 +111,9 @@ public class ProfileDataCompressed extends AbstractCommand {
                     // blocks returned maximum 96 or 288 intervals depending on the integrationtime!
                     // if, for some reason, larger blocks returned, throw an exception
                     if (((profileStatus.getProfileInterval()==900) && (interval>96)) ||
-                    ((profileStatus.getProfileInterval()==1800) && (interval>288)))
-                        throw new IOException("ProfileDataCompressed, parse(), error profile storage format. Too many intervals for "+profileStatus.getProfileInterval()+" sec integration time!");
+                    ((profileStatus.getProfileInterval()==1800) && (interval>288))) {
+                        throw new IOException("ProfileDataCompressed, parse(), error profile storage format. Too many intervals for " + profileStatus.getProfileInterval() + " sec integration time!");
+                    }
 
                     // calculate interval close timestamp
                     if (include) {
@@ -118,15 +123,20 @@ public class ProfileDataCompressed extends AbstractCommand {
 
                     for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
                         int value;
-                        if (profileStatus.getProfileResolution() == 1)
-                            value = (int)inputStream.readByte()&0xFF;
-                        else if (profileStatus.getProfileResolution() == 2)
-                            value = (int)inputStream.readShort()&0xFFFF;
-                        else throw new IOException("ProfileDataCompressed, parse(), error profile storage format "+profileStatus.getProfileResolution()+" bytes!");
+                        if (profileStatus.getProfileResolution() == 1) {
+                            value = (int) inputStream.readByte() & 0xFF;
+                        }
+                        else if (profileStatus.getProfileResolution() == 2) {
+                            value = (int) inputStream.readShort() & 0xFFFF;
+                        }
+                        else {
+                            throw new IOException("ProfileDataCompressed, parse(), error profile storage format " + profileStatus.getProfileResolution() + " bytes!");
+                        }
                         value = convert(value);
                         if (DEBUG>=1) {
-                            if (channel==0)
-                                System.out.print("interval="+(interval)+", ");
+                            if (channel==0) {
+                                System.out.print("interval=" + (interval) + ", ");
+                            }
                             System.out.print("0x"+Integer.toHexString(value)+" ");
                         }
                         if (ez7CommandFactory.getHookUp().isChannelEnabled(channel)) {
@@ -143,7 +153,9 @@ public class ProfileDataCompressed extends AbstractCommand {
                         status = status & 0x7F;
                     }
 
-                    if (DEBUG>=1) System.out.println("0x"+Integer.toHexString(status)+" ");
+                    if (DEBUG>=1) {
+                        System.out.println("0x" + Integer.toHexString(status) + " ");
+                    }
                     inputStream.readShort(); // skip crlf
 
                     //ez7CommandFactory.getEz7().getLogger().severe("KV_DEBUG> "+cal.getTime()+", "+ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime()));
@@ -151,11 +163,12 @@ public class ProfileDataCompressed extends AbstractCommand {
                     // Summer -> Winter transition, add extra hour
                     // in case of DST, use same interval for the overlapping hour. This info i got from Kantol Khek, the IMon logger overwrites the overlapping hour...
                     if (ez7CommandFactory.getImonInformation().isUseDST() &&
-                        (inDaylightTime == true) &&
-                        (ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime()) == false)) {
+                        (inDaylightTime) &&
+                        (!ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime()))) {
                        if (!dstSwitch) {
-                           for (int i=0;i<intervalsPerHour;i++)
+                           for (int i=0;i<intervalsPerHour;i++) {
                                intervalDatas.add(overlapIntervals[i]);
+                           }
                            cal.add(Calendar.SECOND,3600); // add one hour
                        }
                        dstSwitch=true;
@@ -164,16 +177,9 @@ public class ProfileDataCompressed extends AbstractCommand {
 
                     // Winter -> Summer Set hour to missing
                     if (ez7CommandFactory.getImonInformation().isUseDST() &&
-                        (inDaylightTime == false) &&
-                        (ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime()) == true)) {
-                        if (dstSwitch && (overlapHourIntervals-- > 0)) {
-                            include = false; // was false
-                            //ez7CommandFactory.getEz7().getLogger().severe("KV_DEBUG> winter->summer change day, exclude interval");
-                        }
-                        else {
-                            //ez7CommandFactory.getEz7().getLogger().severe("KV_DEBUG> winter->summer change day");
-                            include = true;
-                        }
+                        (!inDaylightTime) &&
+                        (ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime()))) {
+                        include = !(dstSwitch && (overlapHourIntervals-- > 0));
                         dstSwitch = true;
                     } // winter -> summer transition
 
@@ -181,10 +187,11 @@ public class ProfileDataCompressed extends AbstractCommand {
                         IntervalData id = new IntervalData(((Calendar) cal.clone()).getTime(), getEiStatus(status), status, 0, intervalValues);
                         intervalDatas.add(id);
                         // save last hour during summertime...
-                        if (ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime()) == true) {
+                        if (ez7CommandFactory.getEz7().getTimeZone().inDaylightTime(cal.getTime())) {
                             overlapIntervals[overlapIntervalIndex] = id;
-                            if (overlapIntervalIndex++>=(intervalsPerHour-1))
-                                overlapIntervalIndex=0;
+                            if (overlapIntervalIndex++>=(intervalsPerHour-1)) {
+                                overlapIntervalIndex = 0;
+                            }
                         }
                     }
                     interval++;

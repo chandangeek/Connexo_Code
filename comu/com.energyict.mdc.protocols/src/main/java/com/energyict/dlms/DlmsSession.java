@@ -1,6 +1,6 @@
 package com.energyict.dlms;
 
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;

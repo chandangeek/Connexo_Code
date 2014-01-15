@@ -1,17 +1,17 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
 import java.io.IOException;
@@ -203,7 +203,7 @@ public class WaveFlow100mWMessages implements MessageProtocol {
 			buf.append( writeTag((MessageTag)elt) );
 		} else if (elt.isValue()) {
                String value = writeValue((MessageValue)elt);
-               if (value==null || value.length()==0) {
+               if (value==null || value.isEmpty()) {
 				return "";
 			}
                buf.append(value);
@@ -233,7 +233,7 @@ public class WaveFlow100mWMessages implements MessageProtocol {
 	 *
 	 * @return	The contents, <code>null</code> if for some reason the contents cannot be extracted. A warning will be issued in that case.
 	 */
-	private final String getTagContents(final String tagName, final String messageContents) {
+	private String getTagContents(final String tagName, final String messageContents) {
     	final int startIndex = messageContents.indexOf(new StringBuilder("<").append(tagName).append(">").toString()) + tagName.length() + 2;
     	final int endIndex = messageContents.indexOf(new StringBuilder("</").append(tagName).append(">").toString());
 

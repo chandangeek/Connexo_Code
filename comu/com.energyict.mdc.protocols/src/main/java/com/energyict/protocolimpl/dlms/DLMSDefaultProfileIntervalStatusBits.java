@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 /**

@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
@@ -26,11 +26,12 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -209,7 +210,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
     /**
      * Check if the {@link java.util.TimeZone} is read from the DLMS device, or if the
-     * {@link java.util.TimeZone} from the {@link com.energyict.protocol.MeterProtocol} should be used.
+     * {@link java.util.TimeZone} from the {@link MeterProtocol} should be used.
      *
      * @return true is the {@link java.util.TimeZone} is read from the device
      */
@@ -321,7 +322,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      *
      * @param commChannel communication channel object
      * @param datareadout enable or disable data readout
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *          thrown when a connection exception happens
      */
     @Override

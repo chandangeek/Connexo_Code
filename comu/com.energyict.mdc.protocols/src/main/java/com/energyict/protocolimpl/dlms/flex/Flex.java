@@ -14,13 +14,13 @@ SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this i
  */
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -48,19 +48,19 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -345,16 +345,13 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
         doRequestApplAssoc(aarq);
 
-    } // public void requestApplAssoc(int iLevel) throws IOException
+    }
 
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
         byte[] responseData;
         responseData = getDLMSConnection().sendRequest(aarq);
         CheckAARE(responseData);
-        if (DEBUG >= 2) {
-            ProtocolUtils.printResponseData(responseData);
-        }
-    } // public void doRequestApplAssoc(int iLevel) throws IOException
+    }
 
     private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
     private static final byte AARE_RESULT = (byte) 0xA2;
@@ -371,7 +368,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     private void CheckAARE(byte[] responseData) throws IOException {
         int i;
-        int iLength;
         String strResultSourceDiagnostics = "";
         InitiateResponse initiateResponse = new InitiateResponse();
 
@@ -462,14 +458,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                                 initiateResponse.lNegotiatedConformance = (ProtocolUtils.getInt(responseData, i + 8) & 0x00FFFFFF); // conformance has only 3 bytes, 24 bit
                                 initiateResponse.sServerMaxReceivePduSize = ProtocolUtils.getShort(responseData, i + 12);
                                 initiateResponse.sVAAName = ProtocolUtils.getShort(responseData, i + 14);
-                                /*
-                                System.out.println(initiateResponse.bNegotiatedDLMSVersionNR + " "+
-                                                   initiateResponse.bNegotiatedQualityOfService + " "+
-                                                   initiateResponse.lNegotiatedConformance + " "+
-                                                   initiateResponse.sServerMaxReceivePduSize + " " +
-                                                   initiateResponse.sVAAName);
-                                */
-
                             } else if (DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
                                 if (0x01 == responseData[i + 4]) {
                                     strResultSourceDiagnostics += ", InitiateError";
@@ -534,7 +522,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     } // void CheckAARE(byte[] responseData) throws IOException
 
-    private CapturedObjects getCapturedObjects() throws UnsupportedException, IOException {
+    private CapturedObjects getCapturedObjects() throws IOException {
         if (capturedObjects == null) {
             byte[] responseData;
             int i;

@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.pact.core.meterreading;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 
 import java.io.IOException;

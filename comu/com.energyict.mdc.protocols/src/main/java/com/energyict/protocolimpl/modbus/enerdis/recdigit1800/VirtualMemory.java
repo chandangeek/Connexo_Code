@@ -3,7 +3,7 @@
  */
 package com.energyict.protocolimpl.modbus.enerdis.recdigit1800;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.io.IOException;
 import java.util.ArrayList;

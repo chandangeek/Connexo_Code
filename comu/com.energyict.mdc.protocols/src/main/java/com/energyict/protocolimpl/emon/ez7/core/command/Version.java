@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
@@ -33,7 +33,7 @@ public class Version extends AbstractCommand {
         return "Version: "+ getCompleteVersionString();
     }
 
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);

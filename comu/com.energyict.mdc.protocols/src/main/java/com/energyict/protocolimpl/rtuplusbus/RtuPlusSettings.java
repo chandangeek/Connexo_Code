@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.protocols.util.LittleEndianInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -56,24 +56,6 @@ public class RtuPlusSettings {
             setModemInit(littleEndianInputStream.readString(50));
             setModemInitAd1(littleEndianInputStream.readString(20));
             setModemInitAd2(littleEndianInputStream.readString(20));
-
-
-/*
-            setMaster((int)littleEndianInputStream.readByte()&0xFF);
-            if (versionLength == VERSION_LENGTH_131) {
-               setProfileInterval(((int)littleEndianInputStream.readByte()&0xFF)*60);
-               littleEndianInputStream.readByte(); // read dummy byte
-            }
-            else if ((versionLength == VERSION_LENGTH_132) || (versionLength == VERSION_LENGTH_133)) {
-               setProfileInterval(littleEndianInputStream.readLEShort());
-               setInstantInterval(littleEndianInputStream.readByte());
-            }
-            setProduktcode(littleEndianInputStream.readByte());
-            setNodeId(littleEndianInputStream.readByte());
-            setTariffMoment(littleEndianInputStream.readLEShort()); // is dummy in case of VERSION_LENGTH_131
-            setSerieNr(littleEndianInputStream.readLEShort());
-            // in VERSION_LENGTH_133 there is an extra byte CopyIoTimeOut which we do not use
- */
         }
         catch(IOException e) {
             return;
@@ -308,27 +290,4 @@ public class RtuPlusSettings {
         this.serieNr = serieNr;
     }
 
-    static public void main(String[] args) {
-        byte[] data = {
-            0x52,0x74,0x75,0x50,0x6C,0x75,0x73,0x33,0x32,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00
-            ,0x53,0x04,(byte)0xFF,0x47,(byte)0xB2,(byte)0xA6,0x22,0x38
-            ,0x41,0x54,0x53,0x30,0x3D,0x31,0x53,0x33,0x30,0x3D
-            ,0x36,0x53,0x33,0x36,0x3D,0x37,0x53,0x34,0x36,0x3D
-            ,0x31,0x33,0x36,0x53,0x34,0x38,0x3D,0x31,0x32,0x38
-            ,0x26,0x51,0x35,0x45,0x30,0x00,0x00,0x00,0x00,0x00
-            ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-            ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-            ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01
-            ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-            ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-            ,0x00
-            ,0x58,0x02
-            ,0x1E,0x00
-            ,0x03,0x00,0x00,0x07,0x00
-            ,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
-
-            RtuPlusSettings rtuPlusSettings = new RtuPlusSettings();
-            rtuPlusSettings.parse(data);
-            System.out.println(rtuPlusSettings.toString());
-    }
 }

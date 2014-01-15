@@ -7,8 +7,8 @@
 package com.energyict.protocolimpl.iec1107.eictrtuvdew;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;

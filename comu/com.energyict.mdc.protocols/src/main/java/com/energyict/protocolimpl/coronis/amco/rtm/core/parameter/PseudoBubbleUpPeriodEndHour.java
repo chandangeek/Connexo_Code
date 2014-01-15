@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;

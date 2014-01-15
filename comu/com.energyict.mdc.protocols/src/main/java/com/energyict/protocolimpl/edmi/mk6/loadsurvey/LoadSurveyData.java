@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk6.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk6.command.FileAccessSearchCommand;
 import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;

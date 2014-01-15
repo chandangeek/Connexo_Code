@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.util.HashMap;
 

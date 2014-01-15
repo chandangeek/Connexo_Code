@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.serial.optical.serialio;
 
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 
 import java.util.Arrays;
 import java.util.HashSet;

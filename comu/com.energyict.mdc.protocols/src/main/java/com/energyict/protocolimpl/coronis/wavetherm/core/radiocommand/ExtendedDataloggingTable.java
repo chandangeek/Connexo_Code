@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 import com.energyict.protocolimpl.coronis.wavetherm.core.parameter.OperatingMode;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -140,7 +141,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -161,7 +162,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

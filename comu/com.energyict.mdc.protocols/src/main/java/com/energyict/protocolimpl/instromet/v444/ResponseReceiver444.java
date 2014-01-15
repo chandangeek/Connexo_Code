@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.InstrometConnection;
 import com.energyict.protocolimpl.instromet.connection.ResponseReceiver;
 

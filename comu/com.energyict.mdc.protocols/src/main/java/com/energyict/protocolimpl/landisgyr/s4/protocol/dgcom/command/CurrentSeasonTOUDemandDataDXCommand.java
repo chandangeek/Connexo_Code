@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;

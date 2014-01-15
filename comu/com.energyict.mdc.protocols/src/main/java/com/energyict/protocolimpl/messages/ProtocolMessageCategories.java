@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages;
 
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 /**
  * Contains a summary of possible {@link com.energyict.protocol.messaging.MessageCategorySpec} for a protocol to implement

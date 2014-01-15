@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.ArrayList;

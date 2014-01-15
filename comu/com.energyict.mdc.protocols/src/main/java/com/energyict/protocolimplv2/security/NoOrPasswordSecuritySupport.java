@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,7 +82,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
                 new NoAuthenticationAccessLevel() :
                 new StandardAuthenticationAccessLevel();
 
-        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel.getId(), getAuthenticationAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {

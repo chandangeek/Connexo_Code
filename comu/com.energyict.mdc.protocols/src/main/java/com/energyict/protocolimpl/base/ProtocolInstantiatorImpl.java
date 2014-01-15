@@ -6,21 +6,21 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.DialinScheduleProtocol;
-import com.energyict.protocol.EventMapper;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MultipleLoadProfileSupport;
-import com.energyict.protocol.ProtocolInstantiator;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.mdc.protocol.api.DemandResetProtocol;
+import com.energyict.mdc.protocol.api.DialinScheduleProtocol;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.MultipleLoadProfileSupport;
+import com.energyict.mdc.protocol.api.SerialNumber;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolInstantiator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -210,7 +210,7 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
     }
 
     public List getRequiredKeys() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         if (this.configurationSupport != null) {
             for (PropertySpec propertySpec : this.configurationSupport.getRequiredProperties()) {
                 result.add(propertySpec.getKey());

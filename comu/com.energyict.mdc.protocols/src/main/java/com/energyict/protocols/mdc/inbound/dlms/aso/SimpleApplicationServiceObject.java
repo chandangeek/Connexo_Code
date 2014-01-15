@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.dlms.aso;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -11,7 +11,7 @@ import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
@@ -709,7 +709,7 @@ public class SimpleApplicationServiceObject {
     /**
      * @return a byteArray containing the callingAuthenticationValue(in other
      *         words, the password) coded as a graphical string...
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *          when the callingauthenticationvalue is not filled in
      */
     protected byte[] assembleCallingAuthenticationValue() throws ConnectionException {

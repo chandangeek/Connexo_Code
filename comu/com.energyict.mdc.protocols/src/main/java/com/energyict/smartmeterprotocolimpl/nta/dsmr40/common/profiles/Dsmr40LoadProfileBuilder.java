@@ -7,8 +7,9 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Providing functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData ProfileData} objects for {@link com.energyict.protocol.SmartMeterProtocol DSMR 4.0 SmartMeterProtocols}
+ * Providing functionality to fetch and create {@link com.energyict.mdc.protocol.api.device.data.ProfileData ProfileData} objects for {@link SmartMeterProtocol DSMR 4.0 SmartMeterProtocols}
  *
  * @author sva
  * @since 30/01/13 - 14:25
@@ -36,9 +37,9 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
 
     @Override
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerObject : registers) {
-            if (!registerObject.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
+            if (!"".equalsIgnoreCase(registerObject.getSerialNumber()) && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
                 if (this.getRegisterUnitMap().containsKey(registerObject)) {
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);

@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.iec1107.indigo;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

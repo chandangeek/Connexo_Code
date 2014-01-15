@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -195,7 +195,7 @@ public abstract class AbstractVDEWRegistry {
         // Pure VDEW
         if (str.indexOf("(ERROR)") != -1) {
             if (getMeterExceptionInfo() != null) {
-               str=ProtocolUtils.stripBrackets(str);
+               str= ProtocolUtils.stripBrackets(str);
                throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+") = "+getMeterExceptionInfo().getExceptionInfo(str));
             }
             else throw new VDEWException("AbstractVDEWRegister, validateData, error received ("+str+")");

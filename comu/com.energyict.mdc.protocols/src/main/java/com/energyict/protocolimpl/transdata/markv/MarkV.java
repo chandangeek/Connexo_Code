@@ -10,23 +10,21 @@
 
 package com.energyict.protocolimpl.transdata.markv;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -36,6 +34,7 @@ import com.energyict.protocolimpl.transdata.markv.core.commands.ObisCodeMapper;
 import com.energyict.protocolimpl.transdata.markv.core.commands.RegisterDataId;
 import com.energyict.protocolimpl.transdata.markv.core.commands.RegisterIdentification;
 import com.energyict.protocolimpl.transdata.markv.core.connection.MarkVConnection;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -288,24 +287,17 @@ public class MarkV extends AbstractProtocol {
             markV.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("CST"),Logger.getLogger("name"));
 
 // if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)markV).enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            if (DialerMarker.hasOpticalMarker(dialer)) {
+                markV.enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            }
 
             System.out.println("*********************** connect() ***********************");
 
 // connect to the meter
             markV.connect();
-            byte[] data=null;
 
-            //System.out.println(markV.getCommandFactory().getIICommand());
             System.out.println(markV.getCommandFactory().getGTCommand());
             System.out.println(markV.getCommandFactory().getMICommand());
-            //System.out.println(markV.getCommandFactory().getSCCommand());
-            //System.out.println(markV.getCommandFactory().getHCCommand());
-            //System.out.println(markV.getCommandFactory().getCCCommand());
-            //System.out.println(markV.getCommandFactory().getRVCommand(768));
-            //System.out.println(markV.getCommandFactory().getRCCommand(768));
-
 
             System.out.println("*********************** Meter information ***********************");
             System.out.println(markV.getNumberOfChannels());
@@ -337,7 +329,7 @@ public class MarkV extends AbstractProtocol {
                 e.printStackTrace();
             }
         }
-    } // MarkV
+    }
 
     public MarkVConnection getMarkVConnection() {
         return markVConnection;
@@ -353,10 +345,12 @@ public class MarkV extends AbstractProtocol {
      */
     public TimeZone getTimeZone() {
         try {
-            if (getCommandFactory().getISCommand().isDstEnabled())
+            if (getCommandFactory().getISCommand().isDstEnabled()) {
                 return super.getTimeZone();
-            else
+            }
+            else {
                 return ProtocolUtils.getWinterTimeZone(super.getTimeZone());
+            }
         }
         catch (IOException e) {
             getLogger().severe("getTimeZone(), Error requesting IS command!, use configured timezone, "+e.toString());
@@ -369,8 +363,10 @@ public class MarkV extends AbstractProtocol {
         getCommandFactory().issueTCCommand(nd);
         if (!verifySetTime(nd,getCommandFactory().getGCCommand().getDate())) {
             getCommandFactory().issueTCCommand(nd);
-            if (!verifySetTime(nd,getCommandFactory().getGCCommand().getDate()))
-                throw new IOException("MarkV, setDialinScheduleTime(), after 2 tries, the meter time still differs more then "+verifyTimeDelay+" ms (meter nextDialin="+getCommandFactory().getGCCommand().getDate()+", system nextDialin="+nd+")");
+            if (!verifySetTime(nd,getCommandFactory().getGCCommand().getDate())) {
+                throw new IOException("MarkV, setDialinScheduleTime(), after 2 tries, the meter time still differs more then " + verifyTimeDelay + " ms (meter nextDialin=" + getCommandFactory().getGCCommand()
+                        .getDate() + ", system nextDialin=" + nd + ")");
+            }
         }
     }
 
@@ -379,12 +375,14 @@ public class MarkV extends AbstractProtocol {
      * Because we are working in a terminal mode, we need to verify the time. verifyTimeDelay is a custom property
      * we need to check the returned time against...
      */
-    private boolean verifySetTime(Date src, Date dst) throws IOException {
+    private boolean verifySetTime(Date src, Date dst) {
         //Date system = new Date();
         //Date meter = getTime();
-        if (Math.abs(src.getTime() - dst.getTime()) > verifyTimeDelay)
-           return false;
-        else
-           return true;
+        if (Math.abs(src.getTime() - dst.getTime()) > verifyTimeDelay) {
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
@@ -213,7 +213,7 @@ public class Encryption {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(ProtocolUtils.stack2string(e));
 				}
 			}
 			if (baos != null) {
@@ -221,7 +221,7 @@ public class Encryption {
 					baos.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

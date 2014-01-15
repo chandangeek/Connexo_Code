@@ -1,11 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -75,10 +76,6 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
                 if (parityCheck) {
                     iNewKar &= 0x7F;
                 } // mask paritybit! if 7,E,1 cause we know we always receive ASCII here!
-                if (logger.isDebugEnabled()) {
-                    ProtocolUtils.outputHex((iNewKar));
-                }
-
                 if ((byte) iNewKar == NAK) {
                     sendBreak();
                 }
@@ -158,7 +155,7 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, protocol);
 
                 if ((strIdentConfig != null) && ("".compareTo(strIdentConfig) != 0)) {

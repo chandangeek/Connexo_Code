@@ -6,30 +6,30 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 /**
  * @author  Koen
  */
 public class AdditionalInformation extends MeterReadingsBlockImpl {
-    
+
 	private int mdDivisor;
-	private int cmdDivisor; 
+	private int cmdDivisor;
 	private int tariffFlags;
 	private int oldTariffFlags;
-    
+
 	private int mask;
-    
+
     /** Creates a new instance of AdditionalInformation */
     public AdditionalInformation(byte[] data) {
         super(data);
     }
-    
+
     protected void parse() throws java.io.IOException {
-     
+
         int subtyp = ProtocolUtils.byte2int(getData()[1]);
         int protcl = ProtocolUtils.byte2int(getData()[2]);
-        
+
         if (subtyp == 0) {
             if (protcl == 0) {
                 setTariffFlags(ProtocolUtils.getIntLE(getData(),4,2));
@@ -40,9 +40,9 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
                 setCmdDivisor(ProtocolUtils.getIntLE(getData(),5,2));
             } // if (protcl == 2)
             mask |= (0x01<<protcl);
-        } // if (subtyp == 0) 
-    } // protected void parse()    
-    
+        } // if (subtyp == 0)
+    } // protected void parse()
+
     protected String print() {
         StringBuffer strBuff = new StringBuffer();
         boolean pre=false;
@@ -54,11 +54,11 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
            if (pre) {
 			strBuff.append(", ");
 		}
-           strBuff.append("TARIFFFLAGS="+getTariffFlags()+", OLDTARFLAGS="+getOldTariffFlags()); 
+           strBuff.append("TARIFFFLAGS="+getTariffFlags()+", OLDTARFLAGS="+getOldTariffFlags());
         }
         return strBuff.toString();
-    }    
-    
+    }
+
     /** Getter for property mdDivisor.
      * @return Value of property mdDivisor.
      *
@@ -66,7 +66,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public int getMdDivisor() {
         return mdDivisor;
     }
-    
+
     /** Setter for property mdDivisor.
      * @param mdDivisor New value of property mdDivisor.
      *
@@ -74,7 +74,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public void setMdDivisor(int mdDivisor) {
         this.mdDivisor = mdDivisor;
     }
-    
+
     /** Getter for property cmdDivisor.
      * @return Value of property cmdDivisor.
      *
@@ -82,7 +82,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public int getCmdDivisor() {
         return cmdDivisor;
     }
-    
+
     /** Setter for property cmdDivisor.
      * @param cmdDivisor New value of property cmdDivisor.
      *
@@ -90,7 +90,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public void setCmdDivisor(int cmdDivisor) {
         this.cmdDivisor = cmdDivisor;
     }
-    
+
     /** Getter for property tariffFlags.
      * @return Value of property tariffFlags.
      *
@@ -98,7 +98,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public int getTariffFlags() {
         return tariffFlags;
     }
-    
+
     /** Setter for property tariffFlags.
      * @param tariffFlags New value of property tariffFlags.
      *
@@ -106,7 +106,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public void setTariffFlags(int tariffFlags) {
         this.tariffFlags = tariffFlags;
     }
-    
+
     /** Getter for property oldTariffFlags.
      * @return Value of property oldTariffFlags.
      *
@@ -114,7 +114,7 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public int getOldTariffFlags() {
         return oldTariffFlags;
     }
-    
+
     /** Setter for property oldTariffFlags.
      * @param oldTariffFlags New value of property oldTariffFlags.
      *
@@ -122,5 +122,5 @@ public class AdditionalInformation extends MeterReadingsBlockImpl {
     public void setOldTariffFlags(int oldTariffFlags) {
         this.oldTariffFlags = oldTariffFlags;
     }
-    
+
 }

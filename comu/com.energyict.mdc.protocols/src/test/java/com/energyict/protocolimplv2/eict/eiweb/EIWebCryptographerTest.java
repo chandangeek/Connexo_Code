@@ -1,17 +1,17 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
-import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
-import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.crypto.MD5Seed;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.InboundConnectionTask;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.device.Device;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
      */
     @Test(expected = NotFoundException.class)
     public void testBuildMD5SeedForNonExistingDevice() {
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
         doThrow(NotFoundException.class).when(inboundDAO).getDeviceConnectionTypeProperties(deviceIdentifier, comPort);
@@ -57,7 +57,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
      */
     @Test(expected = CommunicationException.class)
     public void testBuildMD5SeedWithoutConnectionTypeProperties() {
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
         when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(null);
@@ -73,7 +73,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
     @Test
     public void testBuildMD5SeedExistingDevice() {
         Device device = mock(Device.class);
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
@@ -96,7 +96,7 @@ public class EIWebCryptographerTest extends AbstractEIWebTests {
     @Test
     public void testWasUsed() {
         Device device = mock(Device.class);
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);

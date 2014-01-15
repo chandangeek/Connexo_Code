@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -39,7 +39,7 @@ public class ModbusTCPConnection extends ModbusConnection {
      * @param responseTimeout
      * @param physicalLayer
      * @param unitIdentifier    the device slave address
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *
      */
     public ModbusTCPConnection(InputStream inputStream, OutputStream outputStream, int timeout, int maxRetries, long forcedDelay, int echoCancelling, HalfDuplexController halfDuplexController, int interframeTimeout, int responseTimeout, int physicalLayer, int unitIdentifier) throws ConnectionException {
@@ -140,7 +140,7 @@ public class ModbusTCPConnection extends ModbusConnection {
      * @param requestData
      * @throws NestedIOException
      *
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *
      */
     @Override

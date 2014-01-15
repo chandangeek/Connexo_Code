@@ -9,17 +9,17 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12.tables;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 /**
  *
  * @author Koen
  */
 public class IdentificationFeature {
-    
+
     private int authenticationType;
     private int authentificationAlgorithm;
     private byte[] ticket;
-    
+
     /** Creates a new instance of IdentificationFeature */
     public IdentificationFeature() {
     }
@@ -27,7 +27,7 @@ public class IdentificationFeature {
     public String toString() {
         return "IdentificationFeature: authenticationType="+getAuthenticationType()+", authentificationAlgorithm="+getAuthentificationAlgorithm()+", ticket="+ProtocolUtils.outputHexString(getTicket());
     }
-    
+
     public int getAuthenticationType() {
         return authenticationType;
     }
@@ -51,5 +51,5 @@ public class IdentificationFeature {
     public void setTicket(byte[] ticket) {
         this.ticket = ticket;
     }
-    
+
 }

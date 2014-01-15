@@ -8,8 +8,8 @@
 package com.energyict.protocolimpl.actarissevc;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.Calculate;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.Calculate;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.math.BigDecimal;
 
@@ -60,10 +60,10 @@ public abstract class SEVCDataParse {
 
         }
         return null;
-    } // protected Number getValue(byte[] data)
+    }
 
     private Number getfp(byte[] data) {
-        return (Calculate.convertIEEE32fp2NumberLE(data, getOffset()/2));
+        return (Calculate.convertIEEE32fp2NumberLE(data, getOffset() / 2));
     }
 
     private Number getVolume(byte[] data) {
@@ -73,4 +73,4 @@ public abstract class SEVCDataParse {
         return new BigDecimal(str);
     }
 
-} // abstract public class SEVCDataParse
+}

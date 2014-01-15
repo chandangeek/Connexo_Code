@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 
 import java.util.List;
 

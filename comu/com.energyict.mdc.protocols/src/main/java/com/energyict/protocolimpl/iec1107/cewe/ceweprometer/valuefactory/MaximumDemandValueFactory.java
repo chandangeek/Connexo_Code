@@ -5,7 +5,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;

@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -139,7 +140,7 @@ public class EncryptionKeyInitialization {
                         baos.close();
                     }
                     catch(IOException e) {
-                        abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                     }
                 }
             }
@@ -188,7 +189,7 @@ public class EncryptionKeyInitialization {
                         baos.close();
                     }
                     catch(IOException e) {
-                        abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                     }
                 }
             }
@@ -230,7 +231,7 @@ public class EncryptionKeyInitialization {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }
@@ -279,7 +280,7 @@ public class EncryptionKeyInitialization {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

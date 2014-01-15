@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

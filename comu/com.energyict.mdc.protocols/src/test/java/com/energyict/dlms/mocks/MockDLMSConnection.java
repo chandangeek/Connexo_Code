@@ -3,7 +3,7 @@
  */
 package com.energyict.dlms.mocks;
 
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 

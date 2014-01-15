@@ -1,36 +1,39 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.comserver.exceptions.DuplicateException;
-import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.Register;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.FindMultipleDevices;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses an {@link com.energyict.mdw.core.Device}'s Call Home ID to uniquely identify it.
+ * that uses an {@link Device}'s Call Home ID to uniquely identify it.
  *
  * @author sva
  * @since 26/10/12 (11:26)
  */
-public class DialHomeIdDeviceIdentifier implements CanFindDevice, FindMultipleDevices {
+public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-    public static final com.energyict.cpo.PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
 
     private final String callHomeID;
     private Device device;
-    private List<Device> allDevices;
+    private List<Device<Channel, LoadProfile<Channel>, Register>> allDevices;
 
     public DialHomeIdDeviceIdentifier(String callHomeId) {
         super();
@@ -55,8 +58,12 @@ public class DialHomeIdDeviceIdentifier implements CanFindDevice, FindMultipleDe
     }
 
     private void fetchAllDevices() {
-        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
-        this.allDevices = deviceFactory.findByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, callHomeID);
+        List<Device<Channel, LoadProfile<Channel>, Register>> allDevices = new ArrayList<>();
+        List<DeviceFactory> deviceFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
+        for (DeviceFactory deviceFactory : deviceFactories) {
+            allDevices.addAll(deviceFactory.findDevicesByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, this.getIdentifier()));
+        }
+        this.allDevices = allDevices;
     }
 
     @Override
@@ -77,8 +84,10 @@ public class DialHomeIdDeviceIdentifier implements CanFindDevice, FindMultipleDe
         List<OfflineDevice> allOfflineDevices = new ArrayList<>();
         OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
         for (Device deviceToGoOffline : this.allDevices) {
-            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
+            OfflineDevice offline = (OfflineDevice) deviceToGoOffline.goOffline(offlineDeviceContext);
+            allOfflineDevices.add(offline);
         }
         return allOfflineDevices;
     }
+
 }

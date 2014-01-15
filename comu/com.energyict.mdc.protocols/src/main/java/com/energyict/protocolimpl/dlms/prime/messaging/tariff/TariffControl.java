@@ -10,7 +10,7 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.dlms.prime.messaging.PrimeMessageExecutor;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.B04;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;

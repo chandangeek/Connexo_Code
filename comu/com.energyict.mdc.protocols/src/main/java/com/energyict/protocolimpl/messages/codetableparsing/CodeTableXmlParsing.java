@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -96,18 +98,9 @@ public class CodeTableXmlParsing {
     }
 
     /**
-     * Getter for the current {@link com.energyict.mdw.core.MeteringWarehouse}
-     *
-     * @return the current {@link com.energyict.mdw.core.MeteringWarehouse}
-     */
-    private static MeteringWarehouse mw() {
-        return MeteringWarehouse.getCurrent();
-    }
-
-    /**
      * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
      *
-     * @param id             the id of the {@link com.energyict.mdw.core.Code}
+     * @param id             the id of the {@link Code}
      * @param activationTime the time to activate the new calendar(epoch time) Possible values:
      *                       <ul>
      *                       <li> <code>0</code> : calendar isn't activated
@@ -169,7 +162,7 @@ public class CodeTableXmlParsing {
     /**
      * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
      *
-     * @param codeTable     the {@link com.energyict.mdw.core.Code codeTable}
+     * @param codeTable     the {@link Code codeTable}
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
@@ -436,13 +429,14 @@ public class CodeTableXmlParsing {
     }
 
     /**
-     * Getter for the {@link com.energyict.mdw.core.Code}
+     * Getter for the {@link Code}
      *
      * @param id the ID of the CodeTable
      * @return the desired CodeTable
      */
     protected static Code getCode(int id) {
-        return mw().getCodeFactory().find(id);
+        IdBusinessObjectFactory factory = (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
+        return (Code) factory.get(id);
     }
 
     /**

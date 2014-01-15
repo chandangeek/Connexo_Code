@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
@@ -143,7 +143,7 @@ abstract class AbstractTransparentObjectAccess {
                         baos.close();
                     }
                     catch(IOException e) {
-                        abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                     }
                 }
             }
@@ -190,7 +190,7 @@ abstract class AbstractTransparentObjectAccess {
                     dais.close();
                 }
                 catch(IOException e) {
-                    abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    abstractDLMS.getLogger().severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

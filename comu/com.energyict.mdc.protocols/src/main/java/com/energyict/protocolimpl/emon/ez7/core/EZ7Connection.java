@@ -7,15 +7,16 @@
 package com.energyict.protocolimpl.emon.ez7.core;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.base.SecurityLevelException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
                          int maxRetries,
                          long forcedDelay,
                          int echoCancelling,
-                         HalfDuplexController halfDuplexController) throws ConnectionException {
+                         HalfDuplexController halfDuplexController) {
           super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
           this.timeout = timeout;
           this.maxRetries=maxRetries;
@@ -60,20 +61,23 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
         return sendCommand(cmd, data, true);
     }
 
-    public byte[] sendCommand(String cmd, String data, boolean receive) throws ConnectionException,NestedIOException {
+    public byte[] sendCommand(String cmd, String data, boolean receive) throws ConnectionException, NestedIOException {
         int retry=0;
         while(true) {
             try {
                 String command = nodeId+"*."+cmd+(data==null?"":(" "+data));
-                String crc = ProtocolUtils.buildStringHex(CRCGenerator.calcCRCFull(("!"+command).getBytes()),4);
+                String crc = ProtocolUtils.buildStringHex(CRCGenerator.calcCRCFull(("!" + command).getBytes()), 4);
                 sendOut(("!"+command+" "+crc+"\r").getBytes());
                 if (receive) {
                     byte[] responseData = receiveResponse(command.getBytes());
-                    if ((responseData.length == 5) && (responseData[2] == '?'))
-                        throw new SecurityLevelException("EZ7Connection, sendCommand("+cmd+"), possibly wrong access level! Log onto the meter with the correct password!");
+                    if ((responseData.length == 5) && (responseData[2] == '?')) {
+                        throw new SecurityLevelException("EZ7Connection, sendCommand(" + cmd + "), possibly wrong access level! Log onto the meter with the correct password!");
+                    }
                     return responseData;
                 }
-                else return null;
+                else {
+                    return null;
+                }
 
             }
             catch(SecurityLevelException e) {
@@ -85,7 +89,7 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
                 }
             }
         }
-    } // public byte[] sendCommand(String command, String data) throws ConnectionException
+    }
 
 
     private static final byte STATE_WAIT_FOR_START=0;
@@ -108,18 +112,14 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
         resultArrayOutputStream.reset();
         allDataArrayOutputStream.reset();
 
-        if (DEBUG == 1) System.out.println("doReceiveData(...):");
+        if (DEBUG == 1) {
+            System.out.println("doReceiveData(...):");
+        }
         copyEchoBuffer();
 
         while(true) {
 
             if ((kar = readIn()) != -1) {
-                if (DEBUG == 1) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
-                }
-
-
                 switch(state) {
                     case STATE_WAIT_FOR_START: {
                         if ((byte)kar == '@') {
@@ -131,8 +131,9 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
 
                     case STATE_WAIT_FOR_COMMAND_ECHO: {
                         allDataArrayOutputStream.write(kar);
-                        if ((int)(command[count]&0xFF) != kar)
-                            throw new ProtocolConnectionException("doReceiveData() response frame error",FRAME_ERROR);
+                        if ((command[count]&0xFF) != kar) {
+                            throw new ProtocolConnectionException("doReceiveData() response frame error", FRAME_ERROR);
+                        }
                         if (count++>=(command.length-1)) {
                             endFrameCount=0;
                             state = STATE_WAIT_FOR_DATA;
@@ -142,8 +143,9 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
                     case STATE_WAIT_FOR_DATA: {
 
                         // In case of high timeouts and defective meter, an outofmemory could happen. So, limit the receivebuffer!
-                        if (allDataArrayOutputStream.size() > 100000)
-                            throw new ProtocolConnectionException("doReceiveData() response data > 100K!",PROTOCOL_ERROR);
+                        if (allDataArrayOutputStream.size() > 100000) {
+                            throw new ProtocolConnectionException("doReceiveData() response data > 100K!", PROTOCOL_ERROR);
+                        }
 
                         resultArrayOutputStream.write(kar);
                         allDataArrayOutputStream.write(kar);
@@ -160,10 +162,12 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
                                System.out.println("GEN="+crcGen+", RX="+crcRx.toLowerCase());
                             }
 
-                            if (crcGen.compareTo(crcRx.toLowerCase())!= 0)
-                                throw new ProtocolConnectionException("doReceiveData() response crc error",CRC_ERROR);
-                            else
+                            if (crcGen.compareTo(crcRx.toLowerCase())!= 0) {
+                                throw new ProtocolConnectionException("doReceiveData() response crc error", CRC_ERROR);
+                            }
+                            else {
                                 return result;
+                            }
                         }
 
                     } // STATE_WAIT_FOR_DATA
@@ -172,10 +176,10 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("doReceiveData() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("doReceiveData() interframe timeout error",TIMEOUT_ERROR);
             }
         } // while(true)
@@ -184,8 +188,9 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
     private boolean endFrameReceived(int kar) {
         if ((char)kar == endFrame[endFrameCount]) {
            endFrameCount++;
-           if (endFrameCount == endFrame.length)
+           if (endFrameCount == endFrame.length) {
                return true;
+           }
         }
         else {
            endFrameCount=0;
@@ -193,7 +198,7 @@ public class EZ7Connection extends Connection  implements ProtocolConnection {
         return false;
     }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         this.nodeId=nodeId;
         return null;
     }

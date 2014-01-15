@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk10.command;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterUnitParser;

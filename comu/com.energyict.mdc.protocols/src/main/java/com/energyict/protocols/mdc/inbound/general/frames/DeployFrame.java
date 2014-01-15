@@ -1,10 +1,15 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocols.mdc.services.impl.Bus;
+
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -25,11 +30,25 @@ public class DeployFrame extends AbstractInboundFrame {
 
     @Override
     public void doParse() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber("CORRECT_MY_SERIALNUMBER"));
+        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber("CORRECT_MY_SERIALNUMBER"));
         String meterType = getInboundParameters().getMeterType();
         //TODO use info for topology
 
-        deviceTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
+        deviceTopology.setFailureInformation(
+                ResultType.InCompatible,
+                Bus.getIssueService().newIssueCollector()
+                    .addWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
         getCollectedDatas().add(deviceTopology);
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

@@ -15,11 +15,11 @@ KV|06092005|VDEW changed to do channel mapping!
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 
 import java.io.IOException;

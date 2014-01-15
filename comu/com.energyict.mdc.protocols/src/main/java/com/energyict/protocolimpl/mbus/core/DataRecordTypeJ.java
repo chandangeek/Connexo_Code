@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -21,27 +21,27 @@ import java.util.TimeZone;
  * @author kvds
  */
 public class DataRecordTypeJ extends AbstractDataRecordType {
-    
+
     private Calendar calendar;
     TimeZone timeZone;
-    
-    
+
+
     /**
-     * Creates a new instance of DataRecordTypeJ 
+     * Creates a new instance of DataRecordTypeJ
      */
     public DataRecordTypeJ(TimeZone timeZone) {
         this.timeZone=timeZone;
     }
-    
-    
+
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DataRecordTypeJ");
         strBuff.append("   calendar="+getCalendar().getTime()+"\n");
         return strBuff.toString();
-    }  
-    
+    }
+
     protected void doParse(byte[] data) throws IOException {
         setCalendar(Calendar.getInstance(timeZone));
         getCalendar().set(Calendar.SECOND,ProtocolUtils.getInt(data,0,1)&0x3F);

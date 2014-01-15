@@ -1,6 +1,6 @@
 package com.energyict.encryption;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 public class BitVector {
 	private byte[] value;
@@ -168,7 +168,7 @@ public class BitVector {
 	/**
 	 * checks is a bit is set, bits are numbered from 0 onwards, bit 0 being the
 	 * LSB
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isBitSet(int bitnumber) {
@@ -209,7 +209,7 @@ public class BitVector {
 		}
 		return result;
 	}
-	
+
 	public BitVector Msb2(int n){
 		BitVector result = new BitVector(n);
 		result.setValue(ProtocolUtils.getSubArray2(this.getValue(), 0, n));

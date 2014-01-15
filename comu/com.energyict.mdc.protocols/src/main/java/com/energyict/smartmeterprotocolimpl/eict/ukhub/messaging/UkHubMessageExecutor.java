@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -14,8 +13,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ProfileGeneric;
@@ -29,22 +26,17 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
-import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
@@ -115,7 +107,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean zigbeeNCPFirmwareUpgrade = messageHandler.getType().equals(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
             boolean modemPingSetup = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
             boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-            boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
             boolean xmlCOnfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
             boolean enableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_ENABLE);
             boolean disableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_DISABLE);
@@ -149,8 +140,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 firmwareUpdate(messageHandler, content, trackingId);
             } else if (zigbeeNCPFirmwareUpgrade) {
                 zigbeeNCPFirmwareUpdate(messageHandler, content);
-            } else if (testMessage) {
-                testMessage(messageHandler);
             } else if (xmlCOnfig) {
                 xmlConfigMessage(content);
             } else if (enableWebserver) {
@@ -256,14 +245,9 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
 
         if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
+            throw new IOException("Not a valid entry for the userFile.");
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
 
         String[] parts = content.split("=");
         Date date = null;
@@ -300,6 +284,17 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private UserFile findUserFile(int userFileID) {
+        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
+        for (UserFileFactory codeFactory : factories) {
+            UserFile userFile = codeFactory.findUserFile(userFileID);
+            if (userFile != null) {
+                return userFile;
+            }
+        }
+        return null;
+    }
+
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
         getLogger().info("Executing Zigbee NCP firmware update message");
         try {
@@ -308,7 +303,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 throw new IOException("Invalid UserFileId value : " + userFileId);
             }
 
-            UserFile uf = mw().getUserFileFactory().find(userFileId);
+            UserFile uf = this.findUserFile(userFileId);
             if (uf == null) {
                 throw new IOException("No UserFile found with ID : " + userFileId);
             }
@@ -412,10 +407,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         System.out.println(status);
         System.out.println("\n");
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, status.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, status.getBytes("UTF-8"), "txt");
+        this.createUserFile(ufs);
 
         log(Level.INFO, "Stored ZigBee status parameters in userFile: " + fileName);
+    }
+
+    private UserFile createUserFile(UserFileShadow shadow) throws SQLException, BusinessException {
+        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
+        for (UserFileFactory codeFactory : factories) {
+            return codeFactory.createUserFile(shadow);
+        }
+        throw new BusinessException("noModuleToCreateUserFile", "Failure to create UserFile because no module is available to do it");
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
@@ -425,7 +428,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             throw new IOException("Invalid UserFileId value : " + userFileId);
         }
 
-        UserFile uf = mw().getUserFileFactory().find(userFileId);
+        UserFile uf = this.findUserFile(userFileId);
         if (uf == null) {
             throw new IOException("No UserFile found with ID : " + userFileId);
         }
@@ -480,8 +483,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         hanBackupData.setLinkKey(linkKey);
         hanBackupData.setNetworkKey(networkKey);
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), hanBackupData.getBEREncodedByteArray(), getFolderIdFromHub(), "bin");
-        mw().getUserFileFactory().create(ufs);
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), hanBackupData.getBEREncodedByteArray(), "bin");
+        this.createUserFile(ufs);
         log(Level.INFO, "Backed-up ZigBee parameters in userFile : ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber());
     }
 
@@ -592,8 +595,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), "txt");
+        this.createUserFile(ufs);
 
         log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
     }
@@ -652,8 +655,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), "txt");
+        this.createUserFile(ufs);
 
         log(Level.INFO, "Stored readout of Elster logbook in userFile: " + fileName);
     }
@@ -732,182 +735,4 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         return getDlmsSession().getTimeZone();
     }
 
-    /*****************************************************************************/
-    /* These methods require database access ...
-    /*****************************************************************************/
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
-    }
-
-    private Device getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Device> rtusWithSameSerialNumber = mw().getDeviceFactory().findBySerialNumber(serial);
-        for (Device each : rtusWithSameSerialNumber) {
-            if (((String) each.getProtocolProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
-                return each;
-            }
-        }
-        throw new IOException("Could not find the EiServer rtu.");
-    }
-
-    private int getFolderIdFromHub() throws IOException {
-        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
-    }
-
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
-        log(Level.INFO, "Handling message TestMessage");
-        int failures = 0;
-        String userFileId = messageHandler.getTestUserFileId();
-        Date currentTime;
-        if (!"".equalsIgnoreCase(userFileId)) {
-            if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
-                if (uf != null) {
-                    byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser();
-                    csvParser.parse(data);
-                    boolean hasWritten;
-                    TestObject to = new TestObject("");
-                    for (int i = 0; i < csvParser.size(); i++) {
-                        to = csvParser.getTestObject(i);
-                        if (csvParser.isValidLine(to)) {
-                            currentTime = new Date(System.currentTimeMillis());
-                            hasWritten = false;
-                            try {
-                                switch (to.getType()) {
-                                    case 0: { // GET
-                                        GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-                                        to.setResult("0x" + ParseUtils.decimalByteToString(gr.getResponseData()));
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 1: { // SET
-                                        GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-                                        gw.write(ParseUtils.hexStringToByteArray(to.getData()));
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 2: { // ACTION
-                                        GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if ("".equalsIgnoreCase(to.getData())) {
-                                            gi.invoke();
-                                        } else {
-                                            gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
-                                        }
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 3: { // MESSAGE
-                                        //TODO this form of Messages is not supported, change it according to the new DeviceMessage support
-//                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-//                                        rms.setContents(csvParser.getTestObject(i).getData());
-//                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
-//                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-//                                        doMessage(rm);
-//                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-//                                            to.setResult("OK");
-//                                        } else {
-//                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-//                                        }
-//                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 4: { // WAIT
-                                        waitCyclus(Integer.parseInt(to.getData()));
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 5: {
-                                        // do nothing, it's no valid line
-                                    }
-                                    break;
-                                    default: {
-                                        throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
-                                    }
-                                }
-                                to.setTime(currentTime.getTime());
-
-                                // Check if the expected value is the same as the result
-                                if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
-                                    to.setResult("Failed - " + to.getResult());
-                                    failures++;
-                                    log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
-                                } else {
-                                    log(Level.INFO, "Test " + i + " has successfully finished.");
-                                }
-
-                            } catch (Exception e) {
-                                if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
-                                        to.setResult(e.getMessage());
-                                        log(Level.INFO, "Test " + i + " has successfully finished.");
-                                        hasWritten = true;
-                                    } else {
-                                        log(Level.INFO, "Test " + i + " has failed.");
-                                        String eMessage;
-                                        if (e.getMessage().contains("\r\n")) {
-                                            eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
-                                        } else {
-                                            eMessage = e.getMessage();
-                                        }
-                                        to.setResult("Failed. " + eMessage);
-                                        hasWritten = true;
-                                        failures++;
-                                    }
-                                    to.setTime(currentTime.getTime());
-                                }
-                            } finally {
-                                if (!hasWritten) {
-                                    to.setResult("Failed - Unknow exception ...");
-                                    failures++;
-                                    to.setTime(currentTime.getTime());
-                                }
-                            }
-                        }
-                    }
-                    if (failures == 0) {
-                        csvParser.addLine("All the tests are successfully finished.");
-                    } else {
-                        csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
-                    }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getFolderIdFromHub()));
-                } else {
-                    throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
-                }
-            } else {
-                throw new IOException("UserFileId is not a valid number");
-            }
-        } else {
-            throw new IOException("No userfile id is given.");
-        }
-    }
-
-    private void waitCyclus(int delay) throws IOException {
-        try {
-            int nrOfPolls = (delay / (20)) + (delay % (20) == 0 ? 0 : 1);
-            for (int i = 0; i < nrOfPolls; i++) {
-                if (i < nrOfPolls - 1) {
-                    ProtocolTools.delay(20000);
-                } else {
-                    ProtocolTools.delay((delay - (i * (20))) * 1000);
-                }
-                log(Level.INFO, "Keeping connection alive");
-                getCosemObjectFactory().getClock().getDateTime();
-            }
-        } catch (IOException e) {
-            throw new IOException("Could not keep connection alive." + e.getMessage());
-        }
-    }
 }

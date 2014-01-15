@@ -18,7 +18,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.attributes.ClockAttributes;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -116,9 +116,6 @@ public class Clock extends AbstractCosemObject {
 		} else {
             byte[] responseData;
             responseData = getResponseData(ClockAttributes.TIME);
-            if (DEBUG == 1) {
-				ProtocolUtils.printResponseData(responseData);
-			}
             return getDateTime(responseData,protocolLink.getRoundTripCorrection());
         }
     }

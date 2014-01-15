@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.Calculate;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.Calculate;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class ABBA230LoadProfileEntry implements ABBA230ProfileEntry {
             isValue = true;
             for (int i=0;i<nrOfChannels;i++) {
                 long val = (int)Long.parseLong(Long.toHexString(ProtocolUtils.getLong(bai,3)));
-                values[i] = (val/10) * Calculate.exp(val%10);
+                values[i] = (val/10) * Calculate.exp(val % 10);
             }
         }
     }

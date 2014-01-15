@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

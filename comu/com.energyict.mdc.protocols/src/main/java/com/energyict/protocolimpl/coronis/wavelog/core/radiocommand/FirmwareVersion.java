@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.wavelog.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -44,7 +45,7 @@ public class FirmwareVersion extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveLog().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveLog().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

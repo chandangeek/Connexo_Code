@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 
@@ -19,8 +19,8 @@ import java.io.IOException;
  */
 public class ABBA1700DataIdentity {
 
-    static protected final boolean STREAMEABLE=true;
-    static protected final boolean NOT_STREAMEABLE=false;
+    protected static final boolean STREAMEABLE=true;
+    protected static final boolean NOT_STREAMEABLE=false;
 
     private byte[][] dataBlocks=null;
 

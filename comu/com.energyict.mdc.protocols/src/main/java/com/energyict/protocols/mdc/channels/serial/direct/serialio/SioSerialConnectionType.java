@@ -1,16 +1,16 @@
 package com.energyict.protocols.mdc.channels.serial.direct.serialio;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
 import com.energyict.protocols.mdc.channels.serial.AbstractSerialConnectionType;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -58,7 +58,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     protected PropertySpec<BigDecimal> baudRatePropertySpec() {
         return
             PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
+                forClass(new BigDecimalFactory()).
                 name(SerialPortConfiguration.BAUDRATE_NAME).
                 markExhaustive().
                 markRequired().
@@ -88,7 +88,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {
         PropertySpecBuilder<BigDecimal> builder =
             PropertySpecBuilder.
-                forClass(BigDecimal.class, new BigDecimalFactory()).
+                forClass(new BigDecimalFactory()).
                 name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
                 markRequired().
                 markExhaustive().

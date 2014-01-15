@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

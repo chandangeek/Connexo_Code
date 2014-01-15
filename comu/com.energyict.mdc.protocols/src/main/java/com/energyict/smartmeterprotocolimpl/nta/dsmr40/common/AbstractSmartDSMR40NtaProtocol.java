@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;

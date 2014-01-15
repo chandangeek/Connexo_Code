@@ -1,33 +1,34 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.RegisterFactory;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.protocol.api.device.Register;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdw.amr.Register} based on the ObisCode
- * of the {@link com.energyict.mdw.amr.RegisterMapping RegisterMapping} or the
- * {@link com.energyict.mdw.amr.RegisterSpec#getDeviceObisCode() RegisterSpec.getDeviceObisCode}
- *
+ * Implementation of a {@link RegisterIdentifier} that uniquely identifies
+ * a {@link Register} based on the ObisCode of the mapping or the
+ * ObisCode of the register spec.
  *
  * Copyrights EnergyICT
  * Date: 13/05/13
  * Time: 13:24
  */
-public class RegisterDataIdentifierByObisCodeAndDevice implements CanFindRegister {
+public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdentifier {
 
     private final ObisCode registerObisCode;
-    private final CanFindDevice deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
     private final ObisCode deviceRegisterObisCode;
 
     private Register register;
 
-    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, CanFindDevice deviceIdentifier) {
+    public RegisterDataIdentifierByObisCodeAndDevice(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier deviceIdentifier) {
         this.registerObisCode = registerObisCode;
         this.deviceRegisterObisCode = deviceRegisterObisCode;
         this.deviceIdentifier = deviceIdentifier;
@@ -35,14 +36,19 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements CanFindRegiste
 
     @Override
     public Register findRegister () {
-        if(this.register == null){
-            final List<Register> registers = MeteringWarehouse.getCurrent().getRegisterFactory().findByRtu(deviceIdentifier.findDevice());
+        if (this.register == null) {
+            List<Register> registers = new ArrayList<>();
+            List<RegisterFactory> registerFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(RegisterFactory.class);
+            Device device = deviceIdentifier.findDevice();
+            for (RegisterFactory factory : registerFactories) {
+                registers.addAll(factory.findRegistersByDevice(device));
+            }
             for (Register register : registers) {
                 // first need to check the DeviceObisCde
-                if (register.getRegisterSpec().getDeviceObisCode() != null && register.getRegisterSpec().getDeviceObisCode().equals(registerObisCode)){
+                if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)){
                     this.register = register;
                     break;
-                } else if(register.getRegisterMapping().getObisCode().equals(registerObisCode)){
+                } else if(register.getRegisterMappingObisCode().equals(registerObisCode)){
                     this.register = register;
                     break;
                 }
@@ -66,7 +72,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements CanFindRegiste
         return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
     }
 
-    public CanFindDevice getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 }

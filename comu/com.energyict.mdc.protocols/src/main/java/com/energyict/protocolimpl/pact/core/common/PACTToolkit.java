@@ -6,15 +6,11 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.TimeZone;
 
 /**
  *
@@ -137,61 +133,6 @@ public class PACTToolkit {
 		return file.getAbsolutePath();
 	}
 
-	private String splitFile(String filename, String daysStr, int blocksParDay) {
-		try {
-			File file = new File(filename);
-			int length = (int) file.length();
-			FileInputStream fis = new FileInputStream(file);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-			byte[] readings = new byte[0x2C8];
-			fis.read(readings);
-			baos.write(readings);
-			readings = new byte[blocksParDay * 8];
-			String[] days = daysStr.split(",");
-			for (int i = 0; i < days.length; i++) {
-				fis.read(readings);
-				if (days[i].compareTo("1") == 0) {
-					baos.write(readings);
-				}
-			}
-			fis.close();
-			file = new File(filename + "split");
-			FileOutputStream fos = new FileOutputStream(file);
-			fos.write(baos.toByteArray());
-			fos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return filename + "split";
-	}
-
-	static public void main(String[] args) {
-
-		PACTToolkit pactToolkit = new PACTToolkit(8234, "FCCA766563FA4F44E00BA59B6F26FF7EE8BBD2CCE970D571", 0);
-		System.out.println(pactToolkit.getVersion());
-
-		try {
-			Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+1"));
-			ProtocolUtils.printResponseData(pactToolkit.generateTimeSetMessage(calendar, 0, 0));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-
-			System.out.println("return value: "
-					+ pactToolkit.validateData(pactToolkit.splitFile(
-							"C:/Documents and Settings/koen/netbeansproject/working/20194874.bin",
-							"1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1", 52))); // 9422857.bin"));
-			// System.out.println("return value: "+pactToolkit.validateData(pactToolkit.getFullPath("readings2.bin")));
-			// System.out.println("return value: "+pactToolkit.validateData("readings.bin"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	} // static public void main(String[] args)
-
 	private native int authenticateReadings(String fileName, int highKeyRef, String highKey, int lowKey);
 
 	private native int generateTimeSetMessage(int hour, int min, int second, int date, int month, int year,
@@ -199,4 +140,4 @@ public class PACTToolkit {
 
 	public native String getVersion();
 
-}// public class PACTToolkit
+}

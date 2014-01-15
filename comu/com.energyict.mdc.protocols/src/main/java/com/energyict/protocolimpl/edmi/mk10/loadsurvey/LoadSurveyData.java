@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk10.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
@@ -49,11 +49,11 @@ public class LoadSurveyData {
 
         long beforeUpdatedFirstEntry = 0;
         long afterUpdatedFirstEntry = 0;
-        
+
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        
+
         int records = 0;
-        
+
 		FileAccessReadCommand farc;
 		long startRecord;
 
@@ -61,33 +61,33 @@ public class LoadSurveyData {
 		long first = getLoadSurvey().getFirstEntry();
 		Date loadSurveyStartDate = getLoadSurvey().getStartTime();
 		Date firstdate = new Date();
-		
+
 		do{
             if (DEBUG==-1) {
     			System.out.println("GNA -> getLoadSurvey().getFirstEntry() 1 : "+ getLoadSurvey().getFirstEntry());
     			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 1 : "+ getLoadSurvey().getUpdatedFirstEntry());
     		}
             records = 0;
-			
+
 			byteArrayOutputStream = new ByteArrayOutputStream();
 	        byteArrayOutputStream.reset();
 	        first = getLoadSurvey().getUpdatedFirstEntry();
 			firstdate = new Date(loadSurveyStartDate.getTime() + (first * (interval * 1000)));
-			
+
 			long seconds_div = (from.getTime() - firstdate.getTime()) / 1000;
-			
+
 			if (DEBUG>=1) {
 				System.out.println("KV_DEBUG> LoadSurveyData, init() getLoadSurvey()="+getLoadSurvey());
 			}
-			
+
 			if (seconds_div < 0) {
 				startRecord = first;
 			} else {
 				startRecord = first + (seconds_div / interval) + 1;
 			}
-			
+
 			beforeUpdatedFirstEntry = getLoadSurvey().getUpdatedFirstEntry();
-			
+
 			if (DEBUG>=1) {
 				loadSurvey.getCommandFactory().getMk10().sendDebug("From date:               " + from.toGMTString());
 				loadSurvey.getCommandFactory().getMk10().sendDebug("Survey start date:       " + loadSurveyStartDate.toGMTString());
@@ -97,20 +97,20 @@ public class LoadSurveyData {
 				loadSurvey.getCommandFactory().getMk10().sendDebug("seconds_div:             " + seconds_div);
 				loadSurvey.getCommandFactory().getMk10().sendDebug("startRecord:             " + startRecord);
 			}
-			
+
 			farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, 0x0001);
 			startRecord = farc.getStartRecord();
-			
+
 			if (DEBUG>=1) {
 				loadSurvey.getCommandFactory().getMk10().sendDebug("new startRecord:         " + startRecord);
 			}
-			
+
 			do {
 	            if (DEBUG==-1) {
 	    			System.out.println("GNA -> getLoadSurvey().getFirstEntry() 2 : "+ getLoadSurvey().getFirstEntry());
 	    			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 2 : "+ getLoadSurvey().getUpdatedFirstEntry());
 	    		}
-				
+
 				farc = getLoadSurvey().getCommandFactory().getFileAccessReadCommand(getLoadSurvey().getLoadSurveyNumber(), startRecord, getMaximumEntries());
 				startRecord += farc.getNumberOfRecords();
 				records += farc.getNumberOfRecords();
@@ -122,13 +122,13 @@ public class LoadSurveyData {
 					System.out.println("farc.numberofRec:  " + farc.getNumberOfRecords());
 				}
 			} while((getLoadSurvey().getLastEntry()  - (farc.getStartRecord() + farc.getNumberOfRecords())) > 0);
-			
+
             if (DEBUG==-1) {
     			System.out.println("GNA -> getLoadSurvey().getFirstEntry() 3 : "+ getLoadSurvey().getFirstEntry());
     			System.out.println("GNA -> getLoadSurvey().getUpdatedFirstEntry() 3 : "+ getLoadSurvey().getUpdatedFirstEntry());
     		}
 			afterUpdatedFirstEntry = getLoadSurvey().getUpdatedFirstEntry();
-			
+
 		}while(beforeUpdatedFirstEntry != afterUpdatedFirstEntry);
 
 		setNumberOfRecords(records);

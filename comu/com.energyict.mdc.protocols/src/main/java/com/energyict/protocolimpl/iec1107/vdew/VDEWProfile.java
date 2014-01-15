@@ -7,18 +7,18 @@
 package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.List;
  * changes:
  * KV 17022004 extended with MeterExceptionInfo
  */
-abstract public class VDEWProfile {
+public abstract class VDEWProfile {
 
     public static final int DEBUG=0;
 
@@ -118,7 +118,7 @@ abstract public class VDEWProfile {
 
     protected byte[] readRawData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         return readRawData(fromCalendar,toCalendar,0);
-    } // protected byte[] readRawData(Calendar fromCalendar, Calendar toCalendar, profileId)
+    }
 
     protected byte[] readRawData(Calendar fromCalendar, Calendar toCalendar, int profileId) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -158,12 +158,6 @@ abstract public class VDEWProfile {
                System.out.println("length = "+responseData.length);
                System.out.println(new String(responseData));
             }
-
-//            File file = new File("C:\\LZQJProfile.bin");
-//            FileOutputStream fos = new FileOutputStream(file);
-//            fos.write(responseData);
-//            fos.close();
-
             profileData = buildProfileData(responseData);
         }
         catch(VDEWException e) {
@@ -176,17 +170,12 @@ abstract public class VDEWProfile {
         catch(IOException e) {
            throw new IOException("doGetProfileData> "+e.getMessage());
         }
-
-        if (DEBUG >= 2) {
-			ProtocolUtils.printResponseData(responseData);
-		}
-
         return profileData;
 
-    } // protcted ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+    }
 
     protected ProfileData doGetProfileData(Calendar fromCalendar, Calendar toCalendar, int profileId, int readMode) throws IOException {
-        byte[] responseData = null;
+        byte[] responseData;
         ProfileData profileData = new ProfileData();
         this.readMode = readMode;
 
@@ -211,17 +200,11 @@ abstract public class VDEWProfile {
         } catch (IOException e) {
             throw new IOException("doGetProfileData> " + e.getMessage());
         }
-
-        if (DEBUG >= 2) {
-            ProtocolUtils.printResponseData(responseData);
-        }
-
         return profileData;
-
-    } // protected ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+    }
 
     protected List doGetLogBook(Calendar fromCalendar,Calendar toCalendar) throws IOException {
-        byte[] responseData=null;
+        byte[] responseData;
         List meterEvents=new ArrayList();
         try {
             responseData = readRawData(fromCalendar,toCalendar,98);
@@ -240,14 +223,8 @@ abstract public class VDEWProfile {
         catch(IOException e) {
            throw new IOException("doGetLogBook> "+e.getMessage());
         }
-
-        if (DEBUG >= 2) {
-			ProtocolUtils.printResponseData(responseData);
-		}
-
         return meterEvents;
-
-    } // protected List doGetLogBook(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+    }
 
     /*******************************************************
      ******************** PRIVATE METHODS ******************
@@ -267,15 +244,6 @@ abstract public class VDEWProfile {
             cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+";8)";
         return vdewReadR6(cmd.getBytes());
         }
-    } // private byte[] doReadRawProfile()
-
-    private int getLogical0BasedChannelId(String[] edisCodes,int fysical0BasedChannelId) throws IOException {
-        for (int i=0;i<edisCodes.length;i++) {
-            if (getFysical0BasedChannelId(edisCodes[i]) == (fysical0BasedChannelId+1)) {
-				return i;
-			}
-        }
-        throw new IOException("VDEWProfile, getLogical0BasedChannelId(), 0-based fysical channel "+fysical0BasedChannelId+" does not exist in profileheader!");
     }
 
     protected int getFysical0BasedChannelId(String edisCode) {
@@ -289,7 +257,7 @@ abstract public class VDEWProfile {
         byte bNROfValues=0;
         int profileInterval=0;
         DataParser dp = new DataParser(getProtocolLink().getTimeZone());
-        Unit[] units=null;
+        Unit[] units;
         boolean buildChannelInfos=false;
         int t;
         int eiCode=0;
@@ -322,7 +290,7 @@ abstract public class VDEWProfile {
                    eiCode = 0;
                    for (t=0;t<8;t++) {
                       if ((bStatus & (byte)(0x01<<t)) != 0) {
-                           eiCode |= mapStatus2IntervalStateBits((int)(bStatus&(byte)(0x01<<t))&0xFF);
+                           eiCode |= mapStatus2IntervalStateBits(bStatus&(byte)(0x01<<t) &0xFF);
                       }
                    }
 
@@ -533,7 +501,7 @@ abstract public class VDEWProfile {
 
         List meterEvents = new ArrayList();
         int t;
-        Calendar calendar=null;
+        Calendar calendar;
         DataParser dp = new DataParser(getProtocolLink().getTimeZone());
 
         try {
@@ -621,18 +589,6 @@ abstract public class VDEWProfile {
         }
         return i;
     }
-    private int gotoNextClosedBracket(byte[] responseData,int i) {
-        while(true) {
-            if (responseData[i] == ')') {
-				break;
-			}
-            i++;
-            if (i>=responseData.length) {
-				break;
-			}
-        }
-        return i;
-    }
 
     protected int gotoNextCR(byte[] responseData,int i) {
         while(true) {
@@ -688,70 +644,45 @@ abstract public class VDEWProfile {
     protected static final int RUNNING_RESERVE_EXHAUSTED = 0x0002;
     protected static final int FATAL_DEVICE_ERROR = 0x0001;
 
-    private long mapLogCodes(long lLogCode) {
-        switch((int)lLogCode) {
-            case (int)CLEAR_LOADPROFILE: return(MeterEvent.CLEAR_DATA);
-            case (int)CLEAR_LOGBOOK: return(MeterEvent.CLEAR_DATA);
-            case (int)END_OF_ERROR: return(MeterEvent.METER_ALARM);
-            case (int)BEGIN_OF_ERROR: return(MeterEvent.METER_ALARM);
-            case (int)VARIABLE_SET: return(MeterEvent.CONFIGURATIONCHANGE);
-            case (int)DEVICE_CLOCK_SET_INCORRECT: return(MeterEvent.SETCLOCK);
-            case (int)SEASONAL_SWITCHOVER: return(MeterEvent.OTHER);
-            case (int)FATAL_DEVICE_ERROR: return(MeterEvent.FATAL_ERROR);
-            case (int)DISTURBED_MEASURE: return(MeterEvent.OTHER);
-            case (int)POWER_FAILURE: return(MeterEvent.POWERDOWN);
-            case (int)POWER_RECOVERY: return(MeterEvent.POWERUP);
-            case (int)DEVICE_RESET: return(MeterEvent.CLEAR_DATA);
-            case (int)RUNNING_RESERVE_EXHAUSTED: return(MeterEvent.OTHER);
-            default: return(MeterEvent.OTHER);
-
-        } // switch(lLogCode)
-
-    } // private void mapLogCodes(long lLogCode)
-
     protected int mapStatus2IntervalStateBits(int status) {
         switch(status) {
-            case (int)CLEAR_LOADPROFILE: return(IntervalStateBits.OTHER);
-            case (int)CLEAR_LOGBOOK: return(IntervalStateBits.OTHER);
-            case (int)END_OF_ERROR: return(IntervalStateBits.OTHER);
-            case (int)BEGIN_OF_ERROR: return(IntervalStateBits.OTHER);
-            case (int)VARIABLE_SET: return(IntervalStateBits.CONFIGURATIONCHANGE);
-            case (int)DEVICE_CLOCK_SET_INCORRECT: return(IntervalStateBits.SHORTLONG);
-            case (int)SEASONAL_SWITCHOVER: return(IntervalStateBits.SHORTLONG);
-            case (int)FATAL_DEVICE_ERROR: return(IntervalStateBits.OTHER);
-            case (int)DISTURBED_MEASURE: return(IntervalStateBits.CORRUPTED);
-            case (int)POWER_FAILURE: return(IntervalStateBits.POWERDOWN);
-            case (int)POWER_RECOVERY: return(IntervalStateBits.POWERUP);
-            case (int)DEVICE_RESET: return(IntervalStateBits.OTHER);
-            case (int)RUNNING_RESERVE_EXHAUSTED: return(IntervalStateBits.OTHER);
+            case CLEAR_LOADPROFILE: return(IntervalStateBits.OTHER);
+            case CLEAR_LOGBOOK: return(IntervalStateBits.OTHER);
+            case END_OF_ERROR: return(IntervalStateBits.OTHER);
+            case BEGIN_OF_ERROR: return(IntervalStateBits.OTHER);
+            case VARIABLE_SET: return(IntervalStateBits.CONFIGURATIONCHANGE);
+            case DEVICE_CLOCK_SET_INCORRECT: return(IntervalStateBits.SHORTLONG);
+            case SEASONAL_SWITCHOVER: return(IntervalStateBits.SHORTLONG);
+            case FATAL_DEVICE_ERROR: return(IntervalStateBits.OTHER);
+            case DISTURBED_MEASURE: return(IntervalStateBits.CORRUPTED);
+            case POWER_FAILURE: return(IntervalStateBits.POWERDOWN);
+            case POWER_RECOVERY: return(IntervalStateBits.POWERUP);
+            case DEVICE_RESET: return(IntervalStateBits.OTHER);
+            case RUNNING_RESERVE_EXHAUSTED: return(IntervalStateBits.OTHER);
             default: return(IntervalStateBits.OTHER);
-
-        } // switch(status)
-
-    } // private void mapStatus2IntervalStateBits(int status)
+        }
+    }
 
 
     private MeterEvent getMeterEvent(Date date, long logcode, String msg) {
 
         switch((int)logcode) {
-            case (int)CLEAR_LOADPROFILE: return(new MeterEvent(date,MeterEvent.CLEAR_DATA,(int)logcode,"Erase load profile"));
-            case (int)CLEAR_LOGBOOK: return(new MeterEvent(date,MeterEvent.CLEAR_DATA,(int)logcode,"Erase logbook"));
-            case (int)END_OF_ERROR: return(new MeterEvent(date,MeterEvent.METER_ALARM,(int)logcode,"End of impermissible operating condition"));
-            case (int)BEGIN_OF_ERROR: return(new MeterEvent(date,MeterEvent.METER_ALARM,(int)logcode,"Begin of impermissible operating condition"));
-            case (int)VARIABLE_SET: return(new MeterEvent(date,MeterEvent.CONFIGURATIONCHANGE,(int)logcode,"Variable set"));
-            case (int)DEVICE_CLOCK_SET_INCORRECT: return(new MeterEvent(date,MeterEvent.SETCLOCK,(int)logcode,"Device clock has been set, "+msg));
-            case (int)SEASONAL_SWITCHOVER: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode,msg));
-            case (int)FATAL_DEVICE_ERROR: return(new MeterEvent(date,MeterEvent.FATAL_ERROR,(int)logcode));
-            case (int)DISTURBED_MEASURE: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode));
-            case (int)POWER_FAILURE: return(new MeterEvent(date,MeterEvent.POWERDOWN,(int)logcode));
-            case (int)POWER_RECOVERY: return(new MeterEvent(date,MeterEvent.POWERUP,(int)logcode));
-            case (int)DEVICE_RESET: return(new MeterEvent(date,MeterEvent.CLEAR_DATA,(int)logcode));
-            case (int)RUNNING_RESERVE_EXHAUSTED: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode));
+            case CLEAR_LOADPROFILE: return(new MeterEvent(date,MeterEvent.CLEAR_DATA,(int)logcode,"Erase load profile"));
+            case CLEAR_LOGBOOK: return(new MeterEvent(date,MeterEvent.CLEAR_DATA,(int)logcode,"Erase logbook"));
+            case END_OF_ERROR: return(new MeterEvent(date,MeterEvent.METER_ALARM,(int)logcode,"End of impermissible operating condition"));
+            case BEGIN_OF_ERROR: return(new MeterEvent(date,MeterEvent.METER_ALARM,(int)logcode,"Begin of impermissible operating condition"));
+            case VARIABLE_SET: return(new MeterEvent(date,MeterEvent.CONFIGURATIONCHANGE,(int)logcode,"Variable set"));
+            case DEVICE_CLOCK_SET_INCORRECT: return(new MeterEvent(date,MeterEvent.SETCLOCK,(int)logcode,"Device clock has been set, "+msg));
+            case SEASONAL_SWITCHOVER: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode,msg));
+            case FATAL_DEVICE_ERROR: return(new MeterEvent(date,MeterEvent.FATAL_ERROR,(int)logcode));
+            case DISTURBED_MEASURE: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode));
+            case POWER_FAILURE: return(new MeterEvent(date,MeterEvent.POWERDOWN,(int)logcode));
+            case POWER_RECOVERY: return(new MeterEvent(date,MeterEvent.POWERUP,(int)logcode));
+            case DEVICE_RESET: return(new MeterEvent(date,MeterEvent.CLEAR_DATA,(int)logcode));
+            case RUNNING_RESERVE_EXHAUSTED: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode));
             default: return(new MeterEvent(date,MeterEvent.OTHER,(int)logcode));
-
-        } // switch(lLogCode)
-
-    } // private MeterEvent getMeterEvent(Date date, long logcode)
+        }
+    }
 
 
     /***************************************************************

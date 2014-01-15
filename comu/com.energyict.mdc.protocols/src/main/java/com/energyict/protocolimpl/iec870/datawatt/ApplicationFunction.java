@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec870.CP56Time2a;
 import com.energyict.protocolimpl.iec870.IEC870ASDU;
 import com.energyict.protocolimpl.iec870.IEC870Connection;

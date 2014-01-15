@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.lang.reflect.InvocationTargetException;

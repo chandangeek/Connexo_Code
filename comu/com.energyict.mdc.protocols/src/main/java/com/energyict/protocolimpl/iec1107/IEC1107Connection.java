@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -123,12 +124,8 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         boolFlagIEC1107Connected=false;
         this.errorSignature=errorSignature;
         this.software7E1  = software7E1;
-    } // public FlagIEC1107Connection(...)
+    }
 
-    /**
-     * Method that requests a MAC disconnect for the IEC1107 layer.
-     * @exception HDLCConnectionException
-     */
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
         if (boolFlagIEC1107Connected==true) {
             try {
@@ -148,13 +145,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                 }
                 throw new ProtocolConnectionException("disconnectMAC() error, ConnectionException, "+e.getMessage());
             }
-        } // if (boolFlagIEC1107Connected==true)
-    } // public void disconnectMAC() throws ProtocolConnectionException
+        }
+    }
 
-    /**
-     * Method that requests a MAC disconnect for the IEC1107 layer.
-     * @exception HDLCConnectionException
-     */
     public void sendBreak() throws NestedIOException,ProtocolConnectionException {
         try {
             byte[] buffer = {(byte)SOH,(byte)0x42,(byte)0x30,(byte)ETX,(byte)0x71};
@@ -172,11 +165,6 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         }
     } // public void sendBreak() throws ProtocolConnectionException
 
-    /**
-     * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
-     * for the buffersizes and windowsizes.
-     * @exception HDLCConnectionException
-     */
     public MeterType connectMAC(String strIdentConfig, String strPass,int iSecurityLevel,String meterID) throws IOException,ProtocolConnectionException {
         if (boolFlagIEC1107Connected==false) {
 
@@ -245,13 +233,15 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
                     iIEC1107Compatible=1; // set back!
                 }
 
-                return new MeterType(strIdent);
+                return new MeterTypeImpl(strIdent);
             }
             catch (StringIndexOutOfBoundsException e) {
                 throw new ProtocolConnectionException("signOn() error, "+e.getMessage());
             }
             catch (ConnectionException e) {
-                if (retries++ >=iMaxRetries) throw new ProtocolConnectionException("signOn() error iMaxRetries, possibly meter not responding or wrong nodeaddress, "+e.getMessage());
+                if (retries++ >=iMaxRetries) {
+                    throw new ProtocolConnectionException("signOn() error iMaxRetries, possibly meter not responding or wrong nodeaddress, " + e.getMessage());
+                }
                 else {
                     sendBreak();
                     delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -264,7 +254,9 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     private void prepareAuthentication(String strPass) throws NestedIOException,ProtocolConnectionException {
         int iRetries=0;
 
-        if (isNoBreakRetry()) iRetries = iMaxRetries - 1;
+        if (isNoBreakRetry()) {
+            iRetries = iMaxRetries - 1;
+        }
 
         while(true) {
             String pwd = (strPass!=null) ? strPass : "";
@@ -507,14 +499,6 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
             sendTxBuffer(); // KV 27102004
         }
         else throw new ProtocolConnectionException("doSendCommandFrame() error unknown tag!");
-
-        if (DEBUG==1) {
-            ProtocolUtils.outputHex( ((int)SOH)  &0x000000FF);
-            for (i=0;i<getTxBuffer().length;i++)
-                ProtocolUtils.outputHex( ((int)getTxBuffer()[i])  &0x000000FF);
-            System.out.println();
-        }
-
         return retVal;
 
     } // public void doSendCommandFrame(byte bCommand,byte[] data) throws ProtocolConnectionException
@@ -531,8 +515,6 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
-
                 if ((bState==0) && ((byte)iNewKar == SOH))
                     bState = 1;
                 else if ((bState==1) && ((byte)iNewKar == ETX))
@@ -611,8 +593,6 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         while(true) {
 
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
-
                 switch(iState) {
                     case STATE_WAIT_FOR_START: {
 
@@ -739,7 +719,6 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
 
         while(true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
                 brutodata.write(iNewKar);
                 switch(state) {
                     case STREAM_STATE_WAIT_FOR_START: {
@@ -832,8 +811,6 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
         while(true) {
 
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) ProtocolUtils.outputHex( ((int)iNewKar));
-
                 if ((byte)iNewKar==NAK) sendBreak();
 
                 convert[0] = (byte)iNewKar;
@@ -920,7 +897,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
      * @param data byte array to calculate checksum on
      * @param length nr of bytes of data to calculate checksum
      * @param offset offset in byte array to calculate checksum
-     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
+     * @throws ConnectionException Thrown for communication related exceptions
      * @return byte checksum
      */
     protected byte calcChecksumSDC(byte[] data,int length, int offset) throws ConnectionException {
@@ -931,7 +908,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
      * Calculate modulo 256 checksum.
      * @param data byte array to calculate checksum on
      * @param length nr of bytes of data to calculate checksum
-     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
+     * @throws ConnectionException Thrown for communication related exceptions
      * @return byte checksum
      */
     protected byte calcChecksumSDC(byte[] data,int length) throws ConnectionException {
@@ -941,7 +918,7 @@ public class IEC1107Connection extends Connection implements ProtocolConnection 
     /**
      * Calculate modulo 256 checksum.
      * @param data byte array to calculate checksum on
-     * @throws com.energyict.dialer.connection.ConnectionException Thrown for communication related exceptions
+     * @throws ConnectionException Thrown for communication related exceptions
      * @return byte checksum
      */
     protected byte calcChecksumSDC(byte[] data) throws ConnectionException {

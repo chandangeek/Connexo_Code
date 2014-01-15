@@ -1,7 +1,7 @@
 package com.energyict.encryption;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 
 /**

@@ -14,11 +14,11 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 
 /**
  * Copyrights EnergyICT
@@ -57,15 +57,17 @@ public class StoredValuesImpl implements StoredValues {
     }
 
     private int getVZ() throws IOException {
-        if (vZ == -1)
-           vZ = (int)cof.getRegister(protocolLink.getMeterConfig().getResetCounterSN()).getValue();
+        if (vZ == -1) {
+            vZ = (int) cof.getRegister(protocolLink.getMeterConfig().getResetCounterSN()).getValue();
+        }
         return vZ;
     }
 
 
     private DataContainer getBuffer() throws IOException {
-        if (buffer == null)
+        if (buffer == null) {
             buffer = profileGeneric.getBuffer();
+        }
         return buffer;
     }
 
@@ -115,7 +117,9 @@ public class StoredValuesImpl implements StoredValues {
                    extendedRegister.setCaptureTime((OctetString)ds.getElement(index+1));
                    historicalValue.setCosemObject(extendedRegister);
                 }
-                else throw new IOException("StoredValues, getHistoricalValue, error invalid classId "+cao.getClassId());
+                else {
+                    throw new IOException("StoredValues, getHistoricalValue, error invalid classId " + cao.getClassId());
+                }
                 return historicalValue;
             }
         }
@@ -125,34 +129,38 @@ public class StoredValuesImpl implements StoredValues {
     private int getCapturedObjectIndex(ObisCode obisCode) throws IOException {
         int index=0;
         int nrOfEntries = profileGeneric.getProfileEntries();
-        if (profileGeneric.getCaptureObjects().size() == 0) return -1;
-        Iterator it = profileGeneric.getCaptureObjects().iterator();
-        while(it.hasNext()) {
-           CapturedObject cao = (CapturedObject)it.next() ;
-           if ((obisCode.getA() == cao.getLogicalName().getA()) &&
-               (obisCode.getB() == cao.getLogicalName().getB()) &&
-               (obisCode.getC() == cao.getLogicalName().getC()) &&
-               (obisCode.getD() == cao.getLogicalName().getD()) &&
-               (obisCode.getE() == cao.getLogicalName().getE()) &&
-               ((obisCode.getF()>=0 && obisCode.getF()<=(nrOfEntries-1)) || (obisCode.getF()<=0 && obisCode.getF()>=-(nrOfEntries-1))) &&
-               (cao.getAttributeIndex() == 2))
-             break;
-           index++;
+        if (profileGeneric.getCaptureObjects().size() == 0) {
+            return -1;
+        }
+        for (CapturedObject cao : profileGeneric.getCaptureObjects()) {
+            if ((obisCode.getA() == cao.getLogicalName().getA()) &&
+                    (obisCode.getB() == cao.getLogicalName().getB()) &&
+                    (obisCode.getC() == cao.getLogicalName().getC()) &&
+                    (obisCode.getD() == cao.getLogicalName().getD()) &&
+                    (obisCode.getE() == cao.getLogicalName().getE()) &&
+                    ((obisCode.getF() >= 0 && obisCode.getF() <= (nrOfEntries - 1)) || (obisCode.getF() <= 0 && obisCode.getF() >= -(nrOfEntries - 1))) &&
+                    (cao.getAttributeIndex() == 2)) {
+                break;
+            }
+            index++;
         }
         if (index == profileGeneric.getCaptureObjects().size()) //return -1;
-            throw new NoSuchRegisterException("StoredValues, register with obiscode "+obisCode+" not found in the historic values list.");
+        {
+            throw new NoSuchRegisterException("StoredValues, register with obiscode " + obisCode + " not found in the historic values list.");
+        }
 
         return index;
     }
 
     private CapturedObject getCapturedObject(int index) throws IOException {
-        if ((index >= profileGeneric.getCaptureObjects().size()) || (index<0))
-            throw new IOException("StoredValues, getCapturedObject, invalid index in CapturedObject list, "+index);
-        return (CapturedObject)profileGeneric.getCaptureObjects().get(index);
+        if ((index >= profileGeneric.getCaptureObjects().size()) || (index<0)) {
+            throw new IOException("StoredValues, getCapturedObject, invalid index in CapturedObject list, " + index);
+        }
+        return profileGeneric.getCaptureObjects().get(index);
     }
 
     public int getBillingPointCounter() throws IOException {
-        throw new com.energyict.protocol.UnsupportedException();
+        throw new UnsupportedException();
     }
 
 }

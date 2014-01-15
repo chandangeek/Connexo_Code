@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
 import java.io.IOException;

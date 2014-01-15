@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class AlarmConfiguration extends AbstractParameter {
 	AlarmConfiguration(ProtocolLink protocolLink) {
 		super(protocolLink);
 	}
-	
+
 	/**
 	 * 1 byte alarm configuration
 	 * bit2, Supply voltage supervisor : Power lost notification
@@ -25,7 +25,7 @@ public class AlarmConfiguration extends AbstractParameter {
 	 * bit0, Link fault with energy meter
 	 */
 	private int alarmConfiguration;
-	
+
 	final int getAlarmConfiguration() {
 		return alarmConfiguration;
 	}

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

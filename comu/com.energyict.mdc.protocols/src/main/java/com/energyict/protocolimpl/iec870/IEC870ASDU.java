@@ -6,17 +6,15 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.protocol.Calculate;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.protocols.util.Calculate;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-
-
 
 /**
  *
@@ -37,7 +35,7 @@ public class IEC870ASDU {
 
 
     /** Creates a new instance of IEC870ASDU */
-    public IEC870ASDU(int typeIdentification,int varStructQualifier,int causeOfTransmission,int originatorAddress,int commonAddressOfASDU,List informationObjects) throws IEC870ConnectionException {
+    public IEC870ASDU(int typeIdentification,int varStructQualifier,int causeOfTransmission,int originatorAddress,int commonAddressOfASDU,List informationObjects) {
         this.typeIdentification=typeIdentification; //1
         this.varStructQualifier=varStructQualifier; //1
         this.causeOfTransmission=causeOfTransmission; //1
@@ -47,7 +45,7 @@ public class IEC870ASDU {
     }
 
     /** Creates a new instance of IEC870ASDU */
-    public IEC870ASDU(int typeIdentification,int varStructQualifier,int causeOfTransmission,int originatorAddress,int commonAddressOfASDU,IEC870InformationObject io) throws IEC870ConnectionException {
+    public IEC870ASDU(int typeIdentification,int varStructQualifier,int causeOfTransmission,int originatorAddress,int commonAddressOfASDU,IEC870InformationObject io) {
         this(typeIdentification,varStructQualifier,causeOfTransmission,originatorAddress,commonAddressOfASDU,new ArrayList());
         informationObjects.add(io);
     }
@@ -67,8 +65,9 @@ public class IEC870ASDU {
     }
     public byte[] getInformationObjectObjectData(int index) throws IOException {
         // KV_DEBUG KV 16072003 to avoid indexoutofboundsexception... when receiving DSAP messages ??
-        if (index >= getInformationObjects().size())
-            throw new IOException("IEC870ASDU, getInformationObjectObjectData, wrong nr of informationobjects in ASDU, size="+getInformationObjects().size()+" index="+index);
+        if (index >= getInformationObjects().size()) {
+            throw new IOException("IEC870ASDU, getInformationObjectObjectData, wrong nr of informationobjects in ASDU, size=" + getInformationObjects().size() + " index=" + index);
+        }
         return ((IEC870InformationObject)getInformationObjects().get(index)).getObjData();
     }
 
@@ -112,8 +111,8 @@ public class IEC870ASDU {
     }
 
     public String toString(TimeZone timeZone) {
-        StringBuffer strbuff = new StringBuffer();
-        String tidName=null,causeName=null;
+        StringBuilder strbuff = new StringBuilder();
+        String tidName,causeName;
 
         try {
             tidName = IEC870TypeIdentification.getTypeIdentification(typeIdentification).getDescription()+" "+IEC870TypeIdentification.getTypeIdentification(typeIdentification).getShortdescr();
@@ -129,21 +128,37 @@ public class IEC870ASDU {
         }
         strbuff.append("********************** ASDU ************************\r\n");
 
-        strbuff.append("typeIdentification=0x"+Integer.toHexString(typeIdentification)+" ("+tidName+")\r\n"+
-        "causeOfTransmission=0x"+Integer.toHexString(causeOfTransmission)+" ("+causeName+")\r\n"+
-        "varStructQualifier=0x"+Integer.toHexString(varStructQualifier)+"\r\n"+
-        "getVarStructQualifierNumber()=0x"+Integer.toHexString(getVarStructQualifierNumber())+"\r\n"+
-        "originatorAddress=0x"+Integer.toHexString(originatorAddress)+"\r\n"+
-        "commonAddressOfASDU=0x"+Integer.toHexString(commonAddressOfASDU)+"\r\n");
+        strbuff.append("typeIdentification=0x")
+                .append(Integer.toHexString(typeIdentification))
+                .append(" (")
+                .append(tidName)
+                .append(")\r\n")
+                .append("causeOfTransmission=0x")
+                .append(Integer.toHexString(causeOfTransmission))
+                .append(" (")
+                .append(causeName)
+                .append(")\r\n")
+                .append("varStructQualifier=0x")
+                .append(Integer.toHexString(varStructQualifier))
+                .append("\r\n")
+                .append("getVarStructQualifierNumber()=0x")
+                .append(Integer.toHexString(getVarStructQualifierNumber()))
+                .append("\r\n")
+                .append("originatorAddress=0x")
+                .append(Integer.toHexString(originatorAddress))
+                .append("\r\n")
+                .append("commonAddressOfASDU=0x")
+                .append(Integer.toHexString(commonAddressOfASDU))
+                .append("\r\n");
 
         if (informationObjects != null) {
             for (int i=0;i<informationObjects.size();i++) {
-                strbuff.append("************** Information object "+i+" ****************\r\n");
+                strbuff.append("************** Information object ").append(i).append(" ****************\r\n");
                 IEC870InformationObject io = (IEC870InformationObject)informationObjects.get(i);
                 strbuff.append(io.toString());
                 if ((typeIdentification == 1) || (typeIdentification == 2)) { // M_SP_NA_1 || M_SP_TA_1
                     try {
-                        strbuff.append("flags(7.2.6.1)=0x"+Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(),0,1))+"\r\n");
+                        strbuff.append("flags(7.2.6.1)=0x").append(Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(), 0, 1))).append("\r\n");
                     }
                     catch (IOException e) {
                         e.printStackTrace();
@@ -151,8 +166,8 @@ public class IEC870ASDU {
                 }
                 if ((typeIdentification == 15) || (typeIdentification == 16)) { // M_IT_NA_1 || M_IT_TA_1
                     try {
-                        strbuff.append("val="+ProtocolUtils.getIntLE(io.getObjData())+" flags(7.2.6.9)=0x");
-                        strbuff.append(Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(),4,1))+"\r\n");
+                        strbuff.append("val=").append(ProtocolUtils.getIntLE(io.getObjData())).append(" flags(7.2.6.9)=0x");
+                        strbuff.append(Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(), 4, 1))).append("\r\n");
                     }
                     catch (IOException e) {
                         e.printStackTrace();
@@ -161,7 +176,7 @@ public class IEC870ASDU {
                 if (typeIdentification == 16) { // M_IT_TA_1
                     try {
                         CP24Time2a cp24 = new CP24Time2a(timeZone,io.getObjData(),5);
-                        strbuff.append("CP24Time2a="+cp24.toString()+" IV="+cp24.isInValid()+"\r\n");
+                        strbuff.append("CP24Time2a=").append(cp24.toString()).append(" IV=").append(cp24.isInValid()).append("\r\n");
                     }
                     catch(IOException e) {
                         e.printStackTrace();
@@ -170,7 +185,7 @@ public class IEC870ASDU {
                 if (typeIdentification == 2) { // M_SP_TA_1
                     try {
                         CP24Time2a cp24 = new CP24Time2a(timeZone,io.getObjData(),1);
-                        strbuff.append("CP24Time2a="+cp24.toString()+" IV="+cp24.isInValid()+"\r\n");
+                        strbuff.append("CP24Time2a=").append(cp24.toString()).append(" IV=").append(cp24.isInValid()).append("\r\n");
                     }
                     catch(IOException e) {
                         e.printStackTrace();
@@ -179,8 +194,8 @@ public class IEC870ASDU {
                 if (typeIdentification == 142) { // C_IH_NA_P
                     try {
                         CP56Time2a cp56 = new CP56Time2a(timeZone,io.getObjData(),0);
-                        strbuff.append("CP56Time2a="+cp56.toString()+" QOI(7.2.6.22)=0x");
-                        strbuff.append(Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(),7,1))+" IV="+cp56.isInValid()+"\r\n");
+                        strbuff.append("CP56Time2a=").append(cp56.toString()).append(" QOI(7.2.6.22)=0x");
+                        strbuff.append(Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(), 7, 1))).append(" IV=").append(cp56.isInValid()).append("\r\n");
                     }
                     catch(IOException e) {
                         e.printStackTrace();
@@ -188,10 +203,11 @@ public class IEC870ASDU {
                 }
                 if ((typeIdentification == 9) || (typeIdentification == 10)){ // M_ME_NA_1 || M_ME_TA_1
                     try {
-                        strbuff.append("QDS(7.2.6.3)=0x"+Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(),2,1))+" val=");
-                        strbuff.append(Calculate.convertNormSignedFP2NumberLE(io.getObjData(),0)+" *** "+((ProtocolUtils.getIntLE(io.getObjData(),0,2)&0x7FF0)>>4)+" ***\r\n");
-
-
+                        strbuff.append("QDS(7.2.6.3)=0x").append(Integer.toHexString(ProtocolUtils.getIntLE(io.getObjData(), 2, 1))).append(" val=");
+                        strbuff.append(Calculate.convertNormSignedFP2NumberLE(io.getObjData(), 0))
+                                .append(" *** ")
+                                .append((ProtocolUtils.getIntLE(io.getObjData(), 0, 2) & 0x7FF0) >> 4)
+                                .append(" ***\r\n");
                     }
                     catch(IOException e) {
                         e.printStackTrace();
@@ -200,7 +216,7 @@ public class IEC870ASDU {
                 if (typeIdentification == 10) { // M_ME_TA_1
                     try {
                         CP24Time2a cp24 = new CP24Time2a(timeZone,io.getObjData(),3);
-                        strbuff.append("CP24Time2a="+cp24.toString()+" IV="+cp24.isInValid()+"\r\n");
+                        strbuff.append("CP24Time2a=").append(cp24.toString()).append(" IV=").append(cp24.isInValid()).append("\r\n");
                     }
                     catch(IOException e) {
                         e.printStackTrace();
@@ -214,7 +230,7 @@ public class IEC870ASDU {
 
     private void buildInformationObjects(byte[] data) throws IEC870ConnectionException {
         informationObjects = null;
-        IEC870InformationObject io=null;
+        IEC870InformationObject io;
         if (getVarStructQualifierNumber() != 0) {
             informationObjects = new ArrayList();
             if (isVarStructQualifierSequence()) {
@@ -237,7 +253,7 @@ public class IEC870ASDU {
                 }
             }
         }
-    } // private void buildInformationObjects(byte[] data)
+    }
 
     private void buildData() throws IEC870ConnectionException {
 
@@ -268,4 +284,4 @@ public class IEC870ASDU {
         }
     }
 
-} // public class IEC870ASDU
+}

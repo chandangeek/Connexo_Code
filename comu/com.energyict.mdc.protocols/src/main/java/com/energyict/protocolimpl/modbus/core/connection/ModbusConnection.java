@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.ConnectionRS485;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -190,11 +190,6 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
 
             if ((kar = readIn()) != -1) {
 
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex(((int) kar));
-                }
-
                 allDataArrayOutputStream.write(kar); // accumulate frame
 
                 switch (state) {
@@ -336,11 +331,6 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                 if (state != STATE_WAIT_FOR_ADDRESS) {
                     interframe = System.currentTimeMillis() + interframeTimeout;
                 } // // 3.5 cher T @ 2400 (supposed as lowest baudrate)
-
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex(((int) kar));
-                }
 
                 allDataArrayOutputStream.write(kar); // accumulate frame
 

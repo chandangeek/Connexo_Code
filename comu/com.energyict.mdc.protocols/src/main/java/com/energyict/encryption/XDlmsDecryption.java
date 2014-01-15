@@ -1,7 +1,7 @@
 package com.energyict.encryption;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 
 /**

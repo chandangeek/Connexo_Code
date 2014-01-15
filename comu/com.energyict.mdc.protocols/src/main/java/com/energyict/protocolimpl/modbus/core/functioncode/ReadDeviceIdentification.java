@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.connection.RequestData;
 import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 

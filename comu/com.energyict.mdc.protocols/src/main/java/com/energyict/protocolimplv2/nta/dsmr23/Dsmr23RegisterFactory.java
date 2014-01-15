@@ -19,23 +19,26 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -111,18 +114,17 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = this.createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
                 } else {
                     collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
                 }
-            } catch (NoSuchRegisterException e) {
+            } catch (NoSuchRegisterException | UnsupportedException e) {
                 collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
-            } catch (UnsupportedException e) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e));
             } catch (IndexOutOfBoundsException e) {
                 collectedRegisters.add(createFailureCollectedRegister(register, ResultType.Other, e));
@@ -131,6 +133,14 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             // ToDo: maybe wrap all timeout exceptions in DLMSConnectionException & catch them properly?
         }
         return collectedRegisters;
+    }
+
+    private CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier) {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        for (CollectedDataFactory factory : factories) {
+            return factory.createMaximumDemandCollectedRegister(registerIdentifier);
+        }
+        throw CommunicationException.missingModuleException(CollectedDataFactory.class);
     }
 
     /**
@@ -312,17 +322,30 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private CanFindRegister getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
+    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = this.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, Bus.getIssueService()
+                    .newIssueCollector()
+                    .addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else if (resultType == ResultType.NotSupported) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService()
+                    .newIssueCollector()
+                    .addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }
+
+    private CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        for (CollectedDataFactory factory : factories) {
+            return factory.createDefaultCollectedRegister(registerIdentifier);
+        }
+        throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+    }
+
 }

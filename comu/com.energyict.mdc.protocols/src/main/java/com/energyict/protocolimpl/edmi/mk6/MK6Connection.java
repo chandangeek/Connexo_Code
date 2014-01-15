@@ -11,11 +11,12 @@
 package com.energyict.protocolimpl.edmi.mk6;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -63,9 +64,9 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
           if ((serialNumber!=null) && ("".compareTo(serialNumber)!=0)) {
 			destinationId=Long.parseLong(serialNumber);
 		}
-    } // EZ7Connection(...)
+    }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
         sourceId = Long.parseLong(nodeId);
         return null;
     }
@@ -207,11 +208,6 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
         while(true) {
 
             if ((kar = readIn()) != -1) {
-                if (DEBUG == 1) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
-                }
-
                 switch(state) {
                     case STATE_WAIT_FOR_STX:
                         interFrameTimeout = System.currentTimeMillis() + timeout;
@@ -233,7 +229,6 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
                             byte[] rxFrame = allDataArrayOutputStream.toByteArray();
                             if (CRCGenerator.ccittCRC(rxFrame)==0) {
                                 // OK
-//System.out.println("rxFrame = "+ProtocolUtils.outputHexString(rxFrame));
                                 if (isExtendedCommunication()) {
                                    int rxSequenceNr = (((int)rxFrame[10]&0xFF)<<8) | ((int)rxFrame[11]&0xFF);
                                    if (rxSequenceNr != sequenceNr) {
@@ -252,7 +247,6 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
                         }
                         else {
                             if (dleKar) {
-//System.out.println("dle");
                                 allDataArrayOutputStream.write(kar&0xBF);
                             }
                             else {
@@ -267,16 +261,16 @@ public class MK6Connection extends Connection  implements ProtocolConnection, Se
 
             } // if ((kar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
 
-        } // while(true)
+        }
 
 
-    } // public void receiveFrame() throws ConnectionException
+    }
 
-} // public class MK6Connection extends Connection  implements ProtocolConnection
+}
