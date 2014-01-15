@@ -11,9 +11,6 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=printDdl"}, immediate = true)
 public class ConsoleCommands {
 
-    private volatile MeteringService meteringService;
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile TransactionService transactionService;
     private volatile DataModel dataModel;
 
     public void printDdl() {
@@ -30,17 +27,7 @@ public class ConsoleCommands {
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
         this.dataModel = ((MeteringServiceImpl) meteringService).getDataModel();
     }
 
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
 }
