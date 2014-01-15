@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.engine.model.impl.ServerComServer;
 import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerServletBasedInboundComPort;
@@ -28,7 +29,7 @@ public interface EngineModelService {
      *
      * @return All the ComServers, including the obsolete ones
      */
-    public List<ComServer> findAllComServers();
+    public List<ServerComServer> findAllComServers();
 
     /**
      * Finds the ComServer with the name of the system that is currently running this software.

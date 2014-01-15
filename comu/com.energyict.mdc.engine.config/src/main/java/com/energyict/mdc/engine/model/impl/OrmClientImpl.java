@@ -16,22 +16,22 @@ public class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public DataMapper<ComServer> getComServerFactory() {
-        return dataModel.getDataMapper(ComServer.class, TableSpecs.MDCCOMSERVER.name());
+    public DataMapper<ServerComServer> getComServerDataMapper() {
+        return dataModel.mapper(ServerComServer.class);
     }
 
     @Override
-    public DataMapper<ComPort> getComPortFactory() {
-        return dataModel.getDataMapper(ComPort.class, TableSpecs.MDCCOMPORT.name());
+    public DataMapper<ComPort> getComPortDataMapper() {
+        return dataModel.mapper(ComPort.class);
     }
     
     @Override
-    public DataMapper<ComPortPool> getComPortPoolFactory() {
-        return dataModel.getDataMapper(ComPortPool.class, TableSpecs.MDCCOMPORTPOOL.name());
+    public DataMapper<ComPortPool> getComPortPoolDataMapper() {
+        return dataModel.mapper(ComPortPool.class);
     }
 
     @Override
-    public DataMapper<ComPortPoolMember> getComPortPoolMemberFactory() {
-        return dataModel.getDataMapper(ComPortPoolMember.class, TableSpecs.MDCCOMPORTINPOOL.name());
+    public DataMapper<ComPortPoolMember> getComPortPoolMemberDataMapper() {
+        return dataModel.mapper(ComPortPoolMember.class);
     }
 }

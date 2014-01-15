@@ -20,10 +20,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -77,6 +77,13 @@ public class ComServerCrudTest {
             offlineComServer.save();
             context.commit();
         }
+
+        ComServer offlineComServer = getEngineModelService().findComServer("Offliner");
+        assertThat(offlineComServer.getChangesInterPollDelay()).isEqualTo(new TimeDuration(600));
+        assertThat(offlineComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(900));
+        assertThat(offlineComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
+        assertThat(offlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
+        assertThat(offlineComServer.isActive()).isEqualTo(false);
     }
 
     private static class MockModule extends AbstractModule {

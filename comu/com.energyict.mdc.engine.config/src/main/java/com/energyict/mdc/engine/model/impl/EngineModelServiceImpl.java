@@ -85,17 +85,17 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComServer findComServer(String name) {
-        return getComServerFactory().getUnique("name",name).orNull();
+        return getComServerDataMapper().getUnique("name", name).orNull();
     }
 
     @Override
     public ComServer findComServer(long id) {
-        return getComServerFactory().getUnique("id",id).orNull();
+        return getComServerDataMapper().getUnique("id", id).orNull();
     }
 
     @Override
-    public List<ComServer> findAllComServers() {
-        return getComServerFactory().find();
+    public List<ServerComServer> findAllComServers() {
+        return getComServerDataMapper().find();
     }
 
     @Override
@@ -105,31 +105,31 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<OnlineComServer> findAllOnlineComServers() {
-        return convertComServerListToOnlineComServers(getComServerFactory().find("class", ONLINE_COMSERVER_DISCRIMINATOR));
+        return convertComServerListToOnlineComServers(getComServerDataMapper().find("class", ONLINE_COMSERVER_DISCRIMINATOR));
     }
 
     @Override
     public List<RemoteComServer> findAllRemoteComServers() {
-        return convertComServerListToRemoteComServers(getComServerFactory().find("class", REMOTE_COMSERVER_DISCRIMINATOR));
+        return convertComServerListToRemoteComServers(getComServerDataMapper().find("class", REMOTE_COMSERVER_DISCRIMINATOR));
     }
 
     @Override
     public List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer) {
-        return convertComServerListToRemoteComServers(getComServerFactory().find("class", REMOTE_COMSERVER_DISCRIMINATOR, "onlineComServer", onlineComServer));    }
+        return convertComServerListToRemoteComServers(getComServerDataMapper().find("class", REMOTE_COMSERVER_DISCRIMINATOR, "onlineComServer", onlineComServer));    }
 
     @Override
     public List<OfflineComServer> findAllOfflineComServers() {
-        return convertComServerListToOfflineComServers(getComServerFactory().find("class", OFFLINE_COMSERVER_DISCRIMINATOR));
+        return convertComServerListToOfflineComServers(getComServerDataMapper().find("class", OFFLINE_COMSERVER_DISCRIMINATOR));
     }
 
     @Override
     public int getOfflineServerCount() {
-        return getComServerFactory().find("class",OFFLINE_COMSERVER_DISCRIMINATOR).size();
+        return getComServerDataMapper().find("class", OFFLINE_COMSERVER_DISCRIMINATOR).size();
     }
 
     @Override
     public List<RemoteComServer> findRemoteComServersWithOnlineComServer(OnlineComServer onlineComServer) {
-        return convertComServerListToRemoteComServers(getComServerFactory().find("onlineServer", onlineComServer));
+        return convertComServerListToRemoteComServers(getComServerDataMapper().find("onlineServer", onlineComServer));
     }
 
     @Override
@@ -154,7 +154,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @param comServers the given list of ComServers
      * @return a list of {@link OnlineComServer}
      */
-    private List<OnlineComServer> convertComServerListToOnlineComServers(final List<ComServer> comServers) {
+    private List<OnlineComServer> convertComServerListToOnlineComServers(final List<ServerComServer> comServers) {
         List<OnlineComServer> onlineComServers = new ArrayList<OnlineComServer>(comServers.size());
         for (ComServer comServer : comServers) {
             onlineComServers.add((OnlineComServer) comServer);
@@ -169,7 +169,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @param comServers the given list of ComServers
      * @return a list of {@link OfflineComServer}
      */
-    private List<OfflineComServer> convertComServerListToOfflineComServers(final List<ComServer> comServers) {
+    private List<OfflineComServer> convertComServerListToOfflineComServers(final List<ServerComServer> comServers) {
         List<OfflineComServer> offlineComServers = new ArrayList<OfflineComServer>(comServers.size());
         for (ComServer comServer : comServers) {
             offlineComServers.add((OfflineComServer) comServer);
@@ -184,7 +184,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @param comServers the given list of ComServers
      * @return a list of {@link RemoteComServer}
      */
-    private List<RemoteComServer> convertComServerListToRemoteComServers(final List<ComServer> comServers) {
+    private List<RemoteComServer> convertComServerListToRemoteComServers(final List<ServerComServer> comServers) {
         List<RemoteComServer> remoteComServers = new ArrayList<RemoteComServer>(comServers.size());
         for (ComServer comServer : comServers) {
             remoteComServers.add((RemoteComServer) comServer);
@@ -198,28 +198,28 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComPort findComPort(long id) {
-        return getComPortFactory().getUnique("id",id).orNull();
+        return getComPortDataMapper().getUnique("id", id).orNull();
     }
 
     @Override
     public List<ComPort> findComPortsByComServer(ComServer comServer) {
-        return getComPortFactory().find("comServer",comServer);
+        return getComPortDataMapper().find("comServer", comServer);
     }
 
     @Override
     public ComPort findComPortByNameInComServer(String name, ComServer comServer) {
-        return getComPortFactory().getUnique("comServer",comServer,"name",name).orNull();
+        return getComPortDataMapper().getUnique("comServer", comServer, "name", name).orNull();
     }
 
     @Override
     public List<OutboundComPort> findAllOutboundComPorts() {
-        return convertComportListToOutBoundComPorts(getComPortFactory().find("class",ComPortImpl.OUTBOUND_DISCRIMINATOR));
+        return convertComportListToOutBoundComPorts(getComPortDataMapper().find("class", ComPortImpl.OUTBOUND_DISCRIMINATOR));
     }
 
     @Override
     public List<InboundComPort> findAllInboundComPorts() {
         Condition condition = Where.where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR);
-        return convertComportListToInBoundComPorts(getComPortFactory().select(condition));
+        return convertComportListToInBoundComPorts(getComPortDataMapper().select(condition));
     }
 
     private List<OutboundComPort> convertComportListToOutBoundComPorts(final List<ComPort> comPorts) {
@@ -276,7 +276,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComPortPool findComPortPool(long id) {
-        return getComPortPoolFactory().getUnique("id",id).orNull();
+        return getComPortPoolDataMapper().getUnique("id", id).orNull();
     }
 
     @Override
@@ -303,17 +303,17 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<OutboundComPortPool> findOutboundComPortPoolByType(ComPortType comPortType) {
-        return convertComportPoolListToOutBoundComPortPools(getComPortPoolFactory().find("comPortType", comPortType));
+        return convertComportPoolListToOutBoundComPortPools(getComPortPoolDataMapper().find("comPortType", comPortType));
     }
 
     @Override
     public ComPortPool findComPortPool(String name) {
-        return getComPortPoolFactory().getUnique("name",name).orNull();
+        return getComPortPoolDataMapper().getUnique("name", name).orNull();
     }
 
     @Override
     public List<InboundComPortPool> findComPortPoolByDiscoveryProtocol(PluggableClass pluggableClass) {
-        return convertComportPoolListToInBoundComPortPools(getComPortPoolFactory().find("discoveryProtocolPluggableClassId", pluggableClass.getId()));
+        return convertComportPoolListToInBoundComPortPools(getComPortPoolDataMapper().find("discoveryProtocolPluggableClassId", pluggableClass.getId()));
     }
 
     private List<OutboundComPortPool> convertComportPoolListToOutBoundComPortPools(final List<ComPortPool> comPortPools) {
@@ -343,28 +343,28 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public DataMapper<ComServer> getComServerFactory() {
-        return dataModel.mapper(ComServer.class);
+    public DataMapper<ServerComServer> getComServerDataMapper() {
+        return dataModel.mapper(ServerComServer.class);
     }
 
     @Override
-    public DataMapper<ComPort> getComPortFactory() {
+    public DataMapper<ComPort> getComPortDataMapper() {
         return dataModel.mapper(ComPort.class);
     }
 
     @Override
-    public DataMapper<ComPortPool> getComPortPoolFactory() {
+    public DataMapper<ComPortPool> getComPortPoolDataMapper() {
         return dataModel.mapper(ComPortPool.class);
     }
 
     @Override
-    public DataMapper<ComPortPoolMember> getComPortPoolMemberFactory() {
+    public DataMapper<ComPortPoolMember> getComPortPoolMemberDataMapper() {
         return dataModel.mapper(ComPortPoolMember.class);
     }
 
     @Override
     public void removeComPortFromPools(ComPort comPort) {
-        for (ComPortPoolMember comPortPoolMember : getComPortPoolMemberFactory().find("comPort", comPort)) {
+        for (ComPortPoolMember comPortPoolMember : getComPortPoolMemberDataMapper().find("comPort", comPort)) {
             comPortPoolMember.remove();
         }
 
@@ -372,7 +372,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<ComPortPool> findContainingComPortPoolsForComPort(ComPort comPort) {
-        List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberFactory().find("comPort", comPort);
+        List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberDataMapper().find("comPort", comPort);
         List<ComPortPool> comPortPools = new ArrayList<>();
         for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
             comPortPools.add(comPortPoolMember.getComPortPool());
@@ -392,7 +392,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<ComPortPool> findAllComPortPools() {
-        return getComPortPoolFactory().find();
+        return getComPortPoolDataMapper().find();
     }
 
     @Override
@@ -407,13 +407,13 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<OutboundComPort> findOutboundComPortsWithComPortType(ComPortType comPortType) {
-        return convertComportListToOutBoundComPorts(getComPortFactory().find("comPortType", comPortType,"class",OUTBOUND_DISCRIMINATOR));
+        return convertComportListToOutBoundComPorts(getComPortDataMapper().find("comPortType", comPortType, "class", OUTBOUND_DISCRIMINATOR));
     }
 
     @Override
     public List<InboundComPort> findInboundComPortsWithComPortType(ComPortType comPortType) {
         Condition condition = Where.where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(Where.where("comPortType").isEqualTo(comPortType));
-        return convertComportListToInBoundComPorts(getComPortFactory().select(condition));
+        return convertComportListToInBoundComPorts(getComPortDataMapper().select(condition));
     }
 
     @Override

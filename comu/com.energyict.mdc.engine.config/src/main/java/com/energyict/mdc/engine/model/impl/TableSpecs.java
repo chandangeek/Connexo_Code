@@ -14,9 +14,11 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
 
-    MDCCOMPORTPOOL(ComPortPool.class) {
+    MDCCOMPORTPOOL() {
+
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<ComPortPool> table = dataModel.addTable(name(), ComPortPool.class);
             table.map(ComPortPoolImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").map("name").add();
@@ -32,15 +34,16 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
         }
     },
-    MDCCOMSERVER(ServerComServer.class) {
+    MDCCOMSERVER() {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<ServerComServer> table = dataModel.addTable(name(), ServerComServer.class);
             table.map(ComServerImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.primaryKey("CEM_PK_COMSERVER").on(idColumn).add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
-            table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2INT).map("active").add();
+            table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("SERVERLOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("serverLogLevel").add();
             table.column("COMLOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("communicationLogLevel").add();
 
@@ -65,9 +68,10 @@ public enum TableSpecs {
             table.foreignKey("FK_REMOTE_ONLINE").on(onlineComServerId).references(MDCCOMSERVER.name()).map("onlineComServer").add();
         }
     },
-    MDCCOMPORT(ServerComPort.class) {
+    MDCCOMPORT() {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<ServerComPort> table = dataModel.addTable(name(), ServerComPort.class);
             table.map(ComPortImpl.IMPLEMENTERS);
             // ComPortImpl
             Column idColumn = table.addAutoIdColumn();
@@ -122,8 +126,10 @@ public enum TableSpecs {
 //                    map("comPortPoolMembers").reverseMap("comPort").composition().add();
         }
     },
-    MDCCOMPORTINPOOL(ComPortPoolMember.class) {
-   		void describeTable(Table table) {
+    MDCCOMPORTINPOOL() {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ComPortPoolMember> table = dataModel.addTable(name(), ComPortPoolMember.class);
    			table.map(ComPortPoolMemberImpl.class);
    			Column comPortPoolIdColumn = table.column("COMPORTPOOLID").number().notNull().conversion(NUMBER2LONG).map("comPortPool").add();
    			Column comPortIdColumn = table.column("COMPORTID").number().notNull().conversion(NUMBER2LONG).map("comPort").add();
@@ -136,17 +142,6 @@ public enum TableSpecs {
    		}
    	};
 
-    private Class apiClass;
-
-    private TableSpecs(Class apiClass) {
-        this.apiClass = apiClass;
-    }
-
-    public void addTo(DataModel component) {
-   		Table table = component.addTable(name(), apiClass);
-   		describeTable(table);
-   	}
-
-   	abstract void describeTable(Table table);
+    abstract void addTo(DataModel component);
 
 }

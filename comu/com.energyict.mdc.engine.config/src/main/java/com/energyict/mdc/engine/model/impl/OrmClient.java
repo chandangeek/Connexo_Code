@@ -7,8 +7,8 @@ import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 
 public interface OrmClient {
-    public DataMapper<ComServer> getComServerFactory();
-    public DataMapper<ComPort> getComPortFactory();
-    public DataMapper<ComPortPool> getComPortPoolFactory();
-    public DataMapper<ComPortPoolMember> getComPortPoolMemberFactory();
+    public DataMapper<ServerComServer> getComServerDataMapper();
+    public DataMapper<ComPort> getComPortDataMapper();
+    public DataMapper<ComPortPool> getComPortPoolDataMapper();
+    public DataMapper<ComPortPoolMember> getComPortPoolMemberDataMapper();
 }
