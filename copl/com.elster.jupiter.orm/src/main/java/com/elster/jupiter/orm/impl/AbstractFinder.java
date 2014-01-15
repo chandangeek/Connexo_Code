@@ -88,13 +88,8 @@ public abstract class AbstractFinder<T> implements Finder<T> {
     }
 
     @Override
-    public final Optional<T> get(Object... values) {
-    	return getOptional(values);
-    }
-    
-    @Override
     public T getExisting(Object... values) {
-        Optional<T> existing = get(values);
+        Optional<T> existing = getOptional(values);
         if (existing.isPresent()) {
             return existing.get();
         }
