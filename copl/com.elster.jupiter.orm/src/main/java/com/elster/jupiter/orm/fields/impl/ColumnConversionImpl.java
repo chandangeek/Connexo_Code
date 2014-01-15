@@ -115,7 +115,7 @@ public enum ColumnConversionImpl {
 	NUMBER2BOOLEAN { // 6
 		@Override
 		public Object convertToDb(Object value) {
-			return ((Boolean) value) ? 1 : 0;
+			return value == null ? null : (Boolean) value ? 1 : 0;
 		}
 		
 		@Override
