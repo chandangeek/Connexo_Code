@@ -1,14 +1,14 @@
 package com.energyict.protocols.mdc.channels.serial.direct.rxtx;
 
 import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
-import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.protocols.mdc.channels.serial.AbstractSerialConnectionType;
 
 import java.math.BigDecimal;
