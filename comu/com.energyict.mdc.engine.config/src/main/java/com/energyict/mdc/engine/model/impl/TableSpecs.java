@@ -41,8 +41,8 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMSERVER").on(idColumn).add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2INT).map("active").add();
-            table.column("SERVERLOGLEVEL").number().conversion(ColumnConversion.NUMBER2INT).map("serverLogLevel").add();
-            table.column("COMLOGLEVEL").number().conversion(ColumnConversion.NUMBER2INT).map("communicationLogLevel").add();
+            table.column("SERVERLOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("serverLogLevel").add();
+            table.column("COMLOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("communicationLogLevel").add();
 
             table.column("CHANGESDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("changesInterPollDelay.count").add();
             table.column("CHANGESDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("changesInterPollDelay.timeUnitCode").add();
@@ -50,16 +50,16 @@ public enum TableSpecs {
             table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.count").add();
             table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
-            table.column("QUERYAPIPOSTURI").type("varchar2(512)").notNull().map("queryAPIPostUri").add();
-            table.column("QUERYAPIUSERNAME").type("varchar2(255)").notNull().map("queryAPIUsername").add();
-            table.column("QUERYAPIPASSWORD").type("varchar2(255)").notNull().map("queryAPIPassword").add();
+            table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").add();
+            table.column("QUERYAPIUSERNAME").type("varchar2(255)").map("queryAPIUsername").add();
+            table.column("QUERYAPIPASSWORD").type("varchar2(255)").map("queryAPIPassword").add();
             table.addModTimeColumn("MOD_DATE", "modificationDate");
             table.column("OBSOLETE_DATE").type("DATE").conversion(DATE2DATE).map("obsoleteDate").add();
             Column onlineComServerId = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).map("onlineComServer").add();
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();
-            table.column("EVENTREGISTRATIONURI").type("varchar2(512)").notNull().map("eventRegistrationUri").add();
+            table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").add();
             table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2INT).map("usesDefaultQueryAPIPostUri").add();
             table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2INT).map("usesDefaultEventRegistrationUri").add();
             table.foreignKey("FK_REMOTE_ONLINE").on(onlineComServerId).references(MDCCOMSERVER.name()).map("onlineComServer").add();
