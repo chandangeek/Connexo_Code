@@ -26,7 +26,7 @@ public abstract class ComPortPoolInfo<T extends ComPortPoolShadow> {
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType type;
     public List<InboundComPortInfo> inboundComPorts;
-    public int discoveryProtocolPluggableClassId;
+    public long discoveryProtocolPluggableClassId;
     public List<OutboundComPortInfo> outboundComPorts;
     public TimeDurationInfo taskExecutionTimeout;
 

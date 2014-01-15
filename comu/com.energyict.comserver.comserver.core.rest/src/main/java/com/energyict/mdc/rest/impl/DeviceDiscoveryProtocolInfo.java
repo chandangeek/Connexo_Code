@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class DeviceDiscoveryProtocolInfo {
 
-    public int id;
+    public long id;
     public String name;
     public String javaClassName;
     public String deviceProtocolVersion;
