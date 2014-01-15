@@ -6,6 +6,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.google.common.collect.Range;
+import com.google.inject.Provider;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -37,8 +38,8 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     }
 
     @Inject
-    protected ModemBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+        super(dataModel, comPortPoolMemberProvider);
     }
 
     public int getRingCount() {

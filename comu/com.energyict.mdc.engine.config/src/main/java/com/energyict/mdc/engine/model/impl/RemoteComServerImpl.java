@@ -9,6 +9,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
+import com.google.inject.Provider;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.inject.Inject;
@@ -32,8 +33,8 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
     }
 
     @Inject
-    public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService) {
-        super(dataModel, engineModelService);
+    public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider);
     }
 
     protected void validate()  {

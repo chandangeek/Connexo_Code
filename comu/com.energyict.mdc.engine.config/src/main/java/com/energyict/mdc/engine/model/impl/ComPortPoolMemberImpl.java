@@ -1,27 +1,26 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 
 import java.util.Objects;
+import javax.inject.Inject;
 
 /**
  * Link table between ComPort and ComPortPool
  */
 public class ComPortPoolMemberImpl implements ComPortPoolMember {
+
+    private final DataModel dataModel;
     private Reference<ComPortPool> comPortPool;
     private Reference<ComPort> comPort;
 
-    public ComPortPoolMemberImpl() {
-    }
-
-    public ComPortPoolMemberImpl(ComPortPool comPortPool, ComPort comPort) {
-        Objects.requireNonNull(comPortPool);
-        Objects.requireNonNull(comPort);
-        this.comPortPool.set(comPortPool);
-        this.comPort.set(comPort);
+    @Inject
+    ComPortPoolMemberImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     @Override
@@ -48,6 +47,6 @@ public class ComPortPoolMemberImpl implements ComPortPoolMember {
 
     @Override
     public void remove() {
-        Bus.getServiceLocator().getOrmClient().getComPortPoolMemberFactory().remove(this);
+        dataModel.remove(this);
     }
 }

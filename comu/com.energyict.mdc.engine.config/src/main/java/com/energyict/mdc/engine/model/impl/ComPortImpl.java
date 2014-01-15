@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.Checks;
@@ -15,8 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -48,6 +46,7 @@ public abstract class ComPortImpl implements ServerComPort {
                     UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
                     OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
     private final DataModel dataModel;
+    private final Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider;
 
     private long id=0;
     private String name;
@@ -65,8 +64,9 @@ public abstract class ComPortImpl implements ServerComPort {
      * @param dataModel
      */
     @Inject
-    protected ComPortImpl(DataModel dataModel) {
+    protected ComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
         this.dataModel = dataModel;
+        this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 
     public void setName(String name) {
@@ -218,7 +218,10 @@ public abstract class ComPortImpl implements ServerComPort {
     public void setComPortPools(List<ComPortPool> comPortPools) {
         comPortPoolMembers.clear();
         for (ComPortPool comPortPool : comPortPools) {
-            comPortPoolMembers.add(new ComPortPoolMemberImpl(comPortPool, this));
+            ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
+            comPortPoolMember.setComPort(this);
+            comPortPoolMember.setComPortPool(comPortPool);
+            comPortPoolMembers.add(comPortPoolMember);
         }
     }
 

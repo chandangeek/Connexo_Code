@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 
+import com.google.inject.Provider;
 import java.util.Objects;
 
 /**
@@ -17,8 +18,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements InboundC
 
     private Reference<InboundComPortPool> comPortPool;
 
-    protected InboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected InboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+        super(dataModel, comPortPoolMemberProvider);
     }
 
     public InboundComPortPool getComPortPool () {

@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 
+import com.google.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -21,12 +22,14 @@ import javax.inject.Inject;
  */
 public class OutboundComPortPoolImpl extends ComPortPoolImpl implements OutboundComPortPool {
 
+    private final Provider<ComPortPoolMember> comPortPoolMemberProvider;
     private TimeDuration taskExecutionTimeout;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     @Inject
-    protected OutboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
+    protected OutboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
         super(dataModel, engineModelService);
+        this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 
     @Override
@@ -52,7 +55,10 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     public void setComPorts(List<OutboundComPort> comPorts) {
         this.comPortPoolMembers.clear();
         for (OutboundComPort comPort : comPorts) {
-            this.comPortPoolMembers.add(new ComPortPoolMemberImpl(this, comPort));
+            ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
+            comPortPoolMember.setComPort(comPort);
+            comPortPoolMember.setComPortPool(this);
+            this.comPortPoolMembers.add(comPortPoolMember);
         }
     }
 

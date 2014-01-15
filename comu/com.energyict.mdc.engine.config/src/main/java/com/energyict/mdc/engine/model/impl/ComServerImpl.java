@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
@@ -14,6 +13,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import com.google.inject.Provider;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -46,6 +46,7 @@ public abstract class ComServerImpl implements ServerComServer {
 
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
+    private final Provider<OutboundComPortImpl> outboundComPortProvider;
 
     private long id;
     private String name;
@@ -60,10 +61,11 @@ public abstract class ComServerImpl implements ServerComServer {
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService) {
+    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
         super();
         this.dataModel = dataModel;
         this.engineModelService = engineModelService;
+        this.outboundComPortProvider = outboundComPortProvider;
     }
 
     private List<ServerComPort> getServerComPorts () {
@@ -192,7 +194,7 @@ public abstract class ComServerImpl implements ServerComServer {
     class OutboundBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
         private OutboundBuilder(ComServer comServer) {
-            super(dataModel);
+            super(outboundComPortProvider);
             comPort.init(comServer);
         }
 

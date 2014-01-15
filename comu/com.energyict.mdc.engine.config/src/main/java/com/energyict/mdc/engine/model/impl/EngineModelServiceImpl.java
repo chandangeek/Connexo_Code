@@ -22,7 +22,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.PluggableClass;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -68,6 +67,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(EngineModelService.class).toInstance(EngineModelServiceImpl.this);
                 bind(ServerServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);
             }
         };

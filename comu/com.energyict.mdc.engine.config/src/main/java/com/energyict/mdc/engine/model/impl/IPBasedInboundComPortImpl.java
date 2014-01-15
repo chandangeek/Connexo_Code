@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
+import com.google.inject.Provider;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.IPBasedInboundComPort} interface.
@@ -16,8 +17,8 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     private int portNumber;
     private int numberOfSimultaneousConnections;
 
-    protected IPBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected IPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+        super(dataModel, comPortPoolMemberProvider);
     }
 
     @Override

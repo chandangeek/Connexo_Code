@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OfflineComServer;
+import com.google.inject.Provider;
 import javax.inject.Inject;
 
 /**
@@ -14,8 +15,8 @@ import javax.inject.Inject;
 public class OfflineComServerImpl extends ComServerImpl implements ServerOfflineComServer {
 
     @Inject
-    public OfflineComServerImpl (DataModel dataModel, EngineModelService engineModelService) {
-        super(dataModel, engineModelService);
+    public OfflineComServerImpl (DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider);
     }
 
     @Override

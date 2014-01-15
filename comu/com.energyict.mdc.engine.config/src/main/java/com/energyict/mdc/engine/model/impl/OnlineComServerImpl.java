@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.google.common.collect.Range;
 
+import com.google.inject.Provider;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -37,8 +38,8 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     private int storeTaskThreadPriority;
 
     @Inject
-    public OnlineComServerImpl (DataModel dataModel, EngineModelService engineModelService) {
-        super(dataModel, engineModelService);
+    public OnlineComServerImpl (DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider);
         this.engineModelService = engineModelService;
     }
 

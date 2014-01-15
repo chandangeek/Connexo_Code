@@ -2,8 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComServer;
-import com.google.inject.assistedinject.Assisted;
-import com.google.inject.assistedinject.AssistedInject;
+import com.google.inject.Provider;
 import javax.inject.Inject;
 
 /**
@@ -26,8 +25,8 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     }
 
     @Inject
-    protected ServletBasedInboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected ServletBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+        super(dataModel, comPortPoolMemberProvider);
     }
 
     @Override

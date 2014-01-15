@@ -5,10 +5,10 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
 
+import com.google.inject.Provider;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -23,8 +23,8 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
     private int numberOfSimultaneousConnections;
 
     @Inject
-    protected OutboundComPortImpl(DataModel dataModel) {
-        super(dataModel);
+    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> provider) {
+        super(dataModel, provider);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
     }
 
     static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, ServerOutboundComPort> implements OutboundComPortBuilder {
-        protected OutboundComPortBuilderImpl(DataModel dataModel) {
-            super(new OutboundComPortImpl(dataModel), OutboundComPortBuilder.class);
+        protected OutboundComPortBuilderImpl(Provider<OutboundComPortImpl> outboundComPortProvider) {
+            super(outboundComPortProvider.get(), OutboundComPortBuilder.class);
         }
 
         public OutboundComPortBuilder numberOfSimultaneousConnections(int number) {
