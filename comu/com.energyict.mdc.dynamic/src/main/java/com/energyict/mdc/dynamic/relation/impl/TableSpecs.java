@@ -21,9 +21,10 @@ import com.energyict.mdc.dynamic.relation.RelationType;
  */
 public enum TableSpecs {
 
-    EISRELATIONTYPE(RelationType.class) {
+    EISRELATIONTYPE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<RelationType> table = dataModel.addTable(name(), RelationType.class);
             table.map(RelationTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("CDR_PK_RELATIONTYPE").on(idColumn).add();
@@ -36,9 +37,10 @@ public enum TableSpecs {
             table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
         }
     },
-    EISRELATIONATTRIBUTETYPE(RelationAttributeType.class) {
+    EISRELATIONATTRIBUTETYPE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<RelationAttributeType> table = dataModel.addTable(name(), RelationAttributeType.class);
             table.map(RelationAttributeTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("CDR_PK_ATTRTYPE").on(idColumn).add();
@@ -56,9 +58,10 @@ public enum TableSpecs {
                     map("relationType").reverseMap("attributeTypes").composition().add();
         }
     },
-    EISCONSTRAINT(Constraint.class) {
+    EISCONSTRAINT {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<Constraint> table = dataModel.addTable(name(), Constraint.class);
             table.map(ConstraintImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("CDR_PK_CONSTRAINT").on(idColumn).add();
@@ -70,9 +73,10 @@ public enum TableSpecs {
                     map("relationType").reverseMap("constraints").composition().add();
         }
     },
-    EISCONSTRAINTMEMBER(ConstraintMember.class) {
+    EISCONSTRAINTMEMBER {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<ConstraintMember> table = dataModel.addTable(name(), ConstraintMember.class);
             table.map(ConstraintMember.class);
             Column constraintColumn = table.column("CONSTRAINTID").number().notNull().add();
             Column attributeTypeColumn = table.column("ATTRIBUTETYPEID").number().notNull().map("attributeTypeId").add();
@@ -85,17 +89,6 @@ public enum TableSpecs {
         }
     };
 
-    private Class apiClass;
-
-    TableSpecs (Class apiClass) {
-        this.apiClass = apiClass;
-    }
-
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), this.apiClass);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
+    abstract void addTo(DataModel component);
 
 }
