@@ -1,35 +1,33 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryProvider;
-import com.energyict.comserver.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.services.impl.Bus;
-import com.energyict.mdc.services.impl.ServiceLocator;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link SmartMeterProtocolSecuritySupportAdapter} component
@@ -47,8 +45,6 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     private static UserEnvironment userEnvironment = mock(UserEnvironment.class);
     @Mock
     private Environment environment;
-    @Mock
-    private ServiceLocator serviceLocator;
     @Mock
     private DeviceProtocolSecurityService deviceProtocolSecurityService;
 
@@ -84,33 +80,27 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
                     return Class.forName(javaClassName).newInstance();
                 }
         });
-        when(serviceLocator.getDeviceProtocolSecurityService()).thenReturn(deviceProtocolSecurityService);
-        Bus.setServiceLocator(serviceLocator);
     }
 
     @After
     public void cleanupEnvironment() {
         Environment.DEFAULT.set(null);
-        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Before
     public void before() {
-        final SecuritySupportAdapterMappingFactoryProvider securitySupportAdapterMappingFactoryProvider = mock(SecuritySupportAdapterMappingFactoryProvider.class);
-        when(securitySupportAdapterMappingFactoryProvider.getSecuritySupportAdapterMappingFactory()).thenReturn(securitySupportAdapterMappingFactory);
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 ("com.energyict.comserver.adapters.smartmeterprotocol.SimpleTestSmartMeterProtocol")).thenReturn("com.energyict.comserver.adapters.common.SimpleTestDeviceSecuritySupport");
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 ("com.energyict.comserver.adapters.smartmeterprotocol.SecondSimpleTestSmartMeterProtocol")).thenReturn("com.energyict.comserver.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass");
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 ("com.energyict.comserver.adapters.smartmeterprotocol.ThirdSimpleTestSmartMeterProtocol")).thenReturn("com.energyict.comserver.adapters.smartmeterprotocol.ThirdSimpleTestSmartMeterProtocol");
-        SecuritySupportAdapterMappingFactoryProvider.INSTANCE.set(securitySupportAdapterMappingFactoryProvider);
     }
 
     @Test
     public void testKnownMeterProtocol() {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        new SmartMeterProtocolSecuritySupportAdapter(simpleTestMeterProtocol, mock(PropertiesAdapter.class));
+        new SmartMeterProtocolSecuritySupportAdapter(simpleTestMeterProtocol, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory);
 
         // all is safe if no errors occur
     }
@@ -119,7 +109,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     public void testUnKnownMeterProtocol() {
         SmartMeterProtocol meterProtocol = mock(SmartMeterProtocol.class);
         try {
-            new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, mock(PropertiesAdapter.class));
+            new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory);
         } catch (DeviceProtocolAdapterCodingExceptions e) {
             if (!e.getMessageId().equals("CSC-DEV-124")) {
                 fail("Exception should have indicated that the given meterProtocol is not known in the adapter, but was " + e.getMessage());
@@ -132,7 +122,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     @Test
     public void testNotADeviceSecuritySupportClass() {
         SmartMeterProtocol meterProtocol = new ThirdSimpleTestSmartMeterProtocol();
-        final SmartMeterProtocolSecuritySupportAdapter spy = spy(new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, mock(PropertiesAdapter.class)));
+        final SmartMeterProtocolSecuritySupportAdapter spy = spy(new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory));
 
         // asserts
         verify(spy, never()).setLegacySecuritySupport(any(DeviceProtocolSecurityCapabilities.class));
@@ -145,7 +135,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
 
         SimpleTestSmartMeterProtocol simpleTestSmartMeterProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(simpleTestSmartMeterProtocol, propertiesAdapter);
+        SmartMeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(simpleTestSmartMeterProtocol, propertiesAdapter, this.securitySupportAdapterMappingFactory);
 
         // business method
         meterProtocolSecuritySupportAdapter.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
@@ -153,4 +143,5 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         // asserts
         verify(propertiesAdapter, times(1)).copyProperties(Matchers.<TypedProperties>any());
     }
+
 }

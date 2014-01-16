@@ -1,13 +1,17 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapter;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapter;
 import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -23,7 +27,11 @@ import static org.mockito.Mockito.withSettings;
  * Date: 31/08/12
  * Time: 15:03
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceCachingTest {
+
+    @Mock
+    private DataModel dataModel;
 
     @Test
     public void getCacheAlwaysChangedTest(){

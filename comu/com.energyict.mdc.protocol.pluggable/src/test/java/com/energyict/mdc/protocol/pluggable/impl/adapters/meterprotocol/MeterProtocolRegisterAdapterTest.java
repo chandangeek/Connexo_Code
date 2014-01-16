@@ -1,19 +1,18 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.comserver.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.Bus;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolRegisterAdapter;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;

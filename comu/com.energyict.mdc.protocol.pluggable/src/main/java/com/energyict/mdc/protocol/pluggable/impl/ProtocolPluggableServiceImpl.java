@@ -73,6 +73,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setDeviceProtocolService(deviceProtocolService);
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.setConnectionTypeService(connectionTypeService);
+        this.activate();
+        this.install();
     }
 
     @Override
@@ -386,8 +388,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
-                bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
+                bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
+                bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
+                bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
                 bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             }
         };

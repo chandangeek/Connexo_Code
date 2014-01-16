@@ -1,18 +1,25 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryProvider;
-import com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter;
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.exceptions.DeviceProtocolAdapterCodingExceptions;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.meterdata.NoOpCollectedMessageList;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.services.impl.ServiceLocator;
-import com.energyict.protocol.MessageProtocol;
+import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
+import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -45,17 +52,39 @@ public class MeterProtocolMessageAdapterTest {
     @Mock
     private Environment environment;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     @Mock
     private DeviceProtocolMessageService deviceProtocolMessageService;
 
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private PluggableService pluggableService;
+    @Mock
+    private RelationService relationService;
+    @Mock
+    private DeviceProtocolService deviceProtocolService;
+    @Mock
+    private InboundDeviceProtocolService inboundDeviceProtocolService;
+    @Mock
+    private ConnectionTypeService connectionTypeService;
+
+    private ProtocolPluggableService protocolPluggableService;
+
+    @Before
+    public void initializeMocks () {
+        when(this.deviceProtocolMessageService.createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter")).
+                thenReturn(new SimpleLegacyMessageConverter());
+        doThrow(DeviceProtocolAdapterCodingExceptions.class).when(this.deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
+        protocolPluggableService = new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.pluggableService, this.relationService, this.deviceProtocolService, this.inboundDeviceProtocolService, this.connectionTypeService);
+    }
+
     @Before
     public void before() {
-        MessageAdapterMappingFactoryProvider messageAdapterMappingFactoryProvider = mock(MessageAdapterMappingFactoryProvider.class);
-        when(messageAdapterMappingFactoryProvider.getMessageAdapterMappingFactory()).thenReturn(messageAdapterMappingFactory);
-        MessageAdapterMappingFactoryProvider.INSTANCE.set(messageAdapterMappingFactoryProvider);
         when(messageAdapterMappingFactory.getMessageMappingJavaClassNameForDeviceProtocol(
                 "com.energyict.comserver.adapters.meterprotocol.SimpleTestMeterProtocol"))
                 .thenReturn("com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter");
@@ -65,15 +94,6 @@ public class MeterProtocolMessageAdapterTest {
         when(messageAdapterMappingFactory.getMessageMappingJavaClassNameForDeviceProtocol(
                 "com.energyict.comserver.adapters.meterprotocol.ThirdSimpleTestMeterProtocol"))
                 .thenReturn("com.energyict.comserver.adapters.meterprotocol.ThirdSimpleTestMeterProtocol");
-    }
-
-    @Before
-    public void setUpServiceLocator() {
-        com.energyict.mdc.services.impl.Bus.setServiceLocator(this.serviceLocator);
-        when(this.serviceLocator.getDeviceProtocolMessageService()).thenReturn(this.deviceProtocolMessageService);
-        when(this.deviceProtocolMessageService.createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter")).
-                thenReturn(new SimpleLegacyMessageConverter());
-        doThrow(CodingException.class).when(this.deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
     }
 
     @Before
@@ -90,11 +110,6 @@ public class MeterProtocolMessageAdapterTest {
     @After
     public void tearDownEnvironment () {
         Environment.DEFAULT.set(null);
-    }
-
-    @After
-    public void tearDownServiceLocator() {
-        com.energyict.mdc.services.impl.Bus.clearServiceLocator(this.serviceLocator);
     }
 
     @Test
@@ -124,8 +139,8 @@ public class MeterProtocolMessageAdapterTest {
         MeterProtocol meterProtocol = new ThirdSimpleTestMeterProtocol();
         final MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.dataModel);
 
-        assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(NoOpCollectedMessageList.class);
-        assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(NoOpCollectedMessageList.class);
+        assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
+        assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
         assertThat(protocolMessageAdapter.format(null, null)).isEqualTo("");
 
         assertThat(protocolMessageAdapter.getSupportedMessages()).isEmpty();

@@ -19,27 +19,27 @@
   </description>
 
   <dependencies>
-      <dependency>
-          <groupId>com.energyict</groupId>
-          <artifactId>mdc-common</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>com.energyict</groupId>
-          <artifactId>mdc-protocols-api</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>com.energyict</groupId>
-          <artifactId>mdc-protocols</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>com.energyict</groupId>
-          <artifactId>mdc.pluggable</artifactId>
-          <version>${project.version}</version>
-      </dependency>
-      <dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-protocols-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc-protocols</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.pluggable</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
     </dependency>
@@ -56,6 +56,18 @@
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>bootstrap.h2</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>messaging.h2</artifactId>
+      <version>${jupiter.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

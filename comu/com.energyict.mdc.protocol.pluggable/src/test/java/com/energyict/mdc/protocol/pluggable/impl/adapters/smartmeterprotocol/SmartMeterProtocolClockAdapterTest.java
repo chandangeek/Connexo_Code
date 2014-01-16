@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import org.junit.*;
 import org.junit.runner.*;

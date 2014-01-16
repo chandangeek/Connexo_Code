@@ -1,21 +1,20 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.util.time.impl.DefaultClock;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolRegisterAdapter;
 import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;

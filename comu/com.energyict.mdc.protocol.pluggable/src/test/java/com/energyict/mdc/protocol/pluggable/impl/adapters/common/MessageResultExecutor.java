@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import java.io.IOException;
 
 /**
- * Provides functionality to perform an action when a MessageResult is expected
+ * Provides functionality to perform an action when a MessageResult is expected.
  * <p/>
  * Copyrights EnergyICT
  * Date: 22/03/13

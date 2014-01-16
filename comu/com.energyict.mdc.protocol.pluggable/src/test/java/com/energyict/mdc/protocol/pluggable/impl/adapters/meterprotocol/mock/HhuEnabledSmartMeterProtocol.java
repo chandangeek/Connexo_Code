@@ -12,5 +12,4 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
  * Time: 13:10
  */
 public interface HhuEnabledSmartMeterProtocol extends SmartMeterProtocol, HHUEnabler {
-
 }

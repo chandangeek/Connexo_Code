@@ -11,5 +11,4 @@ import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
  * @since 4/04/12 - 16:19
  */
 public interface RegisterSupportedMeterProtocol extends MeterProtocol, RegisterProtocol {
-
 }

@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock;
 
-import com.energyict.protocol.MessageProtocol;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 /**
@@ -11,5 +11,4 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
  * @since 5/04/12 - 11:37
  */
 public interface MessageSupportedMeterProtocol extends MeterProtocol, MessageProtocol {
-
 }

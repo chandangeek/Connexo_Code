@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 /**
- * A second SimpleTest protocol
+ * A second SimpleTest protocol.
  * <p/>
  * Copyrights EnergyICT
  * Date: 15/01/13

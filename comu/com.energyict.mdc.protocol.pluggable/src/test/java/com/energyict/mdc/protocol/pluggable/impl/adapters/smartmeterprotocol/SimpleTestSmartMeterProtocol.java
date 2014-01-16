@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.comserver.adapters.common.MessageResultExecutor;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -13,13 +13,13 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.protocol.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageResultExecutor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +43,7 @@ public class SimpleTestSmartMeterProtocol implements SmartMeterProtocol, Message
     private List<MessageResultExecutor> queryMessageResultExecutors = new ArrayList<>();
     private MessageResultExecutor applyMessageResultExecutor = new MessageResultExecutor() {
         @Override
-        public MessageResult performMessageResult() throws IOException {
+        public MessageResult performMessageResult() {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
     };
@@ -187,7 +187,7 @@ public class SimpleTestSmartMeterProtocol implements SmartMeterProtocol, Message
     }
 
     private MessageResultExecutor getNextQueryMessageExecutor() throws IOException {
-        if(queryMessageResultExecutors.size() == 0){
+        if(queryMessageResultExecutors.isEmpty()){
             throw new IOException("You didn't set the resultExecutors");
         }
         if(queryMessageCounter == queryMessageResultExecutors.size()){

@@ -24,7 +24,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * A third simple test protocol
+ * A third simple test protocol.
  * <p/>
  * Copyrights EnergyICT
  * Date: 15/01/13
