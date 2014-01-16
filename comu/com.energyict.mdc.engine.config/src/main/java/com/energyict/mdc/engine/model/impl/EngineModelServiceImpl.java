@@ -95,8 +95,10 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public List<ServerComServer> findAllComServers() {
-        return getComServerDataMapper().find();
+    public List<ComServer> findAllComServers() {
+        List<ComServer> comServers = new ArrayList<>();
+        comServers.addAll(getComServerDataMapper().find());
+        return comServers;
     }
 
     @Override
@@ -418,8 +420,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public List<ComPort> findAllWithDeleted() {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<ComPort> findAllComPortsWithDeleted() {
+        return getComPortDataMapper().find();
+    }
+
+    @Override
+    public List<ComPort> findAllComPorts() {
+        return getComPortDataMapper().find("obsoleteFlag", false);
     }
 }

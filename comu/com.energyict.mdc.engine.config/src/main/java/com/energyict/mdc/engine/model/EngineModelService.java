@@ -29,7 +29,7 @@ public interface EngineModelService {
      *
      * @return All the ComServers, including the obsolete ones
      */
-    public List<ServerComServer> findAllComServers();
+    public List<ComServer> findAllComServers();
 
     /**
      * Finds the ComServer with the name of the system that is currently running this software.
@@ -215,6 +215,8 @@ public interface EngineModelService {
 
     List<InboundComPort> findInboundComPortsWithComPortType(ComPortType comPortType);
 
-    List<ComPort> findAllWithDeleted();
+    List<ComPort> findAllComPortsWithDeleted();
+
+    List<ComPort> findAllComPorts();
 
 }

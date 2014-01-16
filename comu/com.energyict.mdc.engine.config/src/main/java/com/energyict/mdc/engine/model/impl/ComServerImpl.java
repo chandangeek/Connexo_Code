@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -253,6 +254,7 @@ public abstract class ComServerImpl implements ServerComServer {
 //                return comPort;
 //            }
     protected void validate (String newName) {
+        validateNotNull(newName, "name");
         /* Validation provided by superclass work with a set of invalid
          * characters (see getInvalidCharacters()) but actually,
          * a set of valid chars works a lot better in this case.
@@ -385,11 +387,15 @@ public abstract class ComServerImpl implements ServerComServer {
     }
 
     public void setChangesInterPollDelay(TimeDuration changesInterPollDelay) {
-        this.changesInterPollDelay = new TimeDuration(changesInterPollDelay.getCount(), changesInterPollDelay.getTimeUnitCode());
+        if (changesInterPollDelay!=null) {
+            this.changesInterPollDelay = new TimeDuration(changesInterPollDelay.getCount(), changesInterPollDelay.getTimeUnitCode());
+        }
     }
 
     public void setSchedulingInterPollDelay(TimeDuration schedulingInterPollDelay) {
-        this.schedulingInterPollDelay = new TimeDuration(schedulingInterPollDelay.getCount(), schedulingInterPollDelay.getTimeUnitCode());
+        if (schedulingInterPollDelay!=null) {
+            this.schedulingInterPollDelay = new TimeDuration(schedulingInterPollDelay.getCount(), schedulingInterPollDelay.getTimeUnitCode());
+        }
     }
 
     @Override
