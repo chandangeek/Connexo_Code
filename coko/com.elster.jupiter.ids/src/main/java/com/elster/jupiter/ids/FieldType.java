@@ -15,7 +15,7 @@ public enum FieldType {
 		
 		@Override
 		public void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
-			assert(object instanceof BigDecimal);
+			assert(object == null || object instanceof BigDecimal);
 			statement.setObject(offset, object);
 		}
 	},
@@ -28,7 +28,7 @@ public enum FieldType {
 		
 		@Override
 		public void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
-			assert(object instanceof Date);
+			assert(object == null || object instanceof Date);
 			statement.setLong(offset , ((Date) object).getTime());								
 		}
 	},
@@ -40,7 +40,7 @@ public enum FieldType {
 			
 		@Override
 		public void bind(PreparedStatement statement, int offset, Object object) throws SQLException {
-			assert(object instanceof Long);
+			assert(object == null || object instanceof Long);
 			statement.setObject(offset, object);
 		}
 	};		
