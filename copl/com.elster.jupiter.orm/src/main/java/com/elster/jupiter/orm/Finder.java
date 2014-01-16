@@ -6,60 +6,67 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
  * Fetches tuples from the database and converts them to objects
- * A Finder is associated with one table. 
+ * A Finder is associated with one table.
  * Finder contains simple find methods. More advanced criteria can be specified on a Query object.
  * Also a Query object can join in other tables to avoid the N+1 ORM performance issue
  */
 public interface Finder<T> extends BasicQuery<T> {
-	/**
-	 * 
-	 * Fetch all tuples. Only use on small tables
-	 */
+
+    /**
+     * Fetch all tuples. Only use on small tables
+     */
     List<T> find();
+
     /**
      * Fetch all tuples where fieldName equals value
      */
     List<T> find(String fieldName, Object value);
+
     /**
-     * 
      * @param fieldName
      * @param value
-     * @param orderBy if this matches a fieldName, it is converted to the corresponding Column name, 
-     * 	otherwise the string is passed transparently to the order by clause on the select statement.
+     * @param orderBy   if this matches a fieldName, it is converted to the corresponding Column name,
+     *                  otherwise the string is passed transparently to the order by clause on the select statement.
      * @return
      */
     List<T> find(String fieldName, Object value, String orderBy);
+
     /**
-     * Fetch all tuples where fieldName1 equals value 1 AND fieldName 2 equals value2 
+     * Fetch all tuples where fieldName1 equals value 1 AND fieldName 2 equals value2
+     *
      * @param fieldName1
      * @param value1
      * @param fieldName2
      * @param value2
      * @return
      */
-    List<T> find(String fieldName1, Object value1,String fieldName2, Object value2);
-    List<T> find(String fieldName1, Object value1,String fieldName2, Object value2, String orderBy);    
-    List<T> find(String[] fieldNames , Object[] values );
-    List<T> find(String[] fieldNames , Object[] values , String... orderBy);
-    List<T> find(Map<String,Object> valueMap);
-    List<T> find(Map<String,Object> valueMap,String... orderBy);
-	
-	/**
-	 * Find journal entries for a primary key
-	 */
+    List<T> find(String fieldName1, Object value1, String fieldName2, Object value2);
+
+    List<T> find(String fieldName1, Object value1, String fieldName2, Object value2, String orderBy);
+
+    List<T> find(String[] fieldNames, Object[] values);
+
+    List<T> find(String[] fieldNames, Object[] values, String... orderBy);
+
+    List<T> find(Map<String, Object> valueMap);
+
+    List<T> find(Map<String, Object> valueMap, String... orderBy);
+
+    /**
+     * Find journal entries for a primary key
+     */
     List<JournalEntry<T>> getJournal(Object... values);
-    
+
     /**
      * Find object where fieldName equals value
-     * @throws NotUniqueException   
+     *
+     * @throws NotUniqueException
      */
-	Optional<T> getUnique(String fieldName, Object value);
-	Optional<T> getUnique(String fieldName1, Object value1, String fieldName2,Object value2);
-	Optional<T> getUnique(String[] fieldNames , Object[] values);
-	
-	@Deprecated 
-	Optional<T> get(Object... keys);
-	
+    Optional<T> getUnique(String fieldName, Object value);
+
+    Optional<T> getUnique(String fieldName1, Object value1, String fieldName2, Object value2);
+
+    Optional<T> getUnique(String[] fieldNames, Object[] values);
+
 }

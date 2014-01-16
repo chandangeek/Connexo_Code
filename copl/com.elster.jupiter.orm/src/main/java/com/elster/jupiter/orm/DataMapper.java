@@ -1,8 +1,8 @@
 package com.elster.jupiter.orm;
 
-import java.util.List;
-
 import com.google.common.base.Optional;
+
+import java.util.List;
 
 /**
  * 
@@ -41,7 +41,9 @@ public interface DataMapper<T> extends Finder<T> {
 	/**
 	 * create a query executor that can join with the tables served by the arguments
 	 * There must be a (direct or indirect) foreign key relationship between the receiver's type and the 
-	 * types mapped by the arguments. 
+	 * types mapped by the arguments.
+     *
+     * @deprecated use DataModel.query() instead
 	 */
 	@Deprecated
 	QueryExecutor<T> with(DataMapper<?> ... tupleHandlers);
