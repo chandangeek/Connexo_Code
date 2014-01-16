@@ -148,6 +148,12 @@ public class PartyCrudTest {
         	context.commit();
         	assertThat(context.getStats().getSqlCount()).isEqualTo(2);
         }
+        try (TransactionContext context = getTransactionService().getContext()) {
+        	for (Party party : getPartyService().getPartyQuery().select(Condition.TRUE)) {
+        		party.delete();
+        	}
+        	context.commit();
+        }
     }
     
     @Test(expected=IllegalArgumentException.class)
@@ -161,6 +167,12 @@ public class PartyCrudTest {
         	assertThat(person.getCurrentDelegates()).hasSize(1);
         	person.appointDelegate(user,new Date());
     		context.commit();
+        }
+    	try (TransactionContext context = getTransactionService().getContext()) {
+    		for (Party party : getPartyService().getPartyQuery().select(Condition.TRUE)) {
+        		party.delete();
+        	}
+        	context.commit();
         }
     }
     

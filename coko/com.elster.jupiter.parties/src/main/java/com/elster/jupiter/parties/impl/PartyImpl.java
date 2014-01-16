@@ -264,6 +264,7 @@ abstract class PartyImpl implements Party {
     }
 
     public void delete() {
+    	representations.clear();
         dataModel.remove(this);
         eventService.postEvent(EventType.PARTY_DELETED.topic(), this);
     }
