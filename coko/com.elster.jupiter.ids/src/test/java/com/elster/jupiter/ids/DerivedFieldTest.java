@@ -71,12 +71,12 @@ public class DerivedFieldTest {
     }
 
     @Test
-    public void testCumul()  {
+    public void testDelta()  {
         IdsService idsService = injector.getInstance(IdsService.class);
         TimeSeries ts = null;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	RecordSpec recordSpec = idsService.newRecordSpec("XXX", 1, "Delta");
-        	recordSpec.addDerivedFieldSpec("Delta", "Cumul" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS);
+        	recordSpec.addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS);
         	recordSpec.persist();
         	Vault vault = idsService.getVault("IDS", 1).get();
 	        ts = vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), 15, IntervalLengthUnit.MINUTE,0);
