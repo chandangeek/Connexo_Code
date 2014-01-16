@@ -3,7 +3,6 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -177,13 +176,8 @@ public enum Fakes {
         }
 
         @Override
-        public Optional<T> get(Object... values) {
-            return Optional.fromNullable(store.get(new Key(values)));
-        }
-
-        @Override
         public Optional<T> getOptional(Object... values) {
-            return get(values);
+            return Optional.fromNullable(store.get(new Key(values)));
         }
 
         @Override
