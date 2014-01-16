@@ -105,7 +105,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(tcpBasedInboundComPort.getName()).thenReturn("portname");
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
-        when(engineModelService.findAllWithDeleted()).thenReturn(comPorts);
+        when(engineModelService.findAllComPortsWithDeleted()).thenReturn(comPorts);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL).request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'ComPorts'").containsKey("ComPorts").hasSize(1);
         List<Map<String, Object>> comports = (List<Map<String, Object>>) response.get("ComPorts");
@@ -401,7 +401,7 @@ public class ComPortResourceTest extends JerseyTest {
         comPorts.add(udpBasedInboundComPort);
         comPorts.add(modemBasedInboundComPort);
         comPorts.add(outboundComPort);
-        when(engineModelService.findAllWithDeleted()).thenReturn(comPorts);
+        when(engineModelService.findAllComPortsWithDeleted()).thenReturn(comPorts);
         when(engineModelService.findAllInboundComPorts()).thenReturn(Arrays.asList(tcpBasedInboundComPort, udpBasedInboundComPort, modemBasedInboundComPort));
         when(engineModelService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
         when(engineModelService.findComPortsByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));

@@ -46,7 +46,7 @@ public class ComPortResource {
                 }
             }
         } else {
-            for (ComPort comPort : engineModelService.findAllWithDeleted()) {
+            for (ComPort comPort : engineModelService.findAllComPortsWithDeleted()) {
                 wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
             }
         }
