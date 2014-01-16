@@ -130,7 +130,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<RemoteComServer> findRemoteComServersWithOnlineComServer(OnlineComServer onlineComServer) {
-        return convertComServerListToRemoteComServers(getComServerDataMapper().find("onlineServer", onlineComServer));
+        return convertComServerListToRemoteComServers(getComServerDataMapper().find("onlineComServer", onlineComServer));
     }
 
     @Override

@@ -318,15 +318,6 @@ public abstract class ComServerImpl implements ServerComServer {
         return false;
     }
 
-    @XmlElement(name = "type")
-    public String getXmlType () {
-        return this.getClass().getSimpleName();
-    }
-
-    public void setXmlType (String ignore) {
-        // For xml unmarshalling purposes only
-    }
-
     @Override
     public String getName () {
         return this.name;

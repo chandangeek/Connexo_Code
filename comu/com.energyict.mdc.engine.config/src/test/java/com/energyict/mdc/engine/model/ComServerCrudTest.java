@@ -13,7 +13,6 @@ import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
@@ -235,18 +234,5 @@ public class ComServerCrudTest {
         assertThat(onlineComServer.getComPorts()).hasSize(1);
     }
 
-    private static class MockModule extends AbstractModule {
-        private BundleContext bundleContext;
-
-        private MockModule(BundleContext bundleContext) {
-            super();
-            this.bundleContext = bundleContext;
-        }
-
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-        }
-    }
 
 }
