@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -14,7 +15,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 
-    VAL_VALIDATIONRULESET(IValidationRuleSet.class) {
+    VAL_VALIDATIONRULESET(ValidationRuleSet.class) {
         void describeTable(Table table) {
             table.map(ValidationRuleSetImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
