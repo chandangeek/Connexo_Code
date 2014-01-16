@@ -112,7 +112,7 @@ public class MeterReadingStorer {
 	private void store(IntervalReading reading , String readingTypeCode) {
 		Channel channel = findOrCreateChannel(reading, readingTypeCode);
 		if (channel != null) {
-			readingStorer.addIntervalReading(channel, reading.getTimeStamp(), ProfileStatus.of(), reading.getValue());
+			readingStorer.addIntervalReading(channel, reading.getTimeStamp(), reading.getProfileStatus(), reading.getValue());
 		}
 	}
 	

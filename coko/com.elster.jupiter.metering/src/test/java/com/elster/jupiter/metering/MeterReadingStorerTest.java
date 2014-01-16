@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.test.IntervalBlockImpl;
 import com.elster.jupiter.metering.impl.test.IntervalReadingImpl;
 import com.elster.jupiter.metering.impl.test.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -148,12 +149,14 @@ public class MeterReadingStorerTest {
         	meterReading.addIntervalBlock(block);
         	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
-        	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
+        	ProfileStatus status = ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW);
+        	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100),status));
         	meter.store(meterReading);
             List<BaseReadingRecord> readings = meter.getMeterActivations().get(0).getChannels().get(0).getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
             assertThat(readings).hasSize(2);
             assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
+            assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
             ctx.commit();
         }
     }

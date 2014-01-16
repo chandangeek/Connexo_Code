@@ -37,15 +37,8 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 
     @Override
 	public List<MeterActivation> getMeterActivations() {
-		return ImmutableList.copyOf(doGetMeterActivations());
+		return ImmutableList.copyOf(meterActivations);
 	}
-
-    private List<MeterActivation> doGetMeterActivations() {
-        if (meterActivations == null) {
-            meterActivations = getDataModel().mapper(MeterActivation.class).find("meter", this);
-        }
-        return meterActivations;
-    }
 		
 	@Override
 	public void store(MeterReading meterReading) {
