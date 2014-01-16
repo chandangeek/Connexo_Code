@@ -14,9 +14,10 @@ import com.energyict.mdc.pluggable.PluggableClass;
  */
 public enum TableSpecs {
 
-    EISPLUGGABLECLASS(PluggableClass.class) {
+    EISPLUGGABLECLASS {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<PluggableClass> table = dataModel.addTable(name(), PluggableClass.class);
             table.map(PluggableClassImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("CPC_PK_PLUGGABLE").on(idColumn).add();
@@ -27,9 +28,10 @@ public enum TableSpecs {
         }
     },
 
-    EISPLUGGABLECLASSPROPERTIES(PluggableClassProperty.class) {
+    EISPLUGGABLECLASSPROPERTIES {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<PluggableClassProperty> table = dataModel.addTable(name(), PluggableClassProperty.class);
             table.map(PluggableClassProperty.class);
             Column pluggableClassColumn = table.column("PLUGGABLECLASSID").number().notNull().add();
             Column nameColumn = table.column("NAME").type("varchar2(256)").notNull().map("name").add();
@@ -40,17 +42,6 @@ public enum TableSpecs {
         }
     };
 
-    private Class apiClass;
-
-    TableSpecs (Class apiClass) {
-        this.apiClass = apiClass;
-    }
-
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), this.apiClass);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
+    abstract void addTo(DataModel component);
 
 }
