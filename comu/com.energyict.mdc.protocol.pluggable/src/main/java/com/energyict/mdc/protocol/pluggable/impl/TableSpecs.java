@@ -21,12 +21,8 @@ public enum TableSpecs {
 
     MDCPCRATUSAGE {
         @Override
-        Class apiClass() {
-            return PluggableClassRelationAttributeTypeUsage.class;
-        }
-
-        @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<PluggableClassRelationAttributeTypeUsage> table = dataModel.addTable(name(), PluggableClassRelationAttributeTypeUsage.class);
             table.map(PluggableClassRelationAttributeTypeUsage.class);
             Column pluggableClassColumn = table.column("PLUGGABLECLASS").number().notNull().map("pluggableClassId").add();
             Column relationAttributeTypeColumn = table.column("RELATIONATTRIBUTETYPE").
@@ -40,12 +36,8 @@ public enum TableSpecs {
 
     MDCSSADAPTERMAPPING {
         @Override
-        Class apiClass() {
-            return SecuritySupportAdapterMapping.class;
-        }
-
-        @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<SecuritySupportAdapterMapping> table = dataModel.addTable(name(), SecuritySupportAdapterMapping.class);
             table.map(SecuritySupportAdapterMappingImpl.class);
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
@@ -56,12 +48,8 @@ public enum TableSpecs {
 
     MDCMESSAGEADAPTERMAPPING {
         @Override
-        Class apiClass() {
-            return MessageAdapterMapping.class;
-        }
-
-        @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<MessageAdapterMapping> table = dataModel.addTable(name(), MessageAdapterMapping.class);
             table.map(MessageAdapterMappingImpl.class);
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
@@ -72,12 +60,8 @@ public enum TableSpecs {
 
     MDCCAPABILITIESADAPTERMAPPING {
         @Override
-        Class apiClass() {
-            return DeviceCapabilityMapping.class;
-        }
-
-        @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+            Table<DeviceCapabilityMapping> table = dataModel.addTable(name(), DeviceCapabilityMapping.class);
             table.map(DeviceCapabilityAdapterMappingImpl.class);
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
@@ -86,13 +70,6 @@ public enum TableSpecs {
         }
     };
 
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), this.apiClass());
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
-
-    abstract Class apiClass ();
+    abstract void addTo(DataModel component);
 
 }
