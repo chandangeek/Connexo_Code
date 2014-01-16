@@ -75,9 +75,7 @@ public abstract class ComServerImpl implements ServerComServer {
 
     protected void validate(){
         this.validate(name);
-        if (!name.equals(this.getName())) {
-            this.validateConstraint(name);
-        }
+        this.validateConstraint(name);
         this.validateNotNull(this.getServerLogLevel(), "comserver.serverLogLevel");
         this.validateNotNull(this.getCommunicationLogLevel(), "comserver.comLogLevel");
         this.validateChangesInterPollDelay();
@@ -123,6 +121,7 @@ public abstract class ComServerImpl implements ServerComServer {
         this.validateMakeObsolete();
         this.makeComPortsObsolete();
         this.obsoleteFlag = true;
+        this.obsoleteDate = new Date();
         dataModel.update(this);
     }
 
@@ -423,5 +422,16 @@ public abstract class ComServerImpl implements ServerComServer {
         validateDelete();
         this.comPorts.clear();
         dataModel.remove(this);
+    }
+
+    @Override
+    public String toString() {
+        if (this.isObsolete()) {
+            return getName() + " (deleted on "+getObsoleteDate()+")";
+        }
+        else {
+            return this.getName();
+        }
+
     }
 }
