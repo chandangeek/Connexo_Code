@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.readings;
 
-import com.sun.org.apache.xalan.internal.utils.Objects;
+import java.util.Objects;
 
 public final class ProfileStatus {
 	private final long bits;
