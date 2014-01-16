@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class ThesaurusImpl implements Thesaurus {
+class ThesaurusImpl implements Thesaurus {
 
     private final ThreadPrincipalService threadPrincipalService;
     private final Map<String, NlsKeyImpl> translations = new HashMap<>();

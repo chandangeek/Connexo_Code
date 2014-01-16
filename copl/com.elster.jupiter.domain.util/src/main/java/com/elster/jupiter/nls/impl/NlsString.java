@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 
-public final class NlsString {
+final class NlsString {
 	private String key;
 	private String defaultMessage;
 	private final Thesaurus thesaurus;

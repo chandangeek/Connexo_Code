@@ -8,7 +8,7 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Level;
 
-public final class NlsMessageFormatImpl implements NlsMessageFormat {
+final class NlsMessageFormatImpl implements NlsMessageFormat {
 
     private static Map<Level, String> levelIndicators = ImmutableMap.of(Level.INFO, "I", Level.CONFIG, "C", Level.WARNING, "W", Level.SEVERE, "S");
 
