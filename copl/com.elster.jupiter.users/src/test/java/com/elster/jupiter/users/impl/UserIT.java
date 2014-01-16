@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,6 +73,11 @@ public class UserIT {
                 return null;
             }
         });
+    }
+
+    @After
+    public void tearDown() {
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
