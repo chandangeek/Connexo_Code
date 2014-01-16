@@ -45,22 +45,22 @@ public interface ProtocolPluggableService {
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
      * and implemented by the specified java class name.
      *
-     * @param name The name of the DeviceProtocolPluggableClass
+     *
      * @param className The name of java class that implements the DeviceProtocolPluggableClass
      * @return The newly created DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass (String name, String className);
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String className);
 
     /**
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
      * and implemented by the specified java class name.
      *
-     * @param name The name of the DeviceProtocolPluggableClass
+     *
      * @param className The name of java class that implements the DeviceProtocolPluggableClass
      * @param typedProperties The TypedProperties
      * @return The newly created DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass (String name, String className, TypedProperties typedProperties);
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String className, TypedProperties typedProperties);
 
     public List<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClassByClassName(String javaClassName);
 

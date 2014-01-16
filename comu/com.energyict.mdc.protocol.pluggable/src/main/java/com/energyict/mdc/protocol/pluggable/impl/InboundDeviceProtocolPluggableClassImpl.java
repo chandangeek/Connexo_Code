@@ -1,12 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Defines a PluggableClass based on a {@link InboundDeviceProtocol}.
@@ -42,6 +45,11 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
     @Override
     protected InboundDeviceProtocol newInstance(PluggableClass pluggableClass) {
         return this.inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass);
+    }
+
+    @Override
+    public TypedProperties getProperties(List<PropertySpec> propertySpecs) {
+        return super.getProperties(propertySpecs);
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
+
 /**
  * This factory will load and cache a list of
  * {@link SecuritySupportAdapterMapping securitySupportAdapterMappings}.
@@ -18,6 +20,7 @@ public class SecuritySupportAdapterMappingFactoryImpl implements SecuritySupport
 
     private DataMapper<SecuritySupportAdapterMapping> mapper;
 
+    @Inject
     public SecuritySupportAdapterMappingFactoryImpl(DataModel dataModel) {
         this(dataModel.mapper(SecuritySupportAdapterMapping.class));
     }

@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -143,7 +144,7 @@ public class MockDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -153,7 +154,7 @@ public class MockDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -203,7 +204,7 @@ public class MockDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

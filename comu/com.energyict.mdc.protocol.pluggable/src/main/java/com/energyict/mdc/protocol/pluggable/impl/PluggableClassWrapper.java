@@ -62,7 +62,11 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         return null;
     }
 
-    public TypedProperties getProperties(List<PropertySpec> propertySpecs) {
+    protected TypedProperties getProperties(List<PropertySpec> propertySpecs) {
+        return this.getPluggableClass().getProperties(propertySpecs);
+    }
+
+    protected TypedProperties getProperties() {
         return this.getPluggableClass().getProperties(this.getPropertySpecs());
     }
 

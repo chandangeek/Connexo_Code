@@ -96,7 +96,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
             for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
                 try {
                     if (this.protocolPluggableService.findDeviceProtocolPluggableClass(licensedProtocolRule.getClassName()) == null) {
-                        this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocolRule.getName(), licensedProtocolRule.getClassName());
+                        this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocolRule.getClassName());
                         LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
                     }
                     else {

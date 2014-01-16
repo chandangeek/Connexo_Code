@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -52,7 +53,7 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -82,7 +83,7 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public List<com.energyict.mdc.dynamic.PropertySpec> getSecurityProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -92,12 +93,12 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -182,7 +183,7 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

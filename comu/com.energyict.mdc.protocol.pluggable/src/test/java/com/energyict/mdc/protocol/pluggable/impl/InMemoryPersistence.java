@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
  */
 public class InMemoryPersistence {
 
-    private static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
+    public static final String JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME = "jupiter.bootstrap.module";
 
     private OrmService ormService;
     private EventService eventService;

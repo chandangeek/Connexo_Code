@@ -7,6 +7,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.ReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
@@ -88,6 +89,11 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     public void delete() throws BusinessException, SQLException {
         this.deleteRelationType();
         super.delete();
+    }
+
+    @Override
+    public TypedProperties getProperties(List<PropertySpec> propertySpecs) {
+        return super.getProperties(propertySpecs);
     }
 
     @Override

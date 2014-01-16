@@ -2,7 +2,9 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.license.License;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -22,6 +24,7 @@ import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRe
 
 import javax.inject.Inject;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Defines a PluggableClass based on a {@link DeviceProtocol}.
@@ -37,16 +40,21 @@ import java.sql.SQLException;
  */
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
-    @Inject
     private ProtocolPluggableService protocolPluggableService;
-    @Inject
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-    @Inject
     private RelationService relationService;
-    @Inject
     private DeviceProtocolService deviceProtocolService;
-    @Inject
     private DataModel dataModel;
+
+    @Inject
+    public DeviceProtocolPluggableClassImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DeviceProtocolService deviceProtocolService, DataModel dataModel) {
+        super();
+        this.protocolPluggableService = protocolPluggableService;
+        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
+        this.relationService = relationService;
+        this.deviceProtocolService = deviceProtocolService;
+        this.dataModel = dataModel;
+    }
 
     static DeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
         return dataModel.getInstance(DeviceProtocolPluggableClassImpl.class).initializeFrom(pluggableClass);
@@ -103,12 +111,12 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected void validateLicense() throws BusinessException {
-        License license = null; // Todo: figure out how to get hold of the current license
+        License license = LicenseServer.licenseHolder.get();
         this.checkDeviceProtocolForLicense(this.getJavaClassName(), license);
     }
 
     private void checkDeviceProtocolForLicense (String javaClassName, License license) throws BusinessException {
-        if (!license.hasProtocol(javaClassName)) {
+        if (!license.hasAllProtocols() && !license.hasProtocol(javaClassName)) {
             throw new BusinessException("protocolXNotAllowedByLicense", "Protocol '{0}' is not licensed", javaClassName);
         }
     }
@@ -169,9 +177,14 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
+    public TypedProperties getProperties(List<PropertySpec> propertySpecs) {
+        return super.getProperties(propertySpecs);
+    }
+
+    @Override
     public DeviceProtocol getDeviceProtocol () {
         DeviceProtocol deviceProtocol = this.newInstance();
-        deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
+        deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties());
         return deviceProtocol;
     }
 

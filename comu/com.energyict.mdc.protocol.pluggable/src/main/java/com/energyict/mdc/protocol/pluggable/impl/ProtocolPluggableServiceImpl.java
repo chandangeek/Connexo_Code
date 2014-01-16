@@ -24,6 +24,8 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -78,27 +80,20 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) {
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String className) {
         List<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, className);
         if (pluggableClasses.isEmpty()) {
             throw new NotFoundException("DeviceProtocolPluggableClass for java class " + className + " does not exist");
         }
         else {
             PluggableClass first = pluggableClasses.get(0);
-            try {
-                DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, first);
-                deviceProtocolPluggableClass.setName(name);
-                return deviceProtocolPluggableClass;
-            }
-            catch (BusinessException e) {
-                throw new ApplicationException(e);
-            }
+            return DeviceProtocolPluggableClassImpl.from(this.dataModel, first);
         }
     }
 
     @Override
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties properties) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(name, className);
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String className, TypedProperties properties) {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(className);
         for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
@@ -328,6 +323,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.dataModel = dataModel;
     }
 
+    DataModel getDataModel() {
+        return dataModel;
+    }
+
     public EventService getEventService() {
         return eventService;
     }
@@ -393,6 +392,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
                 bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
                 bind(ConnectionTypeService.class).toInstance(connectionTypeService);
+                bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
+                bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
             }
         };
     }
