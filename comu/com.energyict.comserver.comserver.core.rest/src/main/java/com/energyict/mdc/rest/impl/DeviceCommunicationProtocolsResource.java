@@ -77,7 +77,6 @@ public class DeviceCommunicationProtocolsResource {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                     this.protocolPluggableService.newDeviceProtocolPluggableClass(
-                            deviceCommunicationProtocolInfo.name,
                             deviceCommunicationProtocolInfo.licensedProtocol.protocolJavaClassName);
             deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
             deviceProtocolPluggableClass.save();
