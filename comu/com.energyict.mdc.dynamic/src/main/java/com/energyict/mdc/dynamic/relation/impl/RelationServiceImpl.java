@@ -65,6 +65,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator {
     @Activate
     public void activate () {
         Bus.setServiceLocator(this);
+        this.dataModel.register(this.getModule());
     }
 
     @Deactivate
