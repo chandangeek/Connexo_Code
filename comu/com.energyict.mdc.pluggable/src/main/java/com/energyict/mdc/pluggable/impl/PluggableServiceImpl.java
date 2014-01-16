@@ -67,6 +67,8 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setClock(clock);
+        this.activate();
+        this.install();
     }
 
     @Reference
