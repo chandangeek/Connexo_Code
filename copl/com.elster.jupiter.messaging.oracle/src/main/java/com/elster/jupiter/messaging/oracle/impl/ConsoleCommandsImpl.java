@@ -60,7 +60,7 @@ public class ConsoleCommandsImpl {
     }
 
     public void drain(String subscriberName, String destinationName) {
-        Optional<SubscriberSpec> spec = dataModel.mapper(SubscriberSpec.class).get(destinationName, subscriberName);
+        Optional<SubscriberSpec> spec = dataModel.mapper(SubscriberSpec.class).getOptional(destinationName, subscriberName);
         try {
             AQMessage message = ((SubscriberSpecImpl) spec.get()).receiveNow();
             while (message != null) {
