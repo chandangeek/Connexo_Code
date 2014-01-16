@@ -1,44 +1,25 @@
 Ext.define('Cfg.view.validation.RuleSetList', {
     extend: 'Ext.grid.Panel',
+    border: true,
+    margins: '0 10 0 10',
     alias: 'widget.validationrulesetList',
     itemId: 'validationrulesetList',
     store: 'ValidationRuleSets',
-    selType: 'checkboxmodel',
-    tbar: [
-        '->',
-        {
-            text: 'Create new ruleset',
-            itemId: 'newRuleset',
-            action: 'newRuleset'
-        },
-        {
-            text: 'Bulk actions',
-            menu:{
-                items:[
-                    {
-                        text: 'Remove selected rulesets',
-                        itemId: 'removeRulesets',
-                        action: 'removeRulesets'
+    //selType: 'checkboxmodel',
 
-                    }
-                ]
-            }
-        }],
     columns: {
         items: [
             { header: 'Name', dataIndex: 'name', flex: 1 },
-            { header: 'Description', dataIndex: 'description', flex: 1 },
-            { header: '# Active Rules', dataIndex: 'numberOfActiveRules', flex: 1 },
-            { header: '# Rules', dataIndex: 'numberOfRules', flex: 1  },
+            { header: 'Number of Rules', dataIndex: 'numberOfRules', flex: 1, align: 'right'  },
+            { header: 'Number of inactive rules', dataIndex: 'numberOfInactiveRules', flex: 1, align: 'right' },
             {
                 xtype:'actioncolumn',
+                align: 'center',
                 header: 'Actions',
                 flex: 1,
-                tdCls:'view',
                 width:40,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
-                    tooltip: 'View',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
@@ -53,7 +34,11 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                                         scope: this
                                     }
                                 }
-                            }, {
+                            },
+                            {
+                                    xtype: 'menuseparator'
+                            },
+                            {
                                 xtype: 'menuitem',
                                 text: 'Delete',
                                 listeners: {
@@ -75,11 +60,11 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         ]
     },
 
-    selModel: Ext.create('Ext.selection.CheckboxModel', {
+    /*selModel: Ext.create('Ext.selection.CheckboxModel', {
         mode: 'MULTI'
         //checkOnly: true
-    }),
-    selType: 'checkboxmodel',
+    }),   */
+    //selType: 'checkboxmodel',
     initComponent: function () {
         this.dockedItems = [
             {

@@ -8,14 +8,14 @@ Ext.define('Cfg.Application', {
 
     controllers: [
         'Main',
-        'EventType',
+        //'EventType',
         'Validation',
-        'history.EventType',
+        //'history.EventType',
         'history.Validation'
     ],
 
     stores: [
-        'EventTypes',
+        //'EventTypes',
         'ValidationRuleSets'
     ],
     launch: function () {

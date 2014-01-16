@@ -1,5 +1,7 @@
 Ext.define('Cfg.view.validation.RuleList', {
     extend: 'Ext.grid.Panel',
+    border: true,
+    margins: '0 10 0 10',
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
     store: 'ValidationRules',

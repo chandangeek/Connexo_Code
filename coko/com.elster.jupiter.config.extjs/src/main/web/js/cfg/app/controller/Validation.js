@@ -24,6 +24,8 @@ Ext.define('Cfg.controller.Validation', {
     refs: [
         {ref: 'ruleSetForm',selector: 'ruleSetPreview #rulesetForm'} ,
         {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
+        {ref: 'rulesetPreviewTitle',selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
+
         {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
         {ref: 'rulesGrid',selector: 'validationruleList'},
         {ref: 'ruleSetPreview',selector:'ruleSetPreview'},
@@ -116,7 +118,10 @@ Ext.define('Cfg.controller.Validation', {
         var selectedSets = this.getRuleSetsGrid().getSelectionModel().getSelection();
         if (selectedSets.length == 1) {
             this.getRuleSetForm().loadRecord(selectedSets[0]);
+            var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
             this.getRuleSetPreview().show();
+            //var ruleSetName = selectedSets[0].name();
+            this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
         } else {
             this.getRuleSetPreview().hide();
         }

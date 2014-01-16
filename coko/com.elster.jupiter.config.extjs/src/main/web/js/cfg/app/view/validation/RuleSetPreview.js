@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validation.RuleSetPreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    margins: '10 10 10 10',
+    margins: '0 10 10 10',
     alias: 'widget.ruleSetPreview',
     itemId: 'ruleSetPreview',
     hidden: true,
@@ -13,21 +13,34 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
         align: 'stretch'
     },
     tbar: [
+        {
+            xtype: 'component',
+            html: '<h4>Validation rule sets</h4>',
+            itemId: 'rulesetPreviewTitle'
+        },
         '->',
         {
-            text: 'Delete',
-            itemId: 'deleteRuleSet',
-            action: 'deleteRuleSet'
-        },
-        {
-            text: 'Clone',
-            itemId: 'cloneRuleSet',
-            action: 'cloneRuleSet'
-        },
-        {
-            text: 'Edit',
-            itemId: 'editRuleSet',
-            action: 'editRuleSet'
+            icon: 'resources/images/gear-16x16.png',
+            text: 'Actions',
+            menu:{
+                items:[
+                    {
+                        text: 'Edit',
+                        itemId: 'editRuleset',
+                        action: 'editRuleset'
+
+                    },
+                    {
+                        xtype: 'menuseparator'
+                    },
+                    {
+                        text: 'Delete',
+                        itemId: 'deleteRuleset',
+                        action: 'deleteRuleset'
+
+                    }
+                ]
+            }
         }],
 
     items: [
@@ -39,30 +52,35 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            defaults: {
-                anchor: '100%',
-                margins: '0 0 5 0'
-            },
 
             items: [
                 {
                     xtype: 'displayfield',
                     name: 'name',
-                    fieldLabel: 'Name:'
+                    fieldLabel: 'Name:',
+                    labelAlign: 'right',
+                    labelWidth:	150
                 },
                 {
                     xtype: 'displayfield',
                     name: 'description',
-                    fieldLabel: 'Description:'
+                    fieldLabel: 'Description:',
+                    labelAlign: 'right',
+                    labelWidth:	150
                 },
                 {
                     xtype: 'displayfield',
-                    name: 'numberOfActiveRules',
-                    fieldLabel: '# Active Rules:'
-                },{
-                    xtype: 'displayfield',
                     name: 'numberOfRules',
-                    fieldLabel: '# Rules:'
+                    fieldLabel: 'Number of rules:' ,
+                    labelAlign: 'right',
+                    labelWidth:	150
+                },
+                {
+                    xtype: 'displayfield',
+                    name: 'numberOfInactiveRules',
+                    fieldLabel: 'Number of inactive rules:',
+                    labelAlign: 'right',
+                    labelWidth:	150
                 },
                 {
                     xtype: 'toolbar',

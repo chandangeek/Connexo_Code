@@ -19,7 +19,21 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>Rule Sets</h1>'
+                    html: '<h1>Validation rule sets</h1>'
+                },
+                {
+                    tbar: [
+                        '->',
+                        {
+                            text: 'Create new ruleset',
+                            itemId: 'newRuleset',
+                            action: 'newRuleset'
+                        },
+                        {
+                            text: 'Bulk action',
+                            itemId: 'rulesetBulkAction',
+                            action: 'rulesetBulkAction'
+                        }]
                 },
                 {
                     xtype: 'validationrulesetList'
@@ -32,7 +46,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                     height : 50},
                 {
                     xtype: 'component',
-                    html: '<h3>Selected ruleset preview</h3>',
+                    html: '<h3>Selected rule set preview</h3>',
                     margins:  '0 0 0 10'
                 },
                 {
