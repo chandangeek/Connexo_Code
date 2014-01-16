@@ -169,6 +169,7 @@ public class MK10 extends AbstractProtocol {
         return "EDMI MK10";
     }
 
+    /** Protocol version **/
 	public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
 		return "$Date$";

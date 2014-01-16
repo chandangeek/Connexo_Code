@@ -10,14 +10,6 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -29,6 +21,14 @@ import com.energyict.protocolimpl.edmi.mk10.eventsurvey.Event;
 import com.energyict.protocolimpl.edmi.mk10.eventsurvey.EventSurvey;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.LoadSurvey;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.LoadSurveyData;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  *
@@ -138,15 +138,13 @@ public class MK10Profile {
 		Iterator it = eventLogData.iterator();
 		while(it.hasNext()) {
 			Event event = (Event) it.next();
-			String message = event.getEventDescription();
 			Date eventdate = event.getEventDate();
-			int eventcode = event.getEventCode();
 			while (duplicateDate(meterEvents, eventdate)) {
 				cal.setTime(eventdate);
 				cal.add(Calendar.SECOND, 1);
 				eventdate = cal.getTime();
 			}
-			me = new MeterEvent(eventdate, mapEventLogMessage2MeterEventEICode(message), eventcode, message);
+			me = new MeterEvent(eventdate, event.getEiServerEventCode(), event.getProtocolEventCode(), event.getEventDescription());
 			meterEvents.add(me);
 		}
 
@@ -204,60 +202,5 @@ public class MK10Profile {
 		}
 
 		return eiStatus;
-	}
-
-	private int mapEventLogMessage2MeterEventEICode(String message) {
-
-		String lc = message.toLowerCase();
-
-		if (lc.indexOf("unknown")>=0) {
-			return MeterEvent.PROGRAM_FLOW_ERROR;
-		}
-		if (lc.indexOf("the meter was switched off")>=0) {
-			return MeterEvent.POWERDOWN;
-		}
-		if (lc.indexOf("the meter powered up")>=0) {
-			return MeterEvent.POWERUP;
-		}
-		if (lc.indexOf("sag")>=0) {
-			return MeterEvent.VOLTAGE_SAG;
-		}
-		if (lc.indexOf("surge")>=0) {
-			return MeterEvent.VOLTAGE_SWELL;
-		}
-		if (lc.indexOf("billing")>=0) {
-			return MeterEvent.BILLING_ACTION;
-		}
-		if (lc.indexOf("cleared")>=0) {
-			return MeterEvent.CLEAR_DATA;
-		}
-		if (lc.indexOf("failure")>=0) {
-			return MeterEvent.HARDWARE_ERROR;
-		}
-		if (lc.indexOf("phase")>=0) {
-			return MeterEvent.PHASE_FAILURE;
-		}
-		if (lc.indexOf("asymetric")>=0) {
-			return MeterEvent.METER_ALARM;
-		}
-		if (lc.indexOf("reverse")>=0) {
-			return MeterEvent.OTHER;
-		}
-		if (lc.indexOf("overflow")>=0) {
-			return MeterEvent.REGISTER_OVERFLOW;
-		}
-		if (lc.indexOf("setup change")>=0) {
-			return MeterEvent.CONFIGURATIONCHANGE;
-		}
-		if (lc.indexOf("system time changed to")>=0) {
-			return MeterEvent.SETCLOCK_BEFORE;
-		}
-		if (lc.indexOf("system time changed from")>=0) {
-			return MeterEvent.SETCLOCK_AFTER;
-		}
-		if (lc.indexOf("tamper")>=0) {
-			return MeterEvent.OTHER;
-		}
-		return MeterEvent.OTHER;
 	}
 }
