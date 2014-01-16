@@ -23,7 +23,11 @@ public class ChannelInfo {
         this.id = channel.getId();
         this.version = channel.getVersion();
         this.mainReadingType = channel.getMainReadingType() == null ? null : channel.getMainReadingType().getMRID();
-        this.cumulativeReadingType = channel.getCumulativeReadingType() == null ? null : channel.getCumulativeReadingType().getMRID();
+        if (channel.getBulkQuantityReadingType().isPresent()) {
+        	this.cumulativeReadingType = channel.getBulkQuantityReadingType().get().getMRID();
+        } else {
+        	this.cumulativeReadingType = null;
+        }
         this.readingTypes = new ArrayList<>();
         for (ReadingType readingType : channel.getReadingTypes()) {
             readingTypes.add(readingType.getMRID());
