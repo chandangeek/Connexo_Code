@@ -22,14 +22,10 @@ public interface Thesaurus {
     //
 	// we could add (mainly for the maintenance app)
 	//
-	NlsKey getTranslations(Locale local) ;
-	//
-	//
-	//
+//	NlsKey getTranslations(Locale local) ; TODO : meta information calls
+
 	String getComponent();
-	//
-	//
-	//
+
 	NlsMessageFormat getFormat(MessageSeed seed);
 
     void addTranslations(Iterable<? extends Translation> translations);

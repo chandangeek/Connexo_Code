@@ -52,7 +52,7 @@ public class ThesaurusImpl implements Thesaurus {
         return translations.get(key).translate(locale).or(defaultMessage);
     }
 
-    private Locale getLocale() {
+    Locale getLocale() {
         return threadPrincipalService.getLocale();
     }
 
@@ -71,25 +71,23 @@ public class ThesaurusImpl implements Thesaurus {
                 nlsKey.add(translation.getLocale(), translation.getTranslation());
             }
             nlsKey.save();
+            this.translations.put(nlsKey.getKey(), nlsKey);
         }
-    }
-
-
-    @Override
-    public NlsKey getTranslations(Locale local) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
-    }
-
-    @Override
-    public String getComponent() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
     }
 
     @Override
     public NlsMessageFormat getFormat(MessageSeed seed) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return new NlsMessageFormatImpl(this, seed.getNumber(), nlsStringFor(seed), seed.getLevel());
+    }
+
+    private NlsString nlsStringFor(MessageSeed seed) {
+        String key = seed.getKey();
+        String defaultFormat = seed.getDefaultFormat();
+        return NlsString.from(this, key, defaultFormat);
+    }
+
+    @Override
+    public String getComponent() {
+        return component;
     }
 }

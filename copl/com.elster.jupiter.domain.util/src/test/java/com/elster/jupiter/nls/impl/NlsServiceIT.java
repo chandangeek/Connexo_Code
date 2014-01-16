@@ -3,7 +3,9 @@ package com.elster.jupiter.nls.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeed;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,6 +35,7 @@ import org.osgi.service.event.EventAdmin;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.logging.Level;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,7 +92,29 @@ public class NlsServiceIT {
     }
 
     @Test
-    public void testTranslateService() {
+    public void testTranslateServiceUsingThreadPrincipal() {
+        NlsService nlsService = injector.getInstance(NlsService.class);
+        final Thesaurus thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+
+        injector.getInstance(ThreadPrincipalService.class).set(null, null, null, Locale.FRENCH);
+        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
+                thesaurus.addTranslations(Arrays.asList(
+                        toTranslation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
+                        toTranslation(nlsKey, Locale.FRENCH, "tension maximale"))
+                );
+            }
+        });
+
+        Thesaurus thesaurus2 = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        assertThat(thesaurus2.getString("voltage.max", "WRONG")).isEqualTo("tension maximale");
+
+    }
+
+    @Test
+    public void testTranslateServiceUsingSpecific() {
         NlsService nlsService = injector.getInstance(NlsService.class);
         final Thesaurus thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
 
@@ -135,6 +160,53 @@ public class NlsServiceIT {
         Thesaurus thesaurus2 = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         assertThat(thesaurus2.getString("voltage.max", "WRONG")).isEqualTo("tension maximale");
 
+    }
+
+    @Test
+    public void testMessageFormat() {
+        NlsService nlsService = injector.getInstance(NlsService.class);
+        nlsService.getThesaurus(COMPONENT_NAME, Layer.UI);
+        final Thesaurus thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        injector.getInstance(ThreadPrincipalService.class).set(null, null, null, Locale.FRANCE);
+        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage. : {0} V");
+                thesaurus.addTranslations(Arrays.asList(
+                        toTranslation(nlsKey, Locale.GERMAN, "Höchstspannungs : {0} V"),
+                        toTranslation(nlsKey, Locale.FRENCH, "tension maximale : {0} V"))
+                );
+            }
+        });
+
+        NlsMessageFormat format = thesaurus.getFormat(messageSeed(145, "voltage.max", "Maximum voltage. : {0} V", Level.INFO));
+
+        assertThat(format).isNotNull();
+        assertThat(format.format(4000)).isEqualTo("DUM0145I tension maximale : 4\u00A0000 V");
+    }
+
+    private MessageSeed messageSeed(final int number, final String key, final String defaultFormat, final Level level) {
+        return new MessageSeed() {
+            @Override
+            public int getNumber() {
+                return number;
+            }
+
+            @Override
+            public String getKey() {
+                return key;
+            }
+
+            @Override
+            public String getDefaultFormat() {
+                return defaultFormat;
+            }
+
+            @Override
+            public Level getLevel() {
+                return level;
+            }
+        };
     }
 
     private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {

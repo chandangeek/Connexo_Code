@@ -16,6 +16,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +44,7 @@ public class NlsKeyIT {
     private EventAdmin eventAdmin;
     @Mock
     private DataModel dataModel;
+    private InMemoryBootstrapModule inMemoryBootstrapModule;
 
     private class MockModule extends AbstractModule {
 
@@ -61,9 +63,10 @@ public class NlsKeyIT {
 
     @Before
     public void setUp() throws SQLException {
+        inMemoryBootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
-                new InMemoryBootstrapModule(),
+                inMemoryBootstrapModule,
                 new DomainUtilModule(),
                 new OrmModule(),
                 new UtilModule(),
@@ -78,6 +81,11 @@ public class NlsKeyIT {
                 dataModel = ((NlsServiceImpl) nlsService).getDataModel();
             }
         });
+    }
+
+    @After
+    public void tearDown() {
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
