@@ -58,7 +58,7 @@ public final class ChannelImpl implements Channel {
 	private Reference<MeterActivation> meterActivation = ValueReference.absent();
 	private Reference<TimeSeries> timeSeries = ValueReference.absent();
 	private Reference<ReadingType> mainReadingType = ValueReference.absent();
-	private Reference<ReadingType> cumulativeReadingType = ValueReference.absent();
+	private Reference<ReadingType> bulkQuantityReadingType = ValueReference.absent();
 	private List<ReadingTypeInChannel> readingTypeInChannels = new ArrayList<>();
 
     private final IdsService idsService;
@@ -100,12 +100,12 @@ public final class ChannelImpl implements Channel {
 		this.mainReadingType.set(readingTypes.get(0));
 		int index = 1;
 		if (readingTypes.size() > 1) {
-			if (mainReadingType.get().isCumulativeReadingType(readingTypes.get(index))) {
-				cumulativeReadingType.set(readingTypes.get(index++));
+			if (mainReadingType.get().isBulkQuantityReadingType(readingTypes.get(index))) {
+				bulkQuantityReadingType.set(readingTypes.get(index++));
 			} 
 		}
 		for (; index < readingTypes.size() ; index++) {
-			this.readingTypeInChannels.add(ReadingTypeInChannel.from(dataModel, this, readingTypes.get(index)));
+			this.readingTypeInChannels.add(new ReadingTypeInChannel().init(this, readingTypes.get(index)));
 		}
 		this.timeSeries.set(createTimeSeries());
 	}
@@ -138,10 +138,10 @@ public final class ChannelImpl implements Channel {
     private RecordSpec getRecordSpec(boolean regular) {
     	RecordSpecs definition;
     	if (regular) {
-    		if (cumulativeReadingType == null) {
+    		if (bulkQuantityReadingType == null) {
     			definition = RecordSpecs.SINGLEINTERVAL;
     		} else {
-    			definition = RecordSpecs.CUMULATIVEINTERVAL;
+    			definition = RecordSpecs.BULKQUANTITYINTERVAL;
     		}
     	} else {
     		definition = RecordSpecs.BASEREGISTER;
@@ -162,9 +162,8 @@ public final class ChannelImpl implements Channel {
 	public List<ReadingType> getReadingTypes() {
         ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
         builder.add(getMainReadingType());
-		ReadingType next = getCumulativeReadingType();
-		if (next != null) {
-			builder.add(next);
+		if (bulkQuantityReadingType.isPresent()) {
+			builder.add(bulkQuantityReadingType.get());
 		}
 		for (ReadingTypeInChannel each : readingTypeInChannels) {
 			builder.add(each.getReadingType());
@@ -259,8 +258,8 @@ public final class ChannelImpl implements Channel {
 	}
 	
 	@Override
-	public ReadingType getCumulativeReadingType() {
-		return cumulativeReadingType.orNull();
+	public Optional<ReadingType> getBulkQuantityReadingType() {
+		return bulkQuantityReadingType.getOptional();
 	}
 
     @Override

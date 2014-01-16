@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 public class ChannelImplTest extends EqualsContractTest {
 
     private static final String MRID1 = "11.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
-    private static final String MRID2 = "11.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID2 = "11.2.2.1.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID3 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID4 = "11.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID1_IRR = "0.2.0.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
@@ -81,8 +81,7 @@ public class ChannelImplTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private Clock clock;
-    @Mock
-    private DataMapper<ReadingTypeInChannel> readingTypeInChannelFactory;
+   
 
     @Before
     public void setUp() {
@@ -94,8 +93,6 @@ public class ChannelImplTest extends EqualsContractTest {
             }
         });
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenReturn(new ReadingTypeInChannel());
-        when(dataModel.mapper(ReadingTypeInChannel.class)).thenReturn(readingTypeInChannelFactory);
-
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
         when(clock.getTimeZone()).thenReturn(TIME_ZONE);
         when(idsService.getVault(MeteringService.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
@@ -177,7 +174,7 @@ public class ChannelImplTest extends EqualsContractTest {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
-        assertThat(channel.getCumulativeReadingType()).isEqualTo(readingType2);
+        assertThat(channel.getBulkQuantityReadingType()).isAbsent();
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
@@ -190,7 +187,7 @@ public class ChannelImplTest extends EqualsContractTest {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
-        assertThat(channel.getCumulativeReadingType()).isEqualTo(readingType2);
+        assertThat(channel.getBulkQuantityReadingType().get()).isEqualTo(readingType2);
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
@@ -212,7 +209,7 @@ public class ChannelImplTest extends EqualsContractTest {
         channel.init(Arrays.<ReadingType>asList(readingType1, readingType2, readingType4));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
-        assertThat(channel.getCumulativeReadingType()).isEqualTo(readingType2);
+        assertThat(channel.getBulkQuantityReadingType()).isAbsent();
         assertThat(channel.getReadingTypes()).hasSize(3)
                 .contains(readingType1)
                 .contains(readingType2)

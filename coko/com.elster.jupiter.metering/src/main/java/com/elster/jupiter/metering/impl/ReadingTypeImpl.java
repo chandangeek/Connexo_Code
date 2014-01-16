@@ -289,12 +289,26 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     }
     
     @Override
-	public boolean isCumulativeReadingType(ReadingType readingType) {
+	public boolean isBulkQuantityReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
 		return 
-			this.measuringPeriod == other.measuringPeriod &&			
-			this.accumulation == Accumulation.DELTADELTA &&
-			other.accumulation == Accumulation.BULKQUANTITY;
+			this.macroPeriod.equals(other.macroPeriod) &&
+			this.aggregate.equals(other.aggregate) &&
+			this.measuringPeriod.equals(other.measuringPeriod) &&
+			this.accumulation.equals(Accumulation.DELTADELTA) &&
+			(other.accumulation.equals(Accumulation.BULKQUANTITY) || other.accumulation.equals(Accumulation.SUMMATION)) &&
+			this.flowDirection.equals(other.flowDirection) &&
+			this.commodity.equals(other.commodity) &&
+			this.measurementKind.equals(other.measurementKind) &&
+			this.interharmonic.equals(other.interharmonic) &&
+			this.argument.equals(other.argument) &&
+			this.tou == other.tou &&
+			this.cpp == other.cpp &&
+			this.consumptionTier == other.consumptionTier &&
+			this.phases.equals(other.phases) &&
+			this.multiplier.equals(other.multiplier) &&
+			this.unit.equals(other.unit) &&
+			this.currency.equals(other.currency);
 	}
 
     @Override

@@ -16,7 +16,7 @@ public interface Channel {
     List<ReadingRecord> getRegisterReadings(Interval interval);
     List<BaseReadingRecord> getReadings(Interval interval);
 	ReadingType getMainReadingType();
-	ReadingType getCumulativeReadingType();
+	Optional<ReadingType> getBulkQuantityReadingType();
     long getVersion();
     List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval);
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval);

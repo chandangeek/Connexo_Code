@@ -22,6 +22,7 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     private static final String MRID = "0.0.7.4.0.8.2.8.16.9.11.0.0.0.0.0.0.0";
     private static final String MRID2 = "0.0.7.1.0.8.2.9.16.9.110.0.0.0.0.0.0.0";
+    private static final String MRID3 = "0.0.7.1.0.8.2.8.16.9.11.0.0.0.0.0.0.0";
     private static final String ALIAS = "alias";
 
     @Mock
@@ -83,8 +84,8 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     }
 
     @Test
-    public void testIsCumulativeReadingType() {
-        assertThat(readingType.isCumulativeReadingType(ReadingTypeImpl.from(dataModel, MRID2, "2"))).isTrue();
+    public void testIsBulkQuantityReadingType() {
+        assertThat(readingType.isBulkQuantityReadingType(ReadingTypeImpl.from(dataModel, MRID3, "3"))).isTrue();
     }
 
     @Test

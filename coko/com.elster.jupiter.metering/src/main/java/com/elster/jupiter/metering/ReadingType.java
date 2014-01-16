@@ -33,7 +33,7 @@ public interface ReadingType extends IdentifiedObject {
 	ReadingTypeUnit getUnit();
 	Currency getCurrency();
 	
-	boolean isCumulativeReadingType(ReadingType readingType);
+	boolean isBulkQuantityReadingType(ReadingType readingType);
 	boolean isRegular();
     long getVersion();
 

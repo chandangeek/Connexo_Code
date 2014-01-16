@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -118,7 +119,7 @@ public class CumulativeChannelTest {
         			.code();
         	ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
             Channel channel = activation.createChannel(readingType);
-            assertThat(channel.getCumulativeReadingType()).isNotNull();
+            assertThat(channel.getBulkQuantityReadingType()).isPresent();
             ReadingStorer storer = meteringService.createOverrulingStorer();
             DateTime dateTime = new DateTime(2014,1,1,0,0,0);
             storer.addIntervalReading(channel, dateTime.toDate(), 0,BigDecimal.valueOf(1000));

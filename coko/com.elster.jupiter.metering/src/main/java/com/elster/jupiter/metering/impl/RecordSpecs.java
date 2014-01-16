@@ -16,10 +16,10 @@ public enum RecordSpecs {
 			recordSpec.addFieldSpec("Value", NUMBER);
 		}
 	},
-	CUMULATIVEINTERVAL("Cumulative Interval Data",true) {  
+	BULKQUANTITYINTERVAL("Bulk Quantity Interval Data",true) {  
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
-			recordSpec.addDerivedFieldSpec("Value", "Cumulative", NUMBER, FieldDerivationRule.DELTAFROMPREVIOUS);
+			recordSpec.addDerivedFieldSpec("Value", "Bulk", NUMBER, FieldDerivationRule.DELTAFROMPREVIOUS);
 		}
 	},
 	MULTIINTERVAL("Multi Interval Data",true) {
