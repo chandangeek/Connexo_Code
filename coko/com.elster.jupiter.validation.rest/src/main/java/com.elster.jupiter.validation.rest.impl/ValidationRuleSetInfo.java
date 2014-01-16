@@ -13,7 +13,7 @@ public class ValidationRuleSetInfo {
     public long id;
 	public String name;
 	public String description;
-    public int numberOfActiveRules;
+    public int numberOfInactiveRules;
     public int numberOfRules;
     public List<ValidationRuleInfo> rules = new ArrayList<ValidationRuleInfo>();
 
@@ -23,16 +23,17 @@ public class ValidationRuleSetInfo {
         description = validationRuleSet.getDescription();
         List<? extends ValidationRule> rules = validationRuleSet.getRules();
         numberOfRules = rules.size();
-        numberOfActiveRules = 0;
+        numberOfInactiveRules = 0;
         for (ValidationRule rule : validationRuleSet.getRules()) {
-            if (rule.isActive()) {
-                numberOfActiveRules++;
+            if (!rule.isActive()) {
+                numberOfInactiveRules++;
             }
         }
     }
 
     public ValidationRuleSetInfo() {
     }
+
 
     
     
