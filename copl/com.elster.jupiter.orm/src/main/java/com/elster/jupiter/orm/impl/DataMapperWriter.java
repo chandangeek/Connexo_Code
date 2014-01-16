@@ -239,7 +239,7 @@ public class DataMapperWriter<T> {
 		} 	
 	}
 	
-	void remove(List<T> objects) throws SQLException {
+	public void remove(List<T> objects) throws SQLException {
 		UtcInstant now = new UtcInstant(getTable().getDataModel().getClock());
 		if (getTable().hasJournal()) {
 			journal(objects,now);
