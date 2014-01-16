@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 
 /**
  * Decorates an IntervalReading by selecting only certain values in a possibly different order.
@@ -15,7 +16,7 @@ public class FilteredIntervalReadingRecord extends FilteredBaseReadingRecord imp
     }
 
     @Override
-    public long getProfileStatus() {
+    public ProfileStatus getProfileStatus() {
         return source.getProfileStatus();
     }
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -60,7 +61,8 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
     @Override
 	public Quantity getQuantity(int offset) {
         ReadingType readingType = channel.getReadingTypes().get(offset);
-        return readingType.getUnit().getUnit().amount(doGetValue(offset));
+        BigDecimal  value = doGetValue(offset);
+        return value == null ? null : readingType.getUnit().getUnit().amount(doGetValue(offset));
 	}
 
     private BigDecimal doGetValue(int offset) {
@@ -95,8 +97,8 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 	}
 
 	@Override
-	public long getProcessingFlags() {
-		return entry.getLong(0);
+	public ProcesStatus getProcesStatus() {
+		return new ProcesStatus(entry.getLong(0));
 	}
 
 	@Override

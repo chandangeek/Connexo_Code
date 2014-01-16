@@ -1,9 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,10 +61,10 @@ public class FilteredReadingTest {
 
     @Test
     public void testSimpleDelegationForProcessingFlags() {
-        long processingFlags = 15L;
-        when(source.getProcessingFlags()).thenReturn(processingFlags);
+        ProcesStatus processingFlags = ProcesStatus.of(ProcesStatus.Flag.ESTIMATED,ProcesStatus.Flag.WARNING);
+        when(source.getProcesStatus()).thenReturn(processingFlags);
 
-        assertThat(filteredReading.getProcessingFlags()).isEqualTo(processingFlags);
+        assertThat(filteredReading.getProcesStatus()).isEqualTo(processingFlags);
     }
 
     @Test
@@ -125,8 +128,8 @@ public class FilteredReadingTest {
 
     @Test
     public void testGetProfileStatus() {
-        long profileStatus = 564L;
-        when(source.getProfileStatus()).thenReturn(profileStatus);
+        ProfileStatus profileStatus = ProfileStatus.of(ProfileStatus.Flag.BADTIME);
+        when(source.getProfileStatus()).thenReturn(ProfileStatus.of(ProfileStatus.Flag.BADTIME));
 
         assertThat(filteredReading.getProfileStatus()).isEqualTo(profileStatus);
     }

@@ -101,7 +101,7 @@ public class MeterReadingStorerTest {
     }
 
     @Test
-    public void test() {
+    public void testBulk() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
@@ -125,6 +125,35 @@ public class MeterReadingStorerTest {
             assertThat(readings).hasSize(2);
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
             assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
+            ctx.commit();
+        }
+    }
+
+    @Test
+    public void testDelta() {
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        	Meter meter = amrSystem.newMeter("myMeter");
+        	meter.save();
+        	String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+        			.period(TimeAttribute.MINUTE15)
+        			.accumulate(Accumulation.DELTADELTA)
+        			.flow(FlowDirection.FORWARD)
+        			.measure(MeasurementKind.ENERGY)
+        			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
+        			.code();
+        	MeterReadingImpl meterReading = new MeterReadingImpl();
+        	IntervalBlockImpl block = new IntervalBlockImpl(readingTypeCode);
+        	meterReading.addIntervalBlock(block);
+        	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
+        	block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
+        	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
+        	meter.store(meterReading);
+            List<BaseReadingRecord> readings = meter.getMeterActivations().get(0).getChannels().get(0).getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
+            assertThat(readings).hasSize(2);
+            assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
+            assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
             ctx.commit();
         }
     }

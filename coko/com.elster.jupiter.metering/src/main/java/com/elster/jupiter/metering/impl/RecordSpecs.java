@@ -70,7 +70,7 @@ public enum RecordSpecs {
 
 	private RecordSpec create(IdsService idsService) {
 		RecordSpec recordSpec = idsService.newRecordSpec(MeteringService.COMPONENTNAME, ordinal() + 1 , specName);
-		recordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
+		recordSpec.addFieldSpec("ProcesStatus", LONGINTEGER);
 		if (interval) {
 			recordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
 		}

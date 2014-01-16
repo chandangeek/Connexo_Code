@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -29,6 +30,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -130,7 +132,7 @@ public class ReadingQualityImplTest {
         MeterActivation meterActivation = usagePoint.activate(date);
         Channel channel = meterActivation.createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
-        regularStorer.addIntervalReading(channel, date, 0L, BigDecimal.valueOf(561561, 2));
+        regularStorer.addIntervalReading(channel, date, ProfileStatus.of(), BigDecimal.valueOf(561561, 2));
         regularStorer.execute();
         BaseReadingRecord reading = channel.getReading(date).get();
         ReadingQuality readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);

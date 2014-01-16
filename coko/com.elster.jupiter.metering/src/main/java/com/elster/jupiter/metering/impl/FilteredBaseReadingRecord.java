@@ -23,8 +23,8 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord   {
     }
 
     @Override
-    public long getProcessingFlags() {
-        return filtered.getProcessingFlags();
+    public ProcesStatus getProcesStatus() {
+        return filtered.getProcesStatus();
     }
 
     @Override

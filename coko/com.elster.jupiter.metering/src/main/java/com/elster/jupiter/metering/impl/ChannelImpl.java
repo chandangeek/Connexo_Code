@@ -138,10 +138,10 @@ public final class ChannelImpl implements Channel {
     private RecordSpec getRecordSpec(boolean regular) {
     	RecordSpecs definition;
     	if (regular) {
-    		if (bulkQuantityReadingType == null) {
-    			definition = RecordSpecs.SINGLEINTERVAL;
-    		} else {
+    		if (bulkQuantityReadingType.isPresent()) {
     			definition = RecordSpecs.BULKQUANTITYINTERVAL;
+    		} else {
+    			definition = RecordSpecs.SINGLEINTERVAL;
     		}
     	} else {
     		definition = RecordSpecs.BASEREGISTER;

@@ -3,7 +3,9 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingType;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +53,7 @@ public abstract class AbstractBaseReadingImplTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType1.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType2.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(entry.getLong(0)).thenReturn(7L);
+        when(entry.getLong(0)).thenReturn(1L << ProcesStatus.Flag.SUSPECT.ordinal());
 
         baseReading = createInstanceToTest(channel, entry);
 
@@ -123,7 +125,7 @@ public abstract class AbstractBaseReadingImplTest {
 
     @Test
     public void testGetProcessingFlags() {
-        assertThat(baseReading.getProcessingFlags()).isEqualTo(7L);
+        assertThat(baseReading.getProcesStatus()).isEqualTo(ProcesStatus.of(ProcesStatus.Flag.SUSPECT));
     }
 
 }

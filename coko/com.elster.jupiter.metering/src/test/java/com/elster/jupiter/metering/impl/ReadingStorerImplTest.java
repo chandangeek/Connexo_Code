@@ -5,7 +5,9 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -54,11 +56,11 @@ public class ReadingStorerImplTest {
 
     @Test
     public void testAddIntervalReading() {
-        long profileStatus = 465;
+        ProfileStatus profileStatus = ProfileStatus.of(ProfileStatus.Flag.POWERDOWN,ProfileStatus.Flag.POWERUP);
         Date dateTime = new Date(215215641L);
         readingStorer.addIntervalReading(channel, dateTime, profileStatus, BigDecimal.valueOf(1), BigDecimal.valueOf(2));
 
-        verify(storer).add(timeSeries, dateTime, new Object[] { 0L , profileStatus, BigDecimal.valueOf(1), BigDecimal.valueOf(2) });
+        verify(storer).add(timeSeries, dateTime, new Object[] { 0L , profileStatus.getBits(), BigDecimal.valueOf(1), BigDecimal.valueOf(2) });
     }
 
     @Test
