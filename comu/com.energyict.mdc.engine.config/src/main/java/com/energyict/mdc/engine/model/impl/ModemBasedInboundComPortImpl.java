@@ -264,7 +264,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         }
 
         @Override
-        public ModemBasedInboundComPortBuilder serialPortConfig(SerialPortConfiguration serialPortConfiguration) {
+        public ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
             comPort.setSerialPortConfiguration(serialPortConfiguration);
             return this;
         }

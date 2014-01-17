@@ -72,9 +72,9 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
         }
 
         @Override
-        public InboundComPortBuilder comPortPool(InboundComPortPool comPortPool) {
+        public B comPortPool(InboundComPortPool comPortPool) {
             comPort.setComPortPool(comPortPool);
-            return this;
+            return self;
         }
 
     }

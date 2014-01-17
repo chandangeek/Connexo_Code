@@ -64,7 +64,7 @@ public interface ModemBasedInboundComPort extends InboundComPort {
         public ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings);
         public ModemBasedInboundComPortBuilder addressSelector(String addressSelector);
         public ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands);
-        public ModemBasedInboundComPortBuilder serialPortConfig(SerialPortConfiguration serialPortConfiguration);
+        public ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration);
     }
 
 }

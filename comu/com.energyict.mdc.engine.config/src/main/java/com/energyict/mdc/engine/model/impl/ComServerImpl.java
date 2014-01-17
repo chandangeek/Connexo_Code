@@ -212,11 +212,12 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
+    @Override
     public ServletBasedComPortBuilder newServletBasedInboundComPort() {
         return new ServletBasedComPortBuilder();
     }
 
-    private class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl {
+    public class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl {
 
         protected ServletBasedComPortBuilder() {
             super(servletBasedInboundComPortProvider);
@@ -231,11 +232,12 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
+    @Override
     public ModemBasedComPortBuilder newModemBasedInboundComport() {
         return new ModemBasedComPortBuilder();
     }
 
-    private class ModemBasedComPortBuilder extends ModemBasedInboundComPortImpl.ModemBasedInboundComPortBuilderImpl {
+    public class ModemBasedComPortBuilder extends ModemBasedInboundComPortImpl.ModemBasedInboundComPortBuilderImpl {
 
         protected ModemBasedComPortBuilder() {
             super(modemBasedInboundComPortProvider);
@@ -250,11 +252,12 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
+    @Override
     public TCPBasedComPortBuilder newTCPBasedInboundComPort() {
         return new TCPBasedComPortBuilder();
     }
 
-    private class TCPBasedComPortBuilder extends TCPBasedInboundComPortImpl.TCPBasedInboundComPortBuilderImpl {
+    public class TCPBasedComPortBuilder extends TCPBasedInboundComPortImpl.TCPBasedInboundComPortBuilderImpl {
 
         protected TCPBasedComPortBuilder() {
             super(tcpBasedInboundComPortProvider);
@@ -269,11 +272,12 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
+    @Override
     public UDPBasedComPortBuilder newUDPBasedInboundComPort() {
         return new UDPBasedComPortBuilder();
     }
 
-    private class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl {
+    public class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl {
 
         protected UDPBasedComPortBuilder() {
             super(udpBasedInboundComPortProvider);

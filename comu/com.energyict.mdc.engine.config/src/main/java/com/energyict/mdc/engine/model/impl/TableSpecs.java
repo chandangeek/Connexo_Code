@@ -126,8 +126,6 @@ public enum TableSpecs {
             table.primaryKey("CEM_PK_COMPORT").on(idColumn).add();
             table.foreignKey("FK_COMPORT_COMSERVER").on(comServerColumn).references(MDCCOMSERVER.name()).
                     map("comServer").reverseMap("comPorts").composition().add();
-//            table.foreignKey("FK_COMPORT_COMPORTPOOLMEMBER").on(comPortPoolId).references(MDCCOMPORTINPOOL.name()).
-//                    map("comPortPoolMembers").reverseMap("comPort").composition().add();
         }
     },
     MDCCOMPORTINPOOL {

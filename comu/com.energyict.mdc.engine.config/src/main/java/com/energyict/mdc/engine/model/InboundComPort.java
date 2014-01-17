@@ -50,7 +50,7 @@ public interface InboundComPort extends ComPort {
     public boolean isServletBased();
 
     interface InboundComPortBuilder<B extends InboundComPortBuilder<B,C>,C extends ServerInboundComPort> extends ComPort.Builder<B,C> {
-        public InboundComPortBuilder comPortPool(InboundComPortPool comPortPool);
+        public B comPortPool(InboundComPortPool comPortPool);
     }
 
 }

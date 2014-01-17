@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.model.impl.ComServerImpl;
 import java.util.Date;
 import java.util.List;
 
@@ -241,6 +242,10 @@ public interface ComServer {
     public String getType();
 
     public OutboundComPort.OutboundComPortBuilder newOutboundComPort();
+    public ComServerImpl.ServletBasedComPortBuilder newServletBasedInboundComPort();
+    public ComServerImpl.ModemBasedComPortBuilder newModemBasedInboundComport();
+    public ComServerImpl.TCPBasedComPortBuilder newTCPBasedInboundComPort();
+    public ComServerImpl.UDPBasedComPortBuilder newUDPBasedInboundComPort();
 
     public void delete();
 
