@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -28,11 +29,18 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     private static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;
     private static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
 
+    private PropertySpecService propertySpecService;
+
+    public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(),
-                DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -102,12 +110,12 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     }
 
     private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
-        Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec().getName());
+        Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName());
         if(deviceAccessIdentifier == null){
             deviceAccessIdentifier =typedProperties.getProperty(MeterProtocol.NODEID);
         }
         if (deviceAccessIdentifier!=null) {
-            typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec().getName(), deviceAccessIdentifier);
+            typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
         }
     }
 
@@ -129,8 +137,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -153,8 +161,9 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
+
 }

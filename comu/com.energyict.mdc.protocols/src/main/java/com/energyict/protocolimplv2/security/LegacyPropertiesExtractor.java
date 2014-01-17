@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class LegacyPropertiesExtractor {
 
-    static public TypedProperties getSecurityRelatedProperties(TypedProperties typedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
+    public static TypedProperties getSecurityRelatedProperties(TypedProperties typedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
         TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         for (DeviceAccessLevel deviceAccessLevel : deviceAccessLevels) {
             if (deviceAccessLevel.getId()==currentDeviceAccessLevel) {
@@ -26,7 +26,5 @@ public class LegacyPropertiesExtractor {
         }
         return securityRelatedTypedProperties;
     }
-
-
 
 }

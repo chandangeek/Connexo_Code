@@ -1,13 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
 import com.energyict.mdc.dynamic.BooleanFactory;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.StringFactory;
-
-import java.math.BigDecimal;
 
 /**
  * Summarizes all used DeviceSecurityProperty
@@ -21,80 +19,124 @@ public enum DeviceSecurityProperty {
     /**
      * A plain old password, can be a high- or low level password
      */
-    PASSWORD(PropertySpecBuilder
-            .forClass(new EncryptedStringFactory()).
-                    name(SecurityPropertySpecName.PASSWORD.toString()).
-                    finish()),
+    PASSWORD {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    name(SecurityPropertySpecName.PASSWORD.name()).
+                    finish();
+        }
+    },
     /**
      * A key used for encryption of bytes
      */
-    ENCRYPTION_KEY(PropertySpecBuilder
-            .forClass(new EncryptedStringFactory())
-            .name(SecurityPropertySpecName.ENCRYPTION_KEY.toString())
-        .finish()),
+    ENCRYPTION_KEY {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    name(SecurityPropertySpecName.ENCRYPTION_KEY.name()).
+                    finish();
+        }
+    },
     /**
      * A key used for authentication to a device
      */
-    AUTHENTICATION_KEY(PropertySpecBuilder
-            .forClass(new EncryptedStringFactory())
-            .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-        .finish()),
+    AUTHENTICATION_KEY {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    name(SecurityPropertySpecName.AUTHENTICATION_KEY.name()).
+                    finish();
+        }
+    },
     /**
      * A DLMS clientMacAddress
      */
-    CLIENT_MAC_ADDRESS(PropertySpecBuilder.
-            forClass(new BigDecimalFactory()).
-            name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
-            setDefaultValue(new BigDecimal(1)).
-            finish()),
+    CLIENT_MAC_ADDRESS {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new BigDecimalFactory()).
+                    name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.name()).
+                    finish();
+        }
+    },
     /**
      * A character identification of the accessing client
      */
-    DEVICE_ACCESS_IDENTIFIER(PropertySpecBuilder
-            .forClass(new StringFactory())
-            .name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())
-        .finish()),
+    DEVICE_ACCESS_IDENTIFIER {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new StringFactory()).
+                    name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.name()).
+                    finish();
+        }
+    },
     /**
      * A username for ANSI C12 protocols
      */
-    ANSI_C12_USER(PropertySpecBuilder
-                .forClass(new StringFactory())
-                .name(SecurityPropertySpecName.ANSI_C12_USER.toString())
-        .finish()),
+    ANSI_C12_USER {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new StringFactory()).
+                    name(SecurityPropertySpecName.ANSI_C12_USER.name()).
+                    finish();
+        }
+    },
     /**
      * A UserId for ANSI C12 protocols
      */
-    ANSI_C12_USER_ID(PropertySpecBuilder
-                    .forClass(new BigDecimalFactory())
-                    .name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString())
-                    .setDefaultValue(new BigDecimal(1))
-            .finish()),
+    ANSI_C12_USER_ID {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new StringFactory()).
+                    name(SecurityPropertySpecName.ANSI_C12_USER_ID.name()).
+                    finish();
+        }
+    },
     /**
      * Indication for ansi protocols to use a binary password
      */
-    BINARY_PASSWORD(PropertySpecBuilder
-            .forClass(new BooleanFactory())
-            .name(SecurityPropertySpecName.BINARY_PASSWORD.toString())
-            .setDefaultValue(Boolean.FALSE)
-        .finish()),
+    BINARY_PASSWORD {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new BooleanFactory()).
+                    name(SecurityPropertySpecName.BINARY_PASSWORD.name()).
+                    finish();
+        }
+    },
     /**
      * ANSI ap title
      */
-    ANSI_CALLED_AP_TITLE(PropertySpecBuilder
-            .forClass(new StringFactory())
-            .name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString())
-        .finish());
+    ANSI_CALLED_AP_TITLE {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new StringFactory()).
+                    name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.name()).
+                    finish();
+        }
+    };
 
-    private final PropertySpec propertySpec;
+    private PropertySpec cachedPropertySpec;
 
-    private DeviceSecurityProperty(PropertySpec propertySpec) {
-        this.propertySpec = propertySpec;
+    public PropertySpec getPropertySpec (PropertySpecService propertySpecService) {
+        if (this.cachedPropertySpec == null) {
+            this.cachedPropertySpec = this.doGetPropertySpec(propertySpecService);
+        }
+        return this.cachedPropertySpec;
     }
 
     /**
      * @return the PropertySpec for this Enum value
      */
-    public PropertySpec getPropertySpec() {
-        return propertySpec;
-    }
+    protected abstract PropertySpec doGetPropertySpec(PropertySpecService propertySpecService);
+
 }

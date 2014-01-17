@@ -8,8 +8,22 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.api.*;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -26,7 +40,12 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,7 +77,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
      * Will group this protocols' security features.
      * As an example the {@link DlmsSecuritySupport} component is used
      */
-    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
+    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
     /**
      * Will hold the cache object of the Device related to this protocol
      */
@@ -71,6 +90,11 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
      * The securityPropertySet that will be used for this session
      */
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {

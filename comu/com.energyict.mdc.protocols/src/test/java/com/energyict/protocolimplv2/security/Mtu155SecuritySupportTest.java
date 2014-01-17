@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.when;
 public class Mtu155SecuritySupportTest {
 
     @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
     private DataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
@@ -42,7 +45,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        Mtu155SecuritySupport mtuSecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtuSecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
 
         // currently only 4 properties are necessary
         assertThat(mtuSecuritySupport.getSecurityProperties()).hasSize(4);
@@ -53,7 +56,7 @@ public class Mtu155SecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -107,7 +110,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
 
         // currently only 6 levels are supported
         assertThat(mtu155SecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
@@ -129,7 +132,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
 
         // currently only 3 levels are supported
         assertThat(mtu155SecuritySupport.getEncryptionAccessLevels()).hasSize(3);
@@ -179,7 +182,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKey_2_Value = "MyEncryptionKey_2";
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), encryptionKey_2_Value);
@@ -216,7 +219,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void testConvertTypedPropertiesToSecuritySet() throws Exception {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "321");
 
@@ -229,7 +232,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalAuthenticationLevel() throws Exception {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "twee"); // illegal format
 
@@ -238,7 +241,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void testConvertTypedPropertiesToSecuritySetMissingSecurityProperty() throws Exception {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
 
         DeviceProtocolSecurityPropertySet securityPropertySet = mtu155SecuritySupport.convertFromTypedProperties(securityProperties);
@@ -248,7 +251,7 @@ public class Mtu155SecuritySupportTest {
 
     @Test
     public void testPasswordConversion() {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         Password password = new Password(passwordValue);

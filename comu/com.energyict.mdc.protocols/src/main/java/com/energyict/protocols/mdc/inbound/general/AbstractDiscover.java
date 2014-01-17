@@ -4,6 +4,7 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
@@ -45,6 +46,16 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     private List<CollectedData> collectedDatas = null;
     private InboundConnection inboundConnection = null;
     private InboundDiscoveryContext context;
+    private PropertySpecService propertySpecService;
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {

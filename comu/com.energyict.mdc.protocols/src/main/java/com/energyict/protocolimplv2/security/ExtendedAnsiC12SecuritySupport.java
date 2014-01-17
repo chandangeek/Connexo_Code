@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
@@ -19,17 +20,21 @@ import java.util.List;
  */
 public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
-    private final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
+    private static final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
+
+    public ExtendedAnsiC12SecuritySupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
-                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(),
-                DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(),
-                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec()
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.getPropertySpecService()),
+                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.getPropertySpecService()),
+                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.getPropertySpecService()),
+                DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(this.getPropertySpecService()),
+                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.getPropertySpecService()),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.getPropertySpecService())
         );
     }
 
@@ -125,8 +130,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(getPropertySpecService()),
+                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(getPropertySpecService()));
         }
     }
 
@@ -148,8 +153,9 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(getPropertySpecService()),
+                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(getPropertySpecService()));
         }
     }
+
 }

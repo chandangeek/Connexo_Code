@@ -6,6 +6,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -37,7 +38,8 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler {
 
-    private final DeviceProtocolSecurityCapabilities securityCapabilities = new DlmsSecuritySupport();
+    private PropertySpecService propertySpecService;
+    private DeviceProtocolSecurityCapabilities securityCapabilities;
 
     /**
      * The used {@link com.energyict.dlms.DlmsSession}
@@ -65,11 +67,20 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     * @throws IOException Thrown in case of an exception
      */
     protected abstract String getFirmwareVersion();
 
     protected abstract DlmsProtocolProperties getProtocolProperties();
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+        this.securityCapabilities = new DlmsSecuritySupport(propertySpecService);
+    }
 
     /**
      * Initialization method right after we are connected to the physical device.

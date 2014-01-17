@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -27,11 +28,18 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
     private static final String AUTHENTICATION_TRANSLATION_KEY = "WavenisSecuritySupport.authenticationlevel.";
     private static final String ENCRYPTION_TRANSLATION_KEY = "WavenisSecuritySupport.encryptionlevel.";
 
+    private PropertySpecService propertySpecService;
+
+    public WavenisSecuritySupport(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -135,8 +143,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
         }
     }
 
@@ -158,8 +166,9 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
         }
     }
+
 }
