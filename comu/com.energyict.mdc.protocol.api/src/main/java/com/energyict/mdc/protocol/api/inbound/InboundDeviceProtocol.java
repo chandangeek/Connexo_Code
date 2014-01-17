@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.inbound;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
@@ -96,6 +97,13 @@ public interface InboundDeviceProtocol extends Pluggable {
          */
         SERVER_BUSY
     }
+
+    /**
+     * Injects the {@link PropertySpecService} into this DeviceProtocol
+     * for it to be able to create {@link com.energyict.mdc.dynamic.PropertySpec}s
+     * @param propertySpecService The PropertySpecService
+     */
+    public void setPropertySpecService (PropertySpecService propertySpecService);
 
     /**
      * Injects {@link InboundDiscoveryContext contextual information}.
