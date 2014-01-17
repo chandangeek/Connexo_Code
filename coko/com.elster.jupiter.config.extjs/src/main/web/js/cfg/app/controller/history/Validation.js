@@ -11,7 +11,7 @@ Ext.define('Cfg.controller.history.Validation', {
     doConversion: function (tokens) {
         if (tokens.length > 1 && tokens[1] === 'rulesforset') {
             var id = parseInt(tokens[2]);
-            this.showRules(id);
+            this.showRulesContainer(id);
         } else {
             this.unknownTokensReturnToOverview();
         }
@@ -21,8 +21,8 @@ Ext.define('Cfg.controller.history.Validation', {
         this.showOverview();
     },
 
-    showRules: function (ruleSetId) {
-        Cfg.getApplication().getValidationController().showRules(ruleSetId);
+    showRulesContainer: function (ruleSetId) {
+        Cfg.getApplication().getValidationController().showRulesContainer(ruleSetId);
     }
 
 

@@ -8,6 +8,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
         'Cfg.view.validation.RuleSetPreview'
     ],
 
+
     items: [
         {
             xtype: 'container',
@@ -55,6 +56,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
             ]
         }
     ],
+
 
     initComponent: function () {
         this.callParent(arguments);

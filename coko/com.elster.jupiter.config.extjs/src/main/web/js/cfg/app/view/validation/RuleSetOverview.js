@@ -1,10 +1,9 @@
-Ext.define('Cfg.view.validation.RuleSetPreview', {
+Ext.define('Cfg.view.validation.RuleSetOverview', {
     extend: 'Ext.panel.Panel',
-    border: true,
-    margins: '0 10 10 10',
-    alias: 'widget.ruleSetPreview',
-    itemId: 'ruleSetPreview',
-    hidden: true,
+    //border: true,
+    margins: '10 10 10 10',
+    alias: 'widget.ruleSetOverview',
+    itemId: 'ruleSetOverview',
     requires: [
         'Cfg.model.ValidationRuleSet'
     ],
@@ -15,8 +14,8 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     tbar: [
         {
             xtype: 'component',
-            html: '<h4>Validation rule sets</h4>',
-            itemId: 'rulesetPreviewTitle'
+            html: '<h1>Validation rule sets</h1>',
+            itemId: 'rulesetOverviewTitle'
         },
         '->',
         {
@@ -26,7 +25,6 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                 items:[
                     {
                         text: 'Edit',
-                        itemId: 'editRuleset',
                         action: 'editRuleset'
 
                     },
@@ -35,7 +33,6 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                     },
                     {
                         text: 'Delete',
-                        itemId: 'deleteRuleset',
                         action: 'deleteRuleset'
 
                     }
@@ -46,7 +43,8 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     items: [
         {
             xtype: 'form',
-            itemId: 'rulesetForm',
+            itemId: 'rulesetOverviewForm',
+            name: 'rulesetOverviewForm',
             padding: '10 10 0 10',
             layout: {
                 type: 'vbox',
@@ -81,21 +79,6 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                     fieldLabel: 'Number of inactive rules:',
                     labelAlign: 'right',
                     labelWidth:	150
-                },
-                {
-                    xtype: 'toolbar',
-                    docked: 'bottom',
-                    title: 'Bottom Toolbar',
-                    items: [
-                        '->',
-                        {
-                            xtype: 'component',
-                            cls: 'content-container',
-                            itemId: 'ruleSetDetailsLink',
-                            html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rulesforset">View details</a>'
-                        }
-
-                    ]
                 }
             ]
         }
@@ -105,3 +88,4 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
         this.callParent(arguments);
     }
 });
+

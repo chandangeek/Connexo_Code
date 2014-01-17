@@ -18,17 +18,24 @@ Ext.define('Cfg.controller.Validation', {
         'validation.RuleBrowse',
         'validation.RuleList',
         'validation.RulePreview',
-        'validation.RuleSetEdit'
+        'validation.RuleSetEdit',
+        'validation.RulesContainer',
+        'validation.RuleSetOverview'
     ],
 
     refs: [
         {ref: 'ruleSetForm',selector: 'ruleSetPreview #rulesetForm'} ,
+        {ref: 'rulesetOverviewForm',selector: 'ruleSetOverview #rulesetOverviewForm'} ,
         {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
         {ref: 'rulesetPreviewTitle',selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
+        {ref: 'rulesetOverviewTitle',selector: 'ruleSetPreview #rulesetOverviewTitle'} ,
+        {ref: 'ruleSetDetailsLink',selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
+        {ref: 'rulesListContainer',selector: 'rulesContainer #rulesListContainer'} ,
 
         {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
         {ref: 'rulesGrid',selector: 'validationruleList'},
         {ref: 'ruleSetPreview',selector:'ruleSetPreview'},
+        {ref: 'ruleSetOverview',selector:'ruleSetOverview'},
         {ref: 'rulePreview',selector:'rulePreview'},
         {ref: 'ruleSetDetails',selector: 'ruleSetPreview #ruleSetDetails'},
         {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'}
@@ -108,6 +115,43 @@ Ext.define('Cfg.controller.Validation', {
         Cfg.getApplication().getMainController().showContent(widget);
     },
 
+    showRulesContainer: function(id) {
+        /*var selectedSets = this.getRuleSetsGrid().getSelectionModel().getSelection();
+        var ruleSetId = selectedSets[0].getId();
+        var me = this;
+        me.getValidationRulesStore().load({
+            params: {
+                id: ruleSetId
+            }});
+        var widget = Ext.widget('rulesContainer');
+        Cfg.getApplication().getMainController().showContent(widget);
+        this.getRulesListContainer().add(Ext.create('Cfg.view.validation.RuleBrowse'));*/
+
+        var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
+        var selectedSets = this.getRuleSetsGrid().getSelectionModel().getSelection();
+        if (selectedSets.length == 1) {
+            var ruleSet = selectedSets[0];
+            var ruleSetId = ruleSet.get("id");
+            var ruleSetName = ruleSet.get("name");
+            var ruleSetDescription = ruleSet.get("description");
+            alert(ruleSetId + ', ' + ruleSetName + ', ' + ruleSetDescription);
+            this.getRulesetOverviewForm().loadRecord(selectedSets[0]);
+
+
+            this.getRulesetOverviewForm().form.setValues({
+                name: ruleSetName,
+                description: ruleSetDescription,
+                numberOfInactiveRules: 1,
+                numberOfRules: 0
+            });
+            //var ruleSetName = this.getRulesetOverviewForm().form.findField('name').getSubmitValue();
+            //this.getRulesetOverviewTitle().update('<h4>' + ruleSetName + ' - Overview</h4>');
+        }
+        var rulesContainerWidget = Ext.widget('rulesContainer');
+        Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
+        this.getRulesListContainer().add(Ext.widget('ruleSetOverview'));
+    },
+
     newRuleSet: function () {
         var view = Ext.widget('validationrulesetEdit');
         view.down('form').loadRecord(Ext.create('Cfg.model.ValidationRuleSet'));
@@ -120,7 +164,7 @@ Ext.define('Cfg.controller.Validation', {
             this.getRuleSetForm().loadRecord(selectedSets[0]);
             var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
             this.getRuleSetPreview().show();
-            //var ruleSetName = selectedSets[0].name();
+            this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rulesforset/' + selectedSets[0].getId() + '">View details</a>');
             this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
         } else {
             this.getRuleSetPreview().hide();

@@ -22,6 +22,20 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     html: '<h1>Rules</h1>'
                 },
                 {
+                    tbar: [
+                        '->',
+                        {
+                            text: 'Create new ruleset',
+                            itemId: 'newRuleset',
+                            action: 'newRuleset'
+                        },
+                        {
+                            text: 'Bulk action',
+                            itemId: 'rulesetBulkAction',
+                            action: 'rulesetBulkAction'
+                        }]
+                },
+                {
                     xtype: 'validationruleList'
                 },
                 {

@@ -6,27 +6,7 @@ Ext.define('Cfg.view.validation.RuleList', {
     itemId: 'validationruleList',
     store: 'ValidationRules',
     selType: 'checkboxmodel',
-    tbar: [
-        '->',
-        {
-            text: 'Create new rule',
-            itemId: 'newRule',
-            action: 'newRule'
-        },
-        {
-            text: 'Bulk actions',
-            menu:{
-                items:[
-                    {
-                        text: 'Remove selected rules',
-                        itemId: 'removeRules',
-                        action: 'removeRules'
 
-                    }
-                ]
-            }
-        }
-    ],
     columns: {
 
         items: [
