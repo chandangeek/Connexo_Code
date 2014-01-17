@@ -2,11 +2,15 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
+import com.energyict.mdc.services.ComPortPoolService;
+import com.energyict.mdc.services.ComPortService;
+import com.energyict.mdc.services.ComServerService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -23,8 +27,7 @@ public class MdcApplication extends Application {
 
     private static final Logger LOGGER = Logger.getLogger(MdcApplication.class.getSimpleName());
 
-    private volatile DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
-    private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
+    private volatile ProtocolPluggableService protocolPluggableService;
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile EngineModelService engineModelService;
 
@@ -51,8 +54,8 @@ public class MdcApplication extends Application {
     }
 
     @Reference
-    public void setDeviceProtocolPluggableClassService(DeviceProtocolPluggableClassService deviceProtocolPluggableClassService) {
-        this.deviceProtocolPluggableClassService = deviceProtocolPluggableClassService;
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @Reference
@@ -61,8 +64,13 @@ public class MdcApplication extends Application {
     }
 
     @Reference
-    public void setInboundDeviceProtocolPluggableClassService(InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService) {
-        this.inboundDeviceProtocolPluggableClassService = inboundDeviceProtocolPluggableClassService;
+    public void setComServerService(ComServerService comServerService) {
+        this.comServerService = comServerService;
+    }
+
+    @Reference
+    public void setComPortService(ComPortService comPortService) {
+        this.comPortService = comPortService;
     }
 
     @Reference
@@ -75,10 +83,11 @@ public class MdcApplication extends Application {
         @Override
         protected void configure() {
             LOGGER.fine("Binding services using HK2");
-            bind(engineModelService).to(EngineModelService.class);
-            bind(deviceProtocolPluggableClassService).to(DeviceProtocolPluggableClassService.class);
-            bind(inboundDeviceProtocolPluggableClassService).to(InboundDeviceProtocolPluggableClassService.class);
+            bind(comServerService).to(ComServerService.class);
+            bind(comPortService).to(ComPortService.class);
+            bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(licensedProtocolService).to(LicensedProtocolService.class);
         }
     }
+
 }

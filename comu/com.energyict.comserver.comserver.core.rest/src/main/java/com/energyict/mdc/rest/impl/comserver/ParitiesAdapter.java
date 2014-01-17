@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
 
 public class ParitiesAdapter extends MapBasedXmlAdapter<Parities> {
 

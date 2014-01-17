@@ -2,8 +2,6 @@ package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.dynamic.*;
 import com.energyict.mdc.metering.mapping.ReadingTypeFactory;
-import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.protocol.dynamic.PasswordFactory;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdw.core.CodeFactory;
