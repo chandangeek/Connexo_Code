@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,11 +52,12 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 
     @Override
     public List<Quantity> getQuantities() {
-        ImmutableList.Builder<Quantity> builder = ImmutableList.builder();
+    	// do not use ImmutableList.builder() as getQuantity(i) can return null;
+    	List<Quantity> result = new ArrayList<>();
         for (int i = 0; i < entry.size() -  getReadingTypeOffset(); i++) {
-            builder.add(getQuantity(i));
+            result.add(getQuantity(i));
         }
-        return builder.build();
+        return result;
     }
 
     @Override

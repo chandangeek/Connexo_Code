@@ -326,7 +326,7 @@ public final class ChannelImpl implements Channel {
     }
     
     public boolean isRegular() {
-    	return getIntervalLength() != null;
+    	return getIntervalLength().isPresent();
     }
     
 }

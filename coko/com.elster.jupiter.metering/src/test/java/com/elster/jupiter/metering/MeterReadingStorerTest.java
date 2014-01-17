@@ -33,7 +33,9 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.test.IntervalBlockImpl;
 import com.elster.jupiter.metering.impl.test.IntervalReadingImpl;
 import com.elster.jupiter.metering.impl.test.MeterReadingImpl;
+import com.elster.jupiter.metering.impl.test.ReadingImpl;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -108,24 +110,35 @@ public class MeterReadingStorerTest {
         	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
         	Meter meter = amrSystem.newMeter("myMeter");
         	meter.save();
-        	String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+        	ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
         			.period(TimeAttribute.MINUTE15)
         			.accumulate(Accumulation.BULKQUANTITY)
         			.flow(FlowDirection.FORWARD)
         			.measure(MeasurementKind.ENERGY)
-        			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
-        			.code();
+        			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+        	String intervalReadingTypeCode = builder.code();
         	MeterReadingImpl meterReading = new MeterReadingImpl();
-        	IntervalBlockImpl block = new IntervalBlockImpl(readingTypeCode);
+        	IntervalBlockImpl block = new IntervalBlockImpl(intervalReadingTypeCode);
         	meterReading.addIntervalBlock(block);
         	DateTime dateTime = new DateTime(2014,1,1,0,0,0);
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.toDate(), BigDecimal.valueOf(1000)));
         	block.addIntervalReading(new IntervalReadingImpl(dateTime.plus(15*60*1000L).toDate(), BigDecimal.valueOf(1100)));
+        	String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
+        	Reading reading = new ReadingImpl(registerReadingTypeCode, BigDecimal.valueOf(1200), dateTime.toDate());
+        	meterReading.addReading(reading);
         	meter.store(meterReading);
-            List<BaseReadingRecord> readings = meter.getMeterActivations().get(0).getChannels().get(0).getReadings(new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()));
+        	
+            List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
+            		new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()),
+            		meteringService.getReadingType(builder.period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code()).get());
             assertThat(readings).hasSize(2);
+            assertThat(readings.get(0).getQuantity(0)).isNull();
             assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
-            assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
+            readings = meter.getMeterActivations().get(0).getReadings(
+            		new Interval(dateTime.minus(15*60*1000L).toDate(),dateTime.plus(15*60*1000L).toDate()),
+            		meteringService.getReadingType(registerReadingTypeCode).get());
+            assertThat(readings).hasSize(1);
+            assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
             ctx.commit();
         }
     }
