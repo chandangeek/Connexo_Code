@@ -8,6 +8,7 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -62,6 +63,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     private final String defaultOptionalProperty = "defaultOptionalProperty";
 
+    private PropertySpecService propertySpecService;
+
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
      */
@@ -76,7 +79,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * Will group this protocols' security features.
      * As an example the {@link DlmsSecuritySupport} component is used
      */
-    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
+    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
     /**
      * Will hold the cache object of the Device related to this protocol
      */
@@ -89,6 +92,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * The securityPropertySet that will be used for this session
      */
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {

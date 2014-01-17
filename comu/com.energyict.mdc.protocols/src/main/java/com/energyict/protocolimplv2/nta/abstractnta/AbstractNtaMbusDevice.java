@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -41,8 +42,8 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMeter, DeviceMessageSupport {
 
+    private PropertySpecService propertySpecService;
     private final AbstractNtaProtocol meterProtocol;
-
     private final String serialNumber;
     private final int physicalAddress;
     private final DeviceProtocolSecurityCapabilities securityCapabilities = new NoSecuritySupport();
@@ -55,6 +56,14 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     public abstract DeviceMessageSupport getMessageProtocol();
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     // TODO Implement me
     @Override

@@ -1,21 +1,21 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.common.DataVault;
+import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
 import org.fest.assertions.core.Condition;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -29,6 +29,8 @@ import static org.mockito.Mockito.when;
 public class ExtendedAnsiC12SecuritySupportTest {
 
     @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
     private DataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
@@ -41,7 +43,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport();
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(this.propertySpecService);
 
         // currently only 6 properties are necessary
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(6);
@@ -50,49 +52,49 @@ public class ExtendedAnsiC12SecuritySupportTest {
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
             }
         });
         // check for the ANSI C12 user propertySpec
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(propertySpecService));
             }
         });
         // check for the ANSI C12 userId propertySpec
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(propertySpecService));
             }
         });
         // check for the ANSI EncryptionKey
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             }
         });
         // check for the ANSI Called AP Title
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(propertySpecService));
             }
         });
         // check for the ANSI binary password property
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService));
             }
         });
     }
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport();
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
 
         // currently only 3 levels are supported
         assertThat(ansiC12SecuritySupport.getAuthenticationAccessLevels()).hasSize(3);
@@ -122,7 +124,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport();
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
 
         // currently 3 encryption levels are supported
         assertThat(ansiC12SecuritySupport.getEncryptionAccessLevels()).hasSize(3);
@@ -152,7 +154,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport();
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String ansiC12UserIdValue = "MyAnsiC12UserId";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);

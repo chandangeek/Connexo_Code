@@ -2,6 +2,7 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -30,6 +31,7 @@ import java.util.List;
 public abstract class ConnectionTypeImpl implements ConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
+    private PropertySpecService propertySpecService;
 
     public ConnectionTypeImpl() {
         super();
@@ -37,6 +39,14 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
 
     protected TypedProperties getAllProperties() {
         return this.properties;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override

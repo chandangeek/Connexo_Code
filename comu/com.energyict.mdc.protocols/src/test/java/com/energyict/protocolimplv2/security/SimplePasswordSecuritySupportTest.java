@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.when;
 public class SimplePasswordSecuritySupportTest {
 
     @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
     private DataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
@@ -42,7 +45,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
 
         // assert that you only have one property to set
         assertThat(simplePasswordSecuritySupport.getSecurityProperties()).hasSize(1);
@@ -54,7 +57,7 @@ public class SimplePasswordSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService))) {
                         match |= true;
                     }
                 }
@@ -65,7 +68,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
 
         // assert that you only have one authentication level
         assertThat(simplePasswordSecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
@@ -87,7 +90,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest(){
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
 
         // assert that we don't have any encryption level
         assertThat(simplePasswordSecuritySupport.getEncryptionAccessLevels()).isEmpty();
@@ -95,7 +98,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest(){
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
@@ -128,10 +131,10 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void testConvertFromTypedProperties() throws Exception {
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
         TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), passwordValue);
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService).getName(), passwordValue);
 
         DeviceProtocolSecurityPropertySet securityPropertySet = simplePasswordSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(securityPropertySet).isNotNull();
@@ -139,6 +142,6 @@ public class SimplePasswordSecuritySupportTest {
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
         assertThat(securityPropertySet.getSecurityProperties()).isNotNull();
         assertThat(securityPropertySet.getSecurityProperties().size()).isEqualTo(1);
-        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("MyPassword");
+        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService).getName())).isEqualTo("MyPassword");
     }
 }

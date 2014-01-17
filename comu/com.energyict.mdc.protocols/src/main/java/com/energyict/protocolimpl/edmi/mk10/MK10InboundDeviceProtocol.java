@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.edmi.mk10;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -42,6 +43,10 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     private ComChannel comChannel;
     private TypedProperties typedProperties;
 
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        // No usage for the PropertySpecService so far
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {

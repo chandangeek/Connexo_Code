@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -29,6 +30,11 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     private InboundDiscoveryContext context;
     private ProtocolHandler protocolHandler;
     private ResponseWriter responseWriter;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        // No usage for the PropertySpecService so far
+    }
 
     @Override
     public void initializeDiscoveryContext (InboundDiscoveryContext context) {

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -49,9 +50,14 @@ import java.util.List;
 public class EIWeb implements DeviceProtocol {
 
     private OfflineDevice offlineDevice;
-    private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
+    private SimplePasswordSecuritySupport securitySupport;
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {

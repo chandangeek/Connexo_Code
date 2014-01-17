@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -25,6 +26,13 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
+
+    private PropertySpecService propertySpecService;
+
+    public DlmsSecuritySupport(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
@@ -72,10 +80,10 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec()
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService)
         );
     }
 
@@ -223,7 +231,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
+            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
         }
     }
 
@@ -246,9 +254,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
         }
     }
 
@@ -271,9 +279,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
         }
     }
 
@@ -296,9 +304,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
         }
     }
 
@@ -320,7 +328,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
+            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
         }
     }
 
@@ -343,8 +351,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -369,7 +377,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
+            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
         }
     }
 
@@ -393,8 +401,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -418,8 +426,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
 
         }
     }
@@ -444,9 +452,10 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
         }
     }
+
 }

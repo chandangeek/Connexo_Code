@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -25,7 +26,14 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
-    private final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
+    private static final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
+
+    private PropertySpecService propertySpecService;
+
+    public IEC1107SecuritySupport(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
@@ -50,7 +58,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
     }
 
     @Override
@@ -162,7 +170,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -183,7 +191,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -204,7 +212,8 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
+
 }

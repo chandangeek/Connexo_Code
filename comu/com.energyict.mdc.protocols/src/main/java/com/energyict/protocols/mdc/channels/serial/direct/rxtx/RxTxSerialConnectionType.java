@@ -2,7 +2,6 @@ package com.energyict.protocols.mdc.channels.serial.direct.rxtx;
 
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.StringFactory;
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -77,8 +76,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
      */
     @Override
     protected PropertySpec<String> flowControlPropertySpec() {
-        return PropertySpecBuilder.
-                forClass(new StringFactory()).
+        return this.getPropertySpecService().newPropertySpecBuilder(new StringFactory()).
                 name(SerialPortConfiguration.FLOW_CONTROL_NAME).
                 markExhaustive().
                 setDefaultValue(FlowControl.NONE.getFlowControl()).

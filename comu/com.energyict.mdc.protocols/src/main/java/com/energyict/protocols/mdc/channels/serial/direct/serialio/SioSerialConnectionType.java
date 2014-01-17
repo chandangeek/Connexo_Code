@@ -1,14 +1,14 @@
 package com.energyict.protocols.mdc.channels.serial.direct.serialio;
 
-import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
+import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
 import com.energyict.protocols.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 
@@ -57,8 +57,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     @Override
     protected PropertySpec<BigDecimal> baudRatePropertySpec() {
         return
-            PropertySpecBuilder.
-                forClass(new BigDecimalFactory()).
+            this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory()).
                 name(SerialPortConfiguration.BAUDRATE_NAME).
                 markExhaustive().
                 markRequired().
@@ -87,8 +86,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     @Override
     protected PropertySpec<BigDecimal> nrOfStopBitsPropertySpec() {
         PropertySpecBuilder<BigDecimal> builder =
-            PropertySpecBuilder.
-                forClass(new BigDecimalFactory()).
+            this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory()).
                 name(SerialPortConfiguration.NR_OF_STOP_BITS_NAME).
                 markRequired().
                 markExhaustive().
