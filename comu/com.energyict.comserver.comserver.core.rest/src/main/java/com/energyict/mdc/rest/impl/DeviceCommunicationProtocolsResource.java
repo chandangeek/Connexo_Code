@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -28,11 +29,13 @@ import javax.ws.rs.core.UriInfo;
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 
+    private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final LicensedProtocolService licensedProtocolService;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService) {
+    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService) {
+        this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.licensedProtocolService = licensedProtocolService;
     }
@@ -43,7 +46,7 @@ public class DeviceCommunicationProtocolsResource {
         DeviceCommunicationProtocolsInfo deviceCommunicationProtocolInfos = new DeviceCommunicationProtocolsInfo();
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : this.protocolPluggableService.findAllDeviceProtocolPluggableClasses()) {
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, false));
+            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, false));
         }
         return deviceCommunicationProtocolInfos;
     }
@@ -54,7 +57,7 @@ public class DeviceCommunicationProtocolsResource {
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(id);
         LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-        return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
+        return new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
     }
 
     @DELETE
@@ -81,7 +84,7 @@ public class DeviceCommunicationProtocolsResource {
             deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
+            return new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
         }
         catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
@@ -99,7 +102,7 @@ public class DeviceCommunicationProtocolsResource {
             deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true);
+            return new DeviceCommunicationProtocolInfo(uriInfo, this.propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
         }
         catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);

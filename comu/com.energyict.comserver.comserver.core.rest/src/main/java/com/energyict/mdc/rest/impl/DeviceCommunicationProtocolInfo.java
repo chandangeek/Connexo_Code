@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -34,7 +35,7 @@ public class DeviceCommunicationProtocolInfo {
     public DeviceCommunicationProtocolInfo() {
     }
 
-    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
+    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, PropertySpecService propertySpecService, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
         try {
@@ -48,16 +49,16 @@ public class DeviceCommunicationProtocolInfo {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
         }
         if (embedProperties) {
-            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
+            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, propertySpecService, deviceProtocolPluggableClass);
             this.propertyInfos = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
     }
 
-    private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, PropertySpecService propertySpecService, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties(propertySpecs);
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList);
+        MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecService, propertySpecs, properties, propertyInfoList);
         return propertyInfoList;
     }
 
