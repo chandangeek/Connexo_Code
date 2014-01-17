@@ -227,7 +227,7 @@ public abstract class ComPortImpl implements ServerComPort {
     public void save() {
         validate();
         if (this.getId()==0) {
-            dataModel.persist(this);
+            dataModel.persist(this); // TODO add to comserver
         } else {
             validateUpdateAllowed();
             dataModel.update(this);

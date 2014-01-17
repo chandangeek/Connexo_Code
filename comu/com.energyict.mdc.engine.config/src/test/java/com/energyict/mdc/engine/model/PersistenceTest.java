@@ -54,11 +54,11 @@ public class PersistenceTest {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void staticTearDown() throws SQLException {
     	inMemoryBootstrapModule.deactivate();
     }
 
-    public final TransactionService getTransactionService() {
+    public static TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
 
