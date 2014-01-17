@@ -5,8 +5,6 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 

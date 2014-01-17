@@ -6,9 +6,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import com.google.common.collect.ImmutableSet;
@@ -30,6 +27,8 @@ public class MdcApplication extends Application {
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile EngineModelService engineModelService;
+    private volatile ComServerService comServerService;
+    private volatile ComPortService comPortService;
 
     @Override
     public Set<Class<?>> getClasses() {
