@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.model;
 
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.impl.ServerComServer;
 import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerServletBasedInboundComPort;
@@ -144,7 +143,7 @@ public interface EngineModelService {
      * @return The InboundComPortPool or <code>null</code> if no such ComPortPool exists
      *         or if the ComPortPool with that unique identifier is not inbound
      */
-    public InboundComPortPool findInboundComPortPool (int id);
+    public InboundComPortPool findInboundComPortPool (long id);
 
     /**
      * Finds the {@link com.energyict.mdc.engine.model.OutboundComPortPool} with the specified unique identifier.

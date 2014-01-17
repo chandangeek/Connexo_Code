@@ -155,6 +155,7 @@ public abstract class ComServerImpl implements ServerComServer {
     }
 
     public void setComPorts(List<ComPort> comPorts) {
+        //todo merge lists in stead of delting re-adding
         this.comPorts.clear();
         for (ComPort comPort : comPorts) {
             this.comPorts.add((ServerComPort) comPort);

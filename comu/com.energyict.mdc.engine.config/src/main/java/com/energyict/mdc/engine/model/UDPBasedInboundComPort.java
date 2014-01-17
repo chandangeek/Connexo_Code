@@ -20,4 +20,6 @@ public interface UDPBasedInboundComPort extends IPBasedInboundComPort {
      */
     public int getBufferSize();
 
+    public void setBufferSize(int size);
+
 }
