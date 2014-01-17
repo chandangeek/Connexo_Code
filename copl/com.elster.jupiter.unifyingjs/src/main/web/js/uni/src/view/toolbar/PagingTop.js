@@ -6,7 +6,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     displayMsg: '{0} - {1} of {2} items',
     displayMoreMsg: '{0} - {1} of more than {2} items',
     emptyMsg: 'There are no items to display',
-    totalCount: 0,
+    isFullTotalCount: false,
+    totalCount: -1,
 
     initComponent: function () {
         this.callParent(arguments);
@@ -26,24 +27,22 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             displayItem = me.child('#displayItem'),
             store = me.store,
             pageData = me.getPageData(),
-            count,
             totalCount,
             msg;
 
         if (displayItem) {
-            count = store.getCount();
             me.totalCount = me.totalCount < store.getTotalCount() ? store.getTotalCount() : me.totalCount;
 
-            if (count === 0) {
+            if (store.getCount() === 0) {
                 msg = me.emptyMsg;
             } else {
-                msg = me.displayMsg;
+                totalCount = me.totalCount - 1;
+                msg = me.displayMoreMsg;
 
-                if (count < me.totalCount) {
-                    msg = me.displayMoreMsg;
-                    totalCount = me.totalCount - 1;
-                } else {
-                    totalCount = count;
+                if (me.isFullTotalCount || store.pageSize * pageData.currentPage >= me.totalCount) {
+                    me.isFullTotalCount = true;
+                    totalCount = me.totalCount;
+                    msg = me.displayMsg;
                 }
 
                 msg = Ext.String.format(
