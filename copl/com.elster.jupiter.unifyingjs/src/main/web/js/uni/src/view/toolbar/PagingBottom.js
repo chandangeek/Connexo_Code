@@ -15,7 +15,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         ]
     }),
 
-    pageNavDelimiterTpl: new Ext.XTemplate('&nbsp;&nbsp;|&nbsp;&nbsp;'),
+    pageNavDelimiterTpl: new Ext.XTemplate('&nbsp;|&nbsp;'),
     pageNavItemTpl: new Ext.XTemplate('<a href="{1}">{0}</a>'),
     currentPageNavItemTpl: new Ext.XTemplate('<span>{0}</span>'),
 
@@ -96,9 +96,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         this.store.load();
     },
 
-    resetQueryString: function () {
+    resetQueryString: function (start) {
         var me = this,
-            result = me.buildHrefWithQueryString(),
+            result = me.buildHrefWithQueryString(start),
             currentHref = location.href;
 
         if (currentHref !== result) {
@@ -118,6 +118,13 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         }
     },
 
+    buildHrefWithQueryString: function (start) {
+        var me = this,
+            url = location.href.split('?')[0],
+            queryString = me.buildQueryString(start);
+        return url + '?' + queryString;
+    },
+
     buildQueryString: function (start) {
         var me = this,
             queryString = me.getCurrentQueryString(),
@@ -130,13 +137,6 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         });
 
         return Ext.Object.toQueryString(queryObject);
-    },
-
-    buildHrefWithQueryString: function (start) {
-        var me = this,
-            url = location.href.split('?')[0],
-            queryString = me.buildQueryString(start);
-        return url + '?' + queryString;
     },
 
     getPageStartValue: function (pageOffset) {
@@ -208,8 +208,9 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             },
             '-',
             {
-                xtype: 'tbtext',
-                itemId: 'pageNavItem'
+                xtype: 'container',
+                itemId: 'pageNavItem',
+                layout: 'hbox'
             },
             '-',
             {
@@ -255,7 +256,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         Ext.suspendLayouts();
         item = me.child('#pageNavItem');
-        item.setText(me.formatPageNavItemText(currPage, me.totalPages));
+        me.initPageNavItems(item, currPage, me.totalPages);
 
         me.setChildDisabled('#first', currPage === 1 || isEmpty);
         me.setChildDisabled('#prev', currPage === 1 || isEmpty);
@@ -267,28 +268,55 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.resetQueryString();
     },
 
-    formatPageNavItemText: function (currPage, pageCount) {
+    initPageNavItems: function (container, currPage, pageCount) {
         var me = this,
             startPage = currPage - 5,
             endPage = currPage + 4,
-            result = '',
             pageOffset,
             start;
 
         startPage = startPage < 1 ? 1 : startPage;
         endPage = endPage > pageCount ? pageCount : endPage;
 
+        container.removeAll();
         for (var i = startPage; i <= endPage; i++) {
             pageOffset = i - currPage;
             start = me.getPageStartValue(pageOffset);
-            result += me.formatSinglePageNavItem(i, start, pageOffset === 0);
+            container.add(me.createPageNavItem(i, start, pageOffset === 0));
 
             if (i < endPage) {
-                result += me.pageNavDelimiterTpl.apply();
+                container.add(me.createPageNavItemDelimiter());
             }
         }
+    },
 
-        return result;
+    createPageNavItem: function (page, start, isCurrent) {
+        var me = this,
+            result = me.formatSinglePageNavItem(page, start, isCurrent),
+            navItem = Ext.create('Ext.Component', {
+                baseCls: Ext.baseCSSPrefix + 'toolbar-text',
+                html: result
+            });
+
+        if (!isCurrent) {
+            navItem.on('afterrender', function () {
+                navItem.getEl().on('click', function () {
+                    // History events are enabled again after the URL has been reset.
+                    Ext.History.suspendEvents();
+                    me.store.loadPage(page);
+                });
+            })
+        }
+
+        return navItem;
+    },
+
+    createPageNavItemDelimiter: function () {
+        var me = this;
+        return Ext.create('Ext.Component', {
+            baseCls: Ext.baseCSSPrefix + 'toolbar-text',
+            html: me.pageNavDelimiterTpl.apply()
+        });
     },
 
     formatSinglePageNavItem: function (page, start, isCurrent) {
