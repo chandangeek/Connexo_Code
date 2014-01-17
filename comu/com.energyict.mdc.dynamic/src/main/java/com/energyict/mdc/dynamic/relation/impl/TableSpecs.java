@@ -27,7 +27,7 @@ public enum TableSpecs {
             Table<RelationType> table = dataModel.addTable(name(), RelationType.class);
             table.map(RelationTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.primaryKey("CDR_PK_RELATIONTYPE").on(idColumn).add();
+            table.primaryKey("PK_EISRELATIONTYPE").on(idColumn).add();
             table.column("NAME").type("varchar2(24)").notNull().map("name").add();
             table.column("DISPLAYNAME").type("varchar2(256)").map("displayName").add();
             table.column("ACTIVE").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -43,7 +43,7 @@ public enum TableSpecs {
             Table<RelationAttributeType> table = dataModel.addTable(name(), RelationAttributeType.class);
             table.map(RelationAttributeTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.primaryKey("CDR_PK_ATTRTYPE").on(idColumn).add();
+            table.primaryKey("PK_RELATIONATTRIBUTETYPE").on(idColumn).add();
             table.column("NAME").type("varchar2(30)").notNull().map("name").add();
             table.column("DISPLAYNAME").type("varchar2(256)").map("displayName").add();
             table.column("VALUEFACTORY").type("varchar2(512)").notNull().map("valueFactoryClassName").add();
@@ -54,7 +54,7 @@ public enum TableSpecs {
             table.column("NAVIGATABLE").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("navigatable").add();
             table.column("HIDDEN").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("hidden").add();
             table.column("ROLENAME").type("varchar2(80)").map("roleName").add();
-            table.foreignKey("FK_RAT_RELATIONTYPE").on(relationTypeColumn).references(EISRELATIONTYPE.name()).
+            table.foreignKey("FK_RELATIONATTRIBUTETYPE").on(relationTypeColumn).references(EISRELATIONTYPE.name()).
                     map("relationType").reverseMap("attributeTypes").composition().add();
         }
     },
@@ -64,7 +64,7 @@ public enum TableSpecs {
             Table<Constraint> table = dataModel.addTable(name(), Constraint.class);
             table.map(ConstraintImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.primaryKey("CDR_PK_CONSTRAINT").on(idColumn).add();
+            table.primaryKey("PK_CONSTRAINT").on(idColumn).add();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             Column relationTypeColumn = table.column("RELATIONTYPEID").number().add();
             table.column("REJECTVIOLATIONS").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("rejectViolations").add();
@@ -80,11 +80,11 @@ public enum TableSpecs {
             table.map(ConstraintMember.class);
             Column constraintColumn = table.column("CONSTRAINTID").number().notNull().add();
             Column attributeTypeColumn = table.column("ATTRIBUTETYPEID").number().notNull().map("attributeTypeId").add();
-            table.primaryKey("CDR_PK_CONSTRAINT").on(constraintColumn, attributeTypeColumn).add();
+            table.primaryKey("PK_CONSTRAINTMEMBER").on(constraintColumn, attributeTypeColumn).add();
             table.foreignKey("FK_CONSTRAINTMEMBER_CONSTRAINT").on(constraintColumn).references(EISCONSTRAINT.name()).
                     map("constraint").reverseMap("members").composition().add();
             table.foreignKey("FK_CONSTRAINTMEMBER_ATTRIBUTE").
-                    on(constraintColumn).references(EISRELATIONATTRIBUTETYPE.name()).
+                    on(attributeTypeColumn).references(EISRELATIONATTRIBUTETYPE.name()).
                     map("attributeTypeId").add();
         }
     };

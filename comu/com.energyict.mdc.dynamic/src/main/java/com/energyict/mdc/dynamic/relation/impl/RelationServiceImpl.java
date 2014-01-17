@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -26,8 +27,8 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name="com.energyict.mdc.dynamic.relation", service = RelationService.class)
-public class RelationServiceImpl implements RelationService, ServiceLocator {
+@Component(name="com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class})
+public class RelationServiceImpl implements RelationService, ServiceLocator, InstallService {
 
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
@@ -41,6 +42,9 @@ public class RelationServiceImpl implements RelationService, ServiceLocator {
         this();
         this.setOrmService(ormService);
         this.activate();
+        if (!this.dataModel.isInstalled()) {
+            this.install();
+        }
     }
 
     Module getModule() {
@@ -58,7 +62,6 @@ public class RelationServiceImpl implements RelationService, ServiceLocator {
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
-        this.dataModel.register();
         this.ormClient = new OrmClientImpl(this.dataModel);
     }
 
@@ -66,6 +69,11 @@ public class RelationServiceImpl implements RelationService, ServiceLocator {
     public void activate () {
         Bus.setServiceLocator(this);
         this.dataModel.register(this.getModule());
+    }
+
+    @Override
+    public void install() {
+        new Installer(this.dataModel).install(true, true, true);
     }
 
     @Deactivate
