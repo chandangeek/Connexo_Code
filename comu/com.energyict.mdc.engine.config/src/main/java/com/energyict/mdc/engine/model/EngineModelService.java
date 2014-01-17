@@ -7,8 +7,8 @@ import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerUDPBasedInboundComPort;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.PluggableClass;
 
 import java.sql.SQLException;
 import java.util.List;
