@@ -90,7 +90,7 @@ public class MTU155Properties {
     }
 
     private PropertySpec debugPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(DEBUG_PROPERTY_NAME);
+        return PropertySpecFactory.notNullableBooleanPropertySpec(DEBUG_PROPERTY_NAME);
     }
 
     private PropertySpec channelBacklogPropertySpec() {
