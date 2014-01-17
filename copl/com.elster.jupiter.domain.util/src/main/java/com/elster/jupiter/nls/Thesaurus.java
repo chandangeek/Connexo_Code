@@ -1,6 +1,7 @@
 package com.elster.jupiter.nls;
 
 import java.util.Locale;
+import java.util.Map;
 
 public interface Thesaurus {
 	
@@ -29,5 +30,7 @@ public interface Thesaurus {
 	NlsMessageFormat getFormat(MessageSeed seed);
 
     void addTranslations(Iterable<? extends Translation> translations);
+
+    Map<String, String> getTranslations();
 
 }

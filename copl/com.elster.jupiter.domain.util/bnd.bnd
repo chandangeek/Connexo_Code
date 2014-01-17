@@ -1,4 +1,6 @@
 -classpath: target/classes 
 -dsannotations: *
-Private-Package: com.elster.jupiter.domain.util.impl
-Export-Package: com.elster.jupiter.domain.util
+Private-Package: com.elster.jupiter.domain.util.impl,\
+    com.elster.jupiter.nls.impl
+Export-Package: com.elster.jupiter.domain.util,\
+    com.elster.jupiter.nls

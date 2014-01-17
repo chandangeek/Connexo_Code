@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -17,8 +18,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.nls")
-public class NlsServiceImpl implements NlsService {
+@Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = "name=" + NlsService.COMPONENTNAME)
+public class NlsServiceImpl implements NlsService, InstallService {
 
     private volatile DataModel dataModel;
 
@@ -78,4 +79,8 @@ public class NlsServiceImpl implements NlsService {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Override
+    public void install() {
+        dataModel.install(true, true);
+    }
 }

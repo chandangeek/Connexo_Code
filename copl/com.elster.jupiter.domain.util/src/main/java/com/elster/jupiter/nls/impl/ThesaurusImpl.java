@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 class ThesaurusImpl implements Thesaurus {
 
@@ -89,5 +90,18 @@ class ThesaurusImpl implements Thesaurus {
     @Override
     public String getComponent() {
         return component;
+    }
+
+    @Override
+    public Map<String, String> getTranslations() {
+        Map<String, String> map = new TreeMap<>();
+        for (Map.Entry<String, NlsKeyImpl> entry : translations.entrySet()) {
+            map.put(entry.getKey(), translate(entry.getValue()));
+        }
+        return map;
+    }
+
+    private String translate(NlsKeyImpl nlsKey) {
+        return nlsKey.translate(getLocale()).or(nlsKey.getDefaultMessage());
     }
 }
