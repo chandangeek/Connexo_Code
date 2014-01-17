@@ -13,5 +13,4 @@ import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
  */
 public interface ServerTCPBasedInboundComPort extends ServerIPBasedInboundComPort, TCPBasedInboundComPort {
 
-    public void init(ComServer owner);
 }

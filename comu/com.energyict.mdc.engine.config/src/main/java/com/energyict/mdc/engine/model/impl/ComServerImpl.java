@@ -44,11 +44,12 @@ public abstract class ComServerImpl implements ServerComServer {
     public static final int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
-
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
+
     private final Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider;
     private final Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider;
     private final Provider<ServerTCPBasedInboundComPort> tcpBasedInboundComPortProvider;
+    private final Provider<ServerUDPBasedInboundComPort> udpBasedInboundComPortProvider;
 
     private long id;
     private String name;
@@ -63,7 +64,7 @@ public abstract class ComServerImpl implements ServerComServer {
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<ServerTCPBasedInboundComPort> tcpBasedInboundComPortProvider) {
+    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<ServerTCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<ServerUDPBasedInboundComPort> udpBasedInboundComPortProvider) {
         super();
         this.dataModel = dataModel;
         this.engineModelService = engineModelService;
@@ -71,6 +72,7 @@ public abstract class ComServerImpl implements ServerComServer {
         this.servletBasedInboundComPortProvider = servletBasedInboundComPortProvider;
         this.modemBasedInboundComPortProvider = modemBasedInboundComPortProvider;
         this.tcpBasedInboundComPortProvider = tcpBasedInboundComPortProvider;
+        this.udpBasedInboundComPortProvider = udpBasedInboundComPortProvider;
     }
 
     private List<ServerComPort> getServerComPorts () {
@@ -267,15 +269,25 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
-//            @Override
-//            public UDPBasedInboundComPort createUDPBasedInbound (final UDPBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-//                shadow.setComServerId(this.getId());
-//                ServerUDPBasedInboundComPort comPort = this.getComPortFactory().createUDPBasedInbound(this, shadow);
-//                this.post();
-//                this.addToComPortCache(comPort);
-//                return comPort;
-//            }
-//
+    public UDPBasedComPortBuilder newUDPBasedInboundComPort() {
+        return new UDPBasedComPortBuilder();
+    }
+
+    private class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl {
+
+        protected UDPBasedComPortBuilder() {
+            super(udpBasedInboundComPortProvider);
+            comPort.init(ComServerImpl.this);
+        }
+
+        @Override
+        public ServerUDPBasedInboundComPort add() {
+            ServerUDPBasedInboundComPort comPort = super.add();
+            ComServerImpl.this.comPorts.add(comPort);
+            return comPort;
+        }
+    }
+
     protected void validate (String newName) {
         validateNotNull(newName, "name");
         /* Validation provided by superclass work with a set of invalid
