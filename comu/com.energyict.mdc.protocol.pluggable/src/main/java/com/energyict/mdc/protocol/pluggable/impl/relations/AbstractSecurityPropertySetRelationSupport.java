@@ -19,24 +19,7 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-17 (16:54)
  */
-public abstract class AbstractSecurityPropertySetRelationSupport {
-
-    /**
-     * The name of the attribute that references the
-     * {@link Device}
-     * that owns the security properties that are
-     * saved in the {@link RelationType}
-     * that is created by this SecurityPropertySetRelationTypeSupport.
-     */
-    public static final String DEVICE_ATTRIBUTE_NAME = "device";
-
-    /**
-     * The name of the attribute that references the security property set
-     * that defines the context of the security properties that are
-     * saved in the {@link RelationType}
-     * that is created by this SecurityPropertySetRelationTypeSupport.
-     */
-    public static final String SECURITY_PROPERTY_SET_ATTRIBUTE_NAME = "securityPropertySet";
+public abstract class AbstractSecurityPropertySetRelationSupport implements com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames {
 
     private ProtocolPluggableService protocolPluggableService;
     private RelationService relationService;

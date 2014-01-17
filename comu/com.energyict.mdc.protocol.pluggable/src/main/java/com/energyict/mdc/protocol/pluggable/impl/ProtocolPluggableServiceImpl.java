@@ -11,6 +11,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -26,6 +27,7 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -314,6 +316,19 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                     .mapper(PluggableClassRelationAttributeTypeUsage.class)
                     .find("relationAttributeTypeId", attributeType.getId());
         return !usages.isEmpty();
+    }
+
+    @Override
+    public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        SecurityPropertySetRelationTypeSupport relationTypeSupport =
+                new SecurityPropertySetRelationTypeSupport(
+                        this.dataModel,
+                        this,
+                        this.relationService,
+                        deviceProtocol,
+                        deviceProtocolPluggableClass);
+        return relationTypeSupport.findRelationType();
     }
 
     @Reference

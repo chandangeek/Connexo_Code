@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -175,5 +176,14 @@ public interface ProtocolPluggableService {
     public DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass (DeviceProtocolPluggableClass pluggableClass, String dialectName);
 
     public boolean isDefaultAttribute(RelationAttributeType attributeType);
+
+    /**
+     * Finds the {@link RelationType} that holds the security properties
+     * for the specified {@link DeviceProtocolPluggableClass}.
+     *
+     * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
+     * @return The RelationType
+     */
+    public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
 }
