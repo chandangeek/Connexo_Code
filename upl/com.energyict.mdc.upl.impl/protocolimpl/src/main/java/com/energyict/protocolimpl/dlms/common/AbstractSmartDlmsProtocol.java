@@ -43,7 +43,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     public Date getTime() throws IOException {
         try {
             getLogger().severe("Reading CLOCK");
-            return this.dlmsSession.getCosemObjectFactory().getClock().getDateTime();
+            return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
             throw new IOException("Could not retrieve the Clock object. " + e);
