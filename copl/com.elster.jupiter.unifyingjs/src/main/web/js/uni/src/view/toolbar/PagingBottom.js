@@ -15,7 +15,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         ]
     }),
 
-    pageNavDelimiterTpl: new Ext.XTemplate('&nbsp;|&nbsp;'),
+    pageNavDelimiterTpl: new Ext.XTemplate('|'),
     pageNavItemTpl: new Ext.XTemplate('<a href="{1}">{0}</a>'),
     currentPageNavItemTpl: new Ext.XTemplate('<span>{0}</span>'),
 
