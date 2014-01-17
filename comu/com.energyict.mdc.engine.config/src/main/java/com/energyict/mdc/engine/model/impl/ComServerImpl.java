@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -16,7 +15,6 @@ import com.google.common.collect.ImmutableMap;
 
 import com.google.inject.Provider;
 import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Date;
@@ -185,16 +183,16 @@ public abstract class ComServerImpl implements ServerComServer {
     }
 
     @Override
-    public OutboundComPort.OutboundComPortBuilder newOutbound() {
-        return new OutboundBuilder(this);
+    public OutboundComPort.OutboundComPortBuilder newOutboundComPort() {
+        return new OutboundComPortBuilder(this);
     }
 
     /**
      * Builders are used to facilitate validating ComPorts??
      */
-    class OutboundBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
+    class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
-        private OutboundBuilder(ComServer comServer) {
+        private OutboundComPortBuilder(ComServer comServer) {
             super(outboundComPortProvider);
             comPort.init(comServer);
         }
@@ -207,17 +205,6 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
-//            @Override
-//            public OutboundComPort createOutbound (final OutboundComPortShadow shadow) throws BusinessException, SQLException {
-//                shadow.setComServerId(this.getId());
-//                ServerOutboundComPort comPort = this.getComPortFactory().createOutbound(this, shadow);
-//                if (isPersistent) {
-//                    this.post();
-//                }
-//                this.addToComPortCache(comPort);
-//                return comPort;
-//            }
-//
 //            @Override
 //            public ModemBasedInboundComPort createModemBasedInbound (final ModemBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
 //                shadow.setComServerId(this.getId());

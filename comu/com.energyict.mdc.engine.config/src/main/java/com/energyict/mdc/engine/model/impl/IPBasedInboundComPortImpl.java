@@ -61,4 +61,19 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         }
     }
 
+    static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort>
+            extends InboundComPortBuilderImpl<B, C>
+            implements IpBasedInboundComPortBuilder<B,C> {
+        protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, Provider<C> ipBasedInboundComPortProvider) {
+            super(clazz, ipBasedInboundComPortProvider);
+        }
+
+        @Override
+        public IpBasedInboundComPortBuilder portNumber(int portNumber) {
+            comPort.setPortNumber(portNumber);
+            return this;
+        }
+    }
+
+
 }

@@ -71,7 +71,7 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
 
     static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, ServerOutboundComPort> implements OutboundComPortBuilder {
         protected OutboundComPortBuilderImpl(Provider<OutboundComPortImpl> outboundComPortProvider) {
-            super(outboundComPortProvider.get(), OutboundComPortBuilder.class);
+            super(OutboundComPortBuilder.class, outboundComPortProvider.get());
         }
 
         public OutboundComPortBuilder numberOfSimultaneousConnections(int number) {

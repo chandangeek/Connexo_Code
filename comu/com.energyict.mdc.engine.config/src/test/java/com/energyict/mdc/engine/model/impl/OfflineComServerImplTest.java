@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
@@ -17,7 +16,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
 * Tests the {@link OfflineComServerImpl} component.
@@ -535,7 +532,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     }
 
     private void addComPort(ComServer comServer) {
-        comServer.newOutbound().numberOfSimultaneousConnections(1).name("Outbound").active(true).comPortType(ComPortType.TCP).add();
+        comServer.newOutboundComPort().numberOfSimultaneousConnections(1).name("Outbound").active(true).comPortType(ComPortType.TCP).add();
     }
 
 }

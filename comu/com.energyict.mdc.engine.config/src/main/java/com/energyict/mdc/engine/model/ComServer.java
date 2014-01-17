@@ -240,7 +240,7 @@ public interface ComServer {
 
     public String getType();
 
-    public OutboundComPort.OutboundComPortBuilder newOutbound();
+    public OutboundComPort.OutboundComPortBuilder newOutboundComPort();
 
     public void delete();
 

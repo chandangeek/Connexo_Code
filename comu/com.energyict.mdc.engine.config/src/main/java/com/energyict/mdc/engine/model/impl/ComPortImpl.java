@@ -261,7 +261,7 @@ public abstract class ComPortImpl implements ServerComPort {
         C comPort;
         B self;
 
-        protected ComPortBuilderImpl(C comPort, Class<B> clazz) {
+        protected ComPortBuilderImpl(Class<B> clazz, C comPort) {
             this.comPort = comPort;
             self = clazz.cast(this);
         }
