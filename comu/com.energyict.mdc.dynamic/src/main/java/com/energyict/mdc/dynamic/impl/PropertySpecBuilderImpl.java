@@ -3,6 +3,7 @@ package com.energyict.mdc.dynamic.impl;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
 import com.energyict.mdc.dynamic.ReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
@@ -33,7 +34,7 @@ import java.util.Arrays;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-20 (09:06)
  */
-public class PropertySpecBuilder<T> {
+public class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
     /**
      * The initial name that is used for a {@link PropertySpec}
@@ -53,7 +54,7 @@ public class PropertySpecBuilder<T> {
      * @return The PropertySpecBuilder
      */
     public static <D> PropertySpecBuilder<D> forClass(ValueFactory<D> valueFactory) {
-        return new PropertySpecBuilder<>(valueFactory);
+        return new PropertySpecBuilderImpl<>(valueFactory);
     }
 
     /**
@@ -66,86 +67,47 @@ public class PropertySpecBuilder<T> {
     @SuppressWarnings("unchecked")
     public static <D extends IdBusinessObject> PropertySpecBuilder<D> forReference (IdBusinessObjectFactory<D> factory) {
         ValueFactory<D> referenceFactory = new ReferenceFactory<>(factory);
-        return new PropertySpecBuilder<>(referenceFactory);
+        return new PropertySpecBuilderImpl<>(referenceFactory);
     }
 
-    /**
-     * Sets the name of the {@link PropertySpec} that is being constructed.
-     *
-     * @param specName The name of the PropertySpec
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    public PropertySpecBuilder<T> name (String specName) {
+    @Override
+    public PropertySpecBuilder<T> name(String specName) {
         this.propertySpecAccessor.setName(specName);
         return this;
     }
 
-    /**
-     * Sets a default value for the {@link PropertySpec} under construction.
-     * Setting a default value implies that the default value
-     * will become one of the possible values of the PropertySpec.
-     * Note that there is only one default and calling this method
-     * a second time will overrule the previous default.
-     * The previous value will remain in the list of possible values though.
-     *
-     * @param defaultValue The default value
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    public PropertySpecBuilder<T> setDefaultValue (T defaultValue) {
+    @Override
+    public PropertySpecBuilder<T> setDefaultValue(T defaultValue) {
         this.propertySpecAccessor.setDefaultValue(defaultValue);
         return this;
     }
 
-    /**
-     * Marks the list of possible values of the {@link PropertySpec}
-     * under construction as an exhaustive list.
-     *
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    public PropertySpecBuilder<T> markExhaustive () {
+    @Override
+    public PropertySpecBuilder<T> markExhaustive() {
         this.propertySpecAccessor.markExhaustive();
         return this;
     }
 
-    /**
-     * Marks the {@link PropertySpec} that is under construction as required.
-     * The resulting PropertySpec will therefore return <code>true</code>
-     * for the {@link PropertySpec#isRequired()} method.
-     *
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    public PropertySpecBuilder<T> markRequired () {
+    @Override
+    public PropertySpecBuilder<T> markRequired() {
         this.propertySpecAccessor.markRequired();
         return this;
     }
 
-    /**
-     * Adds the specified values to the PropertySpec under construction.
-     *
-     * @param values The possible values
-     * @return This PropertySpecBuilder to support method chaining while constructing
-     */
-    public PropertySpecBuilder<T> addValues (T... values) {
+    @Override
+    public PropertySpecBuilder<T> addValues(T... values) {
         this.propertySpecAccessor.addValues(values);
         return this;
     }
 
-    /**
-     * Finishes the building process and returns the
-     * {@link PropertySpec} as it was constructed so far.
-     * Note that this stops the building process and
-     * attempts to reuse this building will fail
-     * with an {@link IllegalStateException} being thrown.
-     *
-     * @return The PropertySpec
-     */
-    public PropertySpec<T> finish () {
+    @Override
+    public PropertySpec<T> finish() {
         PropertySpec<T> finished = this.propertySpecAccessor.getPropertySpec();
         this.propertySpecAccessor = new BuildingProcessComplete<>(finished);
         return finished;
     }
 
-    private PropertySpecBuilder(ValueFactory<T> valueFactory) {
+    private PropertySpecBuilderImpl(ValueFactory<T> valueFactory) {
         super();
         this.propertySpecAccessor = new BasicPropertySpecAccessor<>(new BasicPropertySpec<>(INITIAL_SPEC_NAME, valueFactory));
     }

@@ -1,6 +1,8 @@
-package com.energyict.mdc.dynamic;
+package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecFactory;
+import com.energyict.mdc.dynamic.ValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +16,14 @@ import java.util.List;
 public abstract class PropertySpecFactoryImpl implements PropertySpecFactory {
 
     protected <T> PropertySpec<T> simpleOptionalPropertySpec(String name, ValueFactory<T> valueFactory) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(valueFactory).
                 name(name).
                 finish();
     }
 
     protected <T> PropertySpec<T> simpleRequiredPropertySpec(String name, ValueFactory<T> valueFactory) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(valueFactory).
                 name(name).
                 markRequired().

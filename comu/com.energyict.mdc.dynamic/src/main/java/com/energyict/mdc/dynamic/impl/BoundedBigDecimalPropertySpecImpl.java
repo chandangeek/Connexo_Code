@@ -1,16 +1,17 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.dynamic.BigDecimalFactory;
+import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 
 import java.math.BigDecimal;
 
 /**
- * Insert your comments here.
+ * Provides an implementation for the {@link BoundedBigDecimalPropertySpec} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:22)
  */
-public class BoundedBigDecimalPropertySpec extends BasicPropertySpec<BigDecimal> {
+public class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec<BigDecimal> implements BoundedBigDecimalPropertySpec {
 
     private BigDecimal lowerLimit;
     private BigDecimal upperLimit;
@@ -22,7 +23,7 @@ public class BoundedBigDecimalPropertySpec extends BasicPropertySpec<BigDecimal>
      * @param lowerLimit smallest value allowed
      * @param upperLimit greates value allowed
      */
-    public BoundedBigDecimalPropertySpec (String name, BigDecimal lowerLimit, BigDecimal upperLimit) {
+    public BoundedBigDecimalPropertySpecImpl(String name, BigDecimal lowerLimit, BigDecimal upperLimit) {
         super(name, new BigDecimalFactory());
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;

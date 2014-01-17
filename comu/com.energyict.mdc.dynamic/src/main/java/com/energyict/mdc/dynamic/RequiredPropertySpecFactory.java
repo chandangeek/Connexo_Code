@@ -10,8 +10,9 @@ import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.coordinates.SpatialCoordinates;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
-import com.energyict.mdc.dynamic.impl.BoundedBigDecimalPropertySpec;
-import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.impl.BoundedBigDecimalPropertySpecImpl;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
+import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -35,7 +36,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<String> stringPropertySpec (String name, String defaultValue) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new StringFactory()).
                 name(name).
                 markRequired().
@@ -45,7 +46,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<String> stringPropertySpecWithValues (String name, String... values) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new StringFactory()).
                 name(name).
                 markRequired().
@@ -56,7 +57,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<String> stringPropertySpecWithValuesAndDefaultValue (String name, String defaultValue, String... values) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new StringFactory()).
                 name(name).
                 markRequired().
@@ -88,7 +89,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<BigDecimal> bigDecimalPropertySpec(String name, BigDecimal defaultValue) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new BigDecimalFactory()).
                 name(name).
                 markRequired().
@@ -98,7 +99,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<BigDecimal> bigDecimalPropertySpecWithValues (String name, BigDecimal... values) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new BigDecimalFactory()).
                 name(name).
                 markRequired().
@@ -109,12 +110,12 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<BigDecimal> boundedDecimalPropertySpec (String name, BigDecimal lowerLimit, BigDecimal upperLimit) {
-        return new BoundedBigDecimalPropertySpec(name, lowerLimit, upperLimit);
+        return new BoundedBigDecimalPropertySpecImpl(name, lowerLimit, upperLimit);
     }
 
     @Override
     public PropertySpec<BigDecimal> positiveDecimalPropertySpec (String name) {
-        return new BoundedBigDecimalPropertySpec(name, BigDecimal.ZERO, null);
+        return new BoundedBigDecimalPropertySpecImpl(name, BigDecimal.ZERO, null);
     }
 
     @Override
@@ -149,7 +150,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<TimeDuration> timeDurationPropertySpec (String name, TimeDuration defaultValue) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new TimeDurationValueFactory()).
                 name(name).
                 markRequired().
@@ -159,7 +160,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<TimeDuration> timeDurationPropertySpecWithValues(String name, TimeDuration... values) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new TimeDurationValueFactory()).
                 name(name).
                 markRequired().
@@ -174,7 +175,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, ObisCode... values) {
-        return PropertySpecBuilder.
+        return PropertySpecBuilderImpl.
                 forClass(new ObisCodeValueFactory()).
                 name(name).
                 markRequired().
@@ -184,7 +185,7 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     @Override
     public <D extends IdBusinessObject> PropertySpec<D> referencePropertySpec(String name, IdBusinessObjectFactory<D> factory) {
-        return PropertySpecBuilder.forReference(factory).markRequired().name(name).finish();
+        return PropertySpecBuilderImpl.forReference(factory).markRequired().name(name).finish();
     }
 
     @Override

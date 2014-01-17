@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecBuilder;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
 import com.energyict.mdc.dynamic.StringFactory;
 import org.junit.*;
@@ -13,7 +14,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests the {@link PropertySpecBuilder} component.
+ * Tests the {@link PropertySpecBuilderImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-20 (09:47)
@@ -34,7 +35,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         finish();
@@ -52,7 +53,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         setDefaultValue(defaultValue).
@@ -73,7 +74,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleStringProperty";
         String initialDefaultValue = "INITIAL-DEFAULT";
         String newDefaultValue = "NEW-DEFAULT";
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.
             name(specName).
             setDefaultValue(initialDefaultValue);
@@ -101,7 +102,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         setDefaultValue(defaultValue).
@@ -126,7 +127,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         addValues(otherValue1, otherValue2).
@@ -150,7 +151,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         addValues(otherValue1).
@@ -176,7 +177,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         setDefaultValue(defaultValue).
@@ -203,7 +204,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<String> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forClass(new StringFactory()).
                         name(specName).
                         markExhaustive().
@@ -224,7 +225,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
     @Test
     public void testFinishAgainReturnsTheSamePropertySpec () {
         String specName = "exampleStringProperty";
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName);
         PropertySpec<String> propertySpec1 = builder.finish();
 
@@ -238,7 +239,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
     @Test(expected = IllegalStateException.class)
     public void testCannotSetNameAfterFinish () {
         String specName = "exampleStringProperty";
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.finish();
 
         // Business methods
@@ -251,7 +252,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
     public void testCannotSetDefaultAfterFinish () {
         String specName = "exampleStringProperty";
         String defaultValue = "DEFAULT";
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName).finish();
 
         // Business methods
@@ -265,7 +266,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleStringProperty";
         String otherValue1 = "OTHER1";
         String otherValue2 = "OTHER2";
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName).finish();
 
         // Business methods
@@ -277,7 +278,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
     @Test(expected = IllegalStateException.class)
     public void testCannotMarkExhaustiveAfterFinish () {
         String specName = "exampleStringProperty";
-        PropertySpecBuilder<String> builder = PropertySpecBuilder.forClass(new StringFactory());
+        PropertySpecBuilder<String> builder = PropertySpecBuilderImpl.forClass(new StringFactory());
         builder.name(specName).finish();
 
         // Business methods
@@ -292,7 +293,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<TestBusinessObject> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forReference(mock(TestBusinessObjectFactory.class)).
                         name(specName).
                         finish();
@@ -309,7 +310,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
 
         // Business methods
         PropertySpec<TestBusinessObject> propertySpec =
-                PropertySpecBuilder.
+                PropertySpecBuilderImpl.
                         forReference(mock(TestBusinessObjectFactory.class)).
                         name(specName).
                         setDefaultValue(this.testBusinessObject1).
@@ -330,7 +331,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleTestBusinessObjectProperty";
 
         // Business method
-        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilder.
+        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilderImpl.
                 forReference(mock(TestBusinessObjectFactory.class)).
                 name(specName).
                 setDefaultValue(this.testBusinessObject1).
@@ -352,7 +353,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleTestBusinessObjectProperty";
 
         // Business method
-        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilder.
+        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilderImpl.
                 forReference(mock(TestBusinessObjectFactory.class)).
                 name(specName).
                 addValues(this.testBusinessObject1, this.testBusinessObject2).
@@ -373,7 +374,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleTestBusinessObjectProperty";
 
         // Business method
-        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilder.
+        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilderImpl.
                 forReference(mock(TestBusinessObjectFactory.class)).
                 name(specName).
                 addValues(this.testBusinessObject1).
@@ -395,7 +396,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleTestBusinessObjectProperty";
 
         // Business method
-        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilder.
+        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilderImpl.
                 forReference(mock(TestBusinessObjectFactory.class)).
                 name(specName).
                 addValues(this.testBusinessObject1).
@@ -418,7 +419,7 @@ public class PropertySpecBuilderTest extends AbstractPropertySpecTest {
         String specName = "exampleTestBusinessObjectProperty";
 
         // Business method
-        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilder.
+        PropertySpec<TestBusinessObject> propertySpec = PropertySpecBuilderImpl.
                 forReference(mock(TestBusinessObjectFactory.class)).
                 name(specName).
                 markExhaustive().
