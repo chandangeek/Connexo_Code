@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
+package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
@@ -34,7 +34,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelInputStreamAdapter;
@@ -43,6 +42,11 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolA
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolClockAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolLoadProfileAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolMessageAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolRegisterAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolSecuritySupportAdapter;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
@@ -58,7 +62,7 @@ import java.util.logging.Logger;
  * @author gna
  * @since 29/03/12 - 9:08
  */
-public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements DeviceProtocol {
+public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implements DeviceProtocol, MeterProtocolAdapter {
 
     /**
      * The used <code>MeterProtocol</code> for which the adapter is working
@@ -101,7 +105,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
     private MeterProtocolLoadProfileAdapter meterProtocolLoadProfileAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport} functionality
+     * The adapter used for the {@link DeviceMessageSupport} functionality
      */
     private MeterProtocolMessageAdapter meterProtocolMessageAdapter;
 
@@ -130,7 +134,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapter(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+    public MeterProtocolAdapterImpl(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
         super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
         if (meterProtocol instanceof RegisterProtocol) {
@@ -263,7 +267,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
         throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(this.getClass(), "getLoadProfileData");
     }
 
-    public List<CollectedData> getLoadProfileLogBooksData(final List<LoadProfileReader> loadProfiles, final List<LogBookReader> logBookReaders) {
+    @Override public List<CollectedData> getLoadProfileLogBooksData(final List<LoadProfileReader> loadProfiles, final List<LogBookReader> logBookReaders) {
         return this.meterProtocolLoadProfileAdapter.getLoadProfileLogBookData(loadProfiles, logBookReaders);
     }
 

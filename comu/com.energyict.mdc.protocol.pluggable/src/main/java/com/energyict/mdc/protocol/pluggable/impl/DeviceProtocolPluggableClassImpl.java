@@ -17,9 +17,9 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
@@ -31,7 +31,7 @@ import java.util.List;
  * Defines a PluggableClass based on a {@link DeviceProtocol}.
  * <p/>
  * We are responsible for wrapping the given Pluggable with a correct Adapter
- * ({@link com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapter} or
+ * ({@link com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter} or
  * {@link com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter})
  * or a correct cast to {@link DeviceProtocol}.
  * <p/>
@@ -109,7 +109,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
             return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         }
         else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapter((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
+            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
         }
         else {
             throw new ProtocolCreationException(protocol.getClass());
