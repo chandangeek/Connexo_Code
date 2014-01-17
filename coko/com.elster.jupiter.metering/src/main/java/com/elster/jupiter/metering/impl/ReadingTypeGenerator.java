@@ -72,5 +72,8 @@ public class ReadingTypeGenerator {
 			name = timeAttributeNames[i] + " " + root.name + " Cumulative index";
 			readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
 		}
+		String code = root.builder.period(TimeAttribute.NOTAPPLICABLE).accumulate(Accumulation.BULKQUANTITY).code();
+		String name = root.name + " Cumulative index";
+		readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
 	}
 }
