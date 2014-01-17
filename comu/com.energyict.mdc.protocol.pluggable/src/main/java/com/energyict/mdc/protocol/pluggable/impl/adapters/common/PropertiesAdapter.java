@@ -15,7 +15,7 @@ public class PropertiesAdapter {
 
     public void copyProperties (TypedProperties typedProperties) {
         /* First we add the inherited properties, then the others (so we can overwrite the inherited */
-        if(typedProperties.getInheritedProperties() != null){
+        if (typedProperties.getInheritedProperties() != null) {
             properties.setAllProperties(typedProperties.getInheritedProperties());
         }
         properties.setAllProperties(typedProperties);

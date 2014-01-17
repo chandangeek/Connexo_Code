@@ -13,8 +13,13 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -24,6 +29,7 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -51,6 +57,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -108,6 +116,13 @@ public class DeviceProtocolPluggableClassImplTest {
         }
         Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(mock(IdBusinessObjectFactory.class));
+        Translator translator = mock(Translator.class);
+        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
+        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
+        when(applicationContext.getTranslator()).thenReturn(translator);
+        environment.setApplicationContext(applicationContext);
     }
 
     @BeforeClass
@@ -173,6 +188,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceMeterProtocolTest() throws BusinessException, SQLException {
         PluggableClass pluggableClass = mock(PluggableClass.class);
         when(pluggableClass.getJavaClassName()).thenReturn(MOCK_METER_PROTOCOL);
+        when(pluggableClass.getProperties(anyList())).thenReturn(TypedProperties.empty());
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_METER_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
 
         // Business method
@@ -189,6 +205,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceSmartMeterProtocolTest() throws BusinessException, SQLException {
         PluggableClass pluggableClass = mock(PluggableClass.class);
         when(pluggableClass.getJavaClassName()).thenReturn(MOCK_SMART_METER_PROTOCOL);
+        when(pluggableClass.getProperties(anyList())).thenReturn(TypedProperties.empty());
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_SMART_METER_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
 
         // Business method
@@ -201,7 +218,7 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isInstanceOf(SmartMeterProtocolAdapter.class);
     }
 
-    @Test(expected = BusinessException.class)
+    @Test(expected = ProtocolCreationException.class)
     public void newInstanceNotADeviceProtocolTest() throws BusinessException, SQLException {
         PluggableClass pluggableClass = mock(PluggableClass.class);
         when(pluggableClass.getJavaClassName()).thenReturn(MOCK_NOT_A_DEVICE_PROTOCOL);

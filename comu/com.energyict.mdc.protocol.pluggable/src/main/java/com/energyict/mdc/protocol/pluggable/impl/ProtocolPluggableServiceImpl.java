@@ -76,7 +76,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.setConnectionTypeService(connectionTypeService);
         this.activate();
-        this.install();
+        if (!this.dataModel.isInstalled()) {
+            this.install();
+        }
     }
 
     @Override
