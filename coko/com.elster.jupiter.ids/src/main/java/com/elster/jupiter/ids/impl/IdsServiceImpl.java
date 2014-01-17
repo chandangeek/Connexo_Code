@@ -33,6 +33,7 @@ public class IdsServiceImpl implements IdsService, InstallService {
     public IdsServiceImpl(Clock clock, OrmService ormService) {
         setClock(clock);
         setOrmService(ormService);
+        activate();
         if (!dataModel.isInstalled()) {
         	install();
         }
