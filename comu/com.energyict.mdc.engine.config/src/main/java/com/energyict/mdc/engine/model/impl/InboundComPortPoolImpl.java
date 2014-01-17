@@ -6,13 +6,13 @@ import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.InboundComPortPool} interface.
@@ -37,11 +37,11 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     @Override
     public List<InboundComPort> getComPorts() {
-        List<InboundComPort> outboundComPorts = new ArrayList<>();
+        List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
-            outboundComPorts.add((InboundComPort) comPortPoolMember.getComPort());
+            inboundComPorts.add((InboundComPort) comPortPoolMember.getComPort());
         }
-        return ImmutableList.copyOf(outboundComPorts);
+        return ImmutableList.copyOf(inboundComPorts);
     }
 
     @Override

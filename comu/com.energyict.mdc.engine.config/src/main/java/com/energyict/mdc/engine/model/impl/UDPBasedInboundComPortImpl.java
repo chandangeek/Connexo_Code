@@ -40,6 +40,7 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
         return bufferSize;
     }
 
+    @Override
     public void setBufferSize(int bufferSize) {
         validateGreaterThanZero(this.bufferSize, "comport.datagrambuffersize");
         this.bufferSize = bufferSize;

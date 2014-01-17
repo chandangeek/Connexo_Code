@@ -95,8 +95,10 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public List<ServerComServer> findAllComServers() {
-        return getComServerDataMapper().find();
+    public List<ComServer> findAllComServers() {
+        List<ComServer> comServers = new ArrayList<>();
+        comServers.addAll(getComServerDataMapper().find());
+        return comServers;
     }
 
     @Override
@@ -281,7 +283,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public InboundComPortPool findInboundComPortPool(int id) {
+    public InboundComPortPool findInboundComPortPool(long id) {
         ComPortPool comPortPool = this.findComPortPool(id);
         if (comPortPool instanceof InboundComPortPool) {
             return (InboundComPortPool) comPortPool;
