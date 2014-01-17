@@ -1,9 +1,10 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecPossibleValues;
-import com.energyict.mdc.dynamic.impl.BoundedBigDecimalPropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.rest.impl.properties.validators.NumberValidationRules;
 
 import javax.ws.rs.core.UriInfo;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class MdcPropertyUtils {
 
-    public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
+    public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, PropertySpecService propertySpecService, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
         for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = createPropertyInfo(uriInfo, properties, propertySpec);
             propertyInfoList.add(propertyInfo);
