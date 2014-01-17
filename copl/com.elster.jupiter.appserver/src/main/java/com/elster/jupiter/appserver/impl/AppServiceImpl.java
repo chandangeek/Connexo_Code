@@ -55,6 +55,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
     private static final String APPSERVER_NAME = "com.elster.jupiter.appserver.name";
+    private static final String COMPONENT_NAME_KEY = "componentName";
     private static final String TABLE_NAME = "tableName";
     private static final String ID = "id";
 
@@ -271,7 +272,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
         if (event instanceof InvalidateCacheRequest) {
             InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) event;
             Properties properties = new Properties();
-            properties.put(COMPONENT_NAME, invalidateCacheRequest.getComponentName());
+            properties.put(COMPONENT_NAME_KEY, invalidateCacheRequest.getComponentName());
             properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
             AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
 
@@ -305,7 +306,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
                     break;
                 case INVALIDATE_CACHE:
                     Properties properties = command.getProperties();
-                    String componentName = properties.getProperty(COMPONENT_NAME);
+                    String componentName = properties.getProperty(COMPONENT_NAME_KEY);
                     String tableName = properties.getProperty(TABLE_NAME);
                     ormService.invalidateCache(componentName, tableName);
                     break;

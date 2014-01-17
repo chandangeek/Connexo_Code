@@ -8,10 +8,13 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import org.junit.After;
@@ -24,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +60,10 @@ public class AppServerImplTest {
     private DataModel dataModel;
     @Mock
     private CronExpressionParser cronExpressionParser;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat format;
 
     @Before
     public void setUp() {
@@ -64,6 +72,7 @@ public class AppServerImplTest {
         when(subscriberSpec.getDestination()).thenReturn(destination);
         when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
 
         appServer = AppServerImpl.from(dataModel, NAME, cronExpression);
     }

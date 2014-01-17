@@ -2,9 +2,11 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.UnknownAppServerNameException;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -12,6 +14,10 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -22,6 +28,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 import org.assertj.core.data.MapEntry;
@@ -104,6 +111,12 @@ public class AppServiceImplTest {
     private MessageBuilder messageBuilder;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat format;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -123,6 +136,8 @@ public class AppServiceImplTest {
         when(importTask2.getImportSchedule()).thenReturn(schedule2);
         when(subscriberSpec.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);
+        when(nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
 
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
@@ -136,6 +151,7 @@ public class AppServiceImplTest {
         appService.setTaskService(taskService);
         appService.setFileImportService(fileImportService);
         appService.setJsonService(jsonService);
+        appService.setNlsService(nlsService);
     }
 
     @SuppressWarnings("unchecked")
@@ -304,15 +320,13 @@ public class AppServiceImplTest {
         assertThat(appService.getAppServer()).isAbsent();
     }
 
-    @Test
-    public void testActivateWithUnknownNameRunsAnonymously() {
+    @Test(expected=UnknownAppServerNameException.class)
+    public void testActivateWithUnknownNameThrowsException() {
         when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>absent());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
         appService.activate(context);
-
-        assertThat(appService.getAppServer()).isAbsent();
     }
 
     @Test

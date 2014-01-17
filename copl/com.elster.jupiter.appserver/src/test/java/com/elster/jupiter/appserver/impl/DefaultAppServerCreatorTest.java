@@ -5,6 +5,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.Transaction;
@@ -54,6 +55,8 @@ public class DefaultAppServerCreatorTest {
     private CronExpressionParser cronExpressionParser;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
