@@ -15,8 +15,8 @@ import javax.inject.Inject;
 public class OfflineComServerImpl extends ComServerImpl implements ServerOfflineComServer {
 
     @Inject
-    public OfflineComServerImpl (DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
-        super(dataModel, engineModelService, outboundComPortProvider);
+    public OfflineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider);
     }
 
     @Override

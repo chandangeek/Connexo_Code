@@ -75,7 +75,7 @@ public interface ServletBasedInboundComPort extends IPBasedInboundComPort {
 
     public void setContextPath(String contextPath);
 
-    interface ServletBasedInboundComPortBuilder extends InboundComPortBuilder<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>{
+    interface ServletBasedInboundComPortBuilder extends InboundComPortBuilder<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>{
         public ServletBasedInboundComPortBuilder https(boolean https);
         public ServletBasedInboundComPortBuilder keyStoreSpecsFilePath(String uri);
         public ServletBasedInboundComPortBuilder keyStoreSpecsPassword(String password);

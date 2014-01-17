@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model;
 
+import com.energyict.mdc.engine.model.impl.ServerIPBasedInboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerInboundComPort;
 
 /**
@@ -22,7 +23,8 @@ public interface IPBasedInboundComPort extends InboundComPort {
 
     public void setPortNumber(int portNumber);
 
-    interface IpBasedInboundComPortBuilder<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort> extends InboundComPortBuilder<B, C>{
+    interface IpBasedInboundComPortBuilder<B extends IpBasedInboundComPortBuilder<B,C>, C extends ServerIPBasedInboundComPort>
+            extends InboundComPortBuilder<B, C>{
         public IpBasedInboundComPortBuilder portNumber(int portNumber);
     }
 

@@ -3,11 +3,9 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.RemoteComServer;
@@ -51,7 +49,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
 
     @Test
     public void testGetTypeDoesNotReturnServerBasedClassName() {
-        RemoteComServer onlineComServer = new RemoteComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider);
+        RemoteComServer onlineComServer = new RemoteComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider, null);
 
         // Business method
         String type = onlineComServer.getType();

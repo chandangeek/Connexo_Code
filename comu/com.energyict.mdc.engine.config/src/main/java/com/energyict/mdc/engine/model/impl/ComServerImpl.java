@@ -46,6 +46,7 @@ public abstract class ComServerImpl implements ServerComServer {
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
+    private final Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider;
 
     private long id;
     private String name;
@@ -60,11 +61,12 @@ public abstract class ComServerImpl implements ServerComServer {
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
+    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
         super();
         this.dataModel = dataModel;
         this.engineModelService = engineModelService;
         this.outboundComPortProvider = outboundComPortProvider;
+        this.servletBasedInboundComPortProvider = servletBasedInboundComPortProvider;
     }
 
     private List<ServerComPort> getServerComPorts () {
@@ -184,7 +186,7 @@ public abstract class ComServerImpl implements ServerComServer {
 
     @Override
     public OutboundComPort.OutboundComPortBuilder newOutboundComPort() {
-        return new OutboundComPortBuilder(this);
+        return new OutboundComPortBuilder();
     }
 
     /**
@@ -192,9 +194,9 @@ public abstract class ComServerImpl implements ServerComServer {
      */
     class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
-        private OutboundComPortBuilder(ComServer comServer) {
+        private OutboundComPortBuilder() {
             super(outboundComPortProvider);
-            comPort.init(comServer);
+            comPort.init(ComServerImpl.this);
         }
 
         @Override
@@ -204,6 +206,26 @@ public abstract class ComServerImpl implements ServerComServer {
             return comPort;
         }
     }
+
+    public ServletBasedComPortBuilder newServletBasedInboundComPort() {
+        return new ServletBasedComPortBuilder();
+    }
+
+    class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl {
+
+        protected ServletBasedComPortBuilder() {
+            super(servletBasedInboundComPortProvider);
+            comPort.init(ComServerImpl.this);
+        }
+
+        @Override
+        public ServerServletBasedInboundComPort add() {
+            ServerServletBasedInboundComPort comPort = super.add();
+            ComServerImpl.this.comPorts.add(comPort);
+            return comPort;
+        }
+    }
+
 
 //            @Override
 //            public ModemBasedInboundComPort createModemBasedInbound (final ModemBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
@@ -232,14 +254,6 @@ public abstract class ComServerImpl implements ServerComServer {
 //                return comPort;
 //            }
 //
-//            @Override
-//            public ServletBasedInboundComPort createServletBasedInbound (final ServletBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-//                shadow.setComServerId(this.getId());
-//                ServerServletBasedInboundComPort comPort = this.getComPortFactory().createServletBasedInbound(this, shadow);
-//                this.post();
-//                this.addToComPortCache(comPort);
-//                return comPort;
-//            }
     protected void validate (String newName) {
         validateNotNull(newName, "name");
         /* Validation provided by superclass work with a set of invalid

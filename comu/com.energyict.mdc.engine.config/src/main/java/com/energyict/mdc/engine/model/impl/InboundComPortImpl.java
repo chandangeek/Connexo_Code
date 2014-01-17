@@ -65,7 +65,7 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
 
 //    static protected class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
 
-    static class InboundComPortBuilderImpl<B extends InboundComPortBuilder<B,C>, C extends InboundComPort>
+    static class InboundComPortBuilderImpl<B extends InboundComPortBuilder<B,C>, C extends ServerInboundComPort>
             extends ComPortBuilderImpl<B, C> implements InboundComPortBuilder<B,C> {
         protected InboundComPortBuilderImpl(Class<B> clazz, Provider<C> inboundComPortProvider) {
             super(clazz, inboundComPortProvider.get());

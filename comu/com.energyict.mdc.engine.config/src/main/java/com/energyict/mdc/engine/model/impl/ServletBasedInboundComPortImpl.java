@@ -108,10 +108,10 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
         this.contextPath = contextPath;
     }
 
-    static class ServletBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>
+    static class ServletBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedInboundComPortBuilderImpl(Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider) {
+        protected ServletBasedInboundComPortBuilderImpl(Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
             super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPortProvider);
         }
 

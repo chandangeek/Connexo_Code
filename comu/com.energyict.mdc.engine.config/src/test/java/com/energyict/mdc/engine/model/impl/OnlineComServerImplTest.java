@@ -3,17 +3,14 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.google.inject.Provider;
 import java.sql.SQLException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -21,7 +18,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link OnlineComServerImpl} component.
@@ -51,7 +47,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
     @Test
     public void testGetTypeDoesNotReturnServerBasedClassName () {
-        OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider);
+        OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, getEngineModelService(), outboundComPortProvider, null);
 
         // Business method
         String type = onlineComServer.getType();

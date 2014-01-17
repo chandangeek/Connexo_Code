@@ -61,7 +61,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         }
     }
 
-    static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort>
+    static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends ServerIPBasedInboundComPort & ServerInboundComPort>
             extends InboundComPortBuilderImpl<B, C>
             implements IpBasedInboundComPortBuilder<B,C> {
         protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, Provider<C> ipBasedInboundComPortProvider) {

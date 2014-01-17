@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -38,8 +36,8 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     private int storeTaskThreadPriority;
 
     @Inject
-    public OnlineComServerImpl (DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
-        super(dataModel, engineModelService, outboundComPortProvider);
+    public OnlineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider);
         this.engineModelService = engineModelService;
     }
 

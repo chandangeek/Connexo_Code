@@ -49,7 +49,7 @@ public interface InboundComPort extends ComPort {
      */
     public boolean isServletBased();
 
-    interface InboundComPortBuilder<B extends InboundComPortBuilder<B,C>,C extends InboundComPort> extends ComPort.Builder<B,C> {
+    interface InboundComPortBuilder<B extends InboundComPortBuilder<B,C>,C extends ServerInboundComPort> extends ComPort.Builder<B,C> {
         public InboundComPortBuilder comPortPool(InboundComPortPool comPortPool);
     }
 
