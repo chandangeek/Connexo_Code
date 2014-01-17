@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
 import javax.inject.Inject;
 
@@ -14,10 +16,6 @@ import javax.inject.Inject;
 public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServerUDPBasedInboundComPort {
 
     private int bufferSize;
-
-    public void init(ComServer owner) {
-        this.setComServer(owner);
-    }
 
     @Inject
     protected UDPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
@@ -45,4 +43,20 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
         validateGreaterThanZero(this.bufferSize, "comport.datagrambuffersize");
         this.bufferSize = bufferSize;
     }
+    
+    static class UDPBasedInboundComPortBuilderImpl
+            extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, ServerUDPBasedInboundComPort>
+            implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
+
+        protected UDPBasedInboundComPortBuilderImpl(Provider<ServerUDPBasedInboundComPort> ipBasedInboundComPortProvider) {
+            super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPortProvider);
+        }
+
+        @Override
+        public UDPBasedInboundComPortBuilder bufferSize(int bufferSize) {
+            comPort.setBufferSize(bufferSize);
+            return this;
+        }
+    }
+    
 }

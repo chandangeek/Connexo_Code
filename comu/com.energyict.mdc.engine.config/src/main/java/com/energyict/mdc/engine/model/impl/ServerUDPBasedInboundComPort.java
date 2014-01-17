@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-14 (11:14)
  */
-public interface ServerUDPBasedInboundComPort extends ServerComChannelBasedInboundComPort, UDPBasedInboundComPort {
+public interface ServerUDPBasedInboundComPort extends ServerIPBasedInboundComPort, UDPBasedInboundComPort {
 
-    public void init(ComServer owner);
 }

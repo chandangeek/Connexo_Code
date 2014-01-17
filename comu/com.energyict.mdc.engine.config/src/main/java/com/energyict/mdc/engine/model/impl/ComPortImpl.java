@@ -224,6 +224,11 @@ public abstract class ComPortImpl implements ServerComPort {
     }
 
     @Override
+    public void init(ComServer owner) {
+        this.setComServer(owner);
+    }
+
+    @Override
     public void save() {
         validate();
         if (this.getId()==0) {

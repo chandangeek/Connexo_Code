@@ -70,6 +70,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(EngineModelService.class).toInstance(EngineModelServiceImpl.this);
                 bind(ServerServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);
                 bind(ServerModemBasedInboundComPort.class).to(ModemBasedInboundComPortImpl.class);
+                bind(ServerTCPBasedInboundComPort.class).to(TCPBasedInboundComPortImpl.class);
+                bind(ServerUDPBasedInboundComPort.class).to(UDPBasedInboundComPortImpl.class);
                 bind(ServerOutboundComPort.class).to(OutboundComPortImpl.class);
             }
         };

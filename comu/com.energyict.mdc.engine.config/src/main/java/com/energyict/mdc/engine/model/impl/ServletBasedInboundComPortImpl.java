@@ -20,10 +20,6 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     private String trustStoreSpecsPassword;
     private String contextPath;
 
-    public void init(ComServer owner) {
-        this.setComServer(owner);
-    }
-
     @Inject
     protected ServletBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
         super(dataModel, comPortPoolMemberProvider);

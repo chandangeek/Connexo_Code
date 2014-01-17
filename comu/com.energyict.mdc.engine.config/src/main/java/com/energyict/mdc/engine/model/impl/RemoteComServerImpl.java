@@ -33,8 +33,8 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
     }
 
     @Inject
-    public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider) {
-        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider);
+    public RemoteComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<ServerTCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<ServerUDPBasedInboundComPort> udpBasedInboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider);
     }
 
     protected void validate()  {
