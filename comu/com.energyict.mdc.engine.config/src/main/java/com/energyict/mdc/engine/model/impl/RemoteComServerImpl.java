@@ -26,7 +26,7 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
     private String queryAPIUsername;
     private String queryAPIPassword;
     private String eventRegistrationUri;
-    private boolean usesDefaultEventRegistrationUri;
+    private boolean usesDefaultEventRegistrationUri=true;
 
     public static RemoteComServer from(DataModel dataModel) {
         return dataModel.getInstance(RemoteComServerImpl.class);
@@ -39,7 +39,7 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
 
     protected void validate()  {
         super.validate();
-        this.validateNotNull(this.onlineComServer, "remoteComServer.onlineComServer");
+        this.validateNotNull(this.onlineComServer.orNull(), "remoteComServer.onlineComServer");
         this.validateEventRegistrationUri();
     }
 
@@ -85,6 +85,7 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
 
     @Override
     public void setEventRegistrationUri(String eventRegistrationUri) {
+        this.usesDefaultEventRegistrationUri=Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
         this.eventRegistrationUri = eventRegistrationUri;
     }
 
@@ -100,6 +101,9 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
 
     @Override
     public String getEventRegistrationUri () {
+        if (this.usesDefaultEventRegistrationUri) {
+            return this.defaultEventRegistrationUri();
+        }
         return eventRegistrationUri;
     }
 
@@ -111,9 +115,6 @@ public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteCo
     @Override
     public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
         this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
-        if (this.usesDefaultEventRegistrationUri) {
-            this.eventRegistrationUri = this.defaultEventRegistrationUri();
-        }
     }
 
     @Override

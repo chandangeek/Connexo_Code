@@ -62,7 +62,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
     @Test
     public void testCreateWithoutComPortsWithoutViolations () throws BusinessException, SQLException {
-        String name = NO_VIOLATIONS_NAME;
+        String name = NO_VIOLATIONS_NAME+1;
         OnlineComServer comServer = this.createWithoutComPortsWithoutViolations(name);
 
         // Asserts
@@ -76,7 +76,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
     @Test
     public void testThatDefaultURIsAreApplied () throws BusinessException, SQLException {
-        String name = NO_VIOLATIONS_NAME;
+        String name = NO_VIOLATIONS_NAME+2;
         OnlineComServer comServer = this.createWithoutComPortsWithoutViolations(name);
 
         // Asserts
@@ -173,7 +173,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
     @Test
     public void loadTest() throws BusinessException, SQLException {
-        String name = NO_VIOLATIONS_NAME;
+        String name = NO_VIOLATIONS_NAME+3;
         OnlineComServer createdComServer = this.createWithoutComPortsWithoutViolations(name);
 
         OnlineComServer loadedOnlineServer = (OnlineComServer) getEngineModelService().findComServer((int) createdComServer.getId());
