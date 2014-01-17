@@ -4,13 +4,12 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
+import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
 
 public class ComPortInfoFactory {
-    public static ComPortInfo<? extends ComPortShadow> asInfo(ComPort comPort) {
+    public static ComPortInfo<? extends ComPort> asInfo(ComPort comPort) {
         if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return asInboundInfo(comPort);
         } else {
@@ -18,7 +17,7 @@ public class ComPortInfoFactory {
         }
     }
 
-    public static InboundComPortInfo<? extends ComPortShadow> asInboundInfo(ComPort comPort) {
+    public static InboundComPortInfo<? extends ComPort> asInboundInfo(ComPort comPort) {
         if (TCPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort);
         }

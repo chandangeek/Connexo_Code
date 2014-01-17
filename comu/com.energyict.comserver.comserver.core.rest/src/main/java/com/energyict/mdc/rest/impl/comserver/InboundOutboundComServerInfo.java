@@ -1,15 +1,16 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.cpo.ShadowList;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
-import com.energyict.mdc.shadow.ports.InboundComPortShadow;
-import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
-import com.energyict.mdc.shadow.servers.InboundOutboundComServerShadow;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public abstract class InboundOutboundComServerInfo<S extends ComServer> extends ComServerInfo<S> {
@@ -25,48 +26,43 @@ public abstract class InboundOutboundComServerInfo<S extends ComServer> extends 
         super(comServer, comPorts);
     }
 
-    protected final void updateInboundComPorts(ComServer comServer) {
-        List<InboundComPortShadow> inboundComPortShadows = comServer.getInboundComPort();
-        List<InboundComPortShadow> toBeDeletedInbound = new ArrayList<>(inboundComPortShadows);
-        for (InboundComPortInfo comPort : inboundComPorts) {
-            boolean configuredComPortFound = false;
-            for (InboundComPortShadow comPortShadow : inboundComPortShadows) {
-                if (comPort.id==comPortShadow.getId()) {
-                    configuredComPortFound=true;
-                    comPort.writeTo(comPortShadow);
-                    toBeDeletedInbound.remove(comPortShadow);
-                }
-            }
-            if (!configuredComPortFound) {
-                ComPortShadow comPortShadow = comPort.asShadow();
-                inboundComPortShadows.add((InboundComPortShadow) comPortShadow);
-            }
-        }
-        for (InboundComPortShadow inboundComPortShadow : toBeDeletedInbound) {
-            inboundComPortShadows.remove(inboundComPortShadow);
-        }
-    }
-
-    protected final void updateOutboundComPorts(InboundOutboundComServerShadow shadow) {
-        ShadowList<OutboundComPortShadow> outboundComPortShadows = shadow.getOutboundComPortShadows();
-        List<OutboundComPortShadow> toBeDeletedOutbound = new ArrayList<>(outboundComPortShadows);
-        for (OutboundComPortInfo comPort : outboundComPorts) {
-            boolean configuredComPortFound = false;
-            for (OutboundComPortShadow comPortShadow : outboundComPortShadows) {
-                if (comPort.id==comPortShadow.getId()) {
-                    configuredComPortFound=true;
-                    comPort.writeTo(comPortShadow);
-                    toBeDeletedOutbound.remove(comPortShadow);
-                }
-            }
-            if (!configuredComPortFound) {
-                ComPortShadow comPortShadow = comPort.asShadow();
-                outboundComPortShadows.add((OutboundComPortShadow) comPortShadow);
-            }
-        }
-        for (OutboundComPortShadow outboundComPortShadow : toBeDeletedOutbound) {
-            outboundComPortShadows.remove(outboundComPortShadow);
+    protected final void updateInboundComPorts(ComServer comServer,EngineModelService engineModelService) {
+        List<ComPort> inboundComPorts = new ArrayList<>();
+        for (InboundComPortInfo comPortInfo : inboundComPortInfos) {
+           if(comPortInfo.id>0){
+               InboundComPort comPort = (InboundComPort) engineModelService.findComPort(comPortInfo.id);
+               comPortInfo.writeTo(comPort,engineModelService);
+               inboundComPorts.add(comPort);
+           } else {
+               InboundComPort inboundComPort;
+               if(comPortInfo.comPortType == ComPortType.SERVLET){
+                    inboundComPort = engineModelService.newServletBasedInbound(comServer);
+               } else if(comPortInfo.comPortType == ComPortType.TCP){
+                   inboundComPort = engineModelService.newTCPBasedInbound(comServer);
+               } else if (comPortInfo.comPortType == ComPortType.UDP){
+                   inboundComPort = engineModelService.newUDPBasedInbound(comServer);
+               } else {
+                   inboundComPort = engineModelService.newModemBasedInbound(comServer);
+               }
+               comPortInfo.writeTo(inboundComPort,engineModelService);
+           }
+            comServer.setComPorts(inboundComPorts);
         }
     }
 
+    protected final void updateOutboundComPorts(ComServer comServer,EngineModelService engineModelService) {
+        List<ComPort> outboundComPorts = new ArrayList<>();
+        for (OutboundComPortInfo comPortInfo : outboundComPortInfos) {
+            if(comPortInfo.id>0){
+                OutboundComPort comPort = (OutboundComPort) engineModelService.findComPort(comPortInfo.id);
+                comPortInfo.writeTo(comPort,engineModelService);
+                outboundComPorts.add(comPort);
+            } else {
+                ServerOutboundComPort serverOutboundComPort = engineModelService.newOutbound(comServer);
+                comPortInfo.writeTo(serverOutboundComPort,engineModelService);
+                outboundComPorts.add(serverOutboundComPort);
+            }
+        }
+        comServer.setComPorts(outboundComPorts);
+    }
 }

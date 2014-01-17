@@ -1,19 +1,22 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @XmlRootElement
 public abstract class ComPortInfo<T extends ComPort> {
@@ -28,7 +31,7 @@ public abstract class ComPortInfo<T extends ComPort> {
     public ComPortType comPortType;
     public long comServer_id;
     public int numberOfSimultaneousConnections;
-    public Date modificationDate;
+    public UtcInstant modificationDate;
     public Integer ringCount;
     public Integer maximumNumberOfDialErrors;
     public TimeDurationInfo connectTimeout;
@@ -75,12 +78,17 @@ public abstract class ComPortInfo<T extends ComPort> {
         this.modificationDate = comPort.getModificationDate();
     }
 
-    protected void writeTo(T source) {
+    protected void writeTo(T source,EngineModelService engineModelService) {
         source.setName(name);
         source.setDescription(description);
-        source.setComServer(comServer_id);
+        ComServer comServer = engineModelService.findComServer(comServer_id);
+        if(comServer!=null){
+            source.setComServer(comServer);
+        }
         source.setActive(active);
         source.setComPortType(this.comPortType);
     }
+
+    protected abstract T createNew(ComServer comServer,EngineModelService engineModelService);
 
 }

@@ -1,13 +1,15 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
-import com.energyict.mdc.shadow.servers.RemoteComServerShadow;
-import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
-public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComServerShadow> {
+public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComServer> {
 
     public RemoteComServerInfo() {
     }
@@ -36,24 +38,17 @@ public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComS
         this.queryAPIPassword = remoteComServer.getQueryAPIPassword();
     }
 
-    public RemoteComServerShadow writeTo(RemoteComServerShadow comServerSource) {
-        super.writeTo(comServerSource);
+    public RemoteComServer writeTo(RemoteComServer comServerSource,EngineModelService engineModelService) {
+        super.writeTo(comServerSource,engineModelService);
         comServerSource.setEventRegistrationUri(eventRegistrationUri);
         comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
-        comServerSource.setOnlineComServerId(onlineComServerId);
+        comServerSource.setOnlineComServer((OnlineComServer) engineModelService.findComServer(onlineComServerId));
         comServerSource.setQueryAPIPassword(queryAPIPassword);
         comServerSource.setQueryAPIUsername(queryAPIUsername);
 
-        updateInboundComPorts(comServerSource);
-        updateOutboundComPorts(comServerSource);
+        updateInboundComPorts(comServerSource,engineModelService);
+        updateOutboundComPorts(comServerSource,engineModelService);
 
         return comServerSource;
     }
-
-    public RemoteComServerShadow asShadow() {
-        RemoteComServerShadow shadow = new RemoteComServerShadow();
-        this.writeTo(shadow);
-        return shadow;
-    }
-
 }

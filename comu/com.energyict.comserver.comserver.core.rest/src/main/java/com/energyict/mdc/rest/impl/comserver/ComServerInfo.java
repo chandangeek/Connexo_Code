@@ -2,10 +2,9 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
-import com.energyict.mdc.shadow.servers.ComServerShadow;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -28,9 +27,9 @@ public abstract class ComServerInfo<S extends ComServer> {
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
-    public List<InboundComPortInfo<? extends InboundComPort>> inboundComPorts;
-    public List<OutboundComPortInfo> outboundComPorts;
-    public Integer onlineComServerId;
+    public List<InboundComPortInfo<? extends InboundComPort>> inboundComPortInfos;
+    public List<OutboundComPortInfo> outboundComPortInfos;
+    public Long onlineComServerId;
     public String queryAPIUsername;
     public String queryAPIPassword;
     public String queryAPIPostUri;
@@ -62,18 +61,18 @@ public abstract class ComServerInfo<S extends ComServer> {
      */
     public ComServerInfo(ComServer comServer, List<ComPort> comPorts) {
         this(comServer);
-        inboundComPorts = new ArrayList<>();
-        outboundComPorts = new ArrayList<>();
+        inboundComPortInfos = new ArrayList<>();
+        outboundComPortInfos = new ArrayList<>();
         for (final ComPort comPort : comPorts) {
             if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
-                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
+                inboundComPortInfos.add(ComPortInfoFactory.asInboundInfo(comPort));
             } else {
-                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort));
+                outboundComPortInfos.add(ComPortInfoFactory.asOutboundInfo(comPort));
             }
         }
     }
 
-    public S writeTo(S source) {
+    public S writeTo(S source,EngineModelService engineModelService) {
         source.setName(name);
         source.setActive(active);
         source.setServerLogLevel(serverLogLevel);
@@ -87,7 +86,4 @@ public abstract class ComServerInfo<S extends ComServer> {
 
         return source;
     }
-
-    abstract public S asShadow();
-
 }

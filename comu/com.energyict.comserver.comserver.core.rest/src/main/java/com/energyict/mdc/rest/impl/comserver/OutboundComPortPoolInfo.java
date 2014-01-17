@@ -1,13 +1,16 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
-import com.energyict.mdc.shadow.ports.OutboundComPortPoolShadow;
-import java.util.ArrayList;
-import java.util.List;
 
-public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPoolShadow> {
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+
+public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool> {
 
     public OutboundComPortPoolInfo() {
     }
@@ -15,31 +18,42 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     public OutboundComPortPoolInfo(OutboundComPortPool comPortPool) {
         super(comPortPool);
         if (comPortPool.getComPorts()!=null) {
-            outboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
+            outboundComPortInfos = new ArrayList<>(comPortPool.getComPorts().size());
             for (OutboundComPort outboundComPort : comPortPool.getComPorts()) {
-                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
+                outboundComPortInfos.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
             }
         }
         taskExecutionTimeout = new TimeDurationInfo(comPortPool.getTaskExecutionTimeout());
     }
 
     @Override
-    protected void writeToShadow(OutboundComPortPoolShadow shadow) {
-        super.writeToShadow(shadow);
-        shadow.setTaskExecutionTimeout(this.taskExecutionTimeout.asTimeDuration());
-        List<Integer> outboundComPortsIds = new ArrayList<>();
-        if (this.outboundComPorts!=null && !this.outboundComPorts.isEmpty()) {
-            for (OutboundComPortInfo outboundComPort : this.outboundComPorts) {
-                outboundComPortsIds.add(outboundComPort.id);
+    protected OutboundComPortPool writeTo(OutboundComPortPool source, EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
+        source.setTaskExecutionTimeout(this.taskExecutionTimeout.asTimeDuration());
+        if (outboundComPortInfos !=null) {
+            for (OutboundComPortInfo outboundComPortInfo : this.outboundComPortInfos) {
+                OutboundComPort outboundComPort;
+                if(outboundComPortInfo.id>0){
+                    outboundComPort = (OutboundComPort)engineModelService.findComPort(outboundComPortInfo.id);
+                    outboundComPortInfo.writeTo(outboundComPort,engineModelService);
+                } else {
+                    ComServer comServer = engineModelService.findComServer(outboundComPortInfo.comServer_id);
+                    if(comServer!=null){
+                        outboundComPort = outboundComPortInfo.createNew(comServer,engineModelService);
+                        outboundComPortInfo.writeTo(outboundComPort,engineModelService);
+                    } else {
+                        throw new WebApplicationException("Could not find comserver with id "+outboundComPortInfo.comServer_id, Response.Status.BAD_REQUEST);
+                    }
+                }
+                outboundComPortInfo.writeTo(outboundComPort,engineModelService);
             }
         }
-        shadow.setOutboundComPortIds(outboundComPortsIds);
+        return source;
     }
 
+
     @Override
-    public OutboundComPortPoolShadow asShadow() {
-        OutboundComPortPoolShadow shadow = new OutboundComPortPoolShadow();
-        this.writeToShadow(shadow);
-        return shadow;
+    protected OutboundComPortPool createNew(EngineModelService engineModelService) {
+        return engineModelService.newOutboundComPortPool();
     }
 }

@@ -1,10 +1,13 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.shadow.ports.InboundComPortPoolShadow;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.List;
 
 public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> {
 
@@ -13,34 +16,40 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
 
     public InboundComPortPoolInfo(InboundComPortPool comPortPool) {
         super(comPortPool);
-        this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClassId().getId();
+        this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClassId();
         if (comPortPool.getComPorts()!=null) {
-            this.inboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
+            this.inboundComPortInfos = new ArrayList<>(comPortPool.getComPorts().size());
             for (InboundComPort inboundComPort : comPortPool.getComPorts()) {
-                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(inboundComPort));
+                inboundComPortInfos.add(ComPortInfoFactory.asInboundInfo(inboundComPort));
             }
         }
     }
 
     @Override
-    protected void writeToShadow(InboundComPortPoolShadow shadow) {
-        super.writeToShadow(shadow);
-        shadow.setDiscoveryProtocolPluggableClassId(this.discoveryProtocolPluggableClassId);
-        List<Integer> inboundComPortsIds = new ArrayList<>();
-        if (inboundComPorts!=null && !inboundComPorts.isEmpty()) {
-            for (InboundComPortInfo inboundComPort : this.inboundComPorts) {
-                inboundComPortsIds.add(inboundComPort.id);
+    protected InboundComPortPool writeTo(InboundComPortPool source,EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
+        source.setDiscoveryProtocolPluggableClassId(this.discoveryProtocolPluggableClassId);
+        if (inboundComPortInfos !=null) {
+            for (InboundComPortInfo inboundComPortInfo : this.inboundComPortInfos) {
+                InboundComPort inboundComPort;
+                if(inboundComPortInfo.id>0){
+                    inboundComPort = (InboundComPort)engineModelService.findComPort(inboundComPortInfo.id);
+                } else {
+                    ComServer comServer = engineModelService.findComServer(inboundComPortInfo.comServer_id);
+                    if(comServer!=null){
+                        inboundComPort = inboundComPortInfo.createNew(comServer,engineModelService);
+                    } else {
+                        throw new WebApplicationException("Could not find comserver with id " + inboundComPortInfo.comServer_id, Response.Status.BAD_REQUEST);
+                    }
+                }
+                inboundComPortInfo.writeTo(inboundComPort,engineModelService);
             }
         }
-
-        shadow.setInboundComPortIds(inboundComPortsIds);
-
+        return source;
     }
 
     @Override
-    public InboundComPortPoolShadow asShadow() {
-        InboundComPortPoolShadow shadow = new InboundComPortPoolShadow();
-        this.writeToShadow(shadow);
-        return shadow;
+    protected InboundComPortPool createNew(EngineModelService engineModelService) {
+        return engineModelService.newInboundComPortPool();
     }
 }

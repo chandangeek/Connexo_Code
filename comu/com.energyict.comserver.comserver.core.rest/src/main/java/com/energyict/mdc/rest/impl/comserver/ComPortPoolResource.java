@@ -2,8 +2,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.services.ComPortPoolService;
-import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -48,13 +47,13 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
+    public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         try {
             ComPortPool comPortPool = engineModelService.findComPortPool(id);
             if (comPortPool == null) {
                 throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
             }
-            comPortPoolInfo.writeTo(comPortPool);
+            comPortPoolInfo.writeTo(comPortPool,engineModelService);
             comPortPool.save();
             return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
@@ -65,9 +64,9 @@ public class ComPortPoolResource {
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
+    public Response deleteComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         try {
-            ComPortPool<ComPortPoolShadow> comPortPool = comPortPoolService.find(id);
+            ComPortPool comPortPool = engineModelService.findComPortPool(id);
             if (comPortPool == null) {
                 throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
             }
@@ -81,9 +80,9 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo createComPortPool(ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
+    public ComPortPoolInfo createComPortPool(ComPortPoolInfo comPortPoolInfo) {
         try {
-            return ComPortPoolInfoFactory.asInfo(comPortPoolService.createComPortPool(comPortPoolInfo.asShadow()));
+            return ComPortPoolInfoFactory.asInfo(comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService),engineModelService));
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
         }
