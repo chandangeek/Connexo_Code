@@ -5,8 +5,8 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

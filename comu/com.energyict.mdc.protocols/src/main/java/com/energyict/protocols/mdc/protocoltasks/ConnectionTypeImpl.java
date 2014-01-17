@@ -1,17 +1,17 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
-import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
-import com.energyict.mdc.channels.ip.socket.SocketComChannel;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.protocols.mdc.channels.ip.datagrams.DatagramComChannel;
+import com.energyict.protocols.mdc.channels.ip.datagrams.OutboundUdpSession;
+import com.energyict.protocols.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.protocols.mdc.channels.serial.SioSerialPort;
+import com.energyict.protocols.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

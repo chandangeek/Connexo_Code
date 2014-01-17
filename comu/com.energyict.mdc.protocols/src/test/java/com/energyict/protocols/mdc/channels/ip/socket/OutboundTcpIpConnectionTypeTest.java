@@ -1,18 +1,11 @@
 package com.energyict.protocols.mdc.channels.ip.socket;
 
-import com.energyict.cbo.TimeConstants;
-import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
-import com.energyict.comserver.monitor.EventAPIStatistics;
-import com.energyict.comserver.monitor.ManagementBeanFactory;
-import com.energyict.comserver.monitorimpl.ComServerMonitor;
-import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
-import com.energyict.comserver.scheduling.RunningComServer;
+
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
 import org.junit.*;
 import org.junit.runner.*;
