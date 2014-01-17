@@ -32,4 +32,6 @@ public interface CollectedLoadProfileConfiguration extends CollectedData{
 
     public void setSupportedByMeter(boolean b);
 
+    public void setProfileInterval (int intervalInSeconds);
+
 }

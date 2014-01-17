@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api;
 
+import java.io.IOException;
+
 /**
  * Models the exceptional situation that occurs when a connection
  * with a device could not be established.
@@ -9,7 +11,7 @@ package com.energyict.mdc.protocol.api;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (12:10)
  */
-public class ConnectionException extends Exception {
+public class ConnectionException extends IOException {
 
     public ConnectionException (String message, Throwable cause) {
         super(message, cause);

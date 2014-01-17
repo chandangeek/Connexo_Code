@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.Register;
 
 /**
  * Uniquely identifies a register within a physical device.
@@ -10,6 +11,12 @@ import com.energyict.mdc.common.ObisCode;
  */
 public interface RegisterIdentifier {
 
+    /**
+     * Finds the {@link Register} that is uniquely identified by this RegisterIdentifier.
+     *
+     * @return The Register
+     */
+    public Register findRegister ();
 
     /**
      * Returns the ObisCode of the register which is used by the HeadEnd system.
@@ -25,4 +32,5 @@ public interface RegisterIdentifier {
      * @return the ObisCode of the register, known by the Device
      */
     ObisCode getDeviceRegisterObisCode();
+
 }

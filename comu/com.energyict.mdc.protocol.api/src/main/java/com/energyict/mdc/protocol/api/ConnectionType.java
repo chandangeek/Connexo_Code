@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import java.util.List;

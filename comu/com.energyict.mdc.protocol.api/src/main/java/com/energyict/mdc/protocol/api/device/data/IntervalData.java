@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -18,7 +20,7 @@ import java.util.ListIterator;
  *
  * @author Karel
  */
-public class IntervalData implements java.io.Externalizable, Comparable, IntervalStateBits {
+public class IntervalData implements Externalizable, Comparable, IntervalStateBits {
 
     private static final int MILLISECONDS_IN_SECOND = 1000;
     private static final int THIRTY_SECONDS = 30 * MILLISECONDS_IN_SECOND;
@@ -29,78 +31,6 @@ public class IntervalData implements java.io.Externalizable, Comparable, Interva
     private int protocolStatus = 0;
     private int tariffCode = 0;
     private List<IntervalValue> intervalValues = new ArrayList<>();
-
-    /**
-     * Return a list of String, one for each IntervalStateBit in the IntervalData
-     *
-     * @param flag int IntervalStateBit flags
-     * @return List
-     */
-    public static List<String> getDescriptions(int flag) {
-        List<String> result = new ArrayList<>();
-        if ((flag & IntervalStateBits.POWERDOWN) != 0) {
-            result.add("POWERDOWN");
-        }
-        if ((flag & IntervalStateBits.POWERUP) != 0) {
-            result.add("POWERUP");
-        }
-        if ((flag & IntervalStateBits.SHORTLONG) != 0) {
-            result.add("SHORTLONG");
-        }
-        if ((flag & IntervalStateBits.WATCHDOGRESET) != 0) {
-            result.add("WATCHDOGRESET");
-        }
-        if ((flag & IntervalStateBits.CONFIGURATIONCHANGE) != 0) {
-            result.add("CONFIGURATIONCHANGE");
-        }
-        if ((flag & IntervalStateBits.CORRUPTED) != 0) {
-            result.add("CORRUPTED");
-        }
-        if ((flag & IntervalStateBits.OVERFLOW) != 0) {
-            result.add("OVERFLOW");
-        }
-        if ((flag & IntervalStateBits.ESTIMATED) != 0) {
-            result.add("ESTIMATED");
-        }
-        if ((flag & IntervalStateBits.MISSING) != 0) {
-            result.add("MISSING");
-        }
-        if ((flag & IntervalStateBits.MODIFIED) != 0) {
-            result.add("MODIFIED");
-        }
-        if ((flag & IntervalStateBits.REVISED) != 0) {
-            result.add("REVISED");
-        }
-        if ((flag & IntervalStateBits.OTHER) != 0) {
-            result.add("OTHER");
-        }
-        if ((flag & IntervalStateBits.REVERSERUN) != 0) {
-            result.add("REVERSERUN");
-        }
-        if ((flag & IntervalStateBits.PHASEFAILURE) != 0) {
-            result.add("PHASEFAILURE");
-        }
-        if ((flag & IntervalStateBits.BADTIME) != 0) {
-            result.add("BADTIME");
-        }
-        if ((flag & IntervalStateBits.INITIALFAILVALIDATION) != 0) {
-            result.add("INITIALFAILVALIDATION");
-        }
-        if ((flag & IntervalStateBits.CURRENTFAILVALIDATION) != 0) {
-            result.add("CURRENTFAILVALIDATION");
-        }
-        if ((flag & IntervalStateBits.DEVICE_ERROR) != 0) {
-            result.add("DEVICE_ERROR");
-        }
-        if ((flag & IntervalStateBits.BATTERY_LOW) != 0) {
-            result.add("BATTERY_LOW");
-        }
-        if ((flag & IntervalStateBits.TEST) != 0) {
-            result.add("TEST");
-        }
-        return result;
-    }
-
 
     public IntervalData() {
     }

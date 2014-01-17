@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.services;
 
+import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 
@@ -17,9 +18,10 @@ public interface LicensedProtocolService {
     /**
      * Finds and returns all available licensed protocols.
      *
+     * @param license The License that specifies which protocols are effectively licensed
      * @return a list of all available licensed protocols.
      */
-    public List<LicensedProtocol> getAllLicensedProtocols();
+    public List<LicensedProtocol> getAllLicensedProtocols(License license);
 
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 

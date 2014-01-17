@@ -31,6 +31,15 @@ public interface CollectedLoadProfile extends CollectedData {
     public boolean doStoreOlderValues();
 
     /**
+     * Only set the value to <b>true</b> if the collected IntervalData contains data before the
+     * lastReading of the profile which you want to store.<br>
+     * Default value is set to <b>FALSE</b>, so no data is overwritten.
+     *
+     * @param doStoreOlderValues the indication whether to store older values
+     */
+    void setDoStoreOlderValues(boolean doStoreOlderValues);
+
+    /**
      * Should provide an identifier to uniquely identify the requested LoadProfile.
      *
      * @return the {@link LoadProfileIdentifier loadProfileIdentifier}

@@ -1,17 +1,17 @@
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
 import com.energyict.mdc.protocol.api.tasks.support.ConnectionTypeSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceAccessSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceBasicSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceCachingSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceProtocolDialectSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 

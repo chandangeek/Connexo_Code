@@ -13,11 +13,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 public interface DeviceProtocolService {
 
     /**
-     * Creates a {@link DeviceProtocol} (DeviceProtocolPluggableClass) based on the given javaClassName.
+     * Loads the class with the specified javaClassName.
      *
      * @param javaClassName the javaClassName to use to model the new class
      * @return the newly created DeviceProtocol
      */
-    public DeviceProtocol createDeviceProtocolFor(String javaClassName);
+    public Class loadProtocolClass(String javaClassName);
 
 }
