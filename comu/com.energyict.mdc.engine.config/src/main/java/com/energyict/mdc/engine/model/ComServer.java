@@ -50,6 +50,8 @@ public interface ComServer {
      * The maximum value for the numberOfStoreTaskThreads property.
      */
     public static final int MAXIMUM_NUMBER_OF_STORE_TASK_THREADS = 99;
+
+    public static final int MINIMUM_NUMBER_OF_STORE_TASK_THREADS = 1;
     /**
      * The minimum value for the storeTaskThreadPriority property.
      */
@@ -57,6 +59,10 @@ public interface ComServer {
     /**
      * The maximum value for the storeTaskThreadPriority property.
      */
+
+    public static final int MINIMUM_STORE_TASK_QUEUE_SIZE = 1;
+
+
     public static final int MAXIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MAX_PRIORITY;
 
     public enum LogLevel {
@@ -234,7 +240,7 @@ public interface ComServer {
 
     public String getType();
 
-    public OutboundComPort.OutboundComPortBuilder newOutbound();
+    public OutboundComPort.OutboundComPortBuilder newOutboundComPort();
 
     public void delete();
 

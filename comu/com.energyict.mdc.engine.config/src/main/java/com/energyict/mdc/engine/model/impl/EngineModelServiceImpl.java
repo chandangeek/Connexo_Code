@@ -69,6 +69,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EngineModelService.class).toInstance(EngineModelServiceImpl.this);
                 bind(ServerServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);
+                bind(ServerModemBasedInboundComPort.class).to(ModemBasedInboundComPortImpl.class);
                 bind(ServerOutboundComPort.class).to(OutboundComPortImpl.class);
             }
         };
@@ -132,7 +133,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<RemoteComServer> findRemoteComServersWithOnlineComServer(OnlineComServer onlineComServer) {
-        return convertComServerListToRemoteComServers(getComServerDataMapper().find("onlineServer", onlineComServer));
+        return convertComServerListToRemoteComServers(getComServerDataMapper().find("onlineComServer", onlineComServer));
     }
 
     @Override
@@ -420,8 +421,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public List<ComPort> findAllWithDeleted() {
-        //todo
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<ComPort> findAllComPortsWithDeleted() {
+        return getComPortDataMapper().find();
+    }
+
+    @Override
+    public List<ComPort> findAllComPorts() {
+        return getComPortDataMapper().find("obsoleteFlag", false);
     }
 }

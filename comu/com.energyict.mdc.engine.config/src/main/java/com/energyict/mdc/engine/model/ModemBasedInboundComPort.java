@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -51,5 +52,19 @@ public interface ModemBasedInboundComPort extends InboundComPort {
 
     public SerialPortConfiguration getSerialPortConfiguration();
     public void setSerialPortConfiguration(SerialPortConfiguration serialPortConfiguration);
+
+    interface ModemBasedInboundComPortBuilder extends InboundComPortBuilder<ModemBasedInboundComPortBuilder, ServerModemBasedInboundComPort>{
+        public ModemBasedInboundComPortBuilder ringCount(int ringCount);
+        public ModemBasedInboundComPortBuilder maximumDialErrors(int maximumDialErrors);
+        public ModemBasedInboundComPortBuilder connectTimeout(TimeDuration connectTimeout);
+        public ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect);
+        public ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend);
+        public ModemBasedInboundComPortBuilder atCommandTimeout(TimeDuration atCommandTimeout);
+        public ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry);
+        public ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings);
+        public ModemBasedInboundComPortBuilder addressSelector(String addressSelector);
+        public ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands);
+        public ModemBasedInboundComPortBuilder serialPortConfig(SerialPortConfiguration serialPortConfiguration);
+    }
 
 }

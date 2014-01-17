@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 
 /**
@@ -73,4 +74,14 @@ public interface ServletBasedInboundComPort extends IPBasedInboundComPort {
     public String getContextPath ();
 
     public void setContextPath(String contextPath);
+
+    interface ServletBasedInboundComPortBuilder extends InboundComPortBuilder<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>{
+        public ServletBasedInboundComPortBuilder https(boolean https);
+        public ServletBasedInboundComPortBuilder keyStoreSpecsFilePath(String uri);
+        public ServletBasedInboundComPortBuilder keyStoreSpecsPassword(String password);
+        public ServletBasedInboundComPortBuilder trustStoreSpecsFilePath(String uri);
+        public ServletBasedInboundComPortBuilder trustStoreSpecsPassword(String password);
+        public ServletBasedInboundComPortBuilder contextPath(String contextPath);
+    }
+
 }

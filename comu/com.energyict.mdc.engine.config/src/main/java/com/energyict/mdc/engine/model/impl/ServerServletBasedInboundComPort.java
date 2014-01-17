@@ -11,5 +11,5 @@ import com.energyict.mdc.engine.model.ComServer;
  */
 public interface ServerServletBasedInboundComPort extends ServerInboundComPort, ServletBasedInboundComPort {
 
-    public void init(ComServer owner);
+
 }

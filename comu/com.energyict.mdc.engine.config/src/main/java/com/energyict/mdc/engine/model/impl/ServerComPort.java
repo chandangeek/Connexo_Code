@@ -4,6 +4,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.engine.model.ComPort;
 
+import com.energyict.mdc.engine.model.ComServer;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -19,8 +20,8 @@ public interface ServerComPort extends ComPort {
     /**
      * Makes this ComPort obsolete, i.e. it will no longer be available
      * to be used to connect to devices nor will it be returned by
-     * the {@link ComPortService} finder methods.
-     * This will also remove the ComPort from all {@link ComPortPool}s
+     * the service finder methods.
+     * This will also remove the ComPort from all ComPortPools
      * it belongs to.
      *
      */
@@ -41,4 +42,5 @@ public interface ServerComPort extends ComPort {
      */
     public UtcInstant getObsoleteDate();
 
+    public void init(ComServer owner);
 }

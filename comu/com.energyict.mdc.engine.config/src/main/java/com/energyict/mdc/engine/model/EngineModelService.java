@@ -214,6 +214,8 @@ public interface EngineModelService {
 
     List<InboundComPort> findInboundComPortsWithComPortType(ComPortType comPortType);
 
-    List<ComPort> findAllWithDeleted();
+    List<ComPort> findAllComPortsWithDeleted();
+
+    List<ComPort> findAllComPorts();
 
 }

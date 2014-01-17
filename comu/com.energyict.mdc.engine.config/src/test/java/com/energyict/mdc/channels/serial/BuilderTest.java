@@ -8,7 +8,7 @@ public class BuilderTest {
     @Test
     public void testBuilder() throws Exception {
         ComServer comServer=null;
-        comServer.newOutbound().name("test").numberOfSimultaneousConnections(12).add();
+        comServer.newOutboundComPort().name("test").numberOfSimultaneousConnections(12).add();
 
     }
 }

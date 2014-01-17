@@ -107,4 +107,49 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
     public void setContextPath(String contextPath) {
         this.contextPath = contextPath;
     }
+
+    static class ServletBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>
+            implements ServletBasedInboundComPortBuilder {
+
+        protected ServletBasedInboundComPortBuilderImpl(Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
+            super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPortProvider);
+        }
+
+        @Override
+        public ServletBasedInboundComPortBuilder https(boolean https) {
+            comPort.setHttps(https);
+            return this;
+        }
+
+        @Override
+        public ServletBasedInboundComPortBuilder keyStoreSpecsFilePath(String uri) {
+            comPort.setKeyStoreSpecsFilePath(uri);
+            return this;
+        }
+
+        @Override
+        public ServletBasedInboundComPortBuilder keyStoreSpecsPassword(String password) {
+            comPort.setKeyStoreSpecsPassword(password);
+            return this;
+        }
+
+        @Override
+        public ServletBasedInboundComPortBuilder trustStoreSpecsFilePath(String uri) {
+            comPort.setTrustStoreSpecsFilePath(uri);
+            return this;
+        }
+
+        @Override
+        public ServletBasedInboundComPortBuilder trustStoreSpecsPassword(String password) {
+            comPort.setTrustStoreSpecsPassword(password);
+            return this;
+        }
+
+        @Override
+        public ServletBasedInboundComPortBuilder contextPath(String contextPath) {
+            comPort.setContextPath(contextPath);
+            return this;
+        }
+    }
+
 }

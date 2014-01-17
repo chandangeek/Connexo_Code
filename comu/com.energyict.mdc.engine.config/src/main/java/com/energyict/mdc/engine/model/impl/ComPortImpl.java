@@ -227,7 +227,7 @@ public abstract class ComPortImpl implements ServerComPort {
     public void save() {
         validate();
         if (this.getId()==0) {
-            dataModel.persist(this);
+            dataModel.persist(this); // TODO add to comserver
         } else {
             validateUpdateAllowed();
             dataModel.update(this);
@@ -261,7 +261,7 @@ public abstract class ComPortImpl implements ServerComPort {
         C comPort;
         B self;
 
-        protected ComPortBuilderImpl(C comPort, Class<B> clazz) {
+        protected ComPortBuilderImpl(Class<B> clazz, C comPort) {
             this.comPort = comPort;
             self = clazz.cast(this);
         }

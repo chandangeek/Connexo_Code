@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
@@ -31,15 +29,15 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     private final EngineModelService engineModelService;
     private String queryAPIPostUri;
     private String eventRegistrationUri;
-    private boolean usesDefaultQueryAPIPostUri;
-    private boolean usesDefaultEventRegistrationUri;
+    private boolean usesDefaultQueryAPIPostUri=true;
+    private boolean usesDefaultEventRegistrationUri=true;
     private int storeTaskQueueSize;
     private int numberOfStoreTaskThreads;
     private int storeTaskThreadPriority;
 
     @Inject
-    public OnlineComServerImpl (DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider) {
-        super(dataModel, engineModelService, outboundComPortProvider);
+    public OnlineComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider) {
+        super(dataModel, engineModelService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider);
         this.engineModelService = engineModelService;
     }
 
@@ -52,8 +50,8 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
         super.validate();
         this.validateQueryAPIPostUri();
         this.validateEventRegistrationUri();
-        this.validateValueInRange(this.getStoreTaskQueueSize(), 1, MAXIMUM_STORE_TASK_QUEUE_SIZE, "onlineComServer.storeTaskQueueSize");
-        this.validateValueInRange(this.getNumberOfStoreTaskThreads(), 1, MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, "onlineComServer.numberOfStoreTaskThreads");
+        this.validateValueInRange(this.getStoreTaskQueueSize(), MINIMUM_STORE_TASK_QUEUE_SIZE, MAXIMUM_STORE_TASK_QUEUE_SIZE, "onlineComServer.storeTaskQueueSize");
+        this.validateValueInRange(this.getNumberOfStoreTaskThreads(), MINIMUM_NUMBER_OF_STORE_TASK_THREADS, MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, "onlineComServer.numberOfStoreTaskThreads");
         this.validateValueInRange(this.getStoreTaskThreadPriority(), MINIMUM_STORE_TASK_THREAD_PRIORITY, MAXIMUM_STORE_TASK_THREAD_PRIORITY, "onlineComServer.storeTaskThreadPriority");
         this.validateInboundComPortDuplicateComPorts();
     }
@@ -133,6 +131,9 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
 
     @Override
     public String getQueryApiPostUri () {
+        if (this.usesDefaultQueryAPIPostUri) {
+            return this.defaultQueryApiPostUri();
+        }
         return queryAPIPostUri;
     }
 
@@ -144,13 +145,13 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     @Override
     public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri) {
         this.usesDefaultQueryAPIPostUri = usesDefaultQueryAPIPostUri;
-        if (this.usesDefaultQueryAPIPostUri) {
-            this.queryAPIPostUri = this.defaultQueryApiPostUri();
-        }
     }
 
     @Override
     public String getEventRegistrationUri () {
+        if (this.usesDefaultEventRegistrationUri) {
+            return this.defaultEventRegistrationUri();
+        }
         return eventRegistrationUri;
     }
 
@@ -162,9 +163,6 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
     @Override
     public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
         this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
-        if (this.usesDefaultEventRegistrationUri) {
-            this.eventRegistrationUri = this.defaultEventRegistrationUri();
-        }
     }
 
     @Override
@@ -204,11 +202,13 @@ public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineCo
 
     @Override
     public void setQueryAPIPostUri(String queryAPIPostUri) {
+        this.usesDefaultQueryAPIPostUri=Checks.is(queryAPIPostUri).emptyOrOnlyWhiteSpace();
         this.queryAPIPostUri = queryAPIPostUri;
     }
 
     @Override
     public void setEventRegistrationUri(String eventRegistrationUri) {
+        this.usesDefaultEventRegistrationUri=Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
         this.eventRegistrationUri = eventRegistrationUri;
     }
 
