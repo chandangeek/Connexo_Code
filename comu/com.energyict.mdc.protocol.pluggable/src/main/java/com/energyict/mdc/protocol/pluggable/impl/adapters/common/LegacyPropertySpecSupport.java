@@ -3,9 +3,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ValueFactory;
-import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
-import com.energyict.mdc.dynamic.impl.ReferencePropertySpec;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeValueSelectionMode;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
@@ -23,30 +22,13 @@ import java.util.List;
 public final class LegacyPropertySpecSupport {
 
     @SuppressWarnings("unchecked")
-    public static PropertySpec toPropertySpec (com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec legacySpec, boolean required) {
+    public static PropertySpec toPropertySpec(PropertySpecService propertySpecService, com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec legacySpec, boolean required) {
         if (legacySpec.isReference()) {
-            ReferencePropertySpec propertySpec =
-                    new ReferencePropertySpec(legacySpec.getName(), false, legacySpec.getObjectFactory());
-            propertySpec.setRequired(required);
-            return propertySpec;
+            return propertySpecService.referencePropertySpec(legacySpec.getName(), required, legacySpec.getObjectFactory());
         }
         else {
-            // Basic
-            BasicPropertySpec propertySpec =
-                    new BasicPropertySpec(
-                            legacySpec.getName(),
-                            newInstance(LegacyValueFactoryMapping.classForLegacy(legacySpec.getValueFactory().getClass())));
-            propertySpec.setRequired(required);
-            return propertySpec;
+            return propertySpecService.basicPropertySpec(legacySpec.getName(), required, newInstance(LegacyValueFactoryMapping.classForLegacy(legacySpec.getValueFactory().getClass())));
         }
-    }
-
-    public static List<PropertySpec> toPropertySpecs (List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> legacyPropertySpecs, boolean required){
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        for (com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec legacyPropertySpec : legacyPropertySpecs) {
-            propertySpecs.add(toPropertySpec(legacyPropertySpec, required));
-        }
-        return propertySpecs;
     }
 
     public static com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec toLegacyPropertySpec (PropertySpec newSpec) {

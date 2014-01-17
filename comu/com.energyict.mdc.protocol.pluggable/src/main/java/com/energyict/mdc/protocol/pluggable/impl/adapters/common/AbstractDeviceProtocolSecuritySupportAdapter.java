@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -25,11 +26,13 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     private DeviceProtocolSecurityCapabilities legacySecuritySupport;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
+    private final PropertySpecService propertySpecService;
     private final PropertiesAdapter propertiesAdapter;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
-    protected AbstractDeviceProtocolSecuritySupportAdapter(PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+    protected AbstractDeviceProtocolSecuritySupportAdapter(PropertySpecService propertySpecService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
         super();
+        this.propertySpecService = propertySpecService;
         this.propertiesAdapter = propertiesAdapter;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
     }

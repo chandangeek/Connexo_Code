@@ -120,9 +120,6 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
      */
     private PropertiesAdapter propertiesAdapter;
 
-    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-    private DataModel dataModel;
-
     /**
      * The logger used by the protocol
      */
@@ -134,7 +131,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
     private HHUEnabler hhuEnabler;
 
     public MeterProtocolAdapter(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
-        super(protocolPluggableService, dataModel);
+        super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
         if (meterProtocol instanceof RegisterProtocol) {
             this.registerProtocol = (RegisterProtocol) meterProtocol;
@@ -142,13 +139,8 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
         else {
             this.registerProtocol = null;
         }
-        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         initializeAdapters();
         initInheritors();
-    }
-
-    protected SecuritySupportAdapterMappingFactory getSecuritySupportAdapterMappingFactory() {
-        return securitySupportAdapterMappingFactory;
     }
 
     /**
@@ -171,7 +163,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter();
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.dataModel);
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel());
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -179,7 +171,12 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
 
         if (!DeviceSecuritySupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.meterProtocolSecuritySupportAdapter = new MeterProtocolSecuritySupportAdapter(this.meterProtocol, this.propertiesAdapter, this.securitySupportAdapterMappingFactory);
+            this.meterProtocolSecuritySupportAdapter =
+                    new MeterProtocolSecuritySupportAdapter(
+                            this.meterProtocol,
+                            this.getPropertySpecService(),
+                            this.propertiesAdapter,
+                            this.getSecuritySupportAdapterMappingFactory());
         }
         else {
             this.deviceSecuritySupport = (DeviceSecuritySupport) this.meterProtocol;
@@ -409,7 +406,7 @@ public class MeterProtocolAdapter extends DeviceProtocolAdapterImpl implements D
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(this.getProtocolPluggableService(), this.meterProtocol, getSecurityProperties()));
+        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityProperties()));
         return dialects;
     }
 

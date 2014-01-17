@@ -7,7 +7,6 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -16,6 +15,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -25,7 +25,6 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -49,6 +48,7 @@ public class InMemoryPersistence {
     private OrmService ormService;
     private EventService eventService;
     private RelationService relationService;
+    private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private Injector injector;
 
@@ -80,6 +80,7 @@ public class InMemoryPersistence {
             inMemoryPersistence.ormService = injector.getInstance(OrmService.class);
             inMemoryPersistence.eventService = injector.getInstance(EventService.class);
             inMemoryPersistence.relationService = injector.getInstance(RelationService.class);
+            inMemoryPersistence.propertySpecService= injector.getInstance(PropertySpecService.class);
             inMemoryPersistence.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             inMemoryPersistence.injector = injector;
             ctx.commit();

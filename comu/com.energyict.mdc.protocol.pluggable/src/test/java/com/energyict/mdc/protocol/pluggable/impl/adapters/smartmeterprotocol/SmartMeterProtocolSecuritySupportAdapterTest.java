@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -39,6 +40,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SmartMeterProtocolSecuritySupportAdapterTest {
 
+    @Mock
+    private PropertySpecService propertySpecService;
     @Mock
     private SecuritySupportAdapterMappingFactoryImpl securitySupportAdapterMappingFactory;
     @Mock
@@ -100,7 +103,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     @Test
     public void testKnownMeterProtocol() {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        new SmartMeterProtocolSecuritySupportAdapter(simpleTestMeterProtocol, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory);
+        new SmartMeterProtocolSecuritySupportAdapter(simpleTestMeterProtocol, this.propertySpecService, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory);
 
         // all is safe if no errors occur
     }
@@ -109,7 +112,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     public void testUnKnownMeterProtocol() {
         SmartMeterProtocol meterProtocol = mock(SmartMeterProtocol.class);
         try {
-            new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory);
+            new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, this.propertySpecService, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory);
         } catch (DeviceProtocolAdapterCodingExceptions e) {
             if (!e.getMessageId().equals("CSC-DEV-124")) {
                 fail("Exception should have indicated that the given meterProtocol is not known in the adapter, but was " + e.getMessage());
@@ -122,7 +125,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
     @Test
     public void testNotADeviceSecuritySupportClass() {
         SmartMeterProtocol meterProtocol = new ThirdSimpleTestSmartMeterProtocol();
-        final SmartMeterProtocolSecuritySupportAdapter spy = spy(new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory));
+        final SmartMeterProtocolSecuritySupportAdapter spy = spy(new SmartMeterProtocolSecuritySupportAdapter(meterProtocol, this.propertySpecService, mock(PropertiesAdapter.class), this.securitySupportAdapterMappingFactory));
 
         // asserts
         verify(spy, never()).setLegacySecuritySupport(any(DeviceProtocolSecurityCapabilities.class));
@@ -135,7 +138,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
 
         SimpleTestSmartMeterProtocol simpleTestSmartMeterProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(simpleTestSmartMeterProtocol, propertiesAdapter, this.securitySupportAdapterMappingFactory);
+        SmartMeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(simpleTestSmartMeterProtocol, this.propertySpecService, propertiesAdapter, this.securitySupportAdapterMappingFactory);
 
         // business method
         meterProtocolSecuritySupportAdapter.setSecurityPropertySet(deviceProtocolSecurityPropertySet);

@@ -9,6 +9,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
@@ -44,7 +45,9 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public static final String NETWORK_ID_PROPERTY_NAME = "networkId";
 
     private DataModel dataModel;
+    private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
     /**
      * Gets the instance of the {@link CachingProtocol}
@@ -60,14 +63,27 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, DataModel dataModel) {
+    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
         super();
         this.protocolPluggableService = protocolPluggableService;
+        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.dataModel = dataModel;
+    }
+
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     protected ProtocolPluggableService getProtocolPluggableService() {
         return protocolPluggableService;
+    }
+
+    protected SecuritySupportAdapterMappingFactory getSecuritySupportAdapterMappingFactory() {
+        return securitySupportAdapterMappingFactory;
     }
 
     protected DataModel getDataModel() {

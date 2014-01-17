@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.dynamic.HasDynamicProperties;
@@ -41,16 +42,16 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
         }
     }
 
-    public AdapterDeviceProtocolDialect (ProtocolPluggableService protocolPluggableService, SmartMeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
-        this(protocolPluggableService, wrapAsDynamicProperties(meterProtocol), removablePropertySpecs);
+    public AdapterDeviceProtocolDialect(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SmartMeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
+        this(protocolPluggableService, wrapAsDynamicProperties(propertySpecService, meterProtocol), removablePropertySpecs);
     }
 
-    public AdapterDeviceProtocolDialect (ProtocolPluggableService protocolPluggableService, MeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
-        this(protocolPluggableService, wrapAsDynamicProperties(meterProtocol), removablePropertySpecs);
+    public AdapterDeviceProtocolDialect (PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, MeterProtocol meterProtocol, List<PropertySpec> removablePropertySpecs) {
+        this(protocolPluggableService, wrapAsDynamicProperties(propertySpecService, meterProtocol), removablePropertySpecs);
     }
 
-    private static HasDynamicProperties wrapAsDynamicProperties (ConfigurationSupport configurationSupport) {
-        return new ConfigurationSupportToDynamicPropertiesAdapter(configurationSupport);
+    private static HasDynamicProperties wrapAsDynamicProperties(PropertySpecService propertySpecService, ConfigurationSupport configurationSupport) {
+        return new ConfigurationSupportToDynamicPropertiesAdapter(propertySpecService, configurationSupport);
     }
 
     @Override

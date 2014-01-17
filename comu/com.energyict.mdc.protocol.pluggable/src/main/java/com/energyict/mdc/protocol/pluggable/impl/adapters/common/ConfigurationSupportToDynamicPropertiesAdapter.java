@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.dynamic.HasDynamicProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -15,9 +16,12 @@ import java.util.List;
  * @since 2013-12-03 (10:05)
  */
 public class ConfigurationSupportToDynamicPropertiesAdapter implements HasDynamicProperties {
+    private PropertySpecService propertySpecService;
     private ConfigurationSupport configurationSupport;
 
-    public ConfigurationSupportToDynamicPropertiesAdapter (ConfigurationSupport configurationSupport) {
+    public ConfigurationSupportToDynamicPropertiesAdapter(PropertySpecService propertySpecService, ConfigurationSupport configurationSupport) {
+        super();
+        this.propertySpecService = propertySpecService;
         this.configurationSupport = configurationSupport;
     }
 
@@ -36,7 +40,7 @@ public class ConfigurationSupportToDynamicPropertiesAdapter implements HasDynami
     private List<PropertySpec> toPropertySpecs (List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> legacySpecs, boolean required) {
         List<PropertySpec> newSpecs = new ArrayList<>(legacySpecs.size());
         for (com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec legacySpec : legacySpecs) {
-            newSpecs.add(LegacyPropertySpecSupport.toPropertySpec(legacySpec, required));
+            newSpecs.add(LegacyPropertySpecSupport.toPropertySpec(this.propertySpecService, legacySpec, required));
         }
         return newSpecs;
     }

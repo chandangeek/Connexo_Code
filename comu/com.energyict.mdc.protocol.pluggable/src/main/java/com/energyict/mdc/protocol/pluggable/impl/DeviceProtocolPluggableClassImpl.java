@@ -5,6 +5,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -40,6 +41,7 @@ import java.util.List;
  */
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
+    private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     private RelationService relationService;
@@ -47,8 +49,9 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private DataModel dataModel;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DeviceProtocolService deviceProtocolService, DataModel dataModel) {
+    public DeviceProtocolPluggableClassImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DeviceProtocolService deviceProtocolService, DataModel dataModel) {
         super();
+        this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.relationService = relationService;
@@ -73,18 +76,22 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     protected DeviceProtocol newInstance(PluggableClass pluggableClass) {
         Class protocolClass = this.deviceProtocolService.loadProtocolClass(pluggableClass.getJavaClassName());
+        DeviceProtocol deviceProtocol;
         try {
             if (DeviceProtocol.class.isAssignableFrom(protocolClass)) {
-                return (DeviceProtocol) protocolClass.newInstance();
+                deviceProtocol = (DeviceProtocol) protocolClass.newInstance();
+                return deviceProtocol;
             }
             else {
                 // Must be a lecagy pluggable class
-                return checkForProtocolWrappers(protocolClass.newInstance());
+                deviceProtocol = this.checkForProtocolWrappers(protocolClass.newInstance());
             }
         }
         catch (InstantiationException | IllegalAccessException e) {
             throw new ProtocolCreationException(pluggableClass.getJavaClassName());
         }
+        deviceProtocol.setPropertySpecService(this.propertySpecService);
+        return deviceProtocol;
     }
 
     /**

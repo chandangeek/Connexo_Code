@@ -110,8 +110,6 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private SmartMeterProtocolSecuritySupportAdapter smartMeterProtocolSecuritySupportAdapter;
 
-    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-
     /**
      * The logger used by the protocol
      */
@@ -128,15 +126,10 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     private PropertiesAdapter propertiesAdapter;
 
     public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
-        super(protocolPluggableService, dataModel);
+        super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
-        this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         initializeAdapters();
         initInheritors();
-    }
-
-    protected SecuritySupportAdapterMappingFactory getSecuritySupportAdapterMappingFactory() {
-        return securitySupportAdapterMappingFactory;
     }
 
     /**
@@ -169,7 +162,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
         if (!DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(getSmartMeterProtocol(), this.propertiesAdapter, this.securitySupportAdapterMappingFactory);
+            this.smartMeterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(getSmartMeterProtocol(), this.getPropertySpecService(), this.propertiesAdapter, this.getSecuritySupportAdapterMappingFactory());
         }
         else {
             this.deviceSecuritySupport = (DeviceSecuritySupport) this.meterProtocol;
@@ -407,7 +400,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(this.getProtocolPluggableService(), this.meterProtocol, getSecurityProperties()));
+        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityProperties()));
         return dialects;
     }
 

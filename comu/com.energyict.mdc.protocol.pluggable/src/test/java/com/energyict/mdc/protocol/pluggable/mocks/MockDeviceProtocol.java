@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -36,6 +37,11 @@ import java.util.List;
  * @since 2014-01-16 (10:57)
  */
 public class MockDeviceProtocol implements DeviceProtocol {
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
