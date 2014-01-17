@@ -1,12 +1,12 @@
 package com.energyict.protocols.mdc.channels.ip;
 
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.protocols.mdc.channels.VoidComChannel;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.util.EnumSet;

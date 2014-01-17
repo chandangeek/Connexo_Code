@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -33,14 +33,6 @@ public abstract class AbstractGenericProtocol extends GenericMessaging {
      * This is the method where the implementing protocol does all his stuff.
      */
     protected abstract void doExecute() throws IOException, BusinessException, SQLException;
-
-//    public void execute(CommunicationScheduler communicationScheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-//        this.communicationScheduler = communicationScheduler;
-//        this.link = link;
-//        this.logger = logger;
-//        initProperties();
-//        doExecute();
-//    }
 
     /**
      * Override this method to initiate the properties object in the implementing protocol
@@ -78,12 +70,6 @@ public abstract class AbstractGenericProtocol extends GenericMessaging {
     }
 
 
-//    @Override
-//    public void addProperties(TypedProperties properties) {
-//        addProperties(properties.toStringProperties());
-//    }
-
-
     /**
      * Lazy getter for the generic protocol properties
      * When properties == null, we will initialize it as a new empty Properties object and return this instead of null;
@@ -96,15 +82,6 @@ public abstract class AbstractGenericProtocol extends GenericMessaging {
         }
         return properties;
     }
-//
-//    /**
-//     * Getter for the communicationScheduler field
-//     *
-//     * @return
-//     */
-//    public CommunicationScheduler getCommunicationScheduler() {
-//        return communicationScheduler;
-//    }
 
     /**
      * Getter for the link field

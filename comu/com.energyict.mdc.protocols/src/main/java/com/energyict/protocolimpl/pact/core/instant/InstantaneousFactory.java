@@ -8,7 +8,7 @@ package com.energyict.protocolimpl.pact.core.instant;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.pact.core.common.PACTConnection;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 

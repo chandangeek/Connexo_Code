@@ -4,7 +4,7 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;

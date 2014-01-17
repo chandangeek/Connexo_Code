@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 
 /**
@@ -24,8 +24,8 @@ public class CRCGenerator {
    10bit-CRC:  0x233       =  x10 + x9  + x5  + x4  + x  + 1
    8bit-CRC:   0x07        =  x8  + x2  + x + 1
  */
-    
-    
+
+
 //static private final byte[] REVERSE={(byte)0x0,(byte)0x80,(byte)0x40,(byte)0xc0,(byte)0x20,(byte)0xa0,(byte)0x60,(byte)0xe0,
 //(byte)0x10,(byte)0x90,(byte)0x50,(byte)0xd0,(byte)0x30,(byte)0xb0,(byte)0x70,(byte)0xf0,
 //(byte)0x8,(byte)0x88,(byte)0x48,(byte)0xc8,(byte)0x28,(byte)0xa8,(byte)0x68,(byte)0xe8,
@@ -57,8 +57,8 @@ public class CRCGenerator {
 //(byte)0x7,(byte)0x87,(byte)0x47,(byte)0xc7,(byte)0x27,(byte)0xa7,(byte)0x67,(byte)0xe7,
 //(byte)0x17,(byte)0x97,(byte)0x57,(byte)0xd7,(byte)0x37,(byte)0xb7,(byte)0x77,(byte)0xf7,
 //(byte)0xf,(byte)0x8f,(byte)0x4f,(byte)0xcf,(byte)0x2f,(byte)0xaf,(byte)0x6f,(byte)0xef,
-//(byte)0x1f,(byte)0x9f,(byte)0x5f,(byte)0xdf,(byte)0x3f,(byte)0xbf,(byte)0x7f,(byte)0xff};    
-    
+//(byte)0x1f,(byte)0x9f,(byte)0x5f,(byte)0xdf,(byte)0x3f,(byte)0xbf,(byte)0x7f,(byte)0xff};
+
 /* CRC16 Table:8005 */
 static private final int[] CRC16={
  0x0000, 0x8005, 0x800F, 0x000A, 0x801B, 0x001E, 0x0014, 0x8011,
@@ -93,8 +93,8 @@ static private final int[] CRC16={
  0x0270, 0x8275, 0x827F, 0x027A, 0x826B, 0x026E, 0x0264, 0x8261,
  0x0220, 0x8225, 0x822F, 0x022A, 0x823B, 0x023E, 0x0234, 0x8231,
  0x8213, 0x0216, 0x021C, 0x8219, 0x0208, 0x820D, 0x8207, 0x0202};
-    
-    
+
+
     static private final int[] HDLC_CRC_TABLE={
         0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
                 0x8c48, 0x9dc1, 0xaf5a, 0xbed3, 0xca6c, 0xdbe5, 0xe97e, 0xf8f7,
@@ -129,22 +129,22 @@ static private final int[] CRC16={
                 0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
                 0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
     };
-    
-    
-    
-    
+
+
+
+
     static final int MAX_CRC_TABLE_SIZE=256;
-    
+
     static int[] crcTable=genTable();
-    
+
     /** Creates a new instance of crcGenerator */
     public CRCGenerator() {
     }
-    
+
     static int[] genTable() {
         return genTable(0xA001);
     }
-    
+
     static int[] genTable(int polynome) {
         int[] crcTable = new int[MAX_CRC_TABLE_SIZE];
         int inx,entry16,carry16,i;
@@ -162,16 +162,16 @@ static private final int[] CRC16={
         }
         return crcTable;
     }
-    
+
     static public int calcCRC16(byte[] buf){
         return calcCRC16(buf, buf.length);
     }
-    
+
     static public int calcCRC16(byte[] buf,int size){
         int i;
         int crc = 0xFFFF;
 
-        crc = 0xFFFF;       // Inital CRC should be set to 0xFFFF 
+        crc = 0xFFFF;       // Inital CRC should be set to 0xFFFF
         for ( i = 0; i < size; i++ ) {
             int val = (int)buf[i] & 0xFF;
             crc = (int)((crc << 8) ^ CRC16[ ((crc >> 8) ^ val) & 0xff ])&0xffff; // Forward
@@ -180,7 +180,7 @@ static private final int[] CRC16={
         return ( crc );
     }
 
-    
+
     /**
      * CRC calculation using HDLC CCITT CRC standard polynomial X16+X12+X5+1
      * Table is generated
@@ -190,23 +190,23 @@ static private final int[] CRC16={
     }
     static public int calcHDLCCRC(byte[] byteBuffer,int length) {
         int iCharVal,i;
-        
+
         int crc=0x0000FFFF;
         for (i=0; i<length; i++) {
             iCharVal = (int)byteBuffer[i] & 0x000000FF;
             crc = (crc>>8)^HDLC_CRC_TABLE[(crc^iCharVal) & 0x000000FF] ;
             crc &= 0x0000FFFF;
         }
-        
+
         crc^=0x0000FFFF;
         i = crc;
         crc = (crc >> 8) & 0x000000FF;
         crc = crc | ((i<<8) & 0x0000FF00);
-        
+
         return (crc);
-        
+
     } // private unsigned short CalcHDLCCRC()
-    
+
     static public int calcCRC(byte[] data,int iLength) {
         return (docalcCRC(data,iLength,true));
     }
@@ -229,17 +229,17 @@ static private final int[] CRC16={
             i++;
             count--;
         }
-        
+
         if (check) {
             int receivedcrc16 = (int)ProtocolUtils.getShortLE(ptr, ptr.length-2)&0xFFFF;
             return (crc16 - receivedcrc16);
         } else return crc16;
     }
-    
-    
+
+
     static public int calcCRCModbus(byte[] data) {
         int crc=0xFFFF;
-        
+
         for (int i=0;i<data.length;i++) {
             int dataByte = (int)data[i]&0xFF;
             int j;
@@ -253,17 +253,17 @@ static private final int[] CRC16={
         }
         return crc;
     }
-    
-    
-    
-    
+
+
+
+
     static public int calcCRCDirect(byte[] data) {
         return calcCRCDirect(data, 0xA001);
     }
-    
+
     static public int calcCRCDirect(byte[] data, int polynome) {
         int crc=0;
-        
+
         for (int i=0;i<data.length;i++) {
             int dataByte = (int)data[i]&0xFF;
             int j;
@@ -277,14 +277,14 @@ static private final int[] CRC16={
         }
         return crc;
     }
-    
+
     static public boolean isCRCAlphaValid(byte[] data) {
         int crcorg = ((int)data[data.length-2]&0xff)*256+((int)data[data.length-1]&0xff);
         int crc = calcCRCAlpha(data,data.length-2);
         return crcorg == crc;
     }
-    
-    
+
+
     static public int ccittCRC(byte[] data) {
         return calcCRCAlpha(data);
     }
@@ -309,15 +309,15 @@ static private final int[] CRC16={
         }
         return crc;
     }
-    
+
     static public int calcCRCCCITTSchlumberger(byte[] data) {
         return calcCRCCCITT(data, 0xffff);
     }
-    
+
     static public int calcCRCCCITTEnermet(byte[] data) {
         return calcCRCCCITT(data, 0x1D0F);
     }
-    
+
     static public int calcCRCCCITT(byte[] data, int startValue) {
         int crcmsb,crclsb,scratch,acc;
         crcmsb=(startValue>>8)&0xFF;
@@ -343,7 +343,7 @@ static private final int[] CRC16={
         }
         return crcmsb<<8|crclsb;
     }
-    
+
     static public int calcCRCSentry(byte[] data) {
         int crc = 0x0000;
         for (int ri = 0; ri < data.length; ri++) {
@@ -358,7 +358,7 @@ static private final int[] CRC16={
         }
         return crc&0xffff;
     }
-    
+
     static public int calcCCITTCRC(byte[] data) {
         int crc = 0x0000;
         for (int ri = 0; ri < data.length; ri++) {
@@ -373,28 +373,28 @@ static private final int[] CRC16={
         }
         return crc&0xffff;
     }
-    
+
 
     static final int POLY_CCITT=0x8408;   /* 1021 in reverse order */
-    static public int calcCCITTCRCReverse(byte[] data) { 
+    static public int calcCCITTCRCReverse(byte[] data) {
 	int  crc = 0;
 	int   j;
 	int  c, Q;
-        
+
         for (int i=0;i<data.length;i++) {
             c = (int)(data[i])&0xff;
             for (j = 0; j < 8 ; j++) {
                 Q = ((crc & 0x0001) ^ (c & 0x0001));
                 crc >>= 1;
-                if (Q == 0x0001) 
+                if (Q == 0x0001)
                         crc = (crc ^ POLY_CCITT)&0xffff;
                 c = (c >> 1);
             }
 	}
 	return (((crc&0xff)<<8) + (crc>>8));
     }
-    
-    
+
+
 //    static public int calcCCITTCRCReverse2(byte[] data) {
 //        int crc = 0x0000;
 //        for (int ri = 0; ri < data.length; ri++) {
@@ -407,45 +407,45 @@ static private final int[] CRC16={
 //                    crc ^= 0x1021; // CRC-16 polynom
 //            }
 //        }
-//        
+//
 //        crc = crc&0xffff;
 //        return (((int)REVERSE[crc/256]&0xff)<<8) + ((int)REVERSE[crc&0xff]&0xff);
 //    }
-    
+
     public static void main(String[] args) {
 
         //byte[] data = new byte[]{(byte)0x00,(byte)0x98,(byte)0x80,(byte)0x66};
         //byte[] data = new byte[]{(byte)0x00,(byte)0xe0}; //,(byte)0x0e,(byte)0xe7};
         //byte[] data = new byte[]{(byte)0x7b,(byte)0xe0,(byte)0xa0,(byte)0x02,(byte)0x01,(byte)0x82,(byte)0x02,(byte)0x0c,(byte)0x01,(byte)0x00,(byte)0x02,(byte)0x11,(byte)0x04,(byte)0x28,(byte)0x0e,(byte)0x21,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x05,(byte)0x04,(byte)0x28,(byte)0xb8,(byte)0x21,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x0a,(byte)0x10,(byte)0x00,(byte)0xc8,(byte)0x01,(byte)0x08,(byte)0x10,(byte)0x05,(byte)0x0a,(byte)0x10,(byte)0x05,(byte)0x0a,(byte)0x10,(byte)0x05,(byte)0x0a,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x05,(byte)0x0a,(byte)0x10,(byte)0x05,(byte)0x0a,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x03,(byte)0xe8,(byte)0x0f,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x0f,(byte)0x02,(byte)0x01,(byte)0x0f,(byte)0x0f,(byte)0x06,(byte)0x0f,(byte)0x09,(byte)0x0f,(byte)0x0b,(byte)0x0f,(byte)0x12,(byte)0x0f,(byte)0x14,(byte)0x0f,(byte)0x16,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x0f,(byte)0x02,(byte)0x01,(byte)0x0f,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00,(byte)0x0f,(byte)0x00}; //,(byte)0xd6,(byte)0xc3};
-        
-        
+
+
 //byte[] data = new byte[]{(byte)0x7B,(byte)0xEF,(byte)0xA0,(byte)0x02,(byte)0x55,(byte)0x10,(byte)0x01,(byte)0x42,(byte)0x10,(byte)0xE0,(byte)0x60,(byte)0x10,(byte)0x01,(byte)0x48,(byte)0x10,(byte)0x01,(byte)0x39,(byte)0x10,(byte)0x01,(byte)0x49,(byte)0x10,(byte)0x01,(byte)0x49,(byte)0x10,(byte)0x01,(byte)0x3A,(byte)0x10,(byte)0x01,(byte)0x68,(byte)0x10,(byte)0xE0,(byte)0x70,(byte)0x10,(byte)0x01,(byte)0x70,(byte)0x10,(byte)0x01,(byte)0x6C,(byte)0x10,(byte)0x01,(byte)0x5E,(byte)0x10,(byte)0x01,(byte)0x57,(byte)0x10,(byte)0x01,(byte)0x43,(byte)0x10,(byte)0x01,(byte)0x40,(byte)0x10,(byte)0xE0,(byte)0x80,(byte)0x10,(byte)0x01,(byte)0x4C,(byte)0x10,(byte)0x01,(byte)0x53,(byte)0x10,(byte)0x01,(byte)0x54,(byte)0x10,(byte)0x01,(byte)0x42,(byte)0x10,(byte)0x01,(byte)0x32,(byte)0x10,(byte)0x01,(byte)0x25,(byte)0x10,(byte)0xE0,(byte)0x90,(byte)0x10,(byte)0x01,(byte)0x1E,(byte)0x10,(byte)0x01,(byte)0x20,(byte)0x10,(byte)0x01,(byte)0x39,(byte)0x10,(byte)0x01,(byte)0x2D,(byte)0x10,(byte)0x01,(byte)0x4F,(byte)0x10,(byte)0x01,(byte)0x4F,(byte)0x10,(byte)0xE0,(byte)0xA0,(byte)0x10,(byte)0x01,(byte)0x49,(byte)0x10,(byte)0x01,(byte)0x57,(byte)0x10,(byte)0x01,(byte)0x5D,(byte)0x10,(byte)0x01,(byte)0x4A,(byte)0x10,(byte)0x01,(byte)0x4E,(byte)0x10,(byte)0x01,(byte)0x40,(byte)0x10,(byte)0xE0,(byte)0xB0,(byte)0x10,(byte)0x01,(byte)0x46,(byte)0x10,(byte)0x01,(byte)0x4F,(byte)0x10,(byte)0x01,(byte)0x45}; //,(byte)0x6A,(byte)0xA3};
 //byte[] data = new byte[]{(byte)0x7B,(byte)0xE3,(byte)0xA0,(byte)0x02,(byte)0x10,(byte)0x01,(byte)0x51,(byte)0x10,(byte)0x01,(byte)0x66,(byte)0x10,(byte)0x01,(byte)0x4E,(byte)0x10,(byte)0xE0,(byte)0xC0,(byte)0x10,(byte)0x01,(byte)0x54,(byte)0x10,(byte)0x01,(byte)0x52,(byte)0x10,(byte)0x01,(byte)0x50,(byte)0x10,(byte)0x01,(byte)0x5E,(byte)0x10,(byte)0x01,(byte)0x4F,(byte)0x10,(byte)0x01,(byte)0x5B,(byte)0x10,(byte)0xE0,(byte)0xD0,(byte)0x10,(byte)0x01,(byte)0x55,(byte)0x10,(byte)0x01,(byte)0x54,(byte)0x10,(byte)0x01,(byte)0x55,(byte)0x10,(byte)0x01,(byte)0x5B,(byte)0x10,(byte)0x01,(byte)0x60,(byte)0x10,(byte)0x01,(byte)0x54,(byte)0x10,(byte)0xE0,(byte)0xE0,(byte)0x10,(byte)0x11,(byte)0x46,(byte)0x24,(byte)0x05,(byte)0x7A,(byte)0x81,(byte)0x14,(byte)0x68,(byte)0x16,(byte)0xA2,(byte)0x40,(byte)0xB9,(byte)0x10,(byte)0x01,(byte)0x67,(byte)0x10,(byte)0x01,(byte)0x5E,(byte)0x10,(byte)0xE0,(byte)0xF0,(byte)0x10,(byte)0x01,(byte)0x4E,(byte)0x10,(byte)0x01,(byte)0x51,(byte)0x10,(byte)0x01,(byte)0x5E,(byte)0x10,(byte)0x01,(byte)0x60,(byte)0x10,(byte)0x01,(byte)0x54,(byte)0x10,(byte)0x01,(byte)0x4C,(byte)0x10,(byte)0xE1,(byte)0x00,(byte)0x10,(byte)0x01,(byte)0x5F,(byte)0x10,(byte)0x01,(byte)0x58,(byte)0x10,(byte)0x01,(byte)0x6C,(byte)0x10,(byte)0x01,(byte)0x66,(byte)0x10,(byte)0x01,(byte)0x62,(byte)0x10,(byte)0x01,(byte)0x57,(byte)0x10,(byte)0xE1,(byte)0x10,(byte)0x10,(byte)0x01,(byte)0x4B}; //,(byte)0x10,(byte)0xC0};
         //byte[] data = new byte[]{(byte)0x03,(byte)0x55,(byte)0xC9,(byte)0x52,(byte)0x48,(byte)0x50,(byte)0xF6};
         //byte[] data = new byte[]{(byte)0x02,(byte)0xE3,(byte)0xB0,(byte)0x02,(byte)0xCF,(byte)0xC6};
-        
+
         //System.out.println(Integer.toHexString(CRCGenerator.calcCCITTCRCReverse(data)));
-        
+
         //byte[] data = new byte[]{(byte)0x44,(byte)0x00,(byte)0x21,(byte)0x11,(byte)0x00,(byte)0x21,(byte)0x11}; //,(byte)0x15,(byte)0xd5};
         byte[] data = new byte[]{(byte)0x58,(byte)0x08,(byte)0x59,(byte)0xf7};
         System.out.println(Integer.toHexString(CRCGenerator.calcCRCCCITTSchlumberger(data)));
-        
+
         data = new byte[]{(byte)0x02,(byte)0x08,(byte)0x10,(byte)0xf5,(byte)0xf8};
         System.out.println(CRCGenerator.isCRCAlphaValid(data));
-        
+
 //        for (int i = 0;i<0x100;i++) {
-//        int val=0;    
+//        int val=0;
 //            for (int t=0;t<8;t++) {
 //              if ((i&(0x01<<t)) != 0) {
 //                  val |= (0x80 >> t);
-//              }   
-//                
+//              }
+//
 //            }
 //            if ((i%8)==0) System.out.println();
 //            System.out.print("(byte)0x"+Integer.toHexString(val)+",");
-//            
+//
 //        }
-        
+
     }
 
     public static int getModulo256(byte[] rawData) {

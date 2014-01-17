@@ -10,13 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.util.Equality;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  *
@@ -158,75 +158,12 @@ RXS4 32k 122k
                 intervalDatas.remove(i+1);
                 continue;
             }
-            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+            if (is(intervalData.getEndTime()).equalTo(intervalData2add.getEndTime())) {
                 ParseUtils.addIntervalValues(intervalData, intervalData2add);
                intervalDatas.remove(i);
             }
-        } // for (int i=0;i<(intervalDatas.size()-1);i++)
+        }
     }
-
-//    private Calendar searchInitialCalendar(byte[] data) throws IOException {
-//        int offset=0;
-//        int length = data.length;
-//        int interval=0;
-//        Calendar cal=null;
-//        int channelIndex=0;
-//        boolean dateStamp=false;
-//        boolean timeStamp=false;
-//
-//        while (offset<length) {
-//            int value = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
-//            int event = DATA;
-//            if ((value&0x8000)==0x8000) {
-//                if ((value&0x4000)==0x4000)
-//                    event = TIME_STAMP;
-//                else
-//                    event = DATE_STAMP;
-//            }
-//            else {
-//                if (!checkParity(value)) {
-//                    if (DEBUG>=1) System.out.println("KV_DEBUG> Corrupted value, bad parity");
-//                    // KV_TO_DO set corrupted intervalstate bit!
-//                }
-//                value &= 0x3FFF; // mask out bit 14 & 15
-//            }
-//
-//            if (event == DATE_STAMP) {
-//                if (DEBUG>=2) System.out.println("DATE_STAMP");
-//
-//                // KV 07082007
-//                // if calendar is older then previous, remove already collected intervals
-//                Calendar temp = getDateStamp(value);
-//                if ((cal != null) && (temp.getTime().before(cal.getTime()))) {
-//                    if (DEBUG>=2) System.out.println("KV_DEBUG> Trash all received intervals until now...");
-//                }
-//                cal = temp;
-//
-//                if (dateStamp)
-//                    timeStamp=false;
-//                if (!timeStamp)
-//                    dateStamp=true;
-//
-//            } // if (event == DATE_STAMP)
-//
-//            if (event == TIME_STAMP) {
-//                if (DEBUG>=2) System.out.println("TIME_STAMP");
-//                getTimeStamp(cal,value);
-//                if ((!dateStamp) && (!timeStamp)) {
-//                    timeStamp = true;
-//                }
-//                else if (timeStamp) {
-//                    dateStamp=false;
-//                    timeStamp=false;
-//                }
-//                ParseUtils.roundDown2nearestInterval(cal, getCommandFactory().getLoadProfileAndSeasonChangeOptionsCommand().getProfileInterval());
-//
-//            } // if (event == TIME_STAMP)
-//
-//            interval++;
-//
-//        } //  while (offset<length)
-//    }
 
     protected List collect(byte[] data) throws IOException {
         int offset=0;
@@ -239,17 +176,16 @@ RXS4 32k 122k
         boolean dateStamp=false;
         boolean timeStamp=false;
         IntervalData intervalData=null;
-
-
-
         while (offset<length) {
             int value = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
             int event = DATA;
             if ((value&0x8000)==0x8000) {
-                if ((value&0x4000)==0x4000)
+                if ((value&0x4000)==0x4000) {
                     event = TIME_STAMP;
-                else
+                }
+                else {
                     event = DATE_STAMP;
+                }
             }
             else {
                 if (!checkParity(value)) {

@@ -1,7 +1,7 @@
 
 package com.energyict.protocolimpl.iec1107.ppm.opus;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppm.PPMUtils;
 
 import java.io.ByteArrayOutputStream;

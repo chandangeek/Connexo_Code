@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.messages;
 
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.Hydreka;
 
 import java.util.ArrayList;

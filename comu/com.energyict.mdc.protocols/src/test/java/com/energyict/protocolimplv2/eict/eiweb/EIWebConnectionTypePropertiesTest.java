@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdw.core.DataVault;
-import com.energyict.mdw.core.DataVaultProvider;
+import com.energyict.mdc.common.DataVault;
+import com.energyict.mdc.common.DataVaultProvider;
 import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;

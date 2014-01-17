@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.abba230.ABBA230;
 
 import java.io.IOException;

@@ -6,26 +6,26 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.cbo.TimeZoneManager;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 // com.energyict.protocolimpl.iec1107.enermete70x.EnermetE70X
 /**
@@ -46,7 +47,7 @@ import java.util.logging.Logger;
  * Remark:
  * KV 08112004 HHU's getSerialNumber() implementation uses securitylevel 1 and password 1. Should have a public read. Mail has been send to Asko!
  */
-abstract public class EnermetBase extends AbstractProtocol {
+public abstract class EnermetBase extends AbstractProtocol {
 
     IEC1107Connection iec1107Connection=null;
     DataReadingCommandFactory dataReadingCommandFactory=null;
@@ -153,7 +154,7 @@ abstract public class EnermetBase extends AbstractProtocol {
         return iec1107Connection;
     }
 
-    protected void doValidateProperties(Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         this.software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
     }
 
@@ -303,11 +304,12 @@ abstract public class EnermetBase extends AbstractProtocol {
                 SerialCommunicationChannel.STOPBITS_1);
 
             // initialize the protocol
-            enermetE70X.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZoneManager.getTimeZone("GMT"),Logger.getLogger("name"));
+            enermetE70X.init(dialer.getInputStream(),dialer.getOutputStream(), TimeZone.getTimeZone("GMT"),Logger.getLogger("name"));
 
             // if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)enermetE70X).enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            if (DialerMarker.hasOpticalMarker(dialer)) {
+                enermetE70X.enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            }
 
             System.out.println("*********************** connect() ***********************");
 
@@ -414,4 +416,4 @@ abstract public class EnermetBase extends AbstractProtocol {
 		this.testE70xConnection = testE70xConnection;
 	}
 
-} // class EnermetE70X
+}

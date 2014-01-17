@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.Calendar;
 import java.util.Date;

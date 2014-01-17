@@ -1,11 +1,10 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdw.core.MeteringWarehouse;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -133,6 +132,7 @@ public class RtuDLMS {
                 return null;
             }
         };
-        MeteringWarehouse.getCurrent().execute(tr);
+        Environment.DEFAULT.get().execute(tr);
     }
-} // public class RtuDLMS
+
+}

@@ -4,7 +4,7 @@ import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;

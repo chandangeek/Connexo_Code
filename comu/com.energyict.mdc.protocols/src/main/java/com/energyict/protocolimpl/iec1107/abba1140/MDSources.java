@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 /**

@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.util.ArrayList;
 import java.util.Date;

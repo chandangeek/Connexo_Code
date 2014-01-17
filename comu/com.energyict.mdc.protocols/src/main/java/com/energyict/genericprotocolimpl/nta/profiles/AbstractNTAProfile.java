@@ -6,7 +6,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.logging.Level;

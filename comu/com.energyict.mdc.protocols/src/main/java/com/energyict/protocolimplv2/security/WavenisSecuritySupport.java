@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +24,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     public static final String ENCRYPTION_KEY_PROPERTY_NAME = "WavenisEncryptionKey";
-    private final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
-    private final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
+    private static final String AUTHENTICATION_TRANSLATION_KEY = "WavenisSecuritySupport.authenticationlevel.";
+    private static final String ENCRYPTION_TRANSLATION_KEY = "WavenisSecuritySupport.encryptionlevel.";
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
@@ -129,7 +129,7 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+            return AUTHENTICATION_TRANSLATION_KEY + getId();
         }
 
         @Override
@@ -152,7 +152,7 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+            return ENCRYPTION_TRANSLATION_KEY + getId();
         }
 
         @Override

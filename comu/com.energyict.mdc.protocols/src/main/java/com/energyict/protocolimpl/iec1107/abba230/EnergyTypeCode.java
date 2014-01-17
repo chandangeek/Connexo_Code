@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.util.ArrayList;
 import java.util.Iterator;

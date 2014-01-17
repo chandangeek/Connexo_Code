@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import com.energyict.cbo.SerialCommunicationSettings;
+import com.energyict.mdc.protocol.api.SerialCommunicationSettings;
 import com.energyict.dlms.axrdencoding.Integer32;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.NullData;

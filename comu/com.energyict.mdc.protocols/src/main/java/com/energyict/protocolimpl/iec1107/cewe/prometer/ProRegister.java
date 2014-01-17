@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.cbo.Utils;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
@@ -32,7 +32,7 @@ import java.util.List;
 
 class ProRegister {
 
-    final static String NOT_SUPPORTED_EXCEPTION = "Register is not cacheable, so method not supported";
+    static final String NOT_SUPPORTED_EXCEPTION = "Register is not cacheable, so method not supported";
 
     /* reference to protocol object */
     private Prometer meter;
@@ -46,29 +46,14 @@ class ProRegister {
     private String rawData;
     private List fields;
 
-    /**
-     * @param meter
-     * @param id
-     */
     ProRegister(Prometer meter, String id){
         this(meter, id, true);
     }
 
-    /**
-     * @param meter
-     * @param id
-     * @param cacheable
-     */
     ProRegister(Prometer meter, String id, boolean cacheable){
         this(meter, id, cacheable, 1);
     }
 
-    /**
-     * @param meter
-     * @param id
-     * @param cacheable
-     * @param fetchSize
-     */
     ProRegister(Prometer meter, String id, boolean cacheable, int fetchSize){
         this.meter = meter;
         this.id = id;
@@ -76,9 +61,6 @@ class ProRegister {
         this.fetchSize = fetchSize;
     }
 
-    /**
-     * @param rawData
-     */
     ProRegister(String rawData) {
         this.rawData = rawData;
         this.cacheable = true;
@@ -86,17 +68,14 @@ class ProRegister {
         fields = Arrays.asList(tmp.split(","));
     }
 
-    /** id as byte[] */
     public byte[] getId(){
         return id.getBytes();
     }
 
-    /** nr of fields */
     int size(){
         return fields.size();
     }
 
-    /** iterator over all the fields */
     Iterator iterator(){
         return fields.iterator();
     }
@@ -147,10 +126,12 @@ class ProRegister {
             tmp = tmp.substring(1, tmp.length()-1); // remove braces ()
             List f = Arrays.asList(tmp.split(",", -1));
 
-            if( cacheable )
+            if( cacheable ) {
                 fields = f;
-            else
-                return (String)f.get(fieldIdx);
+            }
+            else {
+                return (String) f.get(fieldIdx);
+            }
 
         }
 
@@ -264,7 +245,9 @@ class ProRegister {
 
         String data = asString(fieldIdx);
 
-        if( Utils.isNull(data) ) return null;
+        if( Checks.is(data).emptyOrOnlyWhiteSpace() ) {
+            return null;
+        }
 
         int idx = data.indexOf('*');
 
@@ -297,7 +280,7 @@ class ProRegister {
     }
 
     boolean isEmpty(int fieldIdx) throws IOException {
-        return asString(fieldIdx).length() == 0;
+        return asString(fieldIdx).isEmpty();
     }
 
     public String toString( ){

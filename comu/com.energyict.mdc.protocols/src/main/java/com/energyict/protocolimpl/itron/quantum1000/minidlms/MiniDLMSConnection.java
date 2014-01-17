@@ -11,11 +11,10 @@
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -34,8 +33,6 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
     private static final int DEBUG=0;
     private static final long TIMEOUT=60000;
 
-    InputStream inputStream;
-    OutputStream outputStream;
     private int echoCancelling;
     private HalfDuplexController halfDuplexController;
     private int timeout;
@@ -82,7 +79,7 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
                               HalfDuplexController halfDuplexController,
                               int timeout,
                               int securityLevel,
-                              int clientAddress) throws ConnectionException {
+                              int clientAddress) {
 
         super(inputStream,outputStream,forcedDelay,echoCancelling,halfDuplexController);
         this.setTimeout(timeout);
@@ -183,36 +180,46 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
     }
 
     public void incSendSequence() {
-        if (sendSequence++ >=7) sendSequence=0;
+        if (sendSequence++ >=7) {
+            sendSequence = 0;
+        }
     }
 
     public int getReceiveSequencePlus1() {
         int temp = receiveSequence;
-        if (temp++ >=7) temp=0;
+        if (temp++ >=7) {
+            temp = 0;
+        }
         return temp;
     }
+
     public int getSendSequencePlus1() {
         int temp = sendSequence;
-        if (temp++ >=7) temp=0;
+        if (temp++ >=7) {
+            temp = 0;
+        }
         return temp;
     }
 
     public void incReceiveSequence() {
-        if (receiveSequence++ >=7) receiveSequence=0;
+        if (receiveSequence++ >=7) {
+            receiveSequence = 0;
+        }
     }
 
     protected byte[] escapeData(byte[] data) {
         ByteArrayOutputStream escapedData = new ByteArrayOutputStream();
         escapedData.reset();
         for (int i=0;i<data.length;i++) {
-            if ((data[i] == EVENT_START_FLAG) || (data[i] == EVENT_END_FLAG) || (data[i] == EVENT_ESCAPE_FLAG))
+            if ((data[i] == EVENT_START_FLAG) || (data[i] == EVENT_END_FLAG) || (data[i] == EVENT_ESCAPE_FLAG)) {
                 escapedData.write(EVENT_ESCAPE_FLAG);
+            }
             escapedData.write(data[i]);
         }
         return escapedData.toByteArray();
     }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         this.setNodeId(nodeId);
         return null;
     }
@@ -225,15 +232,15 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
     }
 
 
-    static public int getEVENT_START_FLAG() {
+    public static int getEVENT_START_FLAG() {
         return EVENT_START_FLAG;
     }
 
-    static public int getEVENT_END_FLAG() {
+    public static int getEVENT_END_FLAG() {
         return EVENT_END_FLAG;
     }
 
-    static public int getEVENT_ESCAPE_FLAG() {
+    public static int getEVENT_ESCAPE_FLAG() {
         return EVENT_ESCAPE_FLAG;
     }
 
@@ -288,40 +295,34 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
     public String receiveIdentifyResponse() throws IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
-        int index=0;
-        int state = STATE_RECEIVE_NOPACKET;
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 
         interFrameTimeout = System.currentTimeMillis() + timeout;
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> timeout="+timeout);
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> timeout=" + timeout);
+        }
 
         resultArrayOutputStream.reset();
 
         copyEchoBuffer();
         while(true) {
             if ((kar = readIn()) != -1) {
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
-                }
                 resultArrayOutputStream.write(kar);
-                if (kar==0) return new String(resultArrayOutputStream.toByteArray());
-            } // if ((kar = readIn()) != -1)
-
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+                if (kar==0) {
+                    return new String(resultArrayOutputStream.toByteArray());
+                }
+            }
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receivePacketStateMachine() response timeout error",TIMEOUT_ERROR);
             }
-
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receivePacketStateMachine() interframe timeout error",TIMEOUT_ERROR);
             }
-
-        } // while(true)
-
-    } // private String receiveIdentifyResponse() throws IOException
+        }
+    }
 
     protected Frame receivePacketStateMachine() throws IOException {
         long protocolTimeout,interFrameTimeout;
@@ -334,22 +335,17 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> timeout="+timeout);
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> timeout=" + timeout);
+        }
 
         resultArrayOutputStream.reset();
 
         copyEchoBuffer();
         while(true) {
             if ((kar = readIn()) != -1) {
-
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
-                }
                 switch(state) {
-
                     case STATE_RECEIVE_NOPACKET: {
-
                        if (kar==getEVENT_START_FLAG()) {
                            state = STATE_RECEIVE_BUILDING_PACKET;
                            index=0;
@@ -378,10 +374,12 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
 
                             // calc CRC
                             byte[] data = resultArrayOutputStream.toByteArray();
-                            if (CRCGenerator.calcCRC16(data)==0)
+                            if (CRCGenerator.calcCRC16(data)==0) {
                                 return new Frame(data);
-                            else
-                                throw new ProtocolConnectionException("receivePacketStateMachine() crc error",CRC_ERROR);
+                            }
+                            else {
+                                throw new ProtocolConnectionException("receivePacketStateMachine() crc error", CRC_ERROR);
+                            }
 
                         }
                         else if (kar==getEVENT_ESCAPE_FLAG()) {
@@ -398,21 +396,16 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
 
                     } break; // STATE_RECEIVE_BUILDING_PACKET
 
-                } // switch(state)
-
-            } // if ((kar = readIn()) != -1)
-
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+                }
+            }
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receivePacketStateMachine() response timeout error",TIMEOUT_ERROR);
             }
-
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receivePacketStateMachine() interframe timeout error",TIMEOUT_ERROR);
             }
-
-        } // while(true)
-
-    } // private byte[] receivePacketStateMachine() throws IOException {
+        }
+    }
 
     public byte getTIMEOUT_ERROR() {
         return super.TIMEOUT_ERROR;
@@ -461,30 +454,30 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
         this.receiveSequence = receiveSequence;
     }
 
-    static public int getPACKET_TYPE_SABM() {
+    public static int getPACKET_TYPE_SABM() {
         return PACKET_TYPE_SABM;
     }
 
-    static public int getPACKET_TYPE_UA() {
+    public static int getPACKET_TYPE_UA() {
         return PACKET_TYPE_UA;
     }
 
-    static public int getPACKET_TYPE_RR() {
+    public static int getPACKET_TYPE_RR() {
         return PACKET_TYPE_RR;
     }
 
-    static public int getPACKET_TYPE_REJ() {
+    public static int getPACKET_TYPE_REJ() {
         return PACKET_TYPE_REJ;
     }
 
-    static public int getPACKET_TYPE_UI() {
+    public static int getPACKET_TYPE_UI() {
         return PACKET_TYPE_UI;
     }
 
-    static public int getPACKET_TYPE_I() {
+    public static int getPACKET_TYPE_I() {
         return PACKET_TYPE_I;
     }
-    static public int getPACKET_TYPE_IP() {
+    public static int getPACKET_TYPE_IP() {
         return PACKET_TYPE_I|0x08;
     }
 
@@ -496,4 +489,4 @@ public class MiniDLMSConnection extends Connection  implements ProtocolConnectio
         this.receiverStateMachine = receiverStateMachine;
     }
 
-} // public class MiniDLMSConnection extends Connection
+}

@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionTypeTest;
 
 import java.util.Set;

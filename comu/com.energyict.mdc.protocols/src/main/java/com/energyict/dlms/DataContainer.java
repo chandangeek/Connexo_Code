@@ -6,9 +6,8 @@
 
 package com.energyict.dlms;
 
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -48,7 +47,7 @@ public class DataContainer implements Serializable {
 	public String getText(String delimiter) {
 		DataStructure dataStructure;
 		int iparseLevel=0,i;
-		StringBuffer strout = new StringBuffer();
+		StringBuilder strout = new StringBuilder();
 
 		int[] iLength = new int[getMaxLevel()+1];
 		int[] iCount = new int[getMaxLevel()+1];
@@ -59,22 +58,22 @@ public class DataContainer implements Serializable {
 		}
 		iLength[iparseLevel] = getRoot().element.length;
 		dataStructure = getRoot();
-		strout.append("DC("+iLength[iparseLevel]+")"+delimiter);
+		strout.append("DC(").append(iLength[iparseLevel]).append(")").append(delimiter);
 		do
 		{
 			while (++iCount[iparseLevel] < iLength[iparseLevel]) {
 				for (i=0;i<iparseLevel;i++) {
 					//strout.append("        ");
 					if (i==(iparseLevel-1)) {
-						strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+						strout.append(" (").append(iparseLevel).append("/").append(iCount[iparseLevel] + 1).append(") ");
 					}
 				}
 				if (dataStructure.isLong(iCount[iparseLevel])) {
-					strout.append(dataStructure.getLong(iCount[iparseLevel])+delimiter);
+					strout.append(dataStructure.getLong(iCount[iparseLevel])).append(delimiter);
 				}
 
 				if (dataStructure.isInteger(iCount[iparseLevel])) {
-					strout.append(dataStructure.getInteger(iCount[iparseLevel])+delimiter);
+					strout.append(dataStructure.getInteger(iCount[iparseLevel])).append(delimiter);
 				}
 
 				if (dataStructure.isOctetString(iCount[iparseLevel])) {
@@ -95,7 +94,7 @@ public class DataContainer implements Serializable {
 					}
 
 					if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6) {
-						strout.append("("+DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray())+")");
+						strout.append("(").append(DLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray())).append(")");
 					}
 
 
@@ -104,11 +103,11 @@ public class DataContainer implements Serializable {
 				}
 
 				if (dataStructure.isString(iCount[iparseLevel])) {
-					strout.append(dataStructure.getString(iCount[iparseLevel])+delimiter);
+					strout.append(dataStructure.getString(iCount[iparseLevel])).append(delimiter);
 				}
 
 				if (dataStructure.isStructure(iCount[iparseLevel])) {
-					strout.append("S("+dataStructure.getStructure(iCount[iparseLevel]).element.length+")"+delimiter);
+					strout.append("S(").append(dataStructure.getStructure(iCount[iparseLevel]).element.length).append(")").append(delimiter);
 					iparseLevel++;
 					iLength[iparseLevel] = dataStructure.getStructure(iCount[iparseLevel-1]).element.length;
 					dataStructure = dataStructure.getStructure(iCount[iparseLevel-1]);
@@ -130,7 +129,7 @@ public class DataContainer implements Serializable {
 	public String doPrintDataContainer() {
 		DataStructure dataStructure;
 		int iparseLevel=0,i;
-		StringBuffer strout = new StringBuffer();
+		StringBuilder strout = new StringBuilder();
 
 		int[] iLength = new int[getMaxLevel()+1];
 		int[] iCount = new int[getMaxLevel()+1];
@@ -141,24 +140,24 @@ public class DataContainer implements Serializable {
 		}
 		iLength[iparseLevel] = getRoot().element.length;
 		dataStructure = getRoot();
-		strout.append("DataContainer with "+iLength[iparseLevel]+" elements\n");
+		strout.append("DataContainer with ").append(iLength[iparseLevel]).append(" elements\n");
 		do
 		{
 			while (++iCount[iparseLevel] < iLength[iparseLevel]) {
 				for (i=0;i<iparseLevel;i++) {
 					strout.append("        ");
 					if (i==(iparseLevel-1)) {
-						strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+						strout.append(" (").append(iparseLevel).append("/").append(iCount[iparseLevel] + 1).append(") ");
 					}
 				}
 				if (dataStructure.isLong(iCount[iparseLevel])) {
 					strout.append("Long: ");
-					strout.append(dataStructure.getLong(iCount[iparseLevel])+"\n");
+					strout.append(dataStructure.getLong(iCount[iparseLevel])).append("\n");
 				}
 
 				if (dataStructure.isInteger(iCount[iparseLevel])) {
 					strout.append("Integer: ");
-					strout.append(dataStructure.getInteger(iCount[iparseLevel])+"\n");
+					strout.append(dataStructure.getInteger(iCount[iparseLevel])).append("\n");
 				}
 
 				if (dataStructure.isOctetString(iCount[iparseLevel])) {
@@ -181,11 +180,11 @@ public class DataContainer implements Serializable {
 					}
 
 					if (octetString.getArray().length == 6) {
-						strout.append(" "+DLMSUtils.getInfoLN(octetString.getArray()));
+						strout.append(" ").append(DLMSUtils.getInfoLN(octetString.getArray()));
 					}
 
                     if (octetString.getArray().length == 12) {
-                        strout.append(" Date="+octetString.toDate());
+                        strout.append(" Date=").append(octetString.toDate());
                     }
 
 					strout.append("\n");
@@ -194,11 +193,11 @@ public class DataContainer implements Serializable {
 
 				if (dataStructure.isString(iCount[iparseLevel])) {
 					strout.append("String: ");
-					strout.append(dataStructure.getString(iCount[iparseLevel])+"\n");
+					strout.append(dataStructure.getString(iCount[iparseLevel])).append("\n");
 				}
 
 				if (dataStructure.isStructure(iCount[iparseLevel])) {
-					strout.append("Struct with "+dataStructure.getStructure(iCount[iparseLevel]).element.length+" elements.\n");
+					strout.append("Struct with ").append(dataStructure.getStructure(iCount[iparseLevel]).element.length).append(" elements.\n");
 					iparseLevel++;
 					iLength[iparseLevel] = dataStructure.getStructure(iCount[iparseLevel-1]).element.length;
 					dataStructure = dataStructure.getStructure(iCount[iparseLevel-1]);
@@ -303,7 +302,12 @@ public class DataContainer implements Serializable {
         for (int i = 0; i < 23; i++) {
             fraction += Integer.parseInt(fractionPart.substring(i, i + 1)) * Math.pow(2, -1 - i);
         }
-        return (exponent > 0) ? ((float) ((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction) : 0;
+        if (exponent > 0) {
+            return ((float) ((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction);
+        }
+        else {
+            return 0;
+        }
     }
 
     public float getFloat64(byte[] byteBuffer, int iOffset) throws DataContainerException {
@@ -329,7 +333,12 @@ public class DataContainer implements Serializable {
         for (int i = 0; i < 52; i++) {
             fraction += Integer.parseInt(fractionPart.substring(i, i + 1)) * Math.pow(2, -1 - i);
         }
-        return (exponent > 0) ? ((float) ((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction)) : 0;
+        if (exponent > 0) {
+            return ((float) ((Math.pow(-1, signBit)) * Math.pow(2, exponent - 1023)) * new Float(fraction));
+        }
+        else {
+            return 0;
+        }
     }
 
     public void addStructure(int iNROfElements) throws DataContainerException {
@@ -371,8 +380,7 @@ public class DataContainer implements Serializable {
 		int i=0,temp;
 		int iLevel=0;
 		int[] LevelNROfElements = new int[MAX_LEVELS];
-		for (temp=0;temp<20;temp++)
-		{
+		for (temp=0;temp<20;temp++){
 			LevelNROfElements[temp]=0;
 		}
 		if(responseData != null){
@@ -389,39 +397,39 @@ public class DataContainer implements Serializable {
 						if (iLevel++ >= (MAX_LEVELS-1)) {
 							throw new IOException("Max printlevel exceeds!");
 						}
-						
-						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
+
+						LevelNROfElements[iLevel] = DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						
-						
+
+
 					} break; // TYPEDESC_ARRAY
-					
+
 					case STRUCTURE:
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
 							throw new IOException("Max printlevel exceeds!");
 						}
-						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
+						LevelNROfElements[iLevel] = DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						
+
 					} break; // TYPEDESC_STRUCTURE
-					
+
 					case NULL:
 					{
 						i++;
 						addInteger(0);
 					} break;
-					
+
 					case LONG:
 					case LONG_UNSIGNED:
 					{
 						i++;
 						addInteger(ProtocolUtils.getShort(responseData,i));
 						i+=2;
-						
+
 					} break;
 
 					case VISIBLE_STRING:
@@ -429,7 +437,7 @@ public class DataContainer implements Serializable {
 					{
 						int t,s;
 						i++;
-						t = (int)DLMSUtils.getAXDRLength(responseData,i);
+						t = DLMSUtils.getAXDRLength(responseData,i);
 						byte[] array = new byte[t];
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 						for (s=0;s<t;s++) {
@@ -438,7 +446,7 @@ public class DataContainer implements Serializable {
 						addOctetString(array);
 						i += t;
 					} break;
-					
+
 					case DOUBLE_LONG:
 					case DOUBLE_LONG_UNSIGNED:
 					{
@@ -446,7 +454,7 @@ public class DataContainer implements Serializable {
 						addInteger(ProtocolUtils.getInt(responseData,i));
 						i+=4;
 					} break;
-					
+
 					case BCD:
 					case ENUM:
 					case INTEGER:
@@ -457,8 +465,8 @@ public class DataContainer implements Serializable {
 						addInteger(responseData[i]&0xFF);
 						i++;
 					} break;
-					
-					
+
+
 					case LONG64:
                     case LONG64_UNSIGNED:
 					{
@@ -466,47 +474,47 @@ public class DataContainer implements Serializable {
 						addLong(ProtocolUtils.getLong(responseData,i));
 						i+=8;
 					} break;
-					
+
 					case BIT_STRING:
 					{
 						int t,s;
 						i++;
-						t = (int)DLMSUtils.getAXDRLength(responseData,i);
+						t = DLMSUtils.getAXDRLength(responseData,i);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
-						
+
 						// calc nr of bytes
 						if ((t%8) == 0) {
 							t = (t/8);
 						} else {
 							t = ((t/8)+1);
 						}
-						
+
 						int iValue=0;
 						for (s=0;s<t;s++) {
 							iValue += ((responseData[i+s]&0xff)<<(s*8));
 						}
 						addInteger(iValue);
-						
+
 						i+=t;
-						
+
 					} break; // TYPEDESC_BITSTRING
-					
+
 					case FLOATING_POINT:
 					{
 						i++;
 						addInteger(0); // TODO
 						i+=4;
-						
+
 					} break; // TYPEDESC_FLOATING_POINT
-					
+
 					case TIME:
 					{
 						i++;
 						addInteger(0); // TODO
 						i+=4; // ??? generalizedTime
-						
+
 					} break; // TYPEDESC_TIME
-					
+
 					case COMPACT_ARRAY:
 					{
 						i++;
@@ -532,7 +540,7 @@ public class DataContainer implements Serializable {
 						i++;
 					} break;
 					}
-					
+
 					while(true)
 					{
 						if (--LevelNROfElements[iLevel] <0)
@@ -549,49 +557,23 @@ public class DataContainer implements Serializable {
 				}
 				catch(DataContainerException e) {
 					if (logger == null) {
-						System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						System.out.println(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					} else {
-						logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						logger.severe(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					}
 					return;
 				}
-				
+
 				if (i>=responseData.length) {
 					return;
 				}
-				
-			} // while(true)
+
+			}
 		} else {
 			return;
 		}
 
-	} //  void parseObjectList(byte[] responseData)
-
-
-	public static void main(String[] args) {
-		try {
-			DataContainer dc = new DataContainer();
-
-			//		   byte b[] = new byte[]{(byte)0x1, (byte)0x4, (byte)0x2, (byte)0x2, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2,
-			//				   (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x2B, (byte)0x2D, (byte)0x0,
-			//				   (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7,
-			//				   (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x23, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0,
-			//				   (byte)0x12, (byte)0x0, (byte)0x80, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12,
-			//				   (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x26, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x0, (byte)0x40};
-			//
-			//		   dc.parseObjectList(b, null);
-			//
-			//		   dc.printDataContainer();
-
-			byte by[] = DLMSUtils.hexStringToByteArray("010d0204090c07d80915070c0f0000ff88801120060000000006000000000204090c07d8091507152d0000ff88801120060000000006000000000204090c07d9020403152d0000ffc4001180060000000006000000000204090c07d902050408000000ffc4001180060000000006000000000204090c07d9020a0207000000ffc40011c00600000000060000000002040011e006000001d40600000000020400110006000001de06000000000204001100060000062a060000000002040011000600000770060000000202040011000600000770060000000a0204001100060000077006000003c9020400110006000007700600000565020400118006000007700600000565");
-			dc = new DataContainer();
-			dc.parseObjectList(by, null);
-			dc.printDataContainer();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
-} // class DataContainer
+}
 

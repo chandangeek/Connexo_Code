@@ -1,17 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterReading;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.device.Register;
+import com.energyict.mdc.protocol.api.device.RegisterReading;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;

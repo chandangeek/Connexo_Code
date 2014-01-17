@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaran;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

@@ -1,24 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.ManagerImpl;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.interfaces.mdw.Mdw2MdcInterfaceImpl;
-import com.energyict.mdc.messages.DeviceMessageAttribute;
-import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
-import com.energyict.mdc.messages.DeviceMessageSpecFactoryImpl;
-import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdw.core.DataVaultProvider;
-import com.energyict.mdw.core.RandomProvider;
-import com.energyict.mdw.cryptoimpl.KeyStoreDataVaultProvider;
-import com.energyict.mdw.cryptoimpl.SecureRandomProvider;
-import com.energyict.mdw.interfacing.mdc.DefaultMdcInterfaceProvider;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.common.DataVaultProvider;
+import com.energyict.mdc.protocol.api.messaging.Messaging;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.invocation.InvocationOnMock;
@@ -138,7 +129,7 @@ public abstract class AbstractMessageConverterTest {
     protected abstract Object getPropertySpecValue(PropertySpec propertySpec);
 
     /**
-     * An offline implementation version of an {@link com.energyict.mdc.messages.DeviceMessageAttribute} used for test purposes.
+     * An offline implementation version of an {@link DeviceMessageAttribute} used for test purposes.
      */
     private class TestOfflineDeviceMessageAttribute implements OfflineDeviceMessageAttribute {
 

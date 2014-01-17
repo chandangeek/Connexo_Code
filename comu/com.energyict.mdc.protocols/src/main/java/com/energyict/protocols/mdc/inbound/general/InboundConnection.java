@@ -1,7 +1,8 @@
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
+import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.DeployFrame;
@@ -84,7 +85,7 @@ public class InboundConnection {
      * Read in a frame after the I request was sent.
      * This method reads in bytes until a timeout occurs and returns the result.
      *
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
+     * @throws ComServerExecutionException
      *          when no bytes were received after a certain time
      */
     public String readVariableFrame() throws InboundTimeOutException {
@@ -118,7 +119,7 @@ public class InboundConnection {
      *
      * @param retryRequest this is what we send in case of timeouts. Nothing is sent if the request is null.
      * @return the full inbound frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
+     * @throws ComServerExecutionException
      *          if a timeout occurs
      */
     public AbstractInboundFrame readInboundFrame(byte[] retryRequest) throws InboundTimeOutException {
@@ -139,7 +140,7 @@ public class InboundConnection {
      *
      * @param frame the received string
      * @return the parsing result
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
+     * @throws ComServerExecutionException
      *          when an unknown frame type was received
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
@@ -158,7 +159,7 @@ public class InboundConnection {
         if (frame.contains(REGISTER_TAG)) {
             return new RegisterFrame(frame, serialNumberPlaceHolder);
         }
-        throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
+        throw InboundFrameException.unexpectedFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }
 
     private String getFrameTag(String frame) {
@@ -172,7 +173,7 @@ public class InboundConnection {
      * @param retryRequest in case of timeouts, send a retry.
      * @param endString    Stop reading in bytes when this string is found. If null, read in bytes until a timeout occurs.
      * @return the partial frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
+     * @throws ComServerExecutionException
      *          in case of timeout after x retries
      */
     private String readVariableLength(String endString, byte[] retryRequest) throws InboundTimeOutException {
@@ -215,7 +216,7 @@ public class InboundConnection {
      * @param length       the number of bytes that should be read
      * @param retryRequest in case of timeouts, send a retry.
      * @return the bytes that were read out
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
+     * @throws ComServerExecutionException
      *          in case of timeout after x retries
      */
     private String readFixedLength(int length, byte[] retryRequest) {
@@ -230,7 +231,7 @@ public class InboundConnection {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + timeout;
                 if (retryCount > retries) {
-                    throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException("Timeout while waiting for inbound frame, after " + timeout + " ms, using " + retries + " retries.");
+                    throw InboundFrameException.timeout("Timeout while waiting for inbound frame, after " + timeout + " ms, using " + retries + " retries.");
                 }
                 if (retryRequest != null) {    //Send retry and wait again
                     send(retryRequest);

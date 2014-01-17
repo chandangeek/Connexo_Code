@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 import java.io.IOException;
 import java.util.ArrayList;

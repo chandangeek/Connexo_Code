@@ -1,18 +1,15 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.interval.TimeSeriesGenerator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -26,27 +23,25 @@ import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
 
 public class Nexus1272 extends AbstractProtocol  {
 
 	private NexusProtocolConnection connection;
 	private OutputStream outputStream;
 
-	List <LinePoint> masterlpMap = new ArrayList<LinePoint>();;
+	List <LinePoint> masterlpMap = new ArrayList<>();;
 	List <LinePoint> mtrlpMap = null;
-	List<LinePoint> chnlpMap = new ArrayList<LinePoint>();
+	List<LinePoint> chnlpMap = new ArrayList<>();
 	private long start;
 	private int numChannels;
 	private ScaledEnergySettingFactory sesf;
@@ -75,15 +70,12 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	@Override
 	protected void doDisConnect() throws IOException {
-		long duration = System.currentTimeMillis() - start;
-//		System.out.println("Took " + duration + " ms");
-
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List doGetOptionalKeys() {
-		ArrayList al = new ArrayList();
+	protected List<String> doGetOptionalKeys() {
+		List<String> al = new ArrayList<>();
 		al.add("NexusChannelMapping");
 		al.add("Delta Wired");
 		return al;
@@ -106,33 +98,34 @@ public class Nexus1272 extends AbstractProtocol  {
 	throws MissingPropertyException, InvalidPropertyException {
 		channelMapping = properties.getProperty("NexusChannelMapping","");
 
-		if (!channelMapping.equals(""))
-			chnlpMap = processChannelMapping(channelMapping);
+		if (!"".equals(channelMapping)) {
+            chnlpMap = processChannelMapping(channelMapping);
+        }
 		if ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)) {
 			throw new MissingPropertyException("Password must be set");
 		}
 
-		if (properties.getProperty("Delta Wired", "0").equals("1")) {
+		if ("1".equals(properties.getProperty("Delta Wired", "0"))) {
 			isDeltaWired  = true;
 		}
 
 
 		String str = getInfoTypePassword();
-		StringBuffer strbuff = new StringBuffer();
-        strbuff.append(str);
+		StringBuilder builder = new StringBuilder();
+        builder.append(str);
         int length = 10;
         if (length >= str.length()) {
 			for (int i=0;i<(length-str.length());i++) {
-				strbuff.append(' ');
+				builder.append(' ');
 			}
 		}
-		password = strbuff.toString();
+		password = builder.toString();
 
 
 	}
 
 	@Override
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 		String fwVersion = "";
@@ -200,51 +193,19 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	}
 
-	public static void main(String[] args) throws IOException {
-		Calendar c = Calendar.getInstance();
-		TimeZone tz = TimeZone.getTimeZone("America/Chicago");
-		c.setTimeZone(tz);
-		c.set(Calendar.MONTH, Calendar.NOVEMBER);
-		c.set(Calendar.DAY_OF_MONTH, 6);
-		c.set(Calendar.HOUR_OF_DAY, 20);
-		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.SECOND, 0);
-		c.set(Calendar.MILLISECOND, 0);
-		Date from = c.getTime();
-		c.add(Calendar.DAY_OF_MONTH, 1);
-		Date to = c.getTime();
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-		timeFormat.setTimeZone(tz);
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		dateFormat.setTimeZone(tz);
-
-		SimpleDateFormat tzFormat = new SimpleDateFormat("Z");
-		tzFormat.setTimeZone(tz);
-
-		TimeSeriesGenerator tsg = new TimeSeriesGenerator(900, from, to);
-		System.out.println("From " + from + " to " + to);
-		while (tsg.hasNext()) {
-			Date d = tsg.next();
-			System.out.println(dateFormat.format(d) + "T" + timeFormat.format(d) + tzFormat.format(d).substring(0, 3)+":"+tzFormat.format(d).substring(3));
-		}
-
-
-	}
-
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-
-		if (channelMapping.equals(""))
-			throw new IOException("NexusChannelMapping custom property must be set to read profile data");
+		if ("".equals(channelMapping)) {
+            throw new IOException("NexusChannelMapping custom property must be set to read profile data");
+        }
 
 		sesf = new ScaledEnergySettingFactory(outputStream, connection);
 
 		ProfileData profileData = new ProfileData();
 		buildChannelInfo(profileData);
-	    buildIntervalData(profileData,from, to);
+	    buildIntervalData(profileData,from);
 	    if (includeEvents) {
-	    	buildEventLog(profileData,from,to);
+	    	buildEventLog(profileData,from);
 	        profileData.applyEvents(getProfileInterval()/60);
 	    }
 
@@ -261,8 +222,7 @@ public class Nexus1272 extends AbstractProtocol  {
 		   sesf = new ScaledEnergySettingFactory(outputStream, connection);
 	   }
        ObisCodeMapper ocm = new ObisCodeMapper(NexusCommandFactory.getFactory(), connection, outputStream, sesf, isDeltaWired);
-       RegisterValue rv = ocm.getRegisterValue(obisCode);
-       return rv;
+       return ocm.getRegisterValue(obisCode);
    }
 
    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -270,7 +230,7 @@ public class Nexus1272 extends AbstractProtocol  {
    }
 
 
-	private void buildEventLog(ProfileData profileData, Date from, Date to) throws IOException {
+	private void buildEventLog(ProfileData profileData, Date from) throws IOException {
 		LogReader
 		lr = new SystemLogReader(outputStream, connection);
 		byte[] byteArray = lr.readLog(from);
@@ -292,8 +252,9 @@ public class Nexus1272 extends AbstractProtocol  {
 		c.setNumRegisters(AbstractCommand.intToByteArray(1));
 		outputStream.write(c.build());
 		NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
-		if (ndp.parseF51() != 0)
-			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Sanity Register not 0"));
+		if (ndp.parseF51() != 0) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Sanity Register not 0"));
+        }
 
 		//check low battery register
 		c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
@@ -301,8 +262,9 @@ public class Nexus1272 extends AbstractProtocol  {
 		c.setNumRegisters(AbstractCommand.intToByteArray(1));
 		outputStream.write(c.build());
 		ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
-		if ((ndp.parseF51() & 0x8000) == 0x8000)
-			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Battery Low"));
+		if ((ndp.parseF51() & 0x8000) == 0x8000) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "Battery Low"));
+        }
 
 		//check Nexus Comm operation indicator
 		c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
@@ -310,8 +272,9 @@ public class Nexus1272 extends AbstractProtocol  {
 		c.setNumRegisters(AbstractCommand.intToByteArray(1));
 		outputStream.write(c.build());
 		ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
-		if ((ndp.parseF51() & 0x0001) == 0x0001)
-			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "RAM Failure"));
+		if ((ndp.parseF51() & 0x0001) == 0x0001) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "RAM Failure"));
+        }
 
 		//check Nexus DSP operation indicator
 		c = (ReadCommand) NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
@@ -319,13 +282,14 @@ public class Nexus1272 extends AbstractProtocol  {
 		c.setNumRegisters(AbstractCommand.intToByteArray(1));
 		outputStream.write(c.build());
 		ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
-		if ((ndp.parseF51() & 0x0001) == 0x0001)
-			meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "RAM Failure"));
+		if ((ndp.parseF51() & 0x0001) == 0x0001) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.METER_ALARM, "RAM Failure"));
+        }
 
 		profileData.setMeterEvents(meterEvents);
 	}
 
-	private void buildIntervalData(ProfileData profileData, Date from, Date to) throws IOException {
+	private void buildIntervalData(ProfileData profileData, Date from) throws IOException {
 		LogReader lr = new Historical2LogReader(outputStream, connection, mtrlpMap, masterlpMap, sesf);
 		byte[] ba = lr.readLog(from);
 		lr.parseLog(ba, profileData, from, intervalLength);
@@ -342,7 +306,7 @@ public class Nexus1272 extends AbstractProtocol  {
 		buildMasterLPMap();
 
 		for (LinePoint lp : masterlpMap) {
-			ScaledEnergySetting ses = null;
+			ScaledEnergySetting ses;
 			Unit unit = Unit.getUndefined();
 			if (lp.isScaled()) {
 				ses = sesf.getScaledEnergySetting(lp);
@@ -369,24 +333,27 @@ public class Nexus1272 extends AbstractProtocol  {
 					break;
 				}
 			}
-			if (!added)
-			throw new IOException("Line " + lp.getLine() + " Point " + lp.getPoint() + " not found in the meter's log");
+			if (!added) {
+                throw new IOException("Line " + lp.getLine() + " Point " + lp.getPoint() + " not found in the meter's log");
+            }
 		}
 
 	}
 
 	private List <LinePoint> processChannelMapping(String channelMapping2) throws InvalidPropertyException {
-		List <LinePoint> ret = new ArrayList <LinePoint> ();
+		List <LinePoint> ret = new ArrayList<>();
 		String[] lpStrs = channelMapping2.split(",");
 		for (int i = 0; i<lpStrs.length; i++) {
 			String[] chnLPStr = lpStrs[i].split("=");
-			if (chnLPStr.length != 2)
-				throw new InvalidPropertyException("Malformed Nexus Channel Mapping custom property");
+			if (chnLPStr.length != 2) {
+                throw new InvalidPropertyException("Malformed Nexus Channel Mapping custom property");
+            }
 			int chan = Integer.parseInt(chnLPStr[0]);
 			String toSplit = chnLPStr[1];
 			String[] lpStr = toSplit.split("\\.");
-			if (lpStr.length != 2)
-				throw new InvalidPropertyException("Malformed Nexus Channel Mapping custom property");
+			if (lpStr.length != 2) {
+                throw new InvalidPropertyException("Malformed Nexus Channel Mapping custom property");
+            }
 			LinePoint lp = new LinePoint(Integer.parseInt(lpStr[0]), Integer.parseInt(lpStr[1]), chan);
 			ret.add(lp);
 		}
@@ -395,7 +362,7 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	private List<LinePoint> processPointers(byte[] ba) throws IOException {
 		int offset = 0;
-		List <LinePoint> lpMap = new ArrayList <LinePoint> ();
+		List <LinePoint> lpMap = new ArrayList<>();
 		while (offset <= ba.length-4) {
 			if (ba[offset] == -1 && ba[offset+1] == -1) {
 				offset += 4;
@@ -412,7 +379,9 @@ public class Nexus1272 extends AbstractProtocol  {
 
 	@Override
 	protected void validateSerialNumber() throws IOException {
-		if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+		if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
 		Command command = NexusCommandFactory.getFactory().getSerialNumberCommand();
 		outputStream.write(command.build());
 		byte[] data = connection.receiveWriteResponse(command).toByteArray();
@@ -420,8 +389,9 @@ public class Nexus1272 extends AbstractProtocol  {
 		NexusDataParser ndp = new NexusDataParser(data);
 
 		String sn = ndp.parseSN();
-		if (sn.compareTo(getInfoTypeSerialNumber()) != 0)
-			throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
+		if (sn.compareTo(getInfoTypeSerialNumber()) != 0) {
+            throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + getInfoTypeSerialNumber());
+        }
 	}
 
 
@@ -440,16 +410,19 @@ public class Nexus1272 extends AbstractProtocol  {
 
 		switch (level) {
 		case 1:
-			if (data[data.length-1] != 0x04 && data[data.length-1] != 0x03)
-				throw new IOException("Level 1 authentication failed");
+			if (data[data.length-1] != 0x04 && data[data.length-1] != 0x03) {
+                throw new IOException("Level 1 authentication failed");
+            }
 			break;
 		case 2:
-			if (data[data.length-1] != 0x04)
-				throw new IOException("Level 2 authentication failed");
+			if (data[data.length-1] != 0x04) {
+                throw new IOException("Level 2 authentication failed");
+            }
 			break;
 		default:
-			if (data[data.length-1] != 0x04)
-				throw new IOException("Level 2 authentication failed (level requested invalid)");
+			if (data[data.length-1] != 0x04) {
+                throw new IOException("Level 2 authentication failed (level requested invalid)");
+            }
 		}
 
 		return true;

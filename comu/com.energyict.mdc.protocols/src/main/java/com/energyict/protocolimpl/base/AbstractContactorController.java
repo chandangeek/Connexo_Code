@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.io.IOException;
 

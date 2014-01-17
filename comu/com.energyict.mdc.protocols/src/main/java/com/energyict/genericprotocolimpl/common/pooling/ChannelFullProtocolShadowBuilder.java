@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.mdw.core.Channel;
+import com.energyict.mdc.protocol.api.device.Channel;
 
 /**
  * Provides functionality to create a fullShadow channel object

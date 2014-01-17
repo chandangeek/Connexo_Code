@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.Calendar;
 import java.util.Date;

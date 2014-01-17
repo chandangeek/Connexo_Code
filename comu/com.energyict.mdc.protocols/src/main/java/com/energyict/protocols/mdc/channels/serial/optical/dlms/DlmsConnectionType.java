@@ -3,9 +3,9 @@ package com.energyict.protocols.mdc.channels.serial.optical.dlms;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.BigDecimalFactory;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
@@ -45,7 +45,7 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     abstract PropertySpec getAddressingModePropertySpec();
 
     final PropertySpec getAddressingModePropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(BigDecimal.class, new BigDecimalFactory());
+        PropertySpecBuilder<BigDecimal> builder = PropertySpecBuilder.forClass(new BigDecimalFactory());
         builder.
             name(PROPERTY_NAME_ADDRESSING_MODE).
             markExhaustive().

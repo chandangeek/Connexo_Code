@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -125,7 +125,7 @@ abstract class AbstractEscapeCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getProtocolStackLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getProtocolStackLink().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

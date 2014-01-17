@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.util.ArrayList;
 import java.util.Iterator;

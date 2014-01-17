@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.din19244.poreg2.factory;
 
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.BankConfiguration;

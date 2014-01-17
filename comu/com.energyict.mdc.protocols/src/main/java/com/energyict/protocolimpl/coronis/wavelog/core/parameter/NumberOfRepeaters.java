@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.wavelog.core.parameter;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavelog.WaveLog;
 
 import java.io.IOException;

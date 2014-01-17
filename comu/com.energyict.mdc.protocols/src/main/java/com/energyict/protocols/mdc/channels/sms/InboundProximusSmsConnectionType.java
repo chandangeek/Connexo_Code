@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.channels.sms;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.util.List;
 

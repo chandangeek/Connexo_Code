@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
 

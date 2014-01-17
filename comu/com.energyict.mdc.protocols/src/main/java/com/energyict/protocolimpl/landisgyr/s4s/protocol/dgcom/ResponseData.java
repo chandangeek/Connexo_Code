@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 /**
  *

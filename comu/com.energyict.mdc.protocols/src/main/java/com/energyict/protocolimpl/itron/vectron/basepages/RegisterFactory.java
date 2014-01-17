@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 import com.energyict.protocolimpl.itron.vectron.Vectron;
 

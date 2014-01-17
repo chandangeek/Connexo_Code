@@ -1,16 +1,19 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.RegisterInfo;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,41 +72,55 @@ public class RegisterFrame extends AbstractInboundFrame {
     private CollectedRegister processRegister (RegisterValue register) {
         CollectedRegister deviceRegister;
         if (register.getObisCode().getF() != 255) {
-            deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime());
         } else if (register.getEventTime() != null) {
-            deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime(), register.getEventTime());
         } else {
-            deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()));
+            deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setReadTime(getInboundParameters().getReadTime());
         }
 
         if (this.getDevice() == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
+            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService()
+                    .newIssueCollector()
+                    .addProblem(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
         } else if (this.getDevice().getRegister(register.getObisCode()) == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
+            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService()
+                    .newIssueCollector()
+                    .addProblem(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
         }
         return deviceRegister;
     }
 
     private CollectedRegisterList getCollectedRegisterList(){
         if(this.collectedRegisterList == null){
-            this.collectedRegisterList = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
+            this.collectedRegisterList = this.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
             getCollectedDatas().add(this.collectedRegisterList);
         }
         return this.collectedRegisterList;
     }
 
-    private CanFindRegister getRegisterIdentifier(ObisCode registerObisCode){
+    private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode){
         return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, registerObisCode, getDeviceIdentifier());
     }
 
     private DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifier() {
         return new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
     }
 
 }

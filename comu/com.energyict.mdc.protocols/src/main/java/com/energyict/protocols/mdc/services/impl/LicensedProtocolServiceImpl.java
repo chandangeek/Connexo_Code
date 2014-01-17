@@ -1,10 +1,10 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.license.LicensedProtocolRule;
+import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdw.core.MeteringWarehouse;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -19,10 +19,10 @@ import java.util.List;
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
     @Override
-    public List<LicensedProtocol> getAllLicensedProtocols() {
+    public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
         for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
-            if(MeteringWarehouse.getCurrent().getLicense().hasProtocol(licensedProtocolRule.getName())){
+            if (license.hasProtocol(licensedProtocolRule.getName())){
                 allLicensedProtocols.add(licensedProtocolRule);
             }
         }

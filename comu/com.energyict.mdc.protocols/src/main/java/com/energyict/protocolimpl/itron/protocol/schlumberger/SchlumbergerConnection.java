@@ -11,11 +11,12 @@
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -41,7 +42,9 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
     private String nodeId;
     int securityLevel;
 
-
+    private final int WAIT_FOR_CONTROL=0;
+    private final int WAIT_FOR_DATA=1;
+    private final int WAIT_FOR_CRC=2;
 
     /** Creates a new instance of DGCOMConnection */
     public SchlumbergerConnection(InputStream inputStream,
@@ -51,16 +54,16 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             long forcedDelay,
             int echoCancelling,
             HalfDuplexController halfDuplexController,
-            int securityLevel) throws ConnectionException {
+            int securityLevel) {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeout = timeout;
         this.maxRetries=maxRetries;
         this.forcedDelay=forcedDelay;
         this.securityLevel=securityLevel;
 
-    } // EZ7Connection(...)
+    }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         this.setNodeId(nodeId);
         return null;
     }
@@ -83,19 +86,20 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
         super.delayAndFlush(delay);
     }
 
-    private void doSendCommand(Command command) throws ConnectionException,IOException {
+    private void doSendCommand(Command command) throws IOException {
         txOutputStream.reset();
-        int checksum=0;
-        if (command.getCommand() != 0)
+        if (command.getCommand() != 0) {
             txOutputStream.write(command.getCommand());
-        if (command.getData() != null)
+        }
+        if (command.getData() != null) {
             txOutputStream.write(command.getData());
+        }
         if (command.getCommand() != (char)ENQ) {
             int crc = CRCGenerator.calcCRCCCITTSchlumberger(txOutputStream.toByteArray());
             txOutputStream.write((crc>>8)&0xFF);
             txOutputStream.write(crc&0xFF);
         }
-    } // void sendData(byte[] cmdData) throws ConnectionException
+    }
 
     private void sendFrame() throws ConnectionException {
         sendOut(txOutputStream.toByteArray());
@@ -123,21 +127,19 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                 }
                 return;
             } catch(ConnectionException e) {
-                if (DEBUG>=1) e.printStackTrace();
-                if (e.getReason() == PROTOCOL_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage());
+                if (DEBUG>=1) {
+                    e.printStackTrace();
+                }
+                if (e.getReason() == PROTOCOL_ERROR) {
+                    throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage());
+                }
                 else {
-
-                    //System.out.println("KV_DEBUG> timeout "+retry);
-
                     if (retry++>=5) {
-                        //return;
-
                         throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                     }
                 }
             }
-        } // while(true)
+        }
     }
 
     // continue receiving until 1500 ms timeout receiving garbage
@@ -147,16 +149,15 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
 
         receiveTimeout = System.currentTimeMillis() + 1500;
         while(true) {
-
             if ((kar = readIn()) != -1) {
                 receiveTimeout = System.currentTimeMillis() + 1500;
             }
 
-            if (((long) (System.currentTimeMillis() - receiveTimeout)) > 0) {
+            if (System.currentTimeMillis() - receiveTimeout > 0) {
                 return;
             }
         }
-    } // public void receiveUntilTimeout() throws IOException
+    }
 
     public Response sendCommand(Command command) throws IOException {
         int retry=0;
@@ -165,28 +166,22 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             try {
                 delayAndFlush(forcedDelay); // KV_DEBUG
                 sendFrame();
-                Response response = receiveResponse(command);
-                return response;
+                return receiveResponse(command);
             } catch(ConnectionException e) {
-                if (DEBUG>=1) e.printStackTrace();
-                if (e.getReason() == PROTOCOL_ERROR)
-                    throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage());
+                if (DEBUG>=1) {
+                    e.printStackTrace();
+                }
+                if (e.getReason() == PROTOCOL_ERROR) {
+                    throw new ProtocolConnectionException("sendCommand() error, " + e.getMessage());
+                }
                 else {
                     if (retry++>=maxRetries) {
                         throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                     }
                 }
             }
-        } // while(true)
+        }
     }
-
-
-
-
-    private final int WAIT_FOR_CONTROL=0;
-    private final int WAIT_FOR_DATA=1;
-    private final int WAIT_FOR_CRC=2;
-
 
     public Response receiveResponse(Command command) throws IOException {
         return receiveResponse(command,-1);
@@ -203,7 +198,9 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
         protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
 
-        if (DEBUG>=1) System.out.println("KV_DEBUG> timeout="+timeout);
+        if (DEBUG>=1) {
+            System.out.println("KV_DEBUG> timeout=" + timeout);
+        }
 
         resultArrayOutputStream.reset();
 
@@ -211,18 +208,14 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
         while(true) {
 
             if ((kar = readIn()) != -1) {
-
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
-                }
                 resultArrayOutputStream.write(kar);
                 switch(state) {
 
                     case WAIT_FOR_CONTROL: {
                         if (kar == ACK) {
-                            if ((command.isENQCommand()) || (command.isSCommand()))
+                            if ((command.isENQCommand()) || (command.isSCommand())) {
                                 return null;
+                            }
                             else if (command.isICommand()) {
                                 state = WAIT_FOR_DATA;
                                 count = 17; // UNIT_TYPE (3) UNIT_ID (8) MEM_START (3) MEM_STOP (3)
@@ -231,23 +224,25 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                                 state = WAIT_FOR_DATA;
                                 count = command.getExpectedDataLength(); // data length to expect
                             }
-                            else if (command.isDCommand())
+                            else {
                                 return null;
-                            else
-                                return null;
+                            }
                         }
                         else if (kar == NAK) {
                             throw new ProtocolConnectionException("receiveResponse() NAK received, either CRC error or command invalid.",NAK_RECEIVED);
                         }
                         else if (kar == CAN) {
 
-                            if (command.isICommand())
-                                throw new ProtocolConnectionException("receiveResponse() unitId or unitType missing or incorrect...",PROTOCOL_ERROR);
-                            else
-                                throw new ProtocolConnectionException("receiveResponse() error, command cannot be carried out. Probably missing S (security) command before...",PROTOCOL_ERROR);
+                            if (command.isICommand()) {
+                                throw new ProtocolConnectionException("receiveResponse() unitId or unitType missing or incorrect...", PROTOCOL_ERROR);
+                            }
+                            else {
+                                throw new ProtocolConnectionException("receiveResponse() error, command cannot be carried out. Probably missing S (security) command before...", PROTOCOL_ERROR);
+                            }
                         }
-                        else
+                        else {
                             resultArrayOutputStream.reset();
+                        }
 
                     } break; // WAIT_FOR_CONTROL
 
@@ -262,8 +257,9 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                             if (kar == ACK) {
                                 return null;
                             }
-                            else
-                                throw new ProtocolConnectionException("receiveResponse() 0x"+Integer.toHexString(kar)+" received instead of second ACK for the D command...",PROTOCOL_ERROR);
+                            else {
+                                throw new ProtocolConnectionException("receiveResponse() 0x" + Integer.toHexString(kar) + " received instead of second ACK for the D command...", PROTOCOL_ERROR);
+                            }
                         }
                     } break; // WAIT_FOR_DATA
 
@@ -273,7 +269,9 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                             int crc = CRCGenerator.calcCRCCCITTSchlumberger(data);
                             if (crc == 0) {
                                 Response response = new Response(ProtocolUtils.getSubArray2(data, 1, data.length-1));
-                                if (DEBUG>=1) System.out.println("KV_DEBUG> CRC OK, response="+response);
+                                if (DEBUG>=1) {
+                                    System.out.println("KV_DEBUG> CRC OK, response=" + response);
+                                }
                                 return response;
                             }
                             else {
@@ -286,11 +284,11 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
 
             } // if ((kar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveResponse() response timeout error",TIMEOUT_ERROR);
             }
 
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveResponse() interframe timeout error",TIMEOUT_ERROR);
             }
 

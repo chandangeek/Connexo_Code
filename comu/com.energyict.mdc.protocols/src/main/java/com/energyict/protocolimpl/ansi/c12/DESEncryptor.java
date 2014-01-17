@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

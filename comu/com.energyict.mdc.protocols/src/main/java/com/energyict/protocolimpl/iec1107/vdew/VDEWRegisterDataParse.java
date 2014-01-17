@@ -8,9 +8,9 @@ package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,30 +29,30 @@ import java.util.TimeZone;
  * 						year 51 -> 99 = 1951 -> 2099
  *
  */
-abstract public class VDEWRegisterDataParse {
+public abstract class VDEWRegisterDataParse {
 
 	private static final int MAXYEAR = 2050;
 
-	static public final int MODE_WINTERTIME=0;
-	static public final int MODE_SUMMERTIME=1;
-	static public final int MODE_UTCTIME=2;
+	public static final int MODE_WINTERTIME=0;
+	public static final int MODE_SUMMERTIME=1;
+	public static final int MODE_UTCTIME=2;
 
-	public final static int VDEW_STRING=0;
-	public final static int VDEW_DATESTRING=1;
-	public final static int VDEW_TIMESTRING=2;
-	public final static int VDEW_TIMEDATE=3; // (s)HHMMSS(s)YYMMDD
-	public final static int VDEW_QUANTITY=4;
-	public final static int VDEW_DATE_S_TIME=5; // YYMMDDsHHMMSS where s=0 for normal time, 1 for DST and 2 for UTC
-	public final static int VDEW_S_TIME_S_DATE=6; // sHHMMSSsYYMMDD see VDEW_DATE_S_TIME for explanation of 's'
-	public final static int VDEW_INTEGER=7;
-	public final static int VDEW_TIMEDATE_FERRANTI=8; // YYYYMMDDHHMMSS
-	public final static int VDEW_TIME_HHMMSS=9; // (s)hhmmss
-	public final static int VDEW_DATE_YYMMDD=10; // (s)yymmdd
-	public final static int VDEW_DATE_VALUE_PAIR=11; // DateValuePair (XXXXX...)(YYMMDDHHMM)
-	public final static int VDEW_GMTDATESTRING=12; // write
-	public final static int VDEW_GMTTIMESTRING=13; // write
-	public final static int VDEW_DATE_TIME=14; // YYMMDDHHMMSS
-	public final static int KAMSTRUP300_DATE_VALUE_PAIR=15; // (XXXXXXX...)(YY-MM-DD HH:MM:SS)
+	public static final int VDEW_STRING=0;
+	public static final int VDEW_DATESTRING=1;
+	public static final int VDEW_TIMESTRING=2;
+	public static final int VDEW_TIMEDATE=3; // (s)HHMMSS(s)YYMMDD
+	public static final int VDEW_QUANTITY=4;
+	public static final int VDEW_DATE_S_TIME=5; // YYMMDDsHHMMSS where s=0 for normal time, 1 for DST and 2 for UTC
+	public static final int VDEW_S_TIME_S_DATE=6; // sHHMMSSsYYMMDD see VDEW_DATE_S_TIME for explanation of 's'
+	public static final int VDEW_INTEGER=7;
+	public static final int VDEW_TIMEDATE_FERRANTI=8; // YYYYMMDDHHMMSS
+	public static final int VDEW_TIME_HHMMSS=9; // (s)hhmmss
+	public static final int VDEW_DATE_YYMMDD=10; // (s)yymmdd
+	public static final int VDEW_DATE_VALUE_PAIR=11; // DateValuePair (XXXXX...)(YYMMDDHHMM)
+	public static final int VDEW_GMTDATESTRING=12; // write
+	public static final int VDEW_GMTTIMESTRING=13; // write
+	public static final int VDEW_DATE_TIME=14; // YYMMDDHHMMSS
+	public static final int KAMSTRUP300_DATE_VALUE_PAIR=15; // (XXXXXXX...)(YY-MM-DD HH:MM:SS)
 
 	abstract protected Unit getUnit();
 	abstract protected int getType();

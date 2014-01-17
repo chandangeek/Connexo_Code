@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -12,21 +13,19 @@ import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdw.core.Code;
-import com.energyict.protocol.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocolimplv2.ace4000.requests.ContactorCommand;
 import com.energyict.protocolimplv2.ace4000.requests.FirmwareUpgrade;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
@@ -35,7 +34,6 @@ import com.energyict.protocolimplv2.ace4000.requests.WriteConfiguration;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -146,7 +144,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
     }
 
     public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<>();
 
         MessageCategorySpec cat1 = new MessageCategorySpec("ACE4000 general messages");
         cat1.addMessageSpec(addBasicMsgWithValues("Firmware upgrade", FIRMWARE_UPGRADE, false, "URL path (start with http://)", "Size of the JAR file (bytes)", "Size of the JAD file (bytes)"));
@@ -207,43 +205,43 @@ public class ACE4000MessageExecutor implements MessageProtocol {
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Object o1 : msgTag.getAttributes()) {
             MessageAttribute att = (MessageAttribute) o1;
-            if (att.getValue() == null || att.getValue().length() == 0) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Object o : msgTag.getSubElements()) {
             MessageElement elt = (MessageElement) o;
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {
@@ -293,7 +291,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         ace4000.getObjectFactory().sendLoadProfileConfiguration(enable, intervalInMinutes, maxNumberOfRecords);
     }
 
-    private List<CollectedLoadProfile> readProfileData(String messageContent) throws IOException, BusinessException, SQLException {
+    private List<CollectedLoadProfile> readProfileData(String messageContent) {
         String[] parts = messageContent.split("=");
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date fromDate = null;
@@ -469,7 +467,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             failMessage(failMsg);
             return;
         }
-        List<String> switchingTimesDP0 = new ArrayList<String>();
+        List<String> switchingTimesDP0 = new ArrayList<>();
         try {
             String[] switchingTimesStrings = parts[6].substring(1).split("\"")[0].split(",");
             for (String switchingTime : switchingTimesStrings) {
@@ -486,7 +484,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<Integer> thresholdsDP0 = new ArrayList<Integer>();
+        List<Integer> thresholdsDP0 = new ArrayList<>();
         try {
             String[] thresholdStrings = parts[7].substring(1).split("\"")[0].split(",");
             for (String thresholdString : thresholdStrings) {
@@ -506,7 +504,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<Integer> unitsDP0 = new ArrayList<Integer>();
+        List<Integer> unitsDP0 = new ArrayList<>();
         try {
             String[] unitStrings = parts[8].substring(1).split("\"")[0].split(",");
             for (String threshold : unitStrings) {
@@ -521,7 +519,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<String> actionsDP0 = new ArrayList<String>();
+        List<String> actionsDP0 = new ArrayList<>();
         try {
             String[] actionStrings = parts[9].substring(1).split("\"")[0].split(",");
             for (String action : actionStrings) {
@@ -535,7 +533,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             failMessage(failMsg);
             return;
         }
-        List<String> switchingTimesDP1 = new ArrayList<String>();
+        List<String> switchingTimesDP1 = new ArrayList<>();
         try {
             String[] switchingTimesStrings = parts[10].substring(1).split("\"")[0].split(",");
             for (String switchingTime : switchingTimesStrings) {
@@ -552,7 +550,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<Integer> thresholdsDP1 = new ArrayList<Integer>();
+        List<Integer> thresholdsDP1 = new ArrayList<>();
         try {
             String[] thresholdStrings = parts[11].substring(1).split("\"")[0].split(",");
             for (String thresholdString : thresholdStrings) {
@@ -572,7 +570,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<Integer> unitsDP1 = new ArrayList<Integer>();
+        List<Integer> unitsDP1 = new ArrayList<>();
         try {
             String[] unitStrings = parts[12].substring(1).split("\"")[0].split(",");
             for (String threshold : unitStrings) {
@@ -587,7 +585,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<String> actionsDP1 = new ArrayList<String>();
+        List<String> actionsDP1 = new ArrayList<>();
         try {
             String[] actionStrings = parts[13].substring(1).split("\"")[0].split(",");
             for (String action : actionStrings) {
@@ -602,7 +600,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             return;
         }
 
-        List<Integer> weekProfile = new ArrayList<Integer>();
+        List<Integer> weekProfile = new ArrayList<>();
         try {
             String[] dayStrings = parts[14].substring(1).split("\"")[0].split(",");
             for (String day : dayStrings) {
@@ -712,7 +710,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
 
 
     private Integer convertToSubIntervalDurationCode(int subIntervalDuration) {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(30, 0);
         map.put(60, 1);
         map.put(300, 2);
@@ -725,7 +723,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
     }
 
     private Integer convertToNumberOfSubIntervalsCode(int numberOfSubIntervals) {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(0, 0);
         map.put(1, 1);
         map.put(2, 2);

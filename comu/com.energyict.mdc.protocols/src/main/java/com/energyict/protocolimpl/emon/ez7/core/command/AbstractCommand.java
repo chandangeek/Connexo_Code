@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;
@@ -15,9 +15,9 @@ import java.io.IOException;
  *
  * @author  Koen
  */
-abstract public class AbstractCommand implements GenericValue {
+public abstract class AbstractCommand implements GenericValue {
 
-    abstract public void build() throws ConnectionException, IOException ;
+    public abstract void build() throws ConnectionException, IOException ;
 
     EZ7CommandFactory ez7CommandFactory=null;
 
@@ -39,4 +39,5 @@ abstract public class AbstractCommand implements GenericValue {
     public int getValue(int row,int col) throws UnsupportedException {
         throw new UnsupportedException();
     }
+
 }

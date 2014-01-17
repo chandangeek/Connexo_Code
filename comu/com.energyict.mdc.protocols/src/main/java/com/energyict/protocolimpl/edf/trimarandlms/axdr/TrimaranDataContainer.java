@@ -6,8 +6,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import com.energyict.cbo.Utils;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -17,10 +16,10 @@ import java.util.logging.Logger;
  * @author  Koen
  */
 public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializable {
-	
+
     /**	Generated serialVersionUID */
 	private static final long serialVersionUID = 8516323547596564299L;
-	
+
 	protected int iLevel=0;
     protected int iMaxLevel=0;
     protected int iIndex=0;
@@ -38,11 +37,11 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
     public void printDataContainer() {
         System.out.println(doPrintDataContainer());
     }
-    
+
     public String toString() {
         return doPrintDataContainer();
     }
-    
+
     public String print2strDataContainer() {
         return doPrintDataContainer();
     }
@@ -50,7 +49,7 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
     public String getText(String delimiter) {
         TrimaranDataStructure dataStructure;
         int iparseLevel=0,i;
-        StringBuffer strout = new StringBuffer();
+        StringBuilder strout = new StringBuilder();
 
         int[] iLength = new int[getMaxLevel()+1];
         int[] iCount = new int[getMaxLevel()+1];
@@ -61,24 +60,24 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
         }
         iLength[iparseLevel] = getRoot().element.length;
         dataStructure = getRoot();
-        strout.append("DC("+iLength[iparseLevel]+")"+delimiter);
+        strout.append("DC(").append(iLength[iparseLevel]).append(")").append(delimiter);
         do
         {
             while (++iCount[iparseLevel] < iLength[iparseLevel]) {
                 for (i=0;i<iparseLevel;i++) {
 		     //strout.append("        ");
                      if (i==(iparseLevel-1)){
-                         strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+                         strout.append(" (").append(iparseLevel).append("/").append(iCount[iparseLevel] + 1).append(") ");
                      }
                 }
                 if (dataStructure.isLong(iCount[iparseLevel])) {
-					strout.append(dataStructure.getLong(iCount[iparseLevel])+delimiter);
+					strout.append(dataStructure.getLong(iCount[iparseLevel])).append(delimiter);
 				}
-                
+
                 if (dataStructure.isInteger(iCount[iparseLevel])) {
-					strout.append(dataStructure.getInteger(iCount[iparseLevel])+delimiter);
+					strout.append(dataStructure.getInteger(iCount[iparseLevel])).append(delimiter);
 				}
-                
+
                 if (dataStructure.isOctetString(iCount[iparseLevel])) {
                     int val;
                     boolean readable=true;
@@ -97,42 +96,42 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
                     }
 
                     if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6) {
-						strout.append("("+ TrimaranDLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray())+")");
+						strout.append("(").append(TrimaranDLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray())).append(")");
 					}
 
 
                     strout.append(delimiter);
 
                 }
-                
+
                 if (dataStructure.isString(iCount[iparseLevel])) {
-					strout.append(dataStructure.getString(iCount[iparseLevel])+delimiter);
+					strout.append(dataStructure.getString(iCount[iparseLevel])).append(delimiter);
 				}
-                
+
                 if (dataStructure.isStructure(iCount[iparseLevel])) {
-                    strout.append("S("+dataStructure.getStructure(iCount[iparseLevel]).element.length+")"+delimiter);
+                    strout.append("S(").append(dataStructure.getStructure(iCount[iparseLevel]).element.length).append(")").append(delimiter);
                     iparseLevel++;
                     iLength[iparseLevel] = dataStructure.getStructure(iCount[iparseLevel-1]).element.length;
                     dataStructure = dataStructure.getStructure(iCount[iparseLevel-1]);
                 }
-                
+
             } // while (++iCount[iparseLevel] < iLength[iparseLevel])
-            
+
             dataStructure = dataStructure.parent;
             iCount[iparseLevel] = -1;
             iLength[iparseLevel] = 0;
-            
+
         } while (iparseLevel-- > 0);
 
         return strout.toString();
-        
+
     } // getText()
-    
+
 
     public String doPrintDataContainer() {
         TrimaranDataStructure dataStructure;
         int iparseLevel=0,i;
-        StringBuffer strout = new StringBuffer();
+        StringBuilder strout = new StringBuilder();
 
         int[] iLength = new int[getMaxLevel()+1];
         int[] iCount = new int[getMaxLevel()+1];
@@ -143,31 +142,25 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
         }
         iLength[iparseLevel] = getRoot().element.length;
         dataStructure = getRoot();
-        strout.append("TrimaranDataContainer with "+iLength[iparseLevel]+" elements\n");
+        strout.append("TrimaranDataContainer with ").append(iLength[iparseLevel]).append(" elements\n");
         do
         {
             while (++iCount[iparseLevel] < iLength[iparseLevel]) {
                 for (i=0;i<iparseLevel;i++) {
 		     strout.append("        ");
                      if (i==(iparseLevel-1)) {
-						strout.append(" ("+iparseLevel+"/"+(iCount[iparseLevel]+1)+") ");
+						strout.append(" (").append(iparseLevel).append("/").append(iCount[iparseLevel] + 1).append(") ");
 					}
                 }
 
-//System.out.println("KV_EXTRA_DEBUG> BREAKPOINT iCount[iparseLevel]="+iCount[iparseLevel]+", iparseLevel="+iparseLevel+", dataStructure.getInteger()=0x"+Integer.toHexString(dataStructure.getInteger(iCount[iparseLevel])));    
-//if (iCount[iparseLevel] == 1210) {
-//     System.out.println("KV_EXTRA_DEBUG> BREAKPOINT");                    
-//}                
-
-
                 if (dataStructure.isLong(iCount[iparseLevel])) {
-					strout.append(dataStructure.getLong(iCount[iparseLevel])+"\n");
+					strout.append(dataStructure.getLong(iCount[iparseLevel])).append("\n");
 				}
-                
+
                 if (dataStructure.isInteger(iCount[iparseLevel])) {
-					strout.append(dataStructure.getInteger(iCount[iparseLevel])+"\n");
+					strout.append(dataStructure.getInteger(iCount[iparseLevel])).append("\n");
 				}
-                
+
                 if (dataStructure.isOctetString(iCount[iparseLevel])) {
                     int val;
                     boolean readable=true;
@@ -186,31 +179,31 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
                     }
 
                     if (dataStructure.getOctetString(iCount[iparseLevel]).getArray().length == 6) {
-						strout.append(" "+ TrimaranDLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray()));
+						strout.append(" ").append(TrimaranDLMSUtils.getInfoLN(dataStructure.getOctetString(iCount[iparseLevel]).getArray()));
 					}
 
 
                     strout.append("\n");
 
                 }
-                
+
                 if (dataStructure.isString(iCount[iparseLevel])) {
-					strout.append(dataStructure.getString(iCount[iparseLevel])+"\n");
+					strout.append(dataStructure.getString(iCount[iparseLevel])).append("\n");
 				}
-                
+
                 if (dataStructure.isStructure(iCount[iparseLevel])) {
-                    strout.append("Struct with "+dataStructure.getStructure(iCount[iparseLevel]).element.length+" elements.\n");
+                    strout.append("Struct with ").append(dataStructure.getStructure(iCount[iparseLevel]).element.length).append(" elements.\n");
                     iparseLevel++;
                     iLength[iparseLevel] = dataStructure.getStructure(iCount[iparseLevel-1]).element.length;
                     dataStructure = dataStructure.getStructure(iCount[iparseLevel-1]);
                 }
-                
+
             } // while (++iCount[iparseLevel] < iLength[iparseLevel])
-            
+
             dataStructure = dataStructure.parent;
             iCount[iparseLevel] = -1;
             iLength[iparseLevel] = 0;
-            
+
         } while (iparseLevel-- > 0);
 
         return strout.toString();
@@ -240,10 +233,10 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
 			}
                if ((iIndex==dataStructure.element.length) && (iLevel == 0)) {
 				throw new TrimaranDataContainerException("LevelDown error, no more free entries!");
-			}        
+			}
             } else {
 				throw new TrimaranDataContainerException("LevelDown error, no parent!");
-			}         
+			}
         }
     }
 
@@ -261,24 +254,24 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
             levelDown();
         }
     }
-    
+
     public void addLong(long value) throws TrimaranDataContainerException {
-        prepare();              
+        prepare();
         dataStructure.element[iIndex++] = new Long(value);
     }
 
     public void addInteger(int iValue) throws TrimaranDataContainerException {
-        prepare();              
+        prepare();
         dataStructure.element[iIndex++] = new Integer(iValue);
     }
 
     public void addString(String str) throws TrimaranDataContainerException {
-        prepare();              
+        prepare();
         dataStructure.element[iIndex++] = str;
     }
 
     public void addOctetString(byte[] array) throws TrimaranDataContainerException {
-        prepare();              
+        prepare();
         dataStructure.element[iIndex++] = new TrimaranOctetString(array);
     }
 
@@ -309,23 +302,22 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
 
         }
     }
-    
-    
+
+
    public void parseObjectList(byte[] responseData, Logger logger) throws IOException {
        //TrimaranDataContainer dataContainer= new TrimaranDataContainer();
        doParseObjectList(responseData,logger);
    }
-   
+
    private static final int MAX_LEVELS=20;
    private void doParseObjectList(byte[] responseData, Logger logger) throws IOException {
        int i=0,temp;
        int iLevel=0;
        int[] LevelNROfElements = new int[MAX_LEVELS];
-       for (temp=0;temp<20;temp++)
-       {
+       for (temp=0;temp<20;temp++){
            LevelNROfElements[temp]=0;
        }
-       
+
        while(true) {
            try {
                switch (responseData[i])
@@ -333,10 +325,9 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
                    case TYPEDESC_ARRAY:
                    {
                        i++;
-                       int iprevlevel=iLevel;
                        if (iLevel++ >= (MAX_LEVELS-1)) {
 						throw new IOException("Max printlevel exceeds!");
-					}  
+					}
 
                        LevelNROfElements[iLevel] = (int) TrimaranDLMSUtils.getAXDRLength(responseData, i);
                        addStructure(LevelNROfElements[iLevel]);
@@ -348,17 +339,16 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
                    case TYPEDESC_STRUCTURE:
                    {
                        i++;
-                       int iprevlevel=iLevel;
                        if (iLevel++ >= (MAX_LEVELS-1)) {
 						throw new IOException("Max printlevel exceeds!");
-					}  
+					}
                        LevelNROfElements[iLevel] = (int) TrimaranDLMSUtils.getAXDRLength(responseData, i);
                        addStructure(LevelNROfElements[iLevel]);
                        i += TrimaranDLMSUtils.getAXDRLengthOffset(responseData, i);
 
                    } break; // TYPEDESC_STRUCTURE
 
-                   case TYPEDESC_NULL: 
+                   case TYPEDESC_NULL:
                    {
                        i++;
                        addInteger(0);
@@ -385,7 +375,7 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
 						array[s] = responseData[i+s];
 					}
                        addOctetString(array);
-                       i += t; 
+                       i += t;
                    } break;
 
                    case TYPEDESC_DOUBLE_LONG:
@@ -418,7 +408,7 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
                    case TYPEDESC_BITSTRING:
                    {
                       int t,s;
-                      i++;                   
+                      i++;
                       t = (int) TrimaranDLMSUtils.getAXDRLength(responseData, i);
                       i += TrimaranDLMSUtils.getAXDRLengthOffset(responseData, i);
 
@@ -449,7 +439,7 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
 
                    case TYPEDESC_TIME:
                    {
-                      i++;   
+                      i++;
                       addInteger(0); // TODO
                       i+=4; // ??? generalizedTime
 
@@ -457,7 +447,7 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
 
                    case TYPEDESC_COMPACT_ARRAY:
                    {
-                      i++;   
+                      i++;
                       addInteger(0); // TODO
                    } break; // TYPEDESC_COMPACT_ARRAY
 
@@ -469,7 +459,7 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
 
                while(true)
                {
-                   if (--LevelNROfElements[iLevel] <0) 
+                   if (--LevelNROfElements[iLevel] <0)
                    {
                        if (--iLevel < 0)
                        {
@@ -483,42 +473,20 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
            }
            catch(TrimaranDataContainerException e) {
                if (logger == null) {
-				System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+				System.out.println(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 			} else {
-				logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+				logger.severe(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 			}
-               return; 
+               return;
            }
-           
+
            if (i>=responseData.length) {
                return;
            }
-           
-       } // while(true)
-       
-   } //  void parseObjectList(byte[] responseData)
-    
-   static public void main(String[] args) {
-       try {
-           TrimaranDataContainer dc = new TrimaranDataContainer();
-           byte[] responseData = new byte[]{(byte)0x02,(byte)0x11,(byte)0x04,(byte)0x28,(byte)0x0E,(byte)0x41,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x05,(byte)0x04,(byte)0x28,(byte)0xB8,(byte)0x21,(byte)0x00,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x0A,(byte)0x10,(byte)0x00,(byte)0xC8,(byte)0x01,(byte)0x08,(byte)0x10,(byte)0x05,(byte)0x0A,(byte)0x10,(byte)0x05,(byte)0x0A,(byte)0x10,(byte)0x05,(byte)0x0A,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x05,(byte)0x0A,(byte)0x10,(byte)0x05,(byte)0x0A,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x10,(byte)0x03,(byte)0xE8,(byte)0x0F,(byte)0x00,(byte)0x10,(byte)0x00,(byte)0x00,(byte)0x03,(byte)0x01,(byte)0x0F,(byte)0x02,(byte)0x01,(byte)0x0F,(byte)0x0F,(byte)0x06,(byte)0x0F,(byte)0x09,(byte)0x0F,(byte)0x0B,(byte)0x0F,(byte)0x12,(byte)0x0F,(byte)0x14,(byte)0x0F,(byte)0x16,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x01,(byte)0x0F,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x01,(byte)0x0F,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x03,(byte)0x0F,(byte)0x01,(byte)0x0F,(byte)0x03,(byte)0x0F,(byte)0x01,(byte)0x0F,(byte)0x03,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x01,(byte)0x0F,(byte)0x0F,(byte)0x06,(byte)0x0F,(byte)0x16,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x01,(byte)0x0F,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x0F,(byte)0x00,(byte)0x01,(byte)0x0F,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x03,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02,(byte)0x0F,(byte)0x02};
-           dc.parseObjectList(responseData, null);
-           dc.printDataContainer();
-           
-           System.out.println(dc.getRoot().getNrOfElements());
-           System.out.println(Long.toHexString(dc.getRoot().getLong(0)));
-           System.out.println(Integer.toHexString(dc.getRoot().getInteger(1)));
-           System.out.println(Integer.toHexString(dc.getRoot().getStructure(5).getNrOfElements()));
-           System.out.println(Integer.toHexString(dc.getRoot().getStructure(5).getInteger(0)));
-           System.out.println(Integer.toHexString(dc.getRoot().getStructure(5).getInteger(1)));
-           
+
        }
-       catch(IOException e) {
-           e.printStackTrace();
-       }
-       
+
    }
-   
-    
-} // class TrimaranDataContainer
+
+}
 

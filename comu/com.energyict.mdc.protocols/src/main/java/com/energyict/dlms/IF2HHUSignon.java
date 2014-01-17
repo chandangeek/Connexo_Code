@@ -1,10 +1,11 @@
 package com.energyict.dlms;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -56,11 +57,11 @@ public class IF2HHUSignon implements HHUSignOn {
      *
      * @param strIdent Not used
      * @param meterID  Not used
-     * @return A dummy {@link com.energyict.protocol.meteridentification.MeterType}
-     * @throws java.io.IOException         If there occurred an error while switching the baudrate
-     * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
+     * @return A dummy {@link MeterType}
+     * @throws IOException         If there occurred an error while switching the baudrate
+     * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID) throws IOException {
         return signOn(strIdent, meterID, DEFAULT_BAUDRATE);
     }
 
@@ -70,11 +71,11 @@ public class IF2HHUSignon implements HHUSignOn {
      * @param strIdent Not used
      * @param meterID  Not used
      * @param baudrate The baudrate value to switch to (eg. 9600, 115200, 300, ...)
-     * @return A dummy {@link com.energyict.protocol.meteridentification.MeterType}
-     * @throws java.io.IOException         If there occurred an error while switching the baudrate
-     * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
+     * @return A dummy {@link MeterType}
+     * @throws IOException         If there occurred an error while switching the baudrate
+     * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException {
         return signOn(strIdent, meterID, false, baudrate);
     }
 
@@ -85,11 +86,11 @@ public class IF2HHUSignon implements HHUSignOn {
      * @param meterID  Not used
      * @param wakeup   Not used
      * @param baudrate The baudrate value to switch to (eg. 9600, 115200, 300, ...)
-     * @return A dummy {@link com.energyict.protocol.meteridentification.MeterType}
-     * @throws java.io.IOException         If there occurred an error while switching the baudrate
-     * @throws com.energyict.dialer.connection.ConnectionException If there occurred an error while switching the baudrate
+     * @return A dummy {@link MeterType}
+     * @throws IOException         If there occurred an error while switching the baudrate
+     * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException {
         this.logger.info("Switching serial channel to [" + baudrate + "] baud.");
         this.serialCommunicationChannel.setBaudrate(baudrate);
         try {
@@ -97,14 +98,14 @@ public class IF2HHUSignon implements HHUSignOn {
         } catch (InterruptedException e) {
             throw new NestedIOException(e, "Got interrupted just after switching the baudrate to [" + baudrate + "] baud.");
         }
-        return new MeterType(getReceivedIdent());
+        return new MeterTypeImpl(getReceivedIdent());
     }
 
     /**
      * Not implemented
      *
      * @throws NestedIOException   Never thrown
-     * @throws com.energyict.dialer.connection.ConnectionException Never thrown
+     * @throws ConnectionException Never thrown
      */
     public void sendBreak() throws NestedIOException, ConnectionException {
     }

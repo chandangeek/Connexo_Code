@@ -18,8 +18,8 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdw.core.Device;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

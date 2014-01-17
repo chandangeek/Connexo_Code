@@ -5,7 +5,7 @@ package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

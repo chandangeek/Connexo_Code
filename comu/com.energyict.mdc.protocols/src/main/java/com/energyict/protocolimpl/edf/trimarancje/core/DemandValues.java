@@ -20,24 +20,24 @@ import java.util.List;
  */
 public class DemandValues {
 
-    private List intervals;
+    private List<Interval> intervals;
     private Calendar cal;
     private int tariff;
 
     /** Creates a new instance of DemandValues */
     public DemandValues(Calendar cal,int tariff) {
-        setIntervals(new ArrayList());
+        setIntervals(new ArrayList<Interval>());
         this.setCal(cal);
         this.setTariff(tariff);
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("DemandValues:\n");
-        strBuff.append("    Date="+getCal().getTime()+"\n");
+        strBuff.append("    Date=").append(getCal().getTime()).append("\n");
         for (int i=0;i<getIntervals().size();i++) {
-            Interval val = (Interval)getIntervals().get(i);
-            strBuff.append("    value["+i+"]="+val+"\n");
+            Interval val = getIntervals().get(i);
+            strBuff.append("    value[").append(i).append("]=").append(val).append("\n");
         }
         return strBuff.toString();
     }
@@ -46,11 +46,11 @@ public class DemandValues {
         getIntervals().add(interval);
     }
 
-    public List getIntervals() {
+    public List<Interval> getIntervals() {
         return intervals;
     }
 
-    private void setIntervals(List intervals) {
+    private void setIntervals(List<Interval> intervals) {
         this.intervals = intervals;
     }
 
@@ -69,4 +69,5 @@ public class DemandValues {
     public void setTariff(int tariff) {
         this.tariff = tariff;
     }
+
 }

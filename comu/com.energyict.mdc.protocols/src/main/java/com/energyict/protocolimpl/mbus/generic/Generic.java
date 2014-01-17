@@ -10,19 +10,19 @@
 
 package com.energyict.protocolimpl.mbus.generic;
 
-import com.energyict.cbo.SerialCommunicationSettings;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.SerialCommunicationSettings;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.MBus;
 import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,51 +37,47 @@ import java.util.logging.Logger;
  * @author kvds
  */
 public class Generic extends MBus {
-    
-    
+
+
     final int DEBUG=0;
-    
+
     RegisterFactory registerFactory=null;
-    
+
     // temporary
     // KV_TO_DO The Discover interface in core code does not return a list of secondary addresses. therefor
-    // we cache this in the Generic protocol instantiation. and return the elements until iteration is complete... 
+    // we cache this in the Generic protocol instantiation. and return the elements until iteration is complete...
     List<DiscoverResult> discoverResults=null;
     int discoverResultIndex=0;
-    
+
     /**
-     * Creates a new instance of Generic 
+     * Creates a new instance of Generic
      */
     public Generic() {
     }
-    
-    
-//    public Date getTime() throws IOException {
-//        return getRegisterFactory().getTime();
-//    }
-    
+
+
     public DiscoverResult discover(DiscoverTools discoverTools) {
         if (DEBUG>=1) System.out.println("Generic, discover("+discoverTools+")");
-        
+
         if (Integer.parseInt(discoverTools.getProperties().getProperty("SecondaryAddressing","0")) == 1)
         	return discoverSecondaryAddresses(discoverTools);
         else
         	return discoverPrimaryAddresses(discoverTools);
     }
-        	
-    
+
+
     public DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools) {
-    	
+
     	if (discoverResults==null) {
     		discoverResults = new ArrayList();
 	        try {
 	            setProperties(discoverTools.getProperties());
 	            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-	            
+
 	            getMBusConnection().setRTUAddress(253);
 	            getMBusConnection().setTimeout(3000);
 	            getMBusConnection().setRetries(2);
-	            
+
 	            try {
 	            	System.out.println("Send SND_NKE to address 255...");
 		        	getMBusConnection().sendSND_NKE(255);
@@ -108,13 +104,13 @@ public class Generic extends MBus {
 		        catch(IOException e) {
 		        	// absorb
 		        }
-		        
+
 		        getMBusConnection().flushInputStream();
-	            
+
 	            Iterator<CIField72h> it = discoverDeviceSerialNumbers().iterator();
 	            while(it.hasNext()) {
 	            	CIField72h cIField72h = it.next();
-	            	
+
 	    	        DiscoverResult discoverResult = new DiscoverResult();
 	    	        discoverResult.setProtocolMBUS();
 	                discoverResult.setDiscovered(true);
@@ -125,17 +121,17 @@ public class Generic extends MBus {
 	                discoverResult.setShortDeviceTypeName(DiscoverProtocolInfo.getUnknown().getShortDeviceType());
 	                String str = cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription();
 	                discoverResult.setDeviceName(str.replace('.','-').replace('/',' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
-	                
-	                
+
+
 	                Iterator it2 = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
 	                while(it2.hasNext()) {
 	                    DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it2.next();
-	                    if ((dpi.getVersion() == cIField72h.getVersion()) && 
+	                    if ((dpi.getVersion() == cIField72h.getVersion()) &&
 	                        (dpi.getManufacturer().compareTo(cIField72h.getMeter3LetterId())==0) &&
 	                        (dpi.getMedium() == cIField72h.getDeviceType().getId())) {
 	                        discoverResult.setProtocolName(dpi.getProtocolName());
 	                        discoverResult.setDeviceTypeName(dpi.getDeviceType());
-	                        
+
 	                        break;
 	                    }
 	                }
@@ -148,10 +144,10 @@ public class Generic extends MBus {
                     discoverResult.setSerialNumber(""+cIField72h.getIdentificationNumber()+
                     		                       "_"+CIField72h.getManufacturer3Letter(cIField72h.getManufacturerIdentification())+
                     		                 	   "_"+Integer.toHexString(cIField72h.getVersion())+
-                    		                 	   "_"+Integer.toHexString(cIField72h.getDeviceType().getId()));	   
-	                
+                    		                 	   "_"+Integer.toHexString(cIField72h.getDeviceType().getId()));
+
 	                discoverResults.add(discoverResult);
-	            	
+
 	            } // while(it.hasNext()) {
 	        }
 	        catch(Exception e) {
@@ -171,21 +167,21 @@ public class Generic extends MBus {
         		return null;
         }
     } // public DiscoverResult discoverSecondaryAddresses(DiscoverTools discoverTools)
-        
+
     public DiscoverResult discoverPrimaryAddresses(DiscoverTools discoverTools) {
-        
+
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMBUS();
         try {
             setProperties(discoverTools.getProperties());
             init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             connect();
-            
+
             getMBusConnection().setTimeout(3000);
             getMBusConnection().setRetries(2);
-            
+
             CIField72h cIField72h = getCIField72h();
-            
+
             discoverResult.setDiscovered(true);
             discoverResult.setAddress(discoverTools.getAddress());
             discoverResult.setResult(cIField72h.getMeter3LetterId()+", "+cIField72h.getVersion());
@@ -194,12 +190,12 @@ public class Generic extends MBus {
             discoverResult.setShortDeviceTypeName(DiscoverProtocolInfo.getUnknown().getShortDeviceType());
             String str = cIField72h.getMeter3LetterId()+" V"+cIField72h.getVersion()+" "+cIField72h.getDeviceType().getShortDescription();
             discoverResult.setDeviceName(str.replace('.','-').replace('/',' ')); // '.' and '/' are not allowed in EIServer as character in a device name!
-            
-            
+
+
             Iterator it = DiscoverProtocolInfo.getSupportedDevicesList().iterator();
             while(it.hasNext()) {
                 DiscoverProtocolInfo dpi = (DiscoverProtocolInfo)it.next();
-                if ((dpi.getVersion() == cIField72h.getVersion()) && 
+                if ((dpi.getVersion() == cIField72h.getVersion()) &&
                     (dpi.getManufacturer().compareTo(cIField72h.getMeter3LetterId())==0) &&
                     (dpi.getMedium() == cIField72h.getDeviceType().getId())) {
                     discoverResult.setProtocolName(dpi.getProtocolName());
@@ -208,9 +204,9 @@ public class Generic extends MBus {
                     break;
                 }
             }
-            
+
             //System.out.println(cIField72h.header());
-            
+
             return discoverResult;
         }
         catch(Exception e) {
@@ -219,7 +215,7 @@ public class Generic extends MBus {
             return discoverResult;
         }
         finally {
-           try { 
+           try {
               disconnect();
            }
            catch(IOException e) {
@@ -227,10 +223,10 @@ public class Generic extends MBus {
            }
         }
     }
-    
+
     protected void doTheConnect() throws IOException {
     	if (getInfoTypeSecondaryAddressing() == 0) {
-             getMBusConnection().sendSND_NKE(); 
+             getMBusConnection().sendSND_NKE();
     	}
     	else {
     		// getMBusConnection().sendSND_NKE(); I think it IS allowed to send the SND_NKE here to clear the current selection
@@ -246,7 +242,7 @@ public class Generic extends MBus {
     protected void doTheDisConnect() throws IOException {
     	if (getInfoTypeSecondaryAddressing() == 1) {
     		try {
-    		   Thread.sleep(500);	
+    		   Thread.sleep(500);
     		   getMBusConnection().sendSND_NKE();
     		}
     	    catch(IOException e) {
@@ -256,7 +252,7 @@ public class Generic extends MBus {
     	    	//absorb
     	    }
     	}
-        
+
     }
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
     	if (getInfoTypeSecondaryAddressing() == 1) {
@@ -267,7 +263,7 @@ public class Generic extends MBus {
         List list = new ArrayList();
         return list;
     }
-    
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "NOT YET IMPLEMENTED";
     }
@@ -279,21 +275,21 @@ public class Generic extends MBus {
 
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
-    }    
-    
+    }
+
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
-    
+
     private Properties getProperties(int address, int secondaryAddressing) {
         Properties properties = new Properties();
         properties.setProperty(MeterProtocol.ADDRESS,""+address);
         properties.setProperty("Retries", "1");
         properties.setProperty("Timeout", "250");
         properties.setProperty("SecondaryAddressing", ""+secondaryAddressing);
-        return properties;        
-    }    
-    
+        return properties;
+    }
+
     static public void main1(String[] args) {
         try {
             // ********************** Dialer **********************
@@ -304,26 +300,26 @@ public class Generic extends MBus {
                                                              SerialCommunicationChannel.PARITY_EVEN,
                                                              SerialCommunicationChannel.STOPBITS_1);
             dialer.connect();
-            
+
             // ********************** Properties **********************
             Properties properties = new Properties();
             properties.setProperty("ProfileInterval", "60");
             properties.setProperty("SecondaryAddressing", "1");
             properties.setProperty(MeterProtocol.ADDRESS,"253");
-            
-            
+
+
             properties.setProperty("SerialNumber","1234FFFF");
             properties.setProperty("HeaderManufacturerCode","FFFF");
             properties.setProperty("HeaderVersion","FF");
             properties.setProperty("HeaderMedium","FF");
-            
+
             properties.setProperty("Retries","2");
             //properties.setProperty("SerialNumber","08072197"); //65553712");
             //properties.setProperty("HalfDuplex", "-1");
             // ********************** EictRtuModbus **********************
             Generic generic = new Generic();
-            
-            generic.setProperties(properties); 
+
+            generic.setProperties(properties);
             generic.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             generic.connect();
             System.out.println(generic.getRegistersInfo(0));
@@ -343,31 +339,31 @@ public class Generic extends MBus {
 //            //generic.getMBusConnection().selectSecondaryAddress("12345678_4d25_1_4");
 //            //generic.getMBusConnection().selectSecondaryAddress("12345678_19749_1_4");
 //            //System.out.println(generic.getMBusConnection().sendREQ_UD2());
-//            
+//
 //            Iterator<CIField72h> it = generic.discoverDeviceSerialNumbers().iterator();
-//            
+//
 //            while(it.hasNext()) {
 //            	System.out.println(it.next().header());
 //            }
-            
+
             System.out.println("************************************************************************************************");
 
-            
-             
-            
-            
+
+
+
+
             dialer.disConnect();
             generic.disconnect();
-                    
-                    
+
+
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-    }    
-    
+    }
+
     static public void main2(String[] args) {
-        
+
         try {
             // ********************** EictRtuModbus **********************
             DiscoverTools discoverTools = null;
@@ -375,7 +371,7 @@ public class Generic extends MBus {
                 System.out.println("---------------------> discover address "+address);
                 try {
                     Generic generic = new Generic();
-                    
+
 
                     SerialCommunicationSettings settings = new SerialCommunicationSettings(2400,8, 'E', 1);
 
@@ -384,7 +380,7 @@ public class Generic extends MBus {
                     	discoverTools = new DiscoverTools("/dev/ttyXR2",settings);
                     else
                         discoverTools = new DiscoverTools(args[1],settings); //"/dev/ttyXR0";
-                    
+
                     discoverTools.setProperties(generic.getProperties(address,0));
                     discoverTools.setAddress(address);
                     discoverTools.init();
@@ -392,7 +388,7 @@ public class Generic extends MBus {
 
                     DiscoverResult o = generic.discover(discoverTools);
                     if (o.isDiscovered()) System.out.println(o);
-                    
+
                 }
                 catch(Exception e) {
                     System.out.println(e.toString());
@@ -406,22 +402,22 @@ public class Generic extends MBus {
                     }
                 }
             }
-            
+
         }
         catch(Exception e) {
             //e.printStackTrace();
         }
     }
-    
+
     static public void main(String[] args) {
-        
+
         try {
             // ********************** EictRtuModbus **********************
             DiscoverTools discoverTools = null;
             System.out.println("---------------------> discover secondary addresses");
             try {
                 Generic generic = new Generic();
-                
+
 
                 SerialCommunicationSettings settings = new SerialCommunicationSettings(2400,8, 'E', 1);
 
@@ -429,7 +425,7 @@ public class Generic extends MBus {
                     discoverTools = new DiscoverTools("COM1",settings);
                 else
                     discoverTools = new DiscoverTools(args[1],settings); //"/dev/ttyXR0";
-                
+
                 discoverTools.setProperties(generic.getProperties(253,1));
                 discoverTools.setAddress(253);
                 discoverTools.init();
@@ -441,7 +437,7 @@ public class Generic extends MBus {
 	                if ((o!= null) &&(o.isDiscovered()))
 	                	System.out.println(o);
                 } while(o != null);
-                
+
             }
             catch(Exception e) {
                 System.out.println(e.toString());
@@ -458,6 +454,6 @@ public class Generic extends MBus {
         catch(Exception e) {
             //e.printStackTrace();
         }
-    }    
-    
+    }
+
 }

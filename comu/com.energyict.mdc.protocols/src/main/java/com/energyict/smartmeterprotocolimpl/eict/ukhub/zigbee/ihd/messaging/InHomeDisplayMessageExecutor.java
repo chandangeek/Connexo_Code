@@ -8,13 +8,14 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,16 +89,10 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
-
         if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
+            throw new IOException("Not a valid entry for the userFile.");
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
 
         String[] parts = content.split("=");
         Date date = null;
@@ -127,6 +123,10 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    private UserFile findUserFile(int userFileId) {
+        return this.getUserFileFactory().findUserFile(userFileId);
+    }
+
     private void log(final Level level, final String msg) {
         getLogger().log(level, msg);
     }
@@ -140,19 +140,14 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
         return ((InHomeDisplay) this.protocol).getTimeZone();
     }
 
-    /*****************************************************************************/
-    /* These methods require database access ...
-    /*****************************************************************************/
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
+    private UserFileFactory getUserFileFactory() {
+        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(UserFileFactory.class);
+        }
+        else {
+            return factories.get(0);
         }
     }
+
 }

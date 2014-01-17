@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.itron.datastar.Datastar;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePageFactory;
 import com.energyict.protocolimpl.itron.protocol.ProtocolLink;

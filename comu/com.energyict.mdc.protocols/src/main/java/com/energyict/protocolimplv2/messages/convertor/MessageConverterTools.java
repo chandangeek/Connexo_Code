@@ -1,18 +1,16 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.DeviceMessageSpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 
-/**
- * Provides convenient methods to help process the conversion of
- * {@link com.energyict.mdc.messages.DeviceMessage DeviceMessages}
- * to {@link com.energyict.protocol.messaging.MessageSpec MessageSpecs}
- * and visa versa.
- */
+import java.util.List;
+
 public class MessageConverterTools {
 
     /**
@@ -50,7 +48,17 @@ public class MessageConverterTools {
      * @return the deviceMessageSpec
      */
     public static DeviceMessageSpec getDeviceMessageSpecForOfflineDeviceMessage(OfflineDeviceMessage offlineDeviceMessage) {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageSpecFactory().fromPrimaryKey(offlineDeviceMessage.getDeviceMessageSpecPrimaryKey().getValue());
+        return getDeviceMessageSpecFactory().findDeviceMessageSpecFromPrimaryKey(offlineDeviceMessage.getDeviceMessageSpecPrimaryKey().getValue());
+    }
+
+    private static DeviceMessageSpecFactory getDeviceMessageSpecFactory () {
+        List<DeviceMessageSpecFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceMessageSpecFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(DeviceMessageSpecFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
     }
 
     /**

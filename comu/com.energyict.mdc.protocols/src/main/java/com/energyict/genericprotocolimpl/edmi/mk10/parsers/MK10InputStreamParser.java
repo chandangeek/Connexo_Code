@@ -6,7 +6,7 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.parsers;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 
 import java.io.ByteArrayOutputStream;

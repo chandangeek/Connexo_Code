@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 

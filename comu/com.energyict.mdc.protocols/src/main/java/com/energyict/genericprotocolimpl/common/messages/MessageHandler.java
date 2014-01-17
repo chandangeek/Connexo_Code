@@ -1,10 +1,10 @@
 
 package com.energyict.genericprotocolimpl.common.messages;
 
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,15 +15,15 @@ import java.io.IOException;
 /**
  * Generic messageHandler. The xml-OldDeviceMessage is parsed using the {@link DefaultHandler} and the relative
  * variables are set.
- * 
+ *
  * @author gna
  *
  */
-public class MessageHandler extends DefaultHandler{
+public class MessageHandler extends DefaultHandler {
 
-	/** Represents the current Message type */ 
+	/** Represents the current Message type */
 	private String type = "";
-	
+
 	/** Helper to indicate whether the OldDeviceMessage content contains xml */
 	private boolean isXmlInContent = false;
 
@@ -31,149 +31,149 @@ public class MessageHandler extends DefaultHandler{
 	 * {@inheritDoc}
 	 */
 	public void startElement(String uri, String lName, String qName, Attributes attrbs) throws SAXException {
-		if(RtuMessageConstant.XMLCONFIG.equals(qName)){
+		if (RtuMessageConstant.XMLCONFIG.equals(qName)) {
 			setType(RtuMessageConstant.XMLCONFIG);
 			isXmlInContent = true;
-		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
+		} else if (RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)) {
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
-		} else if(RtuMessageConstant.FIRMWARE_UPDATE.equals(qName)){
+		} else if (RtuMessageConstant.FIRMWARE_UPDATE.equals(qName)) {
 			setType(RtuMessageConstant.FIRMWARE_UPDATE);
             isXmlInContent = true;
-		} else if(RtuMessageConstant.RF_FIRMWARE_UPGRADE.equals(qName)){
+		} else if (RtuMessageConstant.RF_FIRMWARE_UPGRADE.equals(qName)) {
 			setType(RtuMessageConstant.RF_FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
-		} else if(RtuMessageConstant.P1CODEMESSAGE.equals(qName)){
+		} else if (RtuMessageConstant.P1CODEMESSAGE.equals(qName)) {
 			setType(RtuMessageConstant.P1CODEMESSAGE);
 			handleP1Code(attrbs);
-		} else if(RtuMessageConstant.P1TEXTMESSAGE.equals(qName)){
+		} else if (RtuMessageConstant.P1TEXTMESSAGE.equals(qName)) {
 			setType(RtuMessageConstant.P1TEXTMESSAGE);
 			handleP1Text(attrbs);
-		} else if(RtuMessageConstant.CONNECT_LOAD.equals(qName)){
+		} else if (RtuMessageConstant.CONNECT_LOAD.equals(qName)) {
 			setType(RtuMessageConstant.CONNECT_LOAD);
 			handleConnectLoad(attrbs);
-		} else if(RtuMessageConstant.DISCONNECT_LOAD.equals(qName)){
+		} else if (RtuMessageConstant.DISCONNECT_LOAD.equals(qName)) {
 			setType(RtuMessageConstant.DISCONNECT_LOAD);
 			handleDisconnectLoad(attrbs);
-        } else if(RtuMessageConstant.REMOTE_CONNECT.equals(qName)){
+        } else if (RtuMessageConstant.REMOTE_CONNECT.equals(qName)) {
 			setType(RtuMessageConstant.CONNECT_LOAD);
-		} else if(RtuMessageConstant.REMOTE_DISCONNECT.equals(qName)){
+		} else if (RtuMessageConstant.REMOTE_DISCONNECT.equals(qName)) {
 			setType(RtuMessageConstant.DISCONNECT_LOAD);
-		} else if(RtuMessageConstant.CONNECT_CONTROL_MODE.equals(qName)){
+		} else if (RtuMessageConstant.CONNECT_CONTROL_MODE.equals(qName)) {
 			setType(RtuMessageConstant.CONNECT_CONTROL_MODE);
 			handleConnectControlMode(attrbs);
-		} else if(RtuMessageConstant.LOAD_LIMIT_CONFIGURE.equals(qName)){
+		} else if (RtuMessageConstant.LOAD_LIMIT_CONFIGURE.equals(qName)) {
 			setType(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
 			handleLoadLimitConfiguration(attrbs);
-		} else if(RtuMessageConstant.LOAD_LIMIT_DISABLE.equals(qName)){
+		} else if (RtuMessageConstant.LOAD_LIMIT_DISABLE.equals(qName)) {
 			setType(RtuMessageConstant.LOAD_LIMIT_DISABLE);
-		} else if(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST.equals(qName)){
+		} else if (RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST.equals(qName)) {
 			setType(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
 			handleLoadLimitEPGroupIDList(attrbs);
-		} else if(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE.equals(qName)){
+		} else if (RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE.equals(qName)) {
 			handleLoadLimitEmergencyProfile(attrbs);
-		} else if(RtuMessageConstant.TOU_ACTIVITY_CAL.equals(qName)){
+		} else if (RtuMessageConstant.TOU_ACTIVITY_CAL.equals(qName)) {
 			setType(RtuMessageConstant.TOU_ACTIVITY_CAL);
 			handleTOUMessage(attrbs);
             isXmlInContent = true;  // for certain protocols (ApolloMeter), we put in the xmlParsed CodeTable
         } else if (RtuMessageConstant.TOU_ACTIVATE_CALENDAR.equals(qName)){
             setType(RtuMessageConstant.TOU_ACTIVATE_CALENDAR);
             handleTOUActivation(attrbs);
-		} else if(RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)){
+		} else if (RtuMessageConstant.TOU_SPECIAL_DAYS.equals(qName)) {
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS);
 			handleSpecialDays(attrbs);
             isXmlInContent = true;  // for certain protocols (ApolloMeter), we put in the xmlParsed CodeTable
-		}else if(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE.equals(qName)){
+		}else if (RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE.equals(qName)) {
 			setType(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
 			handleSpecialDaysDelete(attrbs);
-		} else if(RtuMessageConstant.MBUS_DECOMMISSION.equals(qName)){
+		} else if (RtuMessageConstant.MBUS_DECOMMISSION.equals(qName)) {
 			setType(RtuMessageConstant.MBUS_DECOMMISSION);
-		} else if(RtuMessageConstant.MBUS_ENCRYPTION_KEYS.equals(qName)){
+		} else if (RtuMessageConstant.MBUS_ENCRYPTION_KEYS.equals(qName)) {
 			setType(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
 			handleMbusEncryptionKeys(attrbs);
-		} else if(RtuMessageConstant.SET_TIME.equals(qName)){
+		} else if (RtuMessageConstant.SET_TIME.equals(qName)) {
 			setType(RtuMessageConstant.SET_TIME);
 			handleSetTime(attrbs);
-		} else if(RtuMessageConstant.ME_MAKING_ENTRIES.equals(qName)){
+		} else if (RtuMessageConstant.ME_MAKING_ENTRIES.equals(qName)) {
 			setType(RtuMessageConstant.ME_MAKING_ENTRIES);
 			handleMakingEntries(attrbs);
-		} else if(RtuMessageConstant.GPRS_MODEM_SETUP.equals(qName)){
+		} else if (RtuMessageConstant.GPRS_MODEM_SETUP.equals(qName)) {
 			setType(RtuMessageConstant.GPRS_MODEM_SETUP);
 			handleGrpsModemSetup(attrbs);
-        } else if(RtuMessageConstant.GPRS_MODEM_CREDENTIALS.equals(qName)){
+        } else if (RtuMessageConstant.GPRS_MODEM_CREDENTIALS.equals(qName)) {
             setType(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
             handleGprsModemCredentials(attrbs);
-		} else if(RtuMessageConstant.TEST_MESSAGE.equals(qName)){
+		} else if (RtuMessageConstant.TEST_MESSAGE.equals(qName)) {
 			setType(RtuMessageConstant.TEST_MESSAGE);
 			handleTestMessage(attrbs);
-		} else if(RtuMessageConstant.TEST_SECURITY_MESSAGE.equals(qName)){
+		} else if (RtuMessageConstant.TEST_SECURITY_MESSAGE.equals(qName)) {
 			setType(RtuMessageConstant.TEST_SECURITY_MESSAGE);
 			handleTestMessage(attrbs);
-		} else if(RtuMessageConstant.GLOBAL_METER_RESET.equals(qName)){
+		} else if (RtuMessageConstant.GLOBAL_METER_RESET.equals(qName)) {
 			setType(RtuMessageConstant.GLOBAL_METER_RESET);
-		} else if(RtuMessageConstant.RESTORE_FACTORY_SETTINGS.equals(qName)){
+		} else if (RtuMessageConstant.RESTORE_FACTORY_SETTINGS.equals(qName)) {
 			setType(RtuMessageConstant.RESTORE_FACTORY_SETTINGS);
-		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
+		} else if (RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)) {
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
-        } else if(RtuMessageConstant.WAKEUP_ACTIVATE.equals(qName)){
+        } else if (RtuMessageConstant.WAKEUP_ACTIVATE.equals(qName)) {
             setType(RtuMessageConstant.WAKEUP_ACTIVATE);
-        } else if(RtuMessageConstant.WAKEUP_DEACTIVATE.equals(qName)){
+        } else if (RtuMessageConstant.WAKEUP_DEACTIVATE.equals(qName)) {
             setType(RtuMessageConstant.WAKEUP_DEACTIVATE);
-		} else if(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)){
+		} else if (RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY.equals(qName)) {
 			setType(RtuMessageConstant.AEE_CHANGE_GLOBAL_KEY);
-		} else if(RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)){
+		} else if (RtuMessageConstant.AEE_CHANGE_HLS_SECRET.equals(qName)) {
 			setType(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-		} else if(RtuMessageConstant.AEE_CHANGE_LLS_SECRET.equals(qName)){
+		} else if (RtuMessageConstant.AEE_CHANGE_LLS_SECRET.equals(qName)) {
 			setType(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
-		} else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY.equals(qName)){
+		} else if (RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY.equals(qName)) {
 			setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_KEY);
-		} else if(RtuMessageConstant.AEE_ACTIVATE_SECURITY.equals(qName)){
+		} else if (RtuMessageConstant.AEE_ACTIVATE_SECURITY.equals(qName)) {
 			setType(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
 			handleActivateSecurityLevel(attrbs);
-		} else if(RtuMessageConstant.MBUS_CORRECTED_VALUES.equals(qName)){
+		} else if (RtuMessageConstant.MBUS_CORRECTED_VALUES.equals(qName)) {
 			setType(RtuMessageConstant.MBUS_CORRECTED_VALUES);
-		} else if(RtuMessageConstant.MBUS_UNCORRECTED_VALUES.equals(qName)){
+		} else if (RtuMessageConstant.MBUS_UNCORRECTED_VALUES.equals(qName)) {
 			setType(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
-        } else if(RtuMessageConstant.MBUS_INSTALL.equals(qName)){
+        } else if (RtuMessageConstant.MBUS_INSTALL.equals(qName)) {
             setType(RtuMessageConstant.MBUS_INSTALL);
             handleMbusInstall(attrbs);
-        } else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)){
+        } else if (RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)) {
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
             handleChangeAuthentication(attrbs);
-        } else if(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0.equals(qName)){
+        } else if (RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0.equals(qName)) {
             setType(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0);
             handleChangeAuthentication(attrbs);
-        } else if(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0.equals(qName)){
+        } else if (RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0.equals(qName)) {
             setType(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
             handleChangeAuthentication(attrbs);
-        } else if(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3.equals(qName)){
+        } else if (RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3.equals(qName)) {
             setType(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3);
             handleChangeAuthentication(attrbs);
-        } else if(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3.equals(qName)){
+        } else if (RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3.equals(qName)) {
             setType(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
             handleChangeAuthentication(attrbs);
-        } else if(RtuMessageConstant.CHANGE_HAN_SAS.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.CHANGE_HAN_SAS.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_HAN_SAS);
             handleChangeHanSas(attrbs);
-        } else if(RtuMessageConstant.CREATE_HAN_NETWORK.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.CREATE_HAN_NETWORK.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CREATE_HAN_NETWORK);
-        } else if(RtuMessageConstant.REMOVE_HAN_NETWORK.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.REMOVE_HAN_NETWORK.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.REMOVE_HAN_NETWORK);
-        } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
             handleJoinZigBeeSlave(attrbs);
-        } else if(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.REMOVE_ZIGBEE_SLAVE.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
             handleRemoveZigBeeSlave(attrbs);
-        } else if(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.REMOVE_ZIGBEE_MIRROR.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR);
             handleRemoveZigBeeMirror(attrbs);
-        } else if(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
-        } else if(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
-        } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
+        } else if (RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             handleRestoreHANParameters(attrbs);
         } else if (RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE.equals(qName)) {
@@ -187,10 +187,10 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_OF_SUPPLIER);
             handleChangeOfSupplierParameters(attrbs);
-        } else if(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
+        } else if (LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
             setType(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag());
             isXmlInContent = true;
-        } else if(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
+        } else if (LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
             setType(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
             isXmlInContent = true;
         } else if(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW.equalsIgnoreCase(qName)) {
@@ -200,7 +200,7 @@ public class MessageHandler extends DefaultHandler{
              setType(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
             handleGPRSModemPingSetup(attrbs);
 		} else {
-			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
+			if (!isXmlInContent) { // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
 			}
 		}
@@ -214,10 +214,6 @@ public class MessageHandler extends DefaultHandler{
 		this.type = type;
 	}
 
-	/**
-	 * Getter fo the {@link MessageHandler#type}
-	 * @return
-	 */
 	public String getType(){
 		return this.type;
 	}
@@ -245,7 +241,7 @@ public class MessageHandler extends DefaultHandler{
 	}
 
 	public String getActivationDate(){
-		if(this.activationDate == null){
+		if (this.activationDate == null) {
 			this.activationDate = "";
 		}
 		return this.activationDate;
@@ -307,14 +303,14 @@ public class MessageHandler extends DefaultHandler{
     }
 
 	public String getConnectDate(){
-		if(this.connectDate == null){
+		if (this.connectDate == null) {
 			this.connectDate = "";
 		}
 		return this.connectDate;
 	}
 
 	public String getDisconnectDate(){
-		if(this.disconnectDate == null){
+		if (this.disconnectDate == null) {
 			this.disconnectDate = "";
 		}
 		return this.disconnectDate;
@@ -491,15 +487,15 @@ public class MessageHandler extends DefaultHandler{
 	}
 
 	public String getMEInterval() throws IOException {
-		if(!this.interval.equalsIgnoreCase("15") && !this.interval.equalsIgnoreCase("day") && !this.interval.equalsIgnoreCase("month")){
+		if (!"15".equalsIgnoreCase(this.interval) && !"day".equalsIgnoreCase(this.interval) && !"month".equalsIgnoreCase(this.interval)) {
 			throw new IOException("Only '15 - day - month' is alowed in the interval field. (value: " + this.interval);
 		}
 		return this.interval;
 	}
 
 	public boolean getMESyncAtEnd(){
-		if(this.syncClock != null){
-			return !this.syncClock.equalsIgnoreCase("0");
+		if (this.syncClock != null) {
+			return !"0".equalsIgnoreCase(this.syncClock);
 		} else {
 			return false;
 		}
@@ -524,7 +520,7 @@ public class MessageHandler extends DefaultHandler{
     }
 
     public String getGprsApn(){
-		if(this.gprsApn != null){
+		if (this.gprsApn != null) {
 			return this.gprsApn;
 		} else{
 			return "";
@@ -532,7 +528,7 @@ public class MessageHandler extends DefaultHandler{
 	}
 
 	public String getGprsUsername(){
-		if(this.gprsUsername != null){
+		if (this.gprsUsername != null) {
 			return this.gprsUsername;
 		} else {
 			return "";
@@ -540,7 +536,7 @@ public class MessageHandler extends DefaultHandler{
 	}
 
 	public String getGprsPassword(){
-		if(this.gprsPassword != null){
+		if (this.gprsPassword != null) {
 			return this.gprsPassword;
 		} else {
 			return "";
@@ -557,7 +553,12 @@ public class MessageHandler extends DefaultHandler{
 	}
 
 	public String getTestUserFileId(){
-		return (this.ufId != null)?this.ufId:"";
+        if (this.ufId != null) {
+            return this.ufId;
+        }
+        else {
+            return "";
+        }
 	}
 
 	/* WakeUp functionality Related messages
@@ -578,23 +579,48 @@ public class MessageHandler extends DefaultHandler{
 	}
 
 	public String getNr1() {
-		return (this.nr1 != null)?this.nr1:"";
+        if (this.nr1 != null) {
+            return this.nr1;
+        }
+        else {
+            return "";
+        }
 	}
 
 	public String getNr2() {
-		return (this.nr2 != null)?this.nr2:"";
+        if (this.nr2 != null) {
+            return this.nr2;
+        }
+        else {
+            return "";
+        }
 	}
 
 	public String getNr3() {
-		return (this.nr3 != null)?this.nr3:"";
+        if (this.nr3 != null) {
+            return this.nr3;
+        }
+        else {
+            return "";
+        }
 	}
 
 	public String getNr4() {
-		return (this.nr4 != null)?this.nr4:"";
+        if (this.nr4 != null) {
+            return this.nr4;
+        }
+        else {
+            return "";
+        }
 	}
 
 	public String getNr5() {
-		return (this.nr5 != null)?this.nr5:"";
+        if (this.nr5 != null) {
+            return this.nr5;
+        }
+        else {
+            return "";
+        }
 	}
 
 	/* Authentication and Encryption functionality Related messages
@@ -773,7 +799,7 @@ public class MessageHandler extends DefaultHandler{
         return tenantActivationDate;
     }
 
-    
+
     private String supplierName = "";
     private String supplierId = "";
     private String supplierActivationDate = "";

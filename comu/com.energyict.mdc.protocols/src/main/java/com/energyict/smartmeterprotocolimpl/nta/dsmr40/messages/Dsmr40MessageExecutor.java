@@ -1,6 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -24,13 +30,13 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -71,13 +77,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         String userFileID = messageHandler.getUserFileId();
         if (!ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
+            throw new IOException("Not a valid entry for the userFile.");
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
         if (uf == null) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
+            throw new IOException("Not a valid entry for the userfileID " + userFileID);
         }
 
         byte[] imageData = uf.loadFileInByteArray();
@@ -88,12 +92,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
         String imageIdentifier = messageHandler.getImageIdentifier();
-        if (imageIdentifier != null && imageIdentifier.length() > 0) {
+        if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
             it.upgrade(imageData, false, imageIdentifier, false);
         } else {
             it.upgrade(imageData, false);
         }
-        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             try {
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 log(Level.INFO, "Activating the image");
@@ -116,7 +120,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 //					sas.writeExecutionTime(dateArray);
 
 
-        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertUnixToDateTimeArray(strDate);
@@ -138,7 +142,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void setWakeUpWhiteList(MessageHandler messageHandler) throws IOException {
-        List<Structure> senders = new ArrayList<Structure>();
+        List<Structure> senders = new ArrayList<>();
         senders.add(createSenderAndAction(messageHandler.getNr1()));
         senders.add(createSenderAndAction(messageHandler.getNr2()));
         senders.add(createSenderAndAction(messageHandler.getNr3()));
@@ -198,7 +202,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         if (codeTable != null) {
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+            Code ct = this.findCode(codeTable);
             if (ct == null) {
                 throw new IOException("No CodeTable defined with id '" + codeTable + "'");
             } else {
@@ -217,7 +221,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     }
                     ac.writeCalendarNamePassive(OctetString.fromString(name));
                 }
-                if ((activateDate != null) && (activateDate.length() != 0)) {
+                if ((activateDate != null) && (!activateDate.isEmpty())) {
                     ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToDateTime(activateDate, getTimeZone()).getBEREncodedByteArray(), 0));
                 } else {
                     ac.activateNow();
@@ -229,6 +233,18 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             // should never get here
             throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
         }
+    }
+
+    private Code findCode(String codeTable) {
+        int codeId = Integer.parseInt(codeTable);
+        List<CodeFactory> codeFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CodeFactory.class);
+        for (CodeFactory codeFactory : codeFactories) {
+            Code code = codeFactory.findCode(codeId);
+            if (code != null) {
+                return code;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -350,4 +366,16 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected int getBooleanValue() {
         return 0xFF;
     }
+
+    private UserFile findUserFile(int userFileID) {
+        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
+        for (UserFileFactory codeFactory : factories) {
+            UserFile userFile = codeFactory.findUserFile(userFileID);
+            if (userFile != null) {
+                return userFile;
+            }
+        }
+        return null;
+    }
+
 }

@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -16,7 +16,7 @@ import java.util.TimeZone;
  * @author  Koen
  */
 public class HistoricalValueSetInfo {
-    
+
     private static final int BILLING_DATA=0x01;
     private static final int SEASON_CHANGE=0x02;
     private static final int TARIFF_CHANGE=0x04;
@@ -25,18 +25,18 @@ public class HistoricalValueSetInfo {
     private static final int PUSH_BUTTON=0x20;
     private static final int EXTERNAL_INPUT=0x40;
     private static final int POWER_UP=0x80;
-    
+
     private static final String[] triggerSources={"billing data","season change","tariff change","serial comm","optical comm","push button","external input","power up"};
-    
+
     int billingCount;
     Date billingStartDateTime;
     Date billingEndDateTime;
     int billingTriggerSource;
     Date billingResetDateTime;
-  
-    
+
+
     TimeZone timeZone;
-    
+
     public HistoricalValueSetInfo() {
     }
 
@@ -57,12 +57,12 @@ public class HistoricalValueSetInfo {
         }
         return strBuff.toString();
     }
-    
-     
+
+
     public String toString() {
         return getBillingCount()+", "+getBillingEndDateTime()+", "+getBillingResetDateTime()+", "+getBillingStartDateTime()+", "+getBillingTriggerSource()+getTriggerSourceDescription();
     }
-    
+
     private void parse(byte[] data) throws IOException {
        setBillingCount(ProtocolUtils.getIntLE(data,0,2));
        long shift = (long)ProtocolUtils.getIntLE(data,2,4)&0xFFFFFFFFL;
@@ -73,7 +73,7 @@ public class HistoricalValueSetInfo {
        shift = (long)ProtocolUtils.getIntLE(data,2+4+4+1,4)&0xFFFFFFFFL;
        setBillingResetDateTime(ProtocolUtils.getCalendar(timeZone,shift).getTime());
     }
-    
+
     /**
      * Getter for property billingCount.
      *
@@ -82,7 +82,7 @@ public class HistoricalValueSetInfo {
     public int getBillingCount() {
         return billingCount;
     }
-    
+
     /**
      * Setter for property billingCount.
      *
@@ -91,7 +91,7 @@ public class HistoricalValueSetInfo {
     public void setBillingCount(int billingCount) {
         this.billingCount = billingCount;
     }
-    
+
     /**
      * Getter for property billingStartDateTime.
      *
@@ -100,7 +100,7 @@ public class HistoricalValueSetInfo {
     public java.util.Date getBillingStartDateTime() {
         return filterMissingDates(billingStartDateTime);
     }
-    
+
     /**
      * Setter for property billingStartDateTime.
      *
@@ -109,7 +109,7 @@ public class HistoricalValueSetInfo {
     public void setBillingStartDateTime(java.util.Date billingStartDateTime) {
         this.billingStartDateTime = billingStartDateTime;
     }
-    
+
     /**
      * Getter for property billingEndDateTime.
      *
@@ -118,7 +118,7 @@ public class HistoricalValueSetInfo {
     public java.util.Date getBillingEndDateTime() {
         return filterMissingDates(billingEndDateTime);
     }
-    
+
     /**
      * Setter for property billingEndDateTime.
      *
@@ -127,7 +127,7 @@ public class HistoricalValueSetInfo {
     public void setBillingEndDateTime(java.util.Date billingEndDateTime) {
         this.billingEndDateTime = billingEndDateTime;
     }
-    
+
     /**
      * Getter for property billingTriggerSource.
      *
@@ -136,7 +136,7 @@ public class HistoricalValueSetInfo {
     public int getBillingTriggerSource() {
         return billingTriggerSource;
     }
-    
+
     /**
      * Setter for property billingTriggerSource.
      *
@@ -145,7 +145,7 @@ public class HistoricalValueSetInfo {
     public void setBillingTriggerSource(int billingTriggerSource) {
         this.billingTriggerSource = billingTriggerSource;
     }
-    
+
     /**
      * Getter for property billingResetDateTime.
      *

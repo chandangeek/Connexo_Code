@@ -11,11 +11,11 @@
 package com.energyict.protocolimpl.landisgyr.sentry.s200;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -65,14 +65,14 @@ public class S200Connection extends Connection  implements ProtocolConnection {
            setCrn(-1);
         else
            setCrn(crnInitialValue-1);
-    } // EZ7Connection(...)
+    }
 
 
     public byte[] dataReadout(String strID, String nodeId) throws NestedIOException, ProtocolConnectionException {
         return null;
     }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
         this.nodeId=nodeId;
         return null;
     }
@@ -181,15 +181,8 @@ public class S200Connection extends Connection  implements ProtocolConnection {
         while(true) {
 
             if ((kar = readIn()) != -1) {
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
-                }
-
                 frameArrayOutputStream.write(kar);
-
                 switch(state) {
-
                     case WAIT_FOR_STX:
                         interFrameTimeout = System.currentTimeMillis() + timeout;
                         if (kar == STX) {
@@ -247,10 +240,12 @@ public class S200Connection extends Connection  implements ProtocolConnection {
                             byte[] frame = frameArrayOutputStream.toByteArray();
                             crcReceived = (((int)frame[frame.length-2]&0xff)<<8) | ((int)frame[frame.length-1]&0xff);
                             if (crcReceived == crcCalculated) {
-                                if (dataLenght==6)
-                                   return new ResponseFrame(frame);
-                                else
-                                   state = WAIT_FOR_END_CONTROL;
+                                if (dataLenght==6) {
+                                    return new ResponseFrame(frame);
+                                }
+                                else {
+                                    state = WAIT_FOR_END_CONTROL;
+                                }
                             }
                             else {
                                 throw new ProtocolConnectionException("receiveFrame() CRC_ERROR",CRC_ERROR);
@@ -262,21 +257,16 @@ public class S200Connection extends Connection  implements ProtocolConnection {
                     case WAIT_FOR_END_CONTROL:
                         return new ResponseFrame(frameArrayOutputStream.toByteArray());
                     // DB_WAIT_FOR_END_CONTROL
-
-                } // switch(state)
-
-            } // if ((kar = readIn()) != -1)
-
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+                }
+            }
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
-
-        } // while(true)
-
-    } // public void receiveFrame() throws ConnectionException
+        }
+    }
 
     // STX CSA CBN CRC[2]
     private void assembleDataBlockAcknowledge(int cbn,int csa) throws IOException {
@@ -300,25 +290,22 @@ public class S200Connection extends Connection  implements ProtocolConnection {
                 delayAndFlush(forcedDelay);
                 assembleDataBlockAcknowledge(blockNr,csa);
                 sendFrame();
-
-                ResponseFrame rdb = receiveFrame();
-
-                return rdb;
+                return receiveFrame();
             } catch(ConnectionException e) {
-
                 if (retry++>=maxRetries) {
                     throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                 }
                 else {
-                    if (e.getReason() == CRC_ERROR)
+                    if (e.getReason() == CRC_ERROR) {
                         csa = NAK;
+                    }
                     else if ((blockNr == 0) && (e.getReason() == TIMEOUT_ERROR)) // timeout on last block ack
+                    {
                         return null;
+                    }
                 }
-
             }
-        } // while(true)
-    } // public ResponseData sendCommand(int command, byte[] data) throws IOException
-
+        }
+    }
 
 }

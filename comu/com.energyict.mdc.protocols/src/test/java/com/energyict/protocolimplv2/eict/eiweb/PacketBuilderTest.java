@@ -1,18 +1,17 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.device.data.CollectedAddressProperties;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
-import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.util.LittleEndianOutputStream;
 import org.fest.assertions.core.Condition;
 import org.junit.*;
 import org.junit.runner.*;
@@ -31,7 +30,6 @@ import java.util.TimeZone;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +49,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithDeviceId () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         // Business method
         String deviceId = "221";
@@ -70,7 +68,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithStateBits () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         // Business method
         String deviceId = "221";
@@ -90,7 +88,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithSerialNumber () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
         String serialNumber = "serial.number";
 
         // Business method
@@ -109,7 +107,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithoutNumberOfMessages() throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
         String serialNumber = "serial.number";
 
         // Business method
@@ -128,7 +126,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithNonNumerialDeviceId () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         try {
             packetBuilder.parse("forceparsefailure", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
@@ -142,7 +140,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithNonNumerialMask() throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         try {
             packetBuilder.parse(String.valueOf(DEVICE_ID), "FFFF", "0", "0", null, "forceparsefailure", "321", "192.168.2.100", null, "0");
@@ -156,7 +154,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithNonNumerialNumberOfMessages() throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         try {
             packetBuilder.parse(String.valueOf(DEVICE_ID), "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "foreceparsefailure");
@@ -170,7 +168,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedNonNumericalStringValues () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         try {
             String deviceId = "221";
@@ -185,7 +183,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testParseFromUnencryptedStringValuesWithoutMask () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         // Business method
         String deviceId = "221";
@@ -204,7 +202,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test(expected = DataEncryptionException.class)
     public void testParseFromUnencryptedStringValuesWithTooManyChannelValues () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         // Business method
         String deviceId = "221";
@@ -215,7 +213,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testCollectedDataFromFromUnencryptedStringValues () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
         packetBuilder.parse("221", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
 
         // Business method
@@ -233,7 +231,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testIsTimeCorrectWithUnencryptedData () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
         packetBuilder.parse("221", "FFFF", "0", "0", null, "1", "321", "192.168.2.100", null, "0");
 
         // Asserts
@@ -259,7 +257,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
         leos.writeString("19 bytes of header data", 19);
         leos.writeLEChar(321);  // The single value
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
 
         // Business method
         packetBuilder.parse(is, null);
@@ -292,7 +290,7 @@ public class PacketBuilderTest extends AbstractEIWebTests{
         leos.writeString("19 bytes of header data", 19);
         leos.writeLEChar(321);  // The single value
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDiscoveryContext.class)));
         String serialNumber = "serial.number";
 
         // Business method
@@ -326,10 +324,9 @@ public class PacketBuilderTest extends AbstractEIWebTests{
         leos.writeString("19 bytes of header data", 19);
         this.writeEncryptedData("321", leos);
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        InboundComPort comPort = mock(InboundComPort.class);
-        when(inboundDAO.getDeviceConnectionTypeProperties(any(CanFindDevice.class), eq(comPort))).thenReturn(TypedProperties.empty());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(inboundDAO, comPort));
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        when(inboundDiscoveryContext.getDeviceConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(TypedProperties.empty());
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(inboundDiscoveryContext));
 
         // Business method
         packetBuilder.parse(is, null);
@@ -362,10 +359,9 @@ public class PacketBuilderTest extends AbstractEIWebTests{
         leos.writeString("19 bytes of header data", 19);
         this.writeEncryptedData("321", leos);
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        InboundComPort comPort = mock(InboundComPort.class);
-        when(inboundDAO.getDeviceConnectionTypeProperties(any(CanFindDevice.class), eq(comPort))).thenReturn(TypedProperties.empty());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(inboundDAO, comPort));
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        when(inboundDiscoveryContext.getDeviceConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(TypedProperties.empty());
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(inboundDiscoveryContext));
 
         // Business method
         packetBuilder.parse(is, null);
@@ -402,16 +398,15 @@ public class PacketBuilderTest extends AbstractEIWebTests{
 
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, "mac-address");
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
 
-        InboundComPort comPort = mock(InboundComPort.class);
-        InboundDAO inboundDAO = mock(InboundDAO.class);
-        when(inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, comPort)).thenReturn(connectionTypeProperties);
+        InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        when(inboundDiscoveryContext.getDeviceConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(TypedProperties.empty());
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new Password("zorro"));
-        when(inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort)).thenReturn(Arrays.asList(encryptionPassword));
-        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDAO, comPort);
+        when(inboundDiscoveryContext.getDeviceProtocolSecurityProperties(deviceIdentifier)).thenReturn(Arrays.asList(encryptionPassword));
+        EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
         Encryptor encryptor = new Encryptor(cryptographer.buildMD5Seed(deviceIdentifier, "2114"));
         for (byte rawByte : values.getBytes()) {
             os.write(encryptor.encrypt(rawByte));

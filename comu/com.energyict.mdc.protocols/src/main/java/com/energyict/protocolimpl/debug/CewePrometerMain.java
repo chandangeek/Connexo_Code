@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 
 import java.io.IOException;

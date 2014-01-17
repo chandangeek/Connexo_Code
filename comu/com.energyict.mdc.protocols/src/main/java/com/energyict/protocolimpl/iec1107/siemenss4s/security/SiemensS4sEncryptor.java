@@ -1,23 +1,23 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.security;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
 
 /**
- * 
+ *
  * Implements the security negotiation between client and server
  * @author gna
  * @since 21/08/2009
  */
 public class SiemensS4sEncryptor implements Encryptor {
-	
+
 	private int securityLevel;	// contains the securityLevel for the securityNegotiation
 
 	public SiemensS4sEncryptor(){
 		this.securityLevel = 2;		// default value is 2
 	}
-	
+
 	/**
 	 * Encrypts the password along with the key(seed)
 	 * The securityLevel is added to the left side
@@ -34,7 +34,7 @@ public class SiemensS4sEncryptor implements Encryptor {
 		strBuff.append(Integer.toHexString(response));
 		return strBuff.toString().toUpperCase();
 	}
-	
+
 	/**
 	 * Setter for the securityLevel
 	 * @param level
@@ -42,23 +42,23 @@ public class SiemensS4sEncryptor implements Encryptor {
 	public void setSecurityLevel(int level){
 		this.securityLevel = level;
 	}
-	
+
 	/**
 	 * Convert the hexByteArray to a hexaDecimal string
 	 * @param data
 	 * @return
 	 */
     private static String outputHexString(byte[] data) {
-        StringBuffer strBuff=new StringBuffer(); 
+        StringBuffer strBuff=new StringBuffer();
         for (int i=0;i<data.length;i++) {
             strBuff.append(outputHexString(data[i]&0xFF));
         }
         return strBuff.toString();
      }
-    
+
     /**
      * It's actually a ProtocolUtils method, but without the '$' sign
-     * @param bKar 
+     * @param bKar
      * @return a hexConverted integer
      */
     private static String outputHexString(int bKar) {

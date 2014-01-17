@@ -11,12 +11,11 @@
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.util.Equality;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
+import static com.elster.jupiter.util.Checks.is;
+
 /**
  *
  * @author Koen
@@ -38,7 +39,6 @@ public class DemandData extends AbstractTable {
 
     private byte[] data;
     private List demandValuesList;
-    Date previousDate=null;
     private int choise = 0;
     private int[] profileChoises = {300, 600, 900};		// 5 - 10 - 15 minutes
     private int profileInterval = -1;
@@ -56,18 +56,18 @@ public class DemandData extends AbstractTable {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         strBuff.append("DemandData:\n");
         for (int i=0;i<getDemandValuesList().size();i++) {
             DemandValues demandValues = (DemandValues)getDemandValuesList().get(i);
-            strBuff.append("    demandValues["+i+"]="+demandValues+"\n");
+            strBuff.append("    demandValues[").append(i).append("]=").append(demandValues).append("\n");
         }
 
         try {
             List ids = getIntervalDatas();
             for (int i=0;i<ids.size();i++) {
                 IntervalData id = (IntervalData)ids.get(i);
-                strBuff.append("    id="+id+"\n");
+                strBuff.append("    id=").append(id).append("\n");
             }
         }
         catch(IOException e) {
@@ -107,25 +107,14 @@ public class DemandData extends AbstractTable {
 
     public void parse(byte[] data) throws IOException {
         this.setData(data);
-
-//        System.out.println("GN_DEBUG> write to file");
-//        File file = new File("c://TEST_FILES/H3296.bin");
-//        FileOutputStream fos = new FileOutputStream(file);
-//        fos.write(data);
-//        fos.close();
-
         calculateProfileInterval();
 
         setDemandValuesList(new ArrayList());
-        int count;
         int offset=0;
         DemandValues demandValues = null; //new DemandValues(Calendar.getInstance(), 1);
-
         Calendar traceCalendar = null;
-
         try {
             while(true) {
-
             	if (offset == data.length) {
 					break;
 				}
@@ -171,11 +160,11 @@ public class DemandData extends AbstractTable {
 
                 } else {
                     if ((temp&0x4000)==0) {		// l'élément-dates
-                    	if(DEBUG>=2) {
+                    	if (DEBUG>=2) {
 							System.out.println("dates");
 						}
                     	int temp2 = ProtocolUtils.getIntLE(data,offset, 2); offset+=2;
-                    	if(((temp2&0x4000) >> 14) == 1){
+                    	if (((temp2&0x4000) >> 14) == 1) {
                     		Calendar cal = getCurrentDate(temp&0x1FFF, temp2&0x1FFF, getTimeZone());
                     		if (DEBUG>=2) {
 								System.out.println("date = "+cal.getTime());
@@ -196,27 +185,23 @@ public class DemandData extends AbstractTable {
                     	}
                     } else {					// l'élément-heures
                     	// should never get here, the dates come first.
-                    	if(DEBUG>=2) {
+                    	if (DEBUG>=2) {
 							System.out.println("houres");
 						}
                     }
                 }
-            } // while(true)
-
-//            validateTimestamps();
-
+            }
         } catch(IOException e) {
             e.printStackTrace();
         }
-    } // protected void parse(byte[] data) throws IOException
-
+    }
 
 	private void calculateProfileInterval() {
     	int offset = 0;
     	int counter = 0;
     	long interval;
     	Calendar cal1 = null;
-    	Calendar cal2 = null;
+    	Calendar cal2;
     	try {
 			while (true) {
 				if (offset == getData().length) {
@@ -381,7 +366,7 @@ public class DemandData extends AbstractTable {
     }
 
     public List getIntervalDatas() throws IOException {
-        List intervalDatas = new ArrayList();
+        List<IntervalData> intervalDatas = new ArrayList();
 
         Iterator it = getDemandValuesList().iterator();
         while(it.hasNext()) {
@@ -392,10 +377,8 @@ public class DemandData extends AbstractTable {
             cal.add(Calendar.SECOND, getProfileInterval());
             ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
 
-            Iterator it2 = dvs.getIntervals().iterator();
-            while(it2.hasNext()) {
-                Interval interval = (Interval)it2.next();
-                IntervalData intervalData = new IntervalData(new Date(cal.getTime().getTime()),interval.getEiStatus(),0,tariff);
+            for (Interval interval : dvs.getIntervals()) {
+                IntervalData intervalData = new IntervalData(new Date(cal.getTime().getTime()), interval.getEiStatus(), 0, tariff);
                 intervalData.addValue(interval.getValue());
                 intervalDatas.add(intervalData);
                 cal.add(Calendar.SECOND, getProfileInterval());
@@ -413,12 +396,12 @@ public class DemandData extends AbstractTable {
         for (int i=0;i<(intervalDatas.size()-1);i++) {
             intervalData2add = (IntervalData)intervalDatas.get(i);
             intervalData = (IntervalData)intervalDatas.get(i+1);
-            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+            if (is(intervalData.getEndTime()).equalTo(intervalData2add.getEndTime())) {
                 ParseUtils.addIntervalValues(intervalData, intervalData2add);
                 intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
                 intervalDatas.remove(i);
             }
-        } // for (int i=0;i<(intervalDatas.size()-1);i++)
+        }
     }
 
 	/**

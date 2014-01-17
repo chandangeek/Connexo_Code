@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.ByteArrayOutputStream;

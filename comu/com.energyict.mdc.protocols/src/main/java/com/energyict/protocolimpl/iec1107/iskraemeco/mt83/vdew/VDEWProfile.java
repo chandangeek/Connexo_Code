@@ -8,11 +8,11 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -152,12 +152,8 @@ abstract public class VDEWProfile {
         catch(IOException e) {
            throw new IOException("doGetProfileData> "+e.getMessage());
         }
-
-        if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
-
         return profileData;
-
-    } // protected ProfileData doGetProfileData(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+    }
 
     protected List doGetLogBook(Calendar fromCalendar,Calendar toCalendar) throws IOException {
         byte[] responseData=null;
@@ -179,33 +175,17 @@ abstract public class VDEWProfile {
         catch(IOException e) {
            throw new IOException("doGetLogBook> "+e.getMessage());
         }
-
-        if (DEBUG >= 2) ProtocolUtils.printResponseData(responseData);
-
         return meterEvents;
-
-    } // protected List doGetLogBook(Calendar fromCalendar,Calendar toCalendar, byte bNROfChannels) throws IOException
+    }
 
     /*******************************************************
      ******************** PRIVATE METHODS ******************
      *******************************************************/
 
-//    private byte[] doReadRawProfile(String data) throws IOException {
-//        return doReadRawProfile(data,0);
-//    }
-
     private byte[] doReadRawProfile(String data,int profileid) throws IOException {
         String cmd = "P."+ProtocolUtils.buildStringDecimal(profileid, 2)+"("+data+";8)";
         return vdewReadR6(cmd.getBytes());
     } // private byte[] doReadRawProfile()
-
-    private int getLogical0BasedChannelId(String[] edisCodes,int fysical0BasedChannelId) throws IOException {
-        for (int i=0;i<edisCodes.length;i++) {
-            if (getFysical0BasedChannelId(edisCodes[i]) == (fysical0BasedChannelId+1))
-                return i;
-        }
-        throw new IOException("VDEWProfile, getLogical0BasedChannelId(), 0-based fysical channel "+fysical0BasedChannelId+" does not exist in profileheader!");
-    }
 
     private int getFysical0BasedChannelId(String edisCode) {
         return Integer.parseInt(edisCode.substring(edisCode.indexOf("-")+1,edisCode.indexOf(":")))-1;

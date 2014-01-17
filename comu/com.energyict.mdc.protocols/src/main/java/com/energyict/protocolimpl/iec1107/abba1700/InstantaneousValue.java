@@ -8,7 +8,7 @@ package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;

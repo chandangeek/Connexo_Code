@@ -17,25 +17,29 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
+import com.energyict.mdc.protocol.api.device.Register;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import org.xml.sax.SAXException;
 
@@ -417,12 +421,15 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     /* These methods require database access ...  TODO we should do this using the framework ...
     /*****************************************************************************/
     protected Device getRtuFromDatabaseBySerialNumber(String serialNumber) {
-        Device rtu = mw().getDeviceFactory().findBySerialNumber(serialNumber).get(0);
+        List<DeviceFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
+        for (DeviceFactory factory : factories) {
+            List<Device<Channel, LoadProfile<Channel>, Register>> devices = factory.findDevicesBySerialNumber(serialNumber);
+            if (!devices.isEmpty()) {
+                return devices.get(0);
+            }
+        }
         ProtocolTools.closeConnection();
-        return rtu;
+        return null;
     }
 
-    protected MeteringWarehouse mw() {
-        return ProtocolTools.mw();
-    }
 }

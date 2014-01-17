@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
@@ -53,14 +53,12 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> required = new ArrayList<>();
-        return required;
+        return new ArrayList<>();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optional = new ArrayList<>();
-        return optional;
+        return new ArrayList<>();
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
@@ -70,4 +68,5 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
         return new LegacyPartialLoadProfileMessageBuilder();
     }
+
 }

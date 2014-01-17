@@ -1,27 +1,24 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
@@ -29,6 +26,9 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimpl.messaging.messages.AnnotatedFWUpdateMessageBuilder;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -291,7 +291,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
                     return null;
                 }
             };
-            MeteringWarehouse.getCurrent().execute(tr);
+            Environment.DEFAULT.get().execute(tr);
         } else {
             throw new BusinessException("invalid RtuId!");
         }

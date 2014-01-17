@@ -6,20 +6,20 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 /**
  *
  * @author  koen
  */
 public class ProtocolConnectionException extends ConnectionException {
-    
+
   private short sReason=-1;;
   private String protocolErrorCode=null;
 
   public short getReason() {
      return sReason;
   }
-   
+
   /**
    * Getter for property protocolErrorCode.
    * @return Value of property protocolErrorCode.
@@ -27,15 +27,15 @@ public class ProtocolConnectionException extends ConnectionException {
   public java.lang.String getProtocolErrorCode() {
       return protocolErrorCode;
   }
-  
+
   public ProtocolConnectionException(String str) {
       super(str);
   } // public ProtocolConnectionException(String str)
-  
+
   public ProtocolConnectionException(String str, String protocolErrorCode) {
       super(str);
       this.protocolErrorCode=protocolErrorCode;
-      
+
   } // public ProtocolConnectionException(String str)
 
   public ProtocolConnectionException() {
@@ -45,13 +45,13 @@ public class ProtocolConnectionException extends ConnectionException {
   public ProtocolConnectionException(String str, short sReason) {
       super(str,sReason);
       this.sReason = sReason;
-  } // public ProtocolConnectionException(String str)    
-  
+  } // public ProtocolConnectionException(String str)
+
   public ProtocolConnectionException(String str, short sReason, String protocolErrorCode) {
       super(str,sReason);
       this.sReason = sReason;
       this.protocolErrorCode=protocolErrorCode;
-  } // public ProtocolConnectionException(String str)    
-  
-  
+  } // public ProtocolConnectionException(String str)
+
+
 }

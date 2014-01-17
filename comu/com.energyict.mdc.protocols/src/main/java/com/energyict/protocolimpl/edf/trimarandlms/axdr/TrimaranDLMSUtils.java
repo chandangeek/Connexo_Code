@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 /**
@@ -160,8 +160,8 @@ public class TrimaranDLMSUtils implements TrimaranDLMSCOSEMGlobals {
 			if ((bField>=1) && (bField<=64)) { str += " channel"+Integer.toString(bField&0xFF); }
 			if ((bField>=65) && (bField<=127)) { str += " ???, reserved"; }
 			if ((bField>=128) && (bField<=254)) { str += " ???, manufacturer specific"; }
-			if (bField>=255) { 
-				str += " ???, reserved"; 
+			if (bField>=255) {
+				str += " ???, reserved";
 			}
 
 			if ((cField == 0) && (dField==0) && (eField<=9) && (fField==255)) { str += " Elektricity ID obj "+(eField+1)+" (data or register)"; }

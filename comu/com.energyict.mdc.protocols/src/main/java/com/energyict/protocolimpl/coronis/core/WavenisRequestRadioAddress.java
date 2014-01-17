@@ -1,25 +1,25 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
 public class WavenisRequestRadioAddress extends AbstractEscapeCommand {
 
 	private static final int RADIOADDRESS_LENGTH=6;
-	
+
 	WavenisRequestRadioAddress(ProtocolStackLink protocolStackLink) {
 		super(protocolStackLink);
 	}
 
 	byte[] radioAddress;
-	
-	
+
+
 	final byte[] getRadioAddress() {
 		return radioAddress;
 	}
 
-	
+
 	@Override
     EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAVENIS_REQUEST_RADIO_ADDRESS;
@@ -39,6 +39,6 @@ public class WavenisRequestRadioAddress extends AbstractEscapeCommand {
 	byte[] prepare() throws IOException {
 		return new byte[0];
 	}
-	
-	
+
+
 }

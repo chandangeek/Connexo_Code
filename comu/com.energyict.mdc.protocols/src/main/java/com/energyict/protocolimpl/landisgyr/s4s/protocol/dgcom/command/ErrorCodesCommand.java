@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

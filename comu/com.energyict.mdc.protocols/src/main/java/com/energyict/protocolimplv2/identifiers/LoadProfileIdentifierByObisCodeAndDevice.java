@@ -1,12 +1,14 @@
 package com.energyict.protocolimplv2.identifiers;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.CanFindLoadProfile;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,25 +21,30 @@ import java.util.List;
  * Date: 13/05/13
  * Time: 13:30
  */
-public class LoadProfileIdentifierByObisCodeAndDevice implements CanFindLoadProfile {
+public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIdentifier {
 
     private final ObisCode loadProfileObisCode;
-    private final CanFindDevice deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
 
     private LoadProfile loadProfile;
 
     public LoadProfileIdentifierByObisCodeAndDevice(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.loadProfileObisCode = loadProfileObisCode;
-        this.deviceIdentifier = (CanFindDevice) deviceIdentifier;
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     @Override
     public LoadProfile findLoadProfile() {
-        if(loadProfile == null){
-            final List<LoadProfile> loadProfiles = MeteringWarehouse.getCurrent().getLoadProfileFactory().findByRtu(deviceIdentifier.findDevice());
+        if (loadProfile == null) {
+            Device device = deviceIdentifier.findDevice();
+            List<LoadProfileFactory> loadProfileFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
+            List<LoadProfile> loadProfiles = new ArrayList<>();
+            for (LoadProfileFactory factory : loadProfileFactories) {
+                loadProfiles.addAll(factory.findLoadProfilesByDevice(device));
+            }
             for (LoadProfile profile : loadProfiles) {
-                if (profile.getLoadProfileSpec().getDeviceObisCode().equals(this.loadProfileObisCode)) {
+                if (profile.getDeviceObisCode().equals(this.loadProfileObisCode)) {
                     this.loadProfile = profile;
                     break;
                 }
@@ -50,4 +57,5 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements CanFindLoadProf
     public String toString() {
         return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + loadProfileObisCode;
     }
+
 }

@@ -22,7 +22,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.dlms.common.DLMSStoredValues;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.ActivityCalendarSerializer;
 import com.energyict.protocolimpl.utils.ProtocolTools;

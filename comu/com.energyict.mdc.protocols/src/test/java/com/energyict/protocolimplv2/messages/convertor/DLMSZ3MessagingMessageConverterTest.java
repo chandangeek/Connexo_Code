@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -54,7 +54,7 @@ public class DLMSZ3MessagingMessageConverterTest extends AbstractMessageConverte
     }
 
     /**
-     * Gets the value to use for the given {@link com.energyict.cpo.PropertySpec}
+     * Gets the value to use for the given {@link PropertySpec}
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(digitalOutputAttributeName)) {

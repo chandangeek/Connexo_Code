@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 
 /**
  * Describes 1 WeekDayDefinition
@@ -9,12 +9,9 @@ import com.energyict.mdw.core.CodeCalendar;
 class WeekDayDefinitions {
 
     final int dayOfWeek;
-
     final int dayTypeId;
-    private CodeTableParser codeTableParser;
 
-    public WeekDayDefinitions(CodeTableParser codeTableParser, CodeCalendar cc) {
-        this.codeTableParser = codeTableParser;
+    WeekDayDefinitions(CodeTableParser codeTableParser, CodeCalendar cc) {
         this.dayOfWeek = cc.getDayOfWeek();
         this.dayTypeId = codeTableParser.getDayIDValue(cc.getDayType().getId());
     }
@@ -36,4 +33,5 @@ class WeekDayDefinitions {
     public int getDayTypeId() {
         return dayTypeId;
     }
+
 }

@@ -9,7 +9,6 @@ package com.energyict.protocolimpl.emon.ez7.core;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class EZ7Profile {
         this.ez7=ez7;
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         ProfileData profileData = new ProfileData();
         List intervalDatas=new ArrayList();
 
@@ -50,8 +49,9 @@ public class EZ7Profile {
         //   dayBlockNr--;
 
         for (int i=dayBlockNr;i<ez7.getEz7CommandFactory().getProfileStatus().getCurrentDayBlock();i++) {
-            if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(dayBlockNr)!= null)
-               intervalDatas.addAll(ez7.getEz7CommandFactory().getProfileDataCompressed(i).getIntervalDatas());
+            if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(dayBlockNr)!= null) {
+                intervalDatas.addAll(ez7.getEz7CommandFactory().getProfileDataCompressed(i).getIntervalDatas());
+            }
 
         }
         profileData.setIntervalDatas(intervalDatas);

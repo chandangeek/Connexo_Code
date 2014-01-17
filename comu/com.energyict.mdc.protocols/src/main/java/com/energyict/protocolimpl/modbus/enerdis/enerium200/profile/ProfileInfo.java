@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 

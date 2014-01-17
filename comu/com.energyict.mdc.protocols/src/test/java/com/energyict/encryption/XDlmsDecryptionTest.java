@@ -3,7 +3,7 @@
  */
 package com.energyict.encryption;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import org.junit.Test;
 
 import java.util.Arrays;

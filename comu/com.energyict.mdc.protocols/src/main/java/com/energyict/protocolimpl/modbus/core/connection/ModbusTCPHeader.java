@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

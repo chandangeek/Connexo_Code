@@ -3,19 +3,20 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.messaging.MessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessaging;
+import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
@@ -137,7 +138,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     /**
      * Returns the message builder capable of generating and parsing 'time of use' messages.
      *
-     * @return The {@link com.energyict.protocol.messaging.MessageBuilder} capable of generating and parsing 'time of use' messages.
+     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
      */
     public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
         return new AS300TimeOfUseMessageBuilder();

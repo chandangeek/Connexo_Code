@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk10.command;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

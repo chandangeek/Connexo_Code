@@ -1,15 +1,14 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.SerialComChannel;
-import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.mdc.channels.serial.modem.CaseModemComponent;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedCaseModemProperties;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
 
-        caseModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newCaseModemComponent(new TypedCaseModemProperties(properties));
+        caseModemComponent = new CaseModemComponent(new TypedCaseModemProperties(properties));
         /*
        create the serial ComChannel and set all property values
         */
@@ -53,6 +52,7 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
         super.addPropertySpecs(propertySpecs);
         propertySpecs.addAll(new TypedCaseModemProperties().getPropertySpecs());
     }
+
     @Override
     public PropertySpec getPropertySpec(String name) {
         PropertySpec propertySpec = super.getPropertySpec(name);

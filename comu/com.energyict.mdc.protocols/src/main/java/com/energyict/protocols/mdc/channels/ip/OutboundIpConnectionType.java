@@ -2,8 +2,8 @@ package com.energyict.protocols.mdc.channels.ip;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;

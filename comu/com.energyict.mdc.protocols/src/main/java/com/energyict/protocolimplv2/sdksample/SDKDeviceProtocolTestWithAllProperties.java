@@ -1,8 +1,12 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.data.*;
@@ -10,13 +14,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -127,7 +129,6 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec("SDKTimeDurationPropertyWithDefault", new TimeDuration(3,3)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpecWithValues("SDKTimeDurationPropertyWithValues", new TimeDuration(3,3), new TimeDuration(4,4), new TimeDuration(5,5)));
 
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeZoneInUseReferencePropertySpec("SDKTimeZoneInUseProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
                         ObisCode.fromString("1.0.1.8.0.255"),
                         ObisCode.fromString("1.0.1.8.1.255"),
@@ -136,17 +137,19 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
                         ObisCode.fromString("1.0.2.8.1.255"),
                         ObisCode.fromString("1.0.2.8.2.255")));
 
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().codeTableReferencePropertySpec("SDKCodeTableProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().userFileReferencePropertySpec("SDKUserFileReferenceProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().lookupPropertySpec("SDKLookupProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().loadProfileTypePropertySpec("SDKLoadProfileTypeProperty"));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().loadProfilePropertySpec("SDKLoadProfileProperty"));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKCodeTableProperty", this.findFactory(FactoryIds.CODE)));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKUserFileReferenceProperty", this.findFactory(FactoryIds.USERFILE)));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLookupProperty", this.findFactory(FactoryIds.LOOKUP)));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileTypeProperty", this.findFactory(FactoryIds.LOADPROFILE_TYPE)));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileProperty", this.findFactory(FactoryIds.LOADPROFILE)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean13PropertySpec("SDKEan13Property"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().encryptedStringPropertySpec("SDKEncryptedStringProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().spatialCoordinatesPropertySpec("SDKSpatialCoordinatesProperty"));
-
-
         return optionalProperties;
+    }
+
+    private IdBusinessObjectFactory findFactory (FactoryIds id) {
+        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(id.id());
     }
 
     @Override
@@ -210,11 +213,12 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+        CollectedDataFactory collectedDataFactory = this.getCollectedDataFactory();
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>();
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-            CollectedLoadProfileConfiguration loadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {
@@ -331,7 +335,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
+        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
         if(!getSlaveOneSerialNumber().equals("")){
             collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
@@ -379,6 +383,18 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getConnectionTypeFactory().findAll();
+        // Todo: call the Enum that holds all known connection type classes
+        return Collections.emptyList();
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

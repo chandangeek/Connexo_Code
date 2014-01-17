@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 
 /**
  * Copyrights EnergyICT

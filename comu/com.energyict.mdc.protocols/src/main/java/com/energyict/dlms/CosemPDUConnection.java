@@ -1,10 +1,9 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,9 +109,6 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         interFrameTimeout = System.currentTimeMillis() + timeout;
         while (true) {
             if ((data = readInArray()) != null) {
-                if (DEBUG >= 2) {
-                    ProtocolUtils.outputHexString(data);
-                }
                 byte[] dataWithLLC = new byte[data.length + 3];
                 System.arraycopy(data, 0, dataWithLLC, 3, data.length);
                 return dataWithLLC;

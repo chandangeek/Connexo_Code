@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.MessageBuilder;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

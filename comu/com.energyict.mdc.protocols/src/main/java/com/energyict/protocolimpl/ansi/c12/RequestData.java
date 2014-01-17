@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 /**
  *
@@ -20,8 +20,8 @@ public class RequestData {
 
     private int code;
     private byte[] data;
-    
-    
+
+
     /** Creates a new instance of RequestInfo */
     public RequestData() {
         this(-1);
@@ -33,11 +33,11 @@ public class RequestData {
         this.setCode(code);
         this.data=data;
     }
-    
+
     public String toString() {
         return "RequestData: code="+code+(data==null?"":", data="+ProtocolUtils.outputHexString(data));
     }
-    
+
     public byte[] getAssembledData() {
         if (getData() == null)
             return new byte[]{(byte)getCode()};
@@ -45,7 +45,7 @@ public class RequestData {
             byte[] assembledData = new byte[getData().length+1];
             System.arraycopy(getData(),0,assembledData,1,getData().length);
             assembledData[0]=(byte)getCode();
-            return assembledData;    
+            return assembledData;
         }
     }
 
@@ -60,9 +60,9 @@ public class RequestData {
     public byte[] getData() {
         return data;
     }
-    
+
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
 }

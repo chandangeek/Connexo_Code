@@ -27,22 +27,20 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
 
@@ -117,9 +115,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
             } else if (isConnectControlMessage(content)) {
-                doConnect(content);
+                doConnect();
             } else if (isDisconnectControlMessage(content)) {
-                doDisconnect(content);
+                doDisconnect();
             } else if (isTextToEMeterDisplayMessage(content)) {
                 sendTextToDisplay(content, true);
             } else if (isTextToIHDMessage(content)) {
@@ -195,8 +193,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             priceInfo = sb.toString();
         }
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), "txt");
+        this.createUserFile(ufs);
 
         log(Level.INFO, "Stored price information in userFile: " + fileName);
     }
@@ -269,37 +267,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
 
         String fileName = "ActivityCalendar_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, sb.toString().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, sb.toString().getBytes("UTF-8"), "txt");
+        this.createUserFile(ufs);
 
         log(Level.INFO, "Stored activity calendar information in user file: " + fileName);
-    }
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
-    }
-
-    private int getFolderIdFromHub() throws IOException {
-        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
-    }
-
-    private Device getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Device> rtusWithSameSerialNumber = mw().getDeviceFactory().findBySerialNumber(serial);
-        for (Device each : rtusWithSameSerialNumber) {
-            if (((String) each.getProtocolProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
-                return each;
-            }
-        }
-        throw new IOException("Could not find the EiServer rtu.");
     }
 
     private void setStandingCharge(String content) throws IOException {
@@ -411,14 +382,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
 
         if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
-            String str = "Not a valid entry for the userFile.";
-            throw new IOException(str);
+            throw new IOException("Not a valid entry for the userFile.");
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
-            String str = "Not a valid entry for the userfileID " + userFileID;
-            throw new IOException(str);
-        }
+        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
 
         String[] parts = content.split("=");
         Date date = null;
@@ -475,7 +441,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         if (success) {
             try {
                 Calendar cal = Calendar.getInstance(protocol.getTimeZone());
-                if (messageHandler.getSupplierActivationDate() != null && !messageHandler.getSupplierActivationDate().equals("")) {
+                if (messageHandler.getSupplierActivationDate() != null && !"".equals(messageHandler.getSupplierActivationDate())) {
                     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                     Date date = formatter.parse(messageHandler.getSupplierActivationDate());
                     cal.setTime(date);
@@ -506,7 +472,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
         try {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
-            if (messageHandler.getTenantActivationDate() != null && !messageHandler.getTenantActivationDate().equals("")) {
+            if (messageHandler.getTenantActivationDate() != null && !"".equals(messageHandler.getTenantActivationDate())) {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = formatter.parse(messageHandler.getTenantActivationDate());
                 cal.setTime(date);
@@ -531,7 +497,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         log(Level.FINEST, "Getting UserFile from message");
         String includedFile = getIncludedContent(content);
         try {
-            if (includedFile.length() > 0) {
+            if (!includedFile.isEmpty()) {
                 log(Level.FINEST, "Sending out the PricingInformation objects.");
                 handleXmlToDlms(includedFile);
             } else {
@@ -544,13 +510,13 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void doConnect(final String content) throws IOException {
+    private void doConnect() throws IOException {
         log(Level.INFO, "Received Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
-    private void doDisconnect(final String content) throws IOException {
+    private void doDisconnect() throws IOException {
         log(Level.INFO, "Received Disconnect Control - Disonnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();
@@ -715,4 +681,24 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     protected TimeZone getTimeZone() {
         return this.protocol.getTimeZone();
     }
+
+    private UserFile findUserFile(int userFileID) {
+        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
+        for (UserFileFactory codeFactory : factories) {
+            UserFile userFile = codeFactory.findUserFile(userFileID);
+            if (userFile != null) {
+                return userFile;
+            }
+        }
+        return null;
+    }
+
+    private UserFile createUserFile(UserFileShadow shadow) throws SQLException, BusinessException {
+        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
+        for (UserFileFactory codeFactory : factories) {
+            return codeFactory.createUserFile(shadow);
+        }
+        throw new BusinessException("noModuleToCreateUserFile", "Failure to create UserFile because no module is available to do it");
+    }
+
 }

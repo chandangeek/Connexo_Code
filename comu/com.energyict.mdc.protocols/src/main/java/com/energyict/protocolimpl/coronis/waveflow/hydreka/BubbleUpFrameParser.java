@@ -5,7 +5,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.BubbleUpObject;
+import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand.DailyHydrekaDataReading;

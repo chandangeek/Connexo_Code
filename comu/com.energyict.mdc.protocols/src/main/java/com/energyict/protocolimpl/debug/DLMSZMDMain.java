@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.VirtualDeviceDialer;
@@ -56,8 +56,8 @@ public class DLMSZMDMain {
 
 	/**
 	 * @param args
-	 * @throws java.io.IOException
-	 * @throws com.energyict.dialer.core.LinkException
+	 * @throws IOException
+	 * @throws LinkException
 	 */
 	public static void main(String[] args) throws IOException, LinkException {
 

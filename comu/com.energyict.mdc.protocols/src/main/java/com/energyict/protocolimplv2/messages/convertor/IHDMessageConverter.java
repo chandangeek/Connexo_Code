@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;

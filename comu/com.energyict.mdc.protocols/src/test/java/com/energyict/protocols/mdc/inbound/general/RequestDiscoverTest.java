@@ -10,8 +10,8 @@ import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -22,8 +22,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.LogBook;
@@ -125,7 +125,7 @@ public class RequestDiscoverTest {
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
-        when(collectedDataFactory.createCollectedRegisterList(any(CanFindDevice.class))).thenReturn(this.collectedRegisterList);
+        when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
         IssueService issueService = mock(IssueService.class);
         when(issueService.newIssueCollector()).thenReturn(issueCollector);
         Bus.setIssueService(issueService);
@@ -187,7 +187,7 @@ public class RequestDiscoverTest {
     @Test
     public void testDeploy() throws IOException {
         CollectedTopology collectedTopology = mock(CollectedTopology.class);
-        when(collectedDataFactory.createCollectedTopology(any(CanFindDevice.class))).thenReturn(collectedTopology);
+        when(collectedDataFactory.createCollectedTopology(any(DeviceIdentifier.class))).thenReturn(collectedTopology);
         inboundFrame = "<DEPLOY>serialId=1234567890,type=as220, ipAddress=10.0.0.255</DEPLOY>".getBytes();
         mockComChannel();
 
@@ -212,7 +212,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEventPO() throws IOException {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
-        when(collectedDataFactory.createCollectedLogBook(any(CanFindLogBook.class))).thenReturn(collectedLogBook);
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
 
         inboundFrame = "<EVENTPO>meterType=AS230,serialId=1234567890,dbaseId=5,ipAddress=192.168.0.1,event=10000101100110</EVENTPO>".getBytes();
         mockComChannel();
@@ -245,7 +245,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEventPOForDeviceHavingNoLogBooksConfigured() throws IOException {
         NoLogBooksCollectedData noLogBooksCollectedData = mock(NoLogBooksCollectedData.class);
-        when(collectedDataFactory.createNoLogBookCollectedData(any(CanFindDevice.class))).thenReturn(noLogBooksCollectedData);
+        when(collectedDataFactory.createNoLogBookCollectedData(any(DeviceIdentifier.class))).thenReturn(noLogBooksCollectedData);
         inboundFrame = "<EVENTPO>meterType=AS230,serialId=1234567890,dbaseId=5,ipAddress=192.168.0.1,event=10000101100110</EVENTPO>".getBytes();
         when(this.device.getLogBooks()).thenReturn(new ArrayList<LogBook>());
         mockComChannel();
@@ -264,7 +264,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEvents() throws IOException {
         CollectedLogBook collectedLogBook = mock(CollectedLogBook.class);
-        when(collectedDataFactory.createCollectedLogBook(any(CanFindLogBook.class))).thenReturn(collectedLogBook);
+        when(collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).thenReturn(collectedLogBook);
 
         inboundFrame = "<EVENT>serialId=204006174,event0=123 8 080514092400, event1=20 6995 080514092505</EVENT>".getBytes();
         mockComChannel();
@@ -303,7 +303,7 @@ public class RequestDiscoverTest {
     @Test
     public void testEventsForDeviceHavingNoLogBooksConfigured() throws IOException {
         NoLogBooksCollectedData noLogBooksCollectedData = mock(NoLogBooksCollectedData.class);
-        when(collectedDataFactory.createNoLogBookCollectedData(any(CanFindDevice.class))).thenReturn(noLogBooksCollectedData);
+        when(collectedDataFactory.createNoLogBookCollectedData(any(DeviceIdentifier.class))).thenReturn(noLogBooksCollectedData);
         inboundFrame = "<EVENT>serialId=204006174,event0=123 8 080514092400, event1=20 6995 080514092505</EVENT>".getBytes();
         when(this.device.getLogBooks()).thenReturn(new ArrayList<LogBook>());
         mockComChannel();

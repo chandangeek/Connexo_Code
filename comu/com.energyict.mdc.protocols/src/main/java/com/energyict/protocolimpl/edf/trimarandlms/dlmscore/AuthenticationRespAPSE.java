@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

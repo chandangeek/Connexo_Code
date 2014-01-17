@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
 public class BackflowDetectionFlags extends AbstractParameter {
 
 	int portId;
-	
+
 	/**
 	 * Detection flags for the backflow...
 	 * Back flow detection flags : this word contains 12 relevant bits that express back flow detection in the month
@@ -39,6 +39,6 @@ public class BackflowDetectionFlags extends AbstractParameter {
 	byte[] prepare() throws IOException {
 		return new byte[0];
 	}
-	
+
 }
 

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
@@ -20,7 +20,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * 
+ *
  * @author Koen
  */
 public interface C12ProtocolLink {

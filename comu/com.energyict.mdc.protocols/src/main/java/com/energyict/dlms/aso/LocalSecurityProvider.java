@@ -4,7 +4,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.io.IOException;
 import java.util.Properties;

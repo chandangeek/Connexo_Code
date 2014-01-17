@@ -1,12 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.IPDialer;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
+import com.energyict.dialer.core.impl.IPDialer;
+import com.energyict.dialer.core.impl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -14,17 +15,16 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocol.messaging.TimeOfUseMessaging;
-import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocols.messaging.TimeOfUseMessaging;
+import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -119,9 +119,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             return "";
         } else {
             try {
-                StringBuilder firmware = new StringBuilder();
-                firmware.append(getMeterInfo().getFirmwareVersionMonolitic());
-                return firmware.toString();
+                return getMeterInfo().getFirmwareVersionMonolitic();
             } catch (IOException e) {
                 getLogger().finest("Could not fetch the firmwareVersion. " + e.getMessage());
                 return "UnKnown version";

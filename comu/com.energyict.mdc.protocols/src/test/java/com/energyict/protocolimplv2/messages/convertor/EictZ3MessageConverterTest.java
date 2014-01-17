@@ -2,11 +2,11 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.eictz3.EictZ3;
 import com.energyict.protocolimplv2.messages.*;
 import org.junit.Test;

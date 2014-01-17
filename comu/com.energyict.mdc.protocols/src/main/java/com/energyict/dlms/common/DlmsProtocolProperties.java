@@ -11,7 +11,7 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
 import java.math.BigDecimal;

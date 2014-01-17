@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class ABBA1700DataIdentityFactory {
 
-    private Map rawRegisters = new HashMap();
+    private Map<String, ABBA1700DataIdentity> rawRegisters = new HashMap<>();
     private ProtocolLink protocolLink=null;
     private MeterExceptionInfo meterExceptionInfo=null; // KV 19012004
     private ABBA1700MeterType meterType;
@@ -37,9 +37,7 @@ public class ABBA1700DataIdentityFactory {
     }
 
     private void initLocals() {
-        Iterator iterator = rawRegisters.values().iterator();
-        while(iterator.hasNext()) {
-            ABBA1700DataIdentity di = (ABBA1700DataIdentity)iterator.next();
+        for (ABBA1700DataIdentity di : rawRegisters.values()) {
             di.setABBA1700DataIdentityFactory(this);
         }
     }
@@ -177,7 +175,8 @@ public class ABBA1700DataIdentityFactory {
      * @return Value of property meterExceptionInfo.
      */
     // KV 19012004
-    public com.energyict.protocol.MeterExceptionInfo getMeterExceptionInfo() {
+    public MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
+
 }

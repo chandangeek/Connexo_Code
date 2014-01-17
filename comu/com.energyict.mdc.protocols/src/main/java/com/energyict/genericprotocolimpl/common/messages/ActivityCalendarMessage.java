@@ -9,10 +9,10 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.codetables.CodeDayType;
+import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,19 +41,17 @@ public class ActivityCalendarMessage {
 	 * @throws IOException when CodeTable is not correctly configured
 	 */
 	public void parse() throws IOException{
-		List calendars = ct.getCalendars();
-		HashMap seasonsProfile = new HashMap();
+		List<CodeCalendar> calendars = ct.getCalendars();
+		Map<OctetString, Integer> seasonsProfile = new HashMap<>();
 
-		Iterator itr = calendars.iterator();
-		while(itr.hasNext()){
-			CodeCalendar cc = (CodeCalendar)itr.next();
-			int seasonId = cc.getSeason();
-			if(seasonId != 0){
-				OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear()==-1)?0xff:((cc.getYear()>>8)&0xFF)), (byte) ((cc.getYear()==-1)?0xff:(cc.getYear())&0xFF),
-						(byte) ((cc.getMonth()==-1)?0xFF:cc.getMonth()), (byte) ((cc.getDay()==-1)?0xFF:cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
-				seasonsProfile.put(os, seasonId);
-			}
-		}
+        for (CodeCalendar cc : calendars) {
+            int seasonId = cc.getSeason();
+            if (seasonId != 0) {
+                OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
+                        (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
+                seasonsProfile.put(os, seasonId);
+            }
+        }
 
 //		int numberOfSeasons = getNumberOfSeasons();
 
@@ -133,35 +131,34 @@ public class ActivityCalendarMessage {
 				}
 			}
 		}
-		List dayProfiles = ct.getDayTypesOfCalendar();
-		Iterator dayIt = dayProfiles.iterator();
-		while(dayIt.hasNext()){
-			CodeDayType cdt = (CodeDayType)dayIt.next();
-			DayProfiles dp = new DayProfiles();
-			List definitions = cdt.getDefinitions();
-			Array daySchedules = new Array();
-			for(int i = 0; i < definitions.size(); i++){
-				DayProfileActions dpa = new DayProfileActions();
-				CodeDayTypeDef cdtd = (CodeDayTypeDef)definitions.get(i);
-				int tStamp = cdtd.getTstampFrom();
-				int hour = tStamp/10000;
-				int min = (tStamp-hour*10000)/100;
-				int sec = tStamp-(hour*10000)-(min*100);
-				OctetString tstampOs = OctetString.fromByteArray(new byte[]{(byte)hour, (byte)min, (byte)sec, 0});
-				Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
-				dpa.setStartTime(tstampOs);
-                if(this.meterConfig == null){
+		List<CodeDayType> dayProfiles = ct.getDayTypesOfCalendar();
+        for (CodeDayType cdt : dayProfiles) {
+            DayProfiles dp = new DayProfiles();
+            List definitions = cdt.getDefinitions();
+            Array daySchedules = new Array();
+            for (int i = 0; i < definitions.size(); i++) {
+                DayProfileActions dpa = new DayProfileActions();
+                CodeDayTypeDef cdtd = (CodeDayTypeDef) definitions.get(i);
+                int tStamp = cdtd.getTstampFrom();
+                int hour = tStamp / 10000;
+                int min = (tStamp - hour * 10000) / 100;
+                int sec = tStamp - (hour * 10000) - (min * 100);
+                OctetString tstampOs = OctetString.fromByteArray(new byte[]{(byte) hour, (byte) min, (byte) sec, 0});
+                Unsigned16 selector = new Unsigned16(cdtd.getCodeValue());
+                dpa.setStartTime(tstampOs);
+                if (this.meterConfig == null) {
                     dpa.setScriptLogicalName(OctetString.fromString("0.0.10.0.100.255"));
-                } else {
+                }
+                else {
                     dpa.setScriptLogicalName(OctetString.fromByteArray(this.meterConfig.getTariffScriptTable().getLNArray()));
                 }
-				dpa.setScriptSelector(selector);
-				daySchedules.addDataType(dpa);
-			}
-			dp.setDayId(new Unsigned8(cdt.getId()));
-			dp.setDayProfileActions(daySchedules);
-			dayArray.addDataType(dp);
-		}
+                dpa.setScriptSelector(selector);
+                daySchedules.addDataType(dpa);
+            }
+            dp.setDayId(new Unsigned8(cdt.getId()));
+            dp.setDayProfileActions(daySchedules);
+            dayArray.addDataType(dp);
+        }
 
 		checkForSingleSeasonStartDate();
 	}

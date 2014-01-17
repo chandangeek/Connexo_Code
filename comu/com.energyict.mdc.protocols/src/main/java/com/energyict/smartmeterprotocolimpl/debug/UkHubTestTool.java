@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.debug;
 
-import com.energyict.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;

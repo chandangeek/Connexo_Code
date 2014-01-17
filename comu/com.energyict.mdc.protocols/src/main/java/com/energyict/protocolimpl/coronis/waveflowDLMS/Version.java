@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ public class Version extends AbstractParameter {
 	Version(ProtocolLink protocolLink) {
 		super(protocolLink);
 	}
-	
+
 	private int version;
 
 	/**

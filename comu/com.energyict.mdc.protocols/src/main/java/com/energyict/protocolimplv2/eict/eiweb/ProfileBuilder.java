@@ -1,18 +1,19 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.protocols.util.LittleEndianInputStream;
+import org.joda.time.DateTimeConstants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -160,7 +161,7 @@ public class ProfileBuilder {
             String description = is.readString(length);
             profileData.addEvent(
                     new MeterEvent(
-                            new Date((seconds80 + EIWebConstants.SECONDS10YEARS) * TimeConstants.MILLISECONDS_IN_SECOND),
+                            new Date((seconds80 + EIWebConstants.SECONDS10YEARS) * DateTimeConstants.MILLIS_PER_SECOND),
                             mapEventCode(code),
                             code,
                             description));
@@ -170,7 +171,7 @@ public class ProfileBuilder {
     private void buildIntervalData (LittleEndianInputStream is) throws IOException {
         for (int i = 0; i < packetBuilder.getNrOfRecords(); i++) {
             long rawValue = is.readLEUnsignedInt();
-            long ldate = (rawValue + EIWebConstants.SECONDS10YEARS) * TimeConstants.MILLISECONDS_IN_SECOND;
+            long ldate = (rawValue + EIWebConstants.SECONDS10YEARS) * DateTimeConstants.MILLIS_PER_SECOND;
             Date date = new Date(ldate);
 
             if ((i == 0) && (!packetBuilder.isTimeCorrect(date))) {
@@ -300,10 +301,14 @@ public class ProfileBuilder {
     }
 
     public void addCollectedData (List<CollectedData> collectedData) {
-        DeviceLoadProfile loadProfile = new DeviceLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
+        CollectedLoadProfile loadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
         loadProfile.setCollectedData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         collectedData.add(loadProfile);
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        return this.packetBuilder.getCollectedDataFactory();
     }
 
 }

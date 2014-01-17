@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
 
 /**
  * Describes 1 DayType definition.
@@ -18,7 +18,7 @@ class DayTypeDefinitions {
      *
      * @param codeDayTypeDef the given CodeDayType definition
      */
-    public DayTypeDefinitions(CodeDayTypeDef codeDayTypeDef) {
+    DayTypeDefinitions(CodeDayTypeDef codeDayTypeDef) {
         this.tariffcode = codeDayTypeDef.getCodeValue();
         int tStamp = codeDayTypeDef.getTstampFrom();
         this.hour = tStamp / 10000;

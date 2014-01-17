@@ -12,14 +12,14 @@ import java.io.IOException;
  *
  * @author  Koen
  */
-abstract public class AbstractManufacturer {
+public abstract class AbstractManufacturer {
 
     String signOnString=null;
-    abstract public String getMeterProtocolClass() throws IOException;
-    abstract public String[] getMeterSerialNumberRegisters() throws IOException;
-    abstract public String getMeterDescription() throws IOException;
-    abstract public String getManufacturer() throws IOException;
 
+    public abstract String getMeterProtocolClass() throws IOException;
+    public abstract String[] getMeterSerialNumberRegisters() throws IOException;
+    public abstract String getMeterDescription() throws IOException;
+    public abstract String getManufacturer() throws IOException;
 
     public String toString() {
         try {

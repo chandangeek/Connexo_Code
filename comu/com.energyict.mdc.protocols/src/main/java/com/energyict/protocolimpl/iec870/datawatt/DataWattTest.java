@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec870.IEC870Connection;
 import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.iec870.IEC870Frame;

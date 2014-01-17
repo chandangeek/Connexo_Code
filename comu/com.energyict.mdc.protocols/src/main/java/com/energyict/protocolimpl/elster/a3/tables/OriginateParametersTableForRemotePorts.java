@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
 import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
@@ -21,8 +21,8 @@ import java.io.IOException;
  *
  * @author Koen
  */
-public class OriginateParametersTableForRemotePorts extends AbstractTable { 
-	
+public class OriginateParametersTableForRemotePorts extends AbstractTable {
+
     /*
     Memory storage: EEPROM
     Total table size: (bytes) 203, Fixed
@@ -31,26 +31,26 @@ public class OriginateParametersTableForRemotePorts extends AbstractTable {
     */
 
     private int dialDelay; // 1 byte This field will be forced to zero by the meter. Commas in the dial string can be used to force a delay between going off-hook and dialing of the phone number. For example, ATDT,1,9192505418 would insert a delay between going offhook and dialing the '1' and between the '1' and the 919.
-    private String[] phoneNumbers; // 3 phone numbers of 64 bytes long 
+    private String[] phoneNumbers; // 3 phone numbers of 64 bytes long
     private Window[] windows; // 2 windows
 
     /** Creates a new instance of OriginateParametersTableForRemotePorts */
     public OriginateParametersTableForRemotePorts(ManufacturerTableFactory manufacturerTableFactory) {
         super(manufacturerTableFactory,new TableIdentification(93,true));
     }
- 
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("OriginateParametersTableForRemotePorts:\n");
         strBuff.append("   dialDelay="+getDialDelay()+"\n");
-        for (int i=0;i<getPhoneNumbers().length;i++) 
+        for (int i=0;i<getPhoneNumbers().length;i++)
             strBuff.append("   phoneNumbers["+i+"]="+getPhoneNumbers()[i]+"\n");
         for (int i=0;i<getWindows().length;i++)
             strBuff.append("   windows["+i+"]="+getWindows()[i]+"\n");
         return strBuff.toString();
     }
-    
+
     protected void parse(byte[] tableData) throws IOException {
         int dataOrder = getTableFactory().getC12ProtocolLink().getStandardTableFactory().getConfigurationTable().getDataOrder();
         int offset = 0;
@@ -64,8 +64,8 @@ public class OriginateParametersTableForRemotePorts extends AbstractTable {
             getWindows()[i] = new Window(tableData, offset, getTableFactory());
             offset+=Window.getSize(getTableFactory());
         }
-    } 
-    
+    }
+
     private ManufacturerTableFactory getManufacturerTableFactory() {
         return (ManufacturerTableFactory)getTableFactory();
     }

@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;

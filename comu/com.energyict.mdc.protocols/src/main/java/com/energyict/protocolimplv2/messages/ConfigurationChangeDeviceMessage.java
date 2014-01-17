@@ -1,11 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -54,9 +57,21 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetDukePowerPassword(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
     SetDukePowerIdleTime(RequiredPropertySpecFactory.newInstance().stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName)),
 
-    UploadMeterScheme(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.MeterScheme)),
-    UploadSwitchPointClockSettings(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings)),
-    UploadSwitchPointClockUpdateSettings(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings)),
+    UploadMeterScheme(
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.MeterScheme,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
+    UploadSwitchPointClockSettings(
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.SwitchPointClockSettings,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
+    UploadSwitchPointClockUpdateSettings(
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.SwitchPointClockUpdateSettings,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
 
     ProgramBatteryExpiryDate(RequiredPropertySpecFactory.newInstance().datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate)),
 

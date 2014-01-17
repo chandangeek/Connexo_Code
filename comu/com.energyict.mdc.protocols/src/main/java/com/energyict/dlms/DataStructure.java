@@ -10,7 +10,7 @@
 
 package com.energyict.dlms;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -22,7 +22,7 @@ public class DataStructure implements Serializable {
 
 	/*
 	 *   An element object can be of type DataStructure, OctetString, Integer or String.
-	 * 
+	 *
 	 */
 	public Object element[];
 	public DataStructure parent;

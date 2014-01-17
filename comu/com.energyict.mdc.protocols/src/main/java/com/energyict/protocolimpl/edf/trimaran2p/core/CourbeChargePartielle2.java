@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
 import java.io.IOException;
@@ -21,16 +21,16 @@ import java.io.IOException;
  * @author Koen
  */
 public class CourbeChargePartielle2 extends AbstractTrimaranObject {
-    
+
     final int DEBUG=0;
-    
+
     private int[] values;
-    
+
     /** Creates a new instance of TemplateVariableName */
     public CourbeChargePartielle2(TrimaranObjectFactory trimaranObjectFactory) {
         super(trimaranObjectFactory);
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -40,37 +40,37 @@ public class CourbeChargePartielle2 extends AbstractTrimaranObject {
         }
         return strBuff.toString();
     }
- 
+
     protected int getVariableName() {
         return 408;
     }
-    
+
     protected byte[] prepareBuild() throws IOException {
         return null;
     }
-    
+
     protected void parse(byte[] data) throws IOException {
-    	
+
 //        System.out.println("GN_DEBUG> write to file");
 //        File file = new File("c://TEST_FILES/CourbeCharge_par2.bin");
 //        FileOutputStream fos = new FileOutputStream(file);
 //        fos.write(data);
 //        fos.close();
-    	
+
         int offset=0;
         TrimaranDataContainer dc = new TrimaranDataContainer();
         dc.parseObjectList(data, getTrimaranObjectFactory().getTrimaran().getLogger());
-        
+
         if (DEBUG>=1) System.out.println("CourbeChargePartielle2, parse, "+ProtocolUtils.outputHexString(data));
         if (DEBUG>=1) System.out.println("CourbeChargePartielle2, parse, dc.getRoot().getNrOfElements()="+dc.getRoot().getNrOfElements());
         if (DEBUG>=1) System.out.println("CourbeChargePartielle2, parse, "+dc.print2strDataContainer());
-        
+
         setValues(new int[dc.getRoot().getNrOfElements()]);
         for (int i=0;i<getValues().length;i++) {
             getValues()[i] = dc.getRoot().getInteger(i) & 0xffff;
         }
     }
-    
+
     public int[] getValues() {
         return values;
     }

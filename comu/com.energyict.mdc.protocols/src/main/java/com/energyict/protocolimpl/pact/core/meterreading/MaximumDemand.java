@@ -6,13 +6,13 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 /**
  *
  * @author  Koen
  */
 public class MaximumDemand extends MeterReadingsBlockImpl {
-    
+
 	private int regId;
 	private int regIdEnergyIndex;
 	private int regIdRegisterNumber;
@@ -20,9 +20,9 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
 	private int billingMD;
 	private int trg;
 	private int bTrg;
-    
+
 	private char type;
-    
+
     /** Creates a new instance of MaximumDemand */
     public MaximumDemand(byte[] data,char type) {
         super(data);
@@ -32,11 +32,11 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public boolean isType_m() {
         return type == 'm';
     }
-    
+
     public boolean isType_q() {
         return type == 'q';
     }
-    
+
     public String print() {
         return "REG_ID=0x"+Integer.toHexString(getRegId())+
                " (ENERGY_INDEX="+getRegIdEnergyIndex()+
@@ -46,7 +46,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
                ", TRG="+getTrg()+
                ", B_TRG="+getBTrg();
     }
-    
+
     protected void parse() throws java.io.IOException {
         setRegId(ProtocolUtils.byte2int(getData()[1]));
         setRegIdEnergyIndex(getRegId()>>5);
@@ -56,7 +56,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
         setTrg(ProtocolUtils.byte2int(getData()[6]));
         setBTrg(ProtocolUtils.byte2int(getData()[7]));
     }
-    
+
     /** Getter for property regId.
      * @return Value of property regId.
      *
@@ -64,7 +64,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getRegId() {
         return regId;
     }
-    
+
     /** Setter for property regId.
      * @param regId New value of property regId.
      *
@@ -72,7 +72,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setRegId(int regId) {
         this.regId = regId;
     }
-    
+
     /** Getter for property currentMD.
      * @return Value of property currentMD.
      *
@@ -80,7 +80,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getCurrentMD() {
         return currentMD;
     }
-    
+
     /** Setter for property currentMD.
      * @param currentMD New value of property currentMD.
      *
@@ -88,7 +88,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setCurrentMD(int currentMD) {
         this.currentMD = currentMD;
     }
-    
+
     /** Getter for property billingMD.
      * @return Value of property billingMD.
      *
@@ -96,7 +96,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getBillingMD() {
         return billingMD;
     }
-    
+
     /** Setter for property billingMD.
      * @param billingMD New value of property billingMD.
      *
@@ -104,7 +104,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setBillingMD(int billingMD) {
         this.billingMD = billingMD;
     }
-    
+
     /** Getter for property trg.
      * @return Value of property trg.
      *
@@ -112,7 +112,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getTrg() {
         return trg;
     }
-    
+
     /** Setter for property trg.
      * @param trg New value of property trg.
      *
@@ -120,7 +120,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setTrg(int trg) {
         this.trg = trg;
     }
-    
+
     /** Getter for property bTrg.
      * @return Value of property bTrg.
      *
@@ -128,7 +128,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getBTrg() {
         return bTrg;
     }
-    
+
     /** Setter for property bTrg.
      * @param bTrg New value of property bTrg.
      *
@@ -136,7 +136,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setBTrg(int bTrg) {
         this.bTrg = bTrg;
     }
-    
+
     /** Getter for property regIdEnergyIndex.
      * @return Value of property regIdEnergyIndex.
      *
@@ -144,7 +144,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getRegIdEnergyIndex() {
         return regIdEnergyIndex;
     }
-    
+
     /** Setter for property regIdEnergyIndex.
      * @param regIdEnergyIndex New value of property regIdEnergyIndex.
      *
@@ -152,7 +152,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setRegIdEnergyIndex(int regIdEnergyIndex) {
         this.regIdEnergyIndex = regIdEnergyIndex;
     }
-    
+
     /** Getter for property regIdRegisterNumber.
      * @return Value of property regIdRegisterNumber.
      *
@@ -160,7 +160,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public int getRegIdRegisterNumber() {
         return regIdRegisterNumber;
     }
-    
+
     /** Setter for property regIdRegisterNumber.
      * @param regIdRegisterNumber New value of property regIdRegisterNumber.
      *
@@ -168,7 +168,7 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public void setRegIdRegisterNumber(int regIdRegisterNumber) {
         this.regIdRegisterNumber = regIdRegisterNumber;
     }
-    
+
     /**
      * Getter for property type.
      * @return Value of property type.
@@ -176,5 +176,5 @@ public class MaximumDemand extends MeterReadingsBlockImpl {
     public char getType() {
         return type;
     }
-    
+
 }

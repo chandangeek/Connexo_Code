@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.Serializable;
 import java.util.Calendar;

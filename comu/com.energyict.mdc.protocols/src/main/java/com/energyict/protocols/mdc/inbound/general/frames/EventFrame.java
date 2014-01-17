@@ -1,12 +1,14 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.LogBook;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LogBook;
-import com.energyict.mdw.core.LogBookFactoryProvider;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
@@ -37,15 +39,14 @@ public class EventFrame extends AbstractInboundFrame {
     @Override
     public void doParse() {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
-        CanFindLogBook logBookIdentifier;
+        LogBookIdentifier logBookIdentifier;
         Device device = this.getDevice();
-        LogBook genericLogBook = LogBookFactoryProvider.instance.get().getLogBookFactory().findGenericLogBook(device);
-
+        LogBook genericLogBook = this.findGenericLogBook(device);
 
         if (!device.getLogBooks().isEmpty()) {
             logBookIdentifier = new LogBookIdentifierById(genericLogBook.getId());
         } else {
-            getCollectedDatas().add(MdcManager.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
+            getCollectedDatas().add(this.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
             return;
         }
 
@@ -60,9 +61,31 @@ public class EventFrame extends AbstractInboundFrame {
             }
         }
         if (!meterEvents.isEmpty()) {
-            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
+            CollectedLogBook deviceLogBook = this.getCollectedDataFactory().createCollectedLogBook(logBookIdentifier);
             deviceLogBook.setMeterEvents(meterEvents);
             getCollectedDatas().add(deviceLogBook);
         }
     }
+
+    protected LogBook findGenericLogBook(Device device) {
+        List<LogBookFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
+        for (LogBookFactory factory : factories) {
+            LogBook genericLogBook = factory.findGenericLogBook(device);
+            if (genericLogBook != null) {
+                return genericLogBook;
+            }
+        }
+        return null;
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

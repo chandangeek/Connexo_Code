@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 
 /**
  * Describes 1 SpecialDay.

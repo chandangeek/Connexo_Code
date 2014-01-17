@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 

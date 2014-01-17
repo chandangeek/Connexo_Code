@@ -9,15 +9,15 @@
  */
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq230;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 
@@ -41,7 +41,7 @@ public class IQ230 extends Modbus {
     private MultiplierFactory multiplierFactory = null;
 
     /**
-     * Creates a new instance of IQ200 
+     * Creates a new instance of IQ200
      */
     public IQ230() {
     }

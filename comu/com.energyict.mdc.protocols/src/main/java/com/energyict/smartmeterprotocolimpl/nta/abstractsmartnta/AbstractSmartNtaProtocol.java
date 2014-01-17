@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
+import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
@@ -13,20 +13,20 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
@@ -42,14 +42,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-//import com.energyict.mdw.core.CommunicationScheduler;
-
 /**
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public abstract class AbstractSmartNtaProtocol
+        extends AbstractSmartDlmsProtocol
+        implements
+            MasterMeter,
+            SimpleMeter,
+            MessageProtocol,
+            WakeUpProtocolSupport,
+            PartialLoadProfileMessaging,
+            LoadProfileRegisterMessaging {
 
     public static final int ObisCodeBFieldIndex = 1;
 

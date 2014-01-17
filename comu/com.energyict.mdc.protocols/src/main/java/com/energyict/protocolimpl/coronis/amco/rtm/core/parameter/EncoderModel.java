@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 
 import java.io.IOException;

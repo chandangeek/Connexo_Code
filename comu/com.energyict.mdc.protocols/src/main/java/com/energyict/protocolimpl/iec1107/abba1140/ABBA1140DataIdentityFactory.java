@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -14,13 +14,13 @@ import java.util.logging.Logger;
 /** @author fbo */
 
 public class ABBA1140DataIdentityFactory {
-    
+
     private final int dbg = 1;
-    
+
     private Map rawRegisters = new TreeMap();
     private MeterExceptionInfo meterExceptionInfo=null;
     private ProtocolLink protocolLink;
-    
+
     /** Create new DataIdentityFactory
      *
      * @param protocolLink
@@ -30,24 +30,24 @@ public class ABBA1140DataIdentityFactory {
         this.protocolLink = protocolLink;
         this.meterExceptionInfo = meterExceptionInfo;
         initRegisters();
-        
+
         if( dbg > 0 ) {
             Logger l = protocolLink.getLogger();
             if( dbg > 1 && l.isLoggable( Level.INFO ) )
                 l.log( Level.INFO, this.toString() );
         }
     }
-    
+
     /** @return protocolLink */
     ProtocolLink getProtocolLink() {
         return protocolLink;
     }
-    
+
     /** @return meterExceptionInfo */
     MeterExceptionInfo getMeterExceptionInfo() {
         return meterExceptionInfo;
     }
-    
+
     /** Read DataIdentity the IEC1107 way
      * @param dataID
      * @param cached
@@ -64,9 +64,9 @@ public class ABBA1140DataIdentityFactory {
         	String msg = "ABBA1140DataIdentityFactory, getDataIdentity, "
                     + "dataID=" + dataID + " " + e.getMessage();
             throw new IOException(msg);
-        } 
+        }
     }
-    
+
     /** Read DataIdentity in streaming mode
      * @param dataID
      * @param cached
@@ -85,7 +85,7 @@ public class ABBA1140DataIdentityFactory {
             throw new IOException("ABBA1140DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
         }
     }
-    
+
     /** Write dataIdentity
      * @param dataID
      * @param value
@@ -99,10 +99,10 @@ public class ABBA1140DataIdentityFactory {
             throw new IOException("ABBA1140DataIdentityFactory, setDataIdentity, "+e.getMessage());
         }
     }
-    
-    
+
+
     private void initRegisters() {
-        
+
         add("798", 16,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("795", 8,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("861", 7,ABBA1140DataIdentity.NOT_STREAMEABLE);
@@ -119,7 +119,7 @@ public class ABBA1140DataIdentityFactory {
         add("551", 4,ABBA1140DataIdentity.NOT_STREAMEABLE);
         // Load profile read data
         add("550", 0,ABBA1140DataIdentity.STREAMEABLE);
-        // Historical events 
+        // Historical events
         add("544", 280,5,ABBA1140DataIdentity.STREAMEABLE);
         // Meter current system status
         add("724", 4,ABBA1140DataIdentity.NOT_STREAMEABLE);
@@ -137,7 +137,7 @@ public class ABBA1140DataIdentityFactory {
         add("545", 457, 14,ABBA1140DataIdentity.STREAMEABLE);
         // Configure Load Profile Read By Date
         add("554", 8, ABBA1140DataIdentity.NOT_STREAMEABLE );
-        
+
         // Load profile configure data
         add("655", 1,ABBA1140DataIdentity.NOT_STREAMEABLE);
 
@@ -162,37 +162,37 @@ public class ABBA1140DataIdentityFactory {
         add("699", 17,ABBA1140DataIdentity.STREAMEABLE); // EndOfBillingEventLog
         add("701", 14,ABBA1140DataIdentity.STREAMEABLE); // MeterErrorEventLog
 
-        
+
         // Firmware version string and cuircuit board serial number
         add("998", 12, ABBA1140DataIdentity.NOT_STREAMEABLE);
 
     }
-    
+
     private void add(String id, int length, boolean streamable ){
         add( id, length, 1, streamable );
     }
-    
+
     private void add(String id, int length, int sets, boolean streamable ){
         ABBA1140DataIdentity di = new ABBA1140DataIdentity(id, length, sets, streamable, this );
         rawRegisters.put( id, di );
     }
-    
+
     private ABBA1140DataIdentity findRawRegister(String dataID) throws IOException {
         ABBA1140DataIdentity rawRegister = (ABBA1140DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null)
             throw new IOException("ABBA1140DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
         return rawRegister;
     }
-    
+
     public String toString( ){
         StringBuffer rslt = new StringBuffer();
         rslt.append( "ABBA1140DataIdentityFactory [\n" );
-        
+
         Iterator i = rawRegisters.values().iterator();
         while(i.hasNext()){
             ABBA1140DataIdentity dataIdentity = (ABBA1140DataIdentity)i.next();
             rslt.append( " " + dataIdentity.toString() + "\n" );
-            
+
             if( dbg > 1 ) {
                 try {
                     rslt.append( " " + DataType.toHexaString( dataIdentity.read(false, dataIdentity.getLength(), 0) ) );
@@ -203,12 +203,12 @@ public class ABBA1140DataIdentityFactory {
                     rslt.append( ex.getMessage() );
                 }
             }
-            
+
         }
-        
+
         rslt.append( "]\n" );
-        
+
         return rslt.toString();
     }
-    
+
 }

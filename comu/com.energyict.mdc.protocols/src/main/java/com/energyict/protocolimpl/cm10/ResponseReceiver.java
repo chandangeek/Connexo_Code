@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class ResponseReceiver {
-	
+
 	private static final long TIMEOUT=60000;
-	
+
 	private final int WAIT_FOR_CM10_ID=0;
     private final int WAIT_FOR_BLOCK_SIZE=1;
     private final int WAIT_FOR_SOURCE_CODE=2;
@@ -19,13 +19,13 @@ public class ResponseReceiver {
     private final int WAIT_FOR_PROTOCOL_TYPE=6;
     private final int WAIT_FOR_PORT=7;
     private final int HANDLE_DATA=8;
-    
+
     private CM10Connection cm10Connection;
-    
+
     public ResponseReceiver(CM10Connection cm10Connection) {
     	this.cm10Connection = cm10Connection;
     }
-    
+
     protected void logState(int state, int kar, int currentBlockByteCount) {
     	if (state == 0)
     		log("WAIT_FOR_CM10_ID: " + ProtocolUtils.outputHexString(kar)  + " currentBlockByteCount: " + currentBlockByteCount);
@@ -45,10 +45,10 @@ public class ResponseReceiver {
     		log("WAIT_FOR_PORT: " + ProtocolUtils.outputHexString(kar) + " currentBlockByteCount: " + currentBlockByteCount);
     	else if (state == 8)
     		log("HANDLE_DATA: " + ProtocolUtils.outputHexString(kar) + " currentBlockByteCount: " + currentBlockByteCount);
-    	else 
+    	else
     		log("invalid state = " + state);
     }
-    
+
     private int getTable(int cm10Id) {
     	return (int) (cm10Id & 0x0F);
     }
@@ -70,7 +70,7 @@ public class ResponseReceiver {
 	    int sourceCodeByteCount = 0;
 	    int destCodeByteCount = 0;
 	    boolean isLastFrame = true;
-		
+
         int kar;
         int state = WAIT_FOR_CM10_ID;
         while (true) {
@@ -84,7 +84,7 @@ public class ResponseReceiver {
         		if (state == WAIT_FOR_CM10_ID) {
         			int tableReceived = getTable(kar);
         			if (tableReceived != expectedTable) {
-        				throw new InvalidCommandException("Invalid CM10 identifier received after sending: " + ProtocolUtils.outputHexString(command.getCM10Identifier() ) 
+        				throw new InvalidCommandException("Invalid CM10 identifier received after sending: " + ProtocolUtils.outputHexString(command.getCM10Identifier() )
         						+ ", CM10 identifier received: " + ProtocolUtils.outputHexString(kar));
         			}
         			else {
@@ -160,11 +160,11 @@ public class ResponseReceiver {
         }
 	}
 
-	
+
 	protected void checkCrc(int crcFound, ByteArrayOutputStream dataArrayOutputStream, int blockSize) throws IOException {
 		//log("crcFound = " + crcFound);
 		byte[] data = dataArrayOutputStream.toByteArray();
-		byte[] dataForCrcCalculation = 
+		byte[] dataForCrcCalculation =
 			ProtocolUtils.getSubArray2(data, data.length - blockSize, blockSize - 1);
 		int size = dataForCrcCalculation.length;
 		int crcCalculated = 0;
@@ -180,12 +180,12 @@ public class ResponseReceiver {
 		//log("crc ok");
 	}
 
-	
+
 	protected void log(String logMessage) {
 		this.cm10Connection.getCM10Protocol().getLogger().info(logMessage);
 	}
-	
-	
+
+
 
 
 }

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.logging.Logger;

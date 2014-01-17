@@ -6,19 +6,21 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.gmc.base.EclConnection;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -26,6 +28,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 //import com.energyict.protocolimpl.myprotocol.*;
 
@@ -59,14 +63,14 @@ public class U1600 extends AbstractProtocol {
         // TODO code application logic here
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 
 
 
     protected void doConnect() throws java.io.IOException {
-       logicalAddressFactory = new LogicalAddressFactory(this,(MeterExceptionInfo)this);
+       logicalAddressFactory = new LogicalAddressFactory(this, this);
 
         u1600Profile = new U1600Profile(this);
     }
@@ -75,17 +79,17 @@ public class U1600 extends AbstractProtocol {
     }
 
 
-    protected java.util.List doGetOptionalKeys() {
+    protected List doGetOptionalKeys() {
         return null;
     }
 
-    protected ProtocolConnection doInit(java.io.InputStream inputStream, java.io.OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws java.io.IOException {
+    protected ProtocolConnection doInit(java.io.InputStream inputStream, java.io.OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         eclConnection=new EclConnection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,protocolCompatible,encryptor);
         return eclConnection;
 
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
     }
 
 
@@ -97,7 +101,7 @@ public class U1600 extends AbstractProtocol {
         return u1600Profile.getProfileData(calendarFrom.getTime(),calendarTo.getTime());
     }
 
-  public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+  public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar calendarFrom = ProtocolUtils.getCalendar(getTimeZone());
         calendarFrom.setTime(from);
         Calendar calendarTo = ProtocolUtils.getCalendar(getTimeZone());
@@ -127,8 +131,7 @@ public class U1600 extends AbstractProtocol {
      */
     // KV 04122006
     public Date getTime() throws IOException {
-
-        Date date = null;
+        Date date;
         String timeDateString = getEclConnection().getTimeDateString().trim();;
         DateFormat sdf = new SimpleDateFormat("HH:mm:ss dd.MM.yy");
         sdf.setTimeZone(getTimeZone());

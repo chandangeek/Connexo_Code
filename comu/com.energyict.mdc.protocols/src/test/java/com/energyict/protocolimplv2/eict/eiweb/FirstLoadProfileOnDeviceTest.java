@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.CanFindLoadProfile;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -24,22 +24,22 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
 
     @Test(expected = NotFoundException.class)
     public void testDeviceDoesNotExist () {
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         doThrow(NotFoundException.class).when(deviceIdentifier).findDevice();
-        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
         loadProfileIdentifier.findLoadProfile();
 
-        // Asserts: expected the NotFoundException reported by the CanFindDevice to be thrown or rethrown
+        // Asserts: expected the NotFoundException reported by the DeviceIdentifier to be thrown or rethrown
     }
 
     @Test
     public void testWithDeviceWithoutLoadProfiles () {
         Device device = mock(Device.class);
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
@@ -53,9 +53,9 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfile expectedLoadProfile = mock(LoadProfile.class);
         Device device = mock(Device.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile));
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();
@@ -70,9 +70,9 @@ public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
         LoadProfile anotherLoadProfile = mock(LoadProfile.class);
         Device device = mock(Device.class);
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(expectedLoadProfile, anotherLoadProfile));
-        CanFindDevice deviceIdentifier = mock(CanFindDevice.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        CanFindLoadProfile loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = new FirstLoadProfileOnDevice(deviceIdentifier);
 
         // Business method
         LoadProfile loadProfile = loadProfileIdentifier.findLoadProfile();

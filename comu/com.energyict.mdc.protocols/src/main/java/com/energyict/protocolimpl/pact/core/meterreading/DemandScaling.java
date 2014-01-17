@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -17,7 +17,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
 	private int channelNumber;
 	private int mdDivisor;
 	private int cmdDivisor;
-    
+
     /** Creates a new instance of DemandScaling */
     public DemandScaling(byte[] data) {
         super(data,true);
@@ -25,9 +25,9 @@ public class DemandScaling extends MeterReadingsBlockImpl {
 
     public String print() {
        return "CHN_ID=0x"+Integer.toHexString(getChannelId())+" (BP_INDEX="+getBpIndex()+", CHAN_NUM="+getChannelNumber()+
-              "), MD_DIVISOR="+getMdDivisor()+", CMD_DIVISOR="+getCmdDivisor(); 
-    }    
-    
+              "), MD_DIVISOR="+getMdDivisor()+", CMD_DIVISOR="+getCmdDivisor();
+    }
+
     protected void parse() throws java.io.IOException {
        setChannelId(ProtocolUtils.byte2int(getData()[1]));
        setBpIndex(getChannelId()>>4);
@@ -35,7 +35,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
        setMdDivisor(ProtocolUtils.getIntLE(getData(),3,2));
        setCmdDivisor(ProtocolUtils.getIntLE(getData(),5,2));
     }
-    
+
     /** Getter for property channelId.
      * @return Value of property channelId.
      *
@@ -43,7 +43,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public int getChannelId() {
         return channelId;
     }
-    
+
     /** Setter for property channelId.
      * @param channelId New value of property channelId.
      *
@@ -51,7 +51,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public void setChannelId(int channelId) {
         this.channelId = channelId;
     }
-    
+
     /** Getter for property bpIndex.
      * @return Value of property bpIndex.
      *
@@ -59,7 +59,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public int getBpIndex() {
         return bpIndex;
     }
-    
+
     /** Setter for property bpIndex.
      * @param bpIndex New value of property bpIndex.
      *
@@ -67,7 +67,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public void setBpIndex(int bpIndex) {
         this.bpIndex = bpIndex;
     }
-    
+
     /** Getter for property channelNumber.
      * @return Value of property channelNumber.
      *
@@ -75,7 +75,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public int getChannelNumber() {
         return channelNumber;
     }
-    
+
     /** Setter for property channelNumber.
      * @param channelNumber New value of property channelNumber.
      *
@@ -83,7 +83,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public void setChannelNumber(int channelNumber) {
         this.channelNumber = channelNumber;
     }
-    
+
     /** Getter for property mdDivisor.
      * @return Value of property mdDivisor.
      *
@@ -91,7 +91,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public int getMdDivisor() {
         return mdDivisor;
     }
-    
+
     /** Setter for property mdDivisor.
      * @param mdDivisor New value of property mdDivisor.
      *
@@ -99,7 +99,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public void setMdDivisor(int mdDivisor) {
         this.mdDivisor = mdDivisor;
     }
-    
+
     /** Getter for property cmdDivisor.
      * @return Value of property cmdDivisor.
      *
@@ -107,7 +107,7 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public int getCmdDivisor() {
         return cmdDivisor;
     }
-    
+
     /** Setter for property cmdDivisor.
      * @param cmdDivisor New value of property cmdDivisor.
      *
@@ -115,5 +115,5 @@ public class DemandScaling extends MeterReadingsBlockImpl {
     public void setCmdDivisor(int cmdDivisor) {
         this.cmdDivisor = cmdDivisor;
     }
-    
+
 }

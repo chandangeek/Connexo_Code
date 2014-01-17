@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  * Time: 14:00
  * Author: khe
  */
-public class ReadMeterEvents extends AbstractRequest<CanFindLogBook, List<CollectedLogBook>> {
+public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<CollectedLogBook>> {
 
     public ReadMeterEvents(ACE4000Outbound ace4000) {
         super(ace4000);
@@ -51,10 +51,10 @@ public class ReadMeterEvents extends AbstractRequest<CanFindLogBook, List<Collec
             }
             deviceLogBook.setFailureInformation(
                     resultType,
-                    MdcManager.getIssueCollector().addProblem(
+                    Bus.getIssueService().newIssueCollector().addProblem(
                             getInput(),
                             "Requested events, meter returned NACK." + getReasonDescription(),
-                            getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
+                            getInput().getLogBook().getDeviceObisCode()));
             result.add(deviceLogBook);
             setResult(result);
         }

@@ -1,13 +1,11 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.LoadProfileSpec;
 import com.energyict.mdc.common.ObisCode;
-import org.junit.Test;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
+import org.junit.*;
 
 import java.util.Arrays;
 
@@ -36,7 +34,7 @@ public class LoadProfileMessageUtilsTest {
         Channel channel1 = createdMockedChannel(device, OBISCODE1);
         Channel channel2 = createdMockedChannel(device, OBISCODE2);
         LoadProfile loadProfile = createMockedLoadProfile();
-        when(loadProfile.getRtu()).thenReturn(device);
+        when(loadProfile.getDevice()).thenReturn(device);
         when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
 
         final String format = LoadProfileMessageUtils.formatLoadProfile(loadProfile);
@@ -47,25 +45,16 @@ public class LoadProfileMessageUtilsTest {
 
     private LoadProfile createMockedLoadProfile() {
         LoadProfile loadProfile = mock(LoadProfile.class);
-        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        when(loadProfileSpec.getDeviceObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
-        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        when(loadProfile.getDeviceObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
         return loadProfile;
     }
 
     private Channel createdMockedChannel(Device device, ObisCode obisCode) {
         Channel channel = mock(Channel.class);
-        RegisterMapping registerMapping = createMockedRegisterMapping(obisCode);
-        when(channel.getRtu()).thenReturn(device);
-        when(channel.getRtuRegisterMapping()).thenReturn(registerMapping);
+        when(channel.getDevice()).thenReturn(device);
+        when(channel.getDeviceRegisterMappingObisCode()).thenReturn(obisCode);
+        when(channel.getDeviceRegisterMappingUnit()).thenReturn(UNIT);
         return channel;
-    }
-
-    private RegisterMapping createMockedRegisterMapping(ObisCode obisCode) {
-        RegisterMapping registerMapping = mock(RegisterMapping.class);
-        when(registerMapping.getObisCode()).thenReturn(obisCode);
-        when(registerMapping.getUnit()).thenReturn(UNIT);
-        return registerMapping;
     }
 
     private Device createdMockedDevice() {

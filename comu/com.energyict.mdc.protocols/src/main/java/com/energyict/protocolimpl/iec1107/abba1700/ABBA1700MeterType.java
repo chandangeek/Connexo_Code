@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 
 /**
  * @author Koen

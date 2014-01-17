@@ -10,7 +10,7 @@ package com.energyict.dlms;
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 
 import java.io.IOException;

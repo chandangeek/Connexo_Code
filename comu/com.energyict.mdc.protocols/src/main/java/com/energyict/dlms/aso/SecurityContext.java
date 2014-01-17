@@ -1,11 +1,11 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.encryption.AesGcm128;
 import com.energyict.encryption.BitVector;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -715,7 +715,7 @@ public class SecurityContext {
     public boolean isDedicatedCiphering(){
         return this.cipheringType == CIPHERING_TYPE_DEDICATED;
     }
-    
+
     public boolean isFrameCounterInitialized() {
         return frameCounterInitialized;
     }

@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.protocol.MessageProtocol;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;

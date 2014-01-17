@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.OpticalDialer;
+import com.energyict.dialer.core.impl.OpticalDialer;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
 import java.io.IOException;

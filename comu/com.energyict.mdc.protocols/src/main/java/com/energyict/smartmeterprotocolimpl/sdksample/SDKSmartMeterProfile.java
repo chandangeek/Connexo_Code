@@ -7,8 +7,8 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.MultipleLoadProfileSupport;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.legacy.MultipleLoadProfileSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -160,11 +160,11 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
 
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
-     * Build up a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects and return them so the
+     * Build up a list of {@link LoadProfileConfiguration} objects and return them so the
      * framework can validate them to the configuration in EIServer
      *
      * @param loadProfilesToRead the list of LoadProfile ObisCodes
-     * @return a list of {@link com.energyict.protocol.LoadProfileConfiguration} objects corresponding with the meter
+     * @return a list of {@link LoadProfileConfiguration} objects corresponding with the meter
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
 
@@ -211,11 +211,11 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     }
 
     /**
-     * Search for the {@link com.energyict.protocol.LoadProfileConfiguration} object which is linked to the given {@link LoadProfileReader}.
+     * Search for the {@link LoadProfileConfiguration} object which is linked to the given {@link LoadProfileReader}.
      * The link is made using the {@link ObisCode} from both objects.
      *
      * @param lpro the {@link LoadProfileReader}
-     * @return the requested {@link com.energyict.protocol.LoadProfileConfiguration}
+     * @return the requested {@link LoadProfileConfiguration}
      */
     private LoadProfileConfiguration getLoadProfileConfigurationForGivenReadObject(LoadProfileReader lpro)  {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {

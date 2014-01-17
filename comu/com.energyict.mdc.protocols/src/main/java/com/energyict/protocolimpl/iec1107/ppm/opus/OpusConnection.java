@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppm.opus;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppm.Encryption;
 import com.energyict.protocolimpl.iec1107.ppm.PPM;
 import com.energyict.protocolimpl.iec1107.ppm.PPMIOException;

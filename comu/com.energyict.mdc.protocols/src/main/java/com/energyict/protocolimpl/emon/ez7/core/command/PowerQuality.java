@@ -6,14 +6,14 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -43,19 +43,19 @@ public class PowerQuality extends AbstractCommand {
     }
 
     public String toString() {
-        StringBuffer strBuff = new StringBuffer();
-        strBuff.append("PowerQuality:\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("PowerQuality:\n");
         for (int phase = 0; phase < NR_OF_PHASES; phase++) {
-           strBuff.append("phase "+phase+": ");
-           strBuff.append("frequency="+getFrequency(phase)+", ");
-           strBuff.append("voltage="+getVoltage(phase)+", ");
-           strBuff.append("phaseAngle="+getPhaseAngle(phase)+", ");
-           strBuff.append("powerFactor="+getPowerFactor(phase)+", ");
-           strBuff.append("amperage="+getAmperage(phase)+", ");
-           strBuff.append("kwLoad="+getKwLoad(phase)+"\n ");
-           strBuff.append("\n");
+           builder.append("phase ").append(phase).append(": ");
+           builder.append("frequency=").append(getFrequency(phase)).append(", ");
+           builder.append("voltage=").append(getVoltage(phase)).append(", ");
+           builder.append("phaseAngle=").append(getPhaseAngle(phase)).append(", ");
+           builder.append("powerFactor=").append(getPowerFactor(phase)).append(", ");
+           builder.append("amperage=").append(getAmperage(phase)).append(", ");
+           builder.append("kwLoad=").append(getKwLoad(phase)).append("\n ");
+           builder.append("\n");
         }
-        return strBuff.toString();    }
+        return builder.toString();    }
 
     public void build() throws ConnectionException, IOException {
         // retrieve profileStatus
@@ -64,12 +64,12 @@ public class PowerQuality extends AbstractCommand {
     }
 
     private void parse(byte[] data) throws NoSuchRegisterException {
-        if (DEBUG>=1)
-           System.out.println(new String(data));
-
-
-        if (new String(data).indexOf("R?")>=0)
+        if (DEBUG>=1) {
+            System.out.println(new String(data));
+        }
+        if (new String(data).contains("R?")) {
             throw new NoSuchRegisterException("PowerQuality, parse, not supported!");
+        }
         CommandParser cp = new CommandParser(data);
         List values = cp.getValues("TOTAL");
         fillValues(0,values);

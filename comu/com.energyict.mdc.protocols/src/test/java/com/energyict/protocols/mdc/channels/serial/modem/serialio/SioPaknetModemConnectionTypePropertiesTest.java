@@ -1,8 +1,7 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
-import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionTypeTest;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedPaknetModemProperties;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 

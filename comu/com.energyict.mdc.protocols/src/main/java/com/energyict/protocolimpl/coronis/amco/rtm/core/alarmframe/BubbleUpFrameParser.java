@@ -5,7 +5,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.BubbleUpObject;
+import com.energyict.mdc.protocol.api.BubbleUpObject;
 import com.energyict.protocolimpl.coronis.amco.rtm.ProfileDataReader;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;

@@ -10,7 +10,7 @@ import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

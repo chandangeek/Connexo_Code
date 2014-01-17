@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.sentinel.procedures;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
 import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;

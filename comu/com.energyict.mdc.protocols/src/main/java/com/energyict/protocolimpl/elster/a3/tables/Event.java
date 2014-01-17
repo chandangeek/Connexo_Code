@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 
@@ -59,15 +59,15 @@ public class Event {
         strBuff.append("   edStdStatus2="+getEdStdStatus2()+"\n");
         strBuff.append("   originateControl="+getOriginateControl()+"\n");
         return strBuff.toString();
-    } 
-    
+    }
+
 //     public static void main(String[] args) {
 //        System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new Event()));
-//     } 
-     
+//     }
+
     static public int getSize(TableFactory tableFactory) throws IOException {
         return 17;
-    }   
+    }
 
     public int getEdStdStatus1() {
         return edStdStatus1;
@@ -102,6 +102,6 @@ public class Event {
     }
 
 
- 
+
 
 }

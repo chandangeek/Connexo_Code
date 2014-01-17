@@ -1,11 +1,11 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -129,10 +129,6 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
         while (true) {
             if ((kar = readIn()) != -1) {
-                if (DEBUG >= 2) {
-                    ProtocolUtils.outputHex(kar);
-                }
-
                 switch (state) {
 
                     /*

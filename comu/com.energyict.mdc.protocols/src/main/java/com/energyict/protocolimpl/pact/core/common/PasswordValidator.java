@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
@@ -49,18 +49,6 @@ public class PasswordValidator {
           return (int)(acc&0xFFFF);
     }
 
-    static public void main(String[] args) {
-        try {
-             byte[] data={(byte)0xC5,(byte)0xA6,(byte)0x39,(byte)0x4B,(byte)0xBE};
-             PasswordValidator pv = new PasswordValidator(data);
-             pv.getPasswordClearanceRequest(2, 0x2000EFAB);
-             ProtocolUtils.printResponseData(pv.getPasswordClearanceRequest(2, 0x2000EFAB));
-        }
-        catch(IOException e) {
-             e.printStackTrace();
-        }
-    }
-
     /** Getter for property seed.
      * @return Value of property seed.
      *
@@ -76,7 +64,5 @@ public class PasswordValidator {
     public void setSeed(long seed) {
         this.seed = seed;
     }
-
-
 
 }

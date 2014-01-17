@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
@@ -9,10 +8,13 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
@@ -115,13 +117,13 @@ public class MeterTopology implements MasterMeter {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      *
      * @return a List of <CODE>DeviceMappings</CODE>
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *          if interframeTimeout has passed and maximum retries have been reached
      */
     protected List<DeviceMapping> constructMbusMap() throws ConnectionException {
         String mbusSerial;
         mbusMap = new ArrayList<>();
-        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getOfflineDevice().getSerialNumber()));
+        deviceTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getOfflineDevice().getSerialNumber()));
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -219,7 +221,18 @@ public class MeterTopology implements MasterMeter {
         return deviceTopology;
     }
 
-    private final void log(Level level, String message) {
+    private void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
+    }
+
 }

@@ -10,25 +10,25 @@
 
 package com.energyict.protocolimpl.transdata.markv.core;
 
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 /**
  *
  * @author Koen
  */
 public class MeterIdentification {
-    
+
     MeterType meterType;
-    
+
     /** Creates a new instance of MeterIdentification */
     public MeterIdentification(MeterType meterType) {
         this.meterType=meterType;
     }
-    
+
     public boolean isMeter() {
         return meterType.getReceivedIdent().compareTo("EMS75")==0;
     }
     public boolean isRecorder() {
         return meterType.getReceivedIdent().compareTo("EMS50")==0;
     }
-    
+
 }

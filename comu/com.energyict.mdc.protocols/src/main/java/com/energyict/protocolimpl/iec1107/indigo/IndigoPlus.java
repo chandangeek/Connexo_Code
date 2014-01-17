@@ -6,22 +6,23 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
+import com.energyict.mdc.protocol.api.dialer.core.DialerMarker;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -227,14 +228,14 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
         return result;
     }
 
-    protected void doValidateProperties(java.util.Properties properties) throws com.energyict.protocol.MissingPropertyException, com.energyict.protocol.InvalidPropertyException {
+    protected void doValidateProperties(java.util.Properties properties) throws MissingPropertyException, InvalidPropertyException {
         statusFlagChannel = Integer.parseInt(properties.getProperty("StatusFlagChannel","0"));
         readCurrentDay = Integer.parseInt(properties.getProperty("ReadCurrentDay","0"));
         emptyNodeAddress = Integer.parseInt(properties.getProperty("EmptyNodeAddress","0"));
         setNodeId(properties.getProperty(MeterProtocol.NODEID,(emptyNodeAddress==0?"001":"")));
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         return getLogicalAddressFactory().getMeterIdentity().getSoftwareVersionNumber();
 
     }
@@ -251,10 +252,13 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
      */
     protected void validateSerialNumber() throws IOException {
 
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getSerialNumber().trim();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
 
     }
@@ -262,7 +266,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     // ********************************************************************************************************
     // main
     public static void main(String[] args) {
-        Dialer dialer=null;
+        Dialer dialer;
         IndigoPlus indigoPlus=null;
         try {
 //            dialer =DialerFactory.getDefault().newDialer();
@@ -282,28 +286,33 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
             properties.setProperty("SecurityLevel","2");
             properties.setProperty(MeterProtocol.PASSWORD,"ABCDEF"); //13579B"); //"123456");
             properties.setProperty("ProfileInterval", "1800");
-            if (!(DialerMarker.hasOpticalMarker(dialer)))
-              properties.setProperty(MeterProtocol.NODEID,"002");
-            else
-              properties.setProperty(MeterProtocol.NODEID,"");
+            if (!(DialerMarker.hasOpticalMarker(dialer))) {
+                properties.setProperty(MeterProtocol.NODEID, "002");
+            }
+            else {
+                properties.setProperty(MeterProtocol.NODEID, "");
+            }
             indigoPlus.setProperties(properties);
-            if (!(DialerMarker.hasOpticalMarker(dialer)))
+            if (!(DialerMarker.hasOpticalMarker(dialer))) {
                 dialer.getSerialCommunicationChannel().setParamsAndFlush(2400,
-                                                                         SerialCommunicationChannel.DATABITS_7,
-                                                                         SerialCommunicationChannel.PARITY_EVEN,
-                                                                         SerialCommunicationChannel.STOPBITS_1);
-            else
+                        SerialCommunicationChannel.DATABITS_7,
+                        SerialCommunicationChannel.PARITY_EVEN,
+                        SerialCommunicationChannel.STOPBITS_1);
+            }
+            else {
                 dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                                                                         SerialCommunicationChannel.DATABITS_7,
-                                                                         SerialCommunicationChannel.PARITY_EVEN,
-                                                                         SerialCommunicationChannel.STOPBITS_1);
+                        SerialCommunicationChannel.DATABITS_7,
+                        SerialCommunicationChannel.PARITY_EVEN,
+                        SerialCommunicationChannel.STOPBITS_1);
+            }
 
             // initialize
             indigoPlus.init(is,os,TimeZone.getTimeZone("GMT"),Logger.getLogger("name"));
 
             // KV 18092003
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)indigoPlus).enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            if (DialerMarker.hasOpticalMarker(dialer)) {
+                indigoPlus.enableHHUSignOn(dialer.getSerialCommunicationChannel());
+            }
 
             System.out.println("Start session");
 
@@ -371,10 +380,12 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
     public String getExceptionInfo(String id) {
 
         String exceptionInfo = (String)exceptionInfoMap.get(id);
-        if (exceptionInfo != null)
-           return id+", "+exceptionInfo;
-        else
-           return "No meter specific exception info for "+id;
+        if (exceptionInfo != null) {
+            return id + ", " + exceptionInfo;
+        }
+        else {
+            return "No meter specific exception info for " + id;
+        }
     }
 
     /*******************************************************************************************

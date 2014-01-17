@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;

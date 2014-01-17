@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import com.energyict.cbo.TimeZoneManager;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.base.DataParser;
 
 import java.io.IOException;
@@ -60,7 +59,7 @@ public class RegisterSet {
 
     private void parseRegisterExpression(String strRegisterExpression) throws IOException {
 
-    	DataParser dp = new DataParser(TimeZoneManager.getTimeZone("GMT"));
+    	DataParser dp = new DataParser(TimeZone.getTimeZone("GMT"));
     	String str = dp.parseBetweenBrackets(strRegisterExpression,0);
     	int type;
     	String typeString = strRegisterExpression.substring(0,strRegisterExpression.indexOf('('));
@@ -70,7 +69,7 @@ public class RegisterSet {
 			dateType = 1;
 		} else if ( typeString.substring(0, 2).compareTo("DL") == 0 ){
     		dateType = 2;
-    		setDates(dateType, typeString, str);
+    		setDates(typeString, str);
     	}
 
     	else{
@@ -91,7 +90,7 @@ public class RegisterSet {
     		else {
 
     			if (dateType == 1) {
-					setDates(dateType, typeString, str);
+					setDates(typeString, str);
 				}
 
     			if ( (used) & (Integer.parseInt(typeString) != 66) & ( typeString.substring(0, 2).compareTo("DL") != 0 ) ){
@@ -159,7 +158,7 @@ public class RegisterSet {
 
     }
 
-    private void setDates(int type, String typeString, String str){
+    private void setDates(String typeString, String str){
 		if ( (dateType == 1) & !used ){
     		// Time
     		if ( ( typeString.compareTo("REL") == 0 ) | ( Integer.parseInt(typeString) == 65) ){
@@ -200,11 +199,11 @@ public class RegisterSet {
 
     public String toString() {
         if (isUsed()) {
-            StringBuffer strBuff = new StringBuffer();
-            strBuff.append("RegisterSet "+getBillingPoint()+"\n");
+            StringBuilder strBuff = new StringBuilder();
+            strBuff.append("RegisterSet ").append(getBillingPoint()).append("\n");
             for (int i=0;i< registers.length ; i++) {
                 if (registers[i] != null) {
-					strBuff.append("register "+i+", "+registers[i].toString()+"\n");
+					strBuff.append("register ").append(i).append(", ").append(registers[i].toString()).append("\n");
 				}
             }
             return strBuff.toString();
@@ -234,33 +233,14 @@ public class RegisterSet {
     }
 
     private int getRegisterIndex(int typeNumber) throws NoSuchRegisterException{
-    	int number = -1;
-    	int teller = 0;
-//    	do{
-//    		if (registers[teller].type == typeNumber)
-//    			number = teller;
-//    		teller++;
-//    	}while( (number == -1) & (registers[teller] != null));
-
-    	for(teller = 0; teller  < registers.length; teller++){
+    	for(int teller = 0; teller  < registers.length; teller++){
     		if(registers[teller] != null){
     			if(registers[teller].type == typeNumber) {
 					return teller;
 				}
     		}
     	}
-
     	throw new NoSuchRegisterException("RegisterSet, getRegisterIndex, typeNumber not found in registerset.");
-    }
-
-    static public void main(String[] args) {
-        try {
-           RegisterSet registerSet = new RegisterSet(com.energyict.protocol.ProtocolUtils.readFile("GTR.txt"),TimeZone.getTimeZone("GMT"));
-           System.out.println(registerSet.toString());
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -278,7 +258,5 @@ public class RegisterSet {
     public boolean isUsed() {
         return used;
     }
-
-
 
 }

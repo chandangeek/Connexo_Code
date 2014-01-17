@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,17 +17,17 @@ import java.io.IOException;
  * @author  Koen
  */
 public class IEC870InformationObject {
-    
-    
+
+
     public static final int QOI_STATION_INTERROGATION=0x14; // 7.2.6.22
     public static final int QCC_GENERAL_REQUEST_COUNTER=0x05; // 7.2.6.23
-    
-    
+
+
     int address;
     byte[] data;
-    
+
     ByteArrayOutputStream bos=null;
-    
+
     /** Creates a new instance of InformationObject */
     public IEC870InformationObject(int address) {
         this.address = address;
@@ -38,7 +38,7 @@ public class IEC870InformationObject {
     public IEC870InformationObject() {
         this(-1);
     }
-    
+
     public void addData(int val) {
         bos.write(val);
     }
@@ -50,20 +50,20 @@ public class IEC870InformationObject {
             throw new IEC870ConnectionException("IEC870ConnectionException, addData, "+e.getMessage());
         }
     }
-    
+
     public int getAddress() {
-        return address;   
+        return address;
     }
-    
+
     public byte[] getData() throws IEC870ConnectionException {
         buildData();
         return data;
     }
-    
+
     public byte[] getObjData() {
         return bos.toByteArray();
     }
-    
+
     public String toString() {
         StringBuffer strbuff = new StringBuffer();
         String name;
@@ -73,8 +73,8 @@ public class IEC870InformationObject {
         catch(NotFoundException e) {
             name = e.getMessage();
         }
-        
-        
+
+
         if (address != -1)
             strbuff.append("address=0x"+Integer.toHexString(address)+" ("+name+")\r\n");
         strbuff.append("data: ");
@@ -82,7 +82,7 @@ public class IEC870InformationObject {
         strbuff.append("\r\n");
         return strbuff.toString();
     }
-    
+
     private void buildData() throws IEC870ConnectionException {
         try {
             if (address == -1) {

@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdw.core.LogBookTypeFactory;
+import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
@@ -59,11 +59,11 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     }
 
     public List<CollectedData> getCollectedData() {
-        List<CollectedData> collectedDatas = new ArrayList<CollectedData>();
+        List<CollectedData> collectedDatas = new ArrayList<>();
         collectedDatas.addAll(getCollectedRegisters());
         collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
 
-        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         collectedDatas.add(deviceLogBook);
 
         return collectedDatas;

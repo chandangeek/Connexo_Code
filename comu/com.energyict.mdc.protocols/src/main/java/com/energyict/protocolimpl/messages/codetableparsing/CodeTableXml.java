@@ -7,7 +7,7 @@ package com.energyict.protocolimpl.messages.codetableparsing;
  * Time: 10:30
  */
 
-import com.energyict.mdw.core.Code;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -25,7 +25,7 @@ public class CodeTableXml extends CodeTableXmlParsing {
     /**
      * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
      *
-     * @param id             the id of the {@link com.energyict.mdw.core.Code}
+     * @param id             the id of the {@link Code}
      * @param activationTime the time to activate the new calendar(epoch time) Possible values:
      *                       <ul>
      *                       <li> <code>0</code> : calendar isn't activated

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;

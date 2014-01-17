@@ -8,13 +8,9 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.shadow.UserFileShadow;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import java.io.ByteArrayInputStream;
@@ -1011,24 +1007,6 @@ public final class ProtocolTools {
         }
     }
 
-    /**
-     * Get the properties for a given rtu. This incluides the protocol properties
-     *
-     * @param rtu
-     * @return
-     */
-    public static Properties getRtuProperties(Device rtu) {
-        Properties properties = new Properties();
-        if (rtu != null) {
-            CommunicationProtocol protocol = rtu.getDeviceType().getProtocol();
-            if (protocol != null) {
-                properties.putAll(protocol.getProperties().toStringProperties());
-            }
-            properties.putAll(rtu.getProtocolProperties().toStringProperties());
-        }
-        return properties;
-    }
-
     public static byte[] getReverseByteArray(byte[] bytes) {
         byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
         for (int i = 0; i < reverseBytes.length; i++) {
@@ -1202,16 +1180,14 @@ public final class ProtocolTools {
      *
      * @param name      the name of the userfile
      * @param content   the content of the userfile
-     * @param folderId  the folderId where to put the userFile
      * @param extension the extension of the userfile
      * @return the expected UserFileShadow
      * @throws IOException if an error occurred during the creation of the file
      */
-    public static UserFileShadow createUserFileShadow(String name, byte[] content, int folderId, String extension) throws IOException {
+    public static UserFileShadow createUserFileShadow(String name, byte[] content, String extension) throws IOException {
         UserFileShadow ufs = new UserFileShadow();
         ufs.setName(name);
         ufs.setExtension(extension);
-        ufs.setFolderId(folderId);
         File file = File.createTempFile("TempUserFile", extension);
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(content);
@@ -1237,18 +1213,6 @@ public final class ProtocolTools {
             return strBuff.toString();
         }
         return ipAddress;
-    }
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public static MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
     }
 
     /**

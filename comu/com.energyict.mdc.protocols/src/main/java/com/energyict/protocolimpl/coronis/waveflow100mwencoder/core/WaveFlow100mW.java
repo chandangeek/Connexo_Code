@@ -1,21 +1,21 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.EventMapper;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -272,9 +273,8 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
      * Override this method to requesting the load profile integration time
      *
      * @return integration time in seconds
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             thrown when not supported
-     * @throws java.io.IOException Thrown when something goes wrong
+     * @throws UnsupportedException Thrown when not supported
+     * @throws IOException Thrown when something goes wrong
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
         if (isVerifyProfileInterval()) {
@@ -343,14 +343,13 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
-        result.add(VERIFY_PROFILE_INTERVAL_PROPERTY);
-        result.add(LOAD_PROFILE_OBIS_CODE_PROPERTY);
-        result.add(READ_LOAD_PROFILE_PROPERTY);
-        result.add(SERIAL_NUMBER_A);
-        result.add(SERIAL_NUMBER_B);
-        return result;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList(
+                VERIFY_PROFILE_INTERVAL_PROPERTY,
+                LOAD_PROFILE_OBIS_CODE_PROPERTY,
+                READ_LOAD_PROFILE_PROPERTY,
+                SERIAL_NUMBER_A,
+                SERIAL_NUMBER_B);
     }
 
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
@@ -362,7 +361,7 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         return WAVEFLOW_NR_OF_CHANNELS;
     }
 

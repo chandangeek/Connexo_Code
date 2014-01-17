@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 import java.io.IOException;
 import java.io.InputStream;

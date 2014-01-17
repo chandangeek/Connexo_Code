@@ -9,7 +9,7 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 
 import java.io.IOException;

@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.Calculate;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.Calculate;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,22 +25,22 @@ public class ABBA1700ProfileEntry {
 
     // type attribute:
     // markers
-    static public final int EXTERNALDATAENTRY=0xE2; // KV 20122004
-    static public final int POWERUP=0xE5;
-    static public final int CONFIGURATIONCHANGE=0xE8;
-    static public final int POWERDOWN=0xE6;
-    static public final int NEWDAY=0xE4;
-    static public final int TIMECHANGE=0xEA;
-    static public final int DAYLIGHTSAVING=0xED;
-    static public final int LOADPROFILECLEARED=0xEB;
-    static public final int FORCEDENDOFDEMAND=0xE9;
+    public static final int EXTERNALDATAENTRY=0xE2; // KV 20122004
+    public static final int POWERUP=0xE5;
+    public static final int CONFIGURATIONCHANGE=0xE8;
+    public static final int POWERDOWN=0xE6;
+    public static final int NEWDAY=0xE4;
+    public static final int TIMECHANGE=0xEA;
+    public static final int DAYLIGHTSAVING=0xED;
+    public static final int LOADPROFILECLEARED=0xEB;
+    public static final int FORCEDENDOFDEMAND=0xE9;
     // when last packet does not contain 64 (normal mode) or 256 (DS mode) bytes
-    static public final int ENDOFDATA=0xFF;
+    public static final int ENDOFDATA=0xFF;
 
-    static public final int INFO_CHANNELMASK=0;
-    static public final int INFO_INTEGRATIONPERIOD=1;
-    static public final int INFO_STATUS=2;
-    static public final int INFO_NROFINTERVALS_EXTERNAL=3;
+    public static final int INFO_CHANNELMASK=0;
+    public static final int INFO_INTEGRATIONPERIOD=1;
+    public static final int INFO_STATUS=2;
+    public static final int INFO_NROFINTERVALS_EXTERNAL=3;
 
     long date;
     int type;
@@ -121,7 +121,7 @@ public class ABBA1700ProfileEntry {
                 initValues(nrOfChannels);
                 for (int i=0;i<nrOfChannels;i++) {
                     long val = (int)Long.parseLong(Long.toHexString(ProtocolUtils.getLong(bai,3)));
-                    values[i] = (val/10) * Calculate.exp(val%10);
+                    values[i] = (val/10) * Calculate.exp(val % 10);
                 }
             }
             ProtocolUtils.getVal(bai); // skip closing EXTERNALDATAENTRY marker

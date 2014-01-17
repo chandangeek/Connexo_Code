@@ -1,17 +1,17 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 
 public class ApplicationStatus extends AbstractApplicationStatus {
-	
+
 	int status;
-	
+
 	ApplicationStatus(AbstractWaveTalk waveFlow) {
 		super(waveFlow);
 	}
-	
+
 	@Override
 	final int getStatus() {
 		return status;

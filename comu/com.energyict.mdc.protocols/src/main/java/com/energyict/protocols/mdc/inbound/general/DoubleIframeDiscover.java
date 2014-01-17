@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.protocol.ProtocolInstantiator;
-import com.energyict.protocol.meteridentification.IdentificationFactory;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
+import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
+import com.energyict.protocols.util.ProtocolInstantiator;
 
 /**
  * In the case of DoubleIframeDiscover, a meter opens an inbound connection to the comserver but it doesn't send any frames.
@@ -28,7 +28,7 @@ public class DoubleIframeDiscover extends AbstractDiscover {
             this.setSerialNumber(requestSerialNumber(comChannel, protocolInstantiator));
             return DiscoverResultType.IDENTIFIER;
         } catch (InboundTimeOutException e) {
-            throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(e.getMessage());
+            throw InboundFrameException.timeout(e.getMessage());
         }
     }
 

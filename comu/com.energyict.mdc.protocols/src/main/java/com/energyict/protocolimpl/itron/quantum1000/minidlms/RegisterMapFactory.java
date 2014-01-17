@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 import com.energyict.protocolimpl.itron.quantum1000.Quantum1000;
 

@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
@@ -48,7 +48,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         return ace4000Connection;
     }
 
-    public CanFindDevice getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return new DeviceIdentifierBySerialNumber(serialNumber);
     }
 

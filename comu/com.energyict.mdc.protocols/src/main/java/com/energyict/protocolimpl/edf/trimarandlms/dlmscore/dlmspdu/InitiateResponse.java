@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.InitiateRespAPSE;
 
 import java.io.IOException;

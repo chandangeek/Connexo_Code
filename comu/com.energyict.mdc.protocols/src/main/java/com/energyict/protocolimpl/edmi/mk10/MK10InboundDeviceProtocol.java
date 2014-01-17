@@ -6,11 +6,12 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.protocol.api.exceptions.ComServerExecutionException;
+import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
+import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.ByteArrayOutputStream;
@@ -61,7 +62,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
                 setDeviceIdentifier(packet.getSerial());
                 return DiscoverResultType.IDENTIFIER;
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(packet.toString(), "The received packet is unsupported in the current protocol");
+                throw InboundFrameException.unexpectedFrame(packet.toString(), "The received packet is unsupported in the current protocol");
         }
     }
 
@@ -70,7 +71,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
      * implemented by reading bytes until a timeout occurs.
      *
      * @return the partial frame
-     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
+     * @throws ComServerExecutionException
      *          in case of timeout after x retries
      */
     private byte[] readFrame() {
@@ -93,7 +94,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
                 if (retryCount > getRetriesProperty()) {
-                    throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
+                    throw InboundFrameException.timeout(String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
                 }
             }
         }

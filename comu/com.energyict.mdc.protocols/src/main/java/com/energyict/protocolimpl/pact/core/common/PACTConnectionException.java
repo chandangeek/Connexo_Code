@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 /**
  *
  * @author  Koen
@@ -17,7 +17,7 @@ public class PACTConnectionException extends ConnectionException {
   public short getReason() {
      return sReason;
   }
-   
+
   public PACTConnectionException(String str) {
       super(str);
       this.sReason = -1;
@@ -32,6 +32,6 @@ public class PACTConnectionException extends ConnectionException {
       super(str,sReason);
       this.sReason = sReason;
 
-  } // public PACTConnectionException(String str, short sReason)  
-    
+  } // public PACTConnectionException(String str, short sReason)
+
 }

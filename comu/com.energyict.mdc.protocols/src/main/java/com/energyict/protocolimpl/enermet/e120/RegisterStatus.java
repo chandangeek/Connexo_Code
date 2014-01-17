@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 
 import java.util.ArrayList;
 

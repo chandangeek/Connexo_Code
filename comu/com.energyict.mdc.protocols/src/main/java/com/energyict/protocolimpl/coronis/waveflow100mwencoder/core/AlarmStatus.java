@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -23,7 +23,7 @@ abstract class AlarmStatus<T> {
 					dais.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					waveFlow100mW.getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

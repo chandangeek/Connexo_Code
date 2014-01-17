@@ -5,7 +5,7 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 
 import java.io.IOException;
 import java.text.MessageFormat;

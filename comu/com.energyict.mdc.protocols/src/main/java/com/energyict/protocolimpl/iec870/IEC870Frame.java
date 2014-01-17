@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.TimeZone;
 /**
@@ -327,22 +327,10 @@ public class IEC870Frame {
                 break; // FRAME_FIXED_LENGTH
 
             default: throw new IEC870ConnectionException("IEC870Frame, buildData, Invalid frame format (type) (start character) "+Integer.toHexString(type));
-        } // switch(type)
+        }
 
         data[data.length-2] = (byte)checksum;
         data[data.length-1] = FRAME_END;
-    } // buildData()
-
-    public static void main(String[] args) {
-        try {
-            IEC870Frame frame = new IEC870Frame(IEC870Frame.CONTROL_SEND_CONFIRM_RESET_REMOTE_LINK,0xFFFF);
-            ProtocolUtils.printResponseData(frame.getData());
-        }
-        catch(IEC870ConnectionException e) {
-            e.printStackTrace();
-        }
-
     }
 
-
-} // public class IEC870Frame
+}

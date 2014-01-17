@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.CodeDayTypeDef;
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonTransition;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.codetables.CodeDayType;
+import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
+import com.energyict.mdc.protocol.api.codetables.Season;
+import com.energyict.mdc.protocol.api.codetables.SeasonTransition;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,7 +36,7 @@ public class TariffConfiguration extends AbstractActarisObject {
 
     private int tariffNumber;
     private int numberOfRates;
-    private List<CodeCalendar> seasonCodeCalendars = new ArrayList<CodeCalendar>();
+    private List<CodeCalendar> seasonCodeCalendars = new ArrayList<>();
 
     public void setNumberOfRates(int numberOfRates) {
         this.numberOfRates = numberOfRates;
@@ -57,7 +57,7 @@ public class TariffConfiguration extends AbstractActarisObject {
             throw new ApplicationException(failMsg);
         }
 
-        List<String> switchingTimes = new ArrayList<String>();
+        List<String> switchingTimes = new ArrayList<>();
         if (codeTable.getDayTypes().size() > 16) {
             throw new ApplicationException(failMsg);
         }
@@ -92,7 +92,7 @@ public class TariffConfiguration extends AbstractActarisObject {
 
         List<Season> seasons = codeTable.getSeasonSet().getSeasons();
         Calendar cal = Calendar.getInstance();
-        List<String> seasonStrings = new ArrayList<String>();
+        List<String> seasonStrings = new ArrayList<>();
         if (seasons.size() > 4 || seasons.size() < 1) {
             throw new ApplicationException(failMsg);
         }
@@ -107,7 +107,7 @@ public class TariffConfiguration extends AbstractActarisObject {
 
                 int defaultCode = -1;
                 boolean found = false;
-                Map<Integer, Integer> dayProfileIds = new HashMap<Integer, Integer>();
+                Map<Integer, Integer> dayProfileIds = new HashMap<>();
                 for (CodeCalendar codeCalendar : codeTable.getCalendars()) {
                     if ((codeCalendar.getYear() == -1) || codeCalendar.getYear() == Calendar.getInstance().get(Calendar.YEAR)) {
                         if (codeCalendar.getSeason() == season.getId()) {
@@ -167,7 +167,7 @@ public class TariffConfiguration extends AbstractActarisObject {
         if (codeTable.getCalendars().size() - seasonCodeCalendars.size() > 36) {
             throw new ApplicationException(failMsg);
         }
-        List<String> specialDays = new ArrayList<String>();
+        List<String> specialDays = new ArrayList<>();
 
         for (CodeCalendar codeCalendar : codeTable.getCalendars()) {
             if (!seasonCodeCalendars.contains(codeCalendar)) {
@@ -247,7 +247,7 @@ public class TariffConfiguration extends AbstractActarisObject {
         tariffElement.appendChild(seasonsElement);
 
         Element specialDaysElement = doc.createElement(XMLTags.TARIFF_SPEC_DAYS);
-        List<String> specialDaysResult = new ArrayList<String>();
+        List<String> specialDaysResult = new ArrayList<>();
         counter = 0;
         String result = "";
         for (String specialDay : getSpecialDays()) {

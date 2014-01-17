@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.protocol;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;

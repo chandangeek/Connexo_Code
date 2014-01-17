@@ -4,7 +4,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 
 import java.io.IOException;
 

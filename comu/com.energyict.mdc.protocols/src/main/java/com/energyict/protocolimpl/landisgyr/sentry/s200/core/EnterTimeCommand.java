@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

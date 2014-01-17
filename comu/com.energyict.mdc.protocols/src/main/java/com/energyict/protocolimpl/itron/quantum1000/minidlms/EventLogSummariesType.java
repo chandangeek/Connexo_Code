@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -21,15 +21,15 @@ import java.util.TimeZone;
  * @author Koen
  */
 public class EventLogSummariesType {
-    
+
     private EventId event; // EVENT_ID, // 16 bit
     private Date firstOccurence; // DATE_AND_TIME,
     private Date lastOccurence; // DATE_AND_TIME,
     private long numOccurences; // UNSIGNED32,
     private int checksum; // UNSIGNED16
-    
+
     /**
-     * Creates a new instance of EventLogSummariesType 
+     * Creates a new instance of EventLogSummariesType
      */
     public EventLogSummariesType(byte[] data,int offset,TimeZone timeZone) throws IOException {
         setEvent(EventIdFactory.findEventId(ProtocolUtils.getInt(data,offset,2)));
@@ -43,7 +43,7 @@ public class EventLogSummariesType {
         setChecksum(ProtocolUtils.getInt(data,offset,2));
         offset+=2;
     }
-    
+
     public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
@@ -55,7 +55,7 @@ public class EventLogSummariesType {
         strBuff.append("   numOccurences="+getNumOccurences()+"\n");
         return strBuff.toString();
     }
-    
+
     static public int size() {
         return 20;
     }
@@ -99,7 +99,7 @@ public class EventLogSummariesType {
     public void setChecksum(int checksum) {
         this.checksum = checksum;
     }
-    
 
-    
+
+
 }

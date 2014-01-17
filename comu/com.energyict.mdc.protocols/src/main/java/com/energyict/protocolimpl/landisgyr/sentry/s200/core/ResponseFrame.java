@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 /**
  *

@@ -10,15 +10,15 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.ConnectionV25;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,20 +29,12 @@ import java.io.OutputStream;
  */
 public class TrimeranConnectionLayering extends ConnectionV25  implements ProtocolConnection {
 
-    private static final int DEBUG=0;
-    //private static final long SESSIONTIMEOUT_TSE=22000;
-
     int timeout;
     int maxRetries;
     long forcedDelay;
-    ByteArrayOutputStream txOutputStream = new ByteArrayOutputStream();
     String nodeId;
     int securityLevel;
-    private int nSEQ=0;
-    private int nSEQRx=0;
-    ResponseFrame lastResponseFrame;
     int halfDuplex;
-    private int type;
     LayerManager layerManager=null;
 
     /** Creates a new instance of TrimeranConnection */
@@ -53,7 +45,7 @@ public class TrimeranConnectionLayering extends ConnectionV25  implements Protoc
             long forcedDelay,
             int echoCancelling,
             HalfDuplexController halfDuplexController,
-            String serialNumber,int securityLevel,int halfDuplex) throws ConnectionException {
+            String serialNumber,int securityLevel,int halfDuplex) {
         super(inputStream, outputStream, forcedDelay, echoCancelling,halfDuplexController);
         this.timeout = timeout;
         this.maxRetries=maxRetries;
@@ -62,9 +54,9 @@ public class TrimeranConnectionLayering extends ConnectionV25  implements Protoc
         this.halfDuplex=halfDuplex;
         layerManager = new LayerManager(this);
 
-    } // EZ7Connection(...)
+    }
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         this.nodeId=nodeId;
         return null;
     }
@@ -94,13 +86,7 @@ public class TrimeranConnectionLayering extends ConnectionV25  implements Protoc
     }
 
     public byte[] sendCommand(byte[] cmdData, int len) throws IOException {
-
         return null;
     }
 
-
-
-
-
-
-} // public class TrimeranConnection extends Connection  implements ProtocolConnection
+}

@@ -10,32 +10,32 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.discover.Discover;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,13 +58,13 @@ import java.util.TimeZone;
  * 19/03/2009|JME - Added setter for InfoTypeResponseTimeout property.
  *
  */
-abstract public class Modbus extends AbstractProtocol implements Discover,MessageProtocol {
+public abstract class Modbus extends AbstractProtocol implements Discover, MessageProtocol {
 
-    abstract protected void doTheConnect() throws IOException;
-    abstract protected void doTheDisConnect() throws IOException;
-    abstract protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
-    abstract protected List doTheGetOptionalKeys();
-    abstract protected void initRegisterFactory();
+    protected abstract void doTheConnect() throws IOException;
+    protected abstract void doTheDisConnect() throws IOException;
+    protected abstract void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException;
+    protected abstract List<String> doTheGetOptionalKeys();
+    protected abstract void initRegisterFactory();
 
     protected ModbusConnection modbusConnection;
     private AbstractRegisterFactory registerFactory=null;
@@ -137,19 +137,18 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         doTheValidateProperties(properties);
     }
 
-    protected List doGetOptionalKeys() {
-        List result = new ArrayList();
+    protected List<String> doGetOptionalKeys() {
+        List<String> result = new ArrayList<>();
         result.add("InterframeTimeout");
         result.add("ResponseTimeout");
         result.add("PhysicalLayer");
         result.add("RegisterOrderFixedPoint");
         result.add("RegisterOrderFloatingPoint");
 
-        List optionalKeys = doTheGetOptionalKeys();
+        List<String> optionalKeys = doTheGetOptionalKeys();
         if (optionalKeys != null) {
 			result.addAll(optionalKeys);
 		}
-
         return result;
     }
 

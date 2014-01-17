@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.EMCO.frame.ErrorResponseFrame;
 import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
 import com.energyict.protocolimpl.EMCO.frame.RequestFrame;

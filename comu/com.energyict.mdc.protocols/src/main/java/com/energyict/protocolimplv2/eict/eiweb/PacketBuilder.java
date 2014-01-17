@@ -1,18 +1,18 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.LittleEndianOutputStream;
-import com.energyict.mdc.meterdata.DeviceIpAddress;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.util.LittleEndianInputStream;
+import com.energyict.protocols.util.LittleEndianOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -85,7 +85,7 @@ public class PacketBuilder {
     private Integer nrOfAcceptedMessages = null;
 
     private Cryptographer cryptographer;
-    private CanFindDevice deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     private List<CollectedData> collectedData = new ArrayList<>();
     private Logger logger;
 
@@ -195,7 +195,8 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = EIWEB_BULK_HEADER_LENGTH + nrOfChannels * 2 + 4 + 1;
         if (this.ipAddress != null) {
-            this.collectedData.add(new DeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+            this.collectedData.add(
+                    this.getCollectedDataFactory().createCollectedAddressProperties(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
         }
         this.createData(utc, code, statebits, this.parseValues(this.getDecryptedData(value)));
     }
@@ -381,7 +382,11 @@ public class PacketBuilder {
         this.parseNumberOfChannelsFromMask();
         contentLength = in.readLEInt();
 
-        this.collectedData.add(new DeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
+        this.collectedData.add(
+                this.getCollectedDataFactory().createCollectedAddressProperties(
+                        this.deviceIdentifier,
+                        this.ipAddress,
+                        EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME));
 
         // retrieve data
         data = this.getDecryptedData(in);
@@ -460,6 +465,16 @@ public class PacketBuilder {
 
     public int getVersion() {
         return version;
+    }
+
+    protected CollectedDataFactory getCollectedDataFactory() {
+        List<CollectedDataFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CollectedDataFactory.class);
+        if (factories.isEmpty()) {
+            throw CommunicationException.missingModuleException(CollectedDataFactory.class);
+        }
+        else {
+            return factories.get(0);
+        }
     }
 
 }

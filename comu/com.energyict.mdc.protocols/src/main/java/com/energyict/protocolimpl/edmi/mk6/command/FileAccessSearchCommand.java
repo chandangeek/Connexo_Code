@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk6.core.DateTimeBuilder;
 
 import java.io.IOException;

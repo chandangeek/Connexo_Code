@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
 
@@ -415,7 +416,7 @@ public class FlagIEC1107Connection extends Connection {
                     sendRawData(ack);
                 }
 
-                return new MeterType(strIdent);
+                return new MeterTypeImpl(strIdent);
             }
             catch (StringIndexOutOfBoundsException e) {
                 throw new FlagIEC1107ConnectionException("signOn() error, " + e.getMessage());
@@ -729,10 +730,6 @@ public class FlagIEC1107Connection extends Connection {
 
         while (true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
-                }
-
                 if ((bState == 0) && ((byte) iNewKar == SOH)) {
                     bState = 1;
                 } else if ((bState == 1) && ((byte) iNewKar == ETX)) {
@@ -828,10 +825,6 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
 
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
-                }
-
                 switch (iState) {
                     case STATE_WAIT_FOR_START: {
 
@@ -987,9 +980,6 @@ public class FlagIEC1107Connection extends Connection {
 
         while (true) {
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
-                }
                 brutodata.write(iNewKar);
                 switch (state) {
                     case STREAM_STATE_WAIT_FOR_START: {
@@ -1097,10 +1087,6 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
 
             if ((iNewKar = readIn()) != -1) {
-                if (DEBUG == 1) {
-                    ProtocolUtils.outputHex(((int) iNewKar));
-                }
-
                 if ((byte) iNewKar == NAK) {
                     sendBreak();
                 }

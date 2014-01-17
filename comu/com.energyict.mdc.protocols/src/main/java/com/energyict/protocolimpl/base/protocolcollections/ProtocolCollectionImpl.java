@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.base.protocolcollections;
 
-import com.energyict.protocol.ProtocolCollection;
-import com.energyict.protocol.ProtocolImplFactory;
-import com.energyict.protocol.ProtocolInstantiator;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.ProtocolCollection;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocols.util.ProtocolImplFactory;
+import com.energyict.protocols.util.ProtocolInstantiator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
     private final List<String> protocolClasses;
     private final List<String> protocolNames;
 
-    private static final Map<String, String> METER_PROTOCOLS = new HashMap<String, String>();
+    private static final Map<String, String> METER_PROTOCOLS = new HashMap<>();
 
     static {
         METER_PROTOCOLS.put("com.energyict.protocolimpl.sdksample.SDKSampleProtocol", "SDK Sample Protocol");
@@ -188,8 +188,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
      * Creates a new instance of ProtocolCollection
      */
     public ProtocolCollectionImpl() {
-        this.protocolClasses = new ArrayList<String>();
-        this.protocolNames = new ArrayList<String>();
+        this.protocolClasses = new ArrayList<>();
+        this.protocolNames = new ArrayList<>();
 
         for (String classNameKey : METER_PROTOCOLS.keySet()) {
             this.protocolClasses.add(classNameKey);
@@ -235,9 +235,9 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
     }
 
     public String getProtocolVersions() throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
         for (int i = 0; i < getProtocolClasses().size(); i++) {
-            strBuff.append(getProtocolVersion(i) + "\n");
+            strBuff.append(getProtocolVersion(i)).append("\n");
         }
         return strBuff.toString();
     }

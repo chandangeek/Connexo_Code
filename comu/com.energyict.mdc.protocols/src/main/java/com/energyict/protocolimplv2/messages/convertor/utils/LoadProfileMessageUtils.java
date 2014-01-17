@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdc.protocol.api.device.Channel;
+import com.energyict.mdc.protocol.api.device.LoadProfile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -131,8 +131,8 @@ public class LoadProfileMessageUtils {
             Document document = builder.newDocument();
             Element root = document.createElement(ROOT_TAG);
 
-            root.setAttribute(ProfileObisCodeTag, loadProfile.getLoadProfileSpec().getDeviceObisCode().toString());
-            root.setAttribute(MeterSerialNumberTag, loadProfile.getRtu().getSerialNumber());
+            root.setAttribute(ProfileObisCodeTag, loadProfile.getDeviceObisCode().toString());
+            root.setAttribute(MeterSerialNumberTag, loadProfile.getDevice().getSerialNumber());
             root.setAttribute(LoadProfileIdTag, String.valueOf(loadProfile.getId()));
 
             // append the channels
@@ -152,8 +152,8 @@ public class LoadProfileMessageUtils {
         Element registers = document.createElement(RtuRegistersTag);
         for (Channel channel : allChannels) {
             Element registerElement = document.createElement(RegisterTag);
-            registerElement.setAttribute(RegisterObiscodeTag, channel.getRtuRegisterMapping().getObisCode().toString());
-            registerElement.setAttribute(RtuRegisterSerialNumber, channel.getRtu().getSerialNumber());
+            registerElement.setAttribute(RegisterObiscodeTag, channel.getDeviceRegisterMappingObisCode().toString());
+            registerElement.setAttribute(RtuRegisterSerialNumber, channel.getDevice().getSerialNumber());
             registers.appendChild(registerElement);
         }
         return registers;
@@ -165,9 +165,9 @@ public class LoadProfileMessageUtils {
         for (Channel channel : allChannels) {
             Element channelElement = document.createElement(ChannelTag);
             channelElement.setAttribute(ChannelIdTag, String.valueOf(counter++));
-            channelElement.setAttribute(ChannelNametag, channel.getRtuRegisterMapping().getObisCode().toString());
-            channelElement.setAttribute(ChannelUnitTag, channel.getRtuRegisterMapping().getUnit().toString());
-            channelElement.setAttribute(ChannelMeterIdentifier, channel.getRtu().getSerialNumber());
+            channelElement.setAttribute(ChannelNametag, channel.getDeviceRegisterMappingObisCode().toString());
+            channelElement.setAttribute(ChannelUnitTag, channel.getDeviceRegisterMappingUnit().toString());
+            channelElement.setAttribute(ChannelMeterIdentifier, channel.getDevice().getSerialNumber());
             channels.appendChild(channelElement);
         }
         return channels;

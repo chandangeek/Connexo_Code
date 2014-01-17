@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -103,13 +104,13 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}
 	}
 
-	private final void parseWriteResponse(final byte[] data) throws IOException {
+	private void parseWriteResponse(final byte[] data) throws IOException {
 		DataInputStream dais = null;
 		try {
 			dais = new DataInputStream(new ByteArrayInputStream(data));
@@ -146,7 +147,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}
@@ -176,7 +177,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}
@@ -226,7 +227,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

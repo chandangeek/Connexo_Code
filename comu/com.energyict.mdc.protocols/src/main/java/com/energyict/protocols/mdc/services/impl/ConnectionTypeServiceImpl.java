@@ -1,19 +1,19 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.PluggableClass;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
+import org.osgi.service.component.annotations.Component;
+
 import java.util.Arrays;
 import java.util.Collection;
-import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides an implementation for the {@link ConnectionTypeService} interface
  * and registers as a OSGi component.
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 28/11/13
  * Time: 16:27
@@ -25,14 +25,15 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     public ConnectionType createConnectionType(String javaClassName) {
         try {
             return (ConnectionType) (getClass().getClassLoader().loadClass(javaClassName)).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw CodingException.genericReflectionError(e, javaClassName);
+        }
+        catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new UnableToCreateConnectionType(e, javaClassName);
         }
     }
 
     @Override
     public Collection<PluggableClassDefinition> getExistingConnectionTypePluggableClasses() {
-        return Arrays.asList((PluggableClassDefinition[])ConnectionTypeRule.values());
-   }
+        return Arrays.asList((PluggableClassDefinition[]) ConnectionTypeRule.values());
+    }
 
 }

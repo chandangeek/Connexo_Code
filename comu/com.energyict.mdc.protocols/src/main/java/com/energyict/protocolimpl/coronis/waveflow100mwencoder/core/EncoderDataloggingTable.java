@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -271,7 +272,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}
@@ -294,7 +295,7 @@ public class EncoderDataloggingTable extends AbstractRadioCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 			}
 		}

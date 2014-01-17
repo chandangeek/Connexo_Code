@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 /**
  *

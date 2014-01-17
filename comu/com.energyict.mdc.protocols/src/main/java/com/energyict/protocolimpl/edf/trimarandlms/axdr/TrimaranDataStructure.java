@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -19,16 +19,16 @@ import java.io.Serializable;
  * @author  Koen
  */
 public class TrimaranDataStructure implements Serializable {
-    
+
 	/**	Generated serialVersionUID */
 	private static final long serialVersionUID = -1718485361794272561L;
 	/*
      *   An element object can be of type TrimaranDataStructure, TrimaranOctetString, Integer or String.
-     *   
+     *
      */
     protected Object element[];
     protected TrimaranDataStructure parent;
-    
+
     // KV 16012004
     public void print() {
         for (int i = 0 ; i< element.length ; i++) {
@@ -50,7 +50,7 @@ public class TrimaranDataStructure implements Serializable {
         }
     }
 
-    // KV 16012004 
+    // KV 16012004
     public String array2String(byte[] array) {
         StringBuffer strbuff = new StringBuffer();
         int[] intarray = ProtocolUtils.toIntArray(array);
@@ -58,11 +58,11 @@ public class TrimaranDataStructure implements Serializable {
             if (intarray[i] < 16){
             	strbuff.append("0");
             }
-            strbuff.append(Integer.toHexString(intarray[i])); 
+            strbuff.append(Integer.toHexString(intarray[i]));
         }
         return strbuff.toString();
     }
-    
+
     public boolean isOctetString(int index) {
         if (element[index] instanceof TrimaranOctetString) {
 			return true;
@@ -70,7 +70,7 @@ public class TrimaranDataStructure implements Serializable {
 			return false;
 		}
     }
-    
+
     public boolean isStructure(int index) {
         if (element[index] instanceof TrimaranDataStructure) {
 			return true;
@@ -99,11 +99,11 @@ public class TrimaranDataStructure implements Serializable {
 			return false;
 		}
     }
-    
+
     public TrimaranDataStructure(int iNROfEntries) {
         element = new Object[iNROfEntries];
     } // public TrimaranDataStructure()
-    
+
     public long getValue(int index) {
         if (isLong(index)) {
 			return getLong(index);
@@ -113,7 +113,7 @@ public class TrimaranDataStructure implements Serializable {
 			return 0;
 		}
     }
-    
+
     public void addInteger(int index,int iValue) {
         element[index] = new Integer(iValue);
     }
@@ -126,7 +126,7 @@ public class TrimaranDataStructure implements Serializable {
     public long getLong(int index) {
         return ((Long)element[index]).longValue();
     }
-    
+
     public Long convert2Long(int index) throws IOException {
         if (isLong(index)) {
 			return (Long)getElement(index);
@@ -135,45 +135,45 @@ public class TrimaranDataStructure implements Serializable {
 		} else if (isString(index)) {
 			return (Long.decode(getString(index)));
 		}
-        
+
         throw new IOException("TrimaranDataStructure, Error converting element of type "+element[index].getClass().getName()+" to Long object");
     }
-    
+
     public void addString(int index,String str) {
         element[index] = str;
     }
     public String getString(int index) {
         return (String)element[index];
     }
-    
+
     public TrimaranOctetString getOctetString(int index) {
         return ((TrimaranOctetString)element[index]);
     }
-    
+
     public void addStructure(int index,int iNROfElements) {
         element[index] = new TrimaranDataStructure(iNROfElements);
     }
-    
+
     public TrimaranDataStructure getStructure(int index) {
         return (TrimaranDataStructure)element[index];
     }
-    
+
     /**
      * Getter for property element.
      * @return Value of property element.
      */
     public java.lang.Object[] getElements() {
         return this.element;
-    }    
-    
+    }
+
     public int getNrOfElements() {
         return getElements().length;
     }
-    
+
     public Object getElement(int index) {
         return getElements()[index];
     }
-    
+
     /**
      * Getter for property parent.
      * @return Value of property parent.
@@ -181,5 +181,5 @@ public class TrimaranDataStructure implements Serializable {
     public TrimaranDataStructure getParent() {
         return parent;
     }
-    
+
 } // class TrimaranDataStructure

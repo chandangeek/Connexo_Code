@@ -1,7 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.comserver.exceptions.DeviceProtocolAdapterCodingExceptions;
+import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import org.osgi.service.component.annotations.Component;
 
@@ -21,7 +20,7 @@ public class DeviceProtocolMessageServiceImpl implements DeviceProtocolMessageSe
         try {
             return Class.forName(javaClassName).newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw CodingException.genericReflectionError(e, javaClassName);
+            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, javaClassName);
         } catch (ClassNotFoundException e) {
             throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceMessageConverterClass(e, javaClassName);
         }

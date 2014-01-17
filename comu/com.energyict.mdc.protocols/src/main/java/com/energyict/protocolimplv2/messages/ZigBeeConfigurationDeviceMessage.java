@@ -1,11 +1,14 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
-import com.energyict.mdc.protocol.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +33,11 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
     RemoveZigBeeSlaveDevice(RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName)),
     RemoveAllZigBeeSlaveDevices,
     BackUpZigBeeHANParameters,
-    RestoreZigBeeHANParameters(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName)),
+    RestoreZigBeeHANParameters(
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
     ReadZigBeeStatus,
     ChangeZigBeeHANStartupAttributeSetup(
             RequiredPropertySpecFactory.newInstance().hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName),
@@ -38,9 +45,16 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
             RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName),
             RequiredPropertySpecFactory.newInstance().booleanPropertySpec(DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName)
     ),
-    ZigBeeNCPFirmwareUpdateWithUserFile(RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName)),
+    ZigBeeNCPFirmwareUpdateWithUserFile(
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id()))),
     ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(
-            RequiredPropertySpecFactory.newInstance().userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName),
+            RequiredPropertySpecFactory.newInstance().
+                    referencePropertySpec(
+                            DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName,
+                            (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.USERFILE.id())),
             RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName)
     );
 

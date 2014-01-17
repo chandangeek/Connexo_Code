@@ -10,9 +10,9 @@
 package com.energyict.protocolimpl.pact.core.common;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -130,9 +130,6 @@ public class PACTConnection extends Connection {
 		copyEchoBuffer();
 		while (true) {
 			if ((val = readIn()) != -1) {
-				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
-				}
 				baos.write(val);
 				if (val == '\r') {
 					return new String(baos.toByteArray());
@@ -152,9 +149,6 @@ public class PACTConnection extends Connection {
 		copyEchoBuffer();
 		while (true) {
 			if ((val = readIn()) != -1) {
-				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
-				}
 				if ((val == CFM) || (val == PACTLAN_GLOBAL_ENABLE)) {
 					return;
 				}
@@ -536,10 +530,6 @@ public class PACTConnection extends Connection {
 				while (true) {
 					if ((val = readIn()) != -1) {
 						timeout = System.currentTimeMillis() + protocolTimeout; // rearm timeout
-						if (DEBUG >= 2) {
-							ProtocolUtils.outputHex(((int) val));
-						}
-
 						// check first byte if different from 0x87 and 0x8A
 						if (first) {
 							if ((val != 0x87) && (val != 0x8A)) { // if there was a first non (0x87 and 0x8A) byte
@@ -691,10 +681,6 @@ public class PACTConnection extends Connection {
 		copyEchoBuffer();
 		while (true) {
 			if ((val = readIn()) != -1) {
-				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
-				}
-
 				frame[count] = (byte) val;
 
 				// if first byte is REQUEST_PASSWORD_SEED, password is not supported
@@ -728,10 +714,6 @@ public class PACTConnection extends Connection {
 		copyEchoBuffer();
 		while (true) {
 			if ((val = readIn()) != -1) {
-				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
-				}
-
 				frame[count] = (byte) val;
 
 				// if first byte is CFM or TRM
@@ -786,9 +768,6 @@ public class PACTConnection extends Connection {
 		copyEchoBuffer();
 		while (true) {
 			if ((val = readIn()) != -1) {
-				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
-				}
 				frame[count] = (byte) val;
 
 				if (count == 0) {
@@ -848,10 +827,6 @@ public class PACTConnection extends Connection {
 		copyEchoBuffer();
 		while (true) {
 			if ((val = readIn()) != -1) {
-				if (DEBUG >= 2) {
-					ProtocolUtils.outputHex(((int) val));
-				}
-
 				if (val == 0x0D) {
 					return baos.toByteArray();
 				}
@@ -886,10 +861,10 @@ public class PACTConnection extends Connection {
 				flushTimeout = System.currentTimeMillis() + PACT_FLUSH_TIMEOUT;
 				// if (val == 0x0D) return;
 			} // if ((val = readIn()) != -1)
-			if (((long) (System.currentTimeMillis() - flushTimeout)) > 0) {
+			if (System.currentTimeMillis() - flushTimeout > 0) {
 				return;
 			}
-			if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+			if (System.currentTimeMillis() - timeout > 0) {
 				throw new PACTConnectionException("flushBuffer() timeout error", TIMEOUT_ERROR);
 			}
 		} // while(true)
@@ -921,4 +896,4 @@ public class PACTConnection extends Connection {
 
 	}
 
-} // public class PACTConnection extends Connection
+}

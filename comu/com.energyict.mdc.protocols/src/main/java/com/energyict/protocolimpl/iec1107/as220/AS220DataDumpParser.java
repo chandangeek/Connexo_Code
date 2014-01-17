@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import java.io.IOException;
 import java.util.HashMap;

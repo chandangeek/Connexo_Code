@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.registermappping;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4;
 
 import java.io.IOException;

@@ -24,11 +24,11 @@ import java.util.StringTokenizer;
 public class VDEWRegister extends VDEWRegisterDataParse {
 
 
-    static public final boolean CACHED=true;
-    static public final boolean NOT_CACHED=false;
+    public static final boolean CACHED=true;
+    public static final boolean NOT_CACHED=false;
 
-    static public final boolean WRITEABLE=true;
-    static public final boolean NOT_WRITEABLE=false;
+    public static final boolean WRITEABLE=true;
+    public static final boolean NOT_WRITEABLE=false;
 
     private String objectId;
     private int type;

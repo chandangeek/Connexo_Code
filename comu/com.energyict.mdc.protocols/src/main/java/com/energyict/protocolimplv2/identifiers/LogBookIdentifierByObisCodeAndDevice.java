@@ -1,12 +1,15 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.meterdata.identifiers.CanFindDevice;
-import com.energyict.mdc.meterdata.identifiers.CanFindLogBook;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdc.protocol.api.device.LogBook;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdw.core.LogBook;
-import com.energyict.mdw.core.LogBookFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier} interface
@@ -16,12 +19,12 @@ import com.energyict.mdw.core.LogBookFactoryProvider;
  * Date: 13/05/13
  * Time: 16:12
  */
-public class LogBookIdentifierByObisCodeAndDevice implements CanFindLogBook {
+public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
 
-    private CanFindDevice deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     private ObisCode logBookObisCode;
 
-    public LogBookIdentifierByObisCodeAndDevice(CanFindDevice deviceIdentifier, ObisCode logBookObisCode) {
+    public LogBookIdentifierByObisCodeAndDevice(DeviceIdentifier deviceIdentifier, ObisCode logBookObisCode) {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.logBookObisCode = logBookObisCode;
@@ -29,12 +32,15 @@ public class LogBookIdentifierByObisCodeAndDevice implements CanFindLogBook {
 
     @Override
     public LogBook getLogBook() {
-        LogBook logBook = LogBookFactoryProvider.instance.get().getLogBookFactory().findByDeviceAndDeviceObisCode(deviceIdentifier.findDevice(), logBookObisCode);
-        if (logBook == null) {
-            throw new NotFoundException("No logbook found with obiscode '" + logBookObisCode.toString() + "'for device with serial number '" + deviceIdentifier.toString() + "'");
-        } else {
-            return logBook;
+        List<LogBookFactory> logBookFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
+        Device device = deviceIdentifier.findDevice();
+        for (LogBookFactory factory : logBookFactories) {
+            LogBook logBook = factory.findLogBooksByDeviceAndDeviceObisCode(device, logBookObisCode);
+            if (logBook != null) {
+                return logBook;
+            }
         }
+        throw new NotFoundException("No logbook found with obiscode '" + logBookObisCode.toString() + "'for device with serial number '" + deviceIdentifier.toString() + "'");
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
@@ -47,8 +53,8 @@ public class LogBookIdentifierByObisCodeAndDevice implements CanFindLogBook {
 
     /**
      * Check if the given {@link Object} is equal to this {@link LogBookIdentifierByObisCodeAndDevice}. <BR>
-     * WARNING: if comparing with a {@link com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
-     * this check will always return false, regardless of the fact they can both point to the same {@link com.energyict.mdw.core.LogBook}!
+     * WARNING: if comparing with a {@link LogBookIdentifier} of another type (not of type {@link LogBookIdentifierByObisCodeAndDevice}),
+     * this check will always return false, regardless of the fact they can both point to the same {@link LogBook}!
      */
     public boolean equals(Object o) {
         if (this == o) {

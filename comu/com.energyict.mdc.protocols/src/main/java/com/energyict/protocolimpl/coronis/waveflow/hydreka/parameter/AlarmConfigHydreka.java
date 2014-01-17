@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.AbstractParameter;
 

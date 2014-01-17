@@ -5,15 +5,16 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusInternalData;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.generic.RegisterFactory;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -88,7 +89,7 @@ public class Echodis extends WaveFlow100mW {
 		        try {
 					ciField72h.parse(WaveflowProtocolUtils.getSubArray(internalData.getEncoderInternalData(),3));
 				} catch (IOException e) {
-					getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getLogger().severe(ProtocolUtils.stack2string(e));
 				}
 
 		    	registerFactories[portId] = new RegisterFactory(null);

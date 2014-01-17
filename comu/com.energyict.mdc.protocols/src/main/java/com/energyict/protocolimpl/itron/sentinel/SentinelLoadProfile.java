@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
 import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;

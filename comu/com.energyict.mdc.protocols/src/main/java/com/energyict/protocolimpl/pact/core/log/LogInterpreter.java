@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.pact.core.log;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;

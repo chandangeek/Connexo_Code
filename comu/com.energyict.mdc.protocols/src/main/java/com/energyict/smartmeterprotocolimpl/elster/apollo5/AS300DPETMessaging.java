@@ -1,14 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
@@ -26,7 +23,6 @@ public class AS300DPETMessaging extends AS300Messaging {
     public static final String KEY = "Key";
 
     private static final String ID_OF_THE_METER_GROUP = "ID of the meter group";
-    private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
     public AS300DPETMessaging(final AS300MessageExecutor messageExecutor) {
         super(messageExecutor);
@@ -53,15 +49,6 @@ public class AS300DPETMessaging extends AS300Messaging {
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
-    }
-
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
     }
 
     @Override

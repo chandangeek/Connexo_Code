@@ -1,20 +1,20 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 
 import java.io.IOException;
@@ -253,7 +253,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
                     return null;
                 }
             };
-            MeteringWarehouse.getCurrent().execute(tr);
+            Environment.DEFAULT.get().execute(tr);
         } else {
             throw new BusinessException("invalid RtuId!");
         }

@@ -10,22 +10,18 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -47,8 +43,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  *
@@ -129,7 +123,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         return getClassFactory().getClass14LoadProfileConfiguration().getNrOfChannels();
     }
 
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeout,int maxRetries,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream, int timeout, int maxRetries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         alphaConnection = new AlphaConnection(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, whoAreYouTimeout);
         commandFactory = new CommandFactory(alphaConnection);
         classFactory = new ClassFactory(this);
@@ -171,13 +165,17 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         List passwords = discoverInfo.getPasswords();
 
-        if (DEBUG>=1) System.out.println("alphaPlus, getSerialNumber, "+discoverInfo);
+        if (DEBUG>=1) {
+            System.out.println("alphaPlus, getSerialNumber, " + discoverInfo);
+        }
 
-        if (passwords==null)
+        if (passwords==null) {
             passwords = new ArrayList();
+        }
 
-        if (passwords.size()==0)
+        if (passwords.isEmpty()) {
             passwords.add("00000000");
+        }
 
         for (int i=0;i<passwords.size();i++) {
             String password = (String)passwords.get(i);
@@ -187,15 +185,13 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
                 setProperties(properties);
                 init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);
                 connect();
-                //getCommandFactory().getFunctionWithDataCommand().whoAreYou(0);
-                String serialNumber =  Long.toString(getClassFactory().getSerialNumber()); //getSerialNumber();
-               // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!
-                return serialNumber;
+                return Long.toString(getClassFactory().getSerialNumber());
             }
             catch(IOException ex) {
                 disconnect();
-                if (i==(passwords.size()-1))
+                if (i==(passwords.size()-1)) {
                     throw ex;
+                }
             }
         }
         throw new IOException("AlphaBasic, getSerialNumber(), Error discovering serialnumber!");
@@ -215,40 +211,40 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
 
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         getBillingDataRegisterFactory().buildAll();
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder strBuff = new StringBuilder();
 
         strBuff.append("************************ CLASSES READ ************************\n");
-        strBuff.append(getClassFactory().getClass0ComputationalConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass2IdentificationAndDemandData()+"\n");
-        strBuff.append(getClassFactory().getClass33ModemConfigurationInfo()+"\n");
-        strBuff.append(getClassFactory().getClass6MeteringFunctionBlock()+"\n");
-        strBuff.append(getClassFactory().getClass7MeteringFunctionBlock()+"\n");
-        strBuff.append(getClassFactory().getClass8FirmwareConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass9Status1()+"\n");
-        strBuff.append(getClassFactory().getClass10Status2()+"\n");
-        strBuff.append(getClassFactory().getClass14LoadProfileConfiguration()+"\n");
-        strBuff.append(getClassFactory().getClass16LoadProfileHistory()+"\n");
+        strBuff.append(getClassFactory().getClass0ComputationalConfiguration()).append("\n");
+        strBuff.append(getClassFactory().getClass2IdentificationAndDemandData()).append("\n");
+        strBuff.append(getClassFactory().getClass33ModemConfigurationInfo()).append("\n");
+        strBuff.append(getClassFactory().getClass6MeteringFunctionBlock()).append("\n");
+        strBuff.append(getClassFactory().getClass7MeteringFunctionBlock()).append("\n");
+        strBuff.append(getClassFactory().getClass8FirmwareConfiguration()).append("\n");
+        strBuff.append(getClassFactory().getClass9Status1()).append("\n");
+        strBuff.append(getClassFactory().getClass10Status2()).append("\n");
+        strBuff.append(getClassFactory().getClass14LoadProfileConfiguration()).append("\n");
+        strBuff.append(getClassFactory().getClass16LoadProfileHistory()).append("\n");
 
         strBuff.append("************************ CLASS11 Current billing registers ************************\n");
         Iterator it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.CURRENT_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
             String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            strBuff.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
         strBuff.append("************************ CLASS12 Previous month billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_MONTH_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
             String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            strBuff.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
         strBuff.append("************************ CLASS13 Previous season billing registers ************************\n");
         it = getBillingDataRegisterFactory().getBillingDataRegisters(BillingDataRegisterFactoryImpl.PREVIOUS_SEASON_BILLING_REGISTERS).iterator();
         while(it.hasNext()) {
             BillingDataRegister bdr = (BillingDataRegister)it.next();
             String description = (bdr.getDescription() != null?bdr.getDescription():"")+", "+bdr.getObisCode().getDescription();
-            strBuff.append(bdr.getRegisterValue().toString()+", "+description+"\n");
+            strBuff.append(bdr.getRegisterValue().toString()).append(", ").append(description).append("\n");
         }
         return strBuff.toString();
     }
@@ -261,149 +257,14 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
      *  This code has been taken from a real protocol implementation.
      */
     protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
+        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) {
+            return;
+        }
         String sn = getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
+        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) {
+            return;
+        }
         throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-
-    }
-
-    static public void main(String[] args) {
-        AlphaBasic alphaBasic=null;
-        Dialer dialer=null;
-                         //  CITY OF LAGRANGE
-        String[] phones={   "00019799660593","00016202270906"};
-        String[] passwords={"00000000","07041776"};
-
-
-        final int selection=1;
-
-
-        try {
-// ********************************** DIALER ***********************************$
-// modem dialup connection
-//            dialer =DialerFactory.getDefault().newDialer();
-//            dialer.init("COM1");//,"AT+MS=2,0,2400,2400");
-//            dialer.getSerialCommunicationChannel().setParams(1200,
-//                                                             SerialCommunicationChannel.DATABITS_8,
-//                                                             SerialCommunicationChannel.PARITY_NONE,
-//                                                             SerialCommunicationChannel.STOPBITS_1);
-//            dialer.connect("phonenumber",60000);
-
-// optical head connection
-            dialer =DialerFactory.getOpticalDialer().newDialer();
-            dialer.init("COM1");
-            dialer.connect("",60000);
-
-// direct rs232 connection
-//            dialer =DialerFactory.getDirectDialer().newDialer();
-//            dialer.init("COM4");
-//            dialer.connect("",60000);
-            //00018173853675
-
-            //dialer.connect(phones[selection],90000);
-            //dialer.connect("4",60000);
-// *********************************** PROTOCOL ******************************************$
-            alphaBasic = new AlphaBasic(); // instantiate the protocol
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)alphaBasic).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-            List passwordlist = new ArrayList();
-            passwordlist.add("00000000");
-            passwordlist.add("11111111");
-            passwordlist.add("22222222");
-            passwordlist.add("07041776");
-            System.out.println("Serial number = "+alphaBasic.getSerialNumber(new DiscoverInfo(dialer.getSerialCommunicationChannel(),null,-1, passwordlist)));
-            if (true)
-                return;
-
-// setup the properties (see AbstractProtocol for default properties)
-// protocol specific properties can be added by implementing doValidateProperties(..)
-            Properties properties = new Properties();
-            //properties.setProperty("SecurityLevel","2");
-            properties.setProperty(MeterProtocol.PASSWORD,passwords[selection]);
-            properties.setProperty("ProfileInterval", "900");
-            properties.setProperty(MeterProtocol.NODEID,"0");
-//            properties.setProperty("HalfDuplex", "50");
-            //properties.setProperty("Retries", "0");
-            properties.setProperty("Timeout", "3000");
-
-// transfer the properties to the protocol
-            alphaBasic.setProperties(properties);
-
-//            ez7.setHalfDuplexController(dialer.getHalfDuplexController());
-
-// depending on the dialer, set the initial (pre-connect) communication parameters
-            dialer.getSerialCommunicationChannel().setParamsAndFlush(1200,
-                                                                     SerialCommunicationChannel.DATABITS_8,
-                                                                     SerialCommunicationChannel.PARITY_NONE,
-                                                                     SerialCommunicationChannel.STOPBITS_1);
-// initialize the protocol
-            alphaBasic.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("EST"),Logger.getLogger("name"));
-
-// if optical head dialer, enable the HHU signon mechanism
-            if (DialerMarker.hasOpticalMarker(dialer))
-                ((HHUEnabler)alphaBasic).enableHHUSignOn(dialer.getSerialCommunicationChannel());
-
-            System.out.println("*********************** connect() ***********************");
-
-// connect to the meter
-            alphaBasic.connect();
-            byte[] data=null;
-
-//            System.out.println(alphaBasic.getClassFactory().getClass0ComputationalConfiguration());
-//            System.out.println(alphaBasic.getClassFactory().getClass2IdentificationAndDemandData());
-//            System.out.println(alphaBasic.getClassFactory().getClass33ModemConfigurationInfo());
-//            System.out.println(alphaBasic.getClassFactory().getClass6MeteringFunctionBlock());
-//            System.out.println(alphaBasic.getClassFactory().getClass7MeteringFunctionBlock());
-//            System.out.println(alphaBasic.getClassFactory().getClass8FirmwareConfiguration());
-//            System.out.println(alphaBasic.getClassFactory().getClass11BillingData());
-//            System.out.println(alphaBasic.getClassFactory().getClass12PreviousMonthBillingData());
-//            System.out.println(alphaBasic.getClassFactory().getClass13PreviousSeasonBillingData());
-            System.out.println(alphaBasic.getClassFactory().getClass14LoadProfileConfiguration());
-            System.out.println(alphaBasic.getClassFactory().getClass16LoadProfileHistory());
-            System.out.println(alphaBasic.getClassFactory().getClass15TimeAdjustHistory());
-//            System.out.println(alphaBasic.getClassFactory().getClass9Status1());
-//            System.out.println(alphaBasic.getClassFactory().getClass10Status2());
-//            System.out.println(alphaBasic.getRegistersInfo(0));
-
-           //alphaBasic.getCommandFactory().getFunctionWithDataCommand().PacketSize(2);
-//           System.out.println(alphaBasic.getClassFactory().getClass17LoadProfileData(6));
-
-
-            //System.out.println(alphaBasic.getClassFactory().getClass15EventLogConfiguration());
-
-
-            System.out.println("*********************** Meter information ***********************");
-            //System.out.println(alphaBasic.getNumberOfChannels());
-            //System.out.println(alphaBasic.getProtocolVersion());
-            //System.out.println(alphaBasic.getProfileInterval());
-
-// get the meter profile data
-//            System.out.println("*********************** getProfileData() ***********************");
-//            Calendar calendar = Calendar.getInstance();
-//            calendar.add(Calendar.DATE,-1);
-//            System.out.println(alphaBasic.getProfileData(calendar.getTime(),true));
-// get the metertime
-            System.out.println("*********************** getTime() ***********************");
-            Date date = alphaBasic.getTime();
-            System.out.println(date);
-// set the metertime
-//            System.out.println("*********************** setTime() ***********************");
-//            ez7.setTime();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                System.out.println("*********************** disconnect() ***********************");
-                alphaBasic.disconnect();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
 
     }
 
@@ -440,4 +301,5 @@ public class AlphaBasic extends AbstractProtocol implements Alpha {
     private void setTotalRegisterRate(int totalRegisterRate) {
         this.totalRegisterRate = totalRegisterRate;
     }
+
 }

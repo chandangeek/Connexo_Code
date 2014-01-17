@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers;
 
-import com.energyict.protocol.ProtocolException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
 

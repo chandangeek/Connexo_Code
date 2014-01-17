@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
@@ -18,10 +18,10 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
  * @author Koen
  */
 public class RequestData {
-    
+
     private int functionCode;
     private byte[] data;
-    
+
     /** Creates a new instance of RequestData */
     public RequestData(int functionCode) {
         this.setFunctionCode(functionCode);
@@ -42,7 +42,7 @@ public class RequestData {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
     public byte[] getFrameData() {
         if (getData()!=null)
             return ProtocolUtils.concatByteArrays(new byte[]{(byte)getFunctionCode()}, getData());

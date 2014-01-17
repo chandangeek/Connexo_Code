@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.CM32;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.util.Date;
 

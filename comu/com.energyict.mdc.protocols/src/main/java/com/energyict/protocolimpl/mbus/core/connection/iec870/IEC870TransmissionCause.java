@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.mdc.common.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.Iterator;

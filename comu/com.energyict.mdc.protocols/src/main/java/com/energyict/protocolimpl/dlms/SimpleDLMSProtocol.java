@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -35,13 +35,13 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.IOException;
@@ -522,7 +522,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
 
     /**
      * Check if the {@link java.util.TimeZone} is read from the DLMS device, or if the
-     * {@link java.util.TimeZone} from the {@link com.energyict.protocol.MeterProtocol} should be used.
+     * {@link java.util.TimeZone} from the {@link MeterProtocol} should be used.
      *
      * @return true is the {@link java.util.TimeZone} is read from the device
      */

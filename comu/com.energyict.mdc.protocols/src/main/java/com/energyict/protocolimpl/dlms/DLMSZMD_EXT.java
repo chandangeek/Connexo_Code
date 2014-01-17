@@ -11,8 +11,8 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 
 import java.io.IOException;
 import java.util.Date;

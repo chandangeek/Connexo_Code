@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
 

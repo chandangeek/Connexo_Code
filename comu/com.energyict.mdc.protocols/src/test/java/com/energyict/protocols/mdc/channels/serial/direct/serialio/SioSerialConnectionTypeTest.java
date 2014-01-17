@@ -1,8 +1,8 @@
 package com.energyict.protocols.mdc.channels.serial.direct.serialio;
 
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.ConnectionTypePropertiesTest;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import org.junit.*;
 
 import java.math.BigDecimal;

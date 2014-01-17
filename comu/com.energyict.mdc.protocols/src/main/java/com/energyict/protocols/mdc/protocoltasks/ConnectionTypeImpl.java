@@ -1,7 +1,5 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
@@ -10,11 +8,10 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.engine.model.SerialPortConfiguration;
-import com.energyict.mdc.exceptions.SerialPortException;
-import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -80,7 +77,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return The ComChannel
      * @throws ConnectionException Indicates a failure in the actual connection mechanism
      */
-    protected ServerComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
+    protected ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), timeOut);
@@ -98,15 +95,10 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ServerComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
-        try {
-            SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            RxTxSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
-            serialPort.openAndInit();
-            return serialComponentFactory.newSerialComChannel(serialPort);
-        } catch (SerialPortException e) {
-            throw new ConnectionException(e);
-        }
+    protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+        RxTxSerialPort serialPort = new RxTxSerialPort(serialPortConfiguration);
+        serialPort.openAndInit();
+        return new SerialComChannel(serialPort);
     }
 
     /**
@@ -117,15 +109,10 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ServerComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
-        try {
-            SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            SioSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
-            serialPort.openAndInit();
-            return serialComponentFactory.newSerialComChannel(serialPort);
-        } catch (SerialPortException | UnsatisfiedLinkError e) {
-            throw new ConnectionException(e);
-        }
+    protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+        SioSerialPort serialPort = new SioSerialPort(serialPortConfiguration);
+        serialPort.openAndInit();
+        return new SerialComChannel(serialPort);
     }
 
     /**
@@ -138,7 +125,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the newly created DatagramComChannel
      * @throws ConnectionException if the connection setup did not work
      */
-    protected ServerComChannel newUDPConnection(int bufferSize, String host, int port) throws ConnectionException {
+    protected ComChannel newUDPConnection(int bufferSize, String host, int port) throws ConnectionException {
         try {
             OutboundUdpSession udpSession = new OutboundUdpSession(bufferSize, host, port);
             return new DatagramComChannel(udpSession);

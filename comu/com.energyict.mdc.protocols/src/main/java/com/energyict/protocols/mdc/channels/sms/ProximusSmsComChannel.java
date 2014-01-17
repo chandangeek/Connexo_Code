@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.sms;
 
-import com.energyict.mdc.protocol.AbstractComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.protocols.mdc.channels.AbstractComChannel;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

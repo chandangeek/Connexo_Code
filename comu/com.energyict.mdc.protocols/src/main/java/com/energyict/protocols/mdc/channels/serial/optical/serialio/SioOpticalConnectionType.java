@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.channels.serial.optical.serialio;
 
-import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 
 /**

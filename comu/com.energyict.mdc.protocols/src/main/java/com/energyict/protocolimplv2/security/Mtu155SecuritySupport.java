@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.protocol.dynamic.PropertySpecBuilder;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.impl.PropertySpecBuilder;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -119,7 +119,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
             }
 
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevel().getId()));
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(securityProperties.get(0).getEncryptionDeviceAccessLevel().getId()));
             typedProperties.setProperty("KeyC",
                     typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
             typedProperties.setProperty("KeyT",
@@ -173,7 +173,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     private PropertySpec<String> getEncryptionKeyTPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())
                 .setDefaultValue("")
                 .markRequired()
@@ -182,7 +182,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     private PropertySpec<String> getEncryptionKeyCPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())
                 .setDefaultValue("")
                 .markRequired()
@@ -191,7 +191,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     private PropertySpec<String> getEncryptionKeyFPropertySpec() {
         return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
+                .forClass(new EncryptedStringFactory())
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())
                 .setDefaultValue("")
                 .markRequired()

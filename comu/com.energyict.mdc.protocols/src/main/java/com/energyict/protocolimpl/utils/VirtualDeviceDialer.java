@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.core.StreamConnection;
+import com.energyict.mdc.protocol.api.dialer.core.Dialer;
+import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.core.StreamConnection;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpFile;
 
 import java.io.IOException;

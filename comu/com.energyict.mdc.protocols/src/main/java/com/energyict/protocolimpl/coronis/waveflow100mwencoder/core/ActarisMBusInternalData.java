@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -114,7 +115,7 @@ public class ActarisMBusInternalData extends InternalData {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    logger.severe(com.energyict.cbo.Utils.stack2string(e));
+                    logger.severe(ProtocolUtils.stack2string(e));
                 }
             }
         }

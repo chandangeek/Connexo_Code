@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium150;
 
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200;
 
 import java.io.IOException;

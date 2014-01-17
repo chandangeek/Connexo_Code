@@ -1,16 +1,15 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.SerialComChannel;
-import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
-import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import com.energyict.protocols.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.protocols.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.mdc.channels.serial.modem.PEMPModemComponent;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedPaknetModemProperties;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
 
-        pempModemComponent = ManagerFactory.getCurrent().getSerialComponentFactory().newPEMPModemComponent(new TypedPEMPModemProperties(properties));
+        pempModemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(properties));
         /*
        create the serial ComChannel and set all property values
         */

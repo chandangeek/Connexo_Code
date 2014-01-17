@@ -1,27 +1,23 @@
 package com.energyict.protocols.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.mdc.channels.serial.modem.AbstractPaknetModemProperties;
-import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.api.exceptions.ModemException;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.protocols.mdc.channels.serial.ServerSerialPort;
+import com.energyict.protocols.mdc.channels.serial.SioSerialPort;
 import com.energyict.protocols.mdc.channels.serial.modem.AbstractModemTests;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
+import com.energyict.protocols.mdc.channels.serial.modem.AbstractPaknetModemProperties;
+import com.energyict.protocols.mdc.channels.serial.modem.PaknetModemComponent;
+import com.energyict.protocols.mdc.channels.serial.modem.SignalController;
+import com.energyict.protocols.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
@@ -32,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -54,18 +50,8 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
     private static final int DTR_TOGGLE_DELAY_VALUE = 100;
 
     protected final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "\r\n*\r\n", "\r\n*\r\n", "\r\nXX COM\r\nYY\r\n");
-
-    @Mock
-    private ServerManager manager;
-    @Mock
-    private SerialComponentFactory serialComponentFactory;
-
-    @Before
-    public void initializeMocksAndFactories() {
-        when(this.manager.getSerialComponentFactory()).thenReturn(this.serialComponentFactory);
-        ManagerFactory.setCurrent(this.manager);
-    }
-
+    
+    
     private TestableSerialComChannel getTestableComChannel() {
         InputStream inputStream = mock(InputStream.class);
         OutputStream outputStream = mock(OutputStream.class);
@@ -303,4 +289,5 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         verify(modemComponent, times(1)).dialModem(comChannel);
         verify(modemComponent, times(1)).initializeAfterConnect(comChannel);
     }
+
 }

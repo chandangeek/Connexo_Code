@@ -6,17 +6,17 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 /**
  *
  * @author  Koen
  */
 public class SecurityLevelException extends ConnectionException {
-    
+
     /** Creates a new instance of SecurityLevelException */
     public SecurityLevelException(String message) {
         super(message);
     }
-    
+
 }
