@@ -1,14 +1,14 @@
 package com.elster.jupiter.devtools.test.analysis;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.reflect.ClassPath;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import org.junit.Test;
-
-import com.google.common.reflect.ClassPath;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MethodInvocationCheckerTest {
 	
@@ -36,6 +36,7 @@ public class MethodInvocationCheckerTest {
 	}
 	
 	@Test
+    @Ignore
 	public void testSloc() throws IOException {
 		Set<ClassPath.ClassInfo> classInfos = ClassPath.from(this.getClass().getClassLoader()).getTopLevelClassesRecursive("com.elster");
 		int sloc = 0;
