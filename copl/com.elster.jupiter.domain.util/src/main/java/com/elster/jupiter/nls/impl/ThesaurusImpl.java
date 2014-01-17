@@ -1,11 +1,11 @@
 package com.elster.jupiter.nls.impl;
 
-import com.elster.jupiter.nls.MessageSeed;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;

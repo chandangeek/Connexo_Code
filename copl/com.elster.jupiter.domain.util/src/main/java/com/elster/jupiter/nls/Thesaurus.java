@@ -1,5 +1,7 @@
 package com.elster.jupiter.nls;
 
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.Locale;
 import java.util.Map;
 
