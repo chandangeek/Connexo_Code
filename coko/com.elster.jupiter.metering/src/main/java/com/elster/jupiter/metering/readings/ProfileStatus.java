@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.readings;
 
-import com.sun.org.apache.xalan.internal.utils.Objects;
+import java.util.Objects;
 
 public final class ProfileStatus {
 	private final long bits;
@@ -42,11 +42,7 @@ public final class ProfileStatus {
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof ProfileStatus) {
-			return bits == ((ProfileStatus) other).bits;
-		} else {
-			return false;
-		}
+        return other instanceof ProfileStatus && bits == ((ProfileStatus) other).bits;
 	}
 	
 	@Override
