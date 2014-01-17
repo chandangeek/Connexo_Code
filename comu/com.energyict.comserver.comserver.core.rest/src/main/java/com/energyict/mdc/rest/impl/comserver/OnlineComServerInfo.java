@@ -3,19 +3,14 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
-import com.energyict.mdc.ports.TCPBasedInboundComPort;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
-import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
 public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServer> {
-
-    private EngineModelService engineModelService;
 
     public OnlineComServerInfo() {
     }
@@ -46,8 +41,8 @@ public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComS
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
     }
 
-    public OnlineComServer writeTo(OnlineComServer comServerSource) {
-        super.writeTo(comServerSource);
+    public OnlineComServer writeTo(OnlineComServer comServerSource,EngineModelService engineModelService) {
+        super.writeTo(comServerSource,engineModelService);
         comServerSource.setQueryAPIPostUri(queryAPIPostUri);
         comServerSource.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri);
         comServerSource.setEventRegistrationUri(eventRegistrationUri);
@@ -56,21 +51,10 @@ public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComS
         comServerSource.setStoreTaskThreadPriority(storeTaskThreadPriority);
         comServerSource.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
 
-        for (InboundComPortInfo<? extends ComPort> inboundComPort : this.inboundComPorts) {
-            TCPBasedInboundComPort newPort = (TCPBasedInboundComPort) engineModelService.newTCPBasedInbound(comServerSource);
-            inboundComPort.writeTo(newPort);
-        }
-
-        updateInboundComPorts(comServerSource);
-        updateOutboundComPorts(comServerSource);
+        updateInboundComPorts(comServerSource,engineModelService);
+        updateOutboundComPorts(comServerSource,engineModelService);
 
         return comServerSource;
-    }
-
-    public OnlineComServerShadow asShadow() {
-        OnlineComServerShadow shadow = new OnlineComServerShadow();
-        this.writeTo(shadow);
-        return shadow;
     }
 
 }

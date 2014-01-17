@@ -1,17 +1,17 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.cpo.ShadowList;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OfflineComServer;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
-import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
-import com.energyict.mdc.shadow.servers.OfflineComServerShadow;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class OfflineComServerInfo extends ComServerInfo<OfflineComServerShadow> {
+public class OfflineComServerInfo extends ComServerInfo<OfflineComServer> {
 
     public OfflineComServerInfo() {
     }
@@ -25,40 +25,25 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServerShadow> 
     }
 
     @Override
-    public OfflineComServerShadow writeTo(OfflineComServerShadow source) {
-        super.writeTo(source);
-        updateOutboundComPorts(source);
+    public OfflineComServer writeTo(OfflineComServer source,EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
+        updateOutboundComPorts(source,engineModelService);
         return source;
     }
 
-    public OfflineComServerShadow asShadow() {
-        OfflineComServerShadow offlineComServerShadow = new OfflineComServerShadow();
-        this.writeTo(offlineComServerShadow);
-        return offlineComServerShadow;
-    }
-
-    private void updateOutboundComPorts(OfflineComServerShadow shadow) {
-        ShadowList<OutboundComPortShadow> outboundComPortShadows = shadow.getOutboundComPortShadows();
-        List<OutboundComPortShadow> toBeDeletedOutbound = new ArrayList<>(outboundComPortShadows);
-        for (OutboundComPortInfo comPort : outboundComPorts) {
-            boolean configuredComPortFound = false;
-            for (OutboundComPortShadow comPortShadow : outboundComPortShadows) {
-                if (comPort.id==comPortShadow.getId()) {
-                    configuredComPortFound=true;
-                    comPort.writeTo(comPortShadow);
-                    toBeDeletedOutbound.remove(comPortShadow);
-                }
-            }
-            if (!configuredComPortFound) {
-                ComPortShadow comPortShadow = comPort.asShadow();
-                outboundComPortShadows.add((OutboundComPortShadow) comPortShadow);
+    private void updateOutboundComPorts(OfflineComServer source,EngineModelService engineModelService) {
+        List<ComPort> outboundComPorts = new ArrayList<>();
+        for (OutboundComPortInfo outboundComPortInfo : this.outboundComPortInfos) {
+            if(outboundComPortInfo.id>0){
+                OutboundComPort comPort = (OutboundComPort) engineModelService.findComPort(outboundComPortInfo.id);
+                outboundComPortInfo.writeTo(comPort,engineModelService);
+                outboundComPorts.add(comPort);
+            } else {
+                ServerOutboundComPort serverOutboundComPort = engineModelService.newOutbound(source);
+                outboundComPortInfo.writeTo(serverOutboundComPort,engineModelService);
+                outboundComPorts.add(serverOutboundComPort);
             }
         }
-        for (OutboundComPortShadow outboundComPortShadow : toBeDeletedOutbound) {
-            outboundComPortShadows.remove(outboundComPortShadow);
-        }
+        source.setComPorts(outboundComPorts);
     }
-
-
-
 }

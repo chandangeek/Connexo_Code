@@ -1,8 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
-import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPort> {
 
@@ -15,9 +16,13 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
         this.portNumber = comPort.getPortNumber();
     }
 
-    protected void writeTo(TCPBasedInboundComPort source) {
-        super.writeTo(source);
+    protected void writeTo(TCPBasedInboundComPort source,EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
         source.setPortNumber(this.portNumber);
     }
 
+    @Override
+    protected TCPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
+        return engineModelService.newTCPBasedInbound(comServer);
+    }
 }

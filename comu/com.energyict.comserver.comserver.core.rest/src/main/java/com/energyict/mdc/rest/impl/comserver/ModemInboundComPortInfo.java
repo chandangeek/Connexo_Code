@@ -1,9 +1,13 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.SerialPortConfiguration;
+import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +44,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     @Override
-    protected void writeTo(ModemBasedInboundComPort source) {
-        super.writeTo(source);
+    protected void writeTo(ModemBasedInboundComPort source,EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
         source.setRingCount(this.ringCount);
         source.setMaximumDialErrors(this.maximumNumberOfDialErrors);
         if (this.connectTimeout!=null) {
@@ -67,6 +71,11 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
                 this.nrOfStopBits,
                 this.parity,
                 this.flowControl));
+    }
+
+    @Override
+    protected ServerModemBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
+        return engineModelService.newModemBasedInbound(comServer);
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {

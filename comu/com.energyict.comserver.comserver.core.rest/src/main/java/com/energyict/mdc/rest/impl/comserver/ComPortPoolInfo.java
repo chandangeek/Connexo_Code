@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import org.codehaus.jackson.annotate.JsonSubTypes;
@@ -25,9 +26,9 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public Date obsoleteDate;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType type;
-    public List<InboundComPortInfo> inboundComPorts;
-    public int discoveryProtocolPluggableClassId;
-    public List<OutboundComPortInfo> outboundComPorts;
+    public List<InboundComPortInfo> inboundComPortInfos;
+    public long discoveryProtocolPluggableClassId;
+    public List<OutboundComPortInfo> outboundComPortInfos;
     public TimeDurationInfo taskExecutionTimeout;
 
     public ComPortPoolInfo() {
@@ -43,11 +44,13 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.type = comPortPool.getComPortType();
     }
 
-    protected S writeTo(S source) {
+    protected S writeTo(S source,EngineModelService engineModelService) {
         source.setName(this.name);
         source.setDescription(this.description);
         source.setComPortType(this.type);
         source.setActive(this.active);
         return source;
     }
+
+    protected abstract S createNew(EngineModelService engineModelService);
 }

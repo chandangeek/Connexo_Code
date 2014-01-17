@@ -1,9 +1,15 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.energyict.mdc.engine.model.InboundComPortPool;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comPortType")
@@ -25,8 +31,16 @@ public abstract class InboundComPortInfo<T extends InboundComPort> extends ComPo
     }
 
     @Override
-    protected void writeTo(T source) {
-        super.writeTo(source);
-        source.setComPortPool(this.comPortPool_id);
+    protected void writeTo(T source,EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
+        InboundComPortPool inboundComPortPool = engineModelService.findInboundComPortPool(this.comPortPool_id);
+        if(inboundComPortPool!=null){
+            source.setComPortPool(inboundComPortPool);
+        } else {
+            throw new WebApplicationException("Failed to update ComPortPool",Response.Status.BAD_REQUEST);
+        }
     }
+
+    @Override
+    protected abstract T createNew(ComServer comServer, EngineModelService engineModelService);
 }

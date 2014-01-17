@@ -1,9 +1,9 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.shadow.ports.KeyStoreShadow;
-import com.energyict.mdc.shadow.ports.ServletBasedInboundComPortShadow;
 
 public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort> {
 
@@ -22,8 +22,8 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
         this.contextPath = comPort.getContextPath();
     }
 
-    protected void writeTo(ServletBasedInboundComPort source) {
-        super.writeTo(source);
+    protected void writeTo(ServletBasedInboundComPort source,EngineModelService engineModelService) {
+        super.writeTo(source,engineModelService);
         source.setHttps(this.useHttps);
 
         source.setKeyStoreSpecsFilePath(this.keyStoreFilePath);
@@ -34,4 +34,8 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
         source.setContextPath(this.contextPath);
     }
 
+    @Override
+    protected ServletBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
+        return engineModelService.newServletBasedInbound(comServer);
+    }
 }

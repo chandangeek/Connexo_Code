@@ -87,7 +87,7 @@ public class ComServerResource {
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
         try {
             OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
-            comServerInfo.writeTo(onlineComServer);
+            comServerInfo.writeTo(onlineComServer,engineModelService);
             onlineComServer.save();
             return ComServerInfoFactory.asInfo(onlineComServer);
         } catch (Exception e) {
@@ -101,11 +101,11 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
         try {
-            if (comServerInfo.inboundComPorts==null) {
+            if (comServerInfo.inboundComPortInfos ==null) {
                 throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
                     Response.status(Response.Status.BAD_REQUEST).build());
             }
-            if (comServerInfo.outboundComPorts==null) {
+            if (comServerInfo.outboundComPortInfos ==null) {
                 throw new WebApplicationException("ComServer is missing list of outbound ComPorts",
                     Response.status(Response.Status.BAD_REQUEST).build());
             }
@@ -116,7 +116,7 @@ public class ComServerResource {
                     Response.status(Response.Status.NOT_FOUND).build());
             }
 
-            comServerInfo.writeTo(comServer);
+            comServerInfo.writeTo(comServer,engineModelService);
             comServer.save();
             return ComServerInfoFactory.asInfo(comServer);
         } catch (IllegalArgumentException e) {

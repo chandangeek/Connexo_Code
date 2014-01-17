@@ -1,10 +1,11 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.rest.impl.filter.Filter;
-import com.energyict.mdc.engine.model.ComServer;
-import java.util.List;
+import org.json.JSONArray;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -14,7 +15,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.json.JSONArray;
+import java.util.List;
 
 @Path("/comports")
 public class ComPortResource {
@@ -56,7 +57,7 @@ public class ComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortInfo getComPort(@PathParam("id") int id) {
+    public ComPortInfo getComPort(@PathParam("id") long id) {
         ComPort comPort = engineModelService.findComPort(id);
         if (comPort==null) {
             throw new WebApplicationException("No ComPort with id "+id,

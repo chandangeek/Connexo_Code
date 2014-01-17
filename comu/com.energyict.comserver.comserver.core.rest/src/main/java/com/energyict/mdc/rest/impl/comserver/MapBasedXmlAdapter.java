@@ -1,14 +1,14 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import static java.lang.Integer.*;
+import static java.lang.Integer.parseInt;
 
 /**
  * Provides simple one on one translation of javascript value to server values

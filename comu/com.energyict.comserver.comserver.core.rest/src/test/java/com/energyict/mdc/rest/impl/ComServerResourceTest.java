@@ -2,24 +2,15 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
-import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
-import com.energyict.mdc.shadow.servers.ComServerShadow;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -32,6 +23,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -164,8 +162,8 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.schedulingInterPollDelay.count=6;
         onlineComServerInfo.communicationLogLevel= ComServer.LogLevel.ERROR;
         onlineComServerInfo.serverLogLevel= ComServer.LogLevel.DEBUG;
-        onlineComServerInfo.inboundComPorts= new ArrayList<>();
-        onlineComServerInfo.outboundComPorts= new ArrayList<>();
+        onlineComServerInfo.inboundComPortInfos = new ArrayList<>();
+        onlineComServerInfo.outboundComPortInfos = new ArrayList<>();
         onlineComServerInfo.storeTaskQueueSize= 7;
         onlineComServerInfo.storeTaskThreadPriority= 8;
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
@@ -176,15 +174,39 @@ public class ComServerResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(serverSideComServer).save();
-        assertThat(serverSideComServer.getName()).isEqualTo("new name");
-        assertThat(serverSideComServer.getEventRegistrationUri()).isEqualTo("/new/uri");
+        ArgumentCaptor<String> onlineComServerArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(serverSideComServer).setName(onlineComServerArgumentCaptor.capture());
+        assertThat(onlineComServerArgumentCaptor.getValue()).isEqualTo("new name");
+
+        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(serverSideComServer).setEventRegistrationUri(uriCaptor.capture());
+        assertThat(uriCaptor.getValue()).isEqualTo("/new/uri");
+
         assertThat(serverSideComServer.usesDefaultEventRegistrationUri()).isEqualTo(false);
-        assertThat(serverSideComServer.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(6));
-        assertThat(serverSideComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
-        assertThat(serverSideComServer.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
-        assertThat(serverSideComServer.getStoreTaskQueueSize()).isEqualTo(7);
-        assertThat(serverSideComServer.getStoreTaskThreadPriority()).isEqualTo(8);
-        assertThat(serverSideComServer.getNumberOfStoreTaskThreads()).isEqualTo(9);
+
+        ArgumentCaptor<TimeDuration> timeDurationCaptor = ArgumentCaptor.forClass(TimeDuration.class);
+        verify(serverSideComServer).setSchedulingInterPollDelay(timeDurationCaptor.capture());
+        assertThat(timeDurationCaptor.getValue()).isEqualTo(new TimeDuration(6));
+
+        ArgumentCaptor<ComServer.LogLevel> logLevelCaptor = ArgumentCaptor.forClass(ComServer.LogLevel.class);
+        verify(serverSideComServer).setCommunicationLogLevel(logLevelCaptor.capture());
+        assertThat(logLevelCaptor.getValue()).isEqualTo(ComServer.LogLevel.ERROR);
+
+        ArgumentCaptor<ComServer.LogLevel> serverLogLevelCaptor = ArgumentCaptor.forClass(ComServer.LogLevel.class);
+        verify(serverSideComServer).setServerLogLevel(serverLogLevelCaptor.capture());
+        assertThat(serverLogLevelCaptor.getValue()).isEqualTo(ComServer.LogLevel.DEBUG);
+
+        ArgumentCaptor<Integer> storeTaskQueueCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(serverSideComServer).setStoreTaskQueueSize(storeTaskQueueCaptor.capture());
+        assertThat(storeTaskQueueCaptor.getValue()).isEqualTo(7);
+
+        ArgumentCaptor<Integer> storeTaskThreadCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(serverSideComServer).setStoreTaskThreadPriority(storeTaskThreadCaptor.capture());
+        assertThat(storeTaskThreadCaptor.getValue()).isEqualTo(8);
+
+        ArgumentCaptor<Integer> numberOfStoreTaskThreadCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(serverSideComServer).setNumberOfStoreTaskThreads(numberOfStoreTaskThreadCaptor.capture());
+        assertThat(numberOfStoreTaskThreadCaptor.getValue()).isEqualTo(9);
     }
 
     @Test
@@ -195,10 +217,10 @@ public class ComServerResourceTest extends JerseyTest {
         ComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
         when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
-
-        ComPortPool comPortPool = mock(ComPortPool.class);
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(comPortPool_id);
-        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(comPortPool);
+        when(engineModelService.findInboundComPortPool(comPortPool_id)).thenReturn(comPortPool);
+
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -212,33 +234,33 @@ public class ComServerResourceTest extends JerseyTest {
         modemInboundComPortInfo.comServer_id = comServer_id;
         modemInboundComPortInfo.comPortPool_id = comPortPool_id;
         modemInboundComPortInfo.flowControl = FlowControl.XONXOFF;
-        List<InboundComPortInfo<? extends ComPortShadow>> inboundPorts = new ArrayList<>();
+        List<InboundComPortInfo<? extends InboundComPort>> inboundPorts = new ArrayList<>();
         inboundPorts.add(modemInboundComPortInfo);
-        onlineComServerInfo.inboundComPorts=inboundPorts;
-        onlineComServerInfo.outboundComPorts=new ArrayList<>();
+        onlineComServerInfo.inboundComPortInfos =inboundPorts;
+        onlineComServerInfo.outboundComPortInfos =new ArrayList<>();
+
+        MockModemBasedInboundComPort mockModemBasedInboundComPort = new MockModemBasedInboundComPort();
+        when(engineModelService.newModemBasedInbound(serverSideComServer)).thenReturn(mockModemBasedInboundComPort);
 
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
         final Response response = target("/comservers/3").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        ArgumentCaptor<OnlineComServerShadow> onlineComServerShadowArgumentCaptor = ArgumentCaptor.forClass(OnlineComServerShadow.class);
-        verify(serverSideComServer).update(onlineComServerShadowArgumentCaptor.capture());
-        OnlineComServerShadow updatingValue = onlineComServerShadowArgumentCaptor.getValue();
-        assertThat(updatingValue.getInboundComPortShadows()).hasSize(1);
-        ModemBasedInboundComPortShadow inboundComPortShadow = (ModemBasedInboundComPortShadow) updatingValue.getInboundComPortShadows().get(0);
-        assertThat(inboundComPortShadow.getInboundComPortPoolId()).isEqualTo(comPortPool_id);
-        assertThat(inboundComPortShadow.getRingCount()).isEqualTo(100);
-        assertThat(inboundComPortShadow.getMaximumNumberOfDialErrors()).isEqualTo(101);
-        assertThat(inboundComPortShadow.getAtCommandTimeout().getSeconds()).isEqualTo(2);
+        verify(serverSideComServer).save();
+
+        assertThat(mockModemBasedInboundComPort.getComPortPool().getId()).isEqualTo(comPortPool_id);
+        assertThat(mockModemBasedInboundComPort.getRingCount()).isEqualTo(100);
+        assertThat(mockModemBasedInboundComPort.getMaximumDialErrors()).isEqualTo(101);
+        assertThat(mockModemBasedInboundComPort.getAtCommandTimeout().getSeconds()).isEqualTo(2);
     }
 
     @Test
     public void testCanNotUpdateComServerWithoutInboundComPorts() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPorts= null;
-        onlineComServerInfo.outboundComPorts= new ArrayList<>();
+        onlineComServerInfo.inboundComPortInfos = null;
+        onlineComServerInfo.outboundComPortInfos = new ArrayList<>();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/4").request().put(json);
 
@@ -249,8 +271,8 @@ public class ComServerResourceTest extends JerseyTest {
     public void testCanNotUpdateComServerWithoutOutboundComPorts() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPorts= new ArrayList<>();
-        onlineComServerInfo.outboundComPorts= null;
+        onlineComServerInfo.inboundComPortInfos = new ArrayList<>();
+        onlineComServerInfo.outboundComPortInfos = null;
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/5").request().put(json);
 
@@ -262,15 +284,12 @@ public class ComServerResourceTest extends JerseyTest {
         int comServer_id = 5;
 
         ComServer serverSideComServer = mock(OnlineComServer.class);
-        OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
-        onlineComServerShadow.setId(comServer_id);
-        when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
-        when(engineModelService.find(comServer_id)).thenReturn(serverSideComServer);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPorts= new ArrayList<>();
-        onlineComServerInfo.outboundComPorts= new ArrayList<>();
+        onlineComServerInfo.inboundComPortInfos = new ArrayList<>();
+        onlineComServerInfo.outboundComPortInfos = new ArrayList<>();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/3").request().put(json); //5 was mocked, there is no ComServer 3
 
@@ -282,7 +301,7 @@ public class ComServerResourceTest extends JerseyTest {
         int comServer_id = 5;
 
         ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineModelService.find(comServer_id)).thenReturn(serverSideComServer);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
 
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

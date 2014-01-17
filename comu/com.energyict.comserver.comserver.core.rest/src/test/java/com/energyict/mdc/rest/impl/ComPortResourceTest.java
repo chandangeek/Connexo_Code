@@ -5,32 +5,21 @@ import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.shadow.ports.KeyStoreShadow;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -41,6 +30,17 @@ import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -121,9 +121,9 @@ public class ComPortResourceTest extends JerseyTest {
 
     @Test
     public void testGetTcpInboundComPort() throws Exception {
-        long comPort_id = 2;
-        long comServer_id = 113;
-        long comPortPool_id = 114;
+        long comPort_id = Long.MAX_VALUE-2L;
+        long comServer_id = Long.MAX_VALUE-113L;
+        long comPortPool_id = Long.MAX_VALUE-114L;
 
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(comServer_id);
@@ -159,9 +159,9 @@ public class ComPortResourceTest extends JerseyTest {
 
     @Test
     public void testGetServletInboundComPort() throws Exception {
-        long comPort_id = 12;
-        long comServer_id = 131;
-        long comPortPool_id = 141;
+        long comPort_id = Long.MAX_VALUE-12;
+        long comServer_id = Long.MAX_VALUE-131L;
+        long comPortPool_id = Long.MAX_VALUE-141L;
 
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(comServer_id);
@@ -180,8 +180,10 @@ public class ComPortResourceTest extends JerseyTest {
         when(servletBasedInboundComPort.getPortNumber()).thenReturn(8);
         when(servletBasedInboundComPort.useHttps()).thenReturn(true);
         when(servletBasedInboundComPort.getContextPath()).thenReturn("/context/path");
-        when(servletBasedInboundComPort.getTrustedKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/trust/store", "trustpwd"));
-        when(servletBasedInboundComPort.getKeyStoreSpecifications()).thenReturn(new KeyStoreShadow("/path/to/key/store", "keypwd"));
+        when(servletBasedInboundComPort.getTrustStoreSpecsFilePath()).thenReturn("/path/to/trust/store");
+        when(servletBasedInboundComPort.getTrustStoreSpecsPassword()).thenReturn("trustpwd");
+        when(servletBasedInboundComPort.getKeyStoreSpecsFilePath()).thenReturn("/path/to/key/store");
+        when(servletBasedInboundComPort.getKeyStoreSpecsPassword()).thenReturn("keypwd");
 
         when(engineModelService.findComPort(comPort_id)).thenReturn(servletBasedInboundComPort);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
@@ -206,9 +208,9 @@ public class ComPortResourceTest extends JerseyTest {
 
     @Test
     public void testGetUdpInboundComPort() throws Exception {
-        long comPort_id = 2;
-        long comServer_id = 113;
-        long comPortPool_id = 116;
+        long comPort_id = Long.MAX_VALUE;
+        long comServer_id = Long.MAX_VALUE-113L;
+        long comPortPool_id = Long.MAX_VALUE-116L;
 
         ComServer comServer = mock(ComServer.class);
         when(comServer.getId()).thenReturn(comServer_id);
@@ -254,9 +256,10 @@ public class ComPortResourceTest extends JerseyTest {
 
     @Test
     public void testGetModemInboundComPort() throws Exception {
-        long comPort_id = 13;
-        long comServer_id = 113;
-        long comPortPool_id = 115;
+        long comPort_id = Long.MAX_VALUE -13L;
+        long comServer_id = Long.MAX_VALUE-113L;
+        long comPortPool_id = Long.MAX_VALUE-115L;
+
         TimeDuration delayBeforeSend = new TimeDuration("8 seconds");
         TimeDuration connectTimeout = new TimeDuration("9 minutes");
         TimeDuration delayAfterConnect = new TimeDuration("10 hours");
@@ -406,6 +409,8 @@ public class ComPortResourceTest extends JerseyTest {
         when(engineModelService.findAllOutboundComPorts()).thenReturn(Arrays.asList(outboundComPort));
         when(engineModelService.findComPortsByComServer(comServerA)).thenReturn(Arrays.asList(tcpBasedInboundComPort, outboundComPort));
         when(engineModelService.findComPortsByComServer(comServerB)).thenReturn(Arrays.<ComPort>asList(modemBasedInboundComPort, udpBasedInboundComPort));
+        when(comServerA.getComPorts()).thenReturn(comPorts);
+        when(comServerB.getComPorts()).thenReturn(comPorts);
     }
 
     private String filter(String property, String value) throws UnsupportedEncodingException {
