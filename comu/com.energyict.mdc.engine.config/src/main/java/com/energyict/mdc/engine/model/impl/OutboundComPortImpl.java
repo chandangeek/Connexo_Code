@@ -30,11 +30,6 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
         this.engineModelService = engineModelService;
     }
 
-    @Override
-    public void init(ComServer owner) {
-        this.setComServer(owner);
-    }
-
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }

@@ -15,10 +15,6 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
 
     private int bufferSize;
 
-    public void init(ComServer owner) {
-        this.setComServer(owner);
-    }
-
     @Inject
     protected UDPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
         super(dataModel, comPortPoolMemberProvider);

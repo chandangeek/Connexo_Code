@@ -33,11 +33,6 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     private String postDialCommands;
     private SerialPortConfiguration serialPortConfiguration;
 
-    @Override
-    public void init(ComServer owner) {
-        this.setComServer(owner);
-    }
-
     @Inject
     protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
         super(dataModel, comPortPoolMemberProvider);
