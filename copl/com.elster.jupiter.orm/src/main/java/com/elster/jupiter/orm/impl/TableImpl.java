@@ -302,10 +302,9 @@ public class TableImpl<T> implements Table<T> {
 			throw new IllegalStateException("Datamodel not registered");
 		}
 		if (maps(api)) {
-			
 			return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
 		} else {
-			throw new IllegalArgumentException("" + api);
+			throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
 		}
 	}
 	

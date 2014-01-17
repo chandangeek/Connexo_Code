@@ -10,6 +10,7 @@ import java.util.List;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DataMapperWriter;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.fields.impl.ConstraintEqualFragment;
@@ -25,21 +26,29 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 		super(constraint, dataMapper, owner,target);
 	}
 	
+	private DataMapperWriter<T> getWriter() {
+		return getDataMapper().getWriter();
+	}
+	
 	@Override
 	public T remove(int index) {
-		T result = getTarget().remove(index);
-		if (result != null) {
-			getDataMapper().remove(result);
-			updatePositions(index);
+		try {
+			T result = getTarget().remove(index);
+			if (result != null) {
+				getWriter().remove(result);
+				updatePositions(index);
+			}
+			return result;
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
 		}
-		return result;
 	}
 	
 	@Override
 	public void add(int index,T element) {
 		setPosition(index,element);
 		try {
-			getDataMapper().getWriter().persist(element);
+			getWriter().persist(element);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -58,7 +67,7 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 			setPosition(index++,value);
 		}
 		try {
-			getDataMapper().getWriter().persist(toAdd);
+			getWriter().persist(toAdd);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -76,13 +85,21 @@ public class ManagedPersistentList<T> extends PersistentList<T> {
 				removedList.add(getDataMapper().cast(toRemove));
 			}
 		}
-		getDataMapper().remove(removedList);
+		try {
+			getWriter().remove(removedList);
+		} catch (SQLException e) {
+			throw new UnderlyingSQLFailedException(e);
+		}
 		updatePositions(0);
 		return !removedList.isEmpty();
 	}
 	
 	public void clear() {
-		getDataMapper().remove(getTarget());
+		try {
+			getWriter().remove(getTarget());
+		} catch (SQLException e) {
+			throw new UnderlyingSQLFailedException(e);
+		}
 		getTarget().clear();
 	}
 	
