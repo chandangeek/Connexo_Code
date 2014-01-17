@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
@@ -24,6 +25,13 @@ import java.util.List;
 public interface DeviceProtocol extends Pluggable, DeviceAccessSupport, DeviceClockSupport, DeviceProtocolDialectSupport,
         DeviceBasicSupport, DeviceLoadProfileSupport, DeviceLogBookSupport, DeviceRegisterSupport, DeviceStatusInformationSupport,
         DeviceTopologySupport, DeviceMessageSupport, DeviceCachingSupport, DeviceSecuritySupport, ConnectionTypeSupport {
+
+    /**
+     * Injects the {@link PropertySpecService} into this DeviceProtocol
+     * for it to be able to create {@link com.energyict.mdc.dynamic.PropertySpec}s
+     * @param propertySpecService The PropertySpecService
+     */
+    public void setPropertySpecService (PropertySpecService propertySpecService);
 
     /**
      * Initializes the DeviceProtocol. This method is called after the physical connection has been
