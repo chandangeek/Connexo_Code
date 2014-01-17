@@ -5,4 +5,5 @@ Export-Package: com.energyict.mdc.common,\
                 com.energyict.mdc.common.coordinates,\
                 com.energyict.mdc.common.ean,\
                 com.energyict.mdc.common.exceptions,\
+                com.energyict.mdc.common.interval,\
                 com.energyict.mdc.common.license

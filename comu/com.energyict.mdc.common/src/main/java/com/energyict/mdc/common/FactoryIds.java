@@ -7,14 +7,19 @@ package com.energyict.mdc.common;
  * @since 2013-12-17 (13:59)
  */
 public enum FactoryIds {
-    DEVICE(Constants.DEVICE_FACTORY_ID),
+    CHANNEL(Constants.CHANNEL_FACTORY_ID),
     CODE(Constants.CODE_FACTORY_ID),
-    USERFILE(Constants.USERFILE_FACTORY_ID),
-    RELATION_TYPE(Constants.RELATION_TYPE_FACTORY_ID),
-    LOOKUP(Constants.LOOKUP_FACTORY_ID),
+    DEVICE(Constants.DEVICE_FACTORY_ID),
     LOADPROFILE_TYPE(Constants.LOADPROFILE_TYPE_FACTORYID),
     LOADPROFILE(Constants.LOADPROFILE_FACTORYID),
-    TIMEZONE_IN_USE(Constants.TIMEZONE_IN_USE_FACTORYID);
+    LOOKUP(Constants.LOOKUP_FACTORY_ID),
+    REGISTER(Constants.REGISTER_FACTORY_ID),
+    RELATION_TYPE(Constants.RELATION_TYPE_FACTORY_ID),
+    TIMEZONE_IN_USE(Constants.TIMEZONE_IN_USE_FACTORYID),
+    USERFILE(Constants.USERFILE_FACTORY_ID),
+    DEVICE_PROTOCOL_DIALECT(Constants.DEVICE_PROTOCOL_DIALECT),
+    CONNECTION_METHOD(Constants.CONNECTION_METHOD_FACTORYID),
+    SECURITY_SET(Constants.SECURITY_SET_FACTORYID);
 
     int id;
 
@@ -28,12 +33,17 @@ public enum FactoryIds {
 
     public static class Constants {
         public static final int DEVICE_FACTORY_ID = 2;
-        private static final int CODE_FACTORY_ID = 5;
-        private static final int USERFILE_FACTORY_ID = 18;
+        public static final int CHANNEL_FACTORY_ID = 3;
+        public static final int CODE_FACTORY_ID = 5;
+        public static final int USERFILE_FACTORY_ID = 18;
         public static final int RELATION_TYPE_FACTORY_ID = 26;
-        private static final int LOOKUP_FACTORY_ID = 111;
-        private static final int LOADPROFILE_TYPE_FACTORYID = 182;
-        private static final int LOADPROFILE_FACTORYID = 185;
-        private static final int TIMEZONE_IN_USE_FACTORYID = 207;
+        public static final int LOOKUP_FACTORY_ID = 111;
+        public static final int REGISTER_FACTORY_ID = 140;
+        public static final int LOADPROFILE_TYPE_FACTORYID = 182;
+        public static final int LOADPROFILE_FACTORYID = 185;
+        public static final int TIMEZONE_IN_USE_FACTORYID = 207;
+        public static final int DEVICE_PROTOCOL_DIALECT = 5010;
+        public static final int CONNECTION_METHOD_FACTORYID = 5011;
+        public static final int SECURITY_SET_FACTORYID = 5012;
     }
 }

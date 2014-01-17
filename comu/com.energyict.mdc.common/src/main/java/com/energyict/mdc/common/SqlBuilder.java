@@ -80,6 +80,10 @@ public class SqlBuilder {
         buffer.append(i);
     }
 
+    public void append(long i) {
+        buffer.append(i);
+    }
+
     public void append(StringBuffer text) {
         buffer.append(text);
     }
