@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+
 import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import java.math.BigDecimal;
 import java.util.List;

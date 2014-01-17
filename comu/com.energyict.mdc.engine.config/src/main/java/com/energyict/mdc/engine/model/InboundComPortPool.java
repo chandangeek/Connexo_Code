@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.protocol.api.PluggableClass;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public interface InboundComPortPool extends ComPortPool {
     public List<InboundComPort> getComPorts();
 
     /**
-     * Gets the {@link PluggableClass discovery protocol}.
+     * Gets the PluggableClass id.
      * Note that this is a required property of an InboundComPortPool
      * and setting it to <code>null</code> will result in a
      * {@link BusinessException} when creating or updating
