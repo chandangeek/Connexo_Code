@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.SerialPortConfiguration;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
@@ -197,6 +198,80 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         if (!this.getName().equals(this.getSerialPortConfiguration().getComPortName())) {
             throw new TranslatableApplicationException("comport.serialportconfigurationcomportname", "The comport name of the serial port configuration ({0}) should match the name of the comport ({1}).",
                     this.getSerialPortConfiguration().getComPortName(), this.getName());
+        }
+    }
+
+    public static class ModemBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ModemBasedInboundComPortBuilder, ServerModemBasedInboundComPort>
+            implements ModemBasedInboundComPortBuilder {
+
+        protected ModemBasedInboundComPortBuilderImpl(Provider<ServerModemBasedInboundComPort> inboundComPortProvider) {
+            super(ModemBasedInboundComPortBuilder.class, inboundComPortProvider);
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder ringCount(int ringCount) {
+            comPort.setRingCount(ringCount);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder maximumDialErrors(int maximumDialErrors) {
+            comPort.setMaximumDialErrors(maximumDialErrors);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder connectTimeout(TimeDuration connectTimeout) {
+            comPort.setConnectTimeout(connectTimeout);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect) {
+            comPort.setDelayAfterConnect(delayAfterConnect);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend) {
+            comPort.setDelayBeforeSend(delayBeforeSend);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder atCommandTimeout(TimeDuration atCommandTimeout) {
+            comPort.setAtCommandTimeout(atCommandTimeout);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry) {
+            comPort.setAtCommandTry(atCommandTry);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings) {
+            comPort.setModemInitStrings(initStrings);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder addressSelector(String addressSelector) {
+            comPort.setAddressSelector(addressSelector);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands) {
+            comPort.setPostDialCommands(postDialCommands);
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPortBuilder serialPortConfig(SerialPortConfiguration serialPortConfiguration) {
+            comPort.setSerialPortConfiguration(serialPortConfiguration);
+            return this;
         }
     }
 }

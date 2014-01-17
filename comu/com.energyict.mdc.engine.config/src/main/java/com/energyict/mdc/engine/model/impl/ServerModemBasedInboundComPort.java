@@ -13,5 +13,4 @@ import com.energyict.mdc.engine.model.ServerComChannelBasedInboundComPort;
  */
 public interface ServerModemBasedInboundComPort extends ServerComChannelBasedInboundComPort, ModemBasedInboundComPort {
 
-    void init(ComServer owner);
 }

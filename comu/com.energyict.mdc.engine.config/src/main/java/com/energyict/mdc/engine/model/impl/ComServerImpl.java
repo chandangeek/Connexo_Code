@@ -42,11 +42,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
     public static final int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
     public static final int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
-
     private final DataModel dataModel;
+
     private final EngineModelService engineModelService;
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
     private final Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider;
+    private final Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider;
 
     private long id;
     private String name;
@@ -61,12 +62,13 @@ public abstract class ComServerImpl implements ServerComServer {
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
+    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider) {
         super();
         this.dataModel = dataModel;
         this.engineModelService = engineModelService;
         this.outboundComPortProvider = outboundComPortProvider;
         this.servletBasedInboundComPortProvider = servletBasedInboundComPortProvider;
+        this.modemBasedInboundComPortProvider = modemBasedInboundComPortProvider;
     }
 
     private List<ServerComPort> getServerComPorts () {
@@ -192,7 +194,7 @@ public abstract class ComServerImpl implements ServerComServer {
     /**
      * Builders are used to facilitate validating ComPorts??
      */
-    class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
+    private class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
         private OutboundComPortBuilder() {
             super(outboundComPortProvider);
@@ -211,7 +213,7 @@ public abstract class ComServerImpl implements ServerComServer {
         return new ServletBasedComPortBuilder();
     }
 
-    class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl {
+    private class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl {
 
         protected ServletBasedComPortBuilder() {
             super(servletBasedInboundComPortProvider);
@@ -226,15 +228,26 @@ public abstract class ComServerImpl implements ServerComServer {
         }
     }
 
+    public ModemBasedComPortBuilder newModemBasedInboundComport() {
+        return new ModemBasedComPortBuilder();
+    }
 
-//            @Override
-//            public ModemBasedInboundComPort createModemBasedInbound (final ModemBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
-//                shadow.setComServerId(this.getId());
-//                ServerModemBasedInboundComPort comPort = this.getComPortFactory().createModemBasedInbound(this, shadow);
-//                this.post();
-//                this.addToComPortCache(comPort);
-//                return comPort;
-//            }
+    private class ModemBasedComPortBuilder extends ModemBasedInboundComPortImpl.ModemBasedInboundComPortBuilderImpl {
+
+        protected ModemBasedComPortBuilder() {
+            super(modemBasedInboundComPortProvider);
+            comPort.init(ComServerImpl.this);
+        }
+
+        @Override
+        public ServerModemBasedInboundComPort add() {
+            ServerModemBasedInboundComPort comPort = super.add();
+            ComServerImpl.this.comPorts.add(comPort);
+            return comPort;
+        }
+    }
+
+
 //
 //            @Override
 //            public TCPBasedInboundComPort createTCPBasedInbound (final TCPBasedInboundComPortShadow shadow) throws BusinessException, SQLException {
