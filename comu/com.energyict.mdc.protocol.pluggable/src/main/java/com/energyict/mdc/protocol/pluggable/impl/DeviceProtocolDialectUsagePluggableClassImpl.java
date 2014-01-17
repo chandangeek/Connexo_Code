@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME;
+
 /**
  * Straightforward implementation of the {@link DeviceProtocolDialectUsagePluggableClass} interface.
  * <p/>
@@ -38,8 +40,6 @@ import java.util.List;
  * Time: 15:36
  */
 public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProtocolDialectUsagePluggableClass {
-
-    public static final String DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME = "deviceProtocolDialect";
 
     private final DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private final DeviceProtocolDialect deviceProtocolDialect;
@@ -191,7 +191,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     public void registerRelationType(RelationType relationType, PluggableClass pluggableClass) throws SQLException {
         PluggableClassRelationAttributeTypeRegistry typeRegistry =
                 new PluggableClassRelationAttributeTypeRegistry(this.dataModel.mapper(PluggableClassRelationAttributeTypeUsage.class));
-        RelationAttributeType attributeType = relationType.getAttributeType(DeviceProtocolDialectUsagePluggableClassImpl.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
+        RelationAttributeType attributeType = relationType.getAttributeType(DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
         if (!typeRegistry.isRegistered(pluggableClass, attributeType)) {
             typeRegistry.register(pluggableClass, attributeType);
         }

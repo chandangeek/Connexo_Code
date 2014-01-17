@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_METHOD_ATTRIBUTE_NAME;
+
 /**
  * Provides an implementation for the {@link ConnectionTypePluggableClass} interface.
  *
@@ -39,8 +41,6 @@ import java.util.List;
  * @since 2012-05-31 (10:43)
  */
 public final class ConnectionTypePluggableClassImpl extends PluggableClassWrapper<ConnectionType> implements ConnectionTypePluggableClass {
-
-    public static final String CONNECTION_METHOD_ATTRIBUTE_NAME = "connectionMethod";
 
     private RelationType relationType;  // Cache
 

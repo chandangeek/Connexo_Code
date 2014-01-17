@@ -15,17 +15,13 @@ public interface SecurityPropertySetRelationAttributeTypeNames {
 
     /**
      * The name of the attribute that references the
-     * {@link Device} that owns the security properties that are
-     * saved in the {@link RelationType}
-     * that is created by this AbstractSecurityPropertySetRelationSupport.
+     * {@link Device} that owns the security properties.
      */
     public String DEVICE_ATTRIBUTE_NAME = "device";
 
     /**
      * The name of the attribute that references the security property set
-     * that defines the context of the security properties that are
-     * saved in the {@link RelationType}
-     * that is created by this SecurityPropertySetRelationTypeSupport.
+     * that defines the context of the security properties.
      */
     public String SECURITY_PROPERTY_SET_ATTRIBUTE_NAME = "securityPropertySet";
 
