@@ -1,11 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -20,6 +14,11 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + IdsService.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, InstallService {
@@ -80,7 +79,6 @@ public class IdsServiceImpl implements IdsService, InstallService {
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        dataModel.register();
     }
    
     @Reference
