@@ -319,6 +319,7 @@
 		        <module>../com.elster.jupiter.unifyingjs</module>
 		        <module>../com.elster.jupiter.metering.extjs</module>
 		        <module>../com.elster.jupiter.metering.rest</module>
+                <module>../com.elster.jupiter.nls.rest</module>
 		        <module>../com.elster.jupiter.orm</module>
 		        <module>../com.elster.jupiter.osgi.goodies</module>
 		        <module>../com.elster.jupiter.parties</module>
