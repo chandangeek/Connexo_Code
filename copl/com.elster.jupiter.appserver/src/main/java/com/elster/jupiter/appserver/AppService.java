@@ -8,6 +8,7 @@ import java.util.List;
 public interface AppService {
 
     String ALL_SERVERS = "AllServers";
+    String COMPONENT_NAME = "APS";
 
     Optional<AppServer> getAppServer();
 

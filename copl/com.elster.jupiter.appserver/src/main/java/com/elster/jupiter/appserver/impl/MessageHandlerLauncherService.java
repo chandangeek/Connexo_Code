@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -70,7 +71,11 @@ public class MessageHandlerLauncherService {
 
     @Activate
     public void activate() {
-        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(), appService);
+        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(getThesaurus()), appService);
+    }
+
+    private Thesaurus getThesaurus() {
+        return ((AppServiceImpl) appService).getThesaurus();
     }
 
     @Deactivate
@@ -128,7 +133,7 @@ public class MessageHandlerLauncherService {
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {
-        return new MessageHandlerTask(subscriberSpec, factory.newMessageHandler(), transactionService);
+        return new MessageHandlerTask(subscriberSpec, factory.newMessageHandler(), transactionService, getThesaurus());
     }
 
     private Optional<SubscriberExecutionSpec> findSubscriberExecutionSpec(String subscriberName) {

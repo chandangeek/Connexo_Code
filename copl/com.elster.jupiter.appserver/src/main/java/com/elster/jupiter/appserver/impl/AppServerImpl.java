@@ -7,6 +7,7 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -29,13 +30,15 @@ public class AppServerImpl implements AppServer {
     private final CronExpressionParser cronExpressionParser;
     private final MessageService messageService;
     private final JsonService jsonService;
+    private final Thesaurus thesaurus;
 
     @Inject
-	AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, JsonService jsonService) {
+	AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.messageService = messageService;
         this.jsonService = jsonService;
+        this.thesaurus = thesaurus;
     }
     
     AppServerImpl init(String name, CronExpression scheduleFrequency) {
@@ -82,7 +85,7 @@ public class AppServerImpl implements AppServer {
     public void sendCommand(AppServerCommand command) {
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(messagingName());
         if (!destinationSpec.isPresent()) {
-            throw new ServerMessageQueueMissing(messagingName());
+            throw new ServerMessageQueueMissing(messagingName(), thesaurus);
         }
         String json = jsonService.serialize(command);
         destinationSpec.get().message(json).send();

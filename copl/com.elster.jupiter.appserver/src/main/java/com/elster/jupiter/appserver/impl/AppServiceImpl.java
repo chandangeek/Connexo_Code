@@ -5,24 +5,26 @@ import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.appserver.MessageSeeds;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.appserver.UnknownAppServerNameException;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -36,7 +38,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,32 +49,28 @@ import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + "APS"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class AppServiceImpl implements InstallService, AppService, Subscriber {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
     private static final String APPSERVER_NAME = "com.elster.jupiter.appserver.name";
-    private static final String COMPONENT_NAME = "componentName";
     private static final String TABLE_NAME = "tableName";
     private static final String ID = "id";
-    private static final String BATCH_EXECUTOR = "batch executor";
-    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
     private volatile TransactionService transactionService;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
-    private volatile LogService logService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BundleContext context;
-    private volatile Publisher publisher;
     private volatile JsonService jsonService;
     private volatile FileImportService fileImportService;
     private volatile TaskService taskService;
     private volatile UserService userService;
     private volatile ThreadFactory threadFactory;
+    private volatile Thesaurus thesaurus;
 
     private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -110,21 +107,19 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     }
 
     private void activateAnonymously() {
-        LOGGER.log(Level.WARNING, "AppServer started anonymously.");
+        MessageSeeds.APPSERVER_STARTED_ANONYMOUSLY.log(LOGGER, thesaurus);
     }
 
     private void activateAs(String appServerName) {
         Optional<AppServer> foundAppServer = dataModel.mapper(AppServer.class).getOptional(appServerName);
         if (!foundAppServer.isPresent()) {
-            LOGGER.log(Level.SEVERE, "AppServer with name " + appServerName + " not found.");
-            activateAnonymously();
-            return;
+            throw new UnknownAppServerNameException(appServerName, thesaurus);
         }
         appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
         ThreadGroup threadGroup = new ThreadGroup("AppServer message listeners");
-        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(), this);
+        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this);
 
         launchFileImports();
         launchTaskService();
@@ -150,7 +145,11 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     public Class<?>[] getClasses() {
     	return new Class<?>[] {InvalidateCacheRequest.class};
     }
-    
+
+    Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
     private void listenForInvalidateCacheRequests() {
         context.registerService(Subscriber.class, this, null);
     }
@@ -160,7 +159,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
         if (subscriberSpec.isPresent()) {
             allServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService));
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
             deactivateTasks.add(new Runnable() {
                 @Override
                 public void run() {
@@ -176,7 +175,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
         if (subscriberSpec.isPresent()) {
             SubscriberSpec appServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler(), transactionService));
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
             deactivateTasks.add(new Runnable() {
                 @Override
                 public void run() {
@@ -215,25 +214,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
 
     @Override
     public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-
-        try {
-            User user = userService.createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
-            user.save();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-
-        try {
-            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get();
-            defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+        new Installer(userService, dataModel, messageService, thesaurus).install();
     }
 
     @Reference
@@ -249,20 +230,6 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
-    }
-
-    @Reference
-    public void setLogService(LogService logService) {
-        this.logService = logService;
-    }
-
-    public Publisher getPublisher() {
-        return publisher;
-    }
-
-    @Reference
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
     }
 
     @Override
@@ -292,6 +259,11 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Reference
     public void setFileImportService(FileImportService fileImportService) {
         this.fileImportService = fileImportService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override

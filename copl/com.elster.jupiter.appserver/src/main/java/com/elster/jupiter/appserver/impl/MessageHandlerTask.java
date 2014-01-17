@@ -1,8 +1,10 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.appserver.MessageSeeds;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 
@@ -19,11 +21,13 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     private final MessageHandler handler;
     private final MessageHandlerTask.ProcessTransaction processTransaction = new ProcessTransaction();
     private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
 
-    MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService) {
+    MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService, Thesaurus thesaurus) {
         this.subscriberSpec = subscriberSpec;
         this.handler = handler;
         this.transactionService = transactionService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -32,6 +36,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
             try {
                 transactionService.execute(processTransaction);
             } catch (RuntimeException e) {
+                MessageSeeds.MESSAGEHANDLER_FAILED.log(LOGGER, thesaurus, e);
                 LOGGER.log(Level.SEVERE, "Message handler failed", e);
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message
             }

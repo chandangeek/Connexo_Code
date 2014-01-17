@@ -61,7 +61,7 @@ public class DefaultAppServerCreatorTest {
         when(messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(newDestination);
         when(messageService.getDestinationSpec(AppService.ALL_SERVERS)).thenReturn(Optional.of(allServersDestination));
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
 
         setupFakeTransactionService();
 

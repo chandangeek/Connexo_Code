@@ -1,14 +1,16 @@
 package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.util.exception.ExceptionType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 enum ExceptionTypes implements ExceptionType {
-    SERVER_MESSAGE_QUEUE_MISSING(1001), UNKOWN_APPSERVER_NAME(1002);
+    SERVER_MESSAGE_QUEUE_MISSING(MessageSeeds.SERVER_MESSAGE_QUEUE_MISSING),
+    UNKOWN_APPSERVER_NAME(MessageSeeds.APPSERVER_NAME_UNKNOWN);
 
-    private final int number;
+    private final MessageSeed seed;
 
-    ExceptionTypes(int number) {
-        this.number = number;
+    ExceptionTypes(MessageSeed seed) {
+        this.seed = seed;
     }
 
     @Override
@@ -18,6 +20,6 @@ enum ExceptionTypes implements ExceptionType {
 
     @Override
     public int getNumber() {
-        return number;
+        return seed.getNumber();
     }
 }

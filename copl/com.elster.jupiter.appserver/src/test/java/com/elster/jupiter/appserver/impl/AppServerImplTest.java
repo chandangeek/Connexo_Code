@@ -62,7 +62,7 @@ public class AppServerImplTest {
 
         when(dataModel.mapper(SubscriberExecutionSpec.class)).thenReturn(subscriberExecutionSpecFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
 
         appServer = AppServerImpl.from(dataModel, NAME, cronExpression);
