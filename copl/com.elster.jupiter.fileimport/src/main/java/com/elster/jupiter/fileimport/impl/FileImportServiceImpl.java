@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
+import com.elster.jupiter.fileimport.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
@@ -27,7 +28,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
@@ -114,7 +114,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
             int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
             cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
         } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Could not start Import schedules, please check if FIM is installed properly.");
+            MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
             throw e;
 		}
     }
