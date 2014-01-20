@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 
 /**
- * Adds behavior to {@link ServletBasedInboundComPort} that is private
+ * Adds behavior to {@link com.energyict.mdc.engine.model.ServletBasedInboundComPort} that is private
  * to the server side implementation.
  *
  * @author Rudi Vankeirsbilck (rudi)

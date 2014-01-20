@@ -1,7 +1,8 @@
-package com.energyict.mdc.engine.model.impl;
+package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
+import com.energyict.mdc.engine.model.impl.ServerServletBasedInboundComPort;
 
 /**
  * Models an {@link com.energyict.mdc.engine.model.IPBasedInboundComPort} that is using servlet technology

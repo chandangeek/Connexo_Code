@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.engine.model.impl.ServerInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
 
 /**
  * Models a {@link ComPort} that is dedicated to inbound communication.
@@ -45,7 +44,7 @@ public interface InboundComPort extends ComPort {
     /**
      * Indicate that this InboundComPort is Servlet-based
      *
-     * @return true if this port is an instance of {@link com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort}, false otherwise
+     * @return true if this port is an instance of {@link ServletBasedInboundComPort}, false otherwise
      */
     public boolean isServletBased();
 
