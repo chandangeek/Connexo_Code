@@ -17,7 +17,7 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;

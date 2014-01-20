@@ -1,6 +1,6 @@
-package com.energyict.dynamicattributes;
+package com.energyict.mdw.dynamicattributes;
 
-import com.energyict.cpo.PersistentIdObjectProxy;
+import com.energyict.mdw.cpo.PersistentIdObjectProxy;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObject;

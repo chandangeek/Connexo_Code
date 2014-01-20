@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;

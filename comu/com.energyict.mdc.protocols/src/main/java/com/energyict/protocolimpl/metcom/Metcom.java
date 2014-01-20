@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.metcom;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;

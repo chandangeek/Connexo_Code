@@ -1,6 +1,6 @@
-package com.energyict.cpo;
+package com.energyict.mdw.cpo;
 
-import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.mdw.dynamicattributes.BigDecimalFactory;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
 
 import java.math.BigDecimal;

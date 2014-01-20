@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.mdc.common.BusinessException;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;

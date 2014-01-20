@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BusinessException;

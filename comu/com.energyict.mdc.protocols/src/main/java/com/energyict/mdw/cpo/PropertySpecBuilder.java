@@ -1,4 +1,4 @@
-package com.energyict.cpo;
+package com.energyict.mdw.cpo;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeValueSelectionMode;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;

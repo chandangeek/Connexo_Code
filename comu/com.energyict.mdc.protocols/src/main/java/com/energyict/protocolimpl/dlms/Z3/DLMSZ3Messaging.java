@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.dlms.Z3;
  */
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;

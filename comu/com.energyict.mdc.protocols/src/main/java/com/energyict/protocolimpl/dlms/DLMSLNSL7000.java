@@ -26,7 +26,7 @@
  */
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSCache;

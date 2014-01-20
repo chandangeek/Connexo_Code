@@ -1,4 +1,4 @@
-package com.energyict.dynamicattributes;
+package com.energyict.mdw.dynamicattributes;
 
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;

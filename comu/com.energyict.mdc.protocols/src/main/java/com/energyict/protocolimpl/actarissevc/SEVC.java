@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.actarissevc;
 
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.common.BaseUnit;
