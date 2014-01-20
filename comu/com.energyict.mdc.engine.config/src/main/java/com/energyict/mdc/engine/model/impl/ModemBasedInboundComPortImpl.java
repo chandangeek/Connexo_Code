@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
@@ -9,6 +10,7 @@ import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
+import java.util.Collections;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -56,7 +58,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public void setRingCount(int ringCount) {
-        validateGreaterThanZero(this.getRingCount(), "comport.ringcount");
+        validateGreaterThanZero(ringCount, "comport.ringcount");
         this.ringCount = ringCount;
     }
 
@@ -67,7 +69,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public void setMaximumDialErrors(int maximumDialErrors) {
-        validateGreaterThanZero(this.getMaximumDialErrors(), "comport.maxnumberofdialerrors");
+        validateGreaterThanZero(maximumDialErrors, "comport.maxnumberofdialerrors");
         this.maximumDialErrors = maximumDialErrors;
     }
 
@@ -123,6 +125,9 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public List<String> getModemInitStrings() {
+        if (Checks.is(modemInitStrings).emptyOrOnlyWhiteSpace()) {
+            return Collections.emptyList();
+        }
         return Arrays.asList(modemInitStrings.split(";")); // TODO Fix AtModemComponent location
     }
 

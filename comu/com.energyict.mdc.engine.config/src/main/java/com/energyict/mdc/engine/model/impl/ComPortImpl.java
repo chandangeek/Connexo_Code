@@ -72,14 +72,14 @@ public abstract class ComPortImpl implements ServerComPort {
     }
 
     public void setName(String name) {
-        this.validateName();
+        this.validateName(name);
         this.name = name;
     }
 
     protected void validate() {
-        Objects.requireNonNull(this.name);
-        Objects.requireNonNull(this.type);
-        validateName();
+        validateNotNull(this.name, "name");
+        validateNotNull(this.type, "type");
+        validateName(this.name);
     }
 
     private void validateUpdateAllowed() {
@@ -88,10 +88,10 @@ public abstract class ComPortImpl implements ServerComPort {
         }
     }
 
-    private void validateName()  {
+    private void validateName(String nameToValidate)  {
         for (ComPort comPort : comServer.get().getComPorts()) {
-            if (comPort!=this && comPort.getName().equals(this.name)) {
-                throw new TranslatableApplicationException("duplicateComPortX", "A ComPort by the name of \"{0}\" already exists", this.name);
+            if (comPort.getId()!=this.getId() && comPort.getName().equals(nameToValidate)) {
+                throw new TranslatableApplicationException("duplicateComPortX", "A ComPort by the name of \"{0}\" already exists", nameToValidate);
             }
         }
     }
@@ -237,11 +237,6 @@ public abstract class ComPortImpl implements ServerComPort {
             validateUpdateAllowed();
             dataModel.update(this);
         }
-    }
-
-    @Override
-    public void delete() {
-        dataModel.remove(this);
     }
 
     @Override

@@ -92,7 +92,6 @@ public enum TableSpecs {
             table.column("PORTNUMBER").number().conversion(ColumnConversion.NUMBER2INT).map("portNumber").add();
             table.column("nrofsimultaneousconns").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfSimultaneousConnections").add();
             // InboundComPortImpl
-            table.column("COMPORTPOOL").number().conversion(NUMBER2LONG).map("comPortPool").add();
             // ModemBasedInboundComPortImpl
             table.column("RINGCOUNT").number().conversion(ColumnConversion.NUMBER2INT).map("ringCount").add();
             table.column("maximumDialErrors").number().conversion(ColumnConversion.NUMBER2INT).map("maximumDialErrors").add();
@@ -104,7 +103,7 @@ public enum TableSpecs {
             table.column("DELAYBEFORESENDCODE").number().conversion(ColumnConversion.NUMBER2INT).map("delayBeforeSend.timeUnitCode").add();
             table.column("COMMANDTIMEOUT").number().conversion(ColumnConversion.NUMBER2INT).map("atCommandTimeout.count").add();
             table.column("COMMANDTIMEOUTCODE").number().conversion(ColumnConversion.NUMBER2INT).map("atCommandTimeout.timeUnitCode").add();
-            table.column("COMMANDTRY").number().conversion(ColumnConversion.NUMBER2LONG).map("atCommandTry").add();
+            table.column("COMMANDTRY").number().conversion(ColumnConversion.NOCONVERSION).map("atCommandTry").add();
             table.column("ADDRESSSELECTOR").type("varchar2(255)").map("addressSelector").map("addressSelector").add();
             table.column("POSTDIALCOMMANDS").type("varchar2(255)").map("postDialCommands").map("postDialCommands").add();
             table.column("BAUDRATE").number().conversion(ColumnConversion.NUMBER2ENUM).map("serialPortConfiguration.baudrate").add();

@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import com.google.inject.Provider;
+import java.util.Iterator;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public abstract class ComServerImpl implements ServerComServer {
     private TimeDuration changesInterPollDelay;
     private TimeDuration schedulingInterPollDelay;
     private UtcInstant modificationDate;
-    private final List<ServerComPort> comPorts = new ArrayList<>();
+    private final List<ServerComPort>  comPorts = new ArrayList<>();
     private boolean obsoleteFlag;
     private Date obsoleteDate;
 
@@ -324,6 +325,17 @@ public abstract class ComServerImpl implements ServerComServer {
 
     public UtcInstant getModificationDate() {
         return modificationDate;
+    }
+
+    @Override
+    public void removeComPort(long id) {
+        Iterator<ServerComPort> iterator = comPorts.iterator();
+        while(iterator.hasNext()) {
+            ServerComPort next = iterator.next();
+            if (next.getId()==id) {
+                iterator.remove();
+            }
+        }
     }
 
     /**

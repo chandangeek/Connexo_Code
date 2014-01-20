@@ -247,6 +247,8 @@ public interface ComServer {
     public ComServerImpl.TCPBasedComPortBuilder newTCPBasedInboundComPort();
     public ComServerImpl.UDPBasedComPortBuilder newUDPBasedInboundComPort();
 
+    public void removeComPort(long id);
+
     public void delete();
 
     public void save();
