@@ -49,7 +49,9 @@ public class NlsServiceImpl implements NlsService, InstallService {
         setOrmService(ormService);
         setThreadPrincipalService(threadPrincipalService);
         activate();
-        dataModel.install(true, true);
+        if (!dataModel.isInstalled()) {
+            dataModel.install(true, true);
+        }
     }
 
     @Override
