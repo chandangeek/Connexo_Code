@@ -10,7 +10,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MessageHandlerTask implements ProvidesCancellableFuture {
@@ -37,7 +36,6 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
                 transactionService.execute(processTransaction);
             } catch (RuntimeException e) {
                 MessageSeeds.MESSAGEHANDLER_FAILED.log(LOGGER, thesaurus, e);
-                LOGGER.log(Level.SEVERE, "Message handler failed", e);
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message
             }
         }

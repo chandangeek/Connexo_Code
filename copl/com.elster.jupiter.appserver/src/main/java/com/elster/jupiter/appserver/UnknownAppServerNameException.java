@@ -15,4 +15,5 @@ public class UnknownAppServerNameException extends BaseException {
         NlsMessageFormat format = thesaurus.getFormat(MessageSeeds.APPSERVER_NAME_UNKNOWN);
         return format.format(appServerName);
     }
+
 }
