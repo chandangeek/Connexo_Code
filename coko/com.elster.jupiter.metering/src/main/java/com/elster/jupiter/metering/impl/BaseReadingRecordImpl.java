@@ -7,8 +7,6 @@ import com.elster.jupiter.metering.ProcesStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-import com.google.common.collect.ImmutableList;
-
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;

@@ -84,7 +84,6 @@ public class ChannelImplTest extends EqualsContractTest {
     @Mock
     private Thesaurus thesaurus;
 
-
     @Before
     public void setUp() {
         when(dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, clock));
