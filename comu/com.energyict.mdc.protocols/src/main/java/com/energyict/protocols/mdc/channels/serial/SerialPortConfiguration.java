@@ -37,6 +37,9 @@ public class SerialPortConfiguration {
     private BigDecimal serialPortOpenTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_OPEN_TIMEOUT.getMilliSeconds());
     private BigDecimal serialPortReadTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_READ_TIMEOUT.getMilliSeconds());
 
+    public SerialPortConfiguration() {
+    }
+
     public SerialPortConfiguration(String comPortName, BaudrateValue baudrate, NrOfDataBits nrOfDataBits, NrOfStopBits nrOfStopBits, Parities parity, FlowControl flowControl) {
         this.comPortName = comPortName;
         this.baudrate = baudrate;
