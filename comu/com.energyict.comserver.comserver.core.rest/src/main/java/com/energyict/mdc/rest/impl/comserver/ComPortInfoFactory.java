@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 
 public class ComPortInfoFactory {
     public static ComPortInfo<? extends ComPort> asInfo(ComPort comPort) {

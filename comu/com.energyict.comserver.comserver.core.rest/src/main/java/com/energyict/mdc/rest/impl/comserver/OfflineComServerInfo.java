@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServer> {
                 outboundComPortInfo.writeTo(comPort,engineModelService);
                 outboundComPorts.add(comPort);
             } else {
-                ServerOutboundComPort serverOutboundComPort = engineModelService.newOutbound(source);
+                OutboundComPort serverOutboundComPort = engineModelService.newOutbound(source);
                 outboundComPortInfo.writeTo(serverOutboundComPort,engineModelService);
                 outboundComPorts.add(serverOutboundComPort);
             }

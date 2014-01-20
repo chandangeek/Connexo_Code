@@ -5,7 +5,6 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
@@ -18,7 +17,7 @@ import java.util.List;
  * Date: 17/01/14
  * Time: 8:51
  */
-public class MockModemBasedInboundComPort implements ModemBasedInboundComPort,ServerModemBasedInboundComPort {
+public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
 
     private int ringCount;
     private int dialErrors;
@@ -264,25 +263,5 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort,Se
     @Override
     public void save() {
         //do nothing
-    }
-
-    @Override
-    public void init(ComServer comServer) {
-
-    }
-
-    @Override
-    public void makeObsolete() {
-        obsolete = true;
-    }
-
-    @Override
-    public boolean isObsolete() {
-        return obsolete;
-    }
-
-    @Override
-    public UtcInstant getObsoleteDate() {
-        return new UtcInstant(new Date());
     }
 }
