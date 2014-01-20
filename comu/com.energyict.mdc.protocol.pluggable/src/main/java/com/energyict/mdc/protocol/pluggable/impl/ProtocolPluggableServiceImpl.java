@@ -56,7 +56,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
 
-    ProtocolPluggableServiceImpl() {
+    public ProtocolPluggableServiceImpl() {
         super();
     }
 
