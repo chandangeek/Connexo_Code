@@ -10,9 +10,11 @@ import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 enum TableSpecs {
 
-    NLS_KEY(NlsKey.class) {
+    NLS_KEY {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel component) {
+            Table<NlsKey> table = component.addTable(name(), NlsKey.class);
+
             table.map(NlsKeyImpl.class);
             Column componentColumn = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
             Column layerColumn = table.column("LAYER").type("varchar2(10)").notNull().conversion(ColumnConversion.CHAR2ENUM).map("layer").add();
@@ -21,9 +23,10 @@ enum TableSpecs {
             table.primaryKey("NLS_PK_NLSKEY").on(componentColumn, layerColumn, keyColumn).add();
         }
     },
-    NLS_ENTRY(NlsEntry.class) {
+    NLS_ENTRY {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel component) {
+            Table<NlsEntry> table = component.addTable(name(), NlsEntry.class);
             table.map(NlsEntry.class);
             Column componentColumn = table.column("COMPONENT").type("varchar2(3)").notNull().add();
             Column layerColumn = table.column("LAYER").type("varchar2(10)").notNull().conversion(ColumnConversion.CHAR2ENUM).add();
@@ -35,17 +38,6 @@ enum TableSpecs {
         }
     };
 
-    private final Class<?> api;
-
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    void addTo(DataModel component) {
-        Table table = component.addTable(name(), api);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
+    abstract void addTo(DataModel component);
 
 }
