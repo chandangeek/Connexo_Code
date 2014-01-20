@@ -1,23 +1,11 @@
 package com.elster.jupiter.parties.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -30,6 +18,18 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class OrmCacheTest {
 
@@ -61,11 +61,13 @@ public class OrmCacheTest {
     			new UtilModule(), 
     			new ThreadSecurityModule(), 
     			new PubSubModule(), 
-    			new TransactionModule(printSql)); 
+    			new TransactionModule(printSql),
+                new NlsModule());
     }
     
     @BeforeClass
     public static void setUp() throws SQLException {
+        // we use a different injector to do the setup, so the injector for the test does not have cached values
         bootInjector = getInjector(bootMemoryBootstrapModule);
         try (TransactionContext ctx = bootInjector.getInstance(TransactionService.class).getContext() ) {
         	bootInjector.getInstance(PartyService.class);
