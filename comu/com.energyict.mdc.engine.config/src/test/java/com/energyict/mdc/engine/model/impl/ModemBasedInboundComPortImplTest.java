@@ -6,11 +6,6 @@ import com.energyict.mdc.Transactional;
 import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -18,8 +13,13 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.SerialPortConfiguration;
 
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import org.junit.*;
 
 import java.math.BigDecimal;
