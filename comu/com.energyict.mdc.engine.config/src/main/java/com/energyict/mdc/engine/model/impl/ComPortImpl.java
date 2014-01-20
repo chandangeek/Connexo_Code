@@ -48,7 +48,7 @@ public abstract class ComPortImpl implements ServerComPort {
                     UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
                     OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
     private final DataModel dataModel;
-    private final Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider;
+    private final Provider<ComPortPoolMember> comPortPoolMemberProvider;
 
     private long id=0;
     private String name;
@@ -66,7 +66,7 @@ public abstract class ComPortImpl implements ServerComPort {
      * @param dataModel
      */
     @Inject
-    protected ComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+    protected ComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
         this.dataModel = dataModel;
         this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }

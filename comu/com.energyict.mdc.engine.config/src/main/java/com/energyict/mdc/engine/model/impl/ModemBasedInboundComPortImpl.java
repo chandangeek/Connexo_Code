@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
@@ -37,7 +38,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     private SerialPortConfiguration serialPortConfiguration;
 
     @Inject
-    protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+    protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
         super(dataModel, comPortPoolMemberProvider);
     }
 

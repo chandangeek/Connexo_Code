@@ -7,29 +7,25 @@ import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-
 import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import org.junit.*;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
@@ -84,31 +80,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
      * @throws BusinessException if a logical Business Exception occurred
      * @throws SQLException      if a sql-related exception occurred
      */
-    private int comPortId=1;
-    private ModemBasedInboundComPort createSimpleComPort() {
-        return createSimpleComPort(createOnlineComServer());
-    }
-
-    private ModemBasedInboundComPort createSimpleComPort(ComServer comServer) {
-        return comServer.newModemBasedInboundComport()
-                .name(COMPORT_NAME)
-                .description(DESCRIPTION)
-                .active(ACTIVE)
-                .ringCount(RING_COUNT)
-                .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-                .comPortType(ComPortType.SERIAL)
-                .comPortPool(createComPortPool())
-                .connectTimeout(CONNECT_TIMEOUT)
-                .atCommandTimeout(AT_COMMAND_TIMEOUT)
-                .atCommandTry(AT_COMMAND_TRY)
-                .delayAfterConnect(DELAY_AFTER_CONNECT)
-                .delayBeforeSend(DELAY_BEFORE_SEND)
-                .atModemInitStrings(MODEM_INIT_STRINGS)
-                .addressSelector(ADDRESS_SELECTOR)
-                .postDialCommands(POST_DIAL_COMMANDS)
-                .serialPortConfiguration(getSerialPortConfiguration(COMPORT_NAME))
-                .add();
-    }
 
     private SerialPortConfiguration getSerialPortConfiguration(String name) {
         return new SerialPortConfiguration(name, BAUD_RATE, NR_OF_DATABITS, NR_OF_STOPBITS, PARITY, FlOW_CONTROL);
@@ -568,5 +539,32 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         inboundComPortPool.save();
         return inboundComPortPool;
     }
+
+    private int comPortId=1;
+    private ModemBasedInboundComPort createSimpleComPort() {
+        return createSimpleComPort(createOnlineComServer());
+    }
+
+    private ModemBasedInboundComPort createSimpleComPort(ComServer comServer) {
+        return comServer.newModemBasedInboundComport()
+                .name(COMPORT_NAME)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .ringCount(RING_COUNT)
+                .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
+                .connectTimeout(CONNECT_TIMEOUT)
+                .atCommandTimeout(AT_COMMAND_TIMEOUT)
+                .atCommandTry(AT_COMMAND_TRY)
+                .delayAfterConnect(DELAY_AFTER_CONNECT)
+                .delayBeforeSend(DELAY_BEFORE_SEND)
+                .atModemInitStrings(MODEM_INIT_STRINGS)
+                .addressSelector(ADDRESS_SELECTOR)
+                .postDialCommands(POST_DIAL_COMMANDS)
+                .serialPortConfiguration(getSerialPortConfiguration(COMPORT_NAME))
+                .add();
+    }
+
     
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.google.inject.Provider;
 
@@ -17,7 +18,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     private int portNumber;
     private int numberOfSimultaneousConnections;
 
-    protected IPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> comPortPoolMemberProvider) {
+    protected IPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
         super(dataModel, comPortPoolMemberProvider);
     }
 

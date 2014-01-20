@@ -25,7 +25,7 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
     private int numberOfSimultaneousConnections;
 
     @Inject
-    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMemberImpl> provider, EngineModelService engineModelService) {
+    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> provider, EngineModelService engineModelService) {
         super(dataModel, provider);
         this.engineModelService = engineModelService;
     }
