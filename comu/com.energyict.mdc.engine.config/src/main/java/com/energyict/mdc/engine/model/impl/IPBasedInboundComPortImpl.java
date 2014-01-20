@@ -29,7 +29,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
 
     @Override
     public void setPortNumber(int portNumber) {
-        validateGreaterThanZero(this.portNumber, "comport.portnumber");
+        validateGreaterThanZero(portNumber, "comport.portnumber");
         this.portNumber = portNumber;
     }
 
@@ -40,12 +40,13 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
 
     @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
-        validateGreaterThanZero(this.numberOfSimultaneousConnections, "comport.numberofsimultaneousconnections");
+        validateGreaterThanZero(numberOfSimultaneousConnections, "comport.numberofsimultaneousconnections");
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
 
     protected void validate() {
         super.validate();
+        validateGreaterThanZero(portNumber, "comport.portnumber");
         validateDuplicatePortNumber();
     }
 
@@ -70,9 +71,15 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         }
 
         @Override
-        public IpBasedInboundComPortBuilder portNumber(int portNumber) {
+        public B portNumber(int portNumber) {
             comPort.setPortNumber(portNumber);
-            return this;
+            return self;
+        }
+
+        @Override
+        public B numberOfSimultaneousConnections(int numberOfConnections) {
+            comPort.setNumberOfSimultaneousConnections(numberOfConnections);
+            return self;
         }
     }
 
