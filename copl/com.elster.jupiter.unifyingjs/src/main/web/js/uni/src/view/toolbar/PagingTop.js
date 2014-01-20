@@ -34,6 +34,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             me.totalCount = me.totalCount < store.getTotalCount() ? store.getTotalCount() : me.totalCount;
 
             if (store.getCount() === 0) {
+                me.totalCount = -1;
                 msg = me.emptyMsg;
             } else {
                 totalCount = me.totalCount - 1;
@@ -54,5 +55,13 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             }
             displayItem.setText(msg);
         }
+    },
+
+    onLoad: function () {
+        Ext.suspendLayouts();
+        this.updateInfo();
+        Ext.resumeLayouts(true);
+
+        this.fireEvent('change', this, this.getPageData());
     }
 });

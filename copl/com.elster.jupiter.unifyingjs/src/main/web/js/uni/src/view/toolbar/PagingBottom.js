@@ -100,13 +100,12 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     resetPageSize: function (pageSize) {
         var me = this,
-            oldPage = me.store.currentPage,
-            oldPageSize = me.store.pageSize,
-            newPage = Math.floor(oldPage * oldPageSize / pageSize);
+            newPage = Math.max(Math.ceil((me.getPageStartValue() + 1) / pageSize), 1);
 
-        this.store.currentPage = newPage;
-        this.store.pageSize = pageSize;
-        this.store.load();
+        me.store.currentPage = newPage;
+        me.store.pageSize = pageSize;
+        me.totalPages = 0;
+        me.store.load();
     },
 
     resetQueryString: function (start) {
@@ -288,15 +287,22 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         if (!isCurrent) {
             navItem.on('afterrender', function () {
-                navItem.getEl().on('click', function () {
-                    // History events are enabled again after the URL has been reset.
-                    Ext.History.suspendEvents();
-                    me.store.loadPage(page);
-                });
-            })
+                me.addNavItemClickHandler(me, navItem);
+            });
         }
 
         return navItem;
+    },
+
+    addNavItemClickHandler: function (me, navItem) {
+        navItem.getEl().on('click', function () {
+            Ext.History.suspendEvents();
+            me.store.loadPage(page, {
+                callback: function () {
+                    Ext.History.resumeEvents();
+                }
+            });
+        });
     },
 
     createPageNavItemDelimiter: function () {
