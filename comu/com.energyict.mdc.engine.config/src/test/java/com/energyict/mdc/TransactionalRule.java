@@ -16,33 +16,6 @@ public class TransactionalRule implements TestRule {
 
     private final TransactionService transactionService;
 
-//    public TransactionalRule() {
-//        this.transactionService = new TransactionService() {
-//            @Override
-//            public <T> T execute(Transaction<T> transaction) {
-//                return null;
-//            }
-//
-//            @Override
-//            public TransactionContext getContext() {
-//                return new TransactionContext() {
-//                    @Override
-//                    public void close() {
-//                    }
-//
-//                    @Override
-//                    public void commit() {
-//                    }
-//
-//                    @Override
-//                    public TransactionEvent getStats() {
-//                        return null;
-//                    }
-//                };
-//            }
-//        };
-//    }
-
     public TransactionalRule(TransactionService transactionService) {
         this.transactionService = transactionService;
     }

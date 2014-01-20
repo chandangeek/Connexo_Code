@@ -12,5 +12,4 @@ import com.energyict.mdc.engine.model.OutboundComPort;
  */
 public interface ServerOutboundComPort extends ServerComPort, OutboundComPort {
 
-    void init(ComServer owner);
 }
