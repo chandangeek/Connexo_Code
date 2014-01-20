@@ -232,7 +232,7 @@ public abstract class ComPortImpl implements ServerComPort {
     public void save() {
         validate();
         if (this.getId()==0) {
-            dataModel.persist(this); // TODO add to comserver
+            throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
             validateUpdateAllowed();
             dataModel.update(this);
