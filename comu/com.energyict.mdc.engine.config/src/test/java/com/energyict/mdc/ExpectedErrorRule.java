@@ -55,7 +55,7 @@ public class ExpectedErrorRule implements TestRule {
                             String messageId = ((TranslatableApplicationException) e).getMessageId();
                             if (!messageId.equals(annotation.messageId())) {
                                 throw new AssertionError("Expected messageId: "
-                                        + annotation.messageId()+" but encountered "+messageId);
+                                        + annotation.messageId()+" but encountered "+messageId, e);
 
                             }
                         }
