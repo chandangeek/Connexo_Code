@@ -36,7 +36,7 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
 
     protected void validate() {
         super.validate();
-        Objects.requireNonNull(comPortPool);
+        validateNotNull(comPortPool.orNull(), "inboundComPort.comPortPool");
     }
 
     @Override

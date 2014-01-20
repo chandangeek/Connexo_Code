@@ -56,7 +56,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public String getKeyStoreSpecsFilePath() {
-        return keyStoreSpecsFilePath;
+        return https?keyStoreSpecsFilePath:null;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public String getKeyStoreSpecsPassword() {
-        return keyStoreSpecsPassword;
+        return https?keyStoreSpecsPassword:null;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public String getTrustStoreSpecsFilePath() {
-        return trustStoreSpecsFilePath;
+        return https?trustStoreSpecsFilePath:null;
     }
 
     @Override
@@ -86,7 +86,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
     @Override
     public String getTrustStoreSpecsPassword() {
-        return trustStoreSpecsPassword;
+        return https?trustStoreSpecsPassword:null;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
         this.contextPath = contextPath;
     }
 
-    static class ServletBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>
+    static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 
         protected ServletBasedInboundComPortBuilderImpl(Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {

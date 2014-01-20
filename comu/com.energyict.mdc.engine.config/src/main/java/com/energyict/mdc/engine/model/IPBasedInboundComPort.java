@@ -20,12 +20,12 @@ public interface IPBasedInboundComPort extends InboundComPort {
      * @return The IP port number
      */
     public int getPortNumber();
-
     public void setPortNumber(int portNumber);
 
     interface IpBasedInboundComPortBuilder<B extends IpBasedInboundComPortBuilder<B,C>, C extends ServerIPBasedInboundComPort>
             extends InboundComPortBuilder<B, C>{
-        public IpBasedInboundComPortBuilder portNumber(int portNumber);
+        public B portNumber(int portNumber);
+        public B numberOfSimultaneousConnections(int numberOfConnections);
     }
 
 }
