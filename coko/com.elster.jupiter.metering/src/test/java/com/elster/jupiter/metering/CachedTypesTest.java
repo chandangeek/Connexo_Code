@@ -1,24 +1,12 @@
 package com.elster.jupiter.metering;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.sql.SQLException;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -31,11 +19,22 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class CachedTypesTest {
 
     private static Injector bootInjector;
-    private Injector injector;
     private static InMemoryBootstrapModule bootMemoryBootstrapModule = new InMemoryBootstrapModule();
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     
@@ -64,7 +63,8 @@ public class CachedTypesTest {
     			new UtilModule(), 
     			new ThreadSecurityModule(), 
     			new PubSubModule(), 
-    			new TransactionModule(printSql)); 
+    			new TransactionModule(printSql),
+                new NlsModule());
     }
     
     
@@ -84,18 +84,18 @@ public class CachedTypesTest {
 
     @Before
     public void instanceSetup() throws SQLException {
-    	injector = getInjector(inMemoryBootstrapModule);
+//    	injector = getInjector(inMemoryBootstrapModule);
     }
     
     @After
     public void instanceTearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
+//    	inMemoryBootstrapModule.deactivate();
     }
     
 
     @Test
     public void testCachedTypes() {
-		MeteringService meteringService = injector.getInstance(MeteringService.class);
+		MeteringService meteringService = bootInjector.getInstance(MeteringService.class);
 		assertThat(meteringService.getAvailableReadingTypes()).isNotEmpty();
 		assertThat(meteringService.getServiceCategory(ServiceKind.HEAT)).isNotNull();
 	}

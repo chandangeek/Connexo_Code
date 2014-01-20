@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -106,7 +107,8 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new UtilModule(),
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
-                new TransactionModule());
+                new TransactionModule(),
+                new NlsModule());
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override

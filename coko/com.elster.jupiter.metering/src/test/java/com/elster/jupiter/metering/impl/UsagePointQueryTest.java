@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
@@ -101,7 +102,9 @@ public class UsagePointQueryTest {
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
         			new UserModule(),
-        			new TransactionModule(false));
+        			new TransactionModule(false),
+                    new NlsModule()
+                );
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {

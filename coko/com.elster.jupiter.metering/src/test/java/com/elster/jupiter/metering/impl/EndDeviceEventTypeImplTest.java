@@ -13,6 +13,8 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -60,6 +62,8 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private Thesaurus thesaurus;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -91,7 +95,8 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 new UtilModule(),
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
-                new TransactionModule());
+                new TransactionModule(),
+                new NlsModule());
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
@@ -142,7 +147,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel));
+        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel, thesaurus));
         if (instanceA == null) {
             instanceA = EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
         }
@@ -152,14 +157,14 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceEqualToA() {
         DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel));
+        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel, thesaurus));
         return EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel));
+        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel, thesaurus));
         return ImmutableList.of(
                 EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
                 EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),

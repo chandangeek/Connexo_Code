@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -24,11 +25,13 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 	private List<MeterActivation> meterActivations = new ArrayList<>();
 	
     private final MeteringService meteringService;
+    private final Thesaurus thesaurus;
 
     @Inject
-	MeterImpl(DataModel dataModel, EventService eventService, MeteringService meteringService) {
+	MeterImpl(DataModel dataModel, EventService eventService, MeteringService meteringService, Thesaurus thesaurus) {
         super(dataModel, eventService, MeterImpl.class);
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
     }
 	
 	static MeterImpl from(DataModel dataModel, AmrSystem system, String amrId, String mRID) {
@@ -42,7 +45,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 		
 	@Override
 	public void store(MeterReading meterReading) {
-		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading).store();
+		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus).store();
 	}
 	
 	@Override

@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
@@ -33,11 +34,13 @@ public class AmrSystemImplTest {
     private MeteringService meteringService;
     @Mock
     private EventService eventService;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
         when(dataModel.getInstance(AmrSystemImpl.class)).thenReturn(new AmrSystemImpl(dataModel, meteringService));
-        when(dataModel.getInstance(MeterImpl.class)).thenReturn(new MeterImpl(dataModel, eventService, meteringService));
+        when(dataModel.getInstance(MeterImpl.class)).thenReturn(new MeterImpl(dataModel, eventService, meteringService, thesaurus));
 
         amrSystem = AmrSystemImpl.from(dataModel, ID, NAME);
     }

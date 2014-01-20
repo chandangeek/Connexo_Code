@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -12,17 +13,16 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
-import java.text.MessageFormat;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MeterReadingStorer {
@@ -33,12 +33,15 @@ public class MeterReadingStorer {
     private static final Logger logger = Logger.getLogger(MeterReadingStorer.class.getName());
     private final MeteringService meteringService;
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
-    MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter, MeterReading meterReading) {
+    @Inject
+    MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter, MeterReading meterReading, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.meter= meter;
-		this.facade = new MeterReadingFacade(meterReading);
+        this.thesaurus = thesaurus;
+        this.facade = new MeterReadingFacade(meterReading);
 		this.readingStorer = this.meteringService.createOverrulingStorer();
 	}
 	
@@ -65,7 +68,7 @@ public class MeterReadingStorer {
                 }
                 records.add(eventRecord);
             } else {
-                logger.log(Level.INFO, MessageFormat.format("Ignored event {0} on meter {1}, since it is not defined in the system", sourceEvent.getEventTypeCode(), meter.getMRID()));
+                MessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getMRID());
             }
         }
         dataModel.mapper(EndDeviceEventRecord.class).persist(records);

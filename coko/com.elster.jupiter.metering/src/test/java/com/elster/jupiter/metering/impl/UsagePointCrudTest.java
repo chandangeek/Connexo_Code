@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -56,14 +57,14 @@ public class UsagePointCrudTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
-    
+
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
 
     private class MockModule extends AbstractModule {
 
         @Override
-        protected void configure() {       
+        protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
@@ -73,31 +74,32 @@ public class UsagePointCrudTest {
     @Before
     public void setUp() throws SQLException {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule, 
-        			new IdsModule(), 
-        			new MeteringModule(), 
-        			new PartyModule(), 
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(), 
-        			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
-        			new TransactionModule());
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new NlsModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-			@Override
-			public Void perform() {
-				injector.getInstance(MeteringService.class);
-				return null;
-			}
-		});
+            @Override
+            public Void perform() {
+                injector.getInstance(MeteringService.class);
+                return null;
+            }
+        });
     }
 
     @After
     public void tearDown() throws SQLException {
-       inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
@@ -128,11 +130,11 @@ public class UsagePointCrudTest {
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
         usagePoint.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
         usagePoint.save();
-        assertThat(dataModel.mapper(UsagePoint.class).find("amiBillingReady",AmiBillingReadyKind.AMIDISABLED)).hasSize(1);
+        assertThat(dataModel.mapper(UsagePoint.class).find("amiBillingReady", AmiBillingReadyKind.AMIDISABLED)).hasSize(1);
         assertThat(usagePoint.getVersion()).isEqualTo(2);
         usagePoint.delete();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(0);
         assertThat(dataModel.mapper(UsagePoint.class).getJournal(id)).hasSize(2);
-     }
+    }
 
 }

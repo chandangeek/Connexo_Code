@@ -19,6 +19,9 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
@@ -55,12 +58,13 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
 
     public MeteringServiceImpl() {
     }
 
     @Inject
-    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService) {
+    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService) {
         this.clock = clock;
         setOrmService(ormService);
         setIdsService(idsService);
@@ -68,6 +72,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         setPartyService(partyService);
         setQueryService(queryService);
         setUserService(userService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
         	install();
@@ -220,6 +225,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
                 bind(PartyService.class).toInstance(partyService);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
     }
@@ -249,6 +255,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override

@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -81,7 +81,9 @@ public class ChannelImplTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private Clock clock;
-   
+    @Mock
+    private Thesaurus thesaurus;
+
 
     @Before
     public void setUp() {
@@ -89,7 +91,7 @@ public class ChannelImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel);
+                return new ReadingTypeImpl(dataModel, thesaurus);
             }
         });
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenReturn(new ReadingTypeInChannel());

@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
@@ -37,10 +38,12 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     private String userName;
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     @Inject
-    EndDeviceEventTypeImpl(DataModel dataModel) {
+    EndDeviceEventTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     EndDeviceEventTypeImpl init(String mRID) {
@@ -126,7 +129,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     private void setTransientFields() {
         String[] parts = mRID.split("\\.");
         if (parts.length != MRID_FIELD_COUNT) {
-            throw new IllegalMRIDFormatException(mRID);
+            throw new IllegalMRIDFormatException(mRID, thesaurus);
         }
         try {
             type = EndDeviceType.get(Integer.parseInt(parts[0]));
@@ -134,7 +137,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
             subDomain = EndDeviceSubDomain.get(Integer.parseInt(parts[2]));
             eventOrAction = EndDeviceEventorAction.get(Integer.parseInt(parts[3]));
         } catch (IllegalEnumValueException e) {
-            throw new IllegalMRIDFormatException(mRID, e);
+            throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }
     }
 

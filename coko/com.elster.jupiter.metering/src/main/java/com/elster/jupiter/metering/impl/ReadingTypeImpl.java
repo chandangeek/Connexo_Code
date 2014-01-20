@@ -16,6 +16,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.IllegalCurrencyCodeException;
 import com.elster.jupiter.metering.IllegalMRIDFormatException;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
@@ -81,10 +82,12 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private Currency currency;
 
     private final DataModel dataModel;
-	
+    private final Thesaurus thesaurus;
+
     @Inject
-	ReadingTypeImpl(DataModel dataModel) {
+	ReadingTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 	
 	ReadingTypeImpl init(String mRID, String aliasName) {
@@ -98,7 +101,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         return dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
     }
 
-	static Currency getCurrency(int isoCode) {
+	static Currency getCurrency(int isoCode, Thesaurus thesaurus) {
 		if (isoCode == 0) {
 			isoCode = 999;
 		} 
@@ -107,7 +110,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 				return each;
 			}
 		}
-		throw new IllegalCurrencyCodeException(isoCode);
+		throw new IllegalCurrencyCodeException(isoCode, thesaurus);
 	}
 	
 	static int getCurrencyId(Currency currency) {
@@ -133,7 +136,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
-			throw new IllegalMRIDFormatException(mRID);
+			throw new IllegalMRIDFormatException(mRID, thesaurus);
 		}
         try {
             macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));
@@ -151,9 +154,9 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
             phases = Phase.get(parse(parts[PHASES]));
             multiplier = MetricMultiplier.get(parse(parts[MULTIPLIER]));
             unit = ReadingTypeUnit.get(parse(parts[UNIT]));
-            currency = getCurrency(parse(parts[CURRENCY]));
+            currency = getCurrency(parse(parts[CURRENCY]), thesaurus);
         } catch (IllegalEnumValueException | IllegalCurrencyCodeException e) {
-            throw new IllegalMRIDFormatException(mRID, e);
+            throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }
     }
 		

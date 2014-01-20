@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
@@ -23,13 +24,15 @@ public class ReadingTypeGeneratorTest {
 
     @Mock
     private DataModel dataModel;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
         when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel);
+                return new ReadingTypeImpl(dataModel, thesaurus);
             }
         });
     }

@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
@@ -76,13 +77,15 @@ public class MeterActivationImplTest {
     private TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
     @Mock
     private TimeSeries timeSeries;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
         when((Object) dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel);
+                return new ReadingTypeImpl(dataModel, thesaurus);
             }
         });
         when((Object) dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(new Answer<Object>() {

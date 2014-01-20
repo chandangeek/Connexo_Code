@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
@@ -27,6 +28,8 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Mock
     private DataModel dataModel;
+    @Mock
+    private Thesaurus thesaurus;
 
     private ReadingTypeImpl readingType;
 
@@ -39,19 +42,19 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (readingType == null) {
-            readingType = new ReadingTypeImpl(dataModel).init(MRID, ALIAS);
+            readingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
         }
         return readingType;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new ReadingTypeImpl(dataModel).init(MRID, ALIAS);
+        return new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new ReadingTypeImpl(dataModel).init(MRID2, ALIAS));
+        return ImmutableList.of(new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, ALIAS));
     }
 
     @Override
@@ -64,7 +67,7 @@ public class ReadingTypeImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel);            }
+                return new ReadingTypeImpl(dataModel, thesaurus);            }
         });
     }
 
@@ -90,8 +93,8 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testCurrency() {
-    	assertThat(ReadingTypeImpl.getCurrency(0)).isEqualTo(Currency.getInstance("XXX"));
-    	assertThat(ReadingTypeImpl.getCurrency(999)).isEqualTo(Currency.getInstance("XXX"));
-    	assertThat(ReadingTypeImpl.getCurrency(978)).isEqualTo(Currency.getInstance("EUR"));
+    	assertThat(ReadingTypeImpl.getCurrency(0, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
+    	assertThat(ReadingTypeImpl.getCurrency(999, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
+    	assertThat(ReadingTypeImpl.getCurrency(978, thesaurus)).isEqualTo(Currency.getInstance("EUR"));
     }
 }
