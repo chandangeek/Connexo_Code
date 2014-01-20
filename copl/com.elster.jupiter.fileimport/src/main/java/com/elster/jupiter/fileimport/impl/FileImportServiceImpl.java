@@ -6,6 +6,9 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -27,13 +30,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + "FIS"}, immediate = true)
+@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, FileImportService {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
 
-    private final DefaultFileSystem defaultFileSystem = new DefaultFileSystem();
+    private volatile DefaultFileSystem defaultFileSystem;
     private volatile LogService logService;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
@@ -41,6 +44,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
 
     private CronExpressionScheduler cronExpressionScheduler;
 
@@ -87,6 +91,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
         this.transactionService = transactionService;
     }
 
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(FileImportService.COMPONENT_NAME, Layer.DOMAIN);
+        defaultFileSystem = new DefaultFileSystem(thesaurus);
+    }
+
     @Activate
     public void activate() {
         dataModel.register(new AbstractModule() {
@@ -112,7 +121,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
-        cronExpressionScheduler.submit(new ImportScheduleJob(new Only(), defaultFileSystem, jsonService, importSchedule, transactionService));
+        cronExpressionScheduler.submit(new ImportScheduleJob(new Only(), defaultFileSystem, jsonService, importSchedule, transactionService, thesaurus));
     }
 
     @Override
@@ -131,7 +140,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public ImportScheduleBuilder newBuilder() {
-        return new DefaultImportScheduleBuilder(messageService, dataModel, cronExpressionParser, getFileNameCollisionResolver(), defaultFileSystem);
+        return new DefaultImportScheduleBuilder(messageService, dataModel, cronExpressionParser, getFileNameCollisionResolver(), defaultFileSystem, thesaurus);
     }
 
     @Override

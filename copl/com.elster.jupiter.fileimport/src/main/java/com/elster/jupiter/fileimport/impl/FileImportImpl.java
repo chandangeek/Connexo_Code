@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.State;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
@@ -23,15 +24,17 @@ final class FileImportImpl implements FileImport {
     private final FileSystem fileSystem;
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
+    private final Thesaurus thesaurus;
 
-    private FileImportImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver) {
+    private FileImportImpl(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus) {
         this.fileSystem = fileSystem;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
+        this.thesaurus = thesaurus;
     }
 
-    public static FileImport create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, ImportSchedule importSchedule, File file) {
-        return new FileImportImpl(fileSystem, dataModel, fileNameCollisionResolver).init(importSchedule, file);
+    public static FileImport create(FileSystem fileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, ImportSchedule importSchedule, File file) {
+        return new FileImportImpl(fileSystem, dataModel, fileNameCollisionResolver, thesaurus).init(importSchedule, file);
     }
 
     @Override
@@ -150,7 +153,7 @@ final class FileImportImpl implements FileImport {
         try {
             inputStream.close();
         } catch (IOException e) {
-            throw new FileIOException(e);
+            throw new FileIOException(e, thesaurus);
         }
     }
 

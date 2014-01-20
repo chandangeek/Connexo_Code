@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -30,19 +31,21 @@ class ImportScheduleImpl implements ImportSchedule {
     private final CronExpressionParser cronExpressionParser;
     private final FileNameCollisionResolver fileNameCollisionresolver;
     private final FileSystem fileSystem;
+    private final Thesaurus thesaurus;
 
     @SuppressWarnings("unused")
     @Inject
-	private ImportScheduleImpl(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem) {
+	private ImportScheduleImpl(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
         this.fileSystem = fileSystem;
+        this.thesaurus = thesaurus;
     }
 
-    static ImportScheduleImpl from(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
-        return new ImportScheduleImpl(messageService, dataModel, cronExpressionParser, fileNameCollisionresolver, fileSystem).init(cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+    static ImportScheduleImpl from(MessageService messageService, DataModel dataModel, CronExpressionParser cronExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileSystem fileSystem, Thesaurus thesaurus, CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
+        return new ImportScheduleImpl(messageService, dataModel, cronExpressionParser, fileNameCollisionresolver, fileSystem, thesaurus).init(cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
     }
 
     private ImportScheduleImpl init(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
@@ -103,7 +106,7 @@ class ImportScheduleImpl implements ImportSchedule {
         if (!file.exists()) {
             throw new IllegalArgumentException();
         }
-        return FileImportImpl.create(fileSystem, dataModel, fileNameCollisionresolver, this, file);
+        return FileImportImpl.create(fileSystem, dataModel, fileNameCollisionresolver, thesaurus, this, file);
     }
 
     @Override

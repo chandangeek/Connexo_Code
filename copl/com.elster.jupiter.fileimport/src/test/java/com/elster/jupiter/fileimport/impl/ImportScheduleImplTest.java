@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -46,12 +47,14 @@ public class ImportScheduleImplTest {
     private FileNameCollisionResolver nameResolver;
     @Mock
     private FileSystem fileSystem;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
 
-        importSchedule = ImportScheduleImpl.from(messageService, dataModel, cronParser, nameResolver, fileSystem, cronExpression, destination, importDir, inProcessDir, failureDir, successDir);
+        importSchedule = ImportScheduleImpl.from(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus, cronExpression, destination, importDir, inProcessDir, failureDir, successDir);
     }
 
     @After

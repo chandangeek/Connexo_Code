@@ -2,6 +2,7 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
@@ -44,6 +45,8 @@ public class FileImportImplTest {
     private FileNameCollisionResolver fileNameCollisionResolver;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -91,7 +94,7 @@ public class FileImportImplTest {
 
     @Test
     public void testCreateKeepsReferenceToImportSchedule() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         assertThat(fileImport.getImportSchedule()).isEqualTo(importSchedule);
@@ -101,7 +104,7 @@ public class FileImportImplTest {
     public void testCreateKeepsReferenceToFile() {
         when(path.getFileName()).thenReturn(path);
 
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         assertThat(fileImport.getFileName()).isEqualTo("newPath");
@@ -109,7 +112,7 @@ public class FileImportImplTest {
 
     @Test
     public void testGetContents() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
 
         InputStream contents = fileImport.getContents();
 
@@ -118,7 +121,7 @@ public class FileImportImplTest {
 
     @Test
     public void testMovedToProcessing() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         verify(fileSystem).move(path, newPath);
@@ -126,7 +129,7 @@ public class FileImportImplTest {
 
     @Test
     public void testMarkSuccessMovedToSuccessFolder() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         Mockito.reset(fileSystem);
@@ -141,7 +144,7 @@ public class FileImportImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileSystem.getInputStream(any(File.class))).thenReturn(spiedStream);
 
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
         fileImport.getContents();
 
@@ -154,7 +157,7 @@ public class FileImportImplTest {
 
     @Test
     public void testMarkFailureMovedToFailureFolder() {
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
 
         Mockito.reset(fileSystem);
@@ -169,7 +172,7 @@ public class FileImportImplTest {
         ByteArrayInputStream spiedStream = spy(contentsAsStream());
         when(fileSystem.getInputStream(any(File.class))).thenReturn(spiedStream);
 
-        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, importSchedule, file);
+        FileImport fileImport = FileImportImpl.create(fileSystem, dataModel, fileNameCollisionResolver, thesaurus, importSchedule, file);
         fileImport.prepareProcessing();
         fileImport.getContents();
 

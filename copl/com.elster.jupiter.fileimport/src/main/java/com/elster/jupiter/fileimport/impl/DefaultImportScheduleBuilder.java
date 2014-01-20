@@ -4,6 +4,7 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -23,18 +24,20 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     private final CronExpressionParser cronParser;
     private final FileNameCollisionResolver nameResolver;
     private final FileSystem fileSystem;
+    private final Thesaurus thesaurus;
 
-    DefaultImportScheduleBuilder(MessageService messageService, DataModel dataModel, CronExpressionParser cronParser, FileNameCollisionResolver nameResolver, FileSystem fileSystem) {
+    DefaultImportScheduleBuilder(MessageService messageService, DataModel dataModel, CronExpressionParser cronParser, FileNameCollisionResolver nameResolver, FileSystem fileSystem, Thesaurus thesaurus) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.cronParser = cronParser;
         this.nameResolver = nameResolver;
         this.fileSystem = fileSystem;
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public ImportSchedule build() {
-        return ImportScheduleImpl.from(messageService, dataModel, cronParser, nameResolver, fileSystem, cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
+        return ImportScheduleImpl.from(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus ,cronExpression, destination, importDirectory, inProcessDirectory, failureDirectory, successDirectory);
     }
 
     @Override

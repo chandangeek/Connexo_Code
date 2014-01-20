@@ -3,6 +3,7 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -36,10 +37,12 @@ public class DefaultImportScheduleBuilderTest {
     private FileNameCollisionResolver nameResolver;
     @Mock
     private FileSystem fileSystem;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testDestination() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -53,7 +56,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testCronExpression() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -67,7 +70,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testProcessingDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -81,7 +84,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testImportDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -95,7 +98,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testSuccessDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)
@@ -109,7 +112,7 @@ public class DefaultImportScheduleBuilderTest {
 
     @Test
     public void testFailureDirectory() {
-        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem)
+        ImportSchedule schedule = new DefaultImportScheduleBuilder(messageService, dataModel, cronParser, nameResolver, fileSystem, thesaurus)
                 .setDestination(destination)
                 .setCronExpression(cronExpression)
                 .setProcessingDirectory(PROCESSING_DIRECTORY)

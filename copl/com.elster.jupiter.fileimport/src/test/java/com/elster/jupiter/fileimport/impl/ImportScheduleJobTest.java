@@ -3,6 +3,7 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Predicates;
@@ -60,6 +61,8 @@ public class ImportScheduleJobTest {
     private JsonService jsonService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destination;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -80,7 +83,7 @@ public class ImportScheduleJobTest {
             }
         });
 
-        importScheduleJob = new ImportScheduleJob(predicates, fileSystem, jsonService, importSchedule, transactionService);
+        importScheduleJob = new ImportScheduleJob(predicates, fileSystem, jsonService, importSchedule, transactionService, thesaurus);
     }
 
     @After

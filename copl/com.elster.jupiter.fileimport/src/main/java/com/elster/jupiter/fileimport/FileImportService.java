@@ -8,6 +8,8 @@ import com.google.common.base.Optional;
  */
 public interface FileImportService {
 
+    String COMPONENT_NAME = "FIS";
+
     /**
      * @return a builder for ImportSchedules
      */

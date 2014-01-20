@@ -1,7 +1,9 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileIOException;
+import com.elster.jupiter.nls.Thesaurus;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,12 +15,19 @@ import java.nio.file.Path;
 
 class DefaultFileSystem implements FileSystem {
 
+    private final Thesaurus thesaurus;
+
+    @Inject
+    DefaultFileSystem(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
     @Override
     public InputStream getInputStream(File file) throws FileIOException {
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new FileIOException(e);
+            throw new FileIOException(e, thesaurus);
         }
     }
 
@@ -27,7 +36,7 @@ class DefaultFileSystem implements FileSystem {
         try {
             return Files.move(source, target);
         } catch (IOException e) {
-            throw new FileIOException(e);
+            throw new FileIOException(e, thesaurus);
         }
     }
 
@@ -36,7 +45,7 @@ class DefaultFileSystem implements FileSystem {
         try {
             return Files.newDirectoryStream(directory);
         } catch (IOException e) {
-            throw new FileIOException(e);
+            throw new FileIOException(e, thesaurus);
         }
     }
 
