@@ -1,12 +1,10 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.protocol.pluggable.PluggableClassShadow;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
@@ -60,35 +58,6 @@ public class DeviceCommunicationProtocolInfo {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         MdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecService, propertySpecs, properties, propertyInfoList);
         return propertyInfoList;
-    }
-
-    public PluggableClassShadow asShadow() {
-        PluggableClassShadow shadow = new PluggableClassShadow(PluggableClassType.DeviceProtocol);
-        shadow.setName(this.name);
-        shadow.setJavaClassName(this.licensedProtocol.protocolJavaClassName);
-        shadow.setProperties(getTypedProperties());
-        return shadow;
-    }
-
-    private TypedProperties getTypedProperties() {
-        TypedProperties typedProperties = TypedProperties.empty();
-        if (this.propertyInfos != null) {
-            for (PropertyInfo propertyInfo : this.propertyInfos) {
-                PropertyValueInfo propertyValueInfo = propertyInfo.getPropertyValueInfo();
-                if (propertyValueInfo != null && propertyValueInfo.getValue() != null) {
-                    Object value = propertyValueInfo.getValue();
-                    if (Map.class.isAssignableFrom(value.getClass())) {
-                        Object infoObject = propertyInfo.getPropertyTypeInfo().getSimplePropertyType().getInfoObject((Map<String, Object>) value);
-                        if (MdcResourceProperty.class.isAssignableFrom(infoObject.getClass())) {
-                            typedProperties.setProperty(propertyInfo.getKey(), ((MdcResourceProperty) infoObject).fromInfoObject());
-                        }
-                    } else {
-                        typedProperties.setProperty(propertyInfo.getKey(), value);
-                    }
-                }
-            }
-        }
-        return typedProperties;
     }
 
     public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
