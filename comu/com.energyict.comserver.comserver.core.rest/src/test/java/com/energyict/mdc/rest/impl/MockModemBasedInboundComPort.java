@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -263,11 +264,6 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort,Se
     @Override
     public void save() {
         //do nothing
-    }
-
-    @Override
-    public void delete() {
-        //de nothing
     }
 
     @Override
