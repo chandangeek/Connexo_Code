@@ -6,6 +6,7 @@ import com.elster.jupiter.events.InvalidPropertyTypeException;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.event.Event;
@@ -24,8 +25,9 @@ public class LocalEventImpl implements LocalEvent {
     private final EventConfiguration eventService;
     private final MessageService messageService;
     private final BeanService beanService;
+    private final Thesaurus thesaurus;
 
-    LocalEventImpl(Date dateTime, JsonService jsonService, EventConfiguration eventService, MessageService messageService, BeanService beanService, EventType type, Object source) {
+    LocalEventImpl(Date dateTime, JsonService jsonService, EventConfiguration eventService, MessageService messageService, BeanService beanService, EventType type, Object source, Thesaurus thesaurus) {
         this.type = type;
         this.source = source;
         this.jsonService = jsonService;
@@ -33,6 +35,7 @@ public class LocalEventImpl implements LocalEvent {
         this.messageService = messageService;
         this.beanService = beanService;
         this.dateTime = dateTime;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class LocalEventImpl implements LocalEvent {
     private Object getValue(EventPropertyType eventPropertyType) {
         Object value = evaluateAccessPath(eventPropertyType);
         if (value != null && !eventPropertyType.getValueType().getType().isInstance(value)) {
-            throw new InvalidPropertyTypeException(source, eventPropertyType.getAccessPath(), eventPropertyType.getValueType().getType(), value.getClass());
+            throw new InvalidPropertyTypeException(source, eventPropertyType.getAccessPath(), eventPropertyType.getValueType().getType(), value.getClass(), thesaurus);
         }
         return value;
     }

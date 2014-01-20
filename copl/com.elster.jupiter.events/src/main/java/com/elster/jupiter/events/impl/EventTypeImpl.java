@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.beans.BeanService;
@@ -15,8 +16,6 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 public class EventTypeImpl implements EventType, PersistenceAware {
 
@@ -34,15 +33,17 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private final EventConfiguration eventConfiguration;
     private final MessageService messageService;
     private final BeanService beanService;
+    private final Thesaurus thesaurus;
 
     @Inject
-	EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService) {
+	EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.jsonService = jsonService;
         this.eventConfiguration = eventConfiguration;
         this.messageService = messageService;
         this.beanService = beanService;
+        this.thesaurus = thesaurus;
     }
 
     static EventTypeImpl from(DataModel dataModel, String topic) {
@@ -117,7 +118,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
 
     @Override
     public LocalEvent create(Object source) {
-        return new LocalEventImpl(clock.now(), jsonService, eventConfiguration, messageService, beanService, this, source);
+        return new LocalEventImpl(clock.now(), jsonService, eventConfiguration, messageService, beanService, this, source, thesaurus);
     }
 
     @Override

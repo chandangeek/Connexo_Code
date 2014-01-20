@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.beans.BeanService;
@@ -54,12 +55,14 @@ public class EventTypeImplTest {
     private MessageService messageService;
     @Mock
     private BeanService beanService;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
         when(clock.now()).thenReturn(NOW);
         when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
-        when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService));
+        when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, thesaurus));
     }
 
     @After

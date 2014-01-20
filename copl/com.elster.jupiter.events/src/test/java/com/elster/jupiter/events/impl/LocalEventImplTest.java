@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
@@ -59,6 +60,8 @@ public class LocalEventImplTest {
     private MessageService messageService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destination;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -94,7 +97,7 @@ public class LocalEventImplTest {
 
     @Test
     public void testCreation() {
-        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source);
+        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source, thesaurus);
 
         assertThat(localEvent.getDateTime()).isEqualTo(NOW);
         assertThat(localEvent.getSource()).isEqualTo(source);
@@ -103,7 +106,7 @@ public class LocalEventImplTest {
 
     @Test
     public void testToOsgiEvent() {
-        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source);
+        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source, thesaurus);
 
         Event event = localEvent.toOsgiEvent();
 
@@ -114,7 +117,7 @@ public class LocalEventImplTest {
 
     @Test
     public void testPublish() {
-        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source);
+        LocalEventImpl localEvent = new LocalEventImpl(NOW, jsonService, eventConfiguration, messageService, beanService, eventType, source, thesaurus);
 
         localEvent.publish();
 

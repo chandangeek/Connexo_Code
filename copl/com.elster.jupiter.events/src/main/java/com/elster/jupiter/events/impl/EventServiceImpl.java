@@ -7,6 +7,9 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.NoSuchTopicException;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -30,7 +33,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + "EVT", immediate=true)
+@Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + EventService.COMPONENTNAME, immediate=true)
 public class EventServiceImpl implements EventService, InstallService {
 
     private volatile Clock clock;
@@ -40,6 +43,7 @@ public class EventServiceImpl implements EventService, InstallService {
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
     private final EventConfiguration eventConfiguration = new DefaultEventConfiguration();
 
     private LocalEventDispatcher localEventDispatcher = new LocalEventDispatcher();
@@ -48,7 +52,7 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
     @Inject
-    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, EventAdmin eventAdmin) {
+    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, EventAdmin eventAdmin, NlsService nlsService) {
         setClock(clock);
         setEventAdmin(eventAdmin);
         setPublisher(publisher);
@@ -56,6 +60,7 @@ public class EventServiceImpl implements EventService, InstallService {
         setJsonService(jsonService);
         setMessageService(messageService);
         setOrmService(ormService);
+        setNlsService(nlsService);
         activate(bundleContext);
         if (!dataModel.isInstalled()) {
         	install();
@@ -122,6 +127,11 @@ public class EventServiceImpl implements EventService, InstallService {
         localEventDispatcher.removeSubscription(topicHandler);
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(EventService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
     @Activate
     public void activate(BundleContext context) {
         localEventDispatcher.register(context);
@@ -135,6 +145,7 @@ public class EventServiceImpl implements EventService, InstallService {
                 bind(JsonService.class).toInstance(jsonService);
                 bind(EventConfiguration.class).toInstance(eventConfiguration);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
     }
@@ -147,7 +158,7 @@ public class EventServiceImpl implements EventService, InstallService {
     public void postEvent(String topic, Object source) {
         Optional<EventType> found = dataModel.mapper(EventType.class).getOptional(topic);
         if (!found.isPresent()) {
-            throw new NoSuchTopicException(topic);
+            throw new NoSuchTopicException(thesaurus, topic);
         }
         EventType eventType = found.get();
         LocalEvent localEvent = eventType.create(source);

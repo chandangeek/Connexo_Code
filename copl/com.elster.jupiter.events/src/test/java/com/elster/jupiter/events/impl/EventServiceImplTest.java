@@ -1,15 +1,21 @@
 package com.elster.jupiter.events.impl;
 
 import com.elster.jupiter.events.EventPropertyType;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.NoSuchTopicException;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -50,6 +56,12 @@ public class EventServiceImplTest {
     private EventAdmin eventAdmin;
     @Mock
     private DataMapper<EventPropertyType> eventTypePropertyFactory;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat nlsMessageFormat;
 
     @Before
     public void setUp() {
@@ -62,12 +74,16 @@ public class EventServiceImplTest {
         when(dataModel.mapper(EventPropertyType.class)).thenReturn(eventTypePropertyFactory);
         when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
         when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(eventType);
+        when(nlsService.getThesaurus(EventService.COMPONENTNAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
+        when(nlsMessageFormat.format(anyVararg())).thenReturn("");
 
         eventService = new EventServiceImpl();
 
         eventService.setOrmService(ormService);
         eventService.setPublisher(publisher);
         eventService.setEventAdmin(eventAdmin);
+        eventService.setNlsService(nlsService);
     }
 
     @After
