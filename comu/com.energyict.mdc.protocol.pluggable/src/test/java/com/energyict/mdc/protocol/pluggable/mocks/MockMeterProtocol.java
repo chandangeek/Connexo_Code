@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;

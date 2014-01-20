@@ -60,21 +60,21 @@ public class LegacyValueFactoryMapping {
 
     private static void initializeMappings () {
         List<ValueFactoryPair> temp = new ArrayList<>();
-        temp.add(new ValueFactoryPair<>(Ean13Factory.class, com.energyict.dynamicattributes.Ean13Factory .class));
-        temp.add(new ValueFactoryPair<>(Ean18Factory.class, com.energyict.dynamicattributes.Ean18Factory .class));
-        temp.add(new ValueFactoryPair<>(LargeStringFactory.class, com.energyict.dynamicattributes.LargeStringFactory.class));
-        temp.add(new ValueFactoryPair<>(StringFactory.class, com.energyict.dynamicattributes.StringFactory.class));
-        temp.add(new ValueFactoryPair<>(HexStringFactory.class, com.energyict.dynamicattributes.HexStringFactory.class));
-        temp.add(new ValueFactoryPair<>(BigDecimalFactory.class, com.energyict.dynamicattributes.BigDecimalFactory.class));
-        temp.add(new ValueFactoryPair<>(TimeDurationValueFactory.class, com.energyict.dynamicattributes.TimeDurationValueFactory.class));
-        temp.add(new ValueFactoryPair<>(TimeOfDayFactory.class, com.energyict.dynamicattributes.TimeOfDayFactory.class));
-        temp.add(new ValueFactoryPair<>(DateFactory.class, com.energyict.dynamicattributes.DateFactory.class));
-        temp.add(new ValueFactoryPair<>(DateAndTimeFactory.class, com.energyict.dynamicattributes.DateAndTimeFactory.class));
-        temp.add(new ValueFactoryPair<>(BooleanFactory.class, com.energyict.dynamicattributes.BooleanFactory.class));
-        temp.add(new ValueFactoryPair<>(ThreeStateFactory.class, com.energyict.dynamicattributes.ThreeStateFactory.class));
-        temp.add(new ValueFactoryPair<>(PasswordFactory.class, com.energyict.dynamicattributes.PasswordFactory.class));
-        temp.add(new ValueFactoryPair<>(ReferenceFactory.class, com.energyict.dynamicattributes.ReferenceFactory.class));
-        temp.add(new ValueFactoryPair<>(ObisCodeValueFactory.class, com.energyict.dynamicattributes.ObisCodeValueFactory.class));
+        temp.add(new ValueFactoryPair<>(Ean13Factory.class, com.energyict.mdw.dynamicattributes.Ean13Factory.class));
+        temp.add(new ValueFactoryPair<>(Ean18Factory.class, com.energyict.mdw.dynamicattributes.Ean18Factory.class));
+        temp.add(new ValueFactoryPair<>(LargeStringFactory.class, com.energyict.mdw.dynamicattributes.LargeStringFactory.class));
+        temp.add(new ValueFactoryPair<>(StringFactory.class, com.energyict.mdw.dynamicattributes.StringFactory.class));
+        temp.add(new ValueFactoryPair<>(HexStringFactory.class, com.energyict.mdw.dynamicattributes.HexStringFactory.class));
+        temp.add(new ValueFactoryPair<>(BigDecimalFactory.class, com.energyict.mdw.dynamicattributes.BigDecimalFactory.class));
+        temp.add(new ValueFactoryPair<>(TimeDurationValueFactory.class, com.energyict.mdw.dynamicattributes.TimeDurationValueFactory.class));
+        temp.add(new ValueFactoryPair<>(TimeOfDayFactory.class, com.energyict.mdw.dynamicattributes.TimeOfDayFactory.class));
+        temp.add(new ValueFactoryPair<>(DateFactory.class, com.energyict.mdw.dynamicattributes.DateFactory.class));
+        temp.add(new ValueFactoryPair<>(DateAndTimeFactory.class, com.energyict.mdw.dynamicattributes.DateAndTimeFactory.class));
+        temp.add(new ValueFactoryPair<>(BooleanFactory.class, com.energyict.mdw.dynamicattributes.BooleanFactory.class));
+        temp.add(new ValueFactoryPair<>(ThreeStateFactory.class, com.energyict.mdw.dynamicattributes.ThreeStateFactory.class));
+        temp.add(new ValueFactoryPair<>(PasswordFactory.class, com.energyict.mdw.dynamicattributes.PasswordFactory.class));
+        temp.add(new ValueFactoryPair<>(ReferenceFactory.class, com.energyict.mdw.dynamicattributes.ReferenceFactory.class));
+        temp.add(new ValueFactoryPair<>(ObisCodeValueFactory.class, com.energyict.mdw.dynamicattributes.ObisCodeValueFactory.class));
         mappings = temp;
     }
 

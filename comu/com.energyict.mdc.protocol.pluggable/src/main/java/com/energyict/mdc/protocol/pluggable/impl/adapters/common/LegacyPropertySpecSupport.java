@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.mdw.cpo.PropertySpecBuilder;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
