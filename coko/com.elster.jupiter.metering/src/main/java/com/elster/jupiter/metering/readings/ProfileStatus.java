@@ -42,11 +42,7 @@ public final class ProfileStatus {
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof ProfileStatus) {
-			return bits == ((ProfileStatus) other).bits;
-		} else {
-			return false;
-		}
+        return other instanceof ProfileStatus && bits == ((ProfileStatus) other).bits;
 	}
 	
 	@Override
