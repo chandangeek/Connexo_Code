@@ -196,7 +196,7 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void tryActivate(Connection connection) throws SQLException {
-        String sql = "begin dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?); dbms_aqadm.start_queue(?); end;";
+        String sql = "BEGIN dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?); dbms_aqadm.start_queue(?); END;";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             int parameterIndex = 0;
             statement.setString(++parameterIndex, name);
@@ -251,4 +251,10 @@ class DestinationSpecImpl implements DestinationSpec {
         return "begin dbms_aqadm.stop_queue(?); dbms_aqadm.drop_queue(?); end;";
     }
 
+    @Override
+    public String toString() {
+        return "DestinationSpecImpl{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }
