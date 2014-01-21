@@ -23,7 +23,7 @@ public enum TableSpecs {
             table.primaryKey("CPC_PK_PLUGGABLE").on(idColumn).add();
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.column("JAVACLASSNAME").type("varchar2(512)").map("javaClassName").add();
-            table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("pluggableType").add();
+            table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUMPLUSONE).map("pluggableType").add();
             table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
         }
     },

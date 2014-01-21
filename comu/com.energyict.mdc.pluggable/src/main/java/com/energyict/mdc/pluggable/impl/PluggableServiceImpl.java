@@ -38,7 +38,9 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public List<PluggableClass> findByTypeAndClassName(PluggableClassType type, String javaClassName) {
-        return this.dataModel.mapper(PluggableClass.class).find("pluggableType", type, "javaClassName", javaClassName);
+        return this.dataModel.mapper(PluggableClass.class).
+                find("pluggableType", PersistentPluggableClassType.forActualType(type),
+                     "javaClassName", javaClassName);
     }
 
     @Override

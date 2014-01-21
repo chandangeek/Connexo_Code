@@ -34,7 +34,7 @@ public class PluggableClassImpl implements PluggableClass {
     @NotNull
     private String javaClassName;
     @NotNull
-    private PluggableClassType pluggableType;
+    private PersistentPluggableClassType pluggableType;
     private List<PluggableClassProperty> properties = new ArrayList<>();
     private Date modificationDate;
 
@@ -47,12 +47,12 @@ public class PluggableClassImpl implements PluggableClass {
     private Clock clock;
 
     PluggableClassImpl initialize (PluggableClassType type, String name, String javaClassName) throws BusinessException {
+        this.pluggableType = PersistentPluggableClassType.forActualType(type);
         this.validateName(name);
         this.validateUniqueName(name, type);
         this.validateJavaClassName(javaClassName);
         this.name = name;
         this.javaClassName = javaClassName;
-        this.pluggableType = type;
         return this;
     }
 
@@ -84,8 +84,7 @@ public class PluggableClassImpl implements PluggableClass {
     }
 
     private DataMapper<PluggableClass> getDataMapper() {
-        // Todo: hold off until ORM injecting mechanism is finalized
-        return null;
+        return this.dataModel.mapper(PluggableClass.class);
     }
 
     @Override
@@ -152,7 +151,7 @@ public class PluggableClassImpl implements PluggableClass {
     public void setName(String name) throws BusinessException {
         this.validateName(name);
         if (!name.equals(this.getName())) {
-            this.validateUniqueName(name, this.pluggableType);
+            this.validateUniqueName(name, this.pluggableType.toActualType());
         }
         this.name = name;
     }
@@ -168,7 +167,7 @@ public class PluggableClassImpl implements PluggableClass {
 
     @Override
     public PluggableClassType getPluggableClassType() {
-        return pluggableType;
+        return pluggableType.toActualType();
     }
 
     @Override
