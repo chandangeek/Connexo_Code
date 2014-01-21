@@ -16,11 +16,12 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.validators.DefaultValidatorFactory", service = ValidatorFactory.class, immediate = true)
 public class DefaultValidatorFactory implements ValidatorFactory {
 
+    static final String COMPONENT_NAME = "VDR";
     private volatile Thesaurus thesaurus;
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus("VDR", Layer.DOMAIN);
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     private enum ValidatorDefinition {

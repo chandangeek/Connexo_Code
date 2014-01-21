@@ -24,6 +24,11 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     @Override
+    public String getModule() {
+        return DefaultValidatorFactory.COMPONENT_NAME;
+    }
+
+    @Override
     public int getNumber() {
         return number;
     }
