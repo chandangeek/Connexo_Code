@@ -287,14 +287,14 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         if (!isCurrent) {
             navItem.on('afterrender', function () {
-                me.addNavItemClickHandler(me, navItem);
+                me.addNavItemClickHandler(me, page, navItem);
             });
         }
 
         return navItem;
     },
 
-    addNavItemClickHandler: function (me, navItem) {
+    addNavItemClickHandler: function (me, page, navItem) {
         navItem.getEl().on('click', function () {
             Ext.History.suspendEvents();
             me.store.loadPage(page, {
