@@ -50,7 +50,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel).install();
+        new InstallerImpl(dataModel, thesaurus).install();
     }
 
     @Reference
