@@ -45,7 +45,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public PluggableClass findByTypeAndId(PluggableClassType type, long id) {
-        List<PluggableClass> pluggableClasses = this.dataModel.mapper(PluggableClass.class).find("pluggableType", type, "id", id);
+        List<PluggableClass> pluggableClasses = this.dataModel.mapper(PluggableClass.class).find("pluggableType", PersistentPluggableClassType.forActualType(type), "id", id);
         if (pluggableClasses.isEmpty()) {
             return null;
         }
@@ -56,7 +56,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public List<PluggableClass> findAllByType(PluggableClassType type) {
-        return this.dataModel.mapper(PluggableClass.class).find("pluggableType", type);
+        return this.dataModel.mapper(PluggableClass.class).find("pluggableType", PersistentPluggableClassType.forActualType(type));
     }
 
     public PluggableServiceImpl() {
