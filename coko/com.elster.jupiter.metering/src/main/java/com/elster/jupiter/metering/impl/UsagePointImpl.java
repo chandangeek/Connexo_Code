@@ -5,12 +5,13 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
@@ -20,15 +21,16 @@ import com.elster.jupiter.util.units.Quantity;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Provider;
 import javax.inject.Inject;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
 	private long id;
-	private ServiceKind serviceKind;
-	private long serviceLocationId;
 	private String aliasName;
 	private String description;
 	private String mRID;
@@ -55,36 +57,37 @@ public class UsagePointImpl implements UsagePoint {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	private MeterActivation currentMeterActivation;
 	
     // associations
-	private ServiceCategory serviceCategory;
-	private ServiceLocation serviceLocation;
-	private List<MeterActivation> meterActivations;
-	private List<UsagePointAccountability> accountabilities;
+	private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
+	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
+	private final List<MeterActivation> meterActivations = new ArrayList<>();
+	private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
+	
     private final DataModel dataModel;
     private final EventService eventService;
+    private final Provider<MeterActivationImpl> meterActivationFactory;
+    private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
 
     @Inject
-	UsagePointImpl(DataModel dataModel, EventService eventService) {
+	UsagePointImpl(DataModel dataModel, EventService eventService, 
+			Provider<MeterActivationImpl> meterActivationFactory, 
+			Provider<UsagePointAccountabilityImpl> accountabilityFactory) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.meterActivationFactory = meterActivationFactory;
+        this.accountabilityFactory = accountabilityFactory;
     }
 	
 	UsagePointImpl init(String mRID , ServiceCategory serviceCategory) {
 		this.mRID = mRID;
-		this.serviceKind = serviceCategory.getKind();
-		this.serviceCategory = serviceCategory;
+		this.serviceCategory.set(serviceCategory);
 		this.isSdp = true;
 		this.amiBillingReady = AmiBillingReadyKind.UNKNOWN;
 		this.connectionState = UsagePointConnectedKind.UNKNOWN;
 		this.phaseCode = PhaseCode.UNKNOWN;
         return this;
 	}
-
-    static UsagePointImpl from(DataModel dataModel, String mRID , ServiceCategory serviceCategory) {
-        return dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
-    }
 	
 	@Override
 	public long getId() {
@@ -93,7 +96,8 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		return serviceLocationId;
+		ServiceLocation location = getServiceLocation();
+		return location == null ? 0 : location.getId();
 	}
 	
 	@Override
@@ -203,21 +207,12 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public ServiceCategory getServiceCategory() {
-		if (serviceCategory == null) {
-			serviceCategory = dataModel.mapper(ServiceCategory.class).getExisting(serviceKind);
-		}
-		return serviceCategory;
+		return serviceCategory.get();
 	}
 
 	@Override
 	public ServiceLocation getServiceLocation() {
-		if (serviceLocationId == 0) {
-			return null;
-		}
-		if (serviceLocation == null ) {
-			serviceLocation = dataModel.mapper(ServiceLocation.class).getExisting(serviceLocationId);
-		}
-		return serviceLocation;
+		return serviceLocation.get();
 	}
 
 	@Override
@@ -307,24 +302,23 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public void setServiceLocation(ServiceLocation serviceLocation) {
-		this.serviceLocation = serviceLocation;
-		this.serviceLocationId = serviceLocation == null ? 0 : serviceLocation.getId();
+		this.serviceLocation.set(serviceLocation);
 	}
 
 	@Override
 	public void save() {
 		if (id == 0) {
-			dataModel.mapper(UsagePoint.class).persist(this);
+			dataModel.persist(this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
 		} else {
-            dataModel.mapper(UsagePoint.class).update(this);
+            dataModel.update(this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
 		}
 	}
 
     @Override
     public void delete() {
-        dataModel.mapper(UsagePoint.class).remove(this);
+        dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
@@ -351,30 +345,14 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public List<MeterActivation> getMeterActivations() {
-		return ImmutableList.copyOf(doGetMeterActivations());
-	}
-	
-	private  List<MeterActivation> doGetMeterActivations() {
-		if (meterActivations == null) {
-			meterActivations = dataModel.mapper(MeterActivation.class).find("usagePoint",this);
-		}
-		return meterActivations;
+		return ImmutableList.copyOf(meterActivations);
 	}
 	
 	@Override
 	public MeterActivation getCurrentMeterActivation() {
-		if (currentMeterActivation != null) {
-			if (currentMeterActivation.isCurrent()) {
-				return currentMeterActivation;
-			} else {
-				currentMeterActivation = null;
-			}
-		} else {
-			for (MeterActivation each : doGetMeterActivations()) {
-				if (each.isCurrent()) {
-                    currentMeterActivation = each;
-					return each;
-				}
+		for (MeterActivation each : meterActivations) {
+			if (each.isCurrent()) {
+				return each;
 			}
 		}
 		return null;
@@ -394,28 +372,20 @@ public class UsagePointImpl implements UsagePoint {
 	
 	@Override
 	public List<UsagePointAccountability> getAccountabilities() {
-        return ImmutableList.copyOf(doGetUsagePointAccountabilities());
+        return ImmutableList.copyOf(accountabilities);
 	}
-
-    private List<UsagePointAccountability> doGetUsagePointAccountabilities() {
-        if (accountabilities == null) {
-            accountabilities = dataModel.mapper(UsagePointAccountability.class).find("usagePoint",this);
-        }
-        return accountabilities;
-    }
 
     @Override
 	public MeterActivation activate(Date start) {
-		MeterActivation result = MeterActivationImpl.from(dataModel, this, start);
-		dataModel.mapper(MeterActivation.class).persist(result);
+		MeterActivationImpl result = meterActivationFactory.get().init(this, start);
+		dataModel.persist(result);
 		return result;
 	}
 	
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Date start) {
-		UsagePointAccountability accountability = UsagePointAccountabilityImpl.from(dataModel, this, party, role, start);
-		doGetUsagePointAccountabilities().add(accountability);
-		dataModel.mapper(UsagePointAccountability.class).persist(accountability);
+		UsagePointAccountability accountability = accountabilityFactory.get().init(this, party, role, start);
+		accountabilities.add(accountability);
 		return accountability;
 	}
 	

@@ -11,7 +11,6 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     private final BigDecimal value;
     private final Date timeStamp;
-    private Date reportedDateTime;
     private Optional<Interval> interval = Optional.absent();
 
     public BaseReadingImpl(Date timeStamp, BigDecimal value) {
@@ -54,7 +53,4 @@ public abstract class BaseReadingImpl implements BaseReading {
         interval = Optional.fromNullable(new Interval(start, end));
     }
 
-    void setReportedDateTime(Date reportedDateTime) {
-        this.reportedDateTime = reportedDateTime;
-    }
 }

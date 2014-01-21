@@ -54,10 +54,6 @@ public class ServiceLocationImpl implements ServiceLocation {
         this.dataModel = dataModel;
         this.eventService = eventService;
     }
-
-    static ServiceLocationImpl from(DataModel dataModel) {
-        return dataModel.getInstance(ServiceLocationImpl.class);
-    }
 	
 	@Override
 	public long getId() {

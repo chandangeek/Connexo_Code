@@ -7,7 +7,7 @@ import com.elster.jupiter.metering.*;
  */
 public class FilteredReadingRecord extends FilteredBaseReadingRecord implements ReadingRecord {
 	
-    FilteredReadingRecord(ReadingRecord filtered, int... indices) {
+    FilteredReadingRecord(ReadingRecordImpl filtered, int... indices) {
         super(filtered,indices);
     }
     

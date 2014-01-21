@@ -21,8 +21,6 @@ public interface MeteringService {
 
     ReadingStorer createNonOverrulingStorer();
 
-    EndDevice createEndDevice(AmrSystem amrSystem, String amrId, String mRID);
-
     Optional<ReadingType> getReadingType(String mRid);
 
     Optional<ServiceLocation> findServiceLocation(String mRid);

@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +89,8 @@ public class ReadingTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testIsBulkQuantityReadingType() {
-        assertThat(readingType.isBulkQuantityReadingType(ReadingTypeImpl.from(dataModel, MRID3, "3"))).isTrue();
+    	ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3,"3");
+        assertThat(readingType.isBulkQuantityReadingType(bulkReadingType)).isTrue();
     }
 
     @Test

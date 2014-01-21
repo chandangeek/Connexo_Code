@@ -93,7 +93,6 @@ public class ChannelImplTest extends EqualsContractTest {
                 return new ReadingTypeImpl(dataModel, thesaurus);
             }
         });
-        when(dataModel.getInstance(ReadingTypeInChannel.class)).thenReturn(new ReadingTypeInChannel());
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
         when(clock.getTimeZone()).thenReturn(TIME_ZONE);
         when(idsService.getVault(MeteringService.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
@@ -108,22 +107,26 @@ public class ChannelImplTest extends EqualsContractTest {
         when(timeSeries.getId()).thenReturn(TIMESERIES_ID);
         when(regularTimeSeries.getId()).thenReturn(TIMESERIES_ID);
 
-        readingType1 = ReadingTypeImpl.from(dataModel, MRID1, "1");
-        readingType2 = ReadingTypeImpl.from(dataModel, MRID2, "2");
-        readingType3 = ReadingTypeImpl.from(dataModel, MRID3, "3");
-        readingType4 = ReadingTypeImpl.from(dataModel, MRID4, "4");
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "1");
+        readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "2");
+        readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "3");
+        readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID4, "4");
 
-        channel = ChannelImpl.from(dataModel, meterActivation);
+        channel = new ChannelImpl(dataModel,idsService,clock).init(meterActivation,ImmutableList.of(readingType1,readingType2));
     }
 
     @After
     public void tearDown() {
     }
 
+    private ChannelImpl createChannel() {
+    	return new ChannelImpl(dataModel, idsService, clock);
+    }
+    
     @Override
     protected Object getInstanceA() {
         if (channelInstanceA == null) {
-            channelInstanceA = new ChannelImpl(dataModel, idsService, clock).init(meterActivation);
+            channelInstanceA = createChannel();
             field("id").ofType(Long.TYPE).in(channelInstanceA).set(ID);
         }
         return channelInstanceA;
@@ -131,7 +134,7 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ChannelImpl channel1 = new ChannelImpl(dataModel, idsService, clock).init(meterActivation);
+        ChannelImpl channel1 = createChannel();
         field("id").ofType(Long.TYPE).in(channel1).set(ID);
 
         return channel1;
@@ -139,9 +142,9 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ChannelImpl channel1 = ChannelImpl.from(dataModel, meterActivation);
+        ChannelImpl channel1 = createChannel();
         field("id").ofType(Long.TYPE).in(channel1).set(ID + 1);
-        return ImmutableList.of(channel1, ChannelImpl.from(dataModel, meterActivation));
+        return ImmutableList.of(channel1);
     }
 
     @Override
@@ -169,10 +172,10 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test
     public void testInitIrregularTimeSeries() {
-        readingType1 = ReadingTypeImpl.from(dataModel, MRID1_IRR, "1");
-        readingType2 = ReadingTypeImpl.from(dataModel, MRID2_IRR, "2");
+    	readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1_IRR, "1");
+        readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
 
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
+        channel = createChannel().init(meterActivation,ImmutableList.of(readingType1, readingType2));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getBulkQuantityReadingType()).isAbsent();
@@ -185,9 +188,7 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test
     public void testInitWithIntervalLength() {
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
-
-        assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
+      assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getBulkQuantityReadingType().get()).isEqualTo(readingType2);
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
@@ -198,16 +199,16 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInitWithInconsistentIntervalLength() {
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType3));
+        createChannel().init(meterActivation,ImmutableList.of(readingType1, readingType3));
     }
 
     @Test
     public void testInitIrregularTimeSeriesWithAdditionalReadingTypes() {
-        readingType1 = ReadingTypeImpl.from(dataModel, MRID1_IRR, "1");
-        readingType2 = ReadingTypeImpl.from(dataModel, MRID2_IRR, "2");
-        readingType4 = ReadingTypeImpl.from(dataModel, MRID4_IRR, "4");
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1_IRR, "1");
+        readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
+        readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID4_IRR, "4");
 
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2, readingType4));
+        channel = createChannel().init(meterActivation,ImmutableList.of(readingType1, readingType2, readingType4));
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getBulkQuantityReadingType()).isAbsent();
@@ -221,7 +222,6 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test
     public void testGetIntervalReadings() {
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(2)).thenReturn(VALUE);
 
@@ -230,16 +230,16 @@ public class ChannelImplTest extends EqualsContractTest {
         assertThat(intervalReadings).hasSize(1);
 
         IntervalReadingRecord intervalReading = intervalReadings.get(0);
-
-        assertThat(intervalReading.getReadingTypes()).hasSize(2)
-                .contains(readingType1)
-                .contains(readingType2);
+        List<? extends ReadingType> readingTypes = intervalReading.getReadingTypes();
+        assertThat(intervalReading.getReadingTypes()).hasSize(2);
+        assertThat(readingTypes.contains(readingType1)).isTrue();
+        assertThat(readingTypes.contains(readingType2)).isTrue();
         assertThat(intervalReading.getValue()).isEqualTo(VALUE);
     }
 
     @Test
     public void testGetIntervalReadingsForReadingType() {
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
+        //channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
@@ -248,15 +248,14 @@ public class ChannelImplTest extends EqualsContractTest {
         assertThat(intervalReadings).hasSize(1);
 
         IntervalReadingRecord intervalReading = intervalReadings.get(0);
-
-        assertThat(intervalReading.getReadingTypes()).hasSize(1)
-                .contains(readingType1);
+        List<? extends ReadingType> readingTypes = intervalReading.getReadingTypes(); 
+        assertThat(readingTypes).hasSize(1);
+        assertThat(readingTypes.contains(readingType1)).isTrue();
         assertThat(intervalReading.getValue()).isEqualTo(VALUE);
     }
 
     @Test
     public void testGetRegisterReadings() {
-        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
@@ -265,10 +264,10 @@ public class ChannelImplTest extends EqualsContractTest {
         assertThat(registerReadings).hasSize(1);
 
         ReadingRecord registerReading = registerReadings.get(0);
-
-        assertThat(registerReading.getReadingTypes()).hasSize(2)
-                .contains(readingType1)
-                .contains(readingType2);
+        List<? extends ReadingType> readingTypes = registerReading.getReadingTypes(); 
+        assertThat(readingTypes).hasSize(2);
+        assertThat(readingTypes.contains(readingType1)).isTrue();
+        assertThat(readingTypes.contains(readingType2)).isTrue();
         assertThat(registerReading.getValue()).isEqualTo(VALUE);
     }
 

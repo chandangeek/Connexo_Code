@@ -5,10 +5,13 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -47,30 +50,29 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private String mRID;
     private String description;
     private String aliasName;
-
     private String reason;
     private String severity;
-
-    private String eventTypeCode;
-    private transient EndDeviceEventType eventType;
     private String issuerID;
     private String issuerTrackingID;
     private Status status;
     private long processingFlags;
-    private long endDeviceId;
-    private transient EndDevice endDevice;
     private int logBookId;
     private int logBookPosition;
     private UtcInstant createdDateTime;
-    private Map<String, String> properties = new HashMap<>();
-    private final List<EndDeviceEventDetailRecord> detailRecords = new ArrayList<>();
-
-    private long version;
+    
+    @SuppressWarnings("unused")
+	private long version;
     @SuppressWarnings("unused")
     private UtcInstant createTime;
     @SuppressWarnings("unused")
     private UtcInstant modTime;
     private String userName;
+
+    private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
+    private final Reference<EndDevice> endDevice = ValueReference.absent();
+    
+    private Map<String, String> properties = new HashMap<>();
+    private final List<EndDeviceEventDetailRecord> detailRecords = new ArrayList<>();
 
     private final DataModel dataModel;
 
@@ -85,8 +87,14 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
         EndDeviceEventRecordImpl that = (EndDeviceEventRecordImpl) o;
 
-        return endDeviceId == that.endDeviceId && createdDateTime.equals(that.createdDateTime) && eventTypeCode.equals(that.eventTypeCode);
+        return createdDateTime.equals(that.createdDateTime) && getEndDevice().equals(that.getEndDevice()) && getEventType().equals(that.getEventType());
     }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(getEndDevice(),getEventType(),createdDateTime);
+    }
+
 
     @Override
     public String getAliasName() {
@@ -105,10 +113,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public EndDevice getEndDevice() {
-        if (endDevice == null) {
-            endDevice = dataModel.mapper(EndDevice.class).getOptional(endDeviceId).get();
-        }
-        return endDevice;
+        return endDevice.get();
     }
 
     @Override
@@ -118,10 +123,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public EndDeviceEventType getEventType() {
-        if (eventType == null) {
-            eventType = dataModel.mapper(EndDeviceEventType.class).getOptional(eventTypeCode).get();
-        }
-        return eventType;
+        return eventType.get();
     }
 
     @Override
@@ -146,7 +148,7 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
 
     @Override
     public String getEventTypeCode() {
-        return eventTypeCode;
+        return eventType.get().getMRID();
     }
 
     @Override
@@ -187,11 +189,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public String getUserID() {
         return userName;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(endDeviceId, createdDateTime, eventTypeCode);
     }
 
     @Override
@@ -259,25 +256,16 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         this.mRID = mRID;
     }
 
-
-
     EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
-        this.endDevice = endDevice;
-        this.endDeviceId = endDevice.getId();
+        this.endDevice.set(endDevice);
         this.createdDateTime = new UtcInstant(createdDateTime);
-        this.eventType = eventType;
-        this.eventTypeCode = eventType.getMRID();
+        this.eventType.set(eventType);        
         return this;
     }
 
     @Inject
     EndDeviceEventRecordImpl(DataModel dataModel) {
-        // for persistence
         this.dataModel = dataModel;
-    }
-
-    static EndDeviceEventRecordImpl from(DataModel dataModel, EndDevice endDevice, EndDeviceEventType eventType, Date createdDateTime) {
-        return dataModel.getInstance(EndDeviceEventRecordImpl.class).init(endDevice, eventType, createdDateTime);
     }
 
     @Override

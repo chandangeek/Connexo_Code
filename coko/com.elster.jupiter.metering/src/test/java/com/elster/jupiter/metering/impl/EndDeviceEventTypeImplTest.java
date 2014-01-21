@@ -1,5 +1,20 @@
 package com.elster.jupiter.metering.impl;
 
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.security.Principal;
+import java.sql.SQLException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
@@ -31,23 +46,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateMidnight;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Date;
-
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventTypeImplTest extends EqualsContractTest {
@@ -62,6 +60,8 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
     private Principal principal;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
     @Mock
     private Thesaurus thesaurus;
 
@@ -114,17 +114,14 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
 
     @Test
     public void testPersist() throws SQLException {
-        final DataModel dataModel = ((MeteringServiceImpl) injector.getInstance(MeteringService.class)).getDataModel();
+    	final MeteringServiceImpl meteringService = (MeteringServiceImpl) injector.getInstance(MeteringService.class);
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
-                EndDeviceEventTypeImpl endDeviceEventType = EndDeviceEventTypeImpl.from(dataModel, code);
-                endDeviceEventType.persist();
-
-                Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(code);
-                assertThat(found).contains(EndDeviceEventTypeImpl.from(dataModel, code));
+                EndDeviceEventTypeImpl endDeviceEventType = meteringService.createEndDeviceEventType(code);
+                Optional<EndDeviceEventType> found = meteringService.getDataModel().mapper(EndDeviceEventType.class).getOptional(code);
+                assertThat(found).contains(endDeviceEventType);
             }
         });
 
@@ -144,32 +141,30 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
         return false;
     }
 
+    private EndDeviceEventTypeImpl createEndDeviceEventType() {
+    	return new EndDeviceEventTypeImpl(dataModel, thesaurus);
+    }
+    
     @Override
     protected Object getInstanceA() {
-        DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel, thesaurus));
         if (instanceA == null) {
-            instanceA = EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+            instanceA = createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
         }
         return instanceA;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel, thesaurus));
-        return EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
+        return createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode());
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventTypeImpl.class)).thenReturn(new EndDeviceEventTypeImpl(dataModel, thesaurus));
         return ImmutableList.of(
-                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
-                EndDeviceEventTypeImpl.from(dataModel, EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.INCREASED).toCode())
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.GAS_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.CLOCK).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.TIME).eventOrAction(EndDeviceEventorAction.DECREASED).toCode()),
+        		createEndDeviceEventType().init(EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.INCREASED).toCode())
         );
     }
 

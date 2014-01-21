@@ -7,5 +7,7 @@ public interface AmrSystem extends HasName {
 	int getId();
 	Meter newMeter(String amrId);
 	Meter newMeter(String amrId, String mRID);
+	EndDevice newEndDevice(String amrId);
+	EndDevice newEndDevice(String amrId, String mRID);
 	Optional<Meter> findMeter(String amrId); 
 }

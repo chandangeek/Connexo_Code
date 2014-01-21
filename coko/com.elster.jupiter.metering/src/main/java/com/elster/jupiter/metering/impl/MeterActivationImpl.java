@@ -1,33 +1,32 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.Provider;
-
-import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import javax.inject.Provider;
+
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
 	private long id;
-	private long usagePointId;
-	private long meterId;
 	private Interval interval;
 	private long version;
 	@SuppressWarnings("unused")
@@ -38,9 +37,10 @@ public class MeterActivationImpl implements MeterActivation {
 	private String userName;
 	
 	// associations
-	private UsagePoint usagePoint;
-    private Meter meter;
-    private final List<Channel> channels = new ArrayList<>();
+	private Reference<UsagePoint> usagePoint = ValueReference.absent();
+    private Reference<Meter> meter = ValueReference.absent();
+    private List<Channel> channels = new ArrayList<>();
+    
     private final DataModel dataModel;
     private final EventService eventService;
     private final Clock clock;
@@ -55,24 +55,18 @@ public class MeterActivationImpl implements MeterActivation {
     }
 	
 	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Date start ) {
-		this.meterId = meter == null ? 0 : meter.getId();
-		this.meter = meter;
-		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
-		this.usagePoint = usagePoint;
+		this.meter.set(meter);
+		this.usagePoint.set(usagePoint);
 		this.interval = Interval.startAt(start);
         return this;
 	}
-
-    static MeterActivationImpl from(DataModel dataModel, Meter meter , UsagePoint usagePoint , Date start) {
-        return dataModel.getInstance(MeterActivationImpl.class).init(meter, usagePoint, start);
-    }
-
-	static MeterActivationImpl from(DataModel dataModel, UsagePoint usagePoint, Date at) {
-		return from(dataModel, null, usagePoint, at);
+	
+	MeterActivationImpl init(Meter meter , Date start ) {
+        return init(meter,null,start);
 	}
-
-	static MeterActivationImpl from(DataModel dataModel, Meter meter, Date at) {
-		return from(dataModel, meter, null, at);
+	
+	MeterActivationImpl init(UsagePoint usagePoint , Date start ) {
+		return init(null,usagePoint,start);
 	}
 	
 	@Override
@@ -86,25 +80,13 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 	
 	@Override
-	public Optional<UsagePoint> getUsagePoint() {
-		if (usagePointId == 0) {
-			return Optional.absent();
-        }
-		if (usagePoint == null) {
-			usagePoint = dataModel.mapper(UsagePoint.class).getExisting(usagePointId);
-		}			
-		return Optional.of(usagePoint);
+	public Optional<UsagePoint> getUsagePoint() {			
+		return usagePoint.getOptional();
 	}
 
 	@Override
 	public Optional<Meter> getMeter() {
-		if (meterId == 0) {
-			return Optional.absent();
-        }
-		if (meter == null) {
-			meter = (Meter) dataModel.mapper(EndDevice.class).getExisting(meterId);
-		}
-		return Optional.of(meter);
+		return meter.getOptional();
 	}
 	
 	@Override
@@ -125,7 +107,11 @@ public class MeterActivationImpl implements MeterActivation {
 	@Override
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
 		//TODO: check for duplicate channel
-        Channel channel = channelBuilder.get().meterActivation(this).readingTypes(main, readingTypes).build();
+		ReadingTypeImpl[] extraTypes = new ReadingTypeImpl[readingTypes.length];
+		for (int i = 0 ; i < readingTypes.length ; i++) {
+			extraTypes[i] = (ReadingTypeImpl) readingTypes[i];
+		}
+        Channel channel = channelBuilder.get().meterActivation(this).readingTypes((ReadingTypeImpl) main, extraTypes).build();
         channels.add(channel);
         eventService.postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;

@@ -142,8 +142,8 @@ public enum TableSpecs {
 			table.setJournalTableName("MTR_USAGEPOINTJRNL");
 			Column idColumn = table.addAutoIdColumn();
 			Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
-			Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("serviceKind").add();
-			Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).map("serviceLocationId").add();
+			Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+			Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
 			table.column("NAME").type("varchar2(80)").map("name").add();
 			table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
 			table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
@@ -220,8 +220,8 @@ public enum TableSpecs {
 			Table<MeterActivation> table = dataModel.addTable(name(),MeterActivation.class);
             table.map(MeterActivationImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).map("usagePointId").add();
-			Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).map("meterId").add();
+			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+			Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).add();
 			table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.primaryKey("MTR_PK_METERACTIVATION").on(idColumn).add();
@@ -268,13 +268,13 @@ public enum TableSpecs {
 			Table<UsagePointAccountability> table = dataModel.addTable(name(),UsagePointAccountability.class);
             table.map(UsagePointAccountabilityImpl.class);
 			table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
-			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
-			Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).map("partyId").add();
-			Column roleMRIDColumn = table.column("ROLEMRID").type("varchar2(80)").notNull().map("roleMRID").add();
+			Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).add();
+			Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).add();
+			Column roleMRIDColumn = table.column("ROLEMRID").type("varchar2(80)").notNull().add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.primaryKey("MTR_PK_UPACCOUNTABILITY").on(usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
-			table.foreignKey("MTR_FK_UPACCOUNTUP").references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("accountabilities").on(usagePointIdColumn).add();
+			table.foreignKey("MTR_FK_UPACCOUNTUP").on(usagePointIdColumn).references(MTR_USAGEPOINT.name()).onDelete(CASCADE).map("usagePoint").reverseMap("accountabilities").composition().add();
 			table.foreignKey("MTR_FK_UPACCOUNTPARTY").on(partyIdColumn).references("PRT", "PRT_PARTY").onDelete(RESTRICT).map("party").add();
 			table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE").on(roleMRIDColumn).references("PRT", "PRT_PARTYROLE").onDelete(RESTRICT).map("role").add();
  		}
@@ -359,8 +359,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
 			Table<EndDeviceEventRecord> table = dataModel.addTable(name(),EndDeviceEventRecord.class);
             table.map(EndDeviceEventRecordImpl.class);
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
-            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().map("eventTypeCode").add();
+            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column eventTypeColumn = table.column("EVENTTYPE").type("varchar2(80)").notNull().add();
             Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2UTCINSTANT).map("createdDateTime").add();
             table.column("NAME").type("varchar2(80)").map("name").add();
             table.column("MRID").type("varchar2(80)").map("mRID").add();
@@ -379,7 +379,8 @@ public enum TableSpecs {
             table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
-            table.foreignKey("MTR_FK_EVENT_ENDDEVICE").references(MTR_ENDDEVICE.name()).onDelete(DeleteRule.CASCADE).map("endDevice").on(endDeviceColumn).add();
+            table.foreignKey("MTR_FK_EVENT_ENDDEVICE").on(endDeviceColumn).references(MTR_ENDDEVICE.name()).onDelete(DeleteRule.CASCADE).map("endDevice").add();
+            table.foreignKey("MTR_FK_EVENT_EVENTTYPE").on(eventTypeColumn).references(TableSpecs.MTR_ENDDEVICEEVENTTYPE.name()).onDelete(DeleteRule.RESTRICT).map("eventType").add();
         }
     },
     MTR_ENDDEVICEEVENTDETAIL {

@@ -3,8 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.orm.DataModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +21,8 @@ public class ReadingTypeGenerator {
 	private static final TimeAttribute[] timeAttributes = {MINUTE1,MINUTE2,MINUTE3,MINUTE5,MINUTE10,MINUTE15,MINUTE20,MINUTE30,MINUTE60,HOUR24};
 	private static final String[] timeAttributeNames = {"1m","2m","3m","5m","10m","15m","20m","30m","Hourly","Daily"};
 
-    public ReadingTypeGenerator(DataModel dataModel) {
-        this.dataModel = dataModel;
+    public ReadingTypeGenerator(MeteringServiceImpl meteringService) {
+        this.meteringService = meteringService;
     }
 
     private enum Root {
@@ -50,10 +48,10 @@ public class ReadingTypeGenerator {
 	}
 	
 	private final List<ReadingTypeImpl> readingTypes = new ArrayList<>();
-    private final DataModel dataModel;
+    private final MeteringServiceImpl meteringService;
 	
-	static List<ReadingTypeImpl> generate(DataModel dataModel) {
-		return new ReadingTypeGenerator(dataModel).readingTypes();
+	static List<ReadingTypeImpl> generate(MeteringServiceImpl meteringService) {
+		return new ReadingTypeGenerator(meteringService).readingTypes();
 	}
 	
 	private List<ReadingTypeImpl> readingTypes() {
@@ -67,13 +65,13 @@ public class ReadingTypeGenerator {
 		for (int i = 0 ; i < timeAttributes.length ; i++) {
 			String code = root.builder.period(timeAttributes[i]).accumulate(DELTADELTA).code();
 			String name = timeAttributeNames[i] + " " + root.name;		
-			readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
+			readingTypes.add(meteringService.createReadingType(code, name));
 			code = root.builder.period(timeAttributes[i]).accumulate(Accumulation.BULKQUANTITY).code();
 			name = timeAttributeNames[i] + " " + root.name + " Cumulative index";
-			readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
+			readingTypes.add(meteringService.createReadingType(code, name));
 		}
 		String code = root.builder.period(TimeAttribute.NOTAPPLICABLE).accumulate(Accumulation.BULKQUANTITY).code();
 		String name = root.name + " Cumulative index";
-		readingTypes.add(ReadingTypeImpl.from(dataModel, code, name));
+		readingTypes.add(meteringService.createReadingType(code, name));
 	}
 }

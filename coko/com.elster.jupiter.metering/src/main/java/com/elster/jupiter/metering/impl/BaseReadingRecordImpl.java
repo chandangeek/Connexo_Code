@@ -15,10 +15,10 @@ import java.util.List;
 
 
 public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
-	private final Channel channel;
+	private final ChannelImpl channel;
 	private final TimeSeriesEntry entry;
 	
-	BaseReadingRecordImpl(Channel channel , TimeSeriesEntry entry) {
+	BaseReadingRecordImpl(ChannelImpl channel , TimeSeriesEntry entry) {
 		this.channel = channel;
 		this.entry = entry;
 	}
@@ -60,9 +60,8 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 
     @Override
 	public Quantity getQuantity(int offset) {
-        ReadingType readingType = channel.getReadingTypes().get(offset);
-        BigDecimal  value = doGetValue(offset);
-        return value == null ? null : readingType.getUnit().getUnit().amount(doGetValue(offset));
+        ReadingTypeImpl readingType = channel.getReadingTypes().get(offset);
+        return readingType.toQuantity(doGetValue(offset));
 	}
 
     private BigDecimal doGetValue(int offset) {
@@ -72,9 +71,9 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
     @Override
 	public Quantity getQuantity(ReadingType readingType) {
 		int i = 0;
-		for (ReadingType each : channel.getReadingTypes()) {
+		for (ReadingTypeImpl each : channel.getReadingTypes()) {
 			if (each.equals(readingType)) {
-				return readingType.getUnit().getUnit().amount(doGetValue(i));
+				return each.toQuantity(doGetValue(i));
             }
             i++;
         }
@@ -92,7 +91,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 	}
 	
 	@Override
-	public List<ReadingType> getReadingTypes() {
+	public List<ReadingTypeImpl> getReadingTypes() {
 		return channel.getReadingTypes();
 	}
 

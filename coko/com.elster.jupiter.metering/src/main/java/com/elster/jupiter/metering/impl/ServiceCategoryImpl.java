@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
@@ -21,10 +22,12 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private String userName;
 
     private final DataModel dataModel;
+    private final Provider<UsagePointImpl> usagePointFactory;
 	
     @Inject
-	ServiceCategoryImpl(DataModel dataModel) {
+	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory) {
         this.dataModel = dataModel;
+        this.usagePointFactory = usagePointFactory;
     }
 	
 	ServiceCategoryImpl init(ServiceKind kind) {
@@ -32,10 +35,6 @@ public class ServiceCategoryImpl implements ServiceCategory {
         return this;
 	}
 
-    static ServiceCategoryImpl from(DataModel dataModel, ServiceKind serviceKind) {
-        return dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
-    }
-	
 	public ServiceKind getKind() {	
 		return kind;
 	}
@@ -68,10 +67,10 @@ public class ServiceCategoryImpl implements ServiceCategory {
     }
 
     public void persist() {
-		dataModel.mapper(ServiceCategory.class).persist(this);
+		dataModel.persist(this);
 	}
 	
 	public UsagePoint newUsagePoint(String mRid) {
-		return UsagePointImpl.from(dataModel, mRid,this);
+		return usagePointFactory.get().init(mRid,this);
 	}
 }

@@ -1,35 +1,29 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.orm.DataModel;
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
-import javax.inject.Inject;
 
 public class ReadingTypeInChannel {
 	
     @SuppressWarnings("unused")
     private int position;
     
-    private final Reference<Channel> channel = ValueReference.absent();
-    private final Reference<ReadingType> readingType = ValueReference.absent();
+    private final Reference<ChannelImpl> channel = ValueReference.absent();
+    private final Reference<ReadingTypeImpl> readingType = ValueReference.absent();
 
     @Inject
     ReadingTypeInChannel() {
     }
 
-    ReadingTypeInChannel init(Channel channel, ReadingType readingType) {
+    ReadingTypeInChannel init(ChannelImpl channel, ReadingTypeImpl readingType) {
         this.channel.set(channel);
         this.readingType.set(readingType);
         return this;
     }
 
-    static ReadingTypeInChannel from(DataModel dataModel, Channel channel, ReadingType readingType) {
-        return dataModel.getInstance(ReadingTypeInChannel.class).init(channel, readingType);
-    }
-
-    public ReadingType getReadingType() {        
+    public ReadingTypeImpl getReadingType() {        
         return readingType.get();
     }
 }

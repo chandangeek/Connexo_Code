@@ -14,10 +14,10 @@ import java.util.List;
  */
 public class FilteredBaseReadingRecord implements BaseReadingRecord   {
 
-    private final BaseReadingRecord filtered;
+    private final BaseReadingRecordImpl filtered;
     private final KPermutation view;
 
-    FilteredBaseReadingRecord(BaseReadingRecord filtered, int... indices) {
+    FilteredBaseReadingRecord(BaseReadingRecordImpl filtered, int... indices) {
         this.filtered = filtered;
         view = new KPermutation(indices);
     }
@@ -38,7 +38,7 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord   {
     }
 
     @Override
-    public List<ReadingType> getReadingTypes() {
+    public List<ReadingTypeImpl> getReadingTypes() {
         return view.perform(filtered.getReadingTypes());
     }
 

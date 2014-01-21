@@ -1,5 +1,30 @@
 package com.elster.jupiter.metering.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import javax.inject.Provider;
+
+import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
@@ -19,27 +44,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import com.google.inject.Provider;
-
-import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,11 +63,7 @@ public class UsagePointImplTest {
     @Mock
     private DataMapper<UsagePoint> usagePointFactory;
     @Mock
-    private DataMapper<MeterActivation> meterActivationFactory;
-    @Mock
     private MeterActivation activation1, activation2;
-    @Mock
-    private DataMapper<UsagePointAccountability> usagePointAccountabilityFactory;
     @Mock
     private UsagePointAccountability acc1, acc2;
     @Mock
@@ -84,11 +84,13 @@ public class UsagePointImplTest {
     private Clock clock;
     @Mock
     private ChannelBuilder channelBuilder;
+    @Mock
+    private Provider<MeterActivationImpl> meterActivationProvider;
+    @Mock
+    private Provider<UsagePointAccountabilityImpl> accountabilityProvider;
 
     @Before
     public void setUp() {
-        when(dataModel.mapper(UsagePointAccountability.class)).thenReturn(usagePointAccountabilityFactory);
-        when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationFactory);
         when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
@@ -102,10 +104,16 @@ public class UsagePointImplTest {
 				return channelBuilder;
 			}
         };
-        when(dataModel.getInstance(MeterActivationImpl.class)).thenAnswer(new Answer<Object>() {
+        when(meterActivationProvider.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new MeterActivationImpl(dataModel, eventService, clock, channelBuilderProvider);
+            }
+        });
+        when(accountabilityProvider.get()).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return new UsagePointAccountabilityImpl(dataModel,partyService, clock);
             }
         });
         when(representation1.getDelegate()).thenReturn(user1);
@@ -113,7 +121,7 @@ public class UsagePointImplTest {
         when(representation3.getDelegate()).thenReturn(user3);
         when(representation4.getDelegate()).thenReturn(user4);
 
-        usagePoint = new UsagePointImpl(dataModel, eventService).init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(dataModel, eventService,meterActivationProvider,accountabilityProvider).init(MR_ID, serviceCategory);
     }
 
     @After
@@ -296,7 +304,7 @@ public class UsagePointImplTest {
     public void testSaveNew() {
         usagePoint.save();
 
-        verify(usagePointFactory).persist(usagePoint);
+        verify(dataModel).persist(usagePoint);
     }
 
     @Test
@@ -304,20 +312,20 @@ public class UsagePointImplTest {
         simulateSavedUsagePoint();
         usagePoint.save();
 
-        verify(usagePointFactory).update(usagePoint);
+        verify(dataModel).update(usagePoint);
     }
 
     @Test
     public void testDelete() {
         usagePoint.delete();
-
-        verify(usagePointFactory).remove(usagePoint);
+        
+        verify(dataModel).remove(usagePoint);
     }
 
     @Test
     public void testGetMeterActivations() {
-        when(meterActivationFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(activation1, activation2));
-
+    	field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1,activation2));
+        
         List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
 
         assertThat(meterActivations).hasSize(2)
@@ -327,8 +335,8 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetCurrentMeterActivations() {
-        when(meterActivationFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(activation1, activation2));
-        when(activation1.isCurrent()).thenReturn(false);
+    	field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1,activation2));
+    	when(activation1.isCurrent()).thenReturn(false);
         when(activation2.isCurrent()).thenReturn(true);
 
         MeterActivation meterActivation1 = usagePoint.getCurrentMeterActivation();
@@ -336,14 +344,11 @@ public class UsagePointImplTest {
 
         assertThat(meterActivation1).isEqualTo(activation2);
         assertThat(meterActivation2).isEqualTo(activation2);
-
-        verify(meterActivationFactory, times(1)).find("usagePoint", usagePoint);
     }
 
     @Test
     public void testGetAccountabilities() {
-        when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
-
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         List<UsagePointAccountability> accountabilities = usagePoint.getAccountabilities();
 
         assertThat(accountabilities).hasSize(2)
@@ -356,7 +361,7 @@ public class UsagePointImplTest {
         simulateSavedUsagePoint();
         MeterActivation meterActivation = usagePoint.activate(START);
 
-        verify(meterActivationFactory).persist(meterActivation);
+        verify(dataModel).persist(meterActivation);
 
         assertThat(meterActivation.getUsagePoint()).isPresent();
         assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
@@ -365,13 +370,12 @@ public class UsagePointImplTest {
     @Test
     public void testAddAccountability() {
         UsagePointAccountability accountability = usagePoint.addAccountability(role, party, START);
-
-        verify(usagePointAccountabilityFactory).persist(accountability);
+        assertThat(usagePoint.getAccountabilities()).contains(accountability);
     }
 
     @Test
     public void testGetResponsiblePartyChooseCorrectRole() {
-        when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         PartyRole wrongRole = mock(PartyRole.class);
         when(acc1.getRole()).thenReturn(wrongRole);
         when(acc1.isCurrent()).thenReturn(true);
@@ -384,7 +388,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetResponsiblePartyChooseOnlyCurrent() {
-        when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
+    	field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         when(acc1.getRole()).thenReturn(role);
         when(acc1.isCurrent()).thenReturn(false);
         when(acc2.getRole()).thenReturn(role);
@@ -396,7 +400,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testHasAccountabilityTrue() {
-        when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         when(acc1.getParty()).thenReturn(party1);
         when(acc2.getParty()).thenReturn(party2);
         doReturn(Arrays.asList(representation1, representation2)).when(party1).getCurrentDelegates();
@@ -407,7 +411,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testHasAccountabilityFalse() {
-        when(usagePointAccountabilityFactory.find("usagePoint", usagePoint)).thenReturn(Arrays.asList(acc1, acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
         when(acc1.getParty()).thenReturn(party1);
         when(acc2.getParty()).thenReturn(party2);
         doReturn(Arrays.asList(representation1, representation2)).when(party1).getCurrentDelegates();

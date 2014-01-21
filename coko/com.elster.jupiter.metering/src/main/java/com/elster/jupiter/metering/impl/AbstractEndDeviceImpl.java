@@ -10,9 +10,12 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
+import com.sun.org.apache.xalan.internal.utils.Objects;
 
 import java.util.Date;
 import java.util.Map;
+
+import javax.inject.Provider;
 
 public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements EndDevice {
 	static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
@@ -38,12 +41,13 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     private final S self;
 
-    AbstractEndDeviceImpl(DataModel dataModel, EventService eventService, Class<? extends S> selfType) {
-        this.eventService = eventService;
-        this.electronicAddress = new ElectronicAddress();
+    AbstractEndDeviceImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory, Class<? extends S> selfType) {
         this.dataModel = dataModel;
+        this.eventService = eventService;
+        this.deviceEventFactory = deviceEventFactory;
         self = selfType.cast(this);
 	}
 	
@@ -141,10 +145,28 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 
     @Override
     public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date) {
-        return EndDeviceEventRecordImpl.from(dataModel, this, type, date);
+        return deviceEventFactory.get().init(this, type, date);
     }
 
     DataModel getDataModel() {
         return dataModel;
     }
-}
+    
+    @Override
+    public boolean equals(Object o) {
+    	if (this == o) {
+           return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+        	return false;
+        }
+        return getId() == this.self.getClass().cast(o).getId();
+    }
+    
+    @Override
+    public int hashCode() {
+    	return Objects.hashCode(id);
+    }
+    
+    
+} 

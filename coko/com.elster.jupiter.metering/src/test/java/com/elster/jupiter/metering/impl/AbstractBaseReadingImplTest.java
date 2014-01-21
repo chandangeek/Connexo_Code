@@ -1,10 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ProcesStatus;
-import com.elster.jupiter.metering.ReadingType;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -16,13 +18,24 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
+import javax.inject.Provider;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractBaseReadingImplTest {
@@ -35,12 +48,29 @@ public abstract class AbstractBaseReadingImplTest {
     @Mock
     private TimeSeriesEntry entry;
     @Mock
-    private Channel channel;
+    private Meter meter;
+    private MeterActivationImpl meterActivation;
+    private ChannelImpl channel;
+    private ReadingTypeImpl readingType, readingType1, readingType2, unknownReadingType;
     @Mock
-    private ReadingType readingType, readingType1, readingType2, unknownReadingType;
+    private Clock clock;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private IdsService idsService;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private Vault vault;
+    @Mock
+    private RecordSpec recordSpec;
 
     @Before
     public void setUp() {
+    	when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
+    	when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec)); 
         when(entry.getTimeStamp()).thenReturn(DATE);
         when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
         when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
@@ -49,14 +79,34 @@ public abstract class AbstractBaseReadingImplTest {
                 return BigDecimal.valueOf((long) (int) invocationOnMock.getArguments()[0]);
             }
         });
-        when(channel.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2, readingType));
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType1.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType2.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
+			@Override
+			public ChannelImpl get() {
+				return new ChannelImpl(dataModel,idsService,clock);
+			}
+        };
+        final Provider<ChannelBuilder> channelBuilder = new Provider<ChannelBuilder>() {
+			@Override
+			public ChannelBuilder get() {
+				return new ChannelBuilderImpl(dataModel, channelFactory);
+			}
+        };
+        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder).init(meter, null, new Date(0));
+        ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
+        		.measure(MeasurementKind.ENERGY)
+        		.in(MetricMultiplier.KILO,ReadingTypeUnit.WATTHOUR)
+        		.flow(FlowDirection.FORWARD);
+        readingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
+        builder.flow(FlowDirection.REVERSE);
+        readingType1 = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
+        builder.flow(FlowDirection.NET);
+        readingType2 = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
+        builder.measure(MeasurementKind.DEMAND).in(MetricMultiplier.KILO,ReadingTypeUnit.WATT);
+        unknownReadingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
+        channel = (ChannelImpl) meterActivation.createChannel(readingType1, readingType2, readingType);
+       
         when(entry.getLong(0)).thenReturn(1L << ProcesStatus.Flag.SUSPECT.ordinal());
-
         baseReading = createInstanceToTest(channel, entry);
-
         when(entry.size()).thenReturn(3 + baseReading.getReadingTypeOffset());
 
     }
@@ -66,7 +116,7 @@ public abstract class AbstractBaseReadingImplTest {
 
     }
 
-    abstract BaseReadingRecordImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry);
+    abstract BaseReadingRecordImpl createInstanceToTest(ChannelImpl channel, TimeSeriesEntry entry);
 
     @Test
     public void testGetChannel() {
@@ -126,6 +176,10 @@ public abstract class AbstractBaseReadingImplTest {
     @Test
     public void testGetProcessingFlags() {
         assertThat(baseReading.getProcesStatus()).isEqualTo(ProcesStatus.of(ProcesStatus.Flag.SUSPECT));
+    }
+    
+    ChannelImpl getChannel() {
+    	return channel;
     }
 
 }

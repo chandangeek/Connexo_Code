@@ -10,7 +10,7 @@ public class FilteredIntervalReadingRecord extends FilteredBaseReadingRecord imp
 
     private final IntervalReadingRecord source;    
 
-    FilteredIntervalReadingRecord(IntervalReadingRecord source, int... indices) {
+    FilteredIntervalReadingRecord(IntervalReadingRecordImpl source, int... indices) {
         super(source,indices);
         this.source = source;        
     }

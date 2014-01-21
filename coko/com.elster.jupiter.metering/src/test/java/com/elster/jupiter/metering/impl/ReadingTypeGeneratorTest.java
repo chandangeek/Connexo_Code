@@ -18,6 +18,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeGeneratorTest {
@@ -26,15 +27,18 @@ public class ReadingTypeGeneratorTest {
     private DataModel dataModel;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private MeteringServiceImpl meteringService;
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
+    	when(meteringService.createReadingType(anyString(), anyString())).thenAnswer(new Answer<Object>() {
+    		@Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel, thesaurus);
-            }
-        });
+    			Object[] args = invocationOnMock.getArguments();
+    			return new ReadingTypeImpl(dataModel, thesaurus).init((String) args[0], (String) args[1]);
+    		}
+    	});
     }
 
     @After
@@ -44,7 +48,7 @@ public class ReadingTypeGeneratorTest {
 
     @Test
     public void testGeneration() {
-    	List<ReadingTypeImpl> generated = ReadingTypeGenerator.generate(dataModel);
+    	List<ReadingTypeImpl> generated = ReadingTypeGenerator.generate(meteringService);
     	Set<String> mRIDs = new HashSet<>();
     	Set<String> aliases = new HashSet<>();
     	for (ReadingType each : generated) {

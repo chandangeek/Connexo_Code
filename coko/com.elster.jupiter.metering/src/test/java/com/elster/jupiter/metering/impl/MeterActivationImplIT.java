@@ -1,30 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.sql.SQLException;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -35,9 +14,31 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.sql.SQLException;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.UtilModule;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationImplIT {
@@ -99,24 +100,17 @@ public class MeterActivationImplIT {
 
     @Test
     public void testPersistence() {
-        final DataModel dataModel = ((MeteringServiceImpl) injector.getInstance(MeteringService.class)).getDataModel();
-        injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                MeterActivationImpl meterActivation = MeterActivationImpl.from(dataModel, (Meter) null, new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
-                meterActivation.save();
-
-                ReadingType readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-
-                Channel channel = meterActivation.createChannel(readingType);
-
-                meterActivation.save();
-
-                MeterActivation loaded = injector.getInstance(MeteringService.class).findMeterActivation(meterActivation.getId()).get();
-
-                assertThat(loaded.getChannels()).hasSize(1).contains(channel);
-            }
-        });
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	AmrSystem system = meteringService.findAmrSystem(1).get();
+        	Meter meter = system.newMeter("1");
+        	meter.save();
+        	MeterActivation meterActivation = meter.activate(new DateTime(2012, 12, 19, 14, 15, 54, 0).toDate());
+        	ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+            Channel channel = meterActivation.createChannel(readingType);
+            MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
+            assertThat(loaded.getChannels()).hasSize(1).contains(channel);
+        }
     }
 
 }

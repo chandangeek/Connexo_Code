@@ -1,12 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+import javax.inject.Provider;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,9 +12,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AmrSystemImplTest {
@@ -27,8 +28,6 @@ public class AmrSystemImplTest {
     private AmrSystemImpl amrSystem;
 
     @Mock
-    private DataMapper<AmrSystem> factory;
-    @Mock
     private DataModel dataModel;
     @Mock
     private MeteringService meteringService;
@@ -36,13 +35,24 @@ public class AmrSystemImplTest {
     private EventService eventService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private Provider<MeterActivationImpl> meterActivationFactory;
+    @Mock
+    private Provider<EndDeviceEventRecordImpl> deviceEventFactory;
+    @Mock
+    private Provider<EndDeviceImpl> endDeviceFactory;
+    @Mock
+    private Clock clock;
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(AmrSystemImpl.class)).thenReturn(new AmrSystemImpl(dataModel, meteringService));
-        when(dataModel.getInstance(MeterImpl.class)).thenReturn(new MeterImpl(dataModel, eventService, meteringService, thesaurus));
-
-        amrSystem = AmrSystemImpl.from(dataModel, ID, NAME);
+    	Provider<MeterImpl> meterFactory = new Provider<MeterImpl>() {
+			@Override
+			public MeterImpl get() {
+				return new MeterImpl(dataModel, eventService, deviceEventFactory, meteringService, thesaurus,meterActivationFactory);
+			}
+    	};
+        amrSystem = new AmrSystemImpl(dataModel, meteringService, meterFactory,endDeviceFactory).init(ID, NAME);
     }
 
     @After
@@ -71,11 +81,8 @@ public class AmrSystemImplTest {
 
     @Test
     public void testPersist() {
-        when(dataModel.mapper(AmrSystem.class)).thenReturn(factory);
-
         amrSystem.save();
-
-        verify(factory).persist(amrSystem);
+        verify(dataModel).persist(amrSystem);
     }
 
 }

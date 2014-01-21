@@ -1,13 +1,23 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -36,17 +46,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-
-import java.util.Date;
-import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService, InstallService {
@@ -91,7 +91,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, idsService, partyService, userService, eventService).install(true, true, true);
+    	dataModel.install(true, true);
+        new InstallerImpl(this, idsService, partyService, userService, eventService).install();
     }
 
     @Override
@@ -122,11 +123,6 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public ReadingStorer createNonOverrulingStorer() {
         return new ReadingStorerImpl(idsService, eventService, false);
-    }
-
-    @Override
-    public EndDevice createEndDevice(AmrSystem amrSystem, String amrId, String mRID) {
-        return EndDeviceImpl.from(dataModel, amrSystem, amrId, mRID);
     }
 
     @Override
@@ -309,4 +305,31 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     DataModel getDataModel() {
         return dataModel;
     }
+    
+    AmrSystemImpl createAmrSystem(int id, String name) {
+    	AmrSystemImpl system = dataModel.getInstance(AmrSystemImpl.class).init(id, name);
+    	system.save();
+    	return system;
+    }
+    
+    EndDeviceEventTypeImpl createEndDeviceEventType(String mRID) {
+    	EndDeviceEventTypeImpl endDeviceEventType = dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
+    	dataModel.persist(endDeviceEventType);
+    	return endDeviceEventType;
+    }
+
+	ReadingTypeImpl createReadingType(String mRID, String aliasName) {
+		ReadingTypeImpl readingType = dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
+		dataModel.persist(readingType);
+		return readingType;
+	}
+	
+	ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {
+		ServiceCategoryImpl serviceCategory = dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
+		dataModel.persist(serviceCategory);
+		return serviceCategory;
+	}
+    
+    
+    
 }

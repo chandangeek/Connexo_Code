@@ -52,10 +52,6 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
         return this;
     }
 
-    static EndDeviceEventTypeImpl from(DataModel dataModel, String mRID) {
-        return dataModel.getInstance(EndDeviceEventTypeImpl.class).init(mRID);
-    }
-
     @Override
     public EndDeviceType getType() {
         return type;

@@ -10,12 +10,11 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-import com.google.inject.Provider;
+import javax.inject.Provider;
 
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -56,8 +55,7 @@ public class MeterActivationImplTest {
     private UsagePointImpl usagePoint;
     @Mock
     private Meter meter;
-    @Mock
-    private Channel channel1, channel2;
+    private ChannelImpl channel1, channel2;
     private ReadingTypeImpl readingType1, readingType2, readingType3;
     @Mock
     private IntervalReadingRecord reading1, reading2;
@@ -94,28 +92,34 @@ public class MeterActivationImplTest {
                 return new ReadingTypeInChannel();
             }
         });
-        readingType1 = ReadingTypeImpl.from(dataModel, MRID1, "readingType1");
-        readingType2 = ReadingTypeImpl.from(dataModel, MRID2, "readingType2");
-        readingType3 = ReadingTypeImpl.from(dataModel, MRID3, "readingType3");
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "readingType1");
+        readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "readingType2");
+        readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "readingType3");
+        
+        final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
+			@Override
+			public ChannelImpl get() {
+				return new ChannelImpl(dataModel, idsService, clock);
+			}
+		};
+		
         channelBuilder = new Provider<ChannelBuilder>() {
 			@Override
 			public ChannelBuilder get() {
-				return new ChannelBuilderImpl(dataModel);
+				return new ChannelBuilderImpl(dataModel,channelFactory);
 			}
         };
         when((Object) dataModel.getInstance(MeterActivationImpl.class)).thenReturn(new MeterActivationImpl(dataModel, eventService, clock, channelBuilder));
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
-        when(channel1.getReadingTypes()).thenReturn(Arrays.<ReadingType>asList(readingType1, readingType2));
-        when(channel2.getReadingTypes()).thenReturn(Arrays.<ReadingType>asList(readingType3));
         when((Object) dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, clock));
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(clock.getTimeZone()).thenReturn(timeZone);
 
-        meterActivation = MeterActivationImpl.from(dataModel, meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder).init(meter, usagePoint, ACTIVATION_TIME);
 
-        when(dataModel.mapper(Channel.class).find("meterActivation", meterActivation)).thenReturn(Arrays.asList(channel1, channel2));
+        when(dataModel.mapper(ChannelImpl.class).find("meterActivation", meterActivation)).thenReturn(Arrays.asList(channel1, channel2));
     }
 
     @After

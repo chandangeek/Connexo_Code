@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Provider;
 import javax.inject.Inject;
 
 import java.util.ArrayList;
@@ -26,17 +27,18 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 	
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
+    private final Provider<MeterActivationImpl> meterActivationFactory;
+    private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
 
     @Inject
-	MeterImpl(DataModel dataModel, EventService eventService, MeteringService meteringService, Thesaurus thesaurus) {
-        super(dataModel, eventService, MeterImpl.class);
+	MeterImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory, 
+			MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory) {
+        super(dataModel, eventService, deviceEventFactory, MeterImpl.class);
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
+        this.meterActivationFactory = meterActivationFactory;
+        this.deviceEventFactory = deviceEventFactory;
     }
-	
-	static MeterImpl from(DataModel dataModel, AmrSystem system, String amrId, String mRID) {
-		 return dataModel.getInstance(MeterImpl.class).init(system, amrId, mRID);
-	}
 
     @Override
 	public List<MeterActivation> getMeterActivations() {
@@ -45,13 +47,13 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 		
 	@Override
 	public void store(MeterReading meterReading) {
-		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus).store();
+		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, deviceEventFactory).store();
 	}
 	
 	@Override
-	public MeterActivation activate(Date start) {
-		MeterActivation result = MeterActivationImpl.from(getDataModel(), this, start);
-        getDataModel().mapper(MeterActivation.class).persist(result);
+	public MeterActivationImpl activate(Date start) {
+		MeterActivationImpl result = meterActivationFactory.get().init(this, start);
+        getDataModel().persist(result);
         meterActivations.add(result);
 		return result;
 	}

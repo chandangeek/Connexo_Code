@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
@@ -9,7 +10,9 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
+import javax.inject.Provider;
 import javax.inject.Inject;
+
 import java.util.List;
 
 public class AmrSystemImpl implements AmrSystem {
@@ -27,11 +30,15 @@ public class AmrSystemImpl implements AmrSystem {
 
     private final DataModel dataModel;
     private final MeteringService meteringService;
+    private final Provider<MeterImpl> meterFactory;
+    private final Provider<EndDeviceImpl> endDeviceFactory;
 
     @Inject
-	AmrSystemImpl(DataModel dataModel, MeteringService meteringService) {
+	AmrSystemImpl(DataModel dataModel, MeteringService meteringService,Provider<MeterImpl> meterFactory, Provider<EndDeviceImpl> endDeviceFactory) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
+        this.meterFactory = meterFactory;
+        this.endDeviceFactory = endDeviceFactory;
     }
 
 	AmrSystemImpl init(int id , String name) {
@@ -39,10 +46,6 @@ public class AmrSystemImpl implements AmrSystem {
 		this.name = name;
         return this;
 	}
-
-    static AmrSystemImpl from(DataModel dataModel, int id, String name) {
-        return dataModel.getInstance(AmrSystemImpl.class).init(id, name);
-    }
 	
 	@Override
 	public int getId() {	
@@ -55,18 +58,27 @@ public class AmrSystemImpl implements AmrSystem {
 	}
 	
 	void save() {
-		dataModel.mapper(AmrSystem.class).persist(this);
+		dataModel.persist(this);
 	}
 
 	@Override 
 	public Meter newMeter(String amrId) {
-		return MeterImpl.from(dataModel, this, amrId, null);
+		return newMeter(amrId, null);
 	}
 	@Override
 	public Meter newMeter(String amrId, String mRID) {
-		return MeterImpl.from(dataModel, this, amrId, mRID);
+		return meterFactory.get().init(this, amrId, mRID);
 	}
 
+	@Override 
+	public EndDevice newEndDevice(String amrId) {
+		return newEndDevice(amrId, null);
+	}
+	@Override
+	public EndDevice newEndDevice(String amrId, String mRID) {
+		return endDeviceFactory.get().init(this, amrId, mRID);
+	}
+	
 	@Override
 	public Optional<Meter> findMeter(String amrId) {
 		Condition condition = Operator.EQUAL.compare("amrSystemId", getId());

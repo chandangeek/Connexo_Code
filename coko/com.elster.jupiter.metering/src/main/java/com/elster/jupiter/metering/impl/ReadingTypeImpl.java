@@ -21,10 +21,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.util.units.Quantity;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 
+import java.math.BigDecimal;
 import java.util.Currency;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
@@ -96,10 +98,6 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		setTransientFields();
         return this;
 	}
-
-    static ReadingTypeImpl from(DataModel dataModel, String mRID, String aliasName) {
-        return dataModel.getInstance(ReadingTypeImpl.class).init(mRID, aliasName);
-    }
 
 	static Currency getCurrency(int isoCode, Thesaurus thesaurus) {
 		if (isoCode == 0) {
@@ -406,5 +404,13 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		}
 		return TimeAttribute.values()[Integer.parseInt(parts[2])];
 	}
+    
+    public Quantity toQuantity(BigDecimal value) {
+    	if (value == null) {
+    		return null;
+    	} else {
+    		return this.unit.getUnit().amount(value,this.multiplier.getMultiplier());
+    	}
+    }
 
 }

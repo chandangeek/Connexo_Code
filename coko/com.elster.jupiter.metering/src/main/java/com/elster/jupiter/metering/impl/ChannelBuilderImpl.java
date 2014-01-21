@@ -1,29 +1,31 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataModel;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-
-import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.orm.DataModel;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import javax.inject.Provider;
+
 public class ChannelBuilderImpl implements ChannelBuilder {
 
     private MeterActivation meterActivation;
-    private List<ReadingType> readingTypes = new ArrayList<>();
+    private List<ReadingTypeImpl> readingTypes = new ArrayList<>();
     private final DataModel dataModel;
+    private final Provider<ChannelImpl> channelFactory;
 
     @Inject
-    public ChannelBuilderImpl(DataModel dataModel) {
+    public ChannelBuilderImpl(DataModel dataModel, Provider<ChannelImpl> channelFactory) {
         this.dataModel = dataModel;
+        this.channelFactory = channelFactory;
     }
 
     @Override
@@ -33,7 +35,7 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     }
 
     @Override
-    public ChannelBuilder readingTypes(ReadingType main, ReadingType... readingTypes) {
+    public ChannelBuilder readingTypes(ReadingTypeImpl main, ReadingTypeImpl... readingTypes) {
         this.readingTypes.add(main);
         this.readingTypes.addAll(Arrays.asList(readingTypes));
         return this;
@@ -41,16 +43,15 @@ public class ChannelBuilderImpl implements ChannelBuilder {
 
     @Override
     public Channel build() {
-        ChannelImpl channel = ChannelImpl.from(dataModel, meterActivation);
-        channel.init(buildReadingTypes());
-        return channel;
+        return channelFactory.get().init(meterActivation,buildReadingTypes());
+        
     }
     
-    private List<ReadingType> buildReadingTypes() {
+    private List<ReadingTypeImpl> buildReadingTypes() {
     	if (readingTypes.size() != 1) {
     		return readingTypes;
     	}
-    	ReadingType readingType = readingTypes.get(0);
+    	ReadingTypeImpl readingType = readingTypes.get(0);
     	if  (!readingType.isRegular() || (
     			readingType.getAccumulation() != Accumulation.BULKQUANTITY && readingType.getAccumulation() != Accumulation.SUMMATION)) {
     		return readingTypes;
@@ -58,7 +59,7 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     	// special case of bulkQuantity | Summation meter reading in load profile, store delta's in first slot
     	ReadingTypeCodeBuilder builder = ((ReadingTypeImpl) readingType).builder();
     	builder.accumulate(Accumulation.DELTADELTA);
-    	Optional<ReadingType> delta = dataModel.mapper(ReadingType.class).getOptional(builder.code());
+    	Optional<ReadingTypeImpl> delta = dataModel.mapper(ReadingTypeImpl.class).getOptional(builder.code());
     	if (delta.isPresent()) {
     		return ImmutableList.of(delta.get(),readingType);
     	} else {

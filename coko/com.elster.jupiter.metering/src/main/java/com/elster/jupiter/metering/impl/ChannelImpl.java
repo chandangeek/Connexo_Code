@@ -57,8 +57,8 @@ public final class ChannelImpl implements Channel {
 	// associations
 	private Reference<MeterActivation> meterActivation = ValueReference.absent();
 	private Reference<TimeSeries> timeSeries = ValueReference.absent();
-	private Reference<ReadingType> mainReadingType = ValueReference.absent();
-	private Reference<ReadingType> bulkQuantityReadingType = ValueReference.absent();
+	private Reference<ReadingTypeImpl> mainReadingType = ValueReference.absent();
+	private Reference<ReadingTypeImpl> bulkQuantityReadingType = ValueReference.absent();
 	private List<ReadingTypeInChannel> readingTypeInChannels = new ArrayList<>();
 
     private final IdsService idsService;
@@ -72,14 +72,21 @@ public final class ChannelImpl implements Channel {
         this.clock = clock;
     }
 	
-	ChannelImpl init(MeterActivation meterActivation) {
+	ChannelImpl init(MeterActivation meterActivation,List<ReadingTypeImpl> readingTypes) {
 		this.meterActivation.set(meterActivation);
-        return this;
+        this.mainReadingType.set(readingTypes.get(0));
+		int index = 1;
+		if (readingTypes.size() > 1) {
+			if (mainReadingType.get().isBulkQuantityReadingType(readingTypes.get(index))) {
+				bulkQuantityReadingType.set(readingTypes.get(index++));
+			} 
+		}
+		for (; index < readingTypes.size() ; index++) {
+			this.readingTypeInChannels.add(new ReadingTypeInChannel().init(this, readingTypes.get(index)));
+		}
+		this.timeSeries.set(createTimeSeries());
+		return this;
 	}
-
-    static ChannelImpl from(DataModel dataModel, MeterActivation meterActivation) {
-        return dataModel.getInstance(ChannelImpl.class).init(meterActivation);
-    }
 	
 	@Override
 	public long getId() {
@@ -95,23 +102,9 @@ public final class ChannelImpl implements Channel {
 	public TimeSeries getTimeSeries() {
 		return timeSeries.get();
 	}
-
-	void init(List<ReadingType> readingTypes) {
-		this.mainReadingType.set(readingTypes.get(0));
-		int index = 1;
-		if (readingTypes.size() > 1) {
-			if (mainReadingType.get().isBulkQuantityReadingType(readingTypes.get(index))) {
-				bulkQuantityReadingType.set(readingTypes.get(index++));
-			} 
-		}
-		for (; index < readingTypes.size() ; index++) {
-			this.readingTypeInChannels.add(new ReadingTypeInChannel().init(this, readingTypes.get(index)));
-		}
-		this.timeSeries.set(createTimeSeries());
-	}
 	
 	Optional<IntervalLength> getIntervalLength() {		
-		Iterator<ReadingType> it = getReadingTypes().iterator();
+		Iterator<ReadingTypeImpl> it = getReadingTypes().iterator();
 		Optional<IntervalLength> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
 		while (it.hasNext()) {
 			ReadingTypeImpl readingType = (ReadingTypeImpl) it.next();
@@ -123,7 +116,7 @@ public final class ChannelImpl implements Channel {
 		return result;
 	}
 	
-	TimeSeries createTimeSeries() {
+	private TimeSeries createTimeSeries() {
 		Optional<IntervalLength> intervalLength = getIntervalLength();
 		boolean regular = intervalLength.isPresent();
         Vault vault = getVault(regular);
@@ -159,8 +152,8 @@ public final class ChannelImpl implements Channel {
     }
 	
 	@Override
-	public List<ReadingType> getReadingTypes() {
-        ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
+	public List<ReadingTypeImpl> getReadingTypes() {
+        ImmutableList.Builder<ReadingTypeImpl> builder = ImmutableList.builder();
         builder.add(getMainReadingType());
 		if (bulkQuantityReadingType.isPresent()) {
 			builder.add(bulkQuantityReadingType.get());
@@ -253,12 +246,12 @@ public final class ChannelImpl implements Channel {
 	}
 	
 	@Override
-	public ReadingType getMainReadingType() {
+	public ReadingTypeImpl getMainReadingType() {
 		return mainReadingType.get();
 	}
 	
 	@Override
-	public Optional<ReadingType> getBulkQuantityReadingType() {
+	public Optional<ReadingTypeImpl> getBulkQuantityReadingType() {
 		return bulkQuantityReadingType.getOptional();
 	}
 

@@ -1,12 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 
 public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingRecord {
 	
-	ReadingRecordImpl(Channel channel, TimeSeriesEntry entry) {
+	ReadingRecordImpl(ChannelImpl channel, TimeSeriesEntry entry) {
 		super(channel,entry);
 	}
 

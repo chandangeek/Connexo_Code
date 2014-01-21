@@ -77,6 +77,8 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     private EndDevice endDevice, endDevice2;
     @Mock
     private EndDeviceEventType endDeviceEventType, endDeviceEventType2;
+    @Mock
+    private DataModel dataModel;
 
 
     private class MockModule extends AbstractModule {
@@ -130,14 +132,14 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                DataModel dataModel = ((MeteringServiceImpl) getMeteringService()).getDataModel();
+            	MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                DataModel dataModel = meteringService.getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
-                EndDeviceEventTypeImpl eventType = EndDeviceEventTypeImpl.from(dataModel, code);
-                eventType.persist();
-
+                EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
+               
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-                EndDevice endDevice = getMeteringService().createEndDevice(amrSystem, "amrID", "mRID");
+                EndDevice endDevice = amrSystem.newEndDevice("amrID", "mRID");
                 endDevice.save();
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
@@ -154,14 +156,14 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                DataModel dataModel = ((MeteringServiceImpl) getMeteringService()).getDataModel();
+            	MeteringServiceImpl meteringService = (MeteringServiceImpl) getMeteringService();
+                DataModel dataModel = meteringService.getDataModel();
                 Date date = new DateMidnight(2001, 1, 1).toDate();
                 String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventorAction.DECREASED).toCode();
-                EndDeviceEventTypeImpl eventType = EndDeviceEventTypeImpl.from(dataModel, code);
-                eventType.persist();
+                EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-                EndDevice endDevice = getMeteringService().createEndDevice(amrSystem, "amrID", "mRID");
+                EndDevice endDevice = amrSystem.newEndDevice("amrID", "mRID");
                 endDevice.save();
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.addProperty("A", "C");
@@ -210,14 +212,16 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         return new EndDeviceEventRecordImpl(dataModel).init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate());
     }
 
+    EndDeviceEventRecordImpl createEndDeviceEvent() {
+    	return new EndDeviceEventRecordImpl(dataModel);
+    }
+    
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        DataModel dataModel = mock(DataModel.class);
-        when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel));
         return ImmutableList.of(
-                EndDeviceEventRecordImpl.from(dataModel, endDevice2, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
-                EndDeviceEventRecordImpl.from(dataModel, endDevice, endDeviceEventType2, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
-                EndDeviceEventRecordImpl.from(dataModel, endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 42, 0).toDate())
+                createEndDeviceEvent().init(endDevice2, endDeviceEventType, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
+                createEndDeviceEvent().init(endDevice, endDeviceEventType2, new DateTime(2013, 12, 17, 14, 41, 0).toDate()),
+                createEndDeviceEvent().init(endDevice, endDeviceEventType, new DateTime(2013, 12, 17, 14, 42, 0).toDate())
         );
     }
 

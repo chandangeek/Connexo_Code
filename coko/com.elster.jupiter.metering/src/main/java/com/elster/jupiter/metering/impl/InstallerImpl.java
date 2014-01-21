@@ -22,9 +22,7 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
@@ -35,29 +33,29 @@ public class InstallerImpl {
     private static final int MONTHS_PER_YEAR = 12;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
 
-    private final DataModel dataModel;
+    private final MeteringServiceImpl meteringService;
     private final IdsService idsService;
     private final PartyService partyService;
     private final UserService userService;
     private final EventService eventService;
-
-    public InstallerImpl(DataModel dataModel, IdsService idsService, PartyService partyService, UserService userService, EventService eventService) {
-        this.dataModel = dataModel;
+    
+    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService) {
+        this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
-        try {
-            dataModel.install(executeDdl, updateOrm);
-            if (createMasterData) {
-                createMasterData();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void install() {
+    	createVaults();
+        createRecordSpecs();
+        createServiceCategories();
+        createReadingTypes();
+        createPartyRoles();
+        createPrivileges();
+        createAmrSystems();
+        createEndDeviceEventTypes();
         createEventTypes();
     }
 
@@ -65,17 +63,6 @@ public class InstallerImpl {
         for (EventType eventType : EventType.values()) {
             eventType.install(eventService);
         }
-    }
-
-    private void createMasterData() {
-        createVaults(idsService);
-        createRecordSpecs(idsService);
-        createServiceCategories();
-        createReadingTypes();
-        createPartyRoles(partyService);
-        createPrivileges(userService);
-        createAmrSystems();
-        createEndDeviceEventTypes();
     }
 
     private void createEndDeviceEventTypes() {
@@ -94,7 +81,7 @@ public class InstallerImpl {
                                         .subDomain(subDomain)
                                         .eventOrAction(eventOrAction)
                                         .toCode();
-                                dataModel.mapper(EndDeviceEventType.class).persist(EndDeviceEventTypeImpl.from(dataModel, code));
+                                meteringService.createEndDeviceEventType(code);
                             }
                         }
                     }
@@ -127,13 +114,11 @@ public class InstallerImpl {
     }
 
     private void createAmrSystems() {
-        AmrSystemImpl mdc = AmrSystemImpl.from(dataModel, 1, "MDC");
-        mdc.save();
-        AmrSystemImpl energyAxis = AmrSystemImpl.from(dataModel, 2, "EnergyAxis");
-        energyAxis.save();
+    	meteringService.createAmrSystem(1, "MDC");
+    	meteringService.createAmrSystem(2, "EnergyAxis");
     }
 
-    private void createVaults(IdsService idsService) {
+    private void createVaults() {
         Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
         intervalVault.persist();
         createPartitions(intervalVault);
@@ -154,29 +139,27 @@ public class InstallerImpl {
         }
     }
 
-    private void createRecordSpecs(IdsService service) {
-    	RecordSpecs.createAll(service);
+    private void createRecordSpecs() {
+    	RecordSpecs.createAll(idsService);
     }
 
     private void createServiceCategories() {
     	for (ServiceKind kind : ServiceKind.values()) {
-    		ServiceCategoryImpl.from(dataModel, kind).persist();
+    		meteringService.createServiceCategory(kind);
     	}
     }
 
     private void createReadingTypes() {
-        for (ReadingTypeImpl readingType : ReadingTypeGenerator.generate(dataModel)) {
-            readingType.persist();
-        }
+        ReadingTypeGenerator.generate(meteringService);
     }
 
-    private void createPartyRoles(PartyService partyService) {
+    private void createPartyRoles() {
         for (MarketRoleKind role : MarketRoleKind.values()) {
             partyService.createRole(MeteringService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
         }
     }
 
-    private void createPrivileges(UserService userService) {
+    private void createPrivileges() {
         for (String each : getPrivileges()) {
             userService.createPrivilege(MeteringService.COMPONENTNAME, each, "");
         }

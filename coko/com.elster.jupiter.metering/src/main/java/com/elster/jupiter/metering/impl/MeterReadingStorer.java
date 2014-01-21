@@ -20,6 +20,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +36,17 @@ public class MeterReadingStorer {
     private final MeteringService meteringService;
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
 
-    @Inject
-    MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter, MeterReading meterReading, Thesaurus thesaurus) {
+    MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter,
+    		MeterReading meterReading, Thesaurus thesaurus, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.meter= meter;
         this.thesaurus = thesaurus;
         this.facade = new MeterReadingFacade(meterReading);
 		this.readingStorer = this.meteringService.createOverrulingStorer();
+		this.deviceEventFactory = deviceEventFactory;
 	}
 	
 	void store() {
@@ -62,7 +66,7 @@ public class MeterReadingStorer {
         for (EndDeviceEvent sourceEvent : events) {
             Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(sourceEvent.getEventTypeCode());
             if (found.isPresent()) {
-                EndDeviceEventRecordImpl eventRecord = EndDeviceEventRecordImpl.from(dataModel, meter, found.get(), sourceEvent.getCreatedDateTime());
+                EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
                 for (Map.Entry<String, String> entry : sourceEvent.getEventData().entrySet()) {
                     eventRecord.addProperty(entry.getKey(), entry.getValue());
                 }

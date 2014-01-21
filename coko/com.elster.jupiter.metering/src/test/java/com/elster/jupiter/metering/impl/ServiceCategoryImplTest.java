@@ -1,23 +1,21 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+import javax.inject.Provider;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCategoryImplTest {
@@ -25,22 +23,24 @@ public class ServiceCategoryImplTest {
     private ServiceCategoryImpl serviceCategory;
 
     @Mock
-    private DataMapper<ServiceCategory> serviceCategoryFactory;
-    @Mock
     private DataModel dataModel;
+    @Mock
     private EventService eventService;
+    @Mock
+    private Provider<MeterActivationImpl> meterActivationFactory;
+    @Mock
+    private Provider<UsagePointAccountabilityImpl> accountabilityFactory;
+    
 
     @Before
     public void setUp() {
-        serviceCategory = new ServiceCategoryImpl(dataModel).init(ServiceKind.ELECTRICITY);
-
-        when(dataModel.getInstance(UsagePointImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointImpl(dataModel, eventService);
-            }
-        });
-        when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryFactory);
+    	Provider<UsagePointImpl> usagePointFactory = new Provider<UsagePointImpl>() {
+			@Override
+			public UsagePointImpl get() {
+				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory);
+			}
+    	};
+        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory).init(ServiceKind.ELECTRICITY);
     }
 
     @After
@@ -76,8 +76,7 @@ public class ServiceCategoryImplTest {
     @Test
     public void testPersist() {
         serviceCategory.persist();
-
-        verify(serviceCategoryFactory).persist(serviceCategory);
+        verify(dataModel).persist(serviceCategory);
     }
 
     @Test

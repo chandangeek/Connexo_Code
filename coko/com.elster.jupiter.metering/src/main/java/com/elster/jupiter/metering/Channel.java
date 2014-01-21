@@ -11,12 +11,12 @@ public interface Channel {
 	long getId();
 	MeterActivation getMeterActivation();
 	TimeSeries getTimeSeries();
-    List<ReadingType> getReadingTypes();
+    List<? extends ReadingType> getReadingTypes();
     List<IntervalReadingRecord> getIntervalReadings(Interval interval);
     List<ReadingRecord> getRegisterReadings(Interval interval);
     List<BaseReadingRecord> getReadings(Interval interval);
 	ReadingType getMainReadingType();
-	Optional<ReadingType> getBulkQuantityReadingType();
+	Optional<? extends ReadingType> getBulkQuantityReadingType();
     long getVersion();
     List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval);
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval);

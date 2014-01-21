@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
@@ -11,13 +13,11 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import javax.inject.Inject;
+
 import java.util.Date;
 
 public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	
-	private long usagePointId;
-	private long partyId;
-	private String roleMRID;
 	private Interval interval;
 	private long version;
 	private UtcInstant createTime;
@@ -25,9 +25,9 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	private String userName;
 	
 	//Associations
-	private UsagePoint usagePoint;
-	private Party party;
-	private PartyRole role;
+	private Reference<UsagePoint> usagePoint = ValueReference.absent();
+	private Reference<Party> party = ValueReference.absent();
+	private Reference<PartyRole> role = ValueReference.absent();
 
     private final DataModel dataModel;
     private final PartyService partyService;
@@ -41,30 +41,23 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
     }
 	
 	UsagePointAccountabilityImpl init(UsagePoint usagePoint , Party party , PartyRole role , Date start) {
-		this.usagePoint = usagePoint;
-		this.usagePointId = usagePoint.getId();
-		this.party = party;
-		this.partyId = party.getId();
-		this.role = role;
-		this.roleMRID = role.getMRID();
+		this.usagePoint.set(usagePoint);
+		this.party.set(party);
+		this.role.set(role);
 		this.interval = Interval.startAt(start);
         return this;
 	}
 
-    static UsagePointAccountabilityImpl from(DataModel dataModel, UsagePoint usagePoint , Party party , PartyRole role , Date start) {
-        return dataModel.getInstance(UsagePointAccountabilityImpl.class).init(usagePoint, party, role, start);
-    }
-
 	public long getUsagePointId() {
-		return usagePointId;
+		return usagePoint.get().getId();
 	}
 
 	public long getPartyId() {
-		return partyId;
+		return party.get().getId();
 	}
 
 	public String getRoleMRID() {
-		return roleMRID;
+		return role.get().getMRID();
 	}
 
 	public Interval getInterval() {
@@ -88,24 +81,15 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	}
 
 	public UsagePoint getUsagePoint() {
-        if (usagePoint == null) {
-            usagePoint = dataModel.mapper(UsagePoint.class).getOptional(usagePointId).get();
-        }
-		return usagePoint;
+		return usagePoint.get();
 	}
 
 	public Party getParty() {
-        if (party == null) {
-            party = partyService.findParty(partyId).get();
-        }
-        return party;
+        return party.get();
 	}
 
 	public PartyRole getRole() {
-        if (role == null) {
-            role = partyService.findPartyRoleByMRID(roleMRID).get();
-        }
-		return role;
+		return role.get();
 	}
 
 	@Override

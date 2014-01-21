@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ProcesStatus;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.util.units.Unit;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,12 +14,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.metering.ProcesStatus;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilteredReadingTest {
@@ -31,12 +31,21 @@ public class FilteredReadingTest {
     private FilteredIntervalReadingRecord filteredReading;
 
     @Mock
-    private IntervalReadingRecord source;
+    private IntervalReadingRecordImpl source;
     @Mock
-    private ReadingType readingType1, readingType2, readingType3, readingType4;
+    private DataModel dataModel;
+    @Mock
+    private Thesaurus thesaurus;
+    
+    private ReadingTypeImpl readingType1, readingType2, readingType3, readingType4;
 
     @Before
     public void setUp() {
+    	readingType1 = new ReadingTypeImpl(dataModel, thesaurus);
+    	readingType2 = new ReadingTypeImpl(dataModel, thesaurus);
+    	readingType3 = new ReadingTypeImpl(dataModel, thesaurus);
+    	readingType4 = new ReadingTypeImpl(dataModel, thesaurus);
+    	
         filteredReading = new FilteredIntervalReadingRecord(source, 1, 3, 0);
 
         when(source.getReadingType(1)).thenReturn(readingType1);

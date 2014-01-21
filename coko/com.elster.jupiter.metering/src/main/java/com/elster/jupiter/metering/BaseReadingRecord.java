@@ -11,6 +11,6 @@ public interface BaseReadingRecord extends BaseReading {
 	Quantity getQuantity(ReadingType readingType);
 	ReadingType getReadingType();
 	ReadingType getReadingType(int offset);
-    List<ReadingType> getReadingTypes();
+    List<? extends ReadingType> getReadingTypes();
 	ProcesStatus getProcesStatus();
 }
