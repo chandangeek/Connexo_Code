@@ -1,7 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -30,6 +33,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     private volatile ConnectionTypeService connectionTypeService;
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile TransactionService transactionService;
 
     @Reference
     public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
@@ -51,6 +55,15 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         this.protocolPluggableService = protocolPluggableService;
     }
 
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     public void start(License license) {
         LOGGER.info("Registering pluggable classes...");
         registerInboundDeviceProtocolPluggableClasses();
@@ -61,29 +74,12 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     private void registerInboundDeviceProtocolPluggableClasses() {
         try {
             for (PluggableClassDefinition definition : inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses()) {
-                try {
-                    if (this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty()) {
-                        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass =
-                                this.protocolPluggableService.newInboundDeviceProtocolPluggableClass(
-                                        definition.getName(),
-                                        definition.getProtocolTypeClass().getName());
-                        inboundDeviceProtocolPluggableClass.save();
-                        LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
-                    }
-                    else {
-                        LOGGER.fine("Skipping " + definition.getProtocolTypeClass().getName() + ": already exists");
-                    }
+                if (this.inboundDeviceProtocolDoesNotExist(definition)) {
+                    this.createInboundDeviceProtocol(definition);
+                    LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
                 }
-                catch (RuntimeException e) {
-                    if (e.getCause() != null) {
-                        this.handleCreationException(definition, e.getCause());
-                    }
-                    else {
-                        this.handleCreationException(definition, e);
-                    }
-                }
-                catch (Exception e) {
-                    this.handleCreationException(definition, e);
+                else {
+                    LOGGER.fine("Skipping " + definition.getProtocolTypeClass().getName() + ": already exists");
                 }
             }
         }
@@ -92,28 +88,48 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         }
     }
 
-    private void registerDeviceProtocolPluggableClasses(License license) {
-        try {
-            for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
+    private boolean inboundDeviceProtocolDoesNotExist(PluggableClassDefinition definition) {
+        return this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty();
+    }
+
+    private InboundDeviceProtocolPluggableClass createInboundDeviceProtocol(final PluggableClassDefinition definition) {
+        return this.transactionService.execute(new Transaction<InboundDeviceProtocolPluggableClass>() {
+            @Override
+            public InboundDeviceProtocolPluggableClass perform() {
                 try {
-                    if (this.protocolPluggableService.findDeviceProtocolPluggableClass(licensedProtocolRule.getClassName()).isEmpty()) {
-                        this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocolRule.getName(), licensedProtocolRule.getClassName());
-                        LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
-                    }
-                    else {
-                        LOGGER.fine("Skipping " + licensedProtocolRule.getClassName() + ": already exists");
-                    }
+                    InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass =
+                            protocolPluggableService.newInboundDeviceProtocolPluggableClass(
+                                    definition.getName(),
+                                    definition.getProtocolTypeClass().getName());
+                    inboundDeviceProtocolPluggableClass.save();
+                    return inboundDeviceProtocolPluggableClass;
                 }
                 catch (RuntimeException e) {
                     if (e.getCause() != null) {
-                        this.handleCreationException(licensedProtocolRule.getClassName(), e.getCause());
+                        handleCreationException(definition, e.getCause());
                     }
                     else {
-                        this.handleCreationException(licensedProtocolRule.getClassName(), e);
+                        handleCreationException(definition, e);
                     }
+                    return null;
                 }
                 catch (Exception e) {
-                    this.handleCreationException(licensedProtocolRule.getClassName(), e);
+                    handleCreationException(definition, e);
+                    return null;
+                }
+            }
+        });
+    }
+
+    private void registerDeviceProtocolPluggableClasses(License license) {
+        try {
+            for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
+                if (this.deviceProtocolDoesNotExist(licensedProtocolRule)) {
+                    this.createDeviceProtocol(licensedProtocolRule);
+                    LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
+                }
+                else {
+                    LOGGER.fine("Skipping " + licensedProtocolRule.getClassName() + ": already exists");
                 }
             }
         }
@@ -122,38 +138,82 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         }
     }
 
-    private void registerConnectionTypePluggableClasses() {
-        try {
-            for (PluggableClassDefinition definition : this.connectionTypeService.getExistingConnectionTypePluggableClasses()) {
+    private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
+        return this.protocolPluggableService.findDeviceProtocolPluggableClass(licensedProtocolRule.getClassName()).isEmpty();
+    }
+
+    private DeviceProtocolPluggableClass createDeviceProtocol(final LicensedProtocol licensedProtocolRule) {
+        return this.transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
+            @Override
+            public DeviceProtocolPluggableClass perform() {
                 try {
-                    if (this.protocolPluggableService.findConnectionTypePluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty()) {
-                        ConnectionTypePluggableClass connectionTypePluggableClass =
-                                this.protocolPluggableService.newConnectionTypePluggableClass(
-                                        definition.getName(),
-                                        definition.getProtocolTypeClass().getName());
-                        connectionTypePluggableClass.save();
-                        LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
-                    }
-                    else {
-                        LOGGER.fine("Skipping " + definition.getProtocolTypeClass().getName() + ": already exists");
-                    }
+                    return protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocolRule.getName(), licensedProtocolRule.getClassName());
                 }
                 catch (RuntimeException e) {
                     if (e.getCause() != null) {
-                        this.handleCreationException(definition, e.getCause());
+                        handleCreationException(licensedProtocolRule.getClassName(), e.getCause());
                     }
                     else {
-                        this.handleCreationException(definition, e);
+                        handleCreationException(licensedProtocolRule.getClassName(), e);
                     }
+                    return null;
                 }
                 catch (Exception e) {
-                    this.handleCreationException(definition, e);
+                    handleCreationException(licensedProtocolRule.getClassName(), e);
+                    return null;
+                }
+            }
+        });
+    }
+
+    private void registerConnectionTypePluggableClasses() {
+        try {
+            for (PluggableClassDefinition definition : this.connectionTypeService.getExistingConnectionTypePluggableClasses()) {
+                if (this.connectionTypeDoesNotExist(definition)) {
+                    this.createConnectionType(definition);
+                    LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
+                }
+                else {
+                    LOGGER.fine("Skipping " + definition.getProtocolTypeClass().getName() + ": already exists");
                 }
             }
         }
         catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to register any connection type pluggable class: " + e, e);
         }
+    }
+
+    private ConnectionTypePluggableClass createConnectionType(final PluggableClassDefinition definition) {
+        return this.transactionService.execute(new Transaction<ConnectionTypePluggableClass>() {
+            @Override
+            public ConnectionTypePluggableClass perform() {
+                try {
+                    ConnectionTypePluggableClass connectionTypePluggableClass =
+                            protocolPluggableService.newConnectionTypePluggableClass(
+                                    definition.getName(),
+                                    definition.getProtocolTypeClass().getName());
+                    connectionTypePluggableClass.save();
+                    return connectionTypePluggableClass;
+                }
+                catch (RuntimeException e) {
+                    if (e.getCause() != null) {
+                        handleCreationException(definition, e.getCause());
+                    }
+                    else {
+                        handleCreationException(definition, e);
+                    }
+                    return null;
+                }
+                catch (Exception e) {
+                    handleCreationException(definition, e);
+                    return null;
+                }
+            }
+        });
+    }
+
+    private boolean connectionTypeDoesNotExist(PluggableClassDefinition definition) {
+        return this.protocolPluggableService.findConnectionTypePluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty();
     }
 
     private void handleCreationException(PluggableClassDefinition definition, Throwable e) {
