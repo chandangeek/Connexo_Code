@@ -3,7 +3,9 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -61,11 +63,15 @@ public class MeterProtocolMessageAdapterTest {
     @Mock
     private OrmService ormService;
     @Mock
+    private TransactionService transactionService;
+    @Mock
     private EventService eventService;
     @Mock
     private PluggableService pluggableService;
     @Mock
     private RelationService relationService;
+    @Mock
+    private PropertySpecService propertySpecService;
     @Mock
     private DeviceProtocolService deviceProtocolService;
     @Mock
@@ -80,7 +86,17 @@ public class MeterProtocolMessageAdapterTest {
         when(this.deviceProtocolMessageService.createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter")).
                 thenReturn(new SimpleLegacyMessageConverter());
         doThrow(DeviceProtocolAdapterCodingExceptions.class).when(this.deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
-        protocolPluggableService = new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.pluggableService, this.relationService, this.deviceProtocolService, this.inboundDeviceProtocolService, this.connectionTypeService);
+        protocolPluggableService =
+                new ProtocolPluggableServiceImpl(
+                        this.ormService,
+                        this.transactionService,
+                        this.eventService,
+                        this.propertySpecService,
+                        this.pluggableService,
+                        this.relationService,
+                        this.deviceProtocolService,
+                        this.inboundDeviceProtocolService,
+                        this.connectionTypeService);
     }
 
     @Before

@@ -79,7 +79,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
         }
     }
 
-    protected RegisterProtocol getRegisterProtocol() {
+    public RegisterProtocol getRegisterProtocol() {
         return registerProtocol;
     }
 

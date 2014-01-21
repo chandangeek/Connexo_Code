@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
@@ -46,17 +45,15 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private ProtocolPluggableService protocolPluggableService;
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     private RelationService relationService;
-    private DeviceProtocolService deviceProtocolService;
     private DataModel dataModel;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DeviceProtocolService deviceProtocolService, DataModel dataModel) {
+    public DeviceProtocolPluggableClassImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel) {
         super();
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.relationService = relationService;
-        this.deviceProtocolService = deviceProtocolService;
         this.dataModel = dataModel;
     }
 
@@ -76,7 +73,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected DeviceProtocol newInstance(PluggableClass pluggableClass) {
-        Class protocolClass = this.deviceProtocolService.loadProtocolClass(pluggableClass.getJavaClassName());
+        Class protocolClass = this.protocolPluggableService.loadProtocolClass(pluggableClass.getJavaClassName());
         DeviceProtocol deviceProtocol;
         try {
             if (DeviceProtocol.class.isAssignableFrom(protocolClass)) {

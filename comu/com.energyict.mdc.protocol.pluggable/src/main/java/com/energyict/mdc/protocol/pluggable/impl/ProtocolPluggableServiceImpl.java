@@ -21,6 +21,7 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -36,11 +37,14 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -57,7 +61,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
     private volatile RelationService relationService;
-    private volatile DeviceProtocolService deviceProtocolService;
+    private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
 
@@ -80,15 +84,29 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setOrmService(ormService);
         this.setTransactionService(transactionService);
         this.setEventService(eventService);
+        this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
-        this.setDeviceProtocolService(deviceProtocolService);
+        this.addDeviceProtocolService(deviceProtocolService);
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.setConnectionTypeService(connectionTypeService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
         }
+    }
+
+    @Override
+    public Class loadProtocolClass(String javaClassName) {
+        for (DeviceProtocolService service : this.deviceProtocolServices) {
+            try {
+                service.loadProtocolClass(javaClassName);
+            }
+            catch (ProtocolCreationException e) {
+                // Try the next DeviceProtocolService
+            }
+        }
+        throw new ProtocolCreationException(javaClassName);
     }
 
     @Override
@@ -403,13 +421,13 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.pluggableService = pluggableService;
     }
 
-    public DeviceProtocolService getDeviceProtocolService() {
-        return deviceProtocolService;
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
+        this.deviceProtocolServices.add(deviceProtocolService);
     }
 
-    @Reference
-    public void setDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
-        this.deviceProtocolService = deviceProtocolService;
+    public void removeDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
+        this.deviceProtocolServices.remove(deviceProtocolService);
     }
 
     public InboundDeviceProtocolService getInboundDeviceProtocolService() {
@@ -457,7 +475,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
-                bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
                 bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
                 bind(ConnectionTypeService.class).toInstance(connectionTypeService);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);

@@ -31,7 +31,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
@@ -80,7 +79,6 @@ public class DeviceProtocolPluggableClassImplTest {
     public static final String MOCK_NOT_A_DEVICE_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol";
 
     private static ProtocolPluggableService protocolPluggableService;
-    private static DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
     private static PluggableService pluggableService = mock(PluggableService.class);
 
     private static DataModel dataModel;
@@ -95,7 +93,7 @@ public class DeviceProtocolPluggableClassImplTest {
         when(principal.getName()).thenReturn("InMemoryPersistence.mdc.protocol.pluggable");
         InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
-                new MockModule(bundleContext, eventAdmin, deviceProtocolService, pluggableService),
+                new MockModule(bundleContext, eventAdmin, pluggableService),
                 bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
@@ -128,10 +126,10 @@ public class DeviceProtocolPluggableClassImplTest {
 
     @BeforeClass
     public static void initializeDeviceProtocolService () {
-        when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL)).thenReturn(MockDeviceProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_METER_PROTOCOL)).thenReturn(MockMeterProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_SMART_METER_PROTOCOL)).thenReturn(MockSmartMeterProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
+        when(protocolPluggableService.loadProtocolClass(MOCK_DEVICE_PROTOCOL)).thenReturn(MockDeviceProtocol.class);
+        when(protocolPluggableService.loadProtocolClass(MOCK_METER_PROTOCOL)).thenReturn(MockMeterProtocol.class);
+        when(protocolPluggableService.loadProtocolClass(MOCK_SMART_METER_PROTOCOL)).thenReturn(MockSmartMeterProtocol.class);
+        when(protocolPluggableService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
     }
 
     @AfterClass
@@ -159,7 +157,7 @@ public class DeviceProtocolPluggableClassImplTest {
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_DEVICE_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
 
         // Business method
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(name, MOCK_DEVICE_PROTOCOL);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL);
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -173,7 +171,7 @@ public class DeviceProtocolPluggableClassImplTest {
         PluggableClass pluggableClass = mock(PluggableClass.class);
         when(pluggableClass.getJavaClassName()).thenReturn(MOCK_DEVICE_PROTOCOL);
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_DEVICE_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(name, MOCK_DEVICE_PROTOCOL);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL);
 
         // Business method
         deviceProtocolPluggableClass.save();
@@ -193,7 +191,7 @@ public class DeviceProtocolPluggableClassImplTest {
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_METER_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
 
         // Business method
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(name, MOCK_METER_PROTOCOL);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_METER_PROTOCOL);
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -210,7 +208,7 @@ public class DeviceProtocolPluggableClassImplTest {
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_SMART_METER_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
 
         // Business method
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(name, MOCK_SMART_METER_PROTOCOL);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_SMART_METER_PROTOCOL);
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -225,7 +223,7 @@ public class DeviceProtocolPluggableClassImplTest {
         when(pluggableClass.getJavaClassName()).thenReturn(MOCK_NOT_A_DEVICE_PROTOCOL);
         when(pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(Arrays.asList(pluggableClass));
 
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(name, MOCK_NOT_A_DEVICE_PROTOCOL);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_NOT_A_DEVICE_PROTOCOL);
 
         // Business method
         deviceProtocolPluggableClass.getDeviceProtocol();
@@ -236,14 +234,12 @@ public class DeviceProtocolPluggableClassImplTest {
 
         private BundleContext bundleContext;
         private EventAdmin eventAdmin;
-        private DeviceProtocolService deviceProtocolService;
         private PluggableService pluggableService;
 
-        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, DeviceProtocolService deviceProtocolService, PluggableService pluggableService) {
+        private MockModule(BundleContext bundleContext, EventAdmin eventAdmin, PluggableService pluggableService) {
             super();
             this.bundleContext = bundleContext;
             this.eventAdmin = eventAdmin;
-            this.deviceProtocolService = deviceProtocolService;
             this.pluggableService = pluggableService;
         }
 
@@ -251,7 +247,6 @@ public class DeviceProtocolPluggableClassImplTest {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
             bind(ConnectionTypeService.class).toInstance(mock(ConnectionTypeService.class));

@@ -1,9 +1,9 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
+package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
@@ -33,17 +33,18 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolSecuritySupportAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.SimpleTestMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 import org.fest.assertions.core.Condition;
 import org.junit.*;
@@ -102,6 +103,8 @@ public class MeterProtocolAdapterTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private TransactionService transactionService;
+    @Mock
     private OrmService ormService;
     @Mock
     private EventService eventService;
@@ -127,7 +130,17 @@ public class MeterProtocolAdapterTest {
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
         when(this.deviceProtocolSecurityService.createDeviceProtocolSecurityFor("com.energyict.comserver.adapters.common.SimpleTestDeviceSecuritySupport")).
                 thenReturn(new SimpleTestDeviceSecuritySupport());
-        protocolPluggableService = new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.pluggableService, this.relationService, this.deviceProtocolService, this.inboundDeviceProtocolService, this.connectionTypeService);
+        protocolPluggableService =
+                new ProtocolPluggableServiceImpl(
+                        this.ormService,
+                        this.transactionService,
+                        this.eventService,
+                        this.propertySpecService,
+                        this.pluggableService,
+                        this.relationService,
+                        this.deviceProtocolService,
+                        this.inboundDeviceProtocolService,
+                        this.connectionTypeService);
     }
 
     @Before
