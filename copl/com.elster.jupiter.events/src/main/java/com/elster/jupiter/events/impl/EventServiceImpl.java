@@ -69,7 +69,7 @@ public class EventServiceImpl implements EventService, InstallService {
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService).install();
+        new InstallerImpl(dataModel, messageService, thesaurus).install();
     }
 
     @Reference
