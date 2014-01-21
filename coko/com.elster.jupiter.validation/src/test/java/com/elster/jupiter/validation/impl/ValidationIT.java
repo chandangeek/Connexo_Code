@@ -29,6 +29,7 @@ import com.elster.jupiter.validation.ValidationStats;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.google.common.base.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +46,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -204,9 +206,9 @@ public class ValidationIT {
         when(meteringService.findChannel(CHANNEL2_ID)).thenReturn(Optional.of(channel2));
 
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
-        when(channel1.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2));
+        when((Object) channel1.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2));
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
-        when(channel2.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType3));
+        when((Object) channel2.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType3));
 
         when(eventType.getTopic()).thenReturn("com/elster/jupiter/metering/reading/CREATED");
         Map<Channel, Interval> map = new HashMap<>();

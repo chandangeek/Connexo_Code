@@ -59,7 +59,7 @@ public class MeterActivationValidationImplTest {
     @Before
     public void setUp() {
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
-        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
+        when((Object) dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new ChannelValidationImpl(dataModel, meteringService);
