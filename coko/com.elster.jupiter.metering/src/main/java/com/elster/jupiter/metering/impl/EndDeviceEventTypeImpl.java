@@ -125,7 +125,7 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     private void setTransientFields() {
         String[] parts = mRID.split("\\.");
         if (parts.length != MRID_FIELD_COUNT) {
-            throw new IllegalMRIDFormatException(mRID, thesaurus);
+            throw new IllegalMRIDFormatException(thesaurus, mRID);
         }
         try {
             type = EndDeviceType.get(Integer.parseInt(parts[0]));

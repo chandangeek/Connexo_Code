@@ -108,7 +108,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 				return each;
 			}
 		}
-		throw new IllegalCurrencyCodeException(isoCode, thesaurus);
+		throw new IllegalCurrencyCodeException(thesaurus, isoCode);
 	}
 	
 	static int getCurrencyId(Currency currency) {
@@ -134,7 +134,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
-			throw new IllegalMRIDFormatException(mRID, thesaurus);
+			throw new IllegalMRIDFormatException(thesaurus, mRID);
 		}
         try {
             macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));

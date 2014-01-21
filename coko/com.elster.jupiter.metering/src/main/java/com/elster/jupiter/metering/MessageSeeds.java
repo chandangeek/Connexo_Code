@@ -25,6 +25,11 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     @Override
+    public String getModule() {
+        return MeteringService.COMPONENTNAME;
+    }
+
+    @Override
     public int getNumber() {
         return number;
     }

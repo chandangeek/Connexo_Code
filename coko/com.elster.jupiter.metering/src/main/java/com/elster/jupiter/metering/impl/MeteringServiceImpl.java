@@ -92,7 +92,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public void install() {
     	dataModel.install(true, true);
-        new InstallerImpl(this, idsService, partyService, userService, eventService).install();
+        new InstallerImpl(this, idsService, partyService, userService, eventService,thesaurus).install();
     }
 
     @Override

@@ -19,7 +19,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 
 import java.util.ArrayList;
