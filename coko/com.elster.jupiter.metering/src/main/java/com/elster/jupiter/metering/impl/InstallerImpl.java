@@ -1,16 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.joda.time.MutableDateTime;
-
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
@@ -20,14 +9,31 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
+import org.joda.time.MutableDateTime;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class InstallerImpl {
 
@@ -40,13 +46,15 @@ public class InstallerImpl {
     private final PartyService partyService;
     private final UserService userService;
     private final EventService eventService;
+    private final Thesaurus thesaurus;
 
-    public InstallerImpl(DataModel dataModel, IdsService idsService, PartyService partyService, UserService userService, EventService eventService) {
+    public InstallerImpl(DataModel dataModel, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
+        this.thesaurus = thesaurus;
     }
 
     public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
@@ -195,5 +203,32 @@ public class InstallerImpl {
         return result;
     }
 
+    private void createTranslations() {
+        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+        }
+        thesaurus.addTranslations(translations);
+    }
+
+    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
+        return new Translation() {
+            @Override
+            public NlsKey getNlsKey() {
+                return nlsKey;
+            }
+
+            @Override
+            public Locale getLocale() {
+                return locale;
+            }
+
+            @Override
+            public String getTranslation() {
+                return translation;
+            }
+        };
+    }
 
 }
