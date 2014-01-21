@@ -4,6 +4,9 @@ import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,11 +38,16 @@ public class TransientDestinationSpecTest {
     private TransientSubscriberSpec subscriber1, subscriber2;
     @Mock
     private TransientSubscriberSpec subscriber;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat nlsMessageFormat;
 
     @Before
     public void setUp() throws Exception {
         when(queueTableSpec.isMultiConsumer()).thenReturn(true);
-        destinationSpec = new TransientDestinationSpec(queueTableSpec, NAME);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
+        destinationSpec = new TransientDestinationSpec(queueTableSpec, thesaurus, NAME);
     }
 
     @After

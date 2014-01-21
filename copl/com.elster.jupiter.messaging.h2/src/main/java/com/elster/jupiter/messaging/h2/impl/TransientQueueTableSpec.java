@@ -2,6 +2,7 @@ package com.elster.jupiter.messaging.h2.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,16 +14,18 @@ class TransientQueueTableSpec implements QueueTableSpec {
     private State state;
     private String name;
     private List<TransientDestinationSpec> destinations = new CopyOnWriteArrayList<>();
+    private final Thesaurus thesaurus;
 
-    public static TransientQueueTableSpec createTopic(String name, String payloadType) {
-        return new TransientQueueTableSpec(name, payloadType, States.TOPIC);
+    public static TransientQueueTableSpec createTopic(Thesaurus thesaurus, String name, String payloadType) {
+        return new TransientQueueTableSpec(thesaurus, name, payloadType, States.TOPIC);
     }
 
-    public static TransientQueueTableSpec createQueue(String name, String payloadType) {
-        return new TransientQueueTableSpec(name, payloadType, States.QUEUE);
+    public static TransientQueueTableSpec createQueue(Thesaurus thesaurus, String name, String payloadType) {
+        return new TransientQueueTableSpec(thesaurus, name, payloadType, States.QUEUE);
     }
 
-    private TransientQueueTableSpec(String name, String payloadType, State state) {
+    private TransientQueueTableSpec(Thesaurus thesaurus, String name, String payloadType, State state) {
+        this.thesaurus = thesaurus;
         this.name = name;
         this.payloadType = payloadType;
         this.state = state;
@@ -95,7 +98,7 @@ class TransientQueueTableSpec implements QueueTableSpec {
 
     @Override
     public DestinationSpec createDestinationSpec(String name, int retryDelay) {
-        TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, name);
+        TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name);
         destinations.add(destinationSpec);
         return destinationSpec;
     }

@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import org.joda.time.Seconds;
 
 import java.util.Collections;
@@ -19,9 +20,11 @@ class TransientDestinationSpec implements DestinationSpec {
     private boolean active;
     private final List<TransientSubscriberSpec> subscribers = new CopyOnWriteArrayList<>();
     private final String name;
+    private final Thesaurus thesaurus;
 
-    public TransientDestinationSpec(QueueTableSpec queueTableSpec, String name) {
+    public TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name) {
         this.queueTableSpec = queueTableSpec;
+        this.thesaurus = thesaurus;
         this.name = name;
     }
 
@@ -80,14 +83,14 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public SubscriberSpec subscribe(String name) {
         if (!active) {
-            throw new InactiveDestinationException(this, name);
+            throw new InactiveDestinationException(thesaurus, this, name);
         }
         if (!queueTableSpec.isMultiConsumer() && !subscribers.isEmpty()) {
-            throw new AlreadyASubscriberForQueueException(this);
+            throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
         for (TransientSubscriberSpec subscriber : subscribers) {
             if (subscriber.getName().equals(name)) {
-                throw new DuplicateSubscriberNameException(name);
+                throw new DuplicateSubscriberNameException(thesaurus, name);
             }
         }
         TransientSubscriberSpec subscriberSpec = new TransientSubscriberSpec(this, name);

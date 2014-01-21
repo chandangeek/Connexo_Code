@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.h2.impl;
 
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import oracle.AQ.AQException;
 import org.junit.After;
@@ -25,10 +26,12 @@ public class QueueTableSpecImplTest {
 
     @Mock
     private DataMapper<QueueTableSpec> queueTableSpecFactory;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() throws SQLException, JMSException {
-        queueTableSpec = TransientQueueTableSpec.createQueue(NAME, PAYLOAD_TYPE);
+        queueTableSpec = TransientQueueTableSpec.createQueue(thesaurus, NAME, PAYLOAD_TYPE);
     }
 
     @After

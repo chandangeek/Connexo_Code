@@ -4,9 +4,13 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,20 +19,27 @@ import java.util.Map;
 public class TransientMessageService implements MessageService, InstallService {
 
     private final Map<String, TransientQueueTableSpec> queueTableSpecs = new HashMap<>();
-    
+
+    private volatile Thesaurus thesaurus;
+
     @Override
     public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
         if (queueTableSpecs.containsKey(name)) {
             throw new IllegalArgumentException();
         }
         if (multiConsumer) {
-            TransientQueueTableSpec topic = TransientQueueTableSpec.createTopic(name, payloadType);
+            TransientQueueTableSpec topic = TransientQueueTableSpec.createTopic(thesaurus, name, payloadType);
             queueTableSpecs.put(name, topic);
             return topic;
         }
-        TransientQueueTableSpec queue = TransientQueueTableSpec.createQueue(name, payloadType);
+        TransientQueueTableSpec queue = TransientQueueTableSpec.createQueue(thesaurus, name, payloadType);
         queueTableSpecs.put(name, queue);
         return queue;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.SERVICE);
     }
 
     @Override
