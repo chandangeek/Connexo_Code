@@ -1,15 +1,17 @@
 package com.energyict.mdc.engine.model.impl;
 
+import com.energyict.mdc.Expected;
+import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.sql.SQLException;
 import org.junit.Rule;
@@ -43,7 +45,9 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     private static final String TRUST_STORE_PASSWORD = STORE_PASSWORD;
 
     @Rule
-    public TestRule createDatabaseRule = new TransactionalRule(getTransactionService());
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
+    @Rule
+    public TestRule expectedErrorRule = new ExpectedErrorRule();
 
     @Test
     @Transactional
@@ -95,123 +99,157 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         assertTrue("Incorrect https flag", comPort.useHttps());
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testCreateWithoutName() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
-                .comPortType(ComPortType.SERVLET).add();
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class)
     @Transactional
     public void testCreateWithoutComPortPool() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
                 .name(COMPORT_NAME)
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .comPortType(ComPortType.SERIAL)
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
-                .comPortType(ComPortType.SERVLET).add();
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting an TranslatableApplicationException to be thrown because the ComPortPool is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
-    @Transactional
-    public void testCreateWithOutboundComPortPool() throws BusinessException, SQLException {
-        createOnlineComServer().newServletBasedInboundComPort()
-                .name(COMPORT_NAME)
-                .description(DESCRIPTION)
-                .active(ACTIVE)
-                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .portNumber(PORT_NUMBER)
-                .contextPath(CONTEXT_PATH)
-                .comPortType(ComPortType.SERVLET).add();
-
-        // Expecting an InvalidReferenceException to be thrown because the ComPortPool is an OutboundComPortPool
-    }
-
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortX")
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
-        this.testCreateWithoutViolations();
+        OnlineComServer onlineComServer = createOnlineComServer();
+        ServletBasedInboundComPort comPort = this.createSimpleComPort(onlineComServer);
 
-        createOnlineComServer().newServletBasedInboundComPort()
+        onlineComServer.newServletBasedInboundComPort()
                 .name(COMPORT_NAME)
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
-                .comPortType(ComPortType.SERVLET).add();
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class)
     @Transactional
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
                 .name(COMPORT_NAME)
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
                 .numberOfSimultaneousConnections(0)
-                .comPortType(ComPortType.SERVLET).add();
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class)
     @Transactional
     public void testCreateWithZeroPortNumber() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
                 .name(COMPORT_NAME)
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
                 .portNumber(0)
                 .contextPath(CONTEXT_PATH)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortType(ComPortType.SERVLET).add();
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class)
     @Transactional
     public void testCreateWithoutContextPath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
                 .name(COMPORT_NAME)
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .portNumber(0)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
                 .contextPath(null)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortType(ComPortType.SERVLET).add();
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class)
     @Transactional
     public void testCreateWithEmptyContextPath() throws BusinessException, SQLException {
         createOnlineComServer().newServletBasedInboundComPort()
                 .name(COMPORT_NAME)
+                .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .portNumber(0)
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
                 .contextPath("")
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortType(ComPortType.SERVLET).add();
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
@@ -222,13 +260,17 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         try {
             createOnlineComServer().newServletBasedInboundComPort()
                     .name(COMPORT_NAME)
+                    .https(true)
                     .description(DESCRIPTION)
                     .active(ACTIVE)
-                    .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                    .https(false)
-                    .contextPath(CONTEXT_PATH)
+                    .comPortPool(createComPortPool())
                     .portNumber(PORT_NUMBER)
-                    .comPortType(null).add();
+                    .contextPath(CONTEXT_PATH)
+                    .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                    .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                    .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                    .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                    .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
         } catch (TranslatableApplicationException e) {
             if (!e.getMessageId().equals("XcannotBeEmpty")) {
                 fail("Should have gotten an exception indicating that the comPortType could not be empty, but was " + e.getMessage());
