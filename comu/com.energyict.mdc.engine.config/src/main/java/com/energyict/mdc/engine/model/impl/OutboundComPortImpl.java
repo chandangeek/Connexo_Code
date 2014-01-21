@@ -4,14 +4,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
-
 import com.google.inject.Provider;
-import java.util.List;
+
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPort} interface.
@@ -19,7 +19,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundComPort {
+public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort {
 
     private final EngineModelService engineModelService;
     private int numberOfSimultaneousConnections;
@@ -64,7 +64,7 @@ public class OutboundComPortImpl extends ComPortImpl implements ServerOutboundCo
         }
     }
 
-    static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, ServerOutboundComPort> implements OutboundComPortBuilder {
+    static class OutboundComPortBuilderImpl extends ComPortBuilderImpl<OutboundComPortBuilder, OutboundComPort> implements OutboundComPortBuilder {
         protected OutboundComPortBuilderImpl(Provider<OutboundComPortImpl> outboundComPortProvider) {
             super(OutboundComPortBuilder.class, outboundComPortProvider.get());
         }

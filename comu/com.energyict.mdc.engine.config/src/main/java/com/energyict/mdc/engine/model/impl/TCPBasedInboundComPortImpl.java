@@ -1,10 +1,13 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.IPBasedInboundComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.google.inject.Provider;
+
 import javax.inject.Inject;
 
 /**
@@ -13,7 +16,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServerTCPBasedInboundComPort {
+public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements TCPBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     @Inject
     protected TCPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
@@ -26,10 +29,10 @@ public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     }
 
     static class TCPBasedInboundComPortBuilderImpl
-            extends IpBasedInboundComPortBuilderImpl<TCPBasedInboundComPortBuilder, ServerTCPBasedInboundComPort>
+            extends IpBasedInboundComPortBuilderImpl<TCPBasedInboundComPortBuilder, TCPBasedInboundComPort>
             implements TCPBasedInboundComPortBuilder {
 
-        protected TCPBasedInboundComPortBuilderImpl(Provider<ServerTCPBasedInboundComPort> ipBasedInboundComPortProvider) {
+        protected TCPBasedInboundComPortBuilderImpl(Provider<TCPBasedInboundComPort> ipBasedInboundComPortProvider) {
             super(TCPBasedInboundComPortBuilder.class, ipBasedInboundComPortProvider);
         }
     }

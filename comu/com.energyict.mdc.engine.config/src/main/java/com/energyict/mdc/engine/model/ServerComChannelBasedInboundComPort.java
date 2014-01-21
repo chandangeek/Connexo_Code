@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.engine.model.impl.ServerInboundComPort;
 import com.energyict.mdc.protocol.api.ComChannel;
 
 /**
@@ -11,6 +10,6 @@ import com.energyict.mdc.protocol.api.ComChannel;
  * Date: 19/10/12
  * Time: 15:31
  */
-public interface ServerComChannelBasedInboundComPort extends ServerInboundComPort {
+public interface ServerComChannelBasedInboundComPort extends InboundComPort {
 
 }

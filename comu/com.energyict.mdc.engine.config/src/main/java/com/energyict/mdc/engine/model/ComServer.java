@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.util.time.UtcInstant;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.impl.ComServerImpl;
 import java.util.Date;
@@ -252,5 +253,21 @@ public interface ComServer {
     public void delete();
 
     public void save();
+    /**
+     * Gets the URI on which the event registration mechanism runs
+     * if that mechanism is supported.
+     *
+     * @return The URI
+     * @throws com.energyict.mdc.common.BusinessException Thrown if this ComServer does not support event registration
+     */
+    public String getEventRegistrationUriIfSupported () throws BusinessException;
+
+    /**
+     * Gets the URI on which the remote query api runs if that is supported.
+     *
+     * @return The URI
+     * @throws BusinessException Thrown if this ComServer does not support the remote query api
+     */
+    public String getQueryApiPostUriIfSupported () throws BusinessException;
 
 }

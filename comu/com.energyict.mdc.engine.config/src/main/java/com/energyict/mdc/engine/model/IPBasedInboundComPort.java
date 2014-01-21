@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.engine.model.impl.ServerIPBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerInboundComPort;
-
 /**
  * Models an {@link InboundComPort} that is using IP based infrastructure.
  * These types of ports are typically configured to listen on an IP port
@@ -22,7 +19,7 @@ public interface IPBasedInboundComPort extends InboundComPort {
     public int getPortNumber();
     public void setPortNumber(int portNumber);
 
-    interface IpBasedInboundComPortBuilder<B extends IpBasedInboundComPortBuilder<B,C>, C extends ServerIPBasedInboundComPort>
+    interface IpBasedInboundComPortBuilder<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort>
             extends InboundComPortBuilder<B, C>{
         public B portNumber(int portNumber);
         public B numberOfSimultaneousConnections(int numberOfConnections);

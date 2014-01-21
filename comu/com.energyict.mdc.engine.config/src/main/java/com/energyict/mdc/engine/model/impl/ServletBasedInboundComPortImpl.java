@@ -1,8 +1,13 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
+import com.energyict.mdc.engine.model.IPBasedInboundComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.google.inject.Provider;
+
 import javax.inject.Inject;
 
 /**
@@ -11,7 +16,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-11 (11:32)
  */
-public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServerServletBasedInboundComPort {
+public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServletBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
 
     private boolean https;
     private String keyStoreSpecsFilePath;
@@ -104,10 +109,10 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
         this.contextPath = contextPath;
     }
 
-    static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>
+    static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 
-        protected ServletBasedInboundComPortBuilderImpl(Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider) {
+        protected ServletBasedInboundComPortBuilderImpl(Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider) {
             super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPortProvider);
         }
 

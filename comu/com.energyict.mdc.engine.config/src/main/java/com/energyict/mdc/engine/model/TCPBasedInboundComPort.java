@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
-
 /**
  * Models an {@link IPBasedInboundComPort} that is using TCP/IP based infrastructure.
  *
@@ -10,7 +8,7 @@ import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
  */
 public interface TCPBasedInboundComPort extends IPBasedInboundComPort {
 
-    interface TCPBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<TCPBasedInboundComPortBuilder, ServerTCPBasedInboundComPort> {
+    interface TCPBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<TCPBasedInboundComPortBuilder, TCPBasedInboundComPort> {
 
     }
 

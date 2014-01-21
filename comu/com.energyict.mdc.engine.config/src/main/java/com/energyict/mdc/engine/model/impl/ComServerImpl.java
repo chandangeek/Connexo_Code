@@ -9,16 +9,20 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
+import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
 import com.google.inject.Provider;
-import java.util.Iterator;
+
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +51,10 @@ public abstract class ComServerImpl implements ServerComServer {
     private final EngineModelService engineModelService;
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
 
-    private final Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider;
-    private final Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider;
-    private final Provider<ServerTCPBasedInboundComPort> tcpBasedInboundComPortProvider;
-    private final Provider<ServerUDPBasedInboundComPort> udpBasedInboundComPortProvider;
+    private final Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
+    private final Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
+    private final Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
+    private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
 
     private long id;
     private String name;
@@ -60,12 +64,12 @@ public abstract class ComServerImpl implements ServerComServer {
     private TimeDuration changesInterPollDelay;
     private TimeDuration schedulingInterPollDelay;
     private UtcInstant modificationDate;
-    private final List<ServerComPort>  comPorts = new ArrayList<>();
+    private final List<ComPort>  comPorts = new ArrayList<>();
     private boolean obsoleteFlag;
     private Date obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServerServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ServerModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<ServerTCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<ServerUDPBasedInboundComPort> udpBasedInboundComPortProvider) {
+    protected ComServerImpl(DataModel dataModel, EngineModelService engineModelService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider) {
         super();
         this.dataModel = dataModel;
         this.engineModelService = engineModelService;
@@ -76,7 +80,7 @@ public abstract class ComServerImpl implements ServerComServer {
         this.udpBasedInboundComPortProvider = udpBasedInboundComPortProvider;
     }
 
-    private List<ServerComPort> getServerComPorts () {
+    private List<ComPort> getServerComPorts () {
         return ImmutableList.copyOf(this.comPorts);
     }
 
@@ -133,7 +137,7 @@ public abstract class ComServerImpl implements ServerComServer {
     }
 
     private void makeComPortsObsolete () {
-        for (ServerComPort comPort : this.getServerComPorts()) {
+        for (ComPort comPort : this.getServerComPorts()) {
             comPort.makeObsolete();
         }
     }
@@ -164,7 +168,7 @@ public abstract class ComServerImpl implements ServerComServer {
         //todo merge lists in stead of delting re-adding
         this.comPorts.clear();
         for (ComPort comPort : comPorts) {
-            this.comPorts.add((ServerComPort) comPort);
+            this.comPorts.add((ComPort) comPort);
         }
     }
 
@@ -202,12 +206,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
         private OutboundComPortBuilder() {
             super(outboundComPortProvider);
-            comPort.init(ComServerImpl.this);
+            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 
         @Override
-        public ServerOutboundComPort add() {
-            ServerOutboundComPort comPort = super.add();
+        public OutboundComPort add() {
+            OutboundComPort comPort = super.add();
             ComServerImpl.this.comPorts.add(comPort);
             return comPort;
         }
@@ -222,12 +226,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
         protected ServletBasedComPortBuilder() {
             super(servletBasedInboundComPortProvider);
-            comPort.init(ComServerImpl.this);
+            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 
         @Override
-        public ServerServletBasedInboundComPort add() {
-            ServerServletBasedInboundComPort comPort = super.add();
+        public ServletBasedInboundComPort add() {
+            ServletBasedInboundComPort comPort = super.add();
             ComServerImpl.this.comPorts.add(comPort);
             return comPort;
         }
@@ -242,12 +246,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
         protected ModemBasedComPortBuilder() {
             super(modemBasedInboundComPortProvider);
-            comPort.init(ComServerImpl.this);
+            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 
         @Override
-        public ServerModemBasedInboundComPort add() {
-            ServerModemBasedInboundComPort comPort = super.add();
+        public ModemBasedInboundComPort add() {
+            ModemBasedInboundComPort comPort = super.add();
             ComServerImpl.this.comPorts.add(comPort);
             return comPort;
         }
@@ -262,12 +266,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
         protected TCPBasedComPortBuilder() {
             super(tcpBasedInboundComPortProvider);
-            comPort.init(ComServerImpl.this);
+            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 
         @Override
-        public ServerTCPBasedInboundComPort add() {
-            ServerTCPBasedInboundComPort comPort = super.add();
+        public TCPBasedInboundComPort add() {
+            TCPBasedInboundComPort comPort = super.add();
             ComServerImpl.this.comPorts.add(comPort);
             return comPort;
         }
@@ -282,12 +286,12 @@ public abstract class ComServerImpl implements ServerComServer {
 
         protected UDPBasedComPortBuilder() {
             super(udpBasedInboundComPortProvider);
-            comPort.init(ComServerImpl.this);
+            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
         }
 
         @Override
-        public ServerUDPBasedInboundComPort add() {
-            ServerUDPBasedInboundComPort comPort = super.add();
+        public UDPBasedInboundComPort add() {
+            UDPBasedInboundComPort comPort = super.add();
             ComServerImpl.this.comPorts.add(comPort);
             return comPort;
         }
@@ -329,9 +333,9 @@ public abstract class ComServerImpl implements ServerComServer {
 
     @Override
     public void removeComPort(long id) {
-        Iterator<ServerComPort> iterator = comPorts.iterator();
+        Iterator<ComPort> iterator = comPorts.iterator();
         while(iterator.hasNext()) {
-            ServerComPort next = iterator.next();
+            ComPort next = iterator.next();
             if (next.getId()==id) {
                 iterator.remove();
             }

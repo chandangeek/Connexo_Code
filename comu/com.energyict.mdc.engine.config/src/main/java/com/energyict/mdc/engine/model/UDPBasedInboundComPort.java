@@ -1,8 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerUDPBasedInboundComPort;
-
 /**
  * Models an {@link IPBasedInboundComPort} that is using UDP/IP based infrastructure.
  *
@@ -25,7 +22,7 @@ public interface UDPBasedInboundComPort extends IPBasedInboundComPort {
 
     public void setBufferSize(int size);
 
-    interface UDPBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<UDPBasedInboundComPortBuilder, ServerUDPBasedInboundComPort> {
+    interface UDPBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<UDPBasedInboundComPortBuilder, UDPBasedInboundComPort> {
         public UDPBasedInboundComPortBuilder bufferSize(int bufferSize);
     }
     
