@@ -28,7 +28,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
      */
     A1440(1, "com.energyict.protocolimpl.iec1107.a1440.A1440", FamilyRule.ELSTER_IEC),
     ABBA1500(2, "com.energyict.protocolimpl.iec1107.abba1500.ABBA1500"),
-    EIWEB(3, "com.energyict.rtuprotocol.EIWeb", FamilyRule.EICT_RTU_EMS),
+    EIWEB(3, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
     EK88(4, "com.elster.protocolimpl.lis100.EK88"),
     INSTROMET444(5, "com.energyict.protocolimpl.instromet.v444.Instromet444"),
     INSTROMET555(6, "com.energyict.protocolimpl.instromet.v555.Instromet555"),

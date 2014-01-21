@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.protocols.mdc.ConnectionTypeRule;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
+import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,7 +39,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     @Override
     public ConnectionType createConnectionType(String javaClassName) {
         try {
-            ConnectionTypeImpl connectionType = (ConnectionTypeImpl) (getClass().getClassLoader().loadClass(javaClassName)).newInstance();
+            ServerConnectionType connectionType = (ServerConnectionType) (getClass().getClassLoader().loadClass(javaClassName)).newInstance();
             connectionType.setPropertySpecService(this.propertySpecService);
             return connectionType;
         }

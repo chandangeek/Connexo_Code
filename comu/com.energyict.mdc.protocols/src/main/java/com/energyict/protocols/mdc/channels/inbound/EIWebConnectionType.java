@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.channels.inbound;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -8,6 +9,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -21,12 +23,21 @@ import java.util.Set;
  * Date: 13/12/12
  * Time: 15:46
  */
-public class EIWebConnectionType implements ConnectionType {
-
-    private TypedProperties properties = TypedProperties.empty();
+public class EIWebConnectionType implements ServerConnectionType {
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String MAC_ADDRESS_PROPERTY_NAME = "macAddress";
+
+    private TypedProperties properties = TypedProperties.empty();
+    private PropertySpecService propertySpecService;
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     private PropertySpec ipAddressPropertySpec() {
         return OptionalPropertySpecFactory.newInstance().stringPropertySpec(IP_ADDRESS_PROPERTY_NAME);

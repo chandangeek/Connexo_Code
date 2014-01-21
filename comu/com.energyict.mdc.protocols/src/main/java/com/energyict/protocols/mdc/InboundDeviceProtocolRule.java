@@ -11,9 +11,7 @@ import com.energyict.protocols.mdc.inbound.general.DoubleIframeDiscover;
 import com.energyict.protocols.mdc.inbound.general.IframeDiscover;
 
 public enum InboundDeviceProtocolRule implements PluggableClassDefinition<InboundDeviceProtocol> {
-    ServletInbound(ServletBasedInboundDeviceProtocol.class),
     EIWebBulk(com.energyict.protocolimplv2.eict.eiweb.EIWebBulk.class),
-    Binary(BinaryInboundDeviceProtocol.class),
     DlmsSerialNumberDiscover(com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover.class),
     IFrameDiscover(IframeDiscover.class),
     DoubleIFrameDiscover(DoubleIframeDiscover.class),
