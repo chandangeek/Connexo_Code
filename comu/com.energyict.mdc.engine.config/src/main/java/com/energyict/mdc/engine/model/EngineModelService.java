@@ -4,6 +4,7 @@ package com.energyict.mdc.engine.model;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
+import org.json.JSONObject;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -212,5 +213,9 @@ public interface EngineModelService {
     List<ComPort> findAllComPortsWithDeleted();
 
     List<ComPort> findAllComPorts();
+
+    ComServer parseComServerQueryResult(JSONObject comServerJSon);
+
+    ComPort parseComPortQueryResult(JSONObject comPortJSon);
 
 }

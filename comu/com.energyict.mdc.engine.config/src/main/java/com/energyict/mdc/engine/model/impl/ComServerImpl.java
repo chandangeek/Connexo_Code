@@ -46,8 +46,6 @@ public abstract class ComServerImpl implements ComServer {
                     OFFLINE_COMSERVER_DISCRIMINATOR, OfflineComServerImpl.class,
                     REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);
 
-    public static final int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
-    public static final int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
     private final Provider<OutboundComPortImpl> outboundComPortProvider;
