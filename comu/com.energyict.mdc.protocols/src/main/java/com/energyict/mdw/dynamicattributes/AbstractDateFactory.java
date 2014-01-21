@@ -1,4 +1,4 @@
-package com.energyict.dynamicattributes;
+package com.energyict.mdw.dynamicattributes;
 
 import java.util.Date;
 

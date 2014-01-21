@@ -1,4 +1,4 @@
-package com.energyict.dynamicattributes;
+package com.energyict.mdw.dynamicattributes;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;

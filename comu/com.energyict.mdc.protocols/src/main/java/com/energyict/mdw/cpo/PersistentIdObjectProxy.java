@@ -1,4 +1,4 @@
-package com.energyict.cpo;
+package com.energyict.mdw.cpo;
 
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.common.BusinessObjectProxy;

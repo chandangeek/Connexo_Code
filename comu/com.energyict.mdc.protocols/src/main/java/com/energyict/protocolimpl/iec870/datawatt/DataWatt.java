@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.iec870.datawatt;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.core.Dialer;
 import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
 import com.energyict.mdc.protocol.api.dialer.core.LinkException;

@@ -1,6 +1,6 @@
-package com.energyict.cpo;
+package com.energyict.mdw.cpo;
 
-import com.energyict.dynamicattributes.HexStringFactory;
+import com.energyict.mdw.dynamicattributes.HexStringFactory;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;

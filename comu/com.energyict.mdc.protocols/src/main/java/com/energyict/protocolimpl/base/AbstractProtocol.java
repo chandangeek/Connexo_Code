@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;

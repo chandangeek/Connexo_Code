@@ -1,6 +1,6 @@
-package com.energyict.cpo;
+package com.energyict.mdw.cpo;
 
-import com.energyict.dynamicattributes.ReferenceFactory;
+import com.energyict.mdw.dynamicattributes.ReferenceFactory;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;

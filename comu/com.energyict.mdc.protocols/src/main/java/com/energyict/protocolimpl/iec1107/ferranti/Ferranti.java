@@ -7,7 +7,7 @@
 package com.energyict.protocolimpl.iec1107.ferranti;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.Dialer;
 import com.energyict.mdc.protocol.api.dialer.core.DialerFactory;
