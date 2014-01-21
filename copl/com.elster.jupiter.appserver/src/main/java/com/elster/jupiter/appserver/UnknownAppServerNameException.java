@@ -1,17 +1,13 @@
 package com.elster.jupiter.appserver;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.BaseException;
 
-public class UnknownAppServerNameException extends BaseException {
+public class UnknownAppServerNameException extends LocalizedException {
 
     public UnknownAppServerNameException(String appServerName, Thesaurus thesaurus) {
-        super(ExceptionTypes.UNKOWN_APPSERVER_NAME, buildMessage(appServerName, thesaurus));
+        super(thesaurus, MessageSeeds.APPSERVER_NAME_UNKNOWN, appServerName);
         set("appServerName", appServerName);
-    }
-
-    private static String buildMessage(String appServerName, Thesaurus thesaurus) {
-        return thesaurus.getFormat(MessageSeeds.APPSERVER_NAME_UNKNOWN).format(appServerName);
     }
 
 }
