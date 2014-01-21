@@ -28,18 +28,23 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulesetOverviewForm',selector: 'ruleSetOverview #rulesetOverviewForm'} ,
         {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
         {ref: 'rulesetPreviewTitle',selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
-        {ref: 'rulesetOverviewTitle',selector: 'ruleSetPreview #rulesetOverviewTitle'} ,
+        {ref: 'rulesetOverviewTitle',selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
         {ref: 'ruleSetDetailsLink',selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
-        {ref: 'rulesListContainer',selector: 'rulesContainer #rulesListContainer'} ,
+        {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
 
+        {ref: 'rulesContainer',selector: 'rulesContainer'} ,
         {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
         {ref: 'rulesGrid',selector: 'validationruleList'},
         {ref: 'ruleSetPreview',selector:'ruleSetPreview'},
         {ref: 'ruleSetOverview',selector:'ruleSetOverview'},
         {ref: 'rulePreview',selector:'rulePreview'},
         {ref: 'ruleSetDetails',selector: 'ruleSetPreview #ruleSetDetails'},
-        {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'}
+        {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'},
+
+        {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'}
     ],
+
+    selectedRuleSet : null,
 
     init: function () {
         this.initMenu();
@@ -51,6 +56,14 @@ Ext.define('Cfg.controller.Validation', {
             '#validationruleList': {
                 selectionchange: this.previewValidationRule
             },
+            'rulesContainer button[action=showRulesAction]': {
+                click: this.showRules
+            },
+            'rulesContainer button[action=showRulesetOverviewAction]': {
+                click: this.showRuleSetOverview
+            },
+
+
             'validationrulesetList button[action=newRuleset]': {
                 click: this.newRuleSet
             },
@@ -104,52 +117,57 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     showRules: function() {
-        var selectedSets = this.getRuleSetsGrid().getSelectionModel().getSelection();
-        var ruleSetId = selectedSets[0].getId();
-        var me = this;
-        me.getValidationRulesStore().load({
-            params: {
-                id: ruleSetId
-            }});
-        var widget = Ext.widget('validationruleBrowse');
-        Cfg.getApplication().getMainController().showContent(widget);
+        this.clearRulesListContainer();
+        this.getRulesListContainer().add(Ext.create('Cfg.view.validation.RuleBrowse'));
+        this.getRulesListContainer().doComponentLayout();
     },
 
+    showRuleSetOverview: function() {
+        var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
+        var ruleSetName = this.selectedRuleSet.get("name");
+        this.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ': Overview</h1>');
+        this.getRulesetOverviewForm().loadRecord(this.selectedRuleSet);
+
+        this.clearRulesListContainer();
+        this.getRulesListContainer().add(ruleSetOverviewWidget);
+        this.getRulesListContainer().doComponentLayout();
+
+        //Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
+    },
+
+    clearRulesListContainer: function () {
+        var widget;
+        while (widget = this.getRulesListContainer().items.first()) {
+            this.getRulesListContainer().remove(widget,true);
+        }
+    },
+
+    // set selected ruleset + get rules
+    // fill container with ruleset overview
     showRulesContainer: function(id) {
-        /*var selectedSets = this.getRuleSetsGrid().getSelectionModel().getSelection();
-        var ruleSetId = selectedSets[0].getId();
         var me = this;
+        var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
+
+        me.getValidationRuleSetsStore().load();
+        me.getValidationRuleSetsStore().filter('id', id);
+        me.selectedRuleSet = me.getValidationRuleSetsStore().first();
+        me.getValidationRuleSetsStore().clearFilter();
+
+        var ruleSetName = me.selectedRuleSet.get("name");
+        this.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ': Overview</h1>');
+        this.getRulesetOverviewForm().loadRecord(me.selectedRuleSet);
+        var ruleSetId = me.selectedRuleSet.get("id");
         me.getValidationRulesStore().load({
             params: {
                 id: ruleSetId
             }});
-        var widget = Ext.widget('rulesContainer');
-        Cfg.getApplication().getMainController().showContent(widget);
-        this.getRulesListContainer().add(Ext.create('Cfg.view.validation.RuleBrowse'));*/
-
-        var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
-        var selectedSets = this.getRuleSetsGrid().getSelectionModel().getSelection();
-        if (selectedSets.length == 1) {
-            var ruleSet = selectedSets[0];
-            var ruleSetId = ruleSet.get("id");
-            var ruleSetName = ruleSet.get("name");
-            var ruleSetDescription = ruleSet.get("description");
-            alert(ruleSetId + ', ' + ruleSetName + ', ' + ruleSetDescription);
-            this.getRulesetOverviewForm().loadRecord(selectedSets[0]);
-
-
-            this.getRulesetOverviewForm().form.setValues({
-                name: ruleSetName,
-                description: ruleSetDescription,
-                numberOfInactiveRules: 1,
-                numberOfRules: 0
-            });
-            //var ruleSetName = this.getRulesetOverviewForm().form.findField('name').getSubmitValue();
-            //this.getRulesetOverviewTitle().update('<h4>' + ruleSetName + ' - Overview</h4>');
-        }
         var rulesContainerWidget = Ext.widget('rulesContainer');
+
+        this.clearRulesListContainer();
+        this.getRulesListContainer().add(ruleSetOverviewWidget);
+        this.getRulesListContainer().doComponentLayout();
+
         Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
-        this.getRulesListContainer().add(Ext.widget('ruleSetOverview'));
     },
 
     newRuleSet: function () {

@@ -1,6 +1,7 @@
 Ext.define('Cfg.view.validation.RulesContainer', {
     extend: 'Ext.container.Container',
     alias: 'widget.rulesContainer',
+    itemId: 'rulesContainer',
     cls: 'content-wrapper',
     overflowY: 'auto',
     requires: [
@@ -24,20 +25,25 @@ Ext.define('Cfg.view.validation.RulesContainer', {
             },
             items: [{
                 text: 'Overview',
+                itemId:'showRulesetOverviewAction',
+                action: 'showRulesetOverviewAction',
                 width: 130
             }, {
                 text: 'Rules',
+                itemId:'showRulesAction',
+                action: 'showRulesAction',
                 width: 130
             }]
         }]
     },{
-        region:'center',
-        itemId: 'rulesListContainer'
-        //xtype: 'validationruleBrowse'
-        //xtype: 'ruleSetPreview'
+        xtype: 'container',
+        region: 'center',
+        itemId: 'rulesListContainer',
+        layout: 'fit'
     }],
 
     initComponent: function () {
         this.callParent(arguments);
     }
 });
+

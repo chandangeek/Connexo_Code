@@ -7,6 +7,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
         'Cfg.view.validation.RuleSetList',
         'Cfg.view.validation.RuleSetPreview'
     ],
+    region: 'center',
 
 
     items: [

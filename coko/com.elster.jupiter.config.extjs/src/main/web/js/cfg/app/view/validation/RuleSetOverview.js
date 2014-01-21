@@ -1,7 +1,8 @@
 Ext.define('Cfg.view.validation.RuleSetOverview', {
     extend: 'Ext.panel.Panel',
-    //border: true,
-    margins: '10 10 10 10',
+    border: true,
+    //margins: '0 10 10 10',
+    cls: 'content-wrapper',
     alias: 'widget.ruleSetOverview',
     itemId: 'ruleSetOverview',
     requires: [
@@ -14,7 +15,7 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
     tbar: [
         {
             xtype: 'component',
-            html: '<h1>Validation rule sets</h1>',
+            html: '<h4>Validation rule sets</h4>',
             itemId: 'rulesetOverviewTitle'
         },
         '->',
@@ -25,6 +26,7 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                 items:[
                     {
                         text: 'Edit',
+                        itemId: 'editRuleset',
                         action: 'editRuleset'
 
                     },
@@ -33,6 +35,7 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                     },
                     {
                         text: 'Delete',
+                        itemId: 'deleteRuleset',
                         action: 'deleteRuleset'
 
                     }
@@ -88,4 +91,3 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
         this.callParent(arguments);
     }
 });
-
