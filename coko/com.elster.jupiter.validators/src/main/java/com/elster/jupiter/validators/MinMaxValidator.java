@@ -5,9 +5,9 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
-import com.elster.jupiter.validation.MissingRequiredProperty;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
@@ -25,8 +25,10 @@ public class MinMaxValidator implements Validator {
     private Quantity minimum;
     private Quantity maximum;
     private ReadingType readingType;
+    private final Thesaurus thesaurus;
 
-    public MinMaxValidator(Map<String, Quantity> properties) {
+    public MinMaxValidator(Thesaurus thesaurus, Map<String, Quantity> properties) {
+        this.thesaurus = thesaurus;
         Quantity min = getRequiredQuantity(properties, MIN);
         Quantity max = getRequiredQuantity(properties, MAX);
         minimum = min;
@@ -36,7 +38,7 @@ public class MinMaxValidator implements Validator {
     private Quantity getRequiredQuantity(Map<String, Quantity> properties, String key) {
         Quantity min = properties.get(key);
         if (min == null) {
-            throw new MissingRequiredProperty(key);
+            throw new MissingRequiredProperty(thesaurus, key);
         }
         return min;
     }
