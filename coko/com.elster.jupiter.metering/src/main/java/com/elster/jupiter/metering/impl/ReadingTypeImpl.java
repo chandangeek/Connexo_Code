@@ -136,7 +136,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {
-			throw new IllegalMRIDFormatException(mRID, thesaurus);
+			throw new IllegalMRIDFormatException(thesaurus, mRID);
 		}
         try {
             macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));
