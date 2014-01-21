@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
@@ -47,6 +48,8 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private DataMapper<ValidationRuleProperties> rulePropertiesSet;
     @Mock
     private DataMapper<ReadingTypeInValidationRule> readingTypeInValidationFactory;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -57,7 +60,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
             }
         });
 

@@ -4,10 +4,15 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
@@ -66,6 +71,12 @@ public class ValidationServiceImplTest {
     private Clock clock;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat nlsMessageFormat;
 
     @Before
     public void setUp() {
@@ -75,12 +86,12 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
         when(dataModel.mapper(MeterActivationValidation.class)).thenReturn(meterActivationValidationFactory);
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
 
         validationService = new ValidationServiceImpl();
         validationService.setOrmService(ormService);
-//        when(serviceLocator.getEventService()).thenReturn(eventService);
-//        when(serviceLocator.getValidationService()).thenReturn(validationService);
-//        when(serviceLocator.getOrmClient()).thenReturn(ormClient);
+        validationService.setNlsService(nlsService);
+
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
         when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(new Answer<Object>() {
@@ -101,6 +112,7 @@ public class ValidationServiceImplTest {
                 return new ChannelValidationImpl(dataModel, meteringService);
             }
         });
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
     }
 
     @After

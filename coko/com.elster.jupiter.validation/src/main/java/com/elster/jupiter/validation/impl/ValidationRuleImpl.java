@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
@@ -51,11 +52,13 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private List<ValidationRuleProperties> properties;
     private final DataModel dataModel;
     private final ValidatorCreator validatorCreator;
+    private final Thesaurus thesaurus;
 
     @Inject
-    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator) {
+    ValidationRuleImpl(DataModel dataModel, ValidatorCreator validatorCreator, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.validatorCreator = validatorCreator;
+        this.thesaurus = thesaurus;
     }
 
     ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
@@ -262,7 +265,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private Validator createNewValidator() {
         Validator validator = validatorCreator.getValidator(this.implementation, getProps());
         if (validator == null) {
-            throw new ValidatorNotFoundException(implementation);
+            throw new ValidatorNotFoundException(thesaurus, implementation);
         }
         return validator;
     }

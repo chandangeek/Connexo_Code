@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
@@ -89,6 +90,8 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private ValidatorCreator validatorCreator;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -96,7 +99,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
             }
         });
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
@@ -126,7 +129,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
             when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
                 @Override
                 public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    return new ValidationRuleImpl(dataModel, validatorCreator);
+                    return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
                 }
             });
             validationRule = ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION);
@@ -146,7 +149,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
             }
         });
         return setId(ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION + 1), ID);
@@ -158,7 +161,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
             }
         });
         return ImmutableList.of(setId(ValidationRuleImpl.from(dataModel, ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION), OTHER_ID));

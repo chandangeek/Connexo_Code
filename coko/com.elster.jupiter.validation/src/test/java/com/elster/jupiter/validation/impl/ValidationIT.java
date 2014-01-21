@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -125,6 +126,8 @@ public class ValidationIT {
     private IntervalReadingRecord reading1_1, reading1_2, reading1_3, reading1_4, reading1_5, reading2_1, reading2_2, reading2_3, reading2_4, reading2_5;
     @Mock
     private ValidatorCreator validatorCreator;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -163,7 +166,7 @@ public class ValidationIT {
         when(dataModel.getInstance(ValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRuleImpl(dataModel, validatorCreator);
+                return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus);
             }
         });
         when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {

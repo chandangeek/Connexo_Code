@@ -4,6 +4,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -41,16 +44,18 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     private volatile Clock clock;
     private volatile List<ValidatorFactory> validatorFactories = new ArrayList<>();
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService) {
+    ValidationServiceImpl(Clock clock, EventService eventService, MeteringService meteringService, OrmService ormService, NlsService nlsService) {
         this.clock = clock;
         this.eventService = eventService;
         this.meteringService = meteringService;
         setOrmService(ormService);
+        setNlsService(nlsService);
         activate();
         install();
     }
@@ -66,6 +71,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
     }
@@ -100,6 +106,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override
@@ -165,7 +176,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
                     return factory.create(implementation, props);
                 }
             }
-            throw new ValidatorNotFoundException(implementation);
+            throw new ValidatorNotFoundException(thesaurus, implementation);
         }
     }
 
