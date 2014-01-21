@@ -5,7 +5,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.ServerComChannelBasedInboundComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.google.common.collect.Range;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements ServerComChannelBasedInboundComPort, ModemBasedInboundComPort {
+public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements ModemBasedInboundComPort, InboundComPort {
 
     private int ringCount;
     private int maximumDialErrors;
