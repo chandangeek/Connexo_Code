@@ -81,10 +81,6 @@ public abstract class ComPortInfo<T extends ComPort> {
     protected void writeTo(T source,EngineModelService engineModelService) {
         source.setName(name);
         source.setDescription(description);
-        ComServer comServer = engineModelService.findComServer(comServer_id);
-        if(comServer!=null){
-            source.setComServer(comServer);
-        }
         source.setActive(active);
         source.setComPortType(this.comPortType);
     }
