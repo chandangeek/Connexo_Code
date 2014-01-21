@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.HostName;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
@@ -26,13 +27,20 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.energyict.mdc.engine.model.impl.ComPortImpl.OUTBOUND_DISCRIMINATOR;
 import static com.energyict.mdc.engine.model.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
@@ -435,5 +443,67 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     @Override
     public List<ComPort> findAllComPorts() {
         return getComPortDataMapper().find("obsoleteFlag", false);
+    }
+
+    @Override
+    public ComServer parseComServerQueryResult(JSONObject comServerJSon) {
+        try {
+            Class<? extends ComServerImpl> comServerClass = this.getComServerClassFor(comServerJSon);
+            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            return mapper.readValue(new StringReader(comServerJSon.toString()), comServerClass);
+        }
+        catch (IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Class<? extends ComServerImpl> getComServerClassFor (JSONObject comServerJSon) throws JSONException {
+        String xmlType = comServerJSon.getString("type");
+        for (Class<? extends ComServerImpl> knownImplementationClass : this.knownComServerImplementationClasses()) {
+            if (knownImplementationClass.getSimpleName() == xmlType || xmlType != null && knownImplementationClass.getSimpleName().equals(xmlType)) {
+                return knownImplementationClass;
+            }
+        }
+        throw new RuntimeException("The ComServer returned by the remote query API is neither online, remote nor offline but was " + xmlType);
+    }
+
+    private Set<Class<? extends ComServerImpl>> knownComServerImplementationClasses () {
+        Set<Class<? extends ComServerImpl>> knownImplementationClasses = new HashSet<>();
+        knownImplementationClasses.add(OnlineComServerImpl.class);
+        knownImplementationClasses.add(RemoteComServerImpl.class);
+        knownImplementationClasses.add(OfflineComServerImpl.class);
+        return knownImplementationClasses;
+    }
+
+    @Override
+    public ComPort parseComPortQueryResult(JSONObject comPortJSon) {
+        try {
+            Class<? extends ComPortImpl> comPortClass = this.getComPortClassFor(comPortJSon);
+            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            return mapper.readValue(new StringReader(comPortJSon.toString()), comPortClass);
+        }
+        catch (IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Class<? extends ComPortImpl> getComPortClassFor (JSONObject comPortJSon) throws JSONException {
+        String xmlType = comPortJSon.getString("type");
+        for (Class<? extends ComPortImpl> knownComPortImplementationClass : this.knownComPortImplementationClasses()) {
+            if (knownComPortImplementationClass.getSimpleName() == xmlType || xmlType != null && knownComPortImplementationClass.getSimpleName().equals(xmlType)) {
+                return knownComPortImplementationClass;
+            }
+        }
+        throw new RuntimeException("The ComPort returned by the remote query API is neither outbound, servlet based, TCP based, UDP based or modem based but was " + xmlType);
+    }
+
+    private Set<Class<? extends ComPortImpl>> knownComPortImplementationClasses () {
+        Set<Class<? extends ComPortImpl>> knownClasses = new HashSet<>();
+        knownClasses.add(OutboundComPortImpl.class);
+        knownClasses.add(ServletBasedInboundComPortImpl.class);
+        knownClasses.add(TCPBasedInboundComPortImpl.class);
+        knownClasses.add(UDPBasedInboundComPortImpl.class);
+        knownClasses.add(ModemBasedInboundComPortImpl.class);
+        return knownClasses;
     }
 }

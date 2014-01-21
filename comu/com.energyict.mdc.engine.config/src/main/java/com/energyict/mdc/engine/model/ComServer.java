@@ -66,6 +66,8 @@ public interface ComServer {
 
 
     public static final int MAXIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MAX_PRIORITY;
+    int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
+    int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
 
     public enum LogLevel {
         /**

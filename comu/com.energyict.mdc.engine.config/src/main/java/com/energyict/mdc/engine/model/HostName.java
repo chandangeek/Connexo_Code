@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.model.impl;
+package com.energyict.mdc.engine.model;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
