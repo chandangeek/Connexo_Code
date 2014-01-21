@@ -25,6 +25,11 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     @Override
+    public String getModule() {
+        return EventService.COMPONENTNAME;
+    }
+
+    @Override
     public int getNumber() {
         return number;
     }
