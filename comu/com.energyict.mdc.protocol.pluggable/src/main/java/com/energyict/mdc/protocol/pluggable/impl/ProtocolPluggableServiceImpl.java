@@ -34,11 +34,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
@@ -100,7 +96,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public Class loadProtocolClass(String javaClassName) {
         for (DeviceProtocolService service : this.deviceProtocolServices) {
             try {
-                service.loadProtocolClass(javaClassName);
+                return service.loadProtocolClass(javaClassName);
             }
             catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolService
