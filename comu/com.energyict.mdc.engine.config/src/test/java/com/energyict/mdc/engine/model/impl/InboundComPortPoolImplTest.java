@@ -10,6 +10,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
@@ -347,7 +348,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
                 .name("portB").numberOfSimultaneousConnections(1).portNumber(8081).description("hello world")
                 .active(true).comPortPool(comPortPool).comPortType(ComPortType.TCP)
                 .add();
-        ServerModemBasedInboundComPort portC = onlineComServer.newModemBasedInboundComport()
+        ModemBasedInboundComPort portC = onlineComServer.newModemBasedInboundComport()
                 .name("portC")
                 .description(DESCRIPTION)
                 .active(true)

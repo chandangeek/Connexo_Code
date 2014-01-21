@@ -452,7 +452,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
             // Asserts
             assertThat(getEngineModelService().findComServer(id)).isNotNull();
             for (OutboundComPort outbound : comPorts) {
-                assertThat(((ServerComPort)outbound).isObsolete());
+                assertThat(outbound.isObsolete());
             }
         }
     }

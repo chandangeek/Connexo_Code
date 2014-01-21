@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
+import java.util.Date;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;

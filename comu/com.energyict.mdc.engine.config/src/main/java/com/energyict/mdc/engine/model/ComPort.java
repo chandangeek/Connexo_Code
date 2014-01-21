@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.protocol.api.ComPortType;
+import java.util.Date;
 
 /**
  * Models a port that can be used to communicate with a device.
@@ -139,6 +140,6 @@ public interface ComPort {
      * @return The date when this ComPort was made obsolete
      *         or <code>null</code> when this ComPort is not obsolete at all.
      */
-    public UtcInstant getObsoleteDate();
+    public Date getObsoleteDate();
 
 }

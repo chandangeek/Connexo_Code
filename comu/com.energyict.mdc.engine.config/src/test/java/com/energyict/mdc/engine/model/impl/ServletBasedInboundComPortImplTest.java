@@ -283,7 +283,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateWithKeyStoreSpecsButNoHTTPS() throws BusinessException, SQLException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(false)
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
@@ -495,7 +495,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test(expected = TranslatableApplicationException.class)
     @Transactional
     public void testUpdateWithoutKeyStore() throws SQLException, BusinessException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -511,7 +511,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test(expected = TranslatableApplicationException.class)
     @Transactional
     public void testUpdateWithoutKeyStoreFilePath() throws SQLException, BusinessException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -526,7 +526,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test(expected = TranslatableApplicationException.class)
     @Transactional
     public void testUpdateWithEmptyKeyStoreFilePath() throws SQLException, BusinessException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -541,7 +541,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test(expected = TranslatableApplicationException.class)
     @Transactional
     public void testUpdateWithoutKeyStorePassword() throws SQLException, BusinessException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -556,7 +556,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test(expected = TranslatableApplicationException.class)
     @Transactional
     public void testUpdateWithEmptyKeyStorePassword() throws SQLException, BusinessException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
@@ -571,7 +571,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     @Test(expected = TranslatableApplicationException.class)
     @Transactional
     public void testUpdateWithoutTrustStore() throws SQLException, BusinessException {
-        ServerServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
+        ServletBasedInboundComPort comPort = createOnlineComServer().newServletBasedInboundComPort()
                 .https(true)
                 .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH).keyStoreSpecsPassword(KEY_STORE_PASSWORD)
                 .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH).trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();

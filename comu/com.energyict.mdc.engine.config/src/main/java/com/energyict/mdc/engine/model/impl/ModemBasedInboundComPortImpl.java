@@ -6,6 +6,8 @@ import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.model.ServerComChannelBasedInboundComPort;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;

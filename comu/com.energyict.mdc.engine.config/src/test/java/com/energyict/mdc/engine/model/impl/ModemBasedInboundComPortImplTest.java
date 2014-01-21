@@ -149,7 +149,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void createWithoutModemInitStrings() throws BusinessException, SQLException {
-        ServerModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport()
+        ModemBasedInboundComPort comPort = createOnlineComServer().newModemBasedInboundComport()
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
