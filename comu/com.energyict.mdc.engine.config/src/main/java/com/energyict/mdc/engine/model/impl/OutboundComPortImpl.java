@@ -5,10 +5,12 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
+import java.util.List;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -25,8 +27,8 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     private int numberOfSimultaneousConnections;
 
     @Inject
-    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> provider, EngineModelService engineModelService) {
-        super(dataModel, provider);
+    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider, EngineModelService engineModelService) {
+        super(dataModel);
         this.engineModelService = engineModelService;
     }
 
@@ -50,6 +52,19 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     public void setComPortType(ComPortType type) {
         validatePoolType(type);
         super.setComPortType(type);
+    }
+
+    @Override
+    public void makeObsolete() {
+        validateMakeObsolete();
+        removeFromComPortPools();
+        super.makeObsolete();
+    }
+
+    private void removeFromComPortPools() {
+        for (ComPortPool comPortPool : engineModelService.findContainingComPortPoolsForComPort(this)) {
+            ((OutboundComPortPool)comPortPool).removeOutboundComPort(this);
+        }
     }
 
     /**

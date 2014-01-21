@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
@@ -265,6 +266,7 @@ public abstract class ComServerImpl implements ComServer {
         protected TCPBasedComPortBuilder() {
             super(tcpBasedInboundComPortProvider);
             ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
+            comPort.setComPortType(ComPortType.TCP);
         }
 
         @Override

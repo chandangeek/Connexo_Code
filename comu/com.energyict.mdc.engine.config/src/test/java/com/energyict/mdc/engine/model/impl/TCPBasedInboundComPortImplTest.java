@@ -258,9 +258,11 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Incorrect listening PortNumber", newPortNumber, comPort.getPortNumber());
     }
 
+    private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
-        inboundComPortPool.setComPortType(ComPortType.SERIAL);
+        inboundComPortPool.setName("ComPortPool "+comPortPoolIndex++);
+        inboundComPortPool.setComPortType(ComPortType.TCP);
         inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
         inboundComPortPool.save();
         return inboundComPortPool;
@@ -275,7 +277,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
+                .comPortType(ComPortType.TCP)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)

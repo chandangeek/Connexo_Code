@@ -268,19 +268,21 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         assertEquals("Buffer size should be the same", newBufferSize, comPort.getBufferSize());
     }
 
+    private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
-        inboundComPortPool.setComPortType(ComPortType.SERIAL);
+        inboundComPortPool.setComPortType(ComPortType.UDP);
+        inboundComPortPool.setName("comPortPool "+comPortPoolIndex++);
         inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
         inboundComPortPool.save();
         return inboundComPortPool;
     }
 
-    private ServerUDPBasedInboundComPort createSimpleComPort() {
+    private UDPBasedInboundComPort createSimpleComPort() {
         return createSimpleComPort(createOnlineComServer());
     }
 
-    private ServerUDPBasedInboundComPort createSimpleComPort(ComServer comServer) {
+    private UDPBasedInboundComPort createSimpleComPort(ComServer comServer) {
         return comServer.newUDPBasedInboundComPort()
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)

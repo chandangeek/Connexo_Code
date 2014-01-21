@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 
 import com.google.inject.Provider;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
 
@@ -63,6 +64,25 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     }
 
     @Override
+    public void addOutboundComPort(OutboundComPort outboundComPort) {
+        ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
+        comPortPoolMember.setComPort(outboundComPort);
+        comPortPoolMember.setComPortPool(this);
+        this.comPortPoolMembers.add(comPortPoolMember);
+    }
+
+    @Override
+    public void removeOutboundComPort(OutboundComPort outboundComPort) {
+        Iterator<ComPortPoolMember> iterator = comPortPoolMembers.iterator();
+        while(iterator.hasNext()) {
+            ComPortPoolMember comPortPoolMember = iterator.next();
+            if (comPortPoolMember.getComPort().getId()==outboundComPort.getId()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    @Override
     public void setTaskExecutionTimeout(TimeDuration taskExecutionTimeout) {
         this.taskExecutionTimeout = new TimeDuration(taskExecutionTimeout.getCount(), taskExecutionTimeout.getTimeUnitCode());
     }
@@ -88,7 +108,6 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     protected void validateDelete() {
-        super.validateDelete();
         this.validateNotUsedByConnectionMethods();
     }
 

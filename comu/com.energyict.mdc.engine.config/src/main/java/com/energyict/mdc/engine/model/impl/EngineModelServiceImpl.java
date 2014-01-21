@@ -416,7 +416,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool) {
-        return comPortPool.getComPorts();
+        List<InboundComPort> inboundComPorts = new ArrayList<>();
+        for (ComPort portPool : getComPortDataMapper().find("comPortPool", comPortPool)) {
+            inboundComPorts.add((InboundComPort) portPool);
+        }
+        return inboundComPorts;
     }
 
     @Override

@@ -17,11 +17,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
+import java.util.Date;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 
 /**
  * Serves as the root of class hierarchy that will provide
@@ -46,7 +48,6 @@ public abstract class ComPortImpl implements ComPort {
                     UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
                     OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
     private final DataModel dataModel;
-    private final Provider<ComPortPoolMember> comPortPoolMemberProvider;
 
     private long id=0;
     private String name;
@@ -55,18 +56,16 @@ public abstract class ComPortImpl implements ComPort {
     private boolean active;
     private String description;
     private boolean obsoleteFlag;
-    private UtcInstant obsoleteDate;
+    private Date obsoleteDate;
     private ComPortType type;
-    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     /**
      * Constructor for Kore persistence
      * @param dataModel
      */
     @Inject
-    protected ComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
+    protected ComPortImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 
     public void setName(String name) {
@@ -125,16 +124,6 @@ public abstract class ComPortImpl implements ComPort {
         }
     }
 
-    private void validateMakeObsolete() {
-        if (this.isObsolete()) {
-            throw new TranslatableApplicationException(
-                    "comPortIsAlreadyObsolete",
-                    "The ComPort with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
-                    this.getId(),
-                    this.getObsoleteDate());
-        }
-    }
-
     public String getType() {
         return ComPort.class.getName();
     }
@@ -173,7 +162,7 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
-    public UtcInstant getObsoleteDate() {
+    public Date getObsoleteDate() {
         return obsoleteDate;
     }
 
@@ -203,24 +192,6 @@ public abstract class ComPortImpl implements ComPort {
         return id;
     }
 
-    public List<ComPortPool> getComPortPools() {
-        List<ComPortPool> comPortPools = new ArrayList<>();
-        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
-            comPortPools.add(comPortPoolMember.getComPortPool());
-        }
-        return ImmutableList.copyOf(comPortPools);
-    }
-
-    public void setComPortPools(List<ComPortPool> comPortPools) {
-        comPortPoolMembers.clear();
-        for (ComPortPool comPortPool : comPortPools) {
-            ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
-            comPortPoolMember.setComPort(this);
-            comPortPoolMember.setComPortPool(comPortPool);
-            comPortPoolMembers.add(comPortPoolMember);
-        }
-    }
-
     @Override
     public void save() {
         validate();
@@ -236,17 +207,17 @@ public abstract class ComPortImpl implements ComPort {
     public void makeObsolete(){
         this.validateMakeObsolete();
         this.obsoleteFlag = true;
-        removeFromComPortPools();
+        this.obsoleteDate = new Date();
         dataModel.update(this);
     }
 
-    private void removeFromComPortPools() {
-        Iterator<ComPortPoolMember> iterator = comPortPoolMembers.iterator();
-        while(iterator.hasNext()) {
-            ComPortPoolMember comPortPoolMember = iterator.next();
-            if (comPortPoolMember.getComPort().getId()==this.id) {
-                iterator.remove();
-            }
+    protected void validateMakeObsolete() {
+        if (this.isObsolete()) {
+            throw new TranslatableApplicationException(
+                    "comPortIsAlreadyObsolete",
+                    "The ComPort with id {0} is already obsolete since {1,date,yyyy-MM-dd HH:mm:ss}",
+                    this.getId(),
+                    this.getObsoleteDate());
         }
     }
 

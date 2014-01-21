@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.model.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +28,9 @@ public abstract class ComPortPoolImpl implements ComPortPool {
             ImmutableMap.<String, Class<? extends ComPortPool>>of(
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
+
+    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>(); // TODO REMOVE ME
+
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
 
@@ -109,15 +112,18 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     protected void validate() {
-        this.validateNotNull(this.getComPortType(), "comportpool.comporttype");
+        validateNotNull(this.getComPortType(), "comportpool.comporttype");
+        validateNotNull(this.getName(), "name");
+//        validateUniqueName(this.getName());
+        validateNotNull(this.getComPortType(), "type");
     }
 
-    protected void validateConstraint (String name) {
-        ComPortPool comPortPool = engineModelService.findComPortPool(this.getName());
-        if (comPortPool != null && comPortPool.getId()!=this.getId() && !comPortPool.isObsolete()) {
-            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
-        }
-    }
+//    protected void validateUniqueName(String name) {
+//        ComPortPool comPortPool = engineModelService.findComPortPool(this.getName());
+//        if (comPortPool != null && comPortPool.getId()!=this.getId() && !comPortPool.isObsolete()) {
+//            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
+//        }
+//    }
 
     protected void validateNotNull (Object propertyValue, String propertyName) {
         if (propertyValue == null) {
@@ -130,7 +136,8 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         this.validateMakeObsolete();
         this.makeMembersObsolete();
         this.obsoleteFlag = true;
-        this.save();
+        this.obsoleteDate = new Date();
+        dataModel.update(this);
     }
 
     protected abstract void makeMembersObsolete ();
@@ -178,7 +185,5 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
 
-    protected void validateDelete() {
-        // NO-OP so far
-    }
+    protected abstract void validateDelete();
 }
