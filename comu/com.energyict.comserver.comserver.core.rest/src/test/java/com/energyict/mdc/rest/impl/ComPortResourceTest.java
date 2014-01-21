@@ -1,10 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.FlowControl;
-import com.energyict.mdc.channels.serial.NrOfDataBits;
-import com.energyict.mdc.channels.serial.NrOfStopBits;
-import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;

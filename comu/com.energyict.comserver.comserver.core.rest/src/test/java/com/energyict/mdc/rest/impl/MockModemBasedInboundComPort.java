@@ -191,11 +191,6 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public void setComServer(ComServer comServer) {
-        this.comServer = comServer;
-    }
-
-    @Override
     public boolean isActive() {
         return active;
     }
@@ -263,5 +258,20 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     @Override
     public void save() {
         //do nothing
+    }
+
+    @Override
+    public void makeObsolete() {
+        obsolete = true;
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return obsolete;
+    }
+
+    @Override
+    public UtcInstant getObsoleteDate() {
+        return new UtcInstant(new Date());
     }
 }
