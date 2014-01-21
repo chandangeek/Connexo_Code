@@ -40,6 +40,7 @@ public class InstallerImpl implements InstallService {
             e.printStackTrace();
         }
         messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().createDestinationSpec(JUPITER_EVENTS, RETRY_DELAY);
+        createTranslations();
     }
 
     private void createTranslations() {
