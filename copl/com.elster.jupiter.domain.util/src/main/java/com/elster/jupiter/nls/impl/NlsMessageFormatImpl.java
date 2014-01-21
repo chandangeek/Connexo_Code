@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -28,4 +29,8 @@ final class NlsMessageFormatImpl implements NlsMessageFormat {
         return message.getComponent() + new DecimalFormat("0000").format(number) + levelIndicators.get(level) + ' ' + new MessageFormat(message.getString(), thesaurus.getLocale()).format(args, new StringBuffer(), null);
     }
 
+    @Override
+    public String format(Locale locale, Object... args) {
+        return message.getComponent() + new DecimalFormat("0000").format(number) + levelIndicators.get(level) + ' ' + new MessageFormat(message.getString(locale), locale).format(args, new StringBuffer(), null);
+    }
 }

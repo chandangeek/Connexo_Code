@@ -3,6 +3,7 @@ package com.elster.jupiter.nls.impl;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 final class NlsString {
 	private String key;
@@ -27,6 +28,10 @@ final class NlsString {
 	public String getString() {
 		return thesaurus.getString(key, defaultMessage);
 	}
+
+    public String getString(Locale locale) {
+        return thesaurus.getString(locale, key, defaultMessage);
+    }
 	
 	public String getComponent() {
 		return thesaurus.getComponent();

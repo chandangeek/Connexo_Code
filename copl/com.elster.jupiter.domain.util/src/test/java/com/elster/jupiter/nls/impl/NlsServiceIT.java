@@ -3,12 +3,10 @@ package com.elster.jupiter.nls.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -37,6 +35,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.logging.Level;
 
+import static com.elster.jupiter.nls.SimpleTranslation.translation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -102,8 +101,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
                 thesaurus.addTranslations(Arrays.asList(
-                        toTranslation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
-                        toTranslation(nlsKey, Locale.FRENCH, "tension maximale"))
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
+                        translation(nlsKey, Locale.FRENCH, "tension maximale"))
                 );
             }
         });
@@ -124,8 +123,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
                 thesaurus.addTranslations(Arrays.asList(
-                        toTranslation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
-                        toTranslation(nlsKey, Locale.FRENCH, "tension maximale"))
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
+                        translation(nlsKey, Locale.FRENCH, "tension maximale"))
                 );
             }
         });
@@ -151,8 +150,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
                 thesaurus.addTranslations(Arrays.asList(
-                        toTranslation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
-                        toTranslation(nlsKey, Locale.FRENCH, "tension maximale"))
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs"),
+                        translation(nlsKey, Locale.FRENCH, "tension maximale"))
                 );
             }
         });
@@ -173,8 +172,8 @@ public class NlsServiceIT {
             public void doPerform() {
                 final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage. : {0} V");
                 thesaurus.addTranslations(Arrays.asList(
-                        toTranslation(nlsKey, Locale.GERMAN, "Höchstspannungs : {0} V"),
-                        toTranslation(nlsKey, Locale.FRENCH, "tension maximale : {0} V"))
+                        translation(nlsKey, Locale.GERMAN, "Höchstspannungs : {0} V"),
+                        translation(nlsKey, Locale.FRENCH, "tension maximale : {0} V"))
                 );
             }
         });
@@ -205,25 +204,6 @@ public class NlsServiceIT {
             @Override
             public Level getLevel() {
                 return level;
-            }
-        };
-    }
-
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
-
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
-
-            @Override
-            public String getTranslation() {
-                return translation;
             }
         };
     }
