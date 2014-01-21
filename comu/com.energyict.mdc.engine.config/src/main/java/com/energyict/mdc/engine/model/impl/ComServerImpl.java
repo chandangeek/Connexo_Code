@@ -33,7 +33,7 @@ import java.util.Map;
  * @since 2012-03-28 (10:20)
  */
 @XmlRootElement
-public abstract class ComServerImpl implements ServerComServer {
+public abstract class ComServerImpl implements ComServer {
 
     protected static final String ONLINE_COMSERVER_DISCRIMINATOR = "0";
     protected static final String OFFLINE_COMSERVER_DISCRIMINATOR = "1";

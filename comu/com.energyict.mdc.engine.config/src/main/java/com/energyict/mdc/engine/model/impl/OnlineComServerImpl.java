@@ -28,7 +28,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:36)
  */
-public class OnlineComServerImpl extends ComServerImpl implements ServerOnlineComServer {
+public class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineModelService engineModelService;
     private String queryAPIPostUri;

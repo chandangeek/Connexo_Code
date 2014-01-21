@@ -16,8 +16,8 @@ public class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public DataMapper<ServerComServer> getComServerDataMapper() {
-        return dataModel.mapper(ServerComServer.class);
+    public DataMapper<ComServer> getComServerDataMapper() {
+        return dataModel.mapper(ComServer.class);
     }
 
     @Override

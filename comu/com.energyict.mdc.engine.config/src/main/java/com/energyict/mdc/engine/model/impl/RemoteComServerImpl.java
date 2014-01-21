@@ -25,7 +25,7 @@ import java.net.URISyntaxException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:40)
  */
-public class RemoteComServerImpl extends ComServerImpl implements ServerRemoteComServer {
+public class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
     private String queryAPIUsername;

@@ -165,7 +165,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @param comServers the given list of ComServers
      * @return a list of {@link OnlineComServer}
      */
-    private List<OnlineComServer> convertComServerListToOnlineComServers(final List<ServerComServer> comServers) {
+    private List<OnlineComServer> convertComServerListToOnlineComServers(final List<ComServer> comServers) {
         List<OnlineComServer> onlineComServers = new ArrayList<OnlineComServer>(comServers.size());
         for (ComServer comServer : comServers) {
             onlineComServers.add((OnlineComServer) comServer);
@@ -180,7 +180,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @param comServers the given list of ComServers
      * @return a list of {@link OfflineComServer}
      */
-    private List<OfflineComServer> convertComServerListToOfflineComServers(final List<ServerComServer> comServers) {
+    private List<OfflineComServer> convertComServerListToOfflineComServers(final List<ComServer> comServers) {
         List<OfflineComServer> offlineComServers = new ArrayList<OfflineComServer>(comServers.size());
         for (ComServer comServer : comServers) {
             offlineComServers.add((OfflineComServer) comServer);
@@ -195,7 +195,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
      * @param comServers the given list of ComServers
      * @return a list of {@link RemoteComServer}
      */
-    private List<RemoteComServer> convertComServerListToRemoteComServers(final List<ServerComServer> comServers) {
+    private List<RemoteComServer> convertComServerListToRemoteComServers(final List<ComServer> comServers) {
         List<RemoteComServer> remoteComServers = new ArrayList<RemoteComServer>(comServers.size());
         for (ComServer comServer : comServers) {
             remoteComServers.add((RemoteComServer) comServer);
@@ -354,8 +354,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public DataMapper<ServerComServer> getComServerDataMapper() {
-        return dataModel.mapper(ServerComServer.class);
+    public DataMapper<ComServer> getComServerDataMapper() {
+        return dataModel.mapper(ComServer.class);
     }
 
     @Override
