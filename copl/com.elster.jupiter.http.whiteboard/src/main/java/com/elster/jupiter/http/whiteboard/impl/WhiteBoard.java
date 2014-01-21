@@ -52,7 +52,7 @@ public class WhiteBoard extends Application implements BinderProvider {
 	}
 	
 	String getAlias(String name) {
-		return "/js" + name;
+		return "/apps" + name;
 	}
 	
 	@Override
