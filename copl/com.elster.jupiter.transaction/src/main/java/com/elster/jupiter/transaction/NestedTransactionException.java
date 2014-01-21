@@ -10,6 +10,6 @@ public class NestedTransactionException extends BaseException {
 	private static final long serialVersionUID = 1;
 	
 	public NestedTransactionException() {
-        super(ExceptionTypes.NESTED_TRANSACTION, "Nested transactions are not allowed.");
+        super(ExceptionTypes.NESTED_TRANSACTION);
 	}
 }
