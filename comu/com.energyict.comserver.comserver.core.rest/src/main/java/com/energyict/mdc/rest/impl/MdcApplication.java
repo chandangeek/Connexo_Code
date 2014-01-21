@@ -1,11 +1,13 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import com.google.common.collect.ImmutableSet;
@@ -29,6 +31,8 @@ public class MdcApplication extends Application {
     private volatile EngineModelService engineModelService;
     private volatile ComServerService comServerService;
     private volatile ComPortService comPortService;
+    private volatile ComPortPoolService comPortPoolService;
+    private volatile PropertySpecService propertySpecService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -77,6 +81,11 @@ public class MdcApplication extends Application {
         this.licensedProtocolService = licensedProtocolService;
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -86,6 +95,8 @@ public class MdcApplication extends Application {
             bind(comPortService).to(ComPortService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(licensedProtocolService).to(LicensedProtocolService.class);
+            bind(comPortPoolService).to(ComPortPoolService.class);
+            bind(propertySpecService).to(PropertySpecService.class);
         }
     }
 
