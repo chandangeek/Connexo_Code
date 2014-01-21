@@ -28,6 +28,7 @@ public class ValidationResource {
         return infos;
     }
 
+
     @GET
      @Path("/rules/{id}")
      @Produces(MediaType.APPLICATION_JSON)
