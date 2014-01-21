@@ -5,6 +5,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
+import com.energyict.mdc.engine.model.InboundComPort;
 import com.google.inject.Provider;
 
 /**
@@ -63,7 +64,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         }
     }
 
-    static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends ServerIPBasedInboundComPort & ServerInboundComPort>
+    static class IpBasedInboundComPortBuilderImpl<B extends IpBasedInboundComPortBuilder<B,C>, C extends IPBasedInboundComPort & InboundComPort>
             extends InboundComPortBuilderImpl<B, C>
             implements IpBasedInboundComPortBuilder<B,C> {
         protected IpBasedInboundComPortBuilderImpl(Class<B> clazz, Provider<C> ipBasedInboundComPortProvider) {

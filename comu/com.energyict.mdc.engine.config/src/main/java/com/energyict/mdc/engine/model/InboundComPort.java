@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.engine.model.impl.ServerInboundComPort;
-
 /**
  * Models a {@link ComPort} that is dedicated to inbound communication.
  * Inbound ComPorts will wait for connection attempts against the port from a device.
@@ -48,7 +46,7 @@ public interface InboundComPort extends ComPort {
      */
     public boolean isServletBased();
 
-    interface InboundComPortBuilder<B extends InboundComPortBuilder<B,C>,C extends ServerInboundComPort> extends ComPort.Builder<B,C> {
+    interface InboundComPortBuilder<B extends InboundComPortBuilder<B,C>,C extends InboundComPort> extends ComPort.Builder<B,C> {
         public B comPortPool(InboundComPortPool comPortPool);
     }
 

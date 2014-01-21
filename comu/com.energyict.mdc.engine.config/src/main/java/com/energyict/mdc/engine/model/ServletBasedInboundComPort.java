@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.model;
 
-import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.IPBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerServletBasedInboundComPort;
-
 /**
  * Models an {@link com.energyict.mdc.engine.model.IPBasedInboundComPort} that is using servlet technology
  * as a means to communicate.
@@ -76,7 +72,7 @@ public interface ServletBasedInboundComPort extends IPBasedInboundComPort {
 
     public void setContextPath(String contextPath);
 
-    interface ServletBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<ServletBasedInboundComPortBuilder, ServerServletBasedInboundComPort>{
+    interface ServletBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>{
         public ServletBasedInboundComPortBuilder https(boolean https);
         public ServletBasedInboundComPortBuilder keyStoreSpecsFilePath(String uri);
         public ServletBasedInboundComPortBuilder keyStoreSpecsPassword(String password);

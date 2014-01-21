@@ -2,11 +2,6 @@ package com.energyict.mdc.engine.model;
 
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.model.impl.ServerModemBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerOutboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerServletBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerTCPBasedInboundComPort;
-import com.energyict.mdc.engine.model.impl.ServerUDPBasedInboundComPort;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 
@@ -118,15 +113,15 @@ public interface EngineModelService {
      */
     public List<InboundComPort> findAllInboundComPorts();
 
-    public ServerOutboundComPort newOutbound(ComServer owner);
+    public OutboundComPort newOutbound(ComServer owner);
 
-    public ServerModemBasedInboundComPort newModemBasedInbound(ComServer owner);
+    public ModemBasedInboundComPort newModemBasedInbound(ComServer owner);
 
-    public ServerTCPBasedInboundComPort newTCPBasedInbound(ComServer owner);
+    public TCPBasedInboundComPort newTCPBasedInbound(ComServer owner);
 
-    public ServerUDPBasedInboundComPort newUDPBasedInbound(ComServer owner);
+    public UDPBasedInboundComPort newUDPBasedInbound(ComServer owner);
 
-    public ServerServletBasedInboundComPort newServletBasedInbound(ComServer owner);
+    public ServletBasedInboundComPort newServletBasedInbound(ComServer owner);
 
     /**
      * Finds the {@link ComPortPool} with the specified unique identifier.

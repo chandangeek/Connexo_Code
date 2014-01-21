@@ -2,10 +2,9 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
+
 import javax.inject.Inject;
 
 /**
@@ -14,7 +13,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements ServerUDPBasedInboundComPort {
+public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort {
 
     private int bufferSize;
 
@@ -46,10 +45,10 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
     }
     
     static class UDPBasedInboundComPortBuilderImpl
-            extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, ServerUDPBasedInboundComPort>
+            extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, UDPBasedInboundComPort>
             implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
-        protected UDPBasedInboundComPortBuilderImpl(Provider<ServerUDPBasedInboundComPort> ipBasedInboundComPortProvider) {
+        protected UDPBasedInboundComPortBuilderImpl(Provider<UDPBasedInboundComPort> ipBasedInboundComPortProvider) {
             super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPortProvider);
         }
 

@@ -15,10 +15,10 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-
 import com.google.inject.Provider;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (12:48)
  */
-public abstract class ComPortImpl implements ServerComPort {
+public abstract class ComPortImpl implements ComPort {
 
     protected static final String MODEM_DISCRIMINATOR = "0";
     protected static final String TCP_DISCRIMINATOR = "1";
@@ -189,11 +189,6 @@ public abstract class ComPortImpl implements ServerComPort {
 
     public long getId() {
         return id;
-    }
-
-    @Override
-    public void init(ComServer owner) {
-        this.setComServer(owner);
     }
 
     @Override
