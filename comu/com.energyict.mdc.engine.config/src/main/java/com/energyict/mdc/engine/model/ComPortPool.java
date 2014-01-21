@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 import com.energyict.mdc.protocol.api.ComPortType;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Models a collection of {@link com.energyict.mdc.engine.model.ComPort}s with similar characteristics.
@@ -72,6 +73,8 @@ public interface ComPortPool {
      */
     public ComPortType getComPortType();
     public void setComPortType(ComPortType comPortType);
+
+    public List<? extends ComPort> getComPorts();
 
     public void save();
 

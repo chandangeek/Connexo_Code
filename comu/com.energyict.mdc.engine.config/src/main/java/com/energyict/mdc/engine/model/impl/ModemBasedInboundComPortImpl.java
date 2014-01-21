@@ -5,9 +5,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
@@ -39,7 +37,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Inject
     protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel, comPortPoolMemberProvider);
+        super(dataModel);
     }
 
     public int getRingCount() {

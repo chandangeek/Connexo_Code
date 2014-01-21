@@ -22,12 +22,13 @@ import java.util.List;
  */
 public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
 
+    private final EngineModelService engineModelService;
     private long discoveryProtocolPluggableClassId;
-    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
     @Inject
     protected InboundComPortPoolImpl(DataModel dataModel, EngineModelService engineModelService) {
         super(dataModel, engineModelService);
+        this.engineModelService = engineModelService;
     }
 
     @Override
@@ -37,11 +38,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     @Override
     public List<InboundComPort> getComPorts() {
-        List<InboundComPort> inboundComPorts = new ArrayList<>();
-        for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
-            inboundComPorts.add((InboundComPort) comPortPoolMember.getComPort());
-        }
-        return ImmutableList.copyOf(inboundComPorts);
+        return engineModelService.findInboundInPool(this);
     }
 
     @Override

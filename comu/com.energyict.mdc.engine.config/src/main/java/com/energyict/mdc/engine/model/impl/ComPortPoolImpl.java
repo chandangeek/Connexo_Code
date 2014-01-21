@@ -4,10 +4,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 
@@ -25,6 +28,9 @@ public abstract class ComPortPoolImpl implements ComPortPool {
             ImmutableMap.<String, Class<? extends ComPortPool>>of(
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
+
+    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>(); // TODO REMOVE ME
+
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
 

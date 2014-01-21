@@ -22,8 +22,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
 
     private final Reference<InboundComPortPool> comPortPool = ValueReference.absent();
 
-    protected InboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel, comPortPoolMemberProvider);
+    protected InboundComPortImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     public InboundComPortPool getComPortPool () {
@@ -31,9 +31,6 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
     }
 
     public void setComPortPool(InboundComPortPool comPortPool) {
-        validateNotNull(comPortPool, "inboundComPort.comPortPool");
-        validateNotNull(this.getComPortType(), "type");
-        validateComPortType(comPortPool);
         this.comPortPool.set(comPortPool);
     }
 
@@ -46,7 +43,9 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
 
     protected void validate() {
         super.validate();
+        validateNotNull(this.getComPortType(), "type");
         validateNotNull(comPortPool.orNull(), "inboundComPort.comPortPool");
+        validateComPortType(comPortPool.get());
     }
 
     @Override

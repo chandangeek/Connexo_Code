@@ -33,7 +33,6 @@ public enum TableSpecs {
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map("discoveryProtocolPluggableClassId").add();
-
             table.primaryKey("CEM_PK_COMPORTPOOL").on(idColumn).add();
         }
     },
@@ -122,8 +121,10 @@ public enum TableSpecs {
 
             table.column("BUFFERSIZE").number().conversion(ColumnConversion.NUMBER2INT).map("bufferSize").add();
             table.column("MODEMINITSTRINGS").type("varchar2(255)").map("modemInitStrings").add();
+            Column inboundComPortPoolId = table.column("COMPORTPOOLID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
 
             table.primaryKey("CEM_PK_COMPORT").on(idColumn).add();
+            table.foreignKey("FK_INBOUNDCOMPORTPOOL").on(inboundComPortPoolId).references(MDCCOMPORTPOOL.name()).map("comPortPool").add();
             table.foreignKey("FK_COMPORT_COMSERVER").on(comServerColumn).references(MDCCOMSERVER.name()).
                     map("comServer").reverseMap("comPorts").composition().add();
         }
@@ -137,8 +138,7 @@ public enum TableSpecs {
    			Column comPortIdColumn = table.column("COMPORTID").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
    			table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
    			table.unique("CEM_U_COMPORTINPOOL").on(comPortPoolIdColumn , comPortIdColumn).add();
-   			table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).onDelete(DeleteRule.CASCADE).
-   				map("comPort").reverseMap("comPortPoolMembers").composition().add();
+   			table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).map("comPort").add();
             table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORTPOOL").on(comPortPoolIdColumn).references(MDCCOMPORTPOOL.name()).onDelete(DeleteRule.CASCADE).
                 map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
    		}

@@ -19,7 +19,7 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
     private int numberOfSimultaneousConnections;
 
     protected IPBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
-        super(dataModel, comPortPoolMemberProvider);
+        super(dataModel);
     }
 
     @Override

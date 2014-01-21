@@ -36,5 +36,8 @@ public interface OutboundComPortPool extends ComPortPool {
     */
     public List<OutboundComPort> getComPorts();
     public void setComPorts(List<OutboundComPort> comPorts);
+    public void addOutboundComPort(OutboundComPort outboundComPort);
+    public void removeOutboundComPort(OutboundComPort outboundComPort);
+
 
 }
