@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -51,7 +52,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     }
 
     public void start(License license) {
-        LOGGER.fine("Registering pluggable classes");
+        LOGGER.info("Registering pluggable classes...");
         registerInboundDeviceProtocolPluggableClasses();
         registerDeviceProtocolPluggableClasses(license);
         registerConnectionTypePluggableClasses();
@@ -61,7 +62,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         try {
             for (PluggableClassDefinition definition : inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses()) {
                 try {
-                    if (this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(definition.getProtocolTypeClass().getName()) != null) {
+                    if (this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty()) {
                         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass =
                                 this.protocolPluggableService.newInboundDeviceProtocolPluggableClass(
                                         definition.getName(),
@@ -87,7 +88,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
             }
         }
         catch (Exception e) {
-            LOGGER.severe("Failed to register any inbound device protocol pluggable class: " + e);
+            LOGGER.log(Level.SEVERE, "Failed to register any inbound device protocol pluggable class: " + e, e);
         }
     }
 
@@ -95,8 +96,8 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         try {
             for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
                 try {
-                    if (this.protocolPluggableService.findDeviceProtocolPluggableClass(licensedProtocolRule.getClassName()) == null) {
-                        this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocolRule.getClassName());
+                    if (this.protocolPluggableService.findDeviceProtocolPluggableClass(licensedProtocolRule.getClassName()).isEmpty()) {
+                        this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocolRule.getName(), licensedProtocolRule.getClassName());
                         LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
                     }
                     else {
@@ -117,7 +118,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
             }
         }
         catch (Exception e) {
-            LOGGER.severe("Failed to register any device protocol: " + e);
+            LOGGER.log(Level.SEVERE, "Failed to register any device protocol: " + e, e);
         }
     }
 
@@ -125,7 +126,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         try {
             for (PluggableClassDefinition definition : this.connectionTypeService.getExistingConnectionTypePluggableClasses()) {
                 try {
-                    if (this.protocolPluggableService.findConnectionTypePluggableClassByClassName(definition.getProtocolTypeClass().getName()) != null) {
+                    if (this.protocolPluggableService.findConnectionTypePluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty()) {
                         ConnectionTypePluggableClass connectionTypePluggableClass =
                                 this.protocolPluggableService.newConnectionTypePluggableClass(
                                         definition.getName(),
@@ -151,7 +152,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
             }
         }
         catch (Exception e) {
-            LOGGER.severe("Failed to register any connection type pluggable class: " + e);
+            LOGGER.log(Level.SEVERE, "Failed to register any connection type pluggable class: " + e, e);
         }
     }
 
@@ -160,7 +161,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     }
 
     private void handleCreationException(String className, Throwable e) {
-        LOGGER.warning("Failed to create pluggable class for " + className + ": " + e);
+        LOGGER.log(Level.SEVERE, "Failed to create pluggable class for " + className + ": " + e, e);
     }
 
     @Deactivate

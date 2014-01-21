@@ -4,11 +4,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
@@ -49,7 +52,9 @@ import java.util.List;
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private volatile DataModel dataModel;
+    private volatile TransactionService transactionService;
     private volatile EventService eventService;
+    private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
     private volatile RelationService relationService;
     private volatile DeviceProtocolService deviceProtocolService;
@@ -63,7 +68,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Inject
     public ProtocolPluggableServiceImpl(
             OrmService ormService,
+            TransactionService transactionService,
             EventService eventService,
+            PropertySpecService propertySpecService,
             PluggableService pluggableService,
             RelationService relationService,
             DeviceProtocolService deviceProtocolService,
@@ -71,6 +78,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             ConnectionTypeService connectionTypeService) {
         this();
         this.setOrmService(ormService);
+        this.setTransactionService(transactionService);
         this.setEventService(eventService);
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
@@ -84,20 +92,27 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String className) {
-        List<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndClassName(PluggableClassType.DeviceProtocol, className);
-        if (pluggableClasses.isEmpty()) {
-            throw new NotFoundException("DeviceProtocolPluggableClass for java class " + className + " does not exist");
-        }
-        else {
-            PluggableClass first = pluggableClasses.get(0);
-            return DeviceProtocolPluggableClassImpl.from(this.dataModel, first);
-        }
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) throws BusinessException {
+        final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DeviceProtocol, name, className);
+        final DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
+        return this.transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
+            @Override
+            public DeviceProtocolPluggableClass perform() {
+                try {
+                    pluggableClass.save();
+                    deviceProtocolPluggableClass.save();
+                }
+                catch (BusinessException | SQLException e) {
+                    throw new ApplicationException(e);
+                }
+                return deviceProtocolPluggableClass;
+            }
+        });
     }
 
     @Override
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String className, TypedProperties properties) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(className);
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties properties) throws BusinessException {
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(name, className);
         for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
@@ -220,10 +235,21 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName) throws BusinessException {
-        PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DiscoveryProtocol, name, javaClassName);
-        InboundDeviceProtocolPluggableClassImpl inboundDeviceProtocolPluggableClass = InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        inboundDeviceProtocolPluggableClass.setName(name);
-        return inboundDeviceProtocolPluggableClass;
+        final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DiscoveryProtocol, name, javaClassName);
+        final InboundDeviceProtocolPluggableClassImpl inboundDeviceProtocolPluggableClass = InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
+        return this.transactionService.execute(new Transaction<InboundDeviceProtocolPluggableClass>() {
+            @Override
+            public InboundDeviceProtocolPluggableClass perform() {
+                try {
+                    pluggableClass.save();
+                    inboundDeviceProtocolPluggableClass.save();
+                }
+                catch (BusinessException | SQLException e) {
+                    throw new ApplicationException(e);
+                }
+                return inboundDeviceProtocolPluggableClass;
+            }
+        });
     }
 
     @Override
@@ -271,20 +297,26 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName) throws BusinessException {
-        PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.ConnectionType, name, javaClassName);
-        ConnectionTypePluggableClassImpl connectionTypePluggableClass = ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
-        try {
-            connectionTypePluggableClass.save();
-        }
-        catch (SQLException e) {
-            throw new ApplicationException(e);
-        }
-        return connectionTypePluggableClass;
+        final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.ConnectionType, name, javaClassName);
+        final ConnectionTypePluggableClassImpl connectionTypePluggableClass = ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
+        return this.transactionService.execute(new Transaction<ConnectionTypePluggableClass>() {
+            @Override
+            public ConnectionTypePluggableClass perform() {
+                try {
+                    pluggableClass.save();
+                    connectionTypePluggableClass.save();
+                }
+                catch (BusinessException | SQLException e) {
+                    throw new ApplicationException(e);
+                }
+                return connectionTypePluggableClass;
+            }
+        });
     }
 
     @Override
     public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties) throws BusinessException, SQLException {
-        ConnectionTypePluggableClass connectionTypePluggableClass = newConnectionTypePluggableClass(name, javaClassName);
+        ConnectionTypePluggableClass connectionTypePluggableClass = this.newConnectionTypePluggableClass(name, javaClassName);
         for (PropertySpec propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 connectionTypePluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
@@ -344,6 +376,15 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         return dataModel;
     }
 
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     public EventService getEventService() {
         return eventService;
     }
@@ -380,6 +421,15 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.inboundDeviceProtocolService = inboundDeviceProtocolService;
     }
 
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     public RelationService getRelationService() {
         return relationService;
     }
@@ -404,6 +454,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
                 bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
