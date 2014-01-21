@@ -99,6 +99,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
     }
 
     private void validateNotUsedByComPorts() {
+
         List<InboundComPort> comPorts = this.getComPorts();
         if (!comPorts.isEmpty()) {
             List<String> names = new ArrayList<>();

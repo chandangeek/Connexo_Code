@@ -40,7 +40,7 @@ public interface ServerComPort extends ComPort {
      * @return The date when this ComPort was made obsolete
      *         or <code>null</code> when this ComPort is not obsolete at all.
      */
-    public UtcInstant getObsoleteDate();
+    public Date getObsoleteDate();
 
     public void init(ComServer owner);
 }

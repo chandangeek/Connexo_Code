@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -30,8 +31,17 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ServerIn
     }
 
     public void setComPortPool(InboundComPortPool comPortPool) {
-        Objects.requireNonNull(comPortPool);
+        validateNotNull(comPortPool, "inboundComPort.comPortPool");
+        validateNotNull(this.getComPortType(), "type");
+        validateComPortType(comPortPool);
         this.comPortPool.set(comPortPool);
+    }
+
+    private void validateComPortType(InboundComPortPool comPortPool) {
+        if (comPortPool.getComPortType()!=this.getComPortType()) {
+            throw new TranslatableApplicationException("comPortTypeOfComPortXDoesNotMatchWithComPortPoolY", "The ComPortType of ComPort {0} does not match with that of the ComPortPool {1}",
+                    new Object[] {this.getComPortType(), comPortPool.getComPortType()});
+        }
     }
 
     protected void validate() {

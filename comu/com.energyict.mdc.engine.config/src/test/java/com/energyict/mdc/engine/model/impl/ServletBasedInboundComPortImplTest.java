@@ -255,27 +255,22 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     }
 
     @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testWithoutComPortType() throws SQLException, BusinessException {
-        try {
-            createOnlineComServer().newServletBasedInboundComPort()
-                    .name(COMPORT_NAME)
-                    .https(true)
-                    .description(DESCRIPTION)
-                    .active(ACTIVE)
-                    .comPortPool(createComPortPool())
-                    .portNumber(PORT_NUMBER)
-                    .contextPath(CONTEXT_PATH)
-                    .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                    .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
-                    .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
-                    .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
-                    .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
-        } catch (TranslatableApplicationException e) {
-            if (!e.getMessageId().equals("XcannotBeEmpty")) {
-                fail("Should have gotten an exception indicating that the comPortType could not be empty, but was " + e.getMessage());
-            }
-        }
+        createOnlineComServer().newServletBasedInboundComPort()
+                .name(COMPORT_NAME)
+                .https(true)
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .comPortPool(createComPortPool())
+                .portNumber(PORT_NUMBER)
+                .contextPath(CONTEXT_PATH)
+                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
+                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
+                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
+                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
+                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
     }
 
     /**
@@ -589,9 +584,11 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         // Expected TranslatableApplicationException because the trust store is null
     }
 
+    private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.SERIAL);
+        inboundComPortPool.setName("comPortPool"+comPortPoolIndex++);
         inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
         inboundComPortPool.save();
         return inboundComPortPool;

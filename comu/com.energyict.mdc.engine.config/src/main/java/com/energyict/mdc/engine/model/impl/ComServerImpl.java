@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -263,6 +264,7 @@ public abstract class ComServerImpl implements ServerComServer {
         protected TCPBasedComPortBuilder() {
             super(tcpBasedInboundComPortProvider);
             comPort.init(ComServerImpl.this);
+            comPort.setComPortType(ComPortType.TCP);
         }
 
         @Override

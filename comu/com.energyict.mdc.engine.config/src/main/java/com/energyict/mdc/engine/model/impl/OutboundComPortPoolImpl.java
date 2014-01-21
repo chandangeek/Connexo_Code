@@ -88,7 +88,6 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     protected void validateDelete() {
-        super.validateDelete();
         this.validateNotUsedByConnectionMethods();
     }
 

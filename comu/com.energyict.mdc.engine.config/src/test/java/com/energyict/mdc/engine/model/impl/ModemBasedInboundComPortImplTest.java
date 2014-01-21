@@ -235,17 +235,17 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         onlineComServer.removeComPort(firstComPort.getId());
 
         onlineComServer.newModemBasedInboundComport()
-        .comPortPool(createComPortPool())
         .name(COMPORT_NAME)
-        .description(DESCRIPTION)
-        .active(ACTIVE)
-        .ringCount(RING_COUNT)
-        .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
-        .connectTimeout(CONNECT_TIMEOUT)
-        .atCommandTimeout(AT_COMMAND_TIMEOUT)
-        .atCommandTry(AT_COMMAND_TRY)
-        .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
-        .comPortType(ComPortType.SERIAL).add();
+                .description(DESCRIPTION)
+                .active(ACTIVE)
+                .ringCount(RING_COUNT)
+                .maximumDialErrors(MAXIMUM_NUMBER_OF_DIAL_ERRORS)
+                .connectTimeout(CONNECT_TIMEOUT)
+                .atCommandTimeout(AT_COMMAND_TIMEOUT)
+                .atCommandTry(AT_COMMAND_TRY)
+                .serialPortConfiguration(getDefaultSerialPortConfiguration(COMPORT_NAME))
+                .comPortType(ComPortType.SERIAL)
+                .comPortPool(createComPortPool()).add();
 
         // No BusinessException expected, because a new ComPort can have the same name as a deleted one.
     }
@@ -535,6 +535,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     private InboundComPortPool createComPortPool() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
         inboundComPortPool.setComPortType(ComPortType.SERIAL);
+        inboundComPortPool.setName("comPortPool");
         inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
         inboundComPortPool.save();
         return inboundComPortPool;

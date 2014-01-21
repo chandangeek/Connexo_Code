@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.inject.Inject;
 
 /**
@@ -57,7 +56,7 @@ public abstract class ComPortImpl implements ServerComPort {
     private boolean active;
     private String description;
     private boolean obsoleteFlag;
-    private UtcInstant obsoleteDate;
+    private Date obsoleteDate;
     private ComPortType type;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
 
@@ -175,7 +174,7 @@ public abstract class ComPortImpl implements ServerComPort {
     }
 
     @Override
-    public UtcInstant getObsoleteDate() {
+    public Date getObsoleteDate() {
         return obsoleteDate;
     }
 
@@ -243,6 +242,7 @@ public abstract class ComPortImpl implements ServerComPort {
     public void makeObsolete(){
         this.validateMakeObsolete();
         this.obsoleteFlag = true;
+        this.obsoleteDate = new Date();
         removeFromComPortPools();
         dataModel.update(this);
     }
