@@ -7,12 +7,12 @@ public class IllegalCurrencyCodeException extends BaseException {
 	
 	private static final long serialVersionUID = 1L;
 
-	public IllegalCurrencyCodeException(int illegalCode, Thesaurus thesaurus) {
-        super(ExceptionTypes.ILLEGAL_CURRENCY_CODE, buildMessage(illegalCode, thesaurus));
+	public IllegalCurrencyCodeException(Thesaurus thesaurus, int illegalCode) {
+        super(ExceptionTypes.ILLEGAL_CURRENCY_CODE, buildMessage(thesaurus, illegalCode));
         set("illegalCode", illegalCode);
     }
 
-    private static String buildMessage(int illegalCode, Thesaurus thesaurus) {
+    private static String buildMessage(Thesaurus thesaurus, int illegalCode) {
         return thesaurus.getFormat(MessageSeeds.ILLEGAL_CURRENCY_CODE).format(illegalCode);
     }
 }

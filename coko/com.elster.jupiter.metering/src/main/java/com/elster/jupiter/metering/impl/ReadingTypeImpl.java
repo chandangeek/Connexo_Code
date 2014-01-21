@@ -110,7 +110,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 				return each;
 			}
 		}
-		throw new IllegalCurrencyCodeException(isoCode, thesaurus);
+		throw new IllegalCurrencyCodeException(thesaurus, isoCode);
 	}
 	
 	static int getCurrencyId(Currency currency) {
