@@ -133,7 +133,6 @@ public class MeterProtocolAdapterTest {
         protocolPluggableService =
                 new ProtocolPluggableServiceImpl(
                         this.ormService,
-                        this.transactionService,
                         this.eventService,
                         this.propertySpecService,
                         this.pluggableService,

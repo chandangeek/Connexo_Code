@@ -4,8 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
@@ -56,7 +54,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private volatile DataModel dataModel;
-    private volatile TransactionService transactionService;
     private volatile EventService eventService;
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
@@ -72,7 +69,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Inject
     public ProtocolPluggableServiceImpl(
             OrmService ormService,
-            TransactionService transactionService,
             EventService eventService,
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
@@ -82,7 +78,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             ConnectionTypeService connectionTypeService) {
         this();
         this.setOrmService(ormService);
-        this.setTransactionService(transactionService);
         this.setEventService(eventService);
         this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
@@ -113,19 +108,14 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) throws BusinessException {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DeviceProtocol, name, className);
         final DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        return this.transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-            @Override
-            public DeviceProtocolPluggableClass perform() {
-                try {
-                    pluggableClass.save();
-                    deviceProtocolPluggableClass.save();
-                }
-                catch (BusinessException | SQLException e) {
-                    throw new ApplicationException(e);
-                }
-                return deviceProtocolPluggableClass;
-            }
-        });
+        try {
+            pluggableClass.save();
+            deviceProtocolPluggableClass.save();
+            return deviceProtocolPluggableClass;
+        }
+        catch (BusinessException | SQLException e) {
+            throw new ApplicationException(e);
+        }
     }
 
     @Override
@@ -255,19 +245,14 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName) throws BusinessException {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DiscoveryProtocol, name, javaClassName);
         final InboundDeviceProtocolPluggableClassImpl inboundDeviceProtocolPluggableClass = InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        return this.transactionService.execute(new Transaction<InboundDeviceProtocolPluggableClass>() {
-            @Override
-            public InboundDeviceProtocolPluggableClass perform() {
-                try {
-                    pluggableClass.save();
-                    inboundDeviceProtocolPluggableClass.save();
-                }
-                catch (BusinessException | SQLException e) {
-                    throw new ApplicationException(e);
-                }
-                return inboundDeviceProtocolPluggableClass;
-            }
-        });
+        try {
+            pluggableClass.save();
+            inboundDeviceProtocolPluggableClass.save();
+            return inboundDeviceProtocolPluggableClass;
+        }
+        catch (BusinessException | SQLException e) {
+            throw new ApplicationException(e);
+        }
     }
 
     @Override
@@ -317,19 +302,14 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName) throws BusinessException {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.ConnectionType, name, javaClassName);
         final ConnectionTypePluggableClassImpl connectionTypePluggableClass = ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
-        return this.transactionService.execute(new Transaction<ConnectionTypePluggableClass>() {
-            @Override
-            public ConnectionTypePluggableClass perform() {
-                try {
-                    pluggableClass.save();
-                    connectionTypePluggableClass.save();
-                }
-                catch (BusinessException | SQLException e) {
-                    throw new ApplicationException(e);
-                }
-                return connectionTypePluggableClass;
-            }
-        });
+        try {
+            pluggableClass.save();
+            connectionTypePluggableClass.save();
+            return connectionTypePluggableClass;
+        }
+        catch (BusinessException | SQLException e) {
+            throw new ApplicationException(e);
+        }
     }
 
     @Override
@@ -392,15 +372,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     DataModel getDataModel() {
         return dataModel;
-    }
-
-    public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
     }
 
     public EventService getEventService() {
