@@ -205,6 +205,11 @@ public class NlsServiceIT {
             public Level getLevel() {
                 return level;
             }
+
+            @Override
+            public String getModule() {
+                return "DUM";
+            }
         };
     }
 
