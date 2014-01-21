@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.exception;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,22 +12,27 @@ import java.util.Map;
  */
 public abstract class BaseException extends RuntimeException {
 
-    private final ExceptionType type;
+    private final MessageSeed messageSeed;
     private final Map<String, Object> context = new HashMap<>();
 
-    protected BaseException(ExceptionType type, Throwable cause) {
+    protected BaseException(MessageSeed messageSeed, Throwable cause) {
         super(cause);
-        this.type = type;
+        this.messageSeed = messageSeed;
     }
 
-    protected BaseException(ExceptionType type, String message) {
-        super(message);
-        this.type = type;
+    protected BaseException(MessageSeed messageSeed) {
+        super(messageSeed.getDefaultFormat());
+        this.messageSeed = messageSeed;
     }
 
-    protected BaseException(ExceptionType type, String message, Throwable cause) {
-        super(message, cause);
-        this.type = type;
+    protected BaseException(MessageSeed messageSeed, Throwable cause, Object... args) {
+        super(MessageFormat.format(messageSeed.getDefaultFormat(), args), cause);
+        this.messageSeed = messageSeed;
+    }
+
+    protected BaseException(MessageSeed messageSeed, Object... args) {
+        super(MessageFormat.format(messageSeed.getDefaultFormat(), args));
+        this.messageSeed = messageSeed;
     }
 
     /**
@@ -45,6 +51,10 @@ public abstract class BaseException extends RuntimeException {
         return this;
     }
 
+    public Object get(String key) {
+        return context.get(key);
+    }
+
     /**
      * @return an unmodifiable Map containing all contextual properties.
      */
@@ -52,7 +62,7 @@ public abstract class BaseException extends RuntimeException {
         return Collections.unmodifiableMap(context);
     }
 
-    public ExceptionType getType() {
-        return type;
+    public MessageSeed getMessageSeed() {
+        return messageSeed;
     }
 }

@@ -7,6 +7,11 @@ import java.util.logging.Level;
 //
 public interface MessageSeed {
 
+    /**
+     * @return three letter code that identifies the module, which defines this ExceptionType.
+     */
+    String getModule();
+
     int getNumber();
 
     String getKey();

@@ -14,7 +14,7 @@ public class DefaultCronExpressionParser implements CronExpressionParser {
         try {
             return new QuartzCronExpressionAdapter(expression);
         } catch (Exception e) {
-            throw new InvalidCronExpression(e).set("expression", expression);
+            throw new InvalidCronExpression(expression, e).set("expression", expression);
         }
     }
 }

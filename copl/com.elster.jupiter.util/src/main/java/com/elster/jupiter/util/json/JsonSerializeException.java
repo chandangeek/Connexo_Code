@@ -1,6 +1,6 @@
 package com.elster.jupiter.util.json;
 
-import com.elster.jupiter.util.ExceptionTypes;
+import com.elster.jupiter.util.MessageSeeds;
 import com.elster.jupiter.util.exception.BaseException;
 
 /**
@@ -11,7 +11,7 @@ public class JsonSerializeException extends BaseException {
     public static final String OBJECT = "object";
 
     public JsonSerializeException(Throwable cause, Object object) {
-        super(ExceptionTypes.JSON_SERIALIZATION_FAILED, cause);
+        super(MessageSeeds.JSON_SERIALIZATION_FAILED, cause, object.toString());
         set(OBJECT, object);
     }
 }

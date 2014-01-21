@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -52,6 +54,7 @@ class MyCronExpression implements CronExpression {
     private static final int BITS_PER_INT = 32;
     private static final int SATURDAY_FLAG = 0x80;
     private static final int MAX_OCCURRENCES_OF_DAY_OF_WEEK_IN_ONE_MONTH = 5;
+    private static final Pattern NTH_WEEKDAY_PATTERN = Pattern.compile("(\\d)\\#(\\d)");
     private final String expression;
 
     private long[] fields = new long[Field.values().length - 1];
@@ -59,6 +62,7 @@ class MyCronExpression implements CronExpression {
 
     private boolean lastDayOfMonth;
     private Set<DayOfWeek> lastDayOfWeek = EnumSet.noneOf(DayOfWeek.class);
+    private Map<DayOfWeek, Integer> nthDayOfWeek = new EnumMap<>(DayOfWeek.class);
     private long nearestWeekDay;
     private boolean noDayOfMonthChecks;
     private boolean noDayOfWeekChecks;
@@ -339,6 +343,14 @@ class MyCronExpression implements CronExpression {
             } else {
                 throw new IllegalArgumentException("? not allowed here");
             }
+        } else if ((matcher = NTH_WEEKDAY_PATTERN.matcher(subSetExpression)).matches()) {
+            int dayOfWeekIdx = Integer.parseInt(matcher.group(1));
+            int n = Integer.parseInt(matcher.group(2));
+            DayOfWeek dayOfWeek = DayOfWeek.values()[dayOfWeekIdx - 1];
+            if (!nthDayOfWeek.containsKey(dayOfWeek)) {
+                nthDayOfWeek.put(dayOfWeek, 0);
+            }
+            nthDayOfWeek.put(dayOfWeek, nthDayOfWeek.get(dayOfWeek) | (1 << n));
         } else {
             throw new IllegalArgumentException("Invalid expression : " + subSetExpression);
         }
@@ -513,6 +525,9 @@ class MyCronExpression implements CronExpression {
                     localDate = localDate.withDayOfWeek(DateTimeConstants.FRIDAY);
                 }
                 tailSet |= ((1 << localDate.getDayOfMonth()) & tailFilter);
+            }
+            if (!nthDayOfWeek.isEmpty()) {
+                //TODO
             }
             tailSet = tailSet & months[result.getMonthOfYear()];
         }
