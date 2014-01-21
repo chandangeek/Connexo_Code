@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
-import com.sun.org.apache.xalan.internal.utils.Objects;
+import java.util.Objects;
 
 import java.util.Date;
 import java.util.Map;
