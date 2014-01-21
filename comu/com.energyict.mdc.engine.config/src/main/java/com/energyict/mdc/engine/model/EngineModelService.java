@@ -148,7 +148,7 @@ public interface EngineModelService {
      * @return The OutboundComPortPool or <code>null</code> if no such ComPortPool exists
      *         or if the ComPortPool with that unique identifier is not outbound
      */
-    public OutboundComPortPool findOutboundComPortPool (int id);
+    public OutboundComPortPool findOutboundComPortPool (long id);
 
     /**
      * Finds all the {@link OutboundComPortPool} that can contain {@link com.energyict.mdc.engine.model.ComPort}s

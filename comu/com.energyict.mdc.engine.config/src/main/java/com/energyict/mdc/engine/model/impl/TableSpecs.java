@@ -27,7 +27,6 @@ public enum TableSpecs {
             table.column("NAME").type("varchar2(80)").map("name").add();
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
-            table.column("OBSOLETEFLAG").type("varchar2(1)").map("obsoleteFlag").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("OBSOLETEDATE").type("DATE").map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().map("comPortType").conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("taskExecutionTimeout.count").add();
@@ -60,7 +59,6 @@ public enum TableSpecs {
             table.column("QUERYAPIPASSWORD").type("varchar2(255)").map("queryAPIPassword").add();
             table.addModTimeColumn("MOD_DATE", "modificationDate");
             table.column("OBSOLETE_DATE").type("DATE").map("obsoleteDate").add();
-            table.column("OBSOLETEFLAG").type("varchar2(1)").map("obsoleteFlag").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             Column onlineComServerId = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
@@ -84,7 +82,6 @@ public enum TableSpecs {
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
-            table.column("OBSOLETEFLAG").type("varchar2(1)").map("obsoleteFlag").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("OBSOLETE_DATE").type("DATE").map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("type").add();
             // no mapping required for comPortPoolMembers

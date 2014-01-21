@@ -310,7 +310,7 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public OutboundComPortPool findOutboundComPortPool(int id) {
+    public OutboundComPortPool findOutboundComPortPool(long id) {
         ComPortPool comPortPool = this.findComPortPool(id);
         if (comPortPool instanceof OutboundComPortPool) {
             return (OutboundComPortPool) comPortPool;

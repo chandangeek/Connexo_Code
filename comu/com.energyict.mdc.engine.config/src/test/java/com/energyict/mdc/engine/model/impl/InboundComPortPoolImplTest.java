@@ -4,7 +4,6 @@ import com.energyict.mdc.Expected;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.TransactionalRule;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -22,7 +21,6 @@ import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
 import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,12 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class InboundComPortPoolImplTest extends PersistenceTest {
 
-    private static final int COM_PORT_1_ID = 1;
-    private static final int COM_PORT_2_ID = 2;
-    private static final int COM_PORT_3_ID = 3;
     protected static final String DESCRIPTION = "Description";
     protected static final long DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID = 1;
-    protected static final long NON_EXISTING_DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID = 999;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());

@@ -38,7 +38,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private String name;
     private boolean active;
     private String description;
-    private boolean obsoleteFlag;
     private Date obsoleteDate;
     private ComPortType comPortType;
 
@@ -70,7 +69,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     @Override
     public boolean isObsolete () {
-        return obsoleteFlag;
+        return this.obsoleteDate!=null;
     }
 
     public void setName(String name) {
@@ -94,15 +93,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
 
     @Override
     public Date getObsoleteDate () {
-        if (this.obsoleteFlag && this.obsoleteDate == null) {
-            ComPortPool comPortPool = engineModelService.findComPortPool(this.getId());
-            if (comPortPool != null) {
-                this.obsoleteDate = comPortPool.getObsoleteDate();
-            }
-            else {
-                this.obsoleteDate = null;
-            }
-        }
         return this.obsoleteDate;
     }
 
@@ -135,7 +125,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     public void makeObsolete() {
         this.validateMakeObsolete();
         this.makeMembersObsolete();
-        this.obsoleteFlag = true;
         this.obsoleteDate = new Date();
         dataModel.update(this);
     }
@@ -143,7 +132,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     protected abstract void makeMembersObsolete ();
 
     protected void validateUpdateAllowed () {
-        if (this.obsoleteFlag) {
+        if (this.isObsolete()) {
             throw new TranslatableApplicationException("comportpool.noUpdateAllowed", "This comport pool is marked as deleted, no updates allowed.");
         }
     }
