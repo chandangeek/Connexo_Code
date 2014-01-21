@@ -4,6 +4,9 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -31,16 +34,18 @@ public class MessageServiceImpl implements MessageService, InstallService {
     private volatile Publisher publisher;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DataModel dataModel;
+    private volatile Thesaurus thesaurus;
 
     public MessageServiceImpl() {
     }
 
     @Inject
-    MessageServiceImpl(OrmService ormService, Publisher publisher, ThreadPrincipalService threadPrincipalService, TransactionService transactionService) {
+    MessageServiceImpl(OrmService ormService, Publisher publisher, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, NlsService nlsService) {
         setOrmService(ormService);
         setPublisher(publisher);
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
+        setNlsService(nlsService);
         activate();
         dataModel.install(true, true);
     }
@@ -65,6 +70,7 @@ public class MessageServiceImpl implements MessageService, InstallService {
             protected void configure() {
                 bind(AQFacade.class).toInstance(defaultAQMessageFactory);
                 bind(Publisher.class).toInstance(publisher);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
 	}
@@ -111,4 +117,8 @@ public class MessageServiceImpl implements MessageService, InstallService {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
+    }
 }

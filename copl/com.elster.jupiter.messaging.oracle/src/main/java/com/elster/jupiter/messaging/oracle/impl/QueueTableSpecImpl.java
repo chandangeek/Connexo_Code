@@ -4,6 +4,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.UnderlyingAqException;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -42,12 +43,14 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     private final DataModel dataModel;
     private final AQFacade aqFacade;
     private transient boolean fromDB = true;
+    private final Thesaurus thesaurus;
 
     @SuppressWarnings("unused")
     @Inject
-    QueueTableSpecImpl(DataModel dataModel, AQFacade aqFacade) {
+    QueueTableSpecImpl(DataModel dataModel, AQFacade aqFacade, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.aqFacade = aqFacade;
+        this.thesaurus = thesaurus;
     }
 
     QueueTableSpecImpl init(String name, String payloadType, boolean multiConsumer) {
@@ -102,9 +105,9 @@ public class QueueTableSpecImpl implements QueueTableSpec {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         } catch (AQException e) {
-            throw new UnderlyingAqException(e);
+            throw new UnderlyingAqException(thesaurus, e);
         } catch (JMSException e) {
-            throw new UnderlyingJmsException(e);
+            throw new UnderlyingJmsException(thesaurus, e);
         }
     }
 

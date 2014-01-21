@@ -5,10 +5,13 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableList;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
@@ -75,6 +78,10 @@ public class DestinationSpecImplTest {
     private Publisher publisher;
     @Mock
     private DataMapper<DestinationSpec> destinationSpecFactory;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat nlsMessageFormat;
 
     @Before
     public void setUp() throws Exception {
@@ -85,11 +92,12 @@ public class DestinationSpecImplTest {
         when(connection.isWrapperFor(any(Class.class))).thenReturn(true);
         when(subscriber.getName()).thenReturn(SUBSCRIBER);
         when(dataModel.getConnection(false)).thenReturn(connection);
-        when(dataModel.getInstance(DestinationSpecImpl.class)).thenReturn(new DestinationSpecImpl(dataModel, aqFacade, publisher));
+        when(dataModel.getInstance(DestinationSpecImpl.class)).thenReturn(new DestinationSpecImpl(dataModel, aqFacade, publisher, thesaurus));
         when(dataModel.getInstance(SubscriberSpecImpl.class)).thenReturn(new SubscriberSpecImpl(dataModel));
         when(dataModel.mapper(SubscriberSpec.class)).thenReturn(subscriberSpecFactory);
         when(dataModel.mapper(DestinationSpec.class)).thenReturn(destinationSpecFactory);
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
 
         destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY);
     }

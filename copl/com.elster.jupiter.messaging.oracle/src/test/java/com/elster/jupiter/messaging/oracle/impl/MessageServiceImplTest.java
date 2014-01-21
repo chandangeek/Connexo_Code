@@ -4,6 +4,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -61,6 +62,8 @@ public class MessageServiceImplTest {
     private DataMapper<SubscriberSpec> subscriberSpecFactory;
     @Mock
     private SubscriberSpec subscriberSpec;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() throws SQLException {
@@ -72,7 +75,7 @@ public class MessageServiceImplTest {
         when(dataModel.addTable(anyString(),any(Class.class))).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, null));
+        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, null, thesaurus));
 
         service = new MessageServiceImpl();
         service.setOrmService(ormService);

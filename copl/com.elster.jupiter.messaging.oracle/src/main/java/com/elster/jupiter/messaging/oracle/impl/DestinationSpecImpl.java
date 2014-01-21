@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
@@ -55,6 +56,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private final DataModel dataModel;
     private final AQFacade aqFacade;
     private final Publisher publisher;
+    private final Thesaurus thesaurus;
     private boolean fromDB = true;
 
 
@@ -135,16 +137,16 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public SubscriberSpec subscribe(String name) {
         if (!isActive()) {
-            throw new InactiveDestinationException(this, name);
+            throw new InactiveDestinationException(thesaurus, this, name);
         }
         List<SubscriberSpec> currentConsumers = subscribers;
         for (SubscriberSpec each : currentConsumers) {
             if (each.getName().equals(name)) {
-                throw new DuplicateSubscriberNameException(name);
+                throw new DuplicateSubscriberNameException(thesaurus, name);
             }
         }
         if (isQueue() && !currentConsumers.isEmpty()) {
-            throw new AlreadyASubscriberForQueueException(this);
+            throw new AlreadyASubscriberForQueueException(thesaurus, this);
         }
         SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name);
         result.subscribe();
@@ -163,10 +165,11 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Inject
-    DestinationSpecImpl(DataModel dataModel, AQFacade aqFacade, Publisher publisher) {
+    DestinationSpecImpl(DataModel dataModel, AQFacade aqFacade, Publisher publisher, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.aqFacade = aqFacade;
         this.publisher = publisher;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -210,7 +213,7 @@ class DestinationSpecImpl implements DestinationSpec {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         } catch (JMSException e) {
-            throw new UnderlyingJmsException(e);
+            throw new UnderlyingJmsException(thesaurus, e);
         }
     }
 

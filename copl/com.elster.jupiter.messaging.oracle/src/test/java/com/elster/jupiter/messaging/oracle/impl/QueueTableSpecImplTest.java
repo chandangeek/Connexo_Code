@@ -2,8 +2,11 @@ package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.exception.MessageSeed;
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTableProperty;
 import oracle.jdbc.OracleConnection;
@@ -52,10 +55,14 @@ public class QueueTableSpecImplTest {
     private PreparedStatement preparedStatement;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private NlsMessageFormat nlsMessageFormat;
 
     @Before
     public void setUp() throws SQLException, JMSException {
-        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, aqFacade));
+        when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, aqFacade, thesaurus));
         when(dataModel.getConnection(false)).thenReturn(connection);
         when(dataModel.mapper(QueueTableSpec.class)).thenReturn(queueTableSpecFactory);
         queueTableSpec = QueueTableSpecImpl.from(dataModel, NAME, PAYLOAD_TYPE, MULTI_CONSUMER);
@@ -64,6 +71,7 @@ public class QueueTableSpecImplTest {
         when(connection.unwrap(any(Class.class))).thenReturn(connection);
         when(connection.isWrapperFor(OracleConnection.class)).thenReturn(true);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
     }
 
     @After
