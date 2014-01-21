@@ -1,11 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
-import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
-import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
-import com.energyict.mdc.protocol.api.channels.serial.Parities;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -17,9 +11,15 @@ import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -30,6 +30,17 @@ import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
