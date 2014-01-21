@@ -188,7 +188,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 	}
 	
 	public Field reverseField(Class<?> api) {
-		return getDomainMapper().getField(api, getReverseFieldName());
+		return getReferencedTable().getDomainMapper().getField(api, getReverseFieldName());
 	}
 	
 	public DataMapperImpl<?> reverseMapper(Field field) {

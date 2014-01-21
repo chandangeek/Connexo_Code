@@ -50,7 +50,7 @@ public enum ColumnConversionImpl {
 	NUMBER2INTNULLZERO { // 2
 		@Override
 		public Object convertToDb(Object value) {
-			return ((Integer) value) == 0 ? null : value;
+			return value == null || ((Integer) value) == 0 ? null : value;
 		}
 		
 		@Override
@@ -83,7 +83,7 @@ public enum ColumnConversionImpl {
 	NUMBER2LONGNULLZERO { // 4
 		@Override
 		public Object convertToDb(Object value) {
-			return ((Long) value) == 0 ? null : value;
+			return value == null || ((Long) value) == 0 ? null : value;
 		}
 		
 		@Override

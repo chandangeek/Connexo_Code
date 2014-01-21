@@ -62,12 +62,15 @@ public class DataMapperWriter<T> {
 		refresh(object,true);
 		for (ForeignKeyConstraintImpl constraint : getTable().getReverseMappedConstraints()) {
 			if (constraint.isComposition()) {
-				DataMapperWriter writer = constraint.reverseMapper(constraint.reverseField(object.getClass())).getWriter();
-				List<?> toPersist = constraint.added(object,writer.needsRefreshAfterBatchInsert());
-				if (toPersist.size() == 1) {
-					writer.persist(toPersist.get(0));
-				} else {
-					writer.persist(toPersist);
+				Field field = constraint.reverseField(object.getClass());
+				if (field != null) {
+					DataMapperWriter writer = constraint.reverseMapper(field).getWriter();
+					List<?> toPersist = constraint.added(object,writer.needsRefreshAfterBatchInsert());
+					if (toPersist.size() == 1) {
+						writer.persist(toPersist.get(0));
+					} else {
+						writer.persist(toPersist);
+					}
 				}
 			}
 		}
