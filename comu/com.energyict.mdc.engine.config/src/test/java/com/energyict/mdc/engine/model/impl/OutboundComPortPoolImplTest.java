@@ -4,38 +4,25 @@ import com.energyict.mdc.Expected;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.TransactionalRule;
-import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.DuplicateException;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
-import org.junit.*;
-
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.mockito.Matchers;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
 * Tests the {@link OutboundComPortPoolImpl} component.

@@ -39,11 +39,6 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     protected static final String DESCRIPTION = "Description";
     protected static final long DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID = 1;
 
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedErrorRule();
-    
     @Test
     @Transactional
     public void testCreateWithoutViolations() {

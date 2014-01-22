@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.Expected;
+import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
@@ -36,8 +38,6 @@ public class OutboundComPortImplTest extends PersistenceTest {
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 11;
     private static final ComPortType COM_PORT_TYPE = ComPortType.SERIAL;
 
-    @Rule
-    public TestRule createDatabaseRule = new TransactionalRule(getTransactionService());
 
     @Mock
     DataModel dataModel;
@@ -75,7 +75,8 @@ public class OutboundComPortImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class)
     @Transactional
     public void testCreateWithoutComPortType() throws BusinessException, SQLException {
         createOnlineComServer().newOutboundComPort()
@@ -90,41 +91,28 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XnotInAcceptableRange")
     public void testCreateWithZeroSimultaneousConnections() throws BusinessException, SQLException {
-
-        try {
-            createOnlineComServer().newOutboundComPort()
-            .name(COMPORT_NAME)
-            .description(DESCRIPTION)
-            .active(ACTIVE)
-            .comPortType(COM_PORT_TYPE)
-            .numberOfSimultaneousConnections(0).add();
-            failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
-        }
-        catch (TranslatableApplicationException e) {
-            // Asserts
-            assertThat(e.getMessageId()).isEqualTo("XnotInAcceptableRange");
-        }
-
+        createOnlineComServer().newOutboundComPort()
+        .name(COMPORT_NAME)
+        .description(DESCRIPTION)
+        .active(ACTIVE)
+        .comPortType(COM_PORT_TYPE)
+        .numberOfSimultaneousConnections(0).add();
+        failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
     }
 
     @Test
     @Transactional
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XnotInAcceptableRange")
     public void testCreateWithTooManySimultaneousConnections() throws BusinessException, SQLException {
-
-        try {
-            createOnlineComServer().newOutboundComPort()
-            .name(COMPORT_NAME)
-            .description(DESCRIPTION)
-            .active(ACTIVE)
-            .comPortType(COM_PORT_TYPE)
-            .numberOfSimultaneousConnections(OutboundComPort.MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1).add();
-            failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
-        }
-        catch (TranslatableApplicationException e) {
-            // Asserts
-            assertThat(e.getMessageId()).isEqualTo("XnotInAcceptableRange");
-        }
+        createOnlineComServer().newOutboundComPort()
+        .name(COMPORT_NAME)
+        .description(DESCRIPTION)
+        .active(ACTIVE)
+        .comPortType(COM_PORT_TYPE)
+        .numberOfSimultaneousConnections(OutboundComPort.MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1).add();
+        failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
     }
 
     @Test(expected = TranslatableApplicationException.class)

@@ -2,6 +2,8 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.Expected;
+import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -59,476 +61,443 @@ public class OfflineComServerImplTest extends PersistenceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateWithoutComPortsWithoutViolations () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            String name = NO_VIOLATIONS_NAME;
-            OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
-            comServer.setName(name);
-            comServer.setActive(true);
-            comServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        String name = NO_VIOLATIONS_NAME;
+        OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
+        comServer.setName(name);
+        comServer.setActive(true);
+        comServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            // Business method
-            comServer.save();
+        // Business method
+        comServer.save();
 
-            // Asserts
-            assertThat(name).isEqualTo(comServer.getName());
-            assertThat(comServer.isActive()).isTrue();
-            assertThat(SERVER_LOG_LEVEL).isEqualTo(comServer.getServerLogLevel());
-            assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(comServer.getCommunicationLogLevel());
-            assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(comServer.getChangesInterPollDelay());
-            assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(comServer.getSchedulingInterPollDelay());
-        }
+        // Asserts
+        assertThat(name).isEqualTo(comServer.getName());
+        assertThat(comServer.isActive()).isTrue();
+        assertThat(SERVER_LOG_LEVEL).isEqualTo(comServer.getServerLogLevel());
+        assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(comServer.getCommunicationLogLevel());
+        assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(comServer.getChangesInterPollDelay());
+        assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(comServer.getSchedulingInterPollDelay());
     }
 
     @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XshouldBeAtLeast")
     public void testTooSmallChangesInterPollDelay () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            offlineComServer.setName("testTooSmallChangesInterPollDelay");
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        offlineComServer.setName("testTooSmallChangesInterPollDelay");
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            try {
-                offlineComServer.save();
-                failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
-            }
-            catch (TranslatableApplicationException e) {
-                assertThat("XshouldBeAtLeast").isEqualTo(e.getMessageId());
-            }
-        }
+        offlineComServer.save();
     }
 
     @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XshouldBeAtLeast")
     public void testTooSmallSchedulingInterPollDelay () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            offlineComServer.setName("testTooSmallSchedulingInterPollDelay");
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        offlineComServer.setName("testTooSmallSchedulingInterPollDelay");
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.SECONDS));
 
-            try {
-                offlineComServer.save();
-                failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
-            }
-            catch (TranslatableApplicationException e) {
-                assertThat("XshouldBeAtLeast").isEqualTo(e.getMessageId());
-            }
-        }
+        offlineComServer.save();
     }
 
     @Test
+    @Transactional
     public void loadTest() throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            String name = NO_VIOLATIONS_NAME;
-            OfflineComServer shadow = getEngineModelService().newOfflineComServerInstance();
-            shadow.setName(name);
-            shadow.setActive(true);
-            shadow.setServerLogLevel(SERVER_LOG_LEVEL);
-            shadow.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            shadow.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            shadow.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        String name = NO_VIOLATIONS_NAME;
+        OfflineComServer shadow = getEngineModelService().newOfflineComServerInstance();
+        shadow.setName(name);
+        shadow.setActive(true);
+        shadow.setServerLogLevel(SERVER_LOG_LEVEL);
+        shadow.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        shadow.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        shadow.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            // Business method
-            shadow.save();
-            ComServer loadedOfflineServer = getEngineModelService().findComServer(shadow.getId());
+        // Business method
+        shadow.save();
+        ComServer loadedOfflineServer = getEngineModelService().findComServer(shadow.getId());
 
-            // asserts
-            assertThat(name).isEqualTo(loadedOfflineServer.getName());
-            assertThat(loadedOfflineServer.isActive()).isTrue();
-            assertThat(SERVER_LOG_LEVEL).isEqualTo(loadedOfflineServer.getServerLogLevel());
-            assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(loadedOfflineServer.getCommunicationLogLevel());
-            assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(loadedOfflineServer.getChangesInterPollDelay());
-            assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(loadedOfflineServer.getSchedulingInterPollDelay());
-        }
+        // asserts
+        assertThat(name).isEqualTo(loadedOfflineServer.getName());
+        assertThat(loadedOfflineServer.isActive()).isTrue();
+        assertThat(SERVER_LOG_LEVEL).isEqualTo(loadedOfflineServer.getServerLogLevel());
+        assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(loadedOfflineServer.getCommunicationLogLevel());
+        assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(loadedOfflineServer.getChangesInterPollDelay());
+        assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(loadedOfflineServer.getSchedulingInterPollDelay());
     }
 
     @Test
+    @Transactional
     public void testCreateWithComPortWithoutViolations () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "With-ComPorts";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            addComPort(offlineComServer);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "With-ComPorts";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        addComPort(offlineComServer);
 
-            // Business method
-            offlineComServer.save();
+        // Business method
+        offlineComServer.save();
 
-            ComServer comServer = getEngineModelService().findComServer(name);
-            assertThat(comServer.getComPorts()).isNotEmpty();
-        }
+        ComServer comServer = getEngineModelService().findComServer(name);
+        assertThat(comServer.getComPorts()).isNotEmpty();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
     public void testCreateWithoutName () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            offlineComServer.save();
-        }
+        offlineComServer.save();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
     public void testCreateWithoutServerLogLevel () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "No-Server-LogLevel";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(null);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "No-Server-LogLevel";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(null);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            offlineComServer.save();
-        }
+        offlineComServer.save();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
     public void testCreateWithoutCommunicationLogLevel () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "No-Communication-LogLevel";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(null);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "No-Communication-LogLevel";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(null);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            offlineComServer.save();
-        }
+        offlineComServer.save();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
     public void testCreateWithoutChangesInterPollDelay () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "No-Changes-InterpollDelay";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(null);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "No-Changes-InterpollDelay";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(null);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            offlineComServer.save();
-        }
+        offlineComServer.save();
     }
 
     @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     public void testCreateWithoutSchedulingInterPollDelay () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "No-Scheduling-InterpollDelay";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(null);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "No-Scheduling-InterpollDelay";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(null);
 
-            try {
-                offlineComServer.save();
-                failBecauseExceptionWasNotThrown(TranslatableApplicationException.class);
-            }
-            catch (TranslatableApplicationException e) {
-                assertThat("XcannotBeEmpty").isEqualTo(e.getMessageId());
-            }
-        }
-    }
-
-    @Test(expected = TranslatableApplicationException.class)
-    public void testCreateWithExistingName () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            String serverName = "Candidate-for-duplicate";
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            offlineComServer.setName(serverName);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            offlineComServer.save();
-
-            OfflineComServer duplicateComServer = getEngineModelService().newOfflineComServerInstance();
-            duplicateComServer.setName(serverName);
-            duplicateComServer.setActive(false);
-            duplicateComServer.setServerLogLevel(ComServer.LogLevel.TRACE);
-            duplicateComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-            duplicateComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            duplicateComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            duplicateComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
-            duplicateComServer.save();
-        }
+        offlineComServer.save();
     }
 
     @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
+    public void testCreateWithExistingName () throws BusinessException, SQLException {
+        String serverName = "Candidate-for-duplicate";
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        offlineComServer.setName(serverName);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.save();
+
+        OfflineComServer duplicateComServer = getEngineModelService().newOfflineComServerInstance();
+        duplicateComServer.setName(serverName);
+        duplicateComServer.setActive(false);
+        duplicateComServer.setServerLogLevel(ComServer.LogLevel.TRACE);
+        duplicateComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
+        duplicateComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        duplicateComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        duplicateComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+
+        duplicateComServer.save();
+    }
+
+    @Test
+    @Transactional
     public void testCreateWithExistingButDeletedName () throws BusinessException, SQLException {
         String serverName = "Candidate-for-duplication";
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            offlineComServer.setName(serverName);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            offlineComServer.save();
-            offlineComServer.delete();
-        }
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        offlineComServer.setName(serverName);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.save();
+        offlineComServer.delete();
 
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer recreatedComServer = getEngineModelService().newOfflineComServerInstance();
-            recreatedComServer.setName(serverName);
-            recreatedComServer.setActive(false);
-            recreatedComServer.setServerLogLevel(ComServer.LogLevel.TRACE);
-            recreatedComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-            recreatedComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            recreatedComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            recreatedComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        OfflineComServer recreatedComServer = getEngineModelService().newOfflineComServerInstance();
+        recreatedComServer.setName(serverName);
+        recreatedComServer.setActive(false);
+        recreatedComServer.setServerLogLevel(ComServer.LogLevel.TRACE);
+        recreatedComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
+        recreatedComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        recreatedComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        recreatedComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-            recreatedComServer.save();
-        }
+        recreatedComServer.save();
     }
 
     @Test
+    @Transactional
     public void testUpdateWithoutComPort () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "Update-Candidate";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            offlineComServer.save();
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "Update-Candidate";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.save();
 
-            OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name);
+        OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name);
 
-            // Business method
-            String changedName = "Name-Updated";
-            ComServer.LogLevel changedServerLogLevel = ComServer.LogLevel.WARN;
-            ComServer.LogLevel changedComLogLevel = ComServer.LogLevel.INFO;
-            TimeDuration changedChangesInterPollDelay = SCHEDULING_INTER_POLL_DELAY;
-            TimeDuration changedSchedulingInterPollDelay = CHANGES_INTER_POLL_DELAY;
-            retrievedComServer.setName(changedName);
-            retrievedComServer.setActive(false);
-            retrievedComServer.setServerLogLevel(changedServerLogLevel);
-            retrievedComServer.setCommunicationLogLevel(changedComLogLevel);
-            retrievedComServer.setChangesInterPollDelay(changedChangesInterPollDelay);
-            retrievedComServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
-            retrievedComServer.save();
+        // Business method
+        String changedName = "Name-Updated";
+        ComServer.LogLevel changedServerLogLevel = ComServer.LogLevel.WARN;
+        ComServer.LogLevel changedComLogLevel = ComServer.LogLevel.INFO;
+        TimeDuration changedChangesInterPollDelay = SCHEDULING_INTER_POLL_DELAY;
+        TimeDuration changedSchedulingInterPollDelay = CHANGES_INTER_POLL_DELAY;
+        retrievedComServer.setName(changedName);
+        retrievedComServer.setActive(false);
+        retrievedComServer.setServerLogLevel(changedServerLogLevel);
+        retrievedComServer.setCommunicationLogLevel(changedComLogLevel);
+        retrievedComServer.setChangesInterPollDelay(changedChangesInterPollDelay);
+        retrievedComServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
+        retrievedComServer.save();
 
-            // Asserts
-            assertThat(changedName).isEqualTo(retrievedComServer.getName());
-            assertThat(retrievedComServer.isActive()).isFalse();
-            assertThat(changedServerLogLevel).isEqualTo(retrievedComServer.getServerLogLevel());
-            assertThat(changedComLogLevel).isEqualTo(retrievedComServer.getCommunicationLogLevel());
-            assertThat(changedChangesInterPollDelay).isEqualTo(retrievedComServer.getChangesInterPollDelay());
-            assertThat(changedSchedulingInterPollDelay).isEqualTo(retrievedComServer.getSchedulingInterPollDelay());
-        }
+        // Asserts
+        assertThat(changedName).isEqualTo(retrievedComServer.getName());
+        assertThat(retrievedComServer.isActive()).isFalse();
+        assertThat(changedServerLogLevel).isEqualTo(retrievedComServer.getServerLogLevel());
+        assertThat(changedComLogLevel).isEqualTo(retrievedComServer.getCommunicationLogLevel());
+        assertThat(changedChangesInterPollDelay).isEqualTo(retrievedComServer.getChangesInterPollDelay());
+        assertThat(changedSchedulingInterPollDelay).isEqualTo(retrievedComServer.getSchedulingInterPollDelay());
     }
 
     @Test
+    @Transactional
     public void testUpdateWithUpdatesToComPort () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer creationShadow = getEngineModelService().newOfflineComServerInstance();
-            String name = "Update-Candidate2";
-            creationShadow.setName(name);
-            creationShadow.setActive(true);
-            creationShadow.setServerLogLevel(SERVER_LOG_LEVEL);
-            creationShadow.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            creationShadow.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            creationShadow.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            this.addComPort(creationShadow);
-            creationShadow.save();
-            OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name);
+        OfflineComServer creationShadow = getEngineModelService().newOfflineComServerInstance();
+        String name = "Update-Candidate2";
+        creationShadow.setName(name);
+        creationShadow.setActive(true);
+        creationShadow.setServerLogLevel(SERVER_LOG_LEVEL);
+        creationShadow.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        creationShadow.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        creationShadow.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        this.addComPort(creationShadow);
+        creationShadow.save();
+        OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name);
 
-            // Business method
-            String changedName = "Name-Updated2";
-            ComServer.LogLevel changedServerLogLevel = ComServer.LogLevel.WARN;
-            ComServer.LogLevel changedComLogLevel = ComServer.LogLevel.INFO;
-            TimeDuration changedChangesInterPollDelay = SCHEDULING_INTER_POLL_DELAY;
-            TimeDuration changedSchedulingInterPollDelay = CHANGES_INTER_POLL_DELAY;
-            retrievedComServer.setName(changedName);
-            retrievedComServer.setActive(false);
-            retrievedComServer.setServerLogLevel(changedServerLogLevel);
-            retrievedComServer.setCommunicationLogLevel(changedComLogLevel);
-            retrievedComServer.setChangesInterPollDelay(changedChangesInterPollDelay);
-            retrievedComServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
-            ComPort comPort = retrievedComServer.getComPorts().get(0);
-            comPort.setName("Updated");
-            retrievedComServer.save();
+        // Business method
+        String changedName = "Name-Updated2";
+        ComServer.LogLevel changedServerLogLevel = ComServer.LogLevel.WARN;
+        ComServer.LogLevel changedComLogLevel = ComServer.LogLevel.INFO;
+        TimeDuration changedChangesInterPollDelay = SCHEDULING_INTER_POLL_DELAY;
+        TimeDuration changedSchedulingInterPollDelay = CHANGES_INTER_POLL_DELAY;
+        retrievedComServer.setName(changedName);
+        retrievedComServer.setActive(false);
+        retrievedComServer.setServerLogLevel(changedServerLogLevel);
+        retrievedComServer.setCommunicationLogLevel(changedComLogLevel);
+        retrievedComServer.setChangesInterPollDelay(changedChangesInterPollDelay);
+        retrievedComServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
+        ComPort comPort = retrievedComServer.getComPorts().get(0);
+        comPort.setName("Updated");
+        retrievedComServer.save();
 
-            // Asserts
-            assertThat(changedName).isEqualTo(retrievedComServer.getName());
-            assertThat(retrievedComServer.isActive()).isFalse();
-            assertThat(changedServerLogLevel).isEqualTo(retrievedComServer.getServerLogLevel());
-            assertThat(changedComLogLevel).isEqualTo(retrievedComServer.getCommunicationLogLevel());
-            assertThat(changedChangesInterPollDelay).isEqualTo(retrievedComServer.getChangesInterPollDelay());
-            assertThat(changedSchedulingInterPollDelay).isEqualTo(retrievedComServer.getSchedulingInterPollDelay());
-        }
+        // Asserts
+        assertThat(changedName).isEqualTo(retrievedComServer.getName());
+        assertThat(retrievedComServer.isActive()).isFalse();
+        assertThat(changedServerLogLevel).isEqualTo(retrievedComServer.getServerLogLevel());
+        assertThat(changedComLogLevel).isEqualTo(retrievedComServer.getCommunicationLogLevel());
+        assertThat(changedChangesInterPollDelay).isEqualTo(retrievedComServer.getChangesInterPollDelay());
+        assertThat(changedSchedulingInterPollDelay).isEqualTo(retrievedComServer.getSchedulingInterPollDelay());
     }
 
     @Test
+    @Transactional
     public void testUpdateWithoutUpdatesToComPort () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "Update-Candidate3";
-            offlineComServer.setName(name);
-            offlineComServer.setActive(true);
-            offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            addComPort(offlineComServer);
-            offlineComServer.save();
-            OfflineComServer comServer = (OfflineComServer) getEngineModelService().findComServer(name);
+        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "Update-Candidate3";
+        offlineComServer.setName(name);
+        offlineComServer.setActive(true);
+        offlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        offlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        offlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        offlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        addComPort(offlineComServer);
+        offlineComServer.save();
+        OfflineComServer comServer = (OfflineComServer) getEngineModelService().findComServer(name);
 
-            // Business method
-            String changedName = "Name-Updated3";
-            ComServer.LogLevel changedServerLogLevel = ComServer.LogLevel.WARN;
-            ComServer.LogLevel changedComLogLevel = ComServer.LogLevel.INFO;
-            TimeDuration changedChangesInterPollDelay = SCHEDULING_INTER_POLL_DELAY;
-            TimeDuration changedSchedulingInterPollDelay = CHANGES_INTER_POLL_DELAY;
-            comServer.setName(changedName);
-            comServer.setActive(false);
-            comServer.setServerLogLevel(changedServerLogLevel);
-            comServer.setCommunicationLogLevel(changedComLogLevel);
-            comServer.setChangesInterPollDelay(changedChangesInterPollDelay);
-            comServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
-            comServer.save();
+        // Business method
+        String changedName = "Name-Updated3";
+        ComServer.LogLevel changedServerLogLevel = ComServer.LogLevel.WARN;
+        ComServer.LogLevel changedComLogLevel = ComServer.LogLevel.INFO;
+        TimeDuration changedChangesInterPollDelay = SCHEDULING_INTER_POLL_DELAY;
+        TimeDuration changedSchedulingInterPollDelay = CHANGES_INTER_POLL_DELAY;
+        comServer.setName(changedName);
+        comServer.setActive(false);
+        comServer.setServerLogLevel(changedServerLogLevel);
+        comServer.setCommunicationLogLevel(changedComLogLevel);
+        comServer.setChangesInterPollDelay(changedChangesInterPollDelay);
+        comServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
+        comServer.save();
 
-            // Asserts
-            assertThat(changedName).isEqualTo(comServer.getName());
-            assertThat(comServer.isActive()).isFalse();
-            assertThat(changedServerLogLevel).isEqualTo(comServer.getServerLogLevel());
-            assertThat(changedComLogLevel).isEqualTo(comServer.getCommunicationLogLevel());
-            assertThat(changedChangesInterPollDelay).isEqualTo(comServer.getChangesInterPollDelay());
-            assertThat(changedSchedulingInterPollDelay).isEqualTo(comServer.getSchedulingInterPollDelay());
-        }
+        // Asserts
+        assertThat(changedName).isEqualTo(comServer.getName());
+        assertThat(comServer.isActive()).isFalse();
+        assertThat(changedServerLogLevel).isEqualTo(comServer.getServerLogLevel());
+        assertThat(changedComLogLevel).isEqualTo(comServer.getCommunicationLogLevel());
+        assertThat(changedChangesInterPollDelay).isEqualTo(comServer.getChangesInterPollDelay());
+        assertThat(changedSchedulingInterPollDelay).isEqualTo(comServer.getSchedulingInterPollDelay());
     }
 
     @Test
+    @Transactional
     public void testMakeObsoleteWithComPortsWithoutViolations () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "testMakeObsoleteWithComPortsWithoutViolations";
-            comServer.setName(name);
-            comServer.setActive(true);
-            comServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            addComPort(comServer);
-            comServer.save();
-            long id = comServer.getId();
-            List<OutboundComPort> comPorts = comServer.getOutboundComPorts();
+        OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "testMakeObsoleteWithComPortsWithoutViolations";
+        comServer.setName(name);
+        comServer.setActive(true);
+        comServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        addComPort(comServer);
+        comServer.save();
+        long id = comServer.getId();
+        List<OutboundComPort> comPorts = comServer.getOutboundComPorts();
 
-            // Business method
-            comServer.makeObsolete();
+        // Business method
+        comServer.makeObsolete();
 
-            // Asserts
-            assertThat(getEngineModelService().findComServer(id)).isNotNull();
-            for (OutboundComPort outbound : comPorts) {
-                assertThat(outbound.isObsolete());
-            }
+        // Asserts
+        assertThat(getEngineModelService().findComServer(id)).isNotNull();
+        for (OutboundComPort outbound : comPorts) {
+            assertThat(outbound.isObsolete());
         }
     }
 
     @Test
+    @Transactional
     public void testMakeObsolete () throws BusinessException, SQLException {
         String name = "testMakeObsolete";
         OfflineComServer comServer = null;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            comServer = getEngineModelService().newOfflineComServerInstance();
-            comServer.setName(name);
-            comServer.setActive(true);
-            comServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            addComPort(comServer);
-            comServer.save();
-            comServer.makeObsolete();
-            // Business method
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
+        comServer = getEngineModelService().newOfflineComServerInstance();
+        comServer.setName(name);
+        comServer.setActive(true);
+        comServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        addComPort(comServer);
+        comServer.save();
+        comServer.makeObsolete();
+        // Business method
+        ComServer deletedComServer = getEngineModelService().findComServer(name);
 
-            ComServer deletedComServer = getEngineModelService().findComServer(name);
+        // Asserts
+        assertTrue("DeleteDate should be filled in", comServer.getObsoleteDate() != null);
+        assertTrue("Should be marked for delete", comServer.isObsolete());
 
-            // Asserts
-            assertTrue("DeleteDate should be filled in", comServer.getObsoleteDate() != null);
-            assertTrue("Should be marked for delete", comServer.isObsolete());
-
-            assertNotNull("DeleteDate should be filled in", deletedComServer.getObsoleteDate());
-            assertTrue("Should be marked for delete", deletedComServer.isObsolete());
-            assertTrue("toString() representation should contain '(Deleted on ...)'", deletedComServer.toString().contains("delete"));
-        }
+        assertNotNull("DeleteDate should be filled in", deletedComServer.getObsoleteDate());
+        assertTrue("Should be marked for delete", deletedComServer.isObsolete());
+        assertTrue("toString() representation should contain '(Deleted on ...)'", deletedComServer.toString().contains("delete"));
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
     public void testUpdateAfterMakeObsolete() throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "testUpdateAfterMakeObsolete";
-            comServer.setName(name);
-            comServer.setActive(true);
-            comServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            addComPort(comServer);
+        OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "testUpdateAfterMakeObsolete";
+        comServer.setName(name);
+        comServer.setActive(true);
+        comServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        addComPort(comServer);
 
-            // Business method
-            comServer.save();
+        // Business method
+        comServer.save();
 
-            // Business method
-            comServer.makeObsolete();
-            comServer.save();
-        }
+        // Business method
+        comServer.makeObsolete();
+        comServer.save();
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Transactional
+    @Expected(expected = TranslatableApplicationException.class)
     public void testMakeObsoleteTwice () throws BusinessException, SQLException {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
-            String name = "testMakeObsoleteTwice";
-            comServer.setName(name);
-            comServer.setActive(true);
-            comServer.setServerLogLevel(SERVER_LOG_LEVEL);
-            comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-            comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-            comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-            addComPort(comServer);
+        OfflineComServer comServer = getEngineModelService().newOfflineComServerInstance();
+        String name = "testMakeObsoleteTwice";
+        comServer.setName(name);
+        comServer.setActive(true);
+        comServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        comServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        comServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        addComPort(comServer);
 
-            comServer.save();
-            comServer.makeObsolete();
+        comServer.save();
+        comServer.makeObsolete();
 
-            comServer.makeObsolete();
-        }
+        comServer.makeObsolete();
     }
 
     private void addComPort(ComServer comServer) {

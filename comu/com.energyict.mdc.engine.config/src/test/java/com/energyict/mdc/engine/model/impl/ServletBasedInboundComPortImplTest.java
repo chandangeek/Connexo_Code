@@ -44,11 +44,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     private static final String KEY_STORE_PASSWORD = STORE_PASSWORD;
     private static final String TRUST_STORE_PASSWORD = STORE_PASSWORD;
 
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedErrorRule();
-
     @Test
     @Transactional
     public void testInbound() {
