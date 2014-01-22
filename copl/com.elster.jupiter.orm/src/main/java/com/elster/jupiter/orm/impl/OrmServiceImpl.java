@@ -31,19 +31,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + OrmService.COMPONENTNAME)
-public class OrmServiceImpl implements OrmService , InstallService {
-	
-	private volatile DataSource dataSource;
-	private volatile ThreadPrincipalService threadPrincipalService;
+@Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
+public class OrmServiceImpl implements OrmService, InstallService {
+
+    private volatile DataSource dataSource;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
     private volatile ValidationProviderResolver validationProviderResolver;
-    private final Map<String,DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String,DataModelImpl>());
-    
-	public OrmServiceImpl() {
-	}
+    private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<String, DataModelImpl>());
+
+    public OrmServiceImpl() {
+    }
 
     @Inject
     public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver) {
@@ -55,58 +55,59 @@ public class OrmServiceImpl implements OrmService , InstallService {
         setValidationProviderResolver(validationProviderResolver);
         activate();
         if (!getOrmDataModel().isInstalled()) {
-        	install();
+            install();
         }
     }
 
-	public Connection getConnection(boolean transactionRequired) throws SQLException {
-		Connection result = dataSource.getConnection();
-		if (transactionRequired && result.getAutoCommit()) {
-			result.close();
-			throw new TransactionRequiredException();
-		}
-		return result;	
-	}
-	
-	@Override
-	public Optional<DataModelImpl> getDataModel(String name) {
-		return Optional.fromNullable(dataModels.get(name));
-	}
-	
-	@Override
-	public DataModelImpl newDataModel(String name,String description) {		
-		return new DataModelImpl(this).init(name, description);
-	}
+    public Connection getConnection(boolean transactionRequired) throws SQLException {
+        Connection result = dataSource.getConnection();
+        if (transactionRequired && result.getAutoCommit()) {
+            result.close();
+            throw new TransactionRequiredException();
+        }
+        return result;
+    }
 
-	public void register(DataModelImpl dataModel) {
-		dataModels.put(dataModel.getName(), dataModel);
-	}
-	
-	private DataModel getOrmDataModel() {
-		return dataModels.get(COMPONENTNAME);
-	}
-	 @Override
-	public void install() {
-		 createDataModel(false).install(true,true);
-	}
+    @Override
+    public Optional<DataModelImpl> getDataModel(String name) {
+        return Optional.fromNullable(dataModels.get(name));
+    }
+
+    @Override
+    public DataModelImpl newDataModel(String name, String description) {
+        return new DataModelImpl(this).init(name, description);
+    }
+
+    public void register(DataModelImpl dataModel) {
+        dataModels.put(dataModel.getName(), dataModel);
+    }
+
+    private DataModel getOrmDataModel() {
+        return dataModels.get(COMPONENTNAME);
+    }
+
+    @Override
+    public void install() {
+        createDataModel(false).install(true, true);
+    }
 
     public Clock getClock() {
         return clock;
     }
 
-	public Principal getPrincipal()  {
-		return threadPrincipalService.getPrincipal();
-	}
+    public Principal getPrincipal() {
+        return threadPrincipalService.getPrincipal();
+    }
 
     @Reference
-	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-		this.threadPrincipalService = threadPrincipalService;
-	}
-	
-	@Reference
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Reference
     public void setClock(Clock clock) {
@@ -117,70 +118,70 @@ public class OrmServiceImpl implements OrmService , InstallService {
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
-    
-    @Reference 
+
+    @Reference
     public void setValidationProviderResolver(ValidationProviderResolver ValidationProviderResolver) {
-    	this.validationProviderResolver = validationProviderResolver;
+        this.validationProviderResolver = validationProviderResolver;
     }
-    
+
     @Reference
     public void setPublisher(Publisher publisher) {
-    	this.publisher = publisher;
+        this.publisher = publisher;
     }
-    
+
     public JsonService getJsonService() {
         return jsonService;
     }
 
     private DataModel createDataModel(boolean register) {
-		DataModelImpl result =  newDataModel(OrmService.COMPONENTNAME,"Object Relational Mapper");
-		for (TableSpecs spec : TableSpecs.values()) {
-			spec.addTo(result);			
-		}
-		if (register) {
-			result.register();
-		} 
-		return result;
-	}
+        DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(result);
+        }
+        if (register) {
+            result.register();
+        }
+        return result;
+    }
 
     @Activate
-	public void activate() {
-    	createDataModel(true);
-	}
-	
-	public TableImpl<?> getTable(String componentName, String tableName) {
-		DataModelImpl dataModel = dataModels.get(componentName);
-		if (dataModel == null) {
-			throw new IllegalArgumentException ("DataModel " + componentName + " not found");
-		} else {
-			TableImpl<?> result = dataModel.getTable(tableName);
-			if (result == null) {
-				throw new IllegalArgumentException("Table " + tableName + " not found in component " + componentName);
-			} else {
-				return result;
-			}		
-		}
-	}
+    public void activate() {
+        createDataModel(true);
+    }
+
+    public TableImpl<?> getTable(String componentName, String tableName) {
+        DataModelImpl dataModel = dataModels.get(componentName);
+        if (dataModel == null) {
+            throw new IllegalArgumentException("DataModel " + componentName + " not found");
+        } else {
+            TableImpl<?> result = dataModel.getTable(tableName);
+            if (result == null) {
+                throw new IllegalArgumentException("Table " + tableName + " not found in component " + componentName);
+            } else {
+                return result;
+            }
+        }
+    }
 
 
-	@Override
-	public List<DataModelImpl> getDataModels() {
-		synchronized (dataModels) {
-			return new ArrayList<>(dataModels.values());
-		}
-	}
-	
-	Module getModule(final DataModel dataModel) {
-    	return new AbstractModule() {	
-			@Override
-			public void configure() {
-				bind(DataModel.class).toInstance(dataModel);
-				bind(Clock.class).toInstance(clock);
-				bind(JsonService.class).toInstance(jsonService);
-				bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
-				bind(OrmService.class).toInstance(OrmServiceImpl.this);
-			}
-		}; 	
+    @Override
+    public List<DataModelImpl> getDataModels() {
+        synchronized (dataModels) {
+            return new ArrayList<>(dataModels.values());
+        }
+    }
+
+    Module getModule(final DataModel dataModel) {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(Clock.class).toInstance(clock);
+                bind(JsonService.class).toInstance(jsonService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(OrmService.class).toInstance(OrmServiceImpl.this);
+            }
+        };
     }
 
     @Override
@@ -189,24 +190,20 @@ public class OrmServiceImpl implements OrmService , InstallService {
         dataModel.renewCache(tableName);
     }
 
-    ValidationProviderResolver getValidationProviderResolver() {	
-		return validationProviderResolver;
-	}
-    
-    Publisher getPublisher() {
-    	return publisher;
+    ValidationProviderResolver getValidationProviderResolver() {
+        return validationProviderResolver;
     }
 
-	public boolean isInstalled(DataModelImpl dataModel) {
-		DataModel orm = getOrmDataModel();
-		try {
-			return orm.mapper(DataModel.class).getOptional(dataModel.getName()).isPresent();
-		} catch (UnderlyingSQLFailedException ex) {
-			if (dataModel == orm) {
-				return false;
-			} else {
-				throw ex;
-			}
-		}
-	}
+    Publisher getPublisher() {
+        return publisher;
+    }
+
+    public boolean isInstalled(DataModelImpl dataModel) {
+        DataModel orm = getOrmDataModel();
+        try {
+            return orm.mapper(DataModel.class).getOptional(dataModel.getName()).isPresent();
+        } catch (UnderlyingSQLFailedException ex) {
+            return false;
+        }
+    }
 }
