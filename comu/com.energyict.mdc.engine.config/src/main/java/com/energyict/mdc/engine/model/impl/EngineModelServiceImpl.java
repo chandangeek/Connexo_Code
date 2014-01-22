@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
@@ -27,6 +28,7 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.util.Collection;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -106,7 +108,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComServer findComServer(String name) {
+//        Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
+//        Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
+
         return getComServerDataMapper().getUnique("name", name).orNull();
+//        return unique(getComServerDataMapper().select(condition));
     }
 
     @Override
@@ -498,7 +504,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     private Class<? extends ComPortImpl> getComPortClassFor (JSONObject comPortJSon) throws JSONException {
         String xmlType = comPortJSon.getString("type");
         for (Class<? extends ComPortImpl> knownComPortImplementationClass : this.knownComPortImplementationClasses()) {
-            if (knownComPortImplementationClass.getSimpleName() == xmlType || xmlType != null && knownComPortImplementationClass.getSimpleName().equals(xmlType)) {
+            if (knownComPortImplementationClass.getSimpleName().equals(xmlType)
+                    || xmlType != null
+                    && knownComPortImplementationClass.getSimpleName().equals(xmlType)) {
                 return knownComPortImplementationClass;
             }
         }
@@ -513,5 +521,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
         knownClasses.add(UDPBasedInboundComPortImpl.class);
         knownClasses.add(ModemBasedInboundComPortImpl.class);
         return knownClasses;
+    }
+
+    private <T> T unique(Collection<T> collection) {
+        if (collection.size()!=1) {
+            throw new TranslatableApplicationException("XnotUnique", "The elements queried was supposed to be unique");
+        }
+        return collection.iterator().next();
     }
 }

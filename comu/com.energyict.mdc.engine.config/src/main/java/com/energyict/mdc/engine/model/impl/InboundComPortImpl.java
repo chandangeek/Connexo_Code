@@ -5,12 +5,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.google.common.base.Optional;
 import com.google.inject.Provider;
-
-import java.util.Objects;
 
 /**
  * Serves as the root for all {@link com.energyict.mdc.engine.model.InboundComPort}s.
@@ -26,8 +24,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
         super(dataModel);
     }
 
-    public InboundComPortPool getComPortPool () {
-        return this.comPortPool.get();
+    public Optional<InboundComPortPool> getComPortPool() {
+        return Optional.fromNullable(comPortPool.get());
     }
 
     public void setComPortPool(InboundComPortPool comPortPool) {
