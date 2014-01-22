@@ -11,6 +11,11 @@ public class PluggableClassRelationAttributeTypeUsage {
     public long pluggableClassId;
     public long relationAttributeTypeId;
 
+    // For ORMService only
+    public PluggableClassRelationAttributeTypeUsage() {
+        super();
+    }
+
     public PluggableClassRelationAttributeTypeUsage(long pluggableClassId, long relationAttributeTypeId) {
         super();
         this.pluggableClassId = pluggableClassId;
