@@ -17,7 +17,8 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Error',
         'Uni.controller.Navigation',
         'Uni.controller.Notifications',
-        'Uni.controller.Search'
+        'Uni.controller.Search',
+        'Uni.view.form.field.Vtypes'
     ],
 
     /**
@@ -37,6 +38,7 @@ Ext.define('Uni.Loader', {
         this.loadStateManager();
         this.loadOverrides();
         this.loadStores();
+        this.loadVtypes();
 
         this.loadScripts(function () {
             me.afterLoadingScripts(callback);
@@ -71,6 +73,10 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.store.AppItems');
         Ext.require('Uni.store.Notifications');
         Ext.require('Uni.store.Translations');
+    },
+
+    loadVtypes: function () {
+        Ext.create('Uni.view.form.field.Vtypes').init();
     },
 
     loadScript: function (src, callback) {
