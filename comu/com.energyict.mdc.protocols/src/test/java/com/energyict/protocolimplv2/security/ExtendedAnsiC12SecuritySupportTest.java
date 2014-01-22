@@ -43,7 +43,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(this.propertySpecService);
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = newExtendedAnsiC12SecuritySupport();
 
         // currently only 6 properties are necessary
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(6);
@@ -94,7 +94,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = newExtendedAnsiC12SecuritySupport();
 
         // currently only 3 levels are supported
         assertThat(ansiC12SecuritySupport.getAuthenticationAccessLevels()).hasSize(3);
@@ -124,7 +124,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = newExtendedAnsiC12SecuritySupport();
 
         // currently 3 encryption levels are supported
         assertThat(ansiC12SecuritySupport.getEncryptionAccessLevels()).hasSize(3);
@@ -154,7 +154,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport(propertySpecService);
+        ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = newExtendedAnsiC12SecuritySupport();
         final TypedProperties securityProperties = TypedProperties.empty();
         String ansiC12UserIdValue = "MyAnsiC12UserId";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);
@@ -199,6 +199,12 @@ public class ExtendedAnsiC12SecuritySupportTest {
         assertThat(legacyProperties.getProperty("CalledAPTitle")).isEqualTo(calledApTitle);
         assertThat(legacyProperties.getProperty("SecurityKey")).isEqualTo(encryptionKey);
         assertThat(legacyProperties.getProperty("SecurityMode")).isEqualTo("2");
+    }
+
+    protected ExtendedAnsiC12SecuritySupport newExtendedAnsiC12SecuritySupport() {
+        ExtendedAnsiC12SecuritySupport extendedAnsiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport();
+        extendedAnsiC12SecuritySupport.setPropertySpecService(this.propertySpecService);
+        return extendedAnsiC12SecuritySupport;
     }
 
 }

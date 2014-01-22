@@ -45,7 +45,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = newSimplePasswordSecuritySupport();
 
         // assert that you only have one property to set
         assertThat(simplePasswordSecuritySupport.getSecurityProperties()).hasSize(1);
@@ -66,9 +66,15 @@ public class SimplePasswordSecuritySupportTest {
         });
     }
 
+    protected SimplePasswordSecuritySupport newSimplePasswordSecuritySupport() {
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        simplePasswordSecuritySupport.setPropertySpecService(this.propertySpecService);
+        return simplePasswordSecuritySupport;
+    }
+
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = newSimplePasswordSecuritySupport();
 
         // assert that you only have one authentication level
         assertThat(simplePasswordSecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
@@ -90,7 +96,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest(){
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = newSimplePasswordSecuritySupport();
 
         // assert that we don't have any encryption level
         assertThat(simplePasswordSecuritySupport.getEncryptionAccessLevels()).isEmpty();
@@ -98,7 +104,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest(){
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = newSimplePasswordSecuritySupport();
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
@@ -131,7 +137,7 @@ public class SimplePasswordSecuritySupportTest {
 
     @Test
     public void testConvertFromTypedProperties() throws Exception {
-        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(this.propertySpecService);
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = newSimplePasswordSecuritySupport();
         TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService).getName(), passwordValue);

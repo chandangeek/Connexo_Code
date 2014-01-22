@@ -30,8 +30,12 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     private PropertySpecService propertySpecService;
 
-    public WavenisSecuritySupport(PropertySpecService propertySpecService) {
+    public WavenisSecuritySupport() {
         super();
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

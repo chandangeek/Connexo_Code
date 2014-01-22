@@ -31,8 +31,12 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
 
     private PropertySpecService propertySpecService;
 
-    public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
+    public PasswordWithUserIdentificationSecuritySupport() {
         super();
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

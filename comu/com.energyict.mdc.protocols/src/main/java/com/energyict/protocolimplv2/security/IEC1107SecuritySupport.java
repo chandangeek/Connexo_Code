@@ -30,9 +30,8 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     private PropertySpecService propertySpecService;
 
-    public IEC1107SecuritySupport(PropertySpecService propertySpecService) {
+    public IEC1107SecuritySupport() {
         super();
-        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -54,6 +53,11 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
             return this.accessLevel;
         }
 
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override

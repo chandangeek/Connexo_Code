@@ -26,10 +26,14 @@ import java.util.List;
 public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final int AUTH_DEVICE_ACCESS_LEVEL = 0;
-    private final PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService;
 
-    public SimplePasswordSecuritySupport(PropertySpecService propertySpecService) {
+    public SimplePasswordSecuritySupport() {
         super();
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

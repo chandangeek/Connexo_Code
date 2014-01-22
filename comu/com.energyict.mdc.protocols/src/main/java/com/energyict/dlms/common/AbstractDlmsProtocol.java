@@ -79,7 +79,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-        this.securityCapabilities = new DlmsSecuritySupport(propertySpecService);
+        this.securityCapabilities = new DlmsSecuritySupport();
+        this.securityCapabilities.setPropertySpecService(propertySpecService);
     }
 
     /**

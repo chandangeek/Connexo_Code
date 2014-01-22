@@ -28,8 +28,12 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     private PropertySpecService propertySpecService;
 
-    public Mtu155SecuritySupport(PropertySpecService propertySpecService) {
+    public Mtu155SecuritySupport() {
         super();
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

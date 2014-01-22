@@ -56,7 +56,8 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
+        this.securitySupport = new SimplePasswordSecuritySupport();
+        this.securitySupport.setPropertySpecService(propertySpecService);
     }
 
     @Override
