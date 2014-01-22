@@ -142,4 +142,8 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <testSourceDirectory>/tmp</testSourceDirectory>
+    </build>
+
 </project>
