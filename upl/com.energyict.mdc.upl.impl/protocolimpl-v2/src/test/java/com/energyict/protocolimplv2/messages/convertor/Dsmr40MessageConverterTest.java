@@ -43,7 +43,7 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P1);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Disable_authentication_level_P1 AuthenticationLevel=\"1\"> </Disable_authentication_level_P1>", messageEntry.getContent());
+        assertEquals("<Disable_authentication_level_P3 AuthenticationLevel=\"1\"> </Disable_authentication_level_P3>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P0);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -51,7 +51,7 @@ public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(SecurityMessage.ENABLE_DLMS_AUTHENTICATION_LEVEL_P1);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Enable_authentication_level_P1 AuthenticationLevel=\"1\"> </Enable_authentication_level_P1>", messageEntry.getContent());
+        assertEquals("<Enable_authentication_level_P3 AuthenticationLevel=\"1\"> </Enable_authentication_level_P3>", messageEntry.getContent());
 
         // Test the DSMR2.3 CHANGE_DLMS_AUTHENTICATION_LEVEL message is removed
         offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
