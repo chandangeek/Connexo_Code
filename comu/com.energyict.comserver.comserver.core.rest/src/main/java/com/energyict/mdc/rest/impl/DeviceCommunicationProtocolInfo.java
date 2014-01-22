@@ -38,7 +38,7 @@ public class DeviceCommunicationProtocolInfo {
         } catch (Exception e) {
             //TODO, just logging this as we are working with a protocols OSGI bundle which doesn't contain all protocols yet!
             e.printStackTrace(System.err);
-            this.deviceProtocolVersion = "*** PROTOCOL NOT SUPPORTED IN THE CURRENT OSGI BUNDLE YET ***";
+            this.deviceProtocolVersion = "*** PROTOCOL NOT YET SUPPORTED IN THE CURRENT OSGI BUNDLE ***";
         }
         if (licensedProtocol != null) {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
