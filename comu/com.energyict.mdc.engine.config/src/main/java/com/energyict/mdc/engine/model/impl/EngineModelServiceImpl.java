@@ -52,6 +52,10 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     private volatile DataModel dataModel;
 
+    public EngineModelServiceImpl() {
+        super();
+    }
+
     @Inject
     public EngineModelServiceImpl(OrmService ormService) {
         this.setOrmService(ormService);
