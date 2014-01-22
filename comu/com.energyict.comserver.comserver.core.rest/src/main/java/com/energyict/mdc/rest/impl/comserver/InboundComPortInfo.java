@@ -27,7 +27,7 @@ public abstract class InboundComPortInfo<T extends InboundComPort> extends ComPo
     public InboundComPortInfo(InboundComPort comPort) {
         super(comPort);
         this.direction = "inbound";
-        this.comPortPool_id = comPort.getComPortPool().isPresent()?comPort.getComPortPool().get().getId():0L;
+        this.comPortPool_id = comPort.getComPortPool()!=null?comPort.getComPortPool().getId():0L;
     }
 
     @Override

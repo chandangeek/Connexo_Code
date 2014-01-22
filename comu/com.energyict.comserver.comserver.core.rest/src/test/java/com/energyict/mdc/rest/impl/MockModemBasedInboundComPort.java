@@ -152,7 +152,7 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public Optional<InboundComPortPool> getComPortPool() {
+    public InboundComPortPool getComPortPool() {
         return Optional.of(inboundComPortPool);
     }
 

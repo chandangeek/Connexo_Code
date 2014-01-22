@@ -101,14 +101,12 @@ public class ComPortResourceTest extends JerseyTest {
     @Test
     public void testCanCreateEmptyTcpInboundComPort() throws Exception {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
-        when(tcpBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
         new TcpInboundComPortInfo(tcpBasedInboundComPort);
     }
 
     @Test
     public void testCanCreateEmptyUdpInboundComPort() throws Exception {
         UDPBasedInboundComPort udpBasedInboundComPort = mock(UDPBasedInboundComPort.class);
-        when(udpBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
         new UdpInboundComPortInfo(udpBasedInboundComPort);
     }
 
@@ -117,7 +115,6 @@ public class ComPortResourceTest extends JerseyTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(1L);
         when(tcpBasedInboundComPort.getName()).thenReturn("portname");
-        when(tcpBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
 
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
@@ -153,7 +150,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(tcpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.TCP);
         when(tcpBasedInboundComPort.getDescription()).thenReturn("this is a test port");
         when(tcpBasedInboundComPort.getComServer()).thenReturn(comServer);
-        when(tcpBasedInboundComPort.getComPortPool()).thenReturn(Optional.of(comPortPool));
+        when(tcpBasedInboundComPort.getComPortPool()).thenReturn(comPortPool);
         when(tcpBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(tcpBasedInboundComPort.getPortNumber()).thenReturn(8);
 
@@ -191,7 +188,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(servletBasedInboundComPort.getComPortType()).thenReturn(ComPortType.SERVLET);
         when(servletBasedInboundComPort.getDescription()).thenReturn("this is a test port");
         when(servletBasedInboundComPort.getComServer()).thenReturn(comServer);
-        when(servletBasedInboundComPort.getComPortPool()).thenReturn(Optional.of(comPortPool));
+        when(servletBasedInboundComPort.getComPortPool()).thenReturn(comPortPool);
         when(servletBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(servletBasedInboundComPort.getPortNumber()).thenReturn(8);
         when(servletBasedInboundComPort.useHttps()).thenReturn(true);
@@ -240,7 +237,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(udpBasedInboundComPort.getComPortType()).thenReturn(ComPortType.UDP);
         when(udpBasedInboundComPort.getDescription()).thenReturn("this is a test port");
         when(udpBasedInboundComPort.getComServer()).thenReturn(comServer);
-        when(udpBasedInboundComPort.getComPortPool()).thenReturn(Optional.of(comPortPool));
+        when(udpBasedInboundComPort.getComPortPool()).thenReturn(comPortPool);
         when(udpBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(udpBasedInboundComPort.getPortNumber()).thenReturn(8);
         when(udpBasedInboundComPort.getBufferSize()).thenReturn(9);
@@ -266,7 +263,6 @@ public class ComPortResourceTest extends JerseyTest {
     public void testCanSerializeEmptyModemComPort() throws Exception {
         int comPort_id = 666;
         ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
-        when(modemBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
         when(engineModelService.findComPort(comPort_id)).thenReturn(modemBasedInboundComPort);
         target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class);
     }
@@ -294,7 +290,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(modemBasedInboundComPort.getComPortType()).thenReturn(ComPortType.SERIAL);
         when(modemBasedInboundComPort.getDescription()).thenReturn("this is a test port");
         when(modemBasedInboundComPort.getComServer()).thenReturn(comServer);
-        when(modemBasedInboundComPort.getComPortPool()).thenReturn(Optional.of(comPortPool));
+        when(modemBasedInboundComPort.getComPortPool()).thenReturn(comPortPool);
         when(modemBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(modemBasedInboundComPort.getDelayBeforeSend()).thenReturn(delayBeforeSend);
         when(modemBasedInboundComPort.getAddressSelector()).thenReturn("allo allo");
@@ -407,15 +403,12 @@ public class ComPortResourceTest extends JerseyTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(10L);
         when(tcpBasedInboundComPort.getComServer()).thenReturn(comServerA);
-        when(tcpBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
         UDPBasedInboundComPort udpBasedInboundComPort = mock(UDPBasedInboundComPort.class);
         when(udpBasedInboundComPort.getId()).thenReturn(11L);
         when(udpBasedInboundComPort.getComServer()).thenReturn(comServerB);
-        when(udpBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
         ModemBasedInboundComPort modemBasedInboundComPort = mock(ModemBasedInboundComPort.class);
         when(modemBasedInboundComPort.getId()).thenReturn(12L);
         when(modemBasedInboundComPort.getComServer()).thenReturn(comServerB);
-        when(modemBasedInboundComPort.getComPortPool()).thenReturn(Optional.<InboundComPortPool>absent());
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
         when(outboundComPort.getId()).thenReturn(13L);
         when(outboundComPort.getComServer()).thenReturn(comServerA);
