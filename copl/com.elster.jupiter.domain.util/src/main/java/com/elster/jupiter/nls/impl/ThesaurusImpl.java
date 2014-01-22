@@ -1,15 +1,20 @@
 package com.elster.jupiter.nls.impl;
 
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,26 +26,45 @@ class ThesaurusImpl implements Thesaurus {
     private final ThreadPrincipalService threadPrincipalService;
     private final Map<String, NlsKeyImpl> translations = new HashMap<>();
     private final Provider<NlsKeyImpl> nlsKeyProvider;
+    private final DataModel dataModel;
+    private Layer layer;
     private String component;
 
     @Inject
-    public ThesaurusImpl(ThreadPrincipalService threadPrincipalService, Provider<NlsKeyImpl> nlsKeyProvider) {
+    public ThesaurusImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, Provider<NlsKeyImpl> nlsKeyProvider) {
+        this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
         this.nlsKeyProvider = nlsKeyProvider;
     }
 
-    ThesaurusImpl init(String component, List<NlsKeyImpl> nlsKeys) {
+    ThesaurusImpl init(String component, Layer layer) {
         this.component = component;
-        for (NlsKeyImpl nlsKey : nlsKeys) {
+        this.layer = layer;
+        return this;
+    }
+
+    private void initTranslations(String component, Layer layer) {
+        translations.clear();
+        for (NlsKeyImpl nlsKey : getNlsKeys(component, layer)) {
             translations.put(nlsKey.getKey(), nlsKey);
         }
-        return this;
+    }
+
+    private List<NlsKeyImpl> getNlsKeys(String componentName, Layer layer) {
+        if (!dataModel.isInstalled()) {
+            return Collections.emptyList();
+        }
+        Condition condition = Operator.EQUAL.compare("layer", layer).and(Operator.EQUAL.compare("componentName", componentName));
+        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
     }
 
     @Override
     public String getString(String key, String defaultMessage) {
         if (!translations.containsKey(key)) {
-            return defaultMessage;
+            initTranslations(component, layer);
+            if (!translations.containsKey(key)) {
+                return defaultMessage;
+            }
         }
         return translations.get(key).translate(getLocale()).or(defaultMessage);
     }

@@ -7,8 +7,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,7 +14,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.List;
 
 @Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = "name=" + NlsService.COMPONENTNAME)
 public class NlsServiceImpl implements NlsService, InstallService {
@@ -56,12 +53,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Override
     public Thesaurus getThesaurus(String componentName, Layer layer) {
-        return dataModel.getInstance(ThesaurusImpl.class).init(componentName, getNlsKeys(componentName, layer));
-    }
-
-    private List<NlsKeyImpl> getNlsKeys(String componentName, Layer layer) {
-        Condition condition = Operator.EQUAL.compare("layer", layer).and(Operator.EQUAL.compare("componentName", componentName));
-        return dataModel.query(NlsKeyImpl.class, NlsEntry.class).select(condition);
+        return dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
     }
 
     @Reference
