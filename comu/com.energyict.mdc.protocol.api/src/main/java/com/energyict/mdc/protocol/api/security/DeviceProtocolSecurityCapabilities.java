@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.security;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.dynamic.PropertySpec;
 
@@ -14,6 +15,13 @@ import java.util.List;
  * Time: 16:04
  */
 public interface DeviceProtocolSecurityCapabilities {
+
+    /**
+     * Injects the {@link PropertySpecService} into this DeviceProtocolSecurityCapabilities
+     * for it to be able to create {@link com.energyict.mdc.dynamic.PropertySpec}s
+     * @param propertySpecService The PropertySpecService
+     */
+    public void setPropertySpecService (PropertySpecService propertySpecService);
 
     /**
      * Gets <b>ALL</b> the {@link PropertySpec properties}
