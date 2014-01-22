@@ -20,6 +20,7 @@ import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.google.common.base.Optional;
 import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -114,6 +115,7 @@ public class ComPortResourceTest extends JerseyTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
         when(tcpBasedInboundComPort.getId()).thenReturn(1L);
         when(tcpBasedInboundComPort.getName()).thenReturn("portname");
+
         List<ComPort> comPorts = new ArrayList<>();
         comPorts.add(tcpBasedInboundComPort);
         when(engineModelService.findAllComPortsWithDeleted()).thenReturn(comPorts);
