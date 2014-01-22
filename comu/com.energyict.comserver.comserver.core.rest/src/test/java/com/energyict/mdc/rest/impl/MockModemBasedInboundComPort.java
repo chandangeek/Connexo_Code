@@ -1,13 +1,12 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -181,8 +180,8 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public UtcInstant getModificationDate() {
-        return new UtcInstant(new Date());
+    public Date getModificationDate() {
+        return new Date();
     }
 
     @Override
@@ -271,7 +270,7 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public UtcInstant getObsoleteDate() {
-        return new UtcInstant(new Date());
+    public Date getObsoleteDate() {
+        return new Date();
     }
 }

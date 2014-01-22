@@ -162,8 +162,8 @@ public class ComServerResourceTest extends JerseyTest {
         onlineComServerInfo.schedulingInterPollDelay.count=6;
         onlineComServerInfo.communicationLogLevel= ComServer.LogLevel.ERROR;
         onlineComServerInfo.serverLogLevel= ComServer.LogLevel.DEBUG;
-        onlineComServerInfo.inboundComPortInfos = new ArrayList<>();
-        onlineComServerInfo.outboundComPortInfos = new ArrayList<>();
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts = new ArrayList<>();
         onlineComServerInfo.storeTaskQueueSize= 7;
         onlineComServerInfo.storeTaskThreadPriority= 8;
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
@@ -236,8 +236,8 @@ public class ComServerResourceTest extends JerseyTest {
         modemInboundComPortInfo.flowControl = FlowControl.XONXOFF;
         List<InboundComPortInfo<? extends InboundComPort>> inboundPorts = new ArrayList<>();
         inboundPorts.add(modemInboundComPortInfo);
-        onlineComServerInfo.inboundComPortInfos =inboundPorts;
-        onlineComServerInfo.outboundComPortInfos =new ArrayList<>();
+        onlineComServerInfo.inboundComPorts =inboundPorts;
+        onlineComServerInfo.outboundComPorts =new ArrayList<>();
 
         MockModemBasedInboundComPort mockModemBasedInboundComPort = new MockModemBasedInboundComPort();
         when(engineModelService.newModemBasedInbound(serverSideComServer)).thenReturn(mockModemBasedInboundComPort);
@@ -259,8 +259,8 @@ public class ComServerResourceTest extends JerseyTest {
     public void testCanNotUpdateComServerWithoutInboundComPorts() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPortInfos = null;
-        onlineComServerInfo.outboundComPortInfos = new ArrayList<>();
+        onlineComServerInfo.inboundComPorts = null;
+        onlineComServerInfo.outboundComPorts = new ArrayList<>();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/4").request().put(json);
 
@@ -271,8 +271,8 @@ public class ComServerResourceTest extends JerseyTest {
     public void testCanNotUpdateComServerWithoutOutboundComPorts() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPortInfos = new ArrayList<>();
-        onlineComServerInfo.outboundComPortInfos = null;
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts = null;
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/5").request().put(json);
 
@@ -288,8 +288,8 @@ public class ComServerResourceTest extends JerseyTest {
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.inboundComPortInfos = new ArrayList<>();
-        onlineComServerInfo.outboundComPortInfos = new ArrayList<>();
+        onlineComServerInfo.inboundComPorts = new ArrayList<>();
+        onlineComServerInfo.outboundComPorts = new ArrayList<>();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/3").request().put(json); //5 was mocked, there is no ComServer 3
 

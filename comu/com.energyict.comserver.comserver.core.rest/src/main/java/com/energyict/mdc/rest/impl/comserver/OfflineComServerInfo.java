@@ -32,7 +32,7 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServer> {
 
     private void updateOutboundComPorts(OfflineComServer source,EngineModelService engineModelService) {
         List<ComPort> outboundComPorts = new ArrayList<>();
-        for (OutboundComPortInfo outboundComPortInfo : this.outboundComPortInfos) {
+        for (OutboundComPortInfo outboundComPortInfo : this.outboundComPorts) {
             if(outboundComPortInfo.id>0){
                 OutboundComPort comPort = (OutboundComPort) engineModelService.findComPort(outboundComPortInfo.id);
                 outboundComPortInfo.writeTo(comPort,engineModelService);

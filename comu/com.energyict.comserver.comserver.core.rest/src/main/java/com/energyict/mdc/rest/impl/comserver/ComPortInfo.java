@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -15,6 +14,7 @@ import com.energyict.mdc.rest.impl.TimeDurationInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public abstract class ComPortInfo<T extends ComPort> {
     public ComPortType comPortType;
     public long comServer_id;
     public int numberOfSimultaneousConnections;
-    public UtcInstant modificationDate;
+    public Date modificationDate;
     public Integer ringCount;
     public Integer maximumNumberOfDialErrors;
     public TimeDurationInfo connectTimeout;

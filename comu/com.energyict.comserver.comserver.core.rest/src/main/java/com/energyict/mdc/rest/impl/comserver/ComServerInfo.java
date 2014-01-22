@@ -27,8 +27,8 @@ public abstract class ComServerInfo<S extends ComServer> {
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
-    public List<InboundComPortInfo<? extends InboundComPort>> inboundComPortInfos;
-    public List<OutboundComPortInfo> outboundComPortInfos;
+    public List<InboundComPortInfo<? extends InboundComPort>> inboundComPorts;
+    public List<OutboundComPortInfo> outboundComPorts;
     public Long onlineComServerId;
     public String queryAPIUsername;
     public String queryAPIPassword;
@@ -61,13 +61,13 @@ public abstract class ComServerInfo<S extends ComServer> {
      */
     public ComServerInfo(ComServer comServer, List<ComPort> comPorts) {
         this(comServer);
-        inboundComPortInfos = new ArrayList<>();
-        outboundComPortInfos = new ArrayList<>();
+        inboundComPorts = new ArrayList<>();
+        outboundComPorts = new ArrayList<>();
         for (final ComPort comPort : comPorts) {
             if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
-                inboundComPortInfos.add(ComPortInfoFactory.asInboundInfo(comPort));
+                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
             } else {
-                outboundComPortInfos.add(ComPortInfoFactory.asOutboundInfo(comPort));
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort));
             }
         }
     }

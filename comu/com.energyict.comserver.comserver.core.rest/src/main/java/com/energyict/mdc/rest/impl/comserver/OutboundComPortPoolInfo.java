@@ -18,9 +18,9 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     public OutboundComPortPoolInfo(OutboundComPortPool comPortPool) {
         super(comPortPool);
         if (comPortPool.getComPorts()!=null) {
-            outboundComPortInfos = new ArrayList<>(comPortPool.getComPorts().size());
+            outboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
             for (OutboundComPort outboundComPort : comPortPool.getComPorts()) {
-                outboundComPortInfos.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
             }
         }
         taskExecutionTimeout = new TimeDurationInfo(comPortPool.getTaskExecutionTimeout());
@@ -30,8 +30,8 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     protected OutboundComPortPool writeTo(OutboundComPortPool source, EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
         source.setTaskExecutionTimeout(this.taskExecutionTimeout.asTimeDuration());
-        if (outboundComPortInfos !=null) {
-            for (OutboundComPortInfo outboundComPortInfo : this.outboundComPortInfos) {
+        if (outboundComPorts !=null) {
+            for (OutboundComPortInfo outboundComPortInfo : this.outboundComPorts) {
                 OutboundComPort outboundComPort;
                 if(outboundComPortInfo.id>0){
                     outboundComPort = (OutboundComPort)engineModelService.findComPort(outboundComPortInfo.id);

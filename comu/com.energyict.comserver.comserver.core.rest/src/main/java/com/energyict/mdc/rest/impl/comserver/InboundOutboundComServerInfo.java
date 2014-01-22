@@ -27,7 +27,7 @@ public abstract class InboundOutboundComServerInfo<S extends ComServer> extends 
 
     protected final void updateInboundComPorts(ComServer comServer,EngineModelService engineModelService) {
         List<ComPort> inboundComPorts = new ArrayList<>();
-        for (InboundComPortInfo comPortInfo : inboundComPortInfos) {
+        for (InboundComPortInfo comPortInfo : this.inboundComPorts) {
            if(comPortInfo.id>0){
                InboundComPort comPort = (InboundComPort) engineModelService.findComPort(comPortInfo.id);
                comPortInfo.writeTo(comPort,engineModelService);
@@ -51,7 +51,7 @@ public abstract class InboundOutboundComServerInfo<S extends ComServer> extends 
 
     protected final void updateOutboundComPorts(ComServer comServer,EngineModelService engineModelService) {
         List<ComPort> outboundComPorts = new ArrayList<>();
-        for (OutboundComPortInfo comPortInfo : outboundComPortInfos) {
+        for (OutboundComPortInfo comPortInfo : this.outboundComPorts) {
             if(comPortInfo.id>0){
                 OutboundComPort comPort = (OutboundComPort) engineModelService.findComPort(comPortInfo.id);
                 comPortInfo.writeTo(comPort,engineModelService);

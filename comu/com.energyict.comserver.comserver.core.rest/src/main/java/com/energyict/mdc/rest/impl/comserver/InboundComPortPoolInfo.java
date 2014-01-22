@@ -18,9 +18,9 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
         super(comPortPool);
         this.discoveryProtocolPluggableClassId = comPortPool.getDiscoveryProtocolPluggableClassId();
         if (comPortPool.getComPorts()!=null) {
-            this.inboundComPortInfos = new ArrayList<>(comPortPool.getComPorts().size());
+            this.inboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
             for (InboundComPort inboundComPort : comPortPool.getComPorts()) {
-                inboundComPortInfos.add(ComPortInfoFactory.asInboundInfo(inboundComPort));
+                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(inboundComPort));
             }
         }
     }
@@ -29,8 +29,8 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     protected InboundComPortPool writeTo(InboundComPortPool source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
         source.setDiscoveryProtocolPluggableClassId(this.discoveryProtocolPluggableClassId);
-        if (inboundComPortInfos !=null) {
-            for (InboundComPortInfo inboundComPortInfo : this.inboundComPortInfos) {
+        if (inboundComPorts !=null) {
+            for (InboundComPortInfo inboundComPortInfo : this.inboundComPorts) {
                 InboundComPort inboundComPort;
                 if(inboundComPortInfo.id>0){
                     inboundComPort = (InboundComPort)engineModelService.findComPort(inboundComPortInfo.id);

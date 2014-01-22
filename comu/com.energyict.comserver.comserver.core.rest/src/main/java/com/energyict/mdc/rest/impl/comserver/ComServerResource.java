@@ -101,11 +101,11 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
         try {
-            if (comServerInfo.inboundComPortInfos ==null) {
+            if (comServerInfo.inboundComPorts ==null) {
                 throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
                     Response.status(Response.Status.BAD_REQUEST).build());
             }
-            if (comServerInfo.outboundComPortInfos ==null) {
+            if (comServerInfo.outboundComPorts ==null) {
                 throw new WebApplicationException("ComServer is missing list of outbound ComPorts",
                     Response.status(Response.Status.BAD_REQUEST).build());
             }

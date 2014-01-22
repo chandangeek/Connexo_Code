@@ -26,9 +26,9 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public Date obsoleteDate;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
     public ComPortType type;
-    public List<InboundComPortInfo> inboundComPortInfos;
+    public List<InboundComPortInfo> inboundComPorts;
     public long discoveryProtocolPluggableClassId;
-    public List<OutboundComPortInfo> outboundComPortInfos;
+    public List<OutboundComPortInfo> outboundComPorts;
     public TimeDurationInfo taskExecutionTimeout;
 
     public ComPortPoolInfo() {
