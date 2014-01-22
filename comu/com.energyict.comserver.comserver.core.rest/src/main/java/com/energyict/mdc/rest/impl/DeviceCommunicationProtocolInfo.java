@@ -34,7 +34,7 @@ public class DeviceCommunicationProtocolInfo {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
         try {
-            this.deviceProtocolVersion = deviceProtocolPluggableClass.getDeviceProtocol().getVersion();
+            this.deviceProtocolVersion = deviceProtocolPluggableClass.getVersion();
         } catch (Exception e) {
             //TODO, just logging this as we are working with a protocols OSGI bundle which doesn't contain all protocols yet!
             e.printStackTrace(System.err);
