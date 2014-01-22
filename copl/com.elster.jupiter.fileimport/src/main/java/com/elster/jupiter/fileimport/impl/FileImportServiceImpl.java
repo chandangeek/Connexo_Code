@@ -91,6 +91,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
         this.transactionService = transactionService;
     }
 
+    @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(FileImportService.COMPONENT_NAME, Layer.DOMAIN);
         defaultFileSystem = new DefaultFileSystem(thesaurus);
@@ -107,6 +108,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 bind(DataModel.class).toInstance(dataModel);
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(JsonService.class).toInstance(jsonService);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
         try {
