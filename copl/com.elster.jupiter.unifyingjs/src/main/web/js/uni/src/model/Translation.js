@@ -1,6 +1,7 @@
 Ext.define('Uni.model.Translation', {
     extend: 'Ext.data.Model',
     fields: [
+        'cmp',
         'key',
         'value'
     ],

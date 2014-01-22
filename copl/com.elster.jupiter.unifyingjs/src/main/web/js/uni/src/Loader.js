@@ -6,6 +6,8 @@
  */
 Ext.define('Uni.Loader', {
 
+    scriptLoadingCount: 0,
+
     requires: [
         'Ext.tip.QuickTipManager',
         'Uni.util.I18n',
@@ -18,13 +20,27 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Search'
     ],
 
+    /**
+     * Initializes the internationalization components that should be used during loading.
+     *
+     * @param {String} components Components to load
+     */
+    initI18n: function (components) {
+        I18n.init(components);
+    },
+
     onReady: function (callback) {
+        var me = this;
+
         this.loadFont();
         this.loadTooltips();
         this.loadStateManager();
         this.loadOverrides();
         this.loadStores();
-        this.loadScripts(callback);
+
+        this.loadScripts(function () {
+            me.afterLoadingScripts(callback);
+        });
     },
 
     loadFont: function () {
@@ -58,22 +74,41 @@ Ext.define('Uni.Loader', {
     },
 
     loadScript: function (src, callback) {
-        var script = document.createElement('script'),
+        var me = this,
+            script = document.createElement('script'),
             loaded;
+
         script.setAttribute('src', src);
         if (callback) {
+            me.scriptLoadingCount++;
             script.onreadystatechange = script.onload = function () {
                 if (!loaded) {
-                    callback();
+                    me.scriptLoadingCount--;
+                    if (me.scriptLoadingCount === 0) {
+                        callback();
+                    }
                 }
                 loaded = true;
             };
         }
+
         document.getElementsByTagName('head')[0].appendChild(script);
     },
 
+    /**
+     * Loads the required scripts asynchronously and calls the callback when all scripts have finished loading.
+     *
+     * @param {Function} callback Callback to call after all scripts have finished loading
+     */
     loadScripts: function (callback) {
+        this.loadScript('../uni/resources/js/underscore/underscore-min.js', callback);
         this.loadScript('../uni/resources/js/moment/min/moment.min.js', callback);
+    },
+
+    afterLoadingScripts: function (callback) {
+        I18n.load(function () {
+            callback();
+        });
     }
 
 });

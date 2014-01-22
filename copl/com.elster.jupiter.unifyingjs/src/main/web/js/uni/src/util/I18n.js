@@ -8,24 +8,27 @@ function I18n() {
 Ext.require('Uni.store.Translations');
 
 /**
- * Loads the internationalization locale that should be used.
+ * Initializes the internationalization components that should be used during loading.
  *
- * @param {String} locale Locale to use
- * @param {String} component Component to load
+ * @param {String} components Components to load
+ */
+I18n.init = function (components) {
+    Uni.store.Translations.setComponents(components);
+};
+
+/**
+ * Loads the internationalization translations for the current component settings.
+ *
  * @param {Function} [callback] Callback after loading
  */
-I18n.loadLocale = function (locale, component, callback) {
-    locale = (typeof locale !== 'undefined') ? locale : 'en-GB';
-    Uni.store.Translations.setLocale(locale);
-
-    component = (typeof component !== 'undefined') ? component : 'all';
-    Uni.store.Translations.setComponent(component);
-
+I18n.load = function (callback) {
     callback = (typeof callback !== 'undefined') ? callback : function () {
     };
 
     Uni.store.Translations.load({
-        callback: callback
+        callback: function () {
+            callback();
+        }
     });
 };
 
@@ -35,17 +38,31 @@ I18n.loadLocale = function (locale, component, callback) {
  * be an extra warning that is logged in the debug console.
  *
  * @param {String} key Key to look up the translation for
+ * @param {String} component Component to filter on
  * @returns {String} Translation
  */
-I18n.lookupTranslation = function (key) {
-    var translation = Uni.store.Translations.getById(key);
+I18n.lookupTranslation = function (key, component) {
+    var translation,
+        index;
+
+    if (typeof component !== 'undefined' && component) {
+        index = Uni.store.Translations.findBy(function(record) {
+            return record.data.key === key && record.data.cmp === component;
+        });
+        translation = Uni.store.Translations.getAt(index);
+    } else {
+        translation = Uni.store.Translations.getById(key);
+    }
 
     if (typeof translation !== 'undefined' && translation !== null) {
         translation = translation.data.value;
     } else {
-        translation = '[' + key + ']';
         //<debug>
-        console.warn('Missing translation for key: ' + key);
+        var warning = 'Missing translation for key "' + key + '"';
+        if (component) {
+            warning += ' in component "' + component + '"';
+        }
+        console.log(warning);
         //</debug>
     }
 
@@ -66,18 +83,24 @@ I18n.replaceAll = function (translation, searchIndex, replaceValue) {
 };
 
 /**
- * Returns the text translation of the key.
- *
- * The 't' short notation stands for 'translate'.
+ * Returns the text translation of the key, looking for the key in a certain .
  *
  * @param {String} key Translation key to look up
+ * @param {String} component Component on which to filter
+ * @param {String} fallback Fallback value in case the tranlation was not found
  * @param {String[]} [values] Values to replace in the translation
  * @returns {String} Translation.
  */
-I18n.t = function (key, values) {
-    var translation = I18n.lookupTranslation(key);
+I18n.translate = function (key, component, fallback, values) {
+    var translation = I18n.lookupTranslation(key, component);
 
-    if (typeof translation !== 'undefined' && translation !== null && typeof values !== 'undefined') {
+    if ((typeof translation === 'undefined' || translation === null)
+        && typeof fallback !== 'undefined' && fallback !== null) {
+        translation = fallback;
+    }
+
+    if (typeof translation !== 'undefined' && translation !== null
+        && typeof values !== 'undefined') {
         for (var i = 0; i < values.length; i++) {
             translation = I18n.replaceAll(translation, i, values[i]);
         }
@@ -92,12 +115,10 @@ I18n.t = function (key, values) {
  * If your key is named 'itemCount' then for the number 0 will look up 'itemCount[0]',
  * for the number 1 'itemCount[1]', and so on. It falls back on the generic 'itemCount' key.
  *
- * The 'p' short notation stands for 'plural'.
- *
  * @param {String} key Translation key to look up
  * @param {Number} number Number to translate with
  */
-I18n.p = function (key, number) {
+I18n.translatePlural = function (key, number) {
     var lookup = key + '[' + number + ']',
         translation = I18n.lookupTranslation(lookup);
 
@@ -118,13 +139,11 @@ I18n.p = function (key, number) {
  * The used parse syntax is that of Moment.js which can be found here:
  * http://www.momentjs.com/docs/#/parsing/string-format/
  *
- * The 'd' short notation stands for 'date'.
- *
  * @param {String} key Translation key to format the date with
  * @param {Date} [date] Date to format
  * @returns {String} Formatted date as a string value
  */
-I18n.d = function (key, date) {
+I18n.formatDate = function (key, date) {
     // TODO Use a fallback format by loading in languages from Moment.js.
     date = date || new Date();
 
@@ -152,7 +171,7 @@ I18n.d = function (key, date) {
  * @param {String} [thousandsSeparator] Required thousand separator
  * @returns {String} Formatted number
  */
-I18n.formatNumber = function (number, decimals, decimalSeparator, thousandsSeparator) {
+I18n.formatNumberWithSeparators = function (number, decimals, decimalSeparator, thousandsSeparator) {
     var n = parseFloat(number),
         c = isNaN(decimals) ? 2 : Math.abs(decimals),
         d = decimalSeparator || '.',
@@ -176,11 +195,11 @@ I18n.formatNumber = function (number, decimals, decimalSeparator, thousandsSepar
  * @param {Number} [decimals] Number of required decimal places
  * @returns {String} Internationalized number
  */
-I18n.n = function (number, decimals) {
-    var decimalSeparator = this.t('decimalSeparator'),
-        thousandsSeparator = this.t('thousandsSeparator');
+I18n.formatNumber = function (number, decimals) {
+    var decimalSeparator = this.translate('decimalSeparator') || '.',
+        thousandsSeparator = this.translate('thousandsSeparator') || ',';
 
-    return this.formatNumber(number, decimals, decimalSeparator, thousandsSeparator);
+    return this.formatNumberWithSeparators(number, decimals, decimalSeparator, thousandsSeparator);
 };
 
 /**
@@ -188,13 +207,11 @@ I18n.n = function (number, decimals) {
  * trailing decimals is not specified, 2 decimals are used. The lookup key for the currency format
  * is 'currencyFormat'. If the currency format is not found, the formatted numeric value is used.
  *
- * The 'c' short notation stands for 'currency'.
- *
  * @param {Number} value Currency value to internationalize
  * @param {Number} [decimals] Number of required decimal places
  * @returns {String} Internationalized currency value
  */
-I18n.c = function (value, decimals) {
+I18n.formatCurrency = function (value, decimals) {
     var formattedValue = this.n(value, decimals);
 
     return this.t('currencyFormat', [formattedValue]) || formattedValue;

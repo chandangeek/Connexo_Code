@@ -14,10 +14,6 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'navigationMenu',
             selector: 'navigationMenu'
-        },
-        {
-            ref: 'contentPanel',
-            selector: 'viewport > #contentPanel'
         }
     ],
 
