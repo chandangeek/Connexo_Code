@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -16,6 +15,8 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Wraps a {@link PluggableClass} while adding behavior that is
@@ -25,6 +26,8 @@ import java.util.Locale;
  * @since 2013-12-23 (11:02)
  */
 public abstract class PluggableClassWrapper<T extends Pluggable> {
+
+    private static final Pattern VERSION_DATE_PATTERN = Pattern.compile("\\$Date:(.*)\\$");
 
     private PluggableClass pluggableClass;
     @Inject
@@ -109,7 +112,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         }
     }
 
-    public String getVersion () {
+    protected String getVersion () {
         try {
             T pluggable = this.newInstance();
             String version = pluggable.getVersion();
@@ -121,17 +124,14 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
                 if (version.startsWith(prefix)) {
                     return version.substring(prefix.length(), version.length() - 1);
                 }
-                else if (version.startsWith("$Date")) {
-                    String[] date = version.split(" ");
-                    if (date.length < 2) {
-                        return version;
+                else {
+                    Matcher matcher = VERSION_DATE_PATTERN.matcher(version);
+                    if (matcher.matches()) {
+                        return matcher.group(1).trim();
                     }
                     else {
-                        return date[1];
+                        return version;
                     }
-                }
-                else {
-                    return version;
                 }
             }
         }

@@ -188,6 +188,11 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
+    public String getVersion() {
+        return super.getVersion();
+    }
+
+    @Override
     public DeviceProtocol getDeviceProtocol () {
         DeviceProtocol deviceProtocol = this.newInstance();
         deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
