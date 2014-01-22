@@ -108,12 +108,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public ComServer findComServer(String name) {
-//        Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
-//        Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
-
-        return getComServerDataMapper().getUnique("name", name).orNull();
-//        return unique(getComServerDataMapper().select(condition));
-    }
+        Condition condition = Where.where("name").isEqualTo(name).and(Where.where("obsoleteDate").isNull());
+        return unique(getComServerDataMapper().select(condition));
+   }
 
     @Override
     public ComServer findComServer(long id) {
@@ -524,7 +521,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     private <T> T unique(Collection<T> collection) {
-        if (collection.size()!=1) {
+        if (collection.isEmpty()) {
+            return null;
+        } else if (collection.size()!=1) {
             throw new TranslatableApplicationException("XnotUnique", "The elements queried was supposed to be unique");
         }
         return collection.iterator().next();

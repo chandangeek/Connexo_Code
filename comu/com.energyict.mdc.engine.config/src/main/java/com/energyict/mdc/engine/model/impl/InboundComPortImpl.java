@@ -24,8 +24,8 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
         super(dataModel);
     }
 
-    public Optional<InboundComPortPool> getComPortPool() {
-        return Optional.fromNullable(comPortPool.get());
+    public InboundComPortPool getComPortPool() {
+        return comPortPool.get();
     }
 
     public void setComPortPool(InboundComPortPool comPortPool) {

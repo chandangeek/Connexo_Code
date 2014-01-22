@@ -447,7 +447,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         comServer.save();
         comServer.makeObsolete();
         // Business method
-        ComServer deletedComServer = getEngineModelService().findComServer(name);
+        ComServer deletedComServer = getEngineModelService().findComServer(comServer.getId());
 
         // Asserts
         assertTrue("DeleteDate should be filled in", comServer.getObsoleteDate() != null);

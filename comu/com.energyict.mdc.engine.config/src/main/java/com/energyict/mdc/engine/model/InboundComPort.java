@@ -17,7 +17,7 @@ public interface InboundComPort extends ComPort {
      *
      * @return The InboundComPortPool
      */
-    public Optional<InboundComPortPool> getComPortPool();
+    public InboundComPortPool getComPortPool();
     public void setComPortPool(InboundComPortPool comPortPool);
 
     /**
