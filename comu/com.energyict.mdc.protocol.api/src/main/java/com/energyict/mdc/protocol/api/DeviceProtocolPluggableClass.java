@@ -11,6 +11,14 @@ import com.energyict.mdc.pluggable.PluggableClass;
  */
 public interface DeviceProtocolPluggableClass extends PluggableClass {
 
+    /**
+     * Returns the version of the {@link DeviceProtocol} and removes
+     * any technical details that relate to development tools.
+     *
+     * @return The DeviceProtocol version
+     */
+    public String getVersion ();
+
     public DeviceProtocol getDeviceProtocol ();
 
 }
