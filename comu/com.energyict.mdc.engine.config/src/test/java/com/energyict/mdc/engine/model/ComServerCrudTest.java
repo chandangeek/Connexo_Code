@@ -3,15 +3,16 @@ package com.energyict.mdc.engine.model;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.util.ArrayList;
-import java.util.List;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerCrudTest extends PersistenceTest {
@@ -182,5 +183,9 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(onlineComServer.getComPorts()).hasSize(1);
     }
 
+    @Test
+    public void testName() throws Exception {
+        System.out.println(Parities.NONE.name());
 
+    }
 }

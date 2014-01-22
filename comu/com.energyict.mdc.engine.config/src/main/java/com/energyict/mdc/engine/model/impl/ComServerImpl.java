@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -11,10 +10,10 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
@@ -62,7 +61,7 @@ public abstract class ComServerImpl implements ComServer {
     private LogLevel communicationLogLevel;
     private TimeDuration changesInterPollDelay;
     private TimeDuration schedulingInterPollDelay;
-    private UtcInstant modificationDate;
+    private Date modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
     private Date obsoleteDate;
 
@@ -325,7 +324,7 @@ public abstract class ComServerImpl implements ComServer {
         return Character.isDigit(c) || Character.isAlphabetic(c) || c == '.' || c == '-';
     }
 
-    public UtcInstant getModificationDate() {
+    public Date getModificationDate() {
         return modificationDate;
     }
 

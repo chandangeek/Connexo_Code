@@ -4,26 +4,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-import com.google.inject.Provider;
 
+import javax.inject.Inject;
 import java.util.Date;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
 
 /**
  * Serves as the root of class hierarchy that will provide
@@ -34,11 +25,11 @@ import javax.inject.Inject;
  */
 public abstract class ComPortImpl implements ComPort {
 
-    protected static final String MODEM_DISCRIMINATOR = "0";
-    protected static final String TCP_DISCRIMINATOR = "1";
-    protected static final String SERVLET_DISCRIMINATOR = "2";
+    protected static final String MODEM_DISCRIMINATOR = "1";
+    protected static final String TCP_DISCRIMINATOR = "2";
+    protected static final String SERVLET_DISCRIMINATOR = "4";
     protected static final String UDP_DISCRIMINATOR = "3";
-    protected static final String OUTBOUND_DISCRIMINATOR = "5";
+    protected static final String OUTBOUND_DISCRIMINATOR = "0";
 
     static final Map<String, Class<? extends ComPort>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComPort>>of(
@@ -51,7 +42,7 @@ public abstract class ComPortImpl implements ComPort {
 
     private long id=0;
     private String name;
-    private UtcInstant modificationDate;
+    private Date modificationDate;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
@@ -127,7 +118,7 @@ public abstract class ComPortImpl implements ComPort {
         return ComPort.class.getName();
     }
 
-    public UtcInstant getModificationDate() {
+    public Date getModificationDate() {
         return modificationDate;
     }
 

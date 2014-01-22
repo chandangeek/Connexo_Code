@@ -7,14 +7,19 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
+import com.energyict.mdc.protocol.api.channels.serial.NrOfStopBits;
+import com.energyict.mdc.protocol.api.channels.serial.Parities;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
 
-import java.util.Collections;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,7 +40,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
     private String modemInitStrings;
     private String addressSelector;
     private String postDialCommands;
-    private SerialPortConfiguration serialPortConfiguration;
+    private LegacySerialPortConfiguration serialPortConfiguration;
 
     @Inject
     protected ModemBasedInboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider) {
@@ -166,12 +171,12 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public SerialPortConfiguration getSerialPortConfiguration() {
-        return serialPortConfiguration;
+        return serialPortConfiguration.asEnum();
     }
 
     @Override
     public void setSerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-        this.serialPortConfiguration = serialPortConfiguration;
+        this.serialPortConfiguration = new LegacySerialPortConfiguration(serialPortConfiguration);
     }
 
     @Override
@@ -274,6 +279,84 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         public ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
             comPort.setSerialPortConfiguration(serialPortConfiguration);
             return this;
+        }
+    }
+
+    public static class LegacySerialPortConfiguration {
+        private String comPortName;
+        private BigDecimal baudrate;
+        private BigDecimal nrOfDataBits;
+        private BigDecimal nrOfStopBits;
+        private String flowControl;
+        private String parity;
+
+        private LegacySerialPortConfiguration() {
+        }
+
+        public LegacySerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
+            comPortName=serialPortConfiguration.getComPortName();
+            baudrate= BigDecimal.valueOf(serialPortConfiguration.getBaudrate().ordinal());
+            nrOfDataBits=BigDecimal.valueOf(serialPortConfiguration.getNrOfDataBits().ordinal());
+            nrOfStopBits=BigDecimal.valueOf(serialPortConfiguration.getNrOfStopBits().ordinal());
+            parity=serialPortConfiguration.getParity().getParity();
+            flowControl=serialPortConfiguration.getFlowControl().getFlowControl();
+        }
+
+        private String getComPortName() {
+            return comPortName;
+        }
+
+        private void setComPortName(String comPortName) {
+            this.comPortName = comPortName;
+        }
+
+        private BigDecimal getBaudrate() {
+            return baudrate;
+        }
+
+        private void setBaudrate(BigDecimal baudrate) {
+            this.baudrate = baudrate;
+        }
+
+        private BigDecimal getNrOfDataBits() {
+            return nrOfDataBits;
+        }
+
+        private void setNrOfDataBits(BigDecimal nrOfDataBits) {
+            this.nrOfDataBits = nrOfDataBits;
+        }
+
+        private BigDecimal getNrOfStopBits() {
+            return nrOfStopBits;
+        }
+
+        private void setNrOfStopBits(BigDecimal nrOfStopBits) {
+            this.nrOfStopBits = nrOfStopBits;
+        }
+
+        private String getFlowControl() {
+            return flowControl;
+        }
+
+        private void setFlowControl(String flowControl) {
+            this.flowControl = flowControl;
+        }
+
+        private String getParity() {
+            return parity;
+        }
+
+        private void setParity(String parity) {
+            this.parity = parity;
+        }
+
+        public SerialPortConfiguration asEnum() {
+            return new SerialPortConfiguration(comPortName,
+                    BaudrateValue.valueFor(baudrate),
+                    NrOfDataBits.valueFor(nrOfDataBits),
+                    NrOfStopBits.valueFor(nrOfStopBits),
+                    Parities.valueFor(parity),
+                    FlowControl.valueFor(flowControl));
         }
     }
 }
