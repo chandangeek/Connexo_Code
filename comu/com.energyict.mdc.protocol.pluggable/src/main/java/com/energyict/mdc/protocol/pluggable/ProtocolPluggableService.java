@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -27,12 +28,39 @@ public interface ProtocolPluggableService {
      * from whichever OSGi bundle actually contains the class.
      * This is different from the same method provided by
      * {@link com.energyict.mdc.protocol.api.services.DeviceProtocolService}
-     * that loads the class from the bundle that contains that specific service.
+     * that attempts the same from the bundle that contains that specific service
+     * but may fail if the class is not actually contained in that bundle
      *
      * @param javaClassName the javaClassName to use to model the new class
      * @return the newly created DeviceProtocol
      */
     public Class loadProtocolClass(String javaClassName);
+
+    /**
+     * Create a DeviceProtocol messages related object
+     * for the given javaClassName.
+     * This is different from the same method provided by
+     * {@link com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService}
+     * that attempts the same from the bundle that contains that specific service
+     * but may fail if the class is not actually contained in that bundle
+     *
+     * @param javaClassName the javaClassName to use as model for the DeviceProtocol messages related object
+     * @return the created message related object
+     */
+    public Object createDeviceProtocolMessagesFor(String javaClassName);
+
+    /**
+     * Creates a DeviceProtocol security related object
+     * for the given javaClassName.
+     * This is different from the same method provided by
+     * {@link com.energyict.mdc.protocol.api.services.DeviceProtocolService}
+     * that attempts the same from the bundle that contains that specific service
+     * but may fail if the class is not actually contained in that bundle
+     *
+     * @param javaClassName the javaClassName to use as model for the DeviceProtocol security related object
+     * @return the created security related object
+     */
+    public Object createDeviceProtocolSecurityFor(String javaClassName);
 
     /**
      * Finds all {@link DeviceProtocolPluggableClass}es that are defined

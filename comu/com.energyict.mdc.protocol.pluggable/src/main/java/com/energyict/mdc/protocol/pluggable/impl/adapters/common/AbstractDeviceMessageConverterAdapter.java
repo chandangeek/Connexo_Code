@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 
@@ -40,7 +41,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private static final int EXECUTE_PENDING_MASK = 0b0010;
 
     private DataModel dataModel;
-    private DeviceProtocolMessageService deviceProtocolMessageService;
+    private ProtocolPluggableService protocolPluggableService;
     private MessageProtocol messageProtocol;
     private String serialNumber = "";
 
@@ -69,9 +70,10 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
     private CollectedDataFactory collectedDataFactory;
 
-    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel) {
+    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService) {
         super();
         this.dataModel = dataModel;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     /**
@@ -81,9 +83,8 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
      * @return the newly created instance
      */
     protected Object createNewMessageConverterInstance(String className) {
-        return this.getDeviceProtocolMessageService().createDeviceProtocolMessagesFor(className);
+        return this.getProtocolPluggableService().createDeviceProtocolMessagesFor(className);
     }
-
 
     public LegacyMessageConverter getLegacyMessageConverter() {
         return legacyMessageConverter;
@@ -93,12 +94,8 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         this.legacyMessageConverter = legacyMessageConverter;
     }
 
-    public DeviceProtocolMessageService getDeviceProtocolMessageService() {
-        return deviceProtocolMessageService;
-    }
-
-    public void setDeviceProtocolMessageService(DeviceProtocolMessageService deviceProtocolMessageService) {
-        this.deviceProtocolMessageService = deviceProtocolMessageService;
+    protected ProtocolPluggableService getProtocolPluggableService() {
+        return protocolPluggableService;
     }
 
     private void fireUpdateSentMessages() {

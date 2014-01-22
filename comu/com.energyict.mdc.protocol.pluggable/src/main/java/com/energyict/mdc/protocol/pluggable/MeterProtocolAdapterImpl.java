@@ -167,7 +167,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter();
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel());
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.getProtocolPluggableService());
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -179,6 +179,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
                     new MeterProtocolSecuritySupportAdapter(
                             this.meterProtocol,
                             this.getPropertySpecService(),
+                            this.getProtocolPluggableService(),
                             this.propertiesAdapter,
                             this.getSecuritySupportAdapterMappingFactory());
         }

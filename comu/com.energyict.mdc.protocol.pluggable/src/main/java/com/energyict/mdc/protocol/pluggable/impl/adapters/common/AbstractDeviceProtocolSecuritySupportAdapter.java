@@ -5,10 +5,12 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 
 import java.util.Collections;
@@ -26,13 +28,14 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     private DeviceProtocolSecurityCapabilities legacySecuritySupport;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
-    private final PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService;
+    private final ProtocolPluggableService protocolPluggableService;
     private final PropertiesAdapter propertiesAdapter;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
-    protected AbstractDeviceProtocolSecuritySupportAdapter(PropertySpecService propertySpecService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+    protected AbstractDeviceProtocolSecuritySupportAdapter(ProtocolPluggableService protocolPluggableService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
         super();
-        this.propertySpecService = propertySpecService;
+        this.protocolPluggableService = protocolPluggableService;
         this.propertiesAdapter = propertiesAdapter;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
     }
@@ -43,6 +46,10 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     public void setLegacySecurityPropertyConverter(LegacySecurityPropertyConverter legacySecurityPropertyConverter) {
         this.legacySecurityPropertyConverter = legacySecurityPropertyConverter;
+    }
+
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     private boolean checkExistingSecuritySupport() {
@@ -111,10 +118,8 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
      */
     protected Object createNewSecurityInstance(String className) {
         try {
-            return Class.forName(className).newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(e, className);
-        } catch (ClassNotFoundException e) {
+            return this.protocolPluggableService.createDeviceProtocolSecurityFor(className);
+        } catch (ProtocolCreationException e) {
             throw DeviceProtocolAdapterCodingExceptions.unKnownDeviceSecuritySupportClass(e, className);
         }
     }

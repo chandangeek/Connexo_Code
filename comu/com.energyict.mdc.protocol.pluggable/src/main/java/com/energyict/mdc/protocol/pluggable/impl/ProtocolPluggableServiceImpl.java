@@ -19,8 +19,12 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -32,7 +36,11 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.sql.SQLException;
@@ -55,6 +63,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile PluggableService pluggableService;
     private volatile RelationService relationService;
     private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
+    private volatile List<DeviceProtocolMessageService> deviceProtocolMessageServices = new CopyOnWriteArrayList<>();
+    private volatile List<DeviceProtocolSecurityService> deviceProtocolSecurityServices = new CopyOnWriteArrayList<>();
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
 
@@ -70,6 +80,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             PluggableService pluggableService,
             RelationService relationService,
             DeviceProtocolService deviceProtocolService,
+            DeviceProtocolMessageService deviceProtocolMessageService,
+            DeviceProtocolSecurityService deviceProtocolSecurityService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
             ConnectionTypeService connectionTypeService) {
         this();
@@ -79,6 +91,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
         this.addDeviceProtocolService(deviceProtocolService);
+        this.addDeviceProtocolMessageService(deviceProtocolMessageService);
+        this.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
         this.setInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.setConnectionTypeService(connectionTypeService);
         this.activate();
@@ -95,6 +109,32 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             }
             catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolService
+            }
+        }
+        throw new ProtocolCreationException(javaClassName);
+    }
+
+    @Override
+    public Object createDeviceProtocolMessagesFor(String javaClassName) {
+        for (DeviceProtocolMessageService service : this.deviceProtocolMessageServices) {
+            try {
+                return service.createDeviceProtocolMessagesFor(javaClassName);
+            }
+            catch (ProtocolCreationException e) {
+                // Try the next DeviceProtocolMessageService
+            }
+        }
+        throw new ProtocolCreationException(javaClassName);
+    }
+
+    @Override
+    public Object createDeviceProtocolSecurityFor(String javaClassName) {
+        for (DeviceProtocolSecurityService service : this.deviceProtocolSecurityServices) {
+            try {
+                return service.createDeviceProtocolSecurityFor(javaClassName);
+            }
+            catch (DeviceProtocolAdapterCodingExceptions e) {
+                // Try the next DeviceProtocolSecurityService
             }
         }
         throw new ProtocolCreationException(javaClassName);
@@ -395,6 +435,24 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     public void removeDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.remove(deviceProtocolService);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDeviceProtocolMessageService(DeviceProtocolMessageService deviceProtocolMessageService) {
+        this.deviceProtocolMessageServices.add(deviceProtocolMessageService);
+    }
+
+    public void removeDeviceProtocolMessageService(DeviceProtocolMessageService deviceProtocolMessageService) {
+        this.deviceProtocolMessageServices.remove(deviceProtocolMessageService);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDeviceProtocolSecurityService(DeviceProtocolSecurityService deviceProtocolSecurityService) {
+        this.deviceProtocolSecurityServices.add(deviceProtocolSecurityService);
+    }
+
+    public void removeDeviceProtocolSecurityService(DeviceProtocolSecurityService deviceProtocolSecurityService) {
+        this.deviceProtocolSecurityServices.remove(deviceProtocolSecurityService);
     }
 
     public InboundDeviceProtocolService getInboundDeviceProtocolService() {

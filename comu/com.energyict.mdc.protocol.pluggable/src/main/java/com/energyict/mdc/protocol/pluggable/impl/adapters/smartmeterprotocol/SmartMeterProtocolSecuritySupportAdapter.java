@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
@@ -19,8 +20,9 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
  */
 public class SmartMeterProtocolSecuritySupportAdapter extends AbstractDeviceProtocolSecuritySupportAdapter {
 
-    public SmartMeterProtocolSecuritySupportAdapter(SmartMeterProtocol smartMeterProtocol, PropertySpecService propertySpecService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-        super(propertySpecService, propertiesAdapter, securitySupportAdapterMappingFactory);
+    public SmartMeterProtocolSecuritySupportAdapter(SmartMeterProtocol smartMeterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+        super(protocolPluggableService, propertiesAdapter, securitySupportAdapterMappingFactory);
+        this.setPropertySpecService(propertySpecService);
         Object securityInstance = createNewSecurityInstance(getDeviceSecuritySupportMappingFor(smartMeterProtocol.getClass().getName()));
         if (DeviceProtocolSecurityCapabilities.class.isAssignableFrom(securityInstance.getClass())) {
             setLegacySecuritySupport((DeviceProtocolSecurityCapabilities) securityInstance);

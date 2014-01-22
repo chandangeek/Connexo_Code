@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
@@ -189,7 +190,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     public DeviceProtocol getDeviceProtocol () {
         DeviceProtocol deviceProtocol = this.newInstance();
-        deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties());
+        deviceProtocol.addDeviceProtocolDialectProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
         return deviceProtocol;
     }
 

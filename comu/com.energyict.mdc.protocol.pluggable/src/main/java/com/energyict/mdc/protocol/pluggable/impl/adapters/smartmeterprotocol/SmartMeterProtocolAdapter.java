@@ -154,7 +154,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel());
+            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.getProtocolPluggableService());
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -162,7 +162,13 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
         if (!DeviceSecuritySupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(getSmartMeterProtocol(), this.getPropertySpecService(), this.propertiesAdapter, this.getSecuritySupportAdapterMappingFactory());
+            this.smartMeterProtocolSecuritySupportAdapter =
+                    new SmartMeterProtocolSecuritySupportAdapter(
+                            getSmartMeterProtocol(),
+                            this.getPropertySpecService(),
+                            this.getProtocolPluggableService(),
+                            this.propertiesAdapter,
+                            this.getSecuritySupportAdapterMappingFactory());
         }
         else {
             this.deviceSecuritySupport = (DeviceSecuritySupport) this.meterProtocol;
