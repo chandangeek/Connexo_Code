@@ -53,6 +53,11 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
     }
 
     @Override
+    public String getVersion() {
+        return super.getVersion();
+    }
+
+    @Override
     public InboundDeviceProtocol getInboundDeviceProtocol () {
         InboundDeviceProtocol inboundDeviceProtocol = this.newInstance();
         inboundDeviceProtocol.copyProperties(this.getProperties(inboundDeviceProtocol.getPropertySpecs()));

@@ -12,6 +12,14 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
  */
 public interface InboundDeviceProtocolPluggableClass extends PluggableClass {
 
+    /**
+     * Returns the version of the {@link InboundDeviceProtocol} and removes
+     * any technical details that relate to development tools.
+     *
+     * @return The DeviceProtocol version
+     */
+    public String getVersion ();
+
     public InboundDeviceProtocol getInboundDeviceProtocol ();
 
 }

@@ -103,6 +103,11 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
+    public String getVersion() {
+        return super.getVersion();
+    }
+
+    @Override
     public ConnectionType getConnectionType () {
         ConnectionType connectionType = this.newInstance();
         connectionType.copyProperties(this.getProperties(connectionType.getPropertySpecs()));

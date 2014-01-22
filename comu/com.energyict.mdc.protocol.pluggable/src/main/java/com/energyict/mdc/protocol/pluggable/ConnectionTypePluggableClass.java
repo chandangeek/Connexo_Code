@@ -25,6 +25,14 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
     public PropertySpec getPropertySpec (String name);
 
     /**
+     * Returns the version of the {@link ConnectionType} and removes
+     * any technical details that relate to development tools.
+     *
+     * @return The DeviceProtocol version
+     */
+    public String getVersion ();
+
+    /**
      * Returns a {@link ConnectionType} that may be reused over different calls
      * so you may need to consider threading issues when used.
      *
