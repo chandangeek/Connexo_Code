@@ -92,6 +92,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(FileImportService.class).toInstance(fileImportService);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
 
