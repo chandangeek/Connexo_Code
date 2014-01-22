@@ -1,5 +1,7 @@
 Ext.define('Uni.view.form.field.Vtypes', {
 
+    requires: ['Ext.form.field.VTypes'],
+
     hexstringRegex: /^[a-f_A-F_0-9]*$/,
 
     init: function () {
@@ -29,7 +31,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
                     return false;
                 } else if (me.validateNumeric(val) === false) {
                     return false;
-                } else if (val.substr(12) != me.validateCheckDigit(val.substring(0,12))){
+                } else if (val.substr(12) != me.validateCheckDigit(val.substring(0, 12))) {
                     return false;
                 } else {
                     return true;
@@ -44,12 +46,12 @@ Ext.define('Uni.view.form.field.Vtypes', {
         var me = this;
         Ext.apply(Ext.form.field.VTypes, {
             ean18: function (val) {
-                 //check value
+                //check value
                 if (val.length != 18) {
                     return false;
                 } else if (me.validateNumeric(val) === false) {
                     return false;
-                } else if (val.substr(17) != me.validateCheckDigit(val.substring(0,17))){
+                } else if (val.substr(17) != me.validateCheckDigit(val.substring(0, 17))) {
                     return false;
                 } else {
                     return true;
