@@ -15,7 +15,8 @@ Ext.define('Uni.Loader', {
         'Uni.controller.Error',
         'Uni.controller.Navigation',
         'Uni.controller.Notifications',
-        'Uni.controller.Search'
+        'Uni.controller.Search',
+        'Uni.view.form.field.Vtypes'
     ],
 
     onReady: function (callback) {
@@ -24,6 +25,7 @@ Ext.define('Uni.Loader', {
         this.loadStateManager();
         this.loadOverrides();
         this.loadStores();
+        this.loadVtypes();
         this.loadScripts(callback);
     },
 
@@ -74,6 +76,10 @@ Ext.define('Uni.Loader', {
 
     loadScripts: function (callback) {
         this.loadScript('../uni/resources/js/moment/min/moment.min.js', callback);
+    },
+
+    loadVtypes: function () {
+            Ext.create('Uni.view.form.field.Vtypes').init();
     }
 
 });
