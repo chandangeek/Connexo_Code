@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
@@ -15,8 +16,8 @@ import javax.inject.Inject;
 public class ComPortPoolMemberImpl implements ComPortPoolMember {
 
     private final DataModel dataModel;
-    private Reference<ComPortPool> comPortPool;
-    private Reference<ComPort> comPort;
+    private final Reference<ComPortPool> comPortPool = ValueReference.absent();
+    private final Reference<ComPort> comPort = ValueReference.absent();
 
     @Inject
     ComPortPoolMemberImpl(DataModel dataModel) {

@@ -64,7 +64,6 @@ public abstract class ComServerImpl implements ComServer {
     private TimeDuration schedulingInterPollDelay;
     private UtcInstant modificationDate;
     private final List<ComPort>  comPorts = new ArrayList<>();
-    private boolean obsoleteFlag;
     private Date obsoleteDate;
 
     @Inject
@@ -103,7 +102,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     protected void validateUpdateAllowed() {
-        if (this.obsoleteFlag) {
+        if (this.isObsolete()) {
             throw new TranslatableApplicationException("comserver.noUpdateAllowed", "Obsolete ComServers can no longer be updated");
         }
     }
@@ -130,7 +129,6 @@ public abstract class ComServerImpl implements ComServer {
     public void makeObsolete () {
         this.validateMakeObsolete();
         this.makeComPortsObsolete();
-        this.obsoleteFlag = true;
         this.obsoleteDate = new Date();
         dataModel.update(this);
     }
@@ -413,7 +411,7 @@ public abstract class ComServerImpl implements ComServer {
 
     @Override
     public boolean isObsolete () {
-        return this.obsoleteFlag;
+        return this.obsoleteDate!=null;
     }
 
     @Override

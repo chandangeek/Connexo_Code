@@ -53,17 +53,6 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     }
 
     @Override
-    public void setComPorts(List<OutboundComPort> comPorts) {
-        this.comPortPoolMembers.clear();
-        for (OutboundComPort comPort : comPorts) {
-            ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
-            comPortPoolMember.setComPort(comPort);
-            comPortPoolMember.setComPortPool(this);
-            this.comPortPoolMembers.add(comPortPoolMember);
-        }
-    }
-
-    @Override
     public void addOutboundComPort(OutboundComPort outboundComPort) {
         ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
         comPortPoolMember.setComPort(outboundComPort);

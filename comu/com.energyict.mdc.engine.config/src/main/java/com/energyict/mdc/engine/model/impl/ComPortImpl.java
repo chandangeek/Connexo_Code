@@ -55,7 +55,6 @@ public abstract class ComPortImpl implements ComPort {
     private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     private String description;
-    private boolean obsoleteFlag;
     private Date obsoleteDate;
     private ComPortType type;
 
@@ -80,7 +79,7 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     private void validateUpdateAllowed() {
-        if (this.obsoleteFlag) {
+        if (this.isObsolete()) {
             throw new TranslatableApplicationException("comport.noUpdateAllowed", "This comport is marked as deleted, no updates allowed.");
         }
     }
@@ -158,7 +157,7 @@ public abstract class ComPortImpl implements ComPort {
 
     @Override
     public boolean isObsolete() {
-        return this.obsoleteFlag;
+        return this.obsoleteDate!=null;
     }
 
     @Override
@@ -206,7 +205,6 @@ public abstract class ComPortImpl implements ComPort {
     @Override
     public void makeObsolete(){
         this.validateMakeObsolete();
-        this.obsoleteFlag = true;
         this.obsoleteDate = new Date();
         dataModel.update(this);
     }
