@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.dynamic.*;
-import com.energyict.mdc.metering.mapping.ReadingTypeFactory;
+import com.energyict.mdc.metering.mapping.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdw.core.CodeFactory;
@@ -145,7 +145,7 @@ public enum SimplePropertyType {
         }
     },
 
-    READINGTYPE(false, ReadingTypeFactory.class) {
+    READINGTYPE(false, ObisCodeToReadingTypeFactory.class) {
         public Object getInfoObject(Map<String, Object> map) {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'READINTYPE', JSON should have properly deserialized this");
         }
