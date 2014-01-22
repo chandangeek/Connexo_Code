@@ -1073,7 +1073,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                 } else if (hdlcFrame.bControl == RR) {
                     bState = STATE_WAIT_FOR_I_FRAME;
                 } else if (hdlcFrame.bControl == DM) {
-                    bState = STATE_WAIT_FOR_I_FRAME;
+                    // Device is in Disconnected Mode, thus logically disconnected from the data link
+                    throw new DLMSConnectionException("ERROR receiving data, received an DM frame - device logically disconnected from the data link.");
                 } else {
                     bState = STATE_WAIT_FOR_I_FRAME;
                     throw new DLMSConnectionException("ERROR receiving data, should receive an I or RR frame.");

@@ -53,9 +53,6 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
     };
 
-    // Maximum number of consecutive responses during a single receiveInformationField() method - used for safety reasons (to provide an escape point out of an endless loop)
-    protected static final int MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RESPONSES = 200;
-
     // Maximum number of consecutive ReceiveReady cycles (both request and response are RR frame) during a single receiveInformationField() method - used for safety reasons (to provide an escape point out of an endless loop)
     protected static final int MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RECEIVE_READY_CYCLES = 20;
 
@@ -189,7 +186,6 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
     public byte[] sendRawBytes(byte[] data) throws IOException, DLMSConnectionException {
         return new byte[0];
     }
-
 
     /**
      * Generate the "set normal response mode" frame using the given parameters.
@@ -821,9 +817,6 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                     sendFrame(txFrame);
                 }
 
-                if (nrOfConsecutiveResponses++ >= MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RESPONSES) {
-                    throw new DLMSConnectionException("receiveInformationField> Maximum number of consecutive responses exceeded");
-                }
                 if (nrOfConsecutiveReceiveReadyCycles >= MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RECEIVE_READY_CYCLES) {
                     throw new DLMSConnectionException("receiveInformationField> Maximum number of consecutive RR response cycles exceeded");
                 }
