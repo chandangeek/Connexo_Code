@@ -25,11 +25,11 @@ public class DeviceDiscoveryProtocolInfo {
         this.javaClassName = inboundDeviceProtocolPluggableClass.getJavaClassName();
         this.id = inboundDeviceProtocolPluggableClass.getId();
         try {
-            this.deviceProtocolVersion = inboundDeviceProtocolPluggableClass.getInboundDeviceProtocol().getVersion();
+            this.deviceProtocolVersion = inboundDeviceProtocolPluggableClass.getVersion();
         } catch (Exception e) {
             //TODO, just logging this as we are working with a protocols OSGI bundle which doesn't contain all protocols yet!
             e.printStackTrace(System.err);
-            this.deviceProtocolVersion = "*** DISCOVERY PROTOCOL NOT SUPPORTED IN THE CURRENT OSGI BUNDLE YET ***";
+            this.deviceProtocolVersion = "*** PROTOCOL NOT YET SUPPORTED IN THE CURRENT OSGI BUNDLE ***";
         }
     }
 
