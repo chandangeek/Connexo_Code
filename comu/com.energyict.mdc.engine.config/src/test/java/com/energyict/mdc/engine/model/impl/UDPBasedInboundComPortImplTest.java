@@ -39,11 +39,6 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
     private static final int PORT_NUMBER = 8080;
     private static final int DATAGRAM_BUFFER_SIZE = 4096;
 
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedErrorRule();
-
     @Mock
     DataModel dataModel;
 

@@ -38,11 +38,6 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 11;
     private static final int PORT_NUMBER = 8080;
 
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedErrorRule();
-
     @Mock
     DataModel dataModel;
     @Mock

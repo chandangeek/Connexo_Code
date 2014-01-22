@@ -8,6 +8,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.ExpectedErrorRule;
+import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -20,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
@@ -32,6 +36,11 @@ import static org.mockito.Mockito.mock;
 public class PersistenceTest {
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
+    @Rule
+    public TestRule expectedErrorRule = new ExpectedErrorRule();
 
     @BeforeClass
     public static void staticSetUp() throws SQLException {

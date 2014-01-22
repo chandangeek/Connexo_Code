@@ -64,9 +64,6 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
     private static final String ADDRESS_SELECTOR = "Selector";
     private static final String POST_DIAL_COMMANDS = "(D)(F)()W:+++)";
 
-    @Rule
-    public TestRule createDatabaseRule = new TransactionalRule(getTransactionService());
-
     @Mock
     DataModel dataModel;
     
