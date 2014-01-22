@@ -249,7 +249,7 @@ public class ComServerResourceTest extends JerseyTest {
 
         verify(serverSideComServer).save();
 
-        assertThat(mockModemBasedInboundComPort.getComPortPool().getId()).isEqualTo(comPortPool_id);
+        assertThat(mockModemBasedInboundComPort.getComPortPool().get().getId()).isEqualTo(comPortPool_id);
         assertThat(mockModemBasedInboundComPort.getRingCount()).isEqualTo(100);
         assertThat(mockModemBasedInboundComPort.getMaximumDialErrors()).isEqualTo(101);
         assertThat(mockModemBasedInboundComPort.getAtCommandTimeout().getSeconds()).isEqualTo(2);

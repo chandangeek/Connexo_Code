@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import com.google.common.base.Optional;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -151,8 +152,8 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public InboundComPortPool getComPortPool() {
-        return inboundComPortPool;
+    public Optional<InboundComPortPool> getComPortPool() {
+        return Optional.of(inboundComPortPool);
     }
 
     @Override
@@ -271,7 +272,7 @@ public class MockModemBasedInboundComPort implements ModemBasedInboundComPort {
     }
 
     @Override
-    public UtcInstant getObsoleteDate() {
-        return new UtcInstant(new Date());
+    public Date getObsoleteDate() {
+        return new Date();
     }
 }

@@ -17,8 +17,8 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
 
     public UdpInboundComPortInfo(UDPBasedInboundComPort comPort) {
         super(comPort);
-        if (comPort.getComPortPool()!=null) {
-            this.comPortPool_id = comPort.getComPortPool().getId();
+        if (comPort.getComPortPool().isPresent()) {
+            this.comPortPool_id = comPort.getComPortPool().get().getId();
         }
         this.portNumber = comPort.getPortNumber();
         this.bufferSize = comPort.getBufferSize();
