@@ -7,9 +7,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
-import com.energyict.mdc.services.ComPortPoolService;
-import com.energyict.mdc.services.ComPortService;
-import com.energyict.mdc.services.ComServerService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -29,9 +26,6 @@ public class MdcApplication extends Application {
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile EngineModelService engineModelService;
-    private volatile ComServerService comServerService;
-    private volatile ComPortService comPortService;
-    private volatile ComPortPoolService comPortPoolService;
     private volatile PropertySpecService propertySpecService;
 
     @Override
@@ -67,16 +61,6 @@ public class MdcApplication extends Application {
     }
 
     @Reference
-    public void setComServerService(ComServerService comServerService) {
-        this.comServerService = comServerService;
-    }
-
-    @Reference
-    public void setComPortService(ComPortService comPortService) {
-        this.comPortService = comPortService;
-    }
-
-    @Reference
     public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolService = licensedProtocolService;
     }
@@ -91,12 +75,10 @@ public class MdcApplication extends Application {
         @Override
         protected void configure() {
             LOGGER.fine("Binding services using HK2");
-            bind(comServerService).to(ComServerService.class);
-            bind(comPortService).to(ComPortService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(licensedProtocolService).to(LicensedProtocolService.class);
-            bind(comPortPoolService).to(ComPortPoolService.class);
             bind(propertySpecService).to(PropertySpecService.class);
+            bind(engineModelService).to(EngineModelService.class);
         }
     }
 
