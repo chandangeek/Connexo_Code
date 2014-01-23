@@ -206,9 +206,10 @@ public class ValidationIT {
         when(meteringService.findChannel(CHANNEL2_ID)).thenReturn(Optional.of(channel2));
 
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
-        when((Object) channel1.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2));
+        // using doReturn as when().thenReturn stumbles on List<? extends xxx> return type
+        doReturn(Arrays.asList(readingType1,readingType2)).when(channel1).getReadingTypes();
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
-        when((Object) channel2.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType3));
+        doReturn(Arrays.asList(readingType1,readingType3)).when(channel2).getReadingTypes();
 
         when(eventType.getTopic()).thenReturn("com/elster/jupiter/metering/reading/CREATED");
         Map<Channel, Interval> map = new HashMap<>();
