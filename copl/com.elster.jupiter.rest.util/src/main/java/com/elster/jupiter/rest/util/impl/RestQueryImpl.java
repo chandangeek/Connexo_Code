@@ -41,7 +41,7 @@ class RestQueryImpl<T> implements RestQuery<T> {
 		for (String key : map.keySet()) {
 			if (query.hasField(key)) {		
 				String value = map.getFirst(key);
-				if (is(value).emptyOrOnlyWhiteSpace()) {
+				if (!is(value).emptyOrOnlyWhiteSpace()) {
 					condition = condition.and(Operator.EQUAL.compare(key,query.convert(key, value))); 					
 				}
 			}
