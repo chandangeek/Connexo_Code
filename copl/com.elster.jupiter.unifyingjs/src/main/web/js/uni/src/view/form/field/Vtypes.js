@@ -5,7 +5,6 @@ Ext.define('Uni.view.form.field.Vtypes', {
     hexstringRegex: /^[a-f_A-F_0-9]*$/,
 
     init: function () {
-        var me = this;
         this.validateHexString();
         this.validateEan13String();
         this.validateEan18String();
@@ -31,7 +30,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
                     return false;
                 } else if (me.validateNumeric(val) === false) {
                     return false;
-                } else if (val.substr(12) != me.validateCheckDigit(val.substring(0, 12))) {
+                } else if (val.substr(12) !== me.validateCheckDigit(val.substring(0, 12))) {
                     return false;
                 } else {
                     return true;
@@ -47,11 +46,11 @@ Ext.define('Uni.view.form.field.Vtypes', {
         Ext.apply(Ext.form.field.VTypes, {
             ean18: function (val) {
                 //check value
-                if (val.length != 18) {
+                if (val.length !== 18) {
                     return false;
                 } else if (me.validateNumeric(val) === false) {
                     return false;
-                } else if (val.substr(17) != me.validateCheckDigit(val.substring(0, 17))) {
+                } else if (val.substr(17) !== me.validateCheckDigit(val.substring(0, 17))) {
                     return false;
                 } else {
                     return true;
@@ -62,7 +61,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
     },
 
     validateNumeric: function (value) {
-        return me.numericregex.test(value);
+        return this.numericregex.test(value);
     },
 
     validateCheckDigit: function (value) {
