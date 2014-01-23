@@ -11,7 +11,7 @@ public class AlreadyASubscriberForQueueException extends LocalizedException {
     private static final String DESTINATION = "destination";
 
     public AlreadyASubscriberForQueueException(Thesaurus thesaurus, DestinationSpec destinationSpec) {
-        super(thesaurus, MessageSeeds.MULTIPLE_SUBSCRIBER_ON_QUEUE);
+        super(thesaurus, MessageSeeds.MULTIPLE_SUBSCRIBER_ON_QUEUE, destinationSpec);
         set(DESTINATION, destinationSpec);
     }
 }
