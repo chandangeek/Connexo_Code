@@ -8,7 +8,7 @@ public class IllegalCurrencyCodeException extends LocalizedException {
 	private static final long serialVersionUID = 1L;
 
 	public IllegalCurrencyCodeException(Thesaurus thesaurus, int illegalCode) {
-        super(thesaurus, MessageSeeds.ILLEGAL_CURRENCY_CODE, thesaurus, illegalCode);
+        super(thesaurus, MessageSeeds.ILLEGAL_CURRENCY_CODE, illegalCode);
         set("illegalCode", illegalCode);
     }
 }
