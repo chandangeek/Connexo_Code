@@ -1,8 +1,10 @@
 Ext.define('Cfg.view.validation.RuleSetOverview', {
     extend: 'Ext.panel.Panel',
-    border: true,
+    //border: true,
+    overflowY: 'auto',
+    cls: 'content-container',
+    region: 'center',
     //margins: '0 10 10 10',
-    cls: 'content-wrapper',
     alias: 'widget.ruleSetOverview',
     itemId: 'ruleSetOverview',
     requires: [
@@ -16,7 +18,8 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
         {
             xtype: 'component',
             html: '<h4>Validation rule sets</h4>',
-            itemId: 'rulesetOverviewTitle'
+            itemId: 'rulesetOverviewTitle',
+            margins: '0 0 10 0'
         },
         '->',
         {

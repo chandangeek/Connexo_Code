@@ -9,7 +9,7 @@ Ext.define('Cfg.controller.history.Validation', {
 
 
     doConversion: function (tokens) {
-        if (tokens.length > 1 && tokens[1] === 'rulesforset') {
+        if (tokens.length > 1 && tokens[1] === 'rules') {
             var id = parseInt(tokens[2]);
             this.showRulesContainer(id);
         } else {

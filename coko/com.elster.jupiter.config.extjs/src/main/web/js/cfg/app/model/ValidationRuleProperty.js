@@ -4,6 +4,7 @@ Ext.define('Cfg.model.ValidationRuleProperty', {
         'name',
         'value',
         'unit',
-        'multiplier'
+        'multiplier',
+        'required'
     ]
 });

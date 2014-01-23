@@ -1,7 +1,7 @@
 Ext.define('Cfg.view.validation.RulePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
-    margins: '10 10 10 10',
+    margins: '0 10 10 10',
     alias: 'widget.rulePreview',
     itemId: 'rulePreview',
     hidden: true,
@@ -13,22 +13,36 @@ Ext.define('Cfg.view.validation.RulePreview', {
         align: 'stretch'
     },
     tbar: [
+        {
+            xtype: 'component',
+            html: '<h4>Validation rule</h4>',
+            itemId: 'rulePreviewTitle'
+        },
         '->',
         {
-            text: 'Delete',
-            itemId: 'deleteRule',
-            action: 'deleteRule'
-        },
-        {
-            text: 'Clone',
-            itemId: 'cloneRule',
-            action: 'cloneRule'
-        },
-        {
-            text: 'Edit',
-            itemId: 'editRule',
-            action: 'editRule'
+            icon: 'resources/images/gear-16x16.png',
+            text: 'Actions',
+            menu:{
+                items:[
+                    {
+                        text: 'Edit',
+                        itemId: 'editRule',
+                        action: 'editRule'
+
+                    },
+                    {
+                        xtype: 'menuseparator'
+                    },
+                    {
+                        text: 'Delete',
+                        itemId: 'deleteRule',
+                        action: 'deleteRule'
+
+                    }
+                ]
+            }
         }],
+
 
     items: [
         {
@@ -47,19 +61,42 @@ Ext.define('Cfg.view.validation.RulePreview', {
             items: [
                 {
                     xtype: 'displayfield',
-                    name: 'implementation',
-                    fieldLabel: 'Name:'
-                },
-                {
-                    xtype: 'checkbox',
-                    readonly: 'true',
-                    name: 'active',
-                    fieldLabel: 'Active:'
+                    name: 'displayName',
+                    fieldLabel: 'Name:',
+                    labelAlign: 'right',
+                    labelWidth:	150
                 },
                 {
                     xtype: 'displayfield',
-                    name: 'action',
-                    fieldLabel: 'Action:'
+                    name: 'active',
+                    fieldLabel: 'Active:',
+                    labelAlign: 'right',
+                    labelWidth:	150,
+                    renderer:function(value){
+                        if (value) {
+                            return 'Yes'
+                        } else {
+                            return 'No'
+                        }
+                    }
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: 'Reading value(s):',
+                    labelAlign: 'right',
+                    labelWidth:	150,
+                    layout: 'vbox',
+                    defaults: {
+                        flex: 1,
+                        hideLabel: true
+                    },
+                    itemId: 'readingTypesArea',
+                    items: []
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'propertiesArea',
+                    items: []
                 }
             ]
         }

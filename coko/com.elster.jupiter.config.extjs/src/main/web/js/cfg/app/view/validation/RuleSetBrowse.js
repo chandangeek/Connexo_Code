@@ -1,7 +1,8 @@
 Ext.define('Cfg.view.validation.RuleSetBrowse', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
+    //border: true,
     alias: 'widget.validationrulesetBrowse',
-    cls: 'content-wrapper',
+    cls: 'content-container',
     overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleSetList',
@@ -21,7 +22,8 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h1>Validation rule sets</h1>'
+                    html: '<h1>Validation rule sets</h1>',
+                    margins: '10 10 10 10'
                 },
                 {
                     tbar: [

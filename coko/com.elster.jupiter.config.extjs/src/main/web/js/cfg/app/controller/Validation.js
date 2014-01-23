@@ -28,7 +28,12 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulesetOverviewForm',selector: 'ruleSetOverview #rulesetOverviewForm'} ,
         {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
         {ref: 'rulesetPreviewTitle',selector: 'ruleSetPreview #rulesetPreviewTitle'} ,
+        {ref: 'rulePreviewTitle',selector: 'rulePreview #rulePreviewTitle'} ,
+        {ref: 'readingTypesArea',selector: 'rulePreview #readingTypesArea'} ,
+        {ref: 'propertiesArea',selector: 'rulePreview #propertiesArea'} ,
+        {ref: 'ruleForm',selector: 'rulePreview #ruleForm'} ,
         {ref: 'rulesetOverviewTitle',selector: 'ruleSetOverview #rulesetOverviewTitle'} ,
+        {ref: 'ruleBrowseTitle',selector: 'validationruleBrowse #ruleBrowseTitle'} ,
         {ref: 'ruleSetDetailsLink',selector: 'ruleSetPreview #ruleSetDetailsLink'} ,
         {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
 
@@ -119,20 +124,20 @@ Ext.define('Cfg.controller.Validation', {
     showRules: function() {
         this.clearRulesListContainer();
         this.getRulesListContainer().add(Ext.create('Cfg.view.validation.RuleBrowse'));
+        var ruleSetName = this.selectedRuleSet.get("name");
+        this.getRuleBrowseTitle().update('<h1>' + ruleSetName + ' - Rules</h1>');
         this.getRulesListContainer().doComponentLayout();
     },
 
     showRuleSetOverview: function() {
         var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
         var ruleSetName = this.selectedRuleSet.get("name");
-        this.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ': Overview</h1>');
+        this.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ' - Overview</h1>');
         this.getRulesetOverviewForm().loadRecord(this.selectedRuleSet);
 
         this.clearRulesListContainer();
         this.getRulesListContainer().add(ruleSetOverviewWidget);
         this.getRulesListContainer().doComponentLayout();
-
-        //Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
     },
 
     clearRulesListContainer: function () {
@@ -147,27 +152,31 @@ Ext.define('Cfg.controller.Validation', {
     showRulesContainer: function(id) {
         var me = this;
         var ruleSetOverviewWidget = Ext.create('Cfg.view.validation.RuleSetOverview');
+        var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
 
-        me.getValidationRuleSetsStore().load();
-        me.getValidationRuleSetsStore().filter('id', id);
-        me.selectedRuleSet = me.getValidationRuleSetsStore().first();
-        me.getValidationRuleSetsStore().clearFilter();
 
-        var ruleSetName = me.selectedRuleSet.get("name");
-        this.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ': Overview</h1>');
-        this.getRulesetOverviewForm().loadRecord(me.selectedRuleSet);
-        var ruleSetId = me.selectedRuleSet.get("id");
-        me.getValidationRulesStore().load({
+        ruleSetsStore.load({
             params: {
-                id: ruleSetId
-            }});
-        var rulesContainerWidget = Ext.widget('rulesContainer');
+                id: id
+            },
+            callback: function () {
+                me.selectedRuleSet = ruleSetsStore.getById(id);
+                var ruleSetName = me.selectedRuleSet.get("name");
+                me.getRulesetOverviewTitle().update('<h1>' + ruleSetName + ' - Overview</h1>');
+                me.getRulesetOverviewForm().loadRecord(me.selectedRuleSet);
+                me.getValidationRulesStore().load({
+                    params: {
+                        id: id
+                    }});
+                var rulesContainerWidget = Ext.widget('rulesContainer');
 
-        this.clearRulesListContainer();
-        this.getRulesListContainer().add(ruleSetOverviewWidget);
-        this.getRulesListContainer().doComponentLayout();
+                me.clearRulesListContainer();
+                me.getRulesListContainer().add(ruleSetOverviewWidget);
+                me.getRulesListContainer().doComponentLayout();
 
-        Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
+                Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
+            }
+        });
     },
 
     newRuleSet: function () {
@@ -182,7 +191,7 @@ Ext.define('Cfg.controller.Validation', {
             this.getRuleSetForm().loadRecord(selectedSets[0]);
             var ruleSetName = this.getRuleSetForm().form.findField('name').getSubmitValue();
             this.getRuleSetPreview().show();
-            this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rulesforset/' + selectedSets[0].getId() + '">View details</a>');
+            this.getRuleSetDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules/' + selectedSets[0].getId() + '">View details</a>');
             this.getRulesetPreviewTitle().update('<h4>' + ruleSetName + '</h4>');
         } else {
             this.getRuleSetPreview().hide();
@@ -192,10 +201,74 @@ Ext.define('Cfg.controller.Validation', {
     previewValidationRule: function (grid, record) {
         var selectedRules = this.getRulesGrid().getSelectionModel().getSelection();
         if (selectedRules.length == 1) {
-            this.getRuleForm().loadRecord(selectedRules[0]);
+            var selectedRule = selectedRules[0];
+            this.getRuleForm().loadRecord(selectedRule);
+            this.getRulePreviewTitle().update('<h4>' + selectedRule.get("displayName") + '</h4>');
+            this.addProperties(selectedRule);
+            this.addReadingTypes(selectedRule);
             this.getRulePreview().show();
         } else {
             this.getRulePreview().hide();
+        }
+    },
+
+
+
+    addProperties: function(selectedRule) {
+        var properties = selectedRule.data.properties;
+        this.getPropertiesArea().removeAll();
+        for (var i = 0; i < properties.length; i++) {
+            var property = properties[i];
+            var propertyName = property.name;
+            var propertyValue = property.value;
+            var required = property.required;
+            var label = propertyName + ':';
+            if (required) {
+                label = '* ' + label;
+            }
+            this.getPropertiesArea().add(
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: label,
+                    value: propertyValue,
+                    labelAlign: 'right',
+                    labelWidth:	150
+                }
+            );
+
+        }
+
+    },
+
+    addReadingTypes: function(selectedRule) {
+        var readingTypes = selectedRule.data.readingTypes;
+        this.getReadingTypesArea().removeAll();
+        for (var i = 0; i < readingTypes.length; i++) {
+            var readingType = readingTypes[i];
+            var aliasName = readingType.aliasName;
+            var mRID = readingType.mRID;
+            this.getReadingTypesArea().add(
+                {
+                    xtype: 'fieldcontainer',
+                    layout: 'hbox',
+                    defaults: {
+                        flex: 1,
+                        hideLabel: true
+                    },
+                    items: [
+                        {
+                            xtype: 'component',
+                            html: mRID,
+                            width: 250
+                        },
+                        {
+                            xtype: 'component',
+                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
+                            margin: '0 0 0 20'
+                        }
+                    ]
+                }
+            );
         }
     }
 

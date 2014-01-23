@@ -17,7 +17,7 @@ Ext.define('Cfg.view.validation.RuleSetList', {
                 align: 'center',
                 header: 'Actions',
                 flex: 1,
-                width:40,
+                //width:150,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {

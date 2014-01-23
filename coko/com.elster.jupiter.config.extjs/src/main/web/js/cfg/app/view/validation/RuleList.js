@@ -5,20 +5,26 @@ Ext.define('Cfg.view.validation.RuleList', {
     alias: 'widget.validationruleList',
     itemId: 'validationruleList',
     store: 'ValidationRules',
-    selType: 'checkboxmodel',
 
     columns: {
 
         items: [
-            { header: 'Name', dataIndex: 'implementation', flex: 1 },
-            { header: 'Active', dataIndex: 'active', xtype: 'checkcolumn', flex: 1 },
-            { header: 'Action', dataIndex: 'action', flex: 1 },
+            { header: 'Name', dataIndex: 'displayName', flex: 1},
+            { header: 'Active', dataIndex: 'active', flex: 1,
+                renderer:function(value){
+                    if (value) {
+                        return 'Yes'
+                    } else {
+                        return 'No'
+                    }
+                }
+            },
             {
                 xtype:'actioncolumn',
                 header: 'Actions',
                 flex: 1,
-                tdCls:'view',
-                width:40,
+                align: 'center',
+                //width:100,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     tooltip: 'View',
@@ -57,11 +63,6 @@ Ext.define('Cfg.view.validation.RuleList', {
             }
         ]
     },
-
-    selModel: Ext.create('Ext.selection.CheckboxModel', {
-        mode: 'MULTI'
-    }),
-    selType: 'checkboxmodel',
     initComponent: function () {
         this.dockedItems = [
             {
@@ -75,4 +76,5 @@ Ext.define('Cfg.view.validation.RuleList', {
         ];
         this.callParent(arguments);
     }
+
 });
