@@ -38,7 +38,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
     private boolean active;
     private ValidationAction action;
-    private String implementation; //validator name
+    private String implementation; //validator classname
 
     // associations
     private List<ReadingTypeInValidationRule> readingTypesInRule;
@@ -116,6 +116,12 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     @Override
+    public boolean isRequired(String propertyKey) {
+        Validator validator = validatorCreator.getTemplateValidator(this.implementation);
+        return validator.getRequiredKeys().contains(propertyKey);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -140,6 +146,12 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @Override
     public String getImplementation() {
         return implementation;
+    }
+
+    @Override
+    public String getDisplayName() {
+        Validator validator = validatorCreator.getTemplateValidator(this.implementation);
+        return validator.getDisplayName();
     }
 
     @Override

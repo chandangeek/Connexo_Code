@@ -178,6 +178,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
             }
             throw new ValidatorNotFoundException(thesaurus, implementation);
         }
+
+        public Validator getTemplateValidator(String implementation) {
+            for (ValidatorFactory factory : validatorFactories) {
+                if (factory.available().contains(implementation)) {
+                    return factory.createTemplate(implementation);
+                }
+            }
+            throw new ValidatorNotFoundException(thesaurus, implementation);
+        }
     }
 
     @Override

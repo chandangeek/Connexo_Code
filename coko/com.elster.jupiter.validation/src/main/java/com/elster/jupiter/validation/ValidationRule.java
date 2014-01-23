@@ -16,6 +16,8 @@ public interface ValidationRule {
 
     String getImplementation();
 
+    String getDisplayName();
+
     void activate();
 
     void deactivate();
@@ -41,4 +43,6 @@ public interface ValidationRule {
     ReadingTypeInValidationRule addReadingType(ReadingType readingType);
 
     void deleteReadingType(ReadingType readingType);
+
+    boolean isRequired(String propertyKey);
 }

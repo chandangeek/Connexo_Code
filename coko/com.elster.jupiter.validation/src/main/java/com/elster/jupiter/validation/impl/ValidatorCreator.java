@@ -8,4 +8,6 @@ import java.util.Map;
 public interface ValidatorCreator {
 
     Validator getValidator(String implementation, Map<String, Quantity> props);
+
+    Validator getTemplateValidator(String implementation);
 }

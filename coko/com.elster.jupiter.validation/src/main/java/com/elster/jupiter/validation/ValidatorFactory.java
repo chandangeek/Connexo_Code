@@ -11,4 +11,6 @@ public interface ValidatorFactory {
 
     Validator create(String implementation, Map<String, Quantity> props);
 
+    Validator createTemplate(String implementation);
+
 }

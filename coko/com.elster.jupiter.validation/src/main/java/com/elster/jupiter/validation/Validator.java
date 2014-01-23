@@ -24,4 +24,6 @@ public interface Validator {
 
     ValidationResult validate(ReadingRecord readingRecord);
 
+    String getDisplayName();
+
 }
