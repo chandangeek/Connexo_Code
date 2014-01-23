@@ -157,6 +157,7 @@ public class UsagePointQueryTest {
         condition = condition.and(where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE"));
         condition = condition.and(where("ratedPower.value").between(BigDecimal.valueOf(999)).and(BigDecimal.valueOf(1001)));
         assertThat(query.select(condition)).hasSize(1);
+        assertThat(query.select(condition).get(0).getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
         for (int i = 0 ; i < 10 ; i++) {

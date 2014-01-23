@@ -80,18 +80,6 @@ public class MeterActivationImplTest {
 
     @Before
     public void setUp() {
-        when((Object) dataModel.getInstance(ReadingTypeImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeImpl(dataModel, thesaurus);
-            }
-        });
-        when((Object) dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ReadingTypeInChannel();
-            }
-        });
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "readingType1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "readingType2");
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "readingType3");
@@ -109,17 +97,13 @@ public class MeterActivationImplTest {
 				return new ChannelBuilderImpl(dataModel,channelFactory);
 			}
         };
-        when((Object) dataModel.getInstance(MeterActivationImpl.class)).thenReturn(new MeterActivationImpl(dataModel, eventService, clock, channelBuilder));
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
-        when((Object) dataModel.getInstance(ChannelImpl.class)).thenReturn(new ChannelImpl(dataModel, idsService, clock));
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(clock.getTimeZone()).thenReturn(timeZone);
 
         meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder).init(meter, usagePoint, ACTIVATION_TIME);
-
-        when(dataModel.mapper(ChannelImpl.class).find("meterActivation", meterActivation)).thenReturn(Arrays.asList(channel1, channel2));
     }
 
     @After
