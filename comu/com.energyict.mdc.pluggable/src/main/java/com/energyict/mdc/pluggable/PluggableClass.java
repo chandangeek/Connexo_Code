@@ -75,15 +75,12 @@ public interface PluggableClass {
      */
     public void removeProperty(PropertySpec propertySpec);
 
-    public void save() throws BusinessException, SQLException;
+    public void save();
 
     /**
      * Deletes this PluggableClass.
      *
-     * @throws BusinessException Thrown if a business constraint was violated,
-     *                           typically because the PluggableClass is still in use by other business objects
-     * @throws SQLException Thrown if a database constraint was violated
      */
-    public void delete() throws BusinessException, SQLException;
+    public void delete();
 
 }

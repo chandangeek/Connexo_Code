@@ -1,20 +1,22 @@
 package com.energyict.mdc.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.DuplicateException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.pluggable.exceptions.DuplicateNameException;
+import com.energyict.mdc.pluggable.exceptions.JavaClassNameIsRequiredException;
+import com.energyict.mdc.pluggable.exceptions.NameIsRequiredException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -38,15 +40,21 @@ public class PluggableClassImpl implements PluggableClass {
     private List<PluggableClassProperty> properties = new ArrayList<>();
     private Date modificationDate;
 
-    // Services that will be injected by the DataModel
-    @Inject
     private DataModel dataModel;
-    @Inject
     private EventService eventService;
-    @Inject
+    private Thesaurus thesaurus;
     private Clock clock;
 
-    PluggableClassImpl initialize (PluggableClassType type, String name, String javaClassName) throws BusinessException {
+    @Inject
+    public PluggableClassImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+        super();
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+        this.thesaurus = thesaurus;
+        this.clock = clock;
+    }
+
+    PluggableClassImpl initialize (PluggableClassType type, String name, String javaClassName) {
         this.pluggableType = PersistentPluggableClassType.forActualType(type);
         this.validateName(name);
         this.validateUniqueName(name, type);
@@ -56,30 +64,28 @@ public class PluggableClassImpl implements PluggableClass {
         return this;
     }
 
-    static PluggableClassImpl from (DataModel dataModel, PluggableClassType type, String name, String javaClassName) throws BusinessException {
+    static PluggableClassImpl from (DataModel dataModel, PluggableClassType type, String name, String javaClassName) {
         return dataModel.getInstance(PluggableClassImpl.class).initialize(type, name, javaClassName);
     }
 
-    private void validateJavaClassName (String javaClassName) throws BusinessException {
+    private void validateJavaClassName (String javaClassName) {
         if (javaClassName == null || (javaClassName.trim().isEmpty())) {
-            throw new BusinessException("javaClassNameCantBeEmpty", "The java class name cannot be empty");
+            throw new JavaClassNameIsRequiredException(this.thesaurus, this.getName());
         }
     }
 
-    private void validateName(String newName) throws BusinessException {
+    private void validateName(String newName) {
         if (newName == null) {
-            throw new BusinessException("nameCantBeEmpty", "Name cannot be empty");
+            throw new NameIsRequiredException(this.thesaurus);
         }
         if (newName.trim().isEmpty()) {
-            throw new BusinessException("nameCantBeBlank", "Name cannot be blank");
+            throw new NameIsRequiredException(this.thesaurus);
         }
     }
 
-    private void validateUniqueName(String name, PluggableClassType type) throws DuplicateException {
+    private void validateUniqueName(String name, PluggableClassType type) {
         if (!this.findOthersByName(name).isEmpty()) {
-            throw new DuplicateException(
-                    "duplicatePluggableClassX",
-                    "A pluggable class with the name \"{0}\" already exists", name);
+            throw new DuplicateNameException(this.thesaurus, name, type);
         }
     }
 
@@ -123,7 +129,7 @@ public class PluggableClassImpl implements PluggableClass {
         this.getDataMapper().update(this);
     }
 
-    public void delete() throws BusinessException, SQLException {
+    public void delete() {
         this.notifyDependents();
         this.getDataMapper().remove(this);
     }

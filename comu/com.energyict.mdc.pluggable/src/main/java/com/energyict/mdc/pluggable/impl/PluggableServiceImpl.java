@@ -1,11 +1,13 @@
 package com.energyict.mdc.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -30,9 +32,10 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Clock clock;
+    private volatile Thesaurus thesaurus;
 
     @Override
-    public PluggableClass newPluggableClass(PluggableClassType type, String name, String javaClassName) throws BusinessException {
+    public PluggableClass newPluggableClass(PluggableClassType type, String name, String javaClassName) {
         return PluggableClassImpl.from(this.dataModel, type, name, javaClassName);
     }
 
@@ -64,10 +67,11 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
     }
 
     @Inject
-    public PluggableServiceImpl(OrmService ormService, EventService eventService, Clock clock) {
+    public PluggableServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, Clock clock) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
+        this.setNlsService(nlsService);
         this.setClock(clock);
         this.activate();
         this.install();
@@ -100,12 +104,18 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
         this.clock = clock;
     }
 
+    @Reference
+    public void setNlsService (NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
             }
         };
@@ -118,7 +128,7 @@ public class PluggableServiceImpl implements PluggableService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.clock).install(true, true, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true, true);
     }
 
 }

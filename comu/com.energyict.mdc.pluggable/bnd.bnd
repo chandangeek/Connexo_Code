@@ -1,4 +1,2 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.energyict.mdc.pluggable.impl
-Export-Package: com.energyict.mdc.pluggable

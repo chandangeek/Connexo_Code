@@ -28,7 +28,7 @@ public interface PluggableService {
      * @see PluggableClass#setProperty(PropertySpec, Object)
      * @see PluggableClass#save()
      */
-    public PluggableClass newPluggableClass (PluggableClassType type,  String name, String javaClassName) throws BusinessException;
+    public PluggableClass newPluggableClass (PluggableClassType type,  String name, String javaClassName);
 
     public List<PluggableClass> findByTypeAndClassName (PluggableClassType type, String javaClassName);
 

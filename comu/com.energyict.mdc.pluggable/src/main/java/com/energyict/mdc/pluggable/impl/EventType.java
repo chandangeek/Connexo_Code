@@ -34,8 +34,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System")
                 .shouldPublish()
-                .withProperty("id", ValueType.LONG, "id")
-                .withProperty("version", ValueType.LONG, "version");
+                .withProperty("id", ValueType.LONG, "id");
         this.addCustomProperties(builder).create().save();
     }
 

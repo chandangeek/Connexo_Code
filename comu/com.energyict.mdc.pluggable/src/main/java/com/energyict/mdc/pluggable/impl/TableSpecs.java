@@ -24,7 +24,7 @@ public enum TableSpecs {
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.column("JAVACLASSNAME").type("varchar2(512)").map("javaClassName").add();
             table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUMPLUSONE).map("pluggableType").add();
-            table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
         }
     },
 
