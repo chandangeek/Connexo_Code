@@ -92,10 +92,8 @@ public interface RelationAttributeType extends NamedBusinessObject {
      * updates the receiver with the information in the argument
      *
      * @param shadow contains the new attribute values
-     * @throws BusinessException if a business exception occurred
-     * @throws SQLException      if a database error occurred
      */
-    public void update(RelationAttributeTypeShadow shadow) throws BusinessException, SQLException;
+    public void update(RelationAttributeTypeShadow shadow);
 
     /**
      * Returns the relation type id the receiver belongs to

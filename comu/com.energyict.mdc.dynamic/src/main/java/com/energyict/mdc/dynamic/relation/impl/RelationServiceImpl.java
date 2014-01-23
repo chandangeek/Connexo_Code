@@ -1,9 +1,11 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObject;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
@@ -18,7 +20,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -32,15 +33,17 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     private volatile DataModel dataModel;
     private volatile OrmClient ormClient;
+    private volatile Thesaurus thesaurus;
 
     public RelationServiceImpl() {
         super();
     }
 
     @Inject
-    public RelationServiceImpl(OrmService ormService) {
+    public RelationServiceImpl(OrmService ormService, NlsService nlsService) {
         this();
         this.setOrmService(ormService);
+        this.setNlsService(nlsService);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             this.install();
@@ -51,6 +54,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
         return new AbstractModule() {
             @Override
             public void configure() {
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataModel.class).toInstance(dataModel);
             }
         };
@@ -58,11 +62,16 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Reference
     public void setOrmService (OrmService ormService) {
-        this.dataModel = ormService.newDataModel("CDR", "ComServer dynamic relations");
+        this.dataModel = ormService.newDataModel(COMPONENT_NAME, "ComServer dynamic relations");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
         this.ormClient = new OrmClientImpl(this.dataModel);
+    }
+
+    @Reference
+    public void setNlsService (NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Activate
@@ -73,7 +82,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
 
     @Override
     public void install() {
-        new Installer(this.dataModel).install(true, true, true);
+        new Installer(this.dataModel, this.thesaurus).install(true, true, true);
     }
 
     @Deactivate
@@ -87,7 +96,7 @@ public class RelationServiceImpl implements RelationService, ServiceLocator, Ins
     }
 
     @Override
-    public RelationType createRelationType(RelationTypeShadow shadow) throws BusinessException, SQLException {
+    public RelationType createRelationType(RelationTypeShadow shadow) {
         RelationTypeImpl relationType = new RelationTypeImpl();
         relationType.init(shadow);
         return relationType;

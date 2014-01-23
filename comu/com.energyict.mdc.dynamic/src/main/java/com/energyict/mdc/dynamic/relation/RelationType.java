@@ -17,6 +17,9 @@ import java.util.Map;
  */
 public interface RelationType extends NamedBusinessObject, BusinessObjectFactory<Relation> {
 
+    @Override
+    public void delete();
+
     /**
      * gets the IdBusinessObject corr. with the given id
      *
@@ -179,7 +182,7 @@ public interface RelationType extends NamedBusinessObject, BusinessObjectFactory
      * @throws SQLException      if a database error occurred
      * @throws BusinessException if a business exception occurred
      */
-    void activate() throws SQLException, BusinessException;
+    void activate();
 
     /**
      * deactivates the receiver

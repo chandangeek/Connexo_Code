@@ -55,10 +55,8 @@ public interface Constraint extends NamedBusinessObject {
      * Update the constraint using the given <code>ConstraintShadow</code>
      *
      * @param shadow the values to update the receiver with
-     * @throws BusinessException
-     * @throws SQLException
      */
-    public void update(ConstraintShadow shadow) throws BusinessException, SQLException;
+    public void update(ConstraintShadow shadow);
 
     /**
      * append the sql expression for this constraint to the SqlBuilder

@@ -34,7 +34,7 @@ public enum TableSpecs {
             table.column("SYSTEM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("system").add();
             table.column("HASTIMERESOLUTION").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("hasTimeResolution").add();
             table.column("LOCKATTRIBUTEID").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("lockAttributeTypeId").add();
-            table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
         }
     },
     EISRELATIONATTRIBUTETYPE {
@@ -68,7 +68,7 @@ public enum TableSpecs {
             table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             Column relationTypeColumn = table.column("RELATIONTYPEID").number().add();
             table.column("REJECTVIOLATIONS").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map("rejectViolations").add();
-            table.column("MOD_DATE").number().notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).insert("sysdate").update("sysdate").map("modDate").add();
             table.foreignKey("FK_CONSTRAINT_RELATIONTYPE").on(relationTypeColumn).references(EISRELATIONTYPE.name()).
                     map("relationType").reverseMap("constraints").composition().add();
         }

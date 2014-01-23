@@ -1,24 +1,63 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.common.*;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.BusinessObject;
+import com.energyict.mdc.common.BusinessObjectFactory;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.PropertiesMetaData;
+import com.energyict.mdc.common.ShadowList;
+import com.energyict.mdc.common.SoftTypeId;
+import com.energyict.mdc.common.TypeId;
+import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.dynamic.ValueFactory;
-import com.energyict.mdc.dynamic.relation.*;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotAddRequiredRelationAttributeException;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteRelationType;
+import com.energyict.mdc.dynamic.relation.Constraint;
+import com.energyict.mdc.dynamic.relation.ConstraintShadow;
+import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
+import com.energyict.mdc.dynamic.relation.exceptions.LockAttributeShouldBeReferenceTypeException;
+import com.energyict.mdc.dynamic.relation.exceptions.LockAttributeShouldBeRequiredException;
+import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
+import com.energyict.mdc.dynamic.relation.exceptions.NameContainsInvalidCharactersException;
+import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
+import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
+import com.energyict.mdc.dynamic.relation.exceptions.NoLockAttributeException;
+import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
+import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
+import com.energyict.mdc.dynamic.relation.RelationTransaction;
+import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
+import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 import com.google.common.collect.ImmutableList;
 
+import javax.inject.Inject;
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class RelationTypeImpl extends PersistentNamedObject implements RelationType, PersistenceAware {
 
+    private Thesaurus thesaurus;
     private final List<RelationAttributeType> attributeTypes = new ArrayList<>();
     private final List<Constraint> constraints = new ArrayList<>();
     private boolean active;
@@ -32,6 +71,12 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
 
     public RelationTypeImpl() {
         super();
+    }
+
+    @Inject
+    public RelationTypeImpl(Thesaurus thesaurus) {
+        super();
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -58,6 +103,18 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     protected void postNew() {
         super.postNew();
         this.postLoad();
+    }
+
+    @Override
+    public void delete() {
+        try {
+            super.delete();
+        }
+        catch (BusinessException | SQLException e) {
+            /* Todo: Should be able to remove this once all objects are use the new ORM service
+             * and delete as defined on BusinessObject no longer throws BusinessException and SQLException. */
+            throw new ApplicationException(e);
+        }
     }
 
     public boolean isActive() {
@@ -153,7 +210,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return new RelationTypeShadow(this);
     }
 
-    public void update(RelationTypeShadow shadow) throws BusinessException, SQLException {
+    public void update(RelationTypeShadow shadow) {
         this.validateUpdate(shadow);
         this.copyUpdate(shadow);
         this.processAttributes(shadow.getAttributeTypeShadows());
@@ -163,7 +220,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         this.post();
     }
 
-    protected void processAttributes(ShadowList<RelationAttributeTypeShadow> list) throws SQLException, BusinessException {
+    protected void processAttributes(ShadowList<RelationAttributeTypeShadow> list) {
         if (list.isDirty()) {
             this.processDeletedAttributes(list.getDeletedShadows());
             this.processUpdatedAttributes(list.getUpdatedShadows());
@@ -171,7 +228,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    private void processDeletedAttributes(List<RelationAttributeTypeShadow> deletedShadows) throws SQLException, BusinessException {
+    private void processDeletedAttributes(List<RelationAttributeTypeShadow> deletedShadows) {
         for (RelationAttributeTypeShadow attShadow : deletedShadows) {
             RelationAttributeType target = this.findAttribute(attShadow.getId());
             if (target != null) {
@@ -180,7 +237,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    private void processUpdatedAttributes(List<RelationAttributeTypeShadow> updatedShadows) throws BusinessException, SQLException {
+    private void processUpdatedAttributes(List<RelationAttributeTypeShadow> updatedShadows) {
         for (RelationAttributeTypeShadow attShadow : updatedShadows) {
             RelationAttributeType target = this.findAttribute(attShadow.getId());
             if (target != null) {
@@ -189,15 +246,15 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    private void processNewAttributes(List<RelationAttributeTypeShadow> newShadows) throws SQLException, BusinessException {
+    private void processNewAttributes(List<RelationAttributeTypeShadow> newShadows) {
         for (RelationAttributeTypeShadow attShadow : newShadows) {
             attShadow.setRelationTypeId(getId());
-            RelationAttributeType target = doAddAttribute(attShadow);
+            RelationAttributeType target = this.doAddAttribute(attShadow);
             attShadow.setId(target.getId());
         }
     }
 
-    protected void processConstraints(ShadowList<ConstraintShadow> list) throws SQLException, BusinessException {
+    protected void processConstraints(ShadowList<ConstraintShadow> list) {
         if (list.isDirty()) {
             this.processDeletedConstraints(list.getDeletedShadows());
             this.processUpdatedConstraints(list.getUpdatedShadows());
@@ -205,25 +262,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    private void processNewConstraints(List<ConstraintShadow> newShadows) throws SQLException, BusinessException {
-        for (ConstraintShadow shadow : newShadows) {
-            shadow.setRelationTypeId(getId());
-            ConstraintImpl constraint = new ConstraintImpl(this, shadow.getName());
-            constraint.init(this, shadow);
-            this.constraints.add(constraint);
-        }
-    }
-
-    private void processUpdatedConstraints(List<ConstraintShadow> updatedShadows) throws BusinessException, SQLException {
-        for (ConstraintShadow conShadow : updatedShadows) {
-            Constraint target = this.findConstraint(conShadow.getId());
-            if (target != null) {
-                target.update(conShadow);
-            }
-        }
-    }
-
-    private void processDeletedConstraints(List<ConstraintShadow> deletedShadows) throws BusinessException {
+    private void processDeletedConstraints(List<ConstraintShadow> deletedShadows) {
         for (ConstraintShadow conShadow : deletedShadows) {
             ConstraintImpl constraint = (ConstraintImpl) this.findConstraint(conShadow.getId());
             if (constraint != null) {
@@ -234,7 +273,25 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
     }
 
-    public void init(RelationTypeShadow shadow) throws SQLException, BusinessException {
+    private void processUpdatedConstraints(List<ConstraintShadow> updatedShadows) {
+        for (ConstraintShadow conShadow : updatedShadows) {
+            Constraint target = this.findConstraint(conShadow.getId());
+            if (target != null) {
+                target.update(conShadow);
+            }
+        }
+    }
+
+    private void processNewConstraints(List<ConstraintShadow> newShadows) {
+        for (ConstraintShadow shadow : newShadows) {
+            shadow.setRelationTypeId(getId());
+            ConstraintImpl constraint = new ConstraintImpl(this, shadow.getName());
+            constraint.init(this, shadow);
+            this.constraints.add(constraint);
+        }
+    }
+
+    public void init(RelationTypeShadow shadow) {
         this.validateNew(shadow);
         this.copyNew(shadow);
         this.processAttributes(shadow.getAttributeTypeShadows());
@@ -259,69 +316,60 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         copy(shadow);
     }
 
-    protected void validateNew(RelationTypeShadow shadow) throws BusinessException {
+    protected void validateNew(RelationTypeShadow shadow) {
         validate(shadow);
     }
 
-    protected void validateUpdate(RelationTypeShadow shadow) throws BusinessException, SQLException {
+    protected void validateUpdate(RelationTypeShadow shadow) {
         validate(shadow);
         if (this.active && !shadow.getAttributeTypeShadows().getNewShadows().isEmpty()) {
             for (RelationAttributeTypeShadow relationAttributeTypeShadow : shadow.getAttributeTypeShadows().getNewShadows()) {
                 if (relationAttributeTypeShadow.getRequired() && hasAny()) {
-                    throw new BusinessException("cannotAddRequiredAttributeXWithExistingY", "Cannot add required attribute {0} because objects of type {1} already exist", relationAttributeTypeShadow.getName(), shadow
-                            .getName());
+                    throw new CannotAddRequiredRelationAttributeException(this.thesaurus,relationAttributeTypeShadow.getName(), shadow.getName());
                 }
             }
         }
     }
 
-    private boolean hasAny() throws SQLException {
-        return this.getBaseFactory().hasAny();
+    private boolean hasAny() {
+        try {
+            return this.getBaseFactory().hasAny();
+        }
+        catch (SQLException e) {
+            throw new RelationTypeDDLException(this.thesaurus, e, this.getName());
+        }
     }
 
-    protected void validate(RelationTypeShadow shadow) throws BusinessException {
+    protected void validate(RelationTypeShadow shadow) {
         String newName = shadow.getName();
         if (newName == null) {
-            throw new BusinessException("noName", "Named object does not have a name.");
+            throw new NameIsRequiredException(this.thesaurus, MessageSeeds.RELATION_TYPE_NAME_IS_REQUIRED);
         }
         if (newName.length() > 24) {
-            throw new BusinessException("invalidNameXMaxYLong",
-                    "The name '{0}' is invalid since it can only be {1,number} characters long.", newName, 24);
+            throw new NameTooLongException(this.thesaurus, MessageSeeds.RELATION_TYPE_NAME_TOO_LONG, newName, 24);
         }
         validate(newName);
-        validateFields(shadow);
         if (!newName.equals(getName())) {
             validateConstraint(newName);
         }
         validateActivate(shadow);
     }
 
-    private void validateFields(RelationTypeShadow shadow) throws BusinessException {
-        this.validateMaxLength(shadow.getName(), "name", 24, false);
-        this.validateMaxLength(shadow.getDisplayName(), "displayName", 256, true);
-    }
-
     @Override
-    protected void validateConstraint(String name) throws DuplicateException {
+    protected void validateConstraint(String name) {
         DataMapper<RelationType> factory = this.getDataMapper();
         // first 21 chars should be unique because of constraint ddl generation,
         // name is being pre- and postfixed with couple of tags and we need to
         // limit names to max 30 for oracle
         if (name.length() < 21) {
             if (!factory.find("name", name).isEmpty()) {
-                throw new DuplicateException(
-                        "duplicateRelationTypeX",
-                        "A relation type with the name \"{0}\" already exists",
-                        name);
+                throw new DuplicateNameException(this.thesaurus, MessageSeeds.RELATION_TYPE_ALREADY_EXISTS, name);
             }
         }
         else {
             String uniquePart = name.substring(0, 21);
             if (!factory.select(where("name").like(uniquePart + "%")).isEmpty()) {
-                throw new DuplicateException(
-                        "duplicateRelationTypeStartingWithX",
-                        "A relation type starting with \"{0}\" already exists",
-                        uniquePart);
+                throw new DuplicateNameException(this.thesaurus, MessageSeeds.RELATION_TYPE_ALREADY_EXISTS, uniquePart);
             }
         }
     }
@@ -330,11 +378,11 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return ImmutableList.copyOf(this.attributeTypes);
     }
 
-    public void addAttribute(String fieldName, String attDisplayName, ValueFactory factory) throws BusinessException, SQLException {
+    public void addAttribute(String fieldName, String attDisplayName, ValueFactory factory) {
         this.addAttribute(fieldName, factory, factory.getObjectFactoryId());
     }
 
-    private void addAttribute(String fieldName, ValueFactory factory, int objectFactoryId) throws BusinessException, SQLException {
+    private void addAttribute(String fieldName, ValueFactory factory, int objectFactoryId) {
         RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
         shadow.setValueFactoryClass(factory.getClass());
         shadow.setName(fieldName);
@@ -343,9 +391,9 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         this.doAddAttribute(shadow);
     }
 
-    private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow) throws SQLException, BusinessException {
+    private RelationAttributeType doAddAttribute(RelationAttributeTypeShadow shadow) {
         RelationAttributeType attributeType = this.createAttributeType(shadow);
-        new RelationTypeDdlGenerator(this, true).addAttributeColumn(attributeType);
+        new RelationTypeDdlGenerator(this, this.thesaurus, true).addAttributeColumn(attributeType);
         return attributeType;
     }
 
@@ -466,7 +514,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     protected void createDynamicAttributeTable() throws SQLException {
-        new RelationTypeDdlGenerator(this, true).execute();
+        new RelationTypeDdlGenerator(this, this.thesaurus, true).execute();
     }
 
     public void dropDynamicAttributeTable() throws SQLException {
@@ -482,26 +530,25 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     @Override
-    protected void validateDelete() throws SQLException, BusinessException {
+    protected void validateDelete() {
         if (this.active) {
             List remainingRelations = this.getBaseFactory().findByRelationType();
             if (!remainingRelations.isEmpty()) {
-                throw new BusinessException("cannotDeleteRelationType",
-                        "This relation type cannot be deleted since it is still in use");
+                throw new CannotDeleteRelationType(this.thesaurus, this);
             }
             this.validateDeleteAttributes();
             this.validateDeleteConstraints();
         }
     }
 
-    private void validateDeleteAttributes() throws BusinessException {
+    private void validateDeleteAttributes() {
         for (RelationAttributeType attribute : this.attributeTypes) {
             RelationAttributeTypeImpl each = (RelationAttributeTypeImpl) attribute;
             each.validateDelete();
         }
     }
 
-    private void validateDeleteConstraints() throws BusinessException {
+    private void validateDeleteConstraints() {
         for (Constraint constraint : this.constraints) {
             ConstraintImpl each = (ConstraintImpl) constraint;
             each.validateDelete();
@@ -514,53 +561,40 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
             this.deactivate();
         }
         for (RelationAttributeType attributeType : this.attributeTypes) {
-            ((RelationAttributeTypeImpl) attributeType).clearDefaultFlag();
+            attributeType.clearDefaultFlag();
         }
     }
 
-    private void validateActivate() throws BusinessException {
+    private void validateActivate() {
         RelationAttributeType attribType = getLockAttributeType();
         if (attribType == null) {
-            throw new BusinessException("noLockAttributeDefined", "No lock attribute defined");
+            throw new NoLockAttributeException(this.thesaurus, this.getName());
         }
         if (!attribType.isReference()) {
-            throw new BusinessException(
-                    "lockOnNonReferenceAttributeX",
-                    "The lock is set to a non reference attribute \"{0}\"",
-                    attribType.getName());
+            throw new LockAttributeShouldBeReferenceTypeException(this.thesaurus, this.getName(), attribType.getName());
         }
         if (!attribType.isRequired()) {
-            throw new BusinessException(
-                    "lockOnNonRequiredAttributeX",
-                    "The lock is set to a non required attribute \"{0}\"",
-                    attribType.getName());
+            throw new LockAttributeShouldBeRequiredException(this.thesaurus, this.getName(), attribType.getName());
         }
-
     }
 
-    private void validateActivate(RelationTypeShadow shadow) throws BusinessException {
+    private void validateActivate(RelationTypeShadow shadow) {
         RelationAttributeTypeShadow attShadow = shadow.getLockAttributeTypeShadow();
         if (attShadow == null) {
-            throw new BusinessException("noLockAttributeDefined", "No lock attribute defined");
+            throw new NoLockAttributeException(this.thesaurus, shadow.getName());
         }
         if (!shadow.getAttributeTypeShadows().contains(attShadow)) {
-            throw new BusinessException("noLockAttributeDefined", "No lock attribute defined");
+            throw new NoLockAttributeException(this.thesaurus, shadow.getName());
         }
         if (attShadow.getObjectFactoryId() == 0) {
-            throw new BusinessException(
-                    "lockOnNonReferenceAttributeX",
-                    "The lock is set to a non reference attribute \"{0}\"",
-                    attShadow.getName());
+            throw new LockAttributeShouldBeReferenceTypeException(this.thesaurus, shadow.getName(), attShadow.getName());
         }
         if (!attShadow.isRequired()) {
-            throw new BusinessException(
-                    "lockOnNonRequiredAttributeX",
-                    "The lock is set to a non required attribute \"{0}\"",
-                    attShadow.getName());
+            throw new LockAttributeShouldBeRequiredException(this.thesaurus, shadow.getName(), attShadow.getName());
         }
     }
 
-    public void activate() throws SQLException, BusinessException {
+    public void activate() {
         this.validateActivate();
         this.active = true;
         this.post();
@@ -569,7 +603,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
         catch (SQLException e) {
             RelationTypeImpl.this.active = false;
-            throw e;
+            throw new RelationTypeDDLException(this.thesaurus, e, this.getName());
         }
     }
 
@@ -600,7 +634,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     protected void dropMetaData() throws SQLException {
-        new RelationTypeDdlGenerator(this, true).dropMetaData();
+        new RelationTypeDdlGenerator(this, this.thesaurus, true).dropMetaData();
     }
 
     public RelationAttributeType getAttributeType(int index) {
@@ -628,26 +662,26 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         return getAttributeType(name) != null;
     }
 
-    public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow) throws SQLException, BusinessException {
-        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, raShadow.getName());
+    public RelationAttributeType createAttributeType(RelationAttributeTypeShadow raShadow) {
+        RelationAttributeTypeImpl relationAttributeType = new RelationAttributeTypeImpl(this, this.thesaurus, raShadow.getName());
         relationAttributeType.init(this, raShadow);
         this.attributeTypes.add(relationAttributeType);
         return relationAttributeType;
     }
 
-    public void deleteAttributeType(RelationAttributeType raType) throws SQLException, BusinessException {
+    public void deleteAttributeType(RelationAttributeType raType) {
         this.deleteAttributeType((RelationAttributeTypeImpl) raType);
     }
 
-    private void deleteAttributeType(RelationAttributeTypeImpl raType) throws SQLException, BusinessException {
+    private void deleteAttributeType(RelationAttributeTypeImpl raType) {
         // Objects that are managed in a composite collection do no need an explicit delete
         raType.validateDelete();
         doDeleteAttributeType(raType);
         this.attributeTypes.remove(raType);
     }
 
-    private void doDeleteAttributeType(RelationAttributeType raType) throws SQLException {
-        new RelationTypeDdlGenerator(this, true).executeDelete(raType);
+    private void doDeleteAttributeType(RelationAttributeType raType) {
+        new RelationTypeDdlGenerator(this, this.thesaurus, true).executeDelete(raType);
     }
 
     public Relation get(int id) {
@@ -679,17 +713,18 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     }
 
     @Override
-    protected void validate(String name) throws BusinessException {
+    protected void validate(String name) {
         if ((name == null) || (name.trim().isEmpty())) {
-            throw new BusinessException("nameCantBeBlank", "The name cannot be blank");
+            throw new NameIsRequiredException(this.thesaurus, MessageSeeds.RELATION_TYPE_NAME_IS_REQUIRED);
         }
         String validChars = getValidCharacters();
         for (int i = 0; i < name.length(); i++) {
             if (validChars.indexOf(name.charAt(i)) == -1) {
-                throw new BusinessException(
-                        "nameXcontainsInvalidChars",
-                        "The name \"{0}\" contains invalid characters",
-                        name);
+                throw new NameContainsInvalidCharactersException(
+                        this.thesaurus,
+                        MessageSeeds.RELATION_TYPE_NAME_CONTAINS_INVALID_CHARACTERS,
+                        name,
+                        this.getValidCharacters());
             }
         }
     }

@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface RelationService {
 
+    public static final String COMPONENT_NAME = "CDR";
+
     /**
      * Finds all the active {@link RelationType}s.
      *
@@ -37,10 +39,8 @@ public interface RelationService {
      *
      * @param shadow The RelationTypeShadow
      * @return the newly created RelationType
-     * @throws BusinessException Thrown when a business constraint was violated
-     * @throws SQLException Thrown when a database constraint was violated
      */
-    public RelationType createRelationType(RelationTypeShadow shadow) throws BusinessException, SQLException;
+    public RelationType createRelationType(RelationTypeShadow shadow);
 
     /**
      * Finds the {@link RelationType} with the specified name.

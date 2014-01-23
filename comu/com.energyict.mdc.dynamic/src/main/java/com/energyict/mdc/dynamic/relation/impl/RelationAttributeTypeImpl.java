@@ -1,28 +1,37 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
-import com.energyict.mdc.common.DuplicateException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.ReferenceFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.CompositeAttributeTypeDetective;
 import com.energyict.mdc.dynamic.relation.DefaultAttributeTypeDetective;
+import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
+import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
+import com.energyict.mdc.dynamic.relation.exceptions.NameContainsInvalidCharactersException;
+import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
+import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
 import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.exceptions.RelationAttributeHasNullValuesException;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
+import com.energyict.mdc.dynamic.relation.exceptions.ValueFactoryCreationException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,6 +41,7 @@ import java.util.List;
 
 public class RelationAttributeTypeImpl extends PersistentNamedObject implements RelationAttributeType {
 
+    private Thesaurus thesaurus;
     private String valueFactoryClassName;
     private ValueFactory valueFactory;
     private String displayName;
@@ -45,13 +55,15 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     private final Reference<RelationType> relationType = ValueReference.absent();
     private Boolean isDefault = null;
 
-    // For persistence framework only
-    RelationAttributeTypeImpl() {
+    @Inject
+    RelationAttributeTypeImpl(Thesaurus thesaurus) {
         super();
+        this.thesaurus = thesaurus;
     }
 
-    public RelationAttributeTypeImpl(RelationType relationType, String name) {
+    public RelationAttributeTypeImpl(RelationType relationType, Thesaurus thesaurus, String name) {
         super(name);
+        this.thesaurus = thesaurus;
         this.relationType.set(relationType);
     }
 
@@ -65,7 +77,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         return RelationAttributeType.class.getName();
     }
 
-    public void update(RelationAttributeTypeShadow shadow) throws BusinessException, SQLException {
+    public void update(RelationAttributeTypeShadow shadow) {
         this.validateUpdate(shadow);
         if (this.getRelationType().isActive() && this.required != shadow.isRequired()) {
             this.updateRequired(shadow.isRequired());
@@ -74,7 +86,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         this.post();
     }
 
-    protected void init(RelationType relationType, RelationAttributeTypeShadow shadow) throws SQLException, BusinessException {
+    protected void init(RelationType relationType, RelationAttributeTypeShadow shadow) {
         this.validateNew(relationType, shadow);
         this.copyNew(relationType, shadow);
     }
@@ -100,74 +112,71 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
         copy(shadow);
     }
 
-    protected void validateNew(RelationType relationType, RelationAttributeTypeShadow shadow) throws BusinessException {
+    protected void validateNew(RelationType relationType, RelationAttributeTypeShadow shadow) {
         validate(relationType, shadow);
     }
 
-    protected void validateUpdate(RelationAttributeTypeShadow shadow) throws BusinessException {
+    protected void validateUpdate(RelationAttributeTypeShadow shadow) {
         if (this.isDefault() && shadow.getEssentialAttributesChanged()) {
-            throw new BusinessException("cannotUpdateDefaultRelationAttribute", "Cannot update a default relation type attribute");
+            throw new RelationAttributeHasNullValuesException(this.thesaurus, this);
         }
         this.validate(this.getRelationType(), shadow);
     }
 
     @Override
-    protected void validateDelete() throws BusinessException {
+    protected void validateDelete() {
         if (this.isDefault()) {
-            throw new BusinessException("cannotDeleteDefaultRelationAttribute", "Cannot delete a default relation type attribute");
+            throw new CannotDeleteDefaultRelationAttributeException(this.thesaurus, this);
         }
     }
 
-    protected void validate(RelationType relationType, RelationAttributeTypeShadow shadow) throws BusinessException {
+    protected void validate(RelationType relationType, RelationAttributeTypeShadow shadow) {
         String newName = shadow.getName();
         if (this.isInvalidName(newName)) {
-            throw new BusinessException("nameCantBeX", "The name cannot be \"{0}\"", shadow.getName());
+            throw new NameIsRequiredException(this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_NAME_IS_REQUIRED);
         }
         this.validate(newName);
-        this.validateFields(shadow);
+        if (newName.length() > 30) {
+            throw new NameTooLongException(this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_NAME_TOO_LONG, newName, 30);
+        }
         if (!newName.equals(this.getName())) {
             this.validateConstraint(newName, relationType);
         }
-        try {
-            this.newValueFactory(shadow.getValueFactoryClassName(), shadow.getObjectFactoryId());
-        }
-        catch (ApplicationException ex) {
-            throw new BusinessException(ex.getCause());
-        }
+        this.newValueFactory(shadow.getValueFactoryClassName(), shadow.getObjectFactoryId());
     }
 
-    private void validateFields(RelationAttributeTypeShadow shadow) throws BusinessException {
-        this.validateMaxLength(shadow.getName(), "name", "relationAttributeType", 30, false);
-        this.validateMaxLength(shadow.getRoleName(), "ruleName", "relationAttributeType", 256, true);
-    }
-
-    protected void validateConstraint(String name, RelationType relationType) throws DuplicateException {
+    protected void validateConstraint(String name, RelationType relationType) {
         if (Bus.getServiceLocator().getOrmClient().findByRelationTypeAndName(relationType, name) != null) {
-            throw new DuplicateException("duplicateAttributeNameX", "The attribute \"{0}\" is already defined", name);
+            throw new DuplicateNameException(this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_ALREADY_EXISTS, name, relationType.getName());
         }
     }
 
-    public void updateRequired(boolean isRequired) throws BusinessException, SQLException {
+    public void updateRequired(boolean isRequired) {
         if (this.required == isRequired) {
             return;
         }
         if (isRequired && hasNullValues()) { // #eiserver-178 no longer take the ORU-table into account
-            throw new BusinessException("attributeXHasNullValues", "Attribute \"{0}\" has null values", getName());
+            throw new RelationAttributeHasNullValuesException(this.thesaurus, this);
         }
-        new RelationTypeDdlGenerator(getRelationType(), true).alterAttributeColumnRequired(RelationAttributeTypeImpl.this, isRequired);
+        new RelationTypeDdlGenerator(getRelationType(), this.thesaurus, true).alterAttributeColumnRequired(RelationAttributeTypeImpl.this, isRequired);
         setRequired(isRequired);
     }
 
-    private boolean hasNullValues() throws SQLException {
+    private boolean hasNullValues() {
         RelationType relation = getRelationType();
         return hasNullValues(relation.getDynamicAttributeTableName()); // #eiserver-178 no longer take the ORU-table into account
     }
 
-    private boolean hasNullValues(String tableName) throws SQLException {
-        try (PreparedStatement stmnt = this.getNullValueSql(tableName).getStatement(this.getConnection())) {
-            try (ResultSet rs = stmnt.executeQuery()) {
-                return rs.next();
+    private boolean hasNullValues(String tableName) {
+        try {
+            try (PreparedStatement stmnt = this.getNullValueSql(tableName).getStatement(this.getConnection())) {
+                try (ResultSet rs = stmnt.executeQuery()) {
+                    return rs.next();
+                }
             }
+        }
+        catch (SQLException e) {
+            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.get().getName());
         }
     }
 
@@ -225,13 +234,13 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     private ValueFactory newValueFactory (String valueFactoryClassName, int objectFactoryId) {
         try {
-            if(valueFactoryClassName.equals(ReferenceFactory.class.getCanonicalName())){
+            if (valueFactoryClassName.equals(ReferenceFactory.class.getCanonicalName())) {
                 return new ReferenceFactory((IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(objectFactoryId));
             }
             return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
         }
         catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
-            throw new ApplicationException(ex);
+            throw new ValueFactoryCreationException(this.thesaurus, ex, valueFactoryClassName);
         }
     }
 
@@ -266,17 +275,14 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     }
 
     @Override
-    protected void validate(String name) throws BusinessException {
+    protected void validate(String name) {
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
-            throw new BusinessException("nameCantBeBlank", "The name cannot be blank");
+            throw new NameIsRequiredException(this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_NAME_IS_REQUIRED);
         }
         String validChars = this.getValidCharacters();
         for (int i = 0; i < name.length(); i++) {
             if (validChars.indexOf(name.charAt(i)) == -1) {
-                throw new BusinessException(
-                        "nameXcontainsInvalidChars",
-                        "The name \"{0}\" contains invalid characters",
-                        name);
+                throw new NameContainsInvalidCharactersException(this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_NAME_CONTAINS_INVALID_CHARACTERS, name, this.getValidCharacters());
             }
         }
     }

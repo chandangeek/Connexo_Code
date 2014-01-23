@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.Environment;
@@ -7,6 +8,7 @@ import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.coordinates.SpatialCoordinates;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,12 +22,15 @@ import java.util.logging.Logger;
 
 public class RelationTypeDdlGenerator {
 
+    private Thesaurus thesaurus;
     private RelationType relationType;
     private Map<RelationAttributeType, String> names = new HashMap<>();
     private boolean checkExistence = false;
     private Logger logger = Logger.getLogger(RelationTypeDdlGenerator.class.getName());
 
-    public RelationTypeDdlGenerator(RelationType relationType, boolean checkExistence) {
+    public RelationTypeDdlGenerator(RelationType relationType, Thesaurus thesaurus, boolean checkExistence) {
+        super();
+        this.thesaurus = thesaurus;
         this.relationType = relationType;
         this.checkExistence = checkExistence;
     }
@@ -77,10 +82,15 @@ public class RelationTypeDdlGenerator {
         }
     }
 
-    protected void executeDelete(RelationAttributeType attributeType) throws SQLException {
+    protected void executeDelete(RelationAttributeType attributeType) {
         RelationType type = attributeType.getRelationType();
         logger.info("Start removing " + attributeType.getName() + " of " + type.getName());
-        dropAttributeColumn(attributeType);
+        try {
+            dropAttributeColumn(attributeType);
+        }
+        catch (SQLException e) {
+            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.getName());
+        }
     }
 
 
@@ -246,20 +256,25 @@ public class RelationTypeDdlGenerator {
         return buffer.toString();
     }
 
-    public void addAttributeColumn(RelationAttributeType attributeType) throws SQLException {
+    public void addAttributeColumn(RelationAttributeType attributeType) {
         if (!names.containsKey(attributeType)) {
             generateNames();
         }
-        if (tableExists(getDynamicAttributeTableName()) && !columnExists(getDynamicAttributeTableName(), attributeType.getName())) {
-            executeDdl(getAddColumnSql(getDynamicAttributeTableName(), attributeType.getName(), attributeType.getDbType(), attributeType.isRequired()));
+        try {
+            if (tableExists(getDynamicAttributeTableName()) && !columnExists(getDynamicAttributeTableName(), attributeType.getName())) {
+                executeDdl(getAddColumnSql(getDynamicAttributeTableName(), attributeType.getName(), attributeType.getDbType(), attributeType.isRequired()));
+            }
+            if (tableExists(getObsoleteAttributeTableName()) && !columnExists(getObsoleteAttributeTableName(), attributeType.getName())) {
+                executeDdl(getAddColumnSql(getObsoleteAttributeTableName(), attributeType.getName(), attributeType.getDbType(), false));
+            }
+            if (attributeType.getDbType().equals(SpatialCoordinates.SQL_TYPE_NAME)) {
+                addMetaData(attributeType);
+            }
+            createAttributeIndex(attributeType);
         }
-        if (tableExists(getObsoleteAttributeTableName()) && !columnExists(getObsoleteAttributeTableName(), attributeType.getName())) {
-            executeDdl(getAddColumnSql(getObsoleteAttributeTableName(), attributeType.getName(), attributeType.getDbType(), false));
+        catch (SQLException e) {
+            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.getName());
         }
-        if (attributeType.getDbType().equals(SpatialCoordinates.SQL_TYPE_NAME)) {
-            addMetaData(attributeType);
-        }
-        createAttributeIndex(attributeType);
     }
 
     public void dropAttributeColumn(RelationAttributeType attributeType) throws SQLException {
@@ -278,20 +293,25 @@ public class RelationTypeDdlGenerator {
         }
     }
 
-    public void alterAttributeColumnRequired(RelationAttributeType attributeType, boolean isRequired) throws SQLException {
-        if (columnExists(getObsoleteAttributeTableName(), attributeType.getName())) {
-            // Remark: from now on the ORU-tables are always created with nullable columns; required attribute or not.
-            // The following instructions are kept to make the columns nullable in case they aren't (due to legacy creation)
-            if (!columnIsNullable(getObsoleteAttributeTableName(), attributeType.getName())) {
-                executeDdl(getAlterAttributeColumnRequired(getObsoleteAttributeTableName(),
-                        attributeType.getName(), false));
+    public void alterAttributeColumnRequired(RelationAttributeType attributeType, boolean isRequired) {
+        try {
+            if (columnExists(getObsoleteAttributeTableName(), attributeType.getName())) {
+                // Remark: from now on the ORU-tables are always created with nullable columns; required attribute or not.
+                // The following instructions are kept to make the columns nullable in case they aren't (due to legacy creation)
+                if (!columnIsNullable(getObsoleteAttributeTableName(), attributeType.getName())) {
+                    executeDdl(getAlterAttributeColumnRequired(getObsoleteAttributeTableName(),
+                            attributeType.getName(), false));
+                }
+            }
+            if (columnExists(getDynamicAttributeTableName(), attributeType.getName())) {
+                if (!isRequired != columnIsNullable(getDynamicAttributeTableName(), attributeType.getName())) {
+                    executeDdl(getAlterAttributeColumnRequired(getDynamicAttributeTableName(),
+                            attributeType.getName(), isRequired));
+                }
             }
         }
-        if (columnExists(getDynamicAttributeTableName(), attributeType.getName())) {
-            if (!isRequired != columnIsNullable(getDynamicAttributeTableName(), attributeType.getName())) {
-                executeDdl(getAlterAttributeColumnRequired(getDynamicAttributeTableName(),
-                        attributeType.getName(), isRequired));
-            }
+        catch (SQLException e) {
+            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.getName());
         }
     }
 

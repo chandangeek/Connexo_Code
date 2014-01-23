@@ -22,7 +22,12 @@
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>orm</artifactId>
-      <version>${project.version}</version>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>domain.util</artifactId>
+      <version>${jupiter.version}</version>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>

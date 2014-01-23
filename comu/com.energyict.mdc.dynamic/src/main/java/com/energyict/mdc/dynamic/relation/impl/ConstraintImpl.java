@@ -1,13 +1,30 @@
 package com.energyict.mdc.dynamic.relation.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.*;
-import com.energyict.mdc.dynamic.relation.*;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.BusinessObjectFactory;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationConstraintException;
+import com.energyict.mdc.dynamic.relation.Constraint;
+import com.energyict.mdc.dynamic.relation.ConstraintShadow;
+import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
+import com.energyict.mdc.dynamic.relation.exceptions.EmptyConstraintException;
+import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
+import com.energyict.mdc.dynamic.relation.exceptions.MultipleNonRejectConstraintsNotAllowedException;
+import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
+import com.energyict.mdc.dynamic.relation.RelationTransaction;
+import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
 
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,14 +34,16 @@ import java.util.List;
 
 public class ConstraintImpl extends PersistentNamedObject implements Constraint {
 
+    private Thesaurus thesaurus;
     private final List<ConstraintMember> members = new ArrayList<>();
     private final Reference<RelationType> relationType = ValueReference.absent();
     private boolean rejectViolations;
     private Date modDate;
 
-    // For persistence framework only
-    ConstraintImpl() {
+    @Inject
+    ConstraintImpl(Thesaurus thesaurus) {
         super();
+        this.thesaurus = thesaurus;
     }
 
     public ConstraintImpl(RelationType relationType, String name) {
@@ -48,7 +67,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     }
 
     @SuppressWarnings("unchecked")
-    public void update(ConstraintShadow shadow) throws BusinessException, SQLException {
+    public void update(ConstraintShadow shadow) {
         this.validateUpdate(shadow);
         this.copyUpdate(shadow);
         this.post();
@@ -57,7 +76,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     }
 
     @SuppressWarnings("unchecked")
-    protected void init(RelationType relationType, final ConstraintShadow shadow) throws SQLException, BusinessException {
+    protected void init(RelationType relationType, final ConstraintShadow shadow) {
         this.validateNew(relationType, shadow);
         this.copyNew(shadow);
         this.doInsertMembers(shadow.getAttributeTypeShadows());
@@ -76,25 +95,25 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
         copy(shadow);
     }
 
-    protected void validateNew(RelationType relationType, ConstraintShadow shadow) throws BusinessException {
+    protected void validateNew(RelationType relationType, ConstraintShadow shadow) {
         validate(relationType, shadow);
     }
 
-    protected void validateUpdate(ConstraintShadow shadow) throws BusinessException {
+    protected void validateUpdate(ConstraintShadow shadow) {
         validate(getRelationType(), shadow);
     }
 
     @Override
-    protected void validateDelete() throws BusinessException {
+    protected void validateDelete() {
         if (isDefault()) {
-            throw new BusinessException("cannotDeleteDefaultConstraint", "Constraint on default attribute cannot be deleted");
+            throw new CannotDeleteDefaultRelationConstraintException(this.thesaurus);
         }
     }
 
-    protected void validate(RelationType relationType, ConstraintShadow shadow) throws BusinessException {
+    protected void validate(RelationType relationType, ConstraintShadow shadow) {
         String newName = shadow.getName();
         if (newName == null) {
-            throw new BusinessException("constraintNameCantBeEmpty", "The name of a constraint cannot be empty");
+            throw new NameIsRequiredException(this.thesaurus, MessageSeeds.CONSTRAINT_NAME_IS_REQUIRED);
         }
         if (!newName.equals(getName())) {
             validateConstraint(newName, relationType);
@@ -102,23 +121,21 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
         if (!shadow.isRejectViolations()) {
             for (Constraint each : relationType.getConstraints()) {
                 if (!each.isRejectViolations() && (each.getId() != this.getId())) {
-                    throw new BusinessException("multipleNonRejectConstraintsNotAllowed", "Multiple constraints that do not reject violations is not allowed");
+                    throw new MultipleNonRejectConstraintsNotAllowedException(this.thesaurus);
                 }
             }
         }
         if (Checks.is(shadow.getName()).emptyOrOnlyWhiteSpace()) {
-            throw new BusinessException("constraintNameCannotBeBlank", "The constraint name cannot be blank");
+            throw new NameIsRequiredException(this.thesaurus, MessageSeeds.CONSTRAINT_NAME_IS_REQUIRED);
         }
         if (shadow.getAttributeTypeShadows().isEmpty()) {
-            throw new BusinessException("constraintAttributesCannotBeEmpty", "The list of constraint attributes cannot be emtpy");
+            throw new EmptyConstraintException(this.thesaurus, this);
         }
     }
 
-    protected void validateConstraint(String name, RelationType relationType) throws DuplicateException {
+    protected void validateConstraint(String name, RelationType relationType) {
         if (Bus.getServiceLocator().getOrmClient().findConstraintByNameAndRelationType(name, relationType) != null) {
-            throw new DuplicateException(
-                    "duplicateConstraintNameX",
-                    "A constraint with the name \"{0}\" already exists", name);
+            throw new DuplicateNameException(this.thesaurus, MessageSeeds.CONSTRAINT_ALREADY_EXISTS, name, relationType.getName());
         }
     }
 
