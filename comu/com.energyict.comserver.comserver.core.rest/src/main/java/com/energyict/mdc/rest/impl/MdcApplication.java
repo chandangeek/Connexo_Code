@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -27,6 +28,7 @@ public class MdcApplication extends Application {
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile EngineModelService engineModelService;
     private volatile PropertySpecService propertySpecService;
+    private volatile TransactionService transactionService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -70,6 +72,11 @@ public class MdcApplication extends Application {
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -79,6 +86,7 @@ public class MdcApplication extends Application {
             bind(licensedProtocolService).to(LicensedProtocolService.class);
             bind(propertySpecService).to(PropertySpecService.class);
             bind(engineModelService).to(EngineModelService.class);
+            bind(transactionService).to(TransactionService.class);
         }
     }
 
