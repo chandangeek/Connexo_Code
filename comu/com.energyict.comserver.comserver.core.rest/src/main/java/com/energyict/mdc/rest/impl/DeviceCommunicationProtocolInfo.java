@@ -6,15 +6,12 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
-import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
-import com.energyict.mdc.rest.impl.properties.PropertyValueInfo;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -37,11 +34,11 @@ public class DeviceCommunicationProtocolInfo {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
         try {
-            this.deviceProtocolVersion = deviceProtocolPluggableClass.getDeviceProtocol().getVersion();
+            this.deviceProtocolVersion = deviceProtocolPluggableClass.getVersion();
         } catch (Exception e) {
             //TODO, just logging this as we are working with a protocols OSGI bundle which doesn't contain all protocols yet!
             e.printStackTrace(System.err);
-            this.deviceProtocolVersion = "*** PROTOCOL NOT SUPPORTED IN THE CURRENT OSGI BUNDLE YET ***";
+            this.deviceProtocolVersion = "*** PROTOCOL NOT YET SUPPORTED IN THE CURRENT OSGI BUNDLE ***";
         }
         if (licensedProtocol != null) {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
@@ -61,7 +58,15 @@ public class DeviceCommunicationProtocolInfo {
     }
 
     public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        // Todo
+        List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
+        for (PropertySpec propertySpec : propertySpecs) {
+            Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.propertyInfos);
+            if (value == null) {
+                deviceProtocolPluggableClass.removeProperty(propertySpec);
+            } else {
+                deviceProtocolPluggableClass.setProperty(propertySpec, value);
+            }
+        }
     }
 
 }

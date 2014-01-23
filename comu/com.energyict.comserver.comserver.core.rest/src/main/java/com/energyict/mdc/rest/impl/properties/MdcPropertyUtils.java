@@ -115,6 +115,20 @@ public class MdcPropertyUtils {
         return MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
+    //find propertyValue in info
+    public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
+        for (PropertyInfo propertyInfo : propertyInfos) {
+            if (propertyInfo.getKey().equals(propertySpec.getName())) {
+                if (propertyInfo.getPropertyValueInfo() != null) {
+                    return propertyInfo.getPropertyValueInfo().getValue();
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
     private static Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {
         TypedProperties inheritedProperties = properties.getInheritedProperties();
         if (inheritedProperties == null) {
