@@ -12,6 +12,7 @@ public class ValidationRulePropertyInfo {
     public BigDecimal value;
     public Unit unit = Unit.WATT_HOUR;
     public int multiplier = 1;
+    public boolean required;
 
 
     public ValidationRulePropertyInfo(ValidationRuleProperties validationRuleProperties) {
@@ -20,6 +21,7 @@ public class ValidationRulePropertyInfo {
         value = qty.getValue();
         unit = qty.getUnit();
         multiplier = qty.getMultiplier();
+        required = validationRuleProperties.getRule().isRequired(name);
     }
 
     public ValidationRulePropertyInfo() {

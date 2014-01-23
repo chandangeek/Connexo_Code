@@ -13,8 +13,8 @@ public class ValidationRuleInfo {
 
     public long id;
     public boolean active;
-    public ValidationAction action;
-    public String implementation; //validator name
+    public String implementation; //validator classname
+    public String displayName; // readable name
     public int position;
     public List<ValidationRulePropertyInfo> properties = new ArrayList<ValidationRulePropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
@@ -22,8 +22,8 @@ public class ValidationRuleInfo {
     public ValidationRuleInfo(ValidationRule validationRule) {
         id = validationRule.getId();
         active = validationRule.isActive();
-        action = validationRule.getAction();
         implementation = validationRule.getImplementation();
+        displayName = validationRule.getDisplayName();
         for (ValidationRuleProperties property : validationRule.getProperties()) {
             properties.add(new ValidationRulePropertyInfo(property));
         }
@@ -31,6 +31,7 @@ public class ValidationRuleInfo {
             readingTypes.add(new ReadingTypeInfo(readingType));
         }
     }
+
 
     public ValidationRuleInfo() {
     }
