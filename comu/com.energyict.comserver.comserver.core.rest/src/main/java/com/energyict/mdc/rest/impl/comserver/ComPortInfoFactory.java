@@ -17,7 +17,7 @@ public class ComPortInfoFactory {
         }
     }
 
-    public static InboundComPortInfo<? extends ComPort> asInboundInfo(ComPort comPort) {
+    public static InboundComPortInfo<? extends InboundComPort> asInboundInfo(ComPort comPort) {
         if (TCPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort);
         }
