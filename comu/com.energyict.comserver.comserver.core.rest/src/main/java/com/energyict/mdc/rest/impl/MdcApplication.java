@@ -49,6 +49,7 @@ public class MdcApplication extends Application {
         Set<Object> hashSet = new HashSet<>();
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
+        hashSet.add(new TransactionWrapper(transactionService));
         return Collections.unmodifiableSet(hashSet);
     }
 

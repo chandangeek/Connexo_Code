@@ -34,14 +34,12 @@ public class DeviceCommunicationProtocolsResource {
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final LicensedProtocolService licensedProtocolService;
-    private final TransactionService transactionService;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, TransactionService transactionService) {
+    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService) {
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.licensedProtocolService = licensedProtocolService;
-        this.transactionService = transactionService;
     }
 
     @GET
@@ -81,24 +79,19 @@ public class DeviceCommunicationProtocolsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context final UriInfo uriInfo, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
-        return this.transactionService.execute(new Transaction<DeviceCommunicationProtocolInfo>() {
-            @Override
-            public DeviceCommunicationProtocolInfo perform() {
-                try {
-                    DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                            protocolPluggableService.newDeviceProtocolPluggableClass(
-                                    deviceCommunicationProtocolInfo.licensedProtocol.protocolName,
-                                    deviceCommunicationProtocolInfo.licensedProtocol.protocolJavaClassName);
-                    deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
-                    deviceProtocolPluggableClass.save();
-                    LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-                    return new DeviceCommunicationProtocolInfo(uriInfo, propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
-                }
-                catch (Exception e) {
-                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-                }
-            }
-        });
+        try {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass =
+                    protocolPluggableService.newDeviceProtocolPluggableClass(
+                            deviceCommunicationProtocolInfo.licensedProtocol.protocolName,
+                            deviceCommunicationProtocolInfo.licensedProtocol.protocolJavaClassName);
+            deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
+            deviceProtocolPluggableClass.save();
+            LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+            return new DeviceCommunicationProtocolInfo(uriInfo, propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
+        }
+        catch (Exception e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PUT
@@ -106,22 +99,17 @@ public class DeviceCommunicationProtocolsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context final UriInfo uriInfo, @PathParam("id") final long id, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
-        return this.transactionService.execute(new Transaction<DeviceCommunicationProtocolInfo>() {
-            @Override
-            public DeviceCommunicationProtocolInfo perform() {
-                try {
-                    DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(id);
-                    deviceProtocolPluggableClass.setName(deviceCommunicationProtocolInfo.name);
-                    deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
-                    deviceProtocolPluggableClass.save();
-                    LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-                    return new DeviceCommunicationProtocolInfo(uriInfo, propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
-                }
-                catch (Exception e) {
-                    throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-                }
-            }
-        });
+        try {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(id);
+            deviceProtocolPluggableClass.setName(deviceCommunicationProtocolInfo.name);
+            deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass);
+            deviceProtocolPluggableClass.save();
+            LicensedProtocol licensedProtocol = licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+            return new DeviceCommunicationProtocolInfo(uriInfo, propertySpecService, deviceProtocolPluggableClass, licensedProtocol, true);
+        }
+        catch (Exception e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
