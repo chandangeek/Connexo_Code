@@ -171,12 +171,16 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public SerialPortConfiguration getSerialPortConfiguration() {
-        return serialPortConfiguration.asEnum();
+        return serialPortConfiguration!=null?serialPortConfiguration.asEnum():null;
     }
 
     @Override
     public void setSerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-        this.serialPortConfiguration = new LegacySerialPortConfiguration(serialPortConfiguration);
+        if (serialPortConfiguration==null) {
+            this.serialPortConfiguration=null;
+        } else {
+            this.serialPortConfiguration = new LegacySerialPortConfiguration(serialPortConfiguration);
+        }
     }
 
     @Override
@@ -295,9 +299,9 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
         public LegacySerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
             comPortName=serialPortConfiguration.getComPortName();
-            baudrate= BigDecimal.valueOf(serialPortConfiguration.getBaudrate().ordinal());
-            nrOfDataBits=BigDecimal.valueOf(serialPortConfiguration.getNrOfDataBits().ordinal());
-            nrOfStopBits=BigDecimal.valueOf(serialPortConfiguration.getNrOfStopBits().ordinal());
+            baudrate= serialPortConfiguration.getBaudrate().getBaudrate();
+            nrOfDataBits=serialPortConfiguration.getNrOfDataBits().getNrOfDataBits();
+            nrOfStopBits=serialPortConfiguration.getNrOfStopBits().getNrOfStopBits();
             parity=serialPortConfiguration.getParity().getParity();
             flowControl=serialPortConfiguration.getFlowControl().getFlowControl();
         }

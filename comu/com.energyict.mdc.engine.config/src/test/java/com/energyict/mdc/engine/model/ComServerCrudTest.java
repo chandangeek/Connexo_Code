@@ -183,9 +183,4 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(onlineComServer.getComPorts()).hasSize(1);
     }
 
-    @Test
-    public void testName() throws Exception {
-        System.out.println(Parities.NONE.name());
-
-    }
 }

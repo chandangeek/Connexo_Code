@@ -104,8 +104,8 @@ public enum TableSpecs {
             table.column("BAUDRATE").number().map("serialPortConfiguration.baudrate").add();
             table.column("NROFDATABITS").number().map("serialPortConfiguration.nrOfDataBits").add();
             table.column("NROFSTOPBITS").number().map("serialPortConfiguration.nrOfStopBits").add();
-            table.column("PARITY").type("varchar2(255)").conversion(ColumnConversion.CHAR2ENUM).map("serialPortConfiguration.parity").add();
-            table.column("FLOWCONTROL").type("varchar2(255)").conversion(ColumnConversion.CHAR2ENUM).map("serialPortConfiguration.flowControl").add();
+            table.column("PARITY").type("varchar2(255)").map("serialPortConfiguration.parity").add();
+            table.column("FLOWCONTROL").type("varchar2(255)").map("serialPortConfiguration.flowControl").add();
             // ServletBasedInboundComPortImpl
             table.column("HTTPS").type("varchar2(1)").conversion(ColumnConversion.NUMBER2BOOLEAN).map("https").add();
             table.column("KEYSTOREPATH").type("varchar2(255)").map("keyStoreSpecsFilePath").add();

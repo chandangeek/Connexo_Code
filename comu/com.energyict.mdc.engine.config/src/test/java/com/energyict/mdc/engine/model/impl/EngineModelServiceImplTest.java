@@ -44,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class EngineModelServiceImplTest extends PersistenceTest {
     @After
     public void tearDown() throws Exception {
@@ -88,9 +87,6 @@ public class EngineModelServiceImplTest extends PersistenceTest {
         createOfflineComServer("lapbvn").makeObsolete();
         createOfflineComServer("lapbvn");
         ComServer comServerBySystemName = getEngineModelService().findComServerBySystemName();
-        for (ComServer server : getEngineModelService().findAllComServers()) {
-            System.out.println(server.getName()+" "+server.getObsoleteDate());
-        }
         assertThat(comServerBySystemName.getName()).isEqualTo("lapbvn");
     }
 
