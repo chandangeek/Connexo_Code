@@ -4,12 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityMapping;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMapping;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMapping;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.*;
 
 /**
  * Models the database tables that hold the data of the {@link PluggableClassRelationAttributeTypeUsage}s.
@@ -24,9 +19,9 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<PluggableClassRelationAttributeTypeUsage> table = dataModel.addTable(name(), PluggableClassRelationAttributeTypeUsage.class);
             table.map(PluggableClassRelationAttributeTypeUsage.class);
-            Column pluggableClassColumn = table.column("PLUGGABLECLASS").number().notNull().map("pluggableClassId").add();
+            Column pluggableClassColumn = table.column("PLUGGABLECLASS").number().notNull().number().conversion(ColumnConversion.NUMBER2LONG).map("pluggableClassId").add();
             Column relationAttributeTypeColumn = table.column("RELATIONATTRIBUTETYPE").
-                                                    number().conversion(ColumnConversion.NUMBER2INT).
+                                                    number().conversion(ColumnConversion.NUMBER2LONG).
                                                     notNull().
                                                     map("relationAttributeTypeId").
                                                     add();
