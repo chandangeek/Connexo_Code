@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class ServerMessageQueueMissing extends LocalizedException {
 
     public ServerMessageQueueMissing(String destinationName, Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.SERVER_MESSAGE_QUEUE_MISSING, destinationName, thesaurus);
+        super(thesaurus, MessageSeeds.SERVER_MESSAGE_QUEUE_MISSING, destinationName);
         set("destination", destinationName);
     }
 }
