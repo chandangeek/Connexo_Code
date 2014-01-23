@@ -29,6 +29,15 @@ public final class DeviceProtocolAdapterCodingExceptions extends ComServerRuntim
         return new DeviceProtocolAdapterCodingExceptions(classNotFound.getCause(), unKnownDeviceSecuritySupportErrorExceptionCode(), noClassFoundName);
     }
 
+    public static DeviceProtocolAdapterCodingExceptions unKnownDeviceSecuritySupportClass(ProtocolCreationException e, String noClassFoundName) {
+        if (e.getCause() == null) {
+            return new DeviceProtocolAdapterCodingExceptions(e, unKnownDeviceSecuritySupportErrorExceptionCode(), noClassFoundName);
+        }
+        else {
+            return new DeviceProtocolAdapterCodingExceptions(e.getCause(), unKnownDeviceSecuritySupportErrorExceptionCode(), noClassFoundName);
+        }
+    }
+
     private static ExceptionCode unKnownDeviceSecuritySupportErrorExceptionCode() {
         return new ExceptionCode(new CommonReferenceScope(), ExceptionType.CODING, CommonExceptionReferences.UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS);
     }

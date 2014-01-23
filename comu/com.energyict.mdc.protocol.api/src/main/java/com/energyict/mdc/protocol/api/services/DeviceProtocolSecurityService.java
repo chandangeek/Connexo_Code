@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.services;
 
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+
 /**
  * OSGI Service wrapper to create an instance of a DeviceProtocol SecurityRelated object
  *
