@@ -93,7 +93,8 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
+        this.deviceProtocolSecurityCapabilities.setPropertySpecService(propertySpecService);
     }
 
     @Override
@@ -153,6 +154,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec("SDKTimeDurationPropertyWithDefault", new TimeDuration(3,3)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpecWithValues("SDKTimeDurationPropertyWithValues", new TimeDuration(3,3), new TimeDuration(4,4), new TimeDuration(5,5)));
 
+        //optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeZoneInUseReferencePropertySpec("SDKTimeZoneInUseProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
                         ObisCode.fromString("1.0.1.8.0.255"),
                         ObisCode.fromString("1.0.1.8.1.255"),
@@ -167,8 +169,11 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileTypeProperty", this.findFactory(FactoryIds.LOADPROFILE_TYPE)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().referencePropertySpec("SDKLoadProfileProperty", this.findFactory(FactoryIds.LOADPROFILE)));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean13PropertySpec("SDKEan13Property"));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().ean18PropertySpec("SDKEan18Property"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().encryptedStringPropertySpec("SDKEncryptedStringProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().spatialCoordinatesPropertySpec("SDKSpatialCoordinatesProperty"));
+
+
         return optionalProperties;
     }
 
@@ -328,7 +333,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return this.deviceProtocolSecurityCapabilities.getSecurityProperties();
+        return Collections.emptyList();
     }
 
     @Override

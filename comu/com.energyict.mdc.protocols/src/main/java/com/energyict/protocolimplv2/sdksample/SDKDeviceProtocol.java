@@ -96,7 +96,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
+        this.deviceProtocolSecurityCapabilities.setPropertySpecService(propertySpecService);
     }
 
     @Override

@@ -46,7 +46,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
 
         // assert that you only have two property to set
         assertThat(wavenisSecuritySupport.getSecurityProperties()).hasSize(2);
@@ -83,7 +83,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
 
         // assert that you only have one authentication level
         assertThat(wavenisSecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
@@ -106,7 +106,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void getEncryptionAccessLevelsTest() {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
 
         // assert that you only have one authentication level
         assertThat(wavenisSecuritySupport.getEncryptionAccessLevels()).hasSize(1);
@@ -129,7 +129,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void convertToTypedPropertiesTest() {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
         final TypedProperties securityProperties = TypedProperties.empty();
 
         String passwordValue = "MyPassword";
@@ -167,7 +167,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void testConvertToSecurityPropertySet() throws Exception {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1");
         securityProperties.setProperty("WavenisEncryptionKey", "2");
@@ -179,7 +179,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("WavenisEncryptionKey", "2");
 
@@ -190,7 +190,7 @@ public class WavenisSecuritySupportTest {
 
     @Test
     public void testConvertToSecurityPropertySetMissingEncryptionKey() throws Exception {
-        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport(propertySpecService);
+        WavenisSecuritySupport wavenisSecuritySupport = newWavenisSecuritySupport();
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "1");
 
@@ -198,4 +198,11 @@ public class WavenisSecuritySupportTest {
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(0);
     }
+
+    protected WavenisSecuritySupport newWavenisSecuritySupport() {
+        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
+        wavenisSecuritySupport.setPropertySpecService(this.propertySpecService);
+        return wavenisSecuritySupport;
+    }
+
 }

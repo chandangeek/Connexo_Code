@@ -32,9 +32,8 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     private PropertySpecService propertySpecService;
 
-    public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService) {
+    public DlmsSecuritySupportPerClient() {
         super();
-        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -197,6 +196,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
 
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     private PropertySpec<String> getEncryptionKeyPublicPropertySpec() {

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -23,6 +24,11 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
 
     public static final int NO_SECURITY_SUPPORT_ID = 0;
     private final String authenticationTranslationKeyConstant = "NoSecuritySupport.authenticationlevel.";
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        // Ignore as we do not have any Properties for which we require the service
+    }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {

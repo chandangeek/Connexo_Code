@@ -29,8 +29,12 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
     private PropertySpecService propertySpecService;
 
-    public DlmsSecuritySupport(PropertySpecService propertySpecService) {
+    public DlmsSecuritySupport() {
         super();
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

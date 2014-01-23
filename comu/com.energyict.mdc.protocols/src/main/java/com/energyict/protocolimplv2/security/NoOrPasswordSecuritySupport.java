@@ -34,6 +34,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         return propertySpecService;
     }
 
+    @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }

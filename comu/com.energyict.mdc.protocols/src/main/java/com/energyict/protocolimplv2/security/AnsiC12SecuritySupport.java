@@ -29,8 +29,12 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     private PropertySpecService propertySpecService;
 
-    public AnsiC12SecuritySupport(PropertySpecService propertySpecService) {
+    public AnsiC12SecuritySupport() {
         super();
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
