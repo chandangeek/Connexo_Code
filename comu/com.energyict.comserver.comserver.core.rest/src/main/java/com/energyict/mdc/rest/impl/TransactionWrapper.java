@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import javax.inject.Inject;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
@@ -15,6 +16,7 @@ public class TransactionWrapper implements ApplicationEventListener {
     private final TransactionService transactionService;
     private final ThreadLocal<TransactionContext> contextThreadLocal = new ThreadLocal<>();
 
+    @Inject
     public TransactionWrapper(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -25,7 +27,7 @@ public class TransactionWrapper implements ApplicationEventListener {
     }
 
     @Override
-    public RequestEventListener onRequest(RequestEvent requestEvent) {
+    public RequestEventListener onRequest(final RequestEvent requestEvent) {
         return new RequestEventListener() {
 
             @Override
@@ -34,10 +36,16 @@ public class TransactionWrapper implements ApplicationEventListener {
                 case RESOURCE_METHOD_START:
                     contextThreadLocal.set(transactionService.getContext());
                     break;
-                case RESOURCE_METHOD_FINISHED:
-                    contextThreadLocal.get().commit();
+                case FINISHED:
+                    if (requestEvent.isSuccess()) {
+                        contextThreadLocal.get().commit();
+                    }
                     contextThreadLocal.get().close();
                     break;
+                case ON_EXCEPTION:
+                    if (requestEvent.getException()!=null) {
+                        requestEvent.getException().printStackTrace();
+                    }
                 }
             }
         };
