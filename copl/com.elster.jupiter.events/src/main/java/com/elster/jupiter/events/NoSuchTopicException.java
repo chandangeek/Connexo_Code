@@ -7,7 +7,7 @@ public class NoSuchTopicException extends LocalizedException
 {
 
     public NoSuchTopicException(Thesaurus thesaurus, String topic) {
-        super(thesaurus, MessageSeeds.NO_SUCH_TOPIC, thesaurus, topic);
+        super(thesaurus, MessageSeeds.NO_SUCH_TOPIC, topic);
         set("topic", topic);
     }
 }

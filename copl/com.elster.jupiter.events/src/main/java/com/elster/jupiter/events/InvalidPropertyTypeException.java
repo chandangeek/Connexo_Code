@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class InvalidPropertyTypeException extends LocalizedException {
 
     public InvalidPropertyTypeException(Thesaurus thesaurus, Object bean, String accessPath, Class<?> expectedType, Class<?> actualType) {
-        super(thesaurus, MessageSeeds.INVALID_PROPERTY_TYPE, thesaurus, bean, accessPath, expectedType, actualType);
+        super(thesaurus, MessageSeeds.INVALID_PROPERTY_TYPE, bean, accessPath, expectedType, actualType);
         set("bean", bean);
         set("accessPath", accessPath);
         set("expectedType", expectedType);
