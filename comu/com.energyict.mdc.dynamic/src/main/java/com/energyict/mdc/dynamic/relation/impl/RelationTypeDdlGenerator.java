@@ -505,8 +505,7 @@ public class RelationTypeDdlGenerator {
     }
 
     public void dropMetaData() throws SQLException {
-        for (RelationAttributeType aType : getAttributeTypes()) {
-            RelationAttributeType each = aType;
+        for (RelationAttributeType each : getAttributeTypes()) {
             if (each.getValueType().equals(SpatialCoordinates.class)) {
                 dropMetaData(each);
             }

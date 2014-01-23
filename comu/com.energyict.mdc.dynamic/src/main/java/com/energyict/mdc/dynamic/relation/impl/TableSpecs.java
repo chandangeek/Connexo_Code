@@ -79,7 +79,7 @@ public enum TableSpecs {
             Table<ConstraintMember> table = dataModel.addTable(name(), ConstraintMember.class);
             table.map(ConstraintMember.class);
             Column constraintColumn = table.column("CONSTRAINTID").number().notNull().add();
-            Column attributeTypeColumn = table.column("ATTRIBUTETYPEID").number().notNull().map("attributeTypeId").add();
+            Column attributeTypeColumn = table.column("ATTRIBUTETYPEID").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("attributeTypeId").add();
             table.primaryKey("PK_CONSTRAINTMEMBER").on(constraintColumn, attributeTypeColumn).add();
             table.foreignKey("FK_CONSTRAINTMEMBER_CONSTRAINT").on(constraintColumn).references(EISCONSTRAINT.name()).
                     map("constraint").reverseMap("members").composition().add();

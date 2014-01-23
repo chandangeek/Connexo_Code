@@ -110,6 +110,12 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
         }
     }
 
+    @Override
+    protected void deleteDependents() throws SQLException, BusinessException {
+        super.deleteDependents();
+        this.members.clear();
+    }
+
     protected void validate(RelationType relationType, ConstraintShadow shadow) {
         String newName = shadow.getName();
         if (newName == null) {

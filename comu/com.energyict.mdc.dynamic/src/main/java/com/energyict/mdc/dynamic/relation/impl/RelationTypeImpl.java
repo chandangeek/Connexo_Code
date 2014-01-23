@@ -557,12 +557,16 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
 
     @Override
     protected void deleteDependents() throws SQLException, BusinessException {
+        super.deleteDependents();
         if (this.isActive()) {
             this.deactivate();
         }
-        for (RelationAttributeType attributeType : this.attributeTypes) {
-            attributeType.clearDefaultFlag();
+        for (Constraint constraint : this.constraints) {
+            ConstraintImpl each = (ConstraintImpl) constraint;
+            each.deleteDependents();
         }
+        this.constraints.clear();
+        this.attributeTypes.clear();
     }
 
     private void validateActivate() {
