@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
@@ -39,6 +40,11 @@ import java.util.logging.Logger;
  * @since 2014-01-16 (10:59)
  */
 public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+
+    }
 
     @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {

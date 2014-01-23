@@ -1,15 +1,12 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -86,26 +83,22 @@ public interface ProtocolPluggableService {
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
      * and implemented by the specified java class name.
      *
-     *
-     *
-     * @param name
+     * @param name The name for the PluggableClass
      * @param className The name of java class that implements the DeviceProtocolPluggableClass
      * @return The newly created DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) throws BusinessException;
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className);
 
     /**
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
      * and implemented by the specified java class name.
      *
-     *
-     *
-     * @param name
+     * @param name The name for the PluggableClass
      * @param className The name of java class that implements the DeviceProtocolPluggableClass
      * @param typedProperties The TypedProperties
      * @return The newly created DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties typedProperties) throws BusinessException;
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties typedProperties);
 
     public List<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClassByClassName(String javaClassName);
 
@@ -126,11 +119,10 @@ public interface ProtocolPluggableService {
      * @param name The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
      * @return The PluggableClass that is not yet saved
-     * @throws BusinessException Thrown when a business constraints was violated
      * @see PluggableClass#setProperty(PropertySpec, Object)
      * @see PluggableClass#save()
      */
-    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName) throws BusinessException;
+    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName);
 
     /**
      * Returns a new {@link InboundDeviceProtocolPluggableClass} that is already saved to the database.
@@ -147,12 +139,11 @@ public interface ProtocolPluggableService {
      * @param javaClassName The name of the java implementation class
      * @param properties The TypedProperties
      * @return The PluggableClass that is not yet saved
-     * @throws BusinessException Thrown when a business constraints was violated
      * @see PluggableClass#setProperty(PropertySpec, Object)
      * @see PluggableClass#save()
      * @see com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol#getPropertySpecs()
      */
-    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName, TypedProperties properties) throws BusinessException, SQLException;
+    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName, TypedProperties properties);
 
     public void deleteInboundDeviceProtocolPluggableClass(long id);
 
@@ -175,11 +166,10 @@ public interface ProtocolPluggableService {
      * @param name The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
      * @return The PluggableClass that is not yet saved
-     * @throws BusinessException Thrown when a business constraints was violated
      * @see PluggableClass#setProperty(PropertySpec, Object)
      * @see PluggableClass#save()
      */
-    public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName) throws BusinessException;
+    public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName);
 
     /**
      * Returns a new {@link ConnectionTypePluggableClass} that is already saved to the database.
@@ -196,12 +186,11 @@ public interface ProtocolPluggableService {
      * @param javaClassName The name of the java implementation class
      * @param properties The TypedProperties
      * @return The PluggableClass that is not yet saved
-     * @throws BusinessException Thrown when a business constraints was violated
      * @see PluggableClass#setProperty(PropertySpec, Object)
      * @see PluggableClass#save()
      * @see com.energyict.mdc.protocol.api.ConnectionType#getPropertySpecs()
      */
-    public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName, TypedProperties properties) throws BusinessException, SQLException;
+    public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName, TypedProperties properties);
 
     public String createOriginalAndConformRelationNameBasedOnJavaClassname (Class clazz);
 

@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -21,7 +22,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -43,7 +43,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -59,6 +58,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
+    private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
     private volatile RelationService relationService;
@@ -76,6 +76,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public ProtocolPluggableServiceImpl(
             OrmService ormService,
             EventService eventService,
+            NlsService nlsService,
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
             RelationService relationService,
@@ -87,6 +88,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
+        this.setNlsService(nlsService);
         this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
@@ -141,34 +143,24 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) throws BusinessException {
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className) {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DeviceProtocol, name, className);
         final DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        try {
-            pluggableClass.save();
-            deviceProtocolPluggableClass.save();
-            return deviceProtocolPluggableClass;
-        }
-        catch (BusinessException | SQLException e) {
-            throw new ApplicationException(e);
-        }
+        pluggableClass.save();
+        deviceProtocolPluggableClass.save();
+        return deviceProtocolPluggableClass;
     }
 
     @Override
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties properties) throws BusinessException {
+    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties properties) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(name, className);
         for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
             }
         }
-        try {
-            deviceProtocolPluggableClass.save();
-            return deviceProtocolPluggableClass;
-        }
-        catch (BusinessException | SQLException e) {
-            throw new ApplicationException(e);
-        }
+        deviceProtocolPluggableClass.save();
+        return deviceProtocolPluggableClass;
     }
 
     @Override
@@ -209,12 +201,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             throw new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist");
         }
         else {
-            try {
-                deviceProtocolPluggableClass.delete();
-            }
-            catch (BusinessException | SQLException e) {
-                throw new ApplicationException(e);
-            }
+            deviceProtocolPluggableClass.delete();
         }
     }
 
@@ -258,12 +245,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public void deleteInboundDeviceProtocolPluggableClass(long id) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = this.findInboundDeviceProtocolPluggableClass(id);
         if (inboundDeviceProtocolPluggableClass != null) {
-            try {
-                inboundDeviceProtocolPluggableClass.delete();
-            }
-            catch (BusinessException | SQLException e) {
-                throw new ApplicationException(e);
-            }
+            inboundDeviceProtocolPluggableClass.delete();
         }
     }
 
@@ -278,21 +260,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName) throws BusinessException {
+    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName) {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.DiscoveryProtocol, name, javaClassName);
         final InboundDeviceProtocolPluggableClassImpl inboundDeviceProtocolPluggableClass = InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        try {
-            pluggableClass.save();
-            inboundDeviceProtocolPluggableClass.save();
-            return inboundDeviceProtocolPluggableClass;
-        }
-        catch (BusinessException | SQLException e) {
-            throw new ApplicationException(e);
-        }
+        pluggableClass.save();
+        inboundDeviceProtocolPluggableClass.save();
+        return inboundDeviceProtocolPluggableClass;
     }
 
     @Override
-    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName, TypedProperties properties) throws BusinessException, SQLException {
+    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName, TypedProperties properties) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = this.newInboundDeviceProtocolPluggableClass(name, javaClassName);
         for (PropertySpec propertySpec : inboundDeviceProtocolPluggableClass.getInboundDeviceProtocol().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
@@ -335,21 +312,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName) throws BusinessException {
+    public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName) {
         final PluggableClass pluggableClass = this.pluggableService.newPluggableClass(PluggableClassType.ConnectionType, name, javaClassName);
         final ConnectionTypePluggableClassImpl connectionTypePluggableClass = ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
-        try {
-            pluggableClass.save();
-            connectionTypePluggableClass.save();
-            return connectionTypePluggableClass;
-        }
-        catch (BusinessException | SQLException e) {
-            throw new ApplicationException(e);
-        }
+        pluggableClass.save();
+        connectionTypePluggableClass.save();
+        return connectionTypePluggableClass;
     }
 
     @Override
-    public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties) throws BusinessException, SQLException {
+    public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties) {
         ConnectionTypePluggableClass connectionTypePluggableClass = this.newConnectionTypePluggableClass(name, javaClassName);
         for (PropertySpec propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
             if (properties.hasValueFor(propertySpec.getName())) {
@@ -417,6 +389,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
     public PluggableService getPluggableService() {
@@ -497,6 +474,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
@@ -515,7 +493,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService).install(true, true, true);
+        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true, true, true);
     }
 
 }

@@ -5,7 +5,6 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -30,9 +29,8 @@ public class PluggableClassRelationAttributeTypeRegistry {
      * to hold attribute values.
      *
      * @param relationAttributeType The RelationType
-     * @throws SQLException Indicates failures to execute the sql that registers the usage
      */
-    public void register(PluggableClass pluggableClass, RelationAttributeType relationAttributeType) throws SQLException {
+    public void register(PluggableClass pluggableClass, RelationAttributeType relationAttributeType) {
         PluggableClassRelationAttributeTypeUsage pcRatUsage = new PluggableClassRelationAttributeTypeUsage(pluggableClass.getId(), relationAttributeType.getId());
         this.factory.persist(pcRatUsage);
     }
@@ -43,9 +41,8 @@ public class PluggableClassRelationAttributeTypeRegistry {
      * to hold attribute values.
      *
      * @param relationAttributeType The RelationType
-     * @throws SQLException Indicates failures to execute the sql that registers the usage
      */
-    public void unRegister(PluggableClass pluggableClass, RelationAttributeType relationAttributeType) throws SQLException {
+    public void unRegister(PluggableClass pluggableClass, RelationAttributeType relationAttributeType) {
         List<PluggableClassRelationAttributeTypeUsage> pcRatUsages =
                 this.factory.find(
                         "pluggableClassId", pluggableClass.getId(),

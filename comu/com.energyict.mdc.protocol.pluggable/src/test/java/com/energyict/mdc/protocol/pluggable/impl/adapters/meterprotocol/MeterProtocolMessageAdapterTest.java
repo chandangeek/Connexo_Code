@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -15,6 +16,7 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -63,6 +65,8 @@ public class MeterProtocolMessageAdapterTest {
     @Mock
     private OrmService ormService;
     @Mock
+    private NlsService nlsService;
+    @Mock
     private TransactionService transactionService;
     @Mock
     private EventService eventService;
@@ -78,6 +82,8 @@ public class MeterProtocolMessageAdapterTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private ConnectionTypeService connectionTypeService;
+    @Mock
+    private DeviceProtocolSecurityService deviceProtocolSecurityService;
 
     private ProtocolPluggableService protocolPluggableService;
 
@@ -90,10 +96,13 @@ public class MeterProtocolMessageAdapterTest {
                 new ProtocolPluggableServiceImpl(
                         this.ormService,
                         this.eventService,
+                        this.nlsService,
                         this.propertySpecService,
                         this.pluggableService,
                         this.relationService,
                         this.deviceProtocolService,
+                        this.deviceProtocolMessageService,
+                        this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService);
     }
@@ -130,7 +139,7 @@ public class MeterProtocolMessageAdapterTest {
     @Test
     public void testKnownMeterProtocol() {
         SimpleTestMeterProtocol simpleTestMeterProtocol = new SimpleTestMeterProtocol();
-        new MeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel);
+        new MeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, this.protocolPluggableService);
 
         // all is safe if no errors occur
     }
@@ -139,7 +148,7 @@ public class MeterProtocolMessageAdapterTest {
     public void testUnKnownMeterProtocol() {
         MeterProtocol meterProtocol = mock(MeterProtocol.class, withSettings().extraInterfaces(MessageProtocol.class));
         try {
-            new MeterProtocolMessageAdapter(meterProtocol, this.dataModel);
+            new MeterProtocolMessageAdapter(meterProtocol, this.dataModel, this.protocolPluggableService);
         } catch (DeviceProtocolAdapterCodingExceptions e) {
             if (!e.getMessageId().equals("CSC-DEV-124")) {
                 fail("Exception should have indicated that the given MeterProtocol is not known in the adapter mapping, but was " + e.getMessage());
@@ -152,7 +161,7 @@ public class MeterProtocolMessageAdapterTest {
     @Test
     public void testNotAMessageSupportClass() {
         MeterProtocol meterProtocol = new ThirdSimpleTestMeterProtocol();
-        final MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.dataModel);
+        final MeterProtocolMessageAdapter protocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.dataModel, this.protocolPluggableService);
 
         assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
         assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);

@@ -41,7 +41,7 @@ public abstract class AbstractSecurityPropertySetRelationSupport implements com.
         return this.relationService.findRelationType(relationTypeName);
     }
 
-    protected RelationType createRelationType (RelationTypeShadow shadow) throws SQLException, BusinessException {
+    protected RelationType createRelationType (RelationTypeShadow shadow) {
         return this.relationService.createRelationType(shadow);
     }
 

@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -15,17 +17,17 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
+import com.energyict.mdc.protocol.pluggable.DeviceProtocolPluggableClassDependent;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
+import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -49,8 +51,8 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private DataModel dataModel;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel) {
-        super();
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus) {
+        super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
@@ -116,33 +118,33 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    protected void validateLicense() throws BusinessException {
+    protected void validateLicense() {
         License license = LicenseServer.licenseHolder.get();
         this.checkDeviceProtocolForLicense(this.getJavaClassName(), license);
     }
 
-    private void checkDeviceProtocolForLicense (String javaClassName, License license) throws BusinessException {
+    private void checkDeviceProtocolForLicense (String javaClassName, License license) {
         if (!license.hasAllProtocols() && !license.hasProtocol(javaClassName)) {
-            throw new BusinessException("protocolXNotAllowedByLicense", "Protocol '{0}' is not licensed", javaClassName);
+            throw new ProtocolNotAllowedByLicenseException(this.getThesaurus(), javaClassName);
         }
     }
 
     @Override
-    public void save() throws BusinessException, SQLException {
+    public void save() {
         super.save();
         this.createRelationTypes();
     }
 
-    private void createRelationTypes () throws SQLException, BusinessException {
+    private void createRelationTypes () {
         this.createSecurityPropertiesRelationType();
         this.createDialectRelationTypes();
     }
 
-    private void createSecurityPropertiesRelationType () throws BusinessException, SQLException {
+    private void createSecurityPropertiesRelationType () {
         DeviceProtocolSecurityRelationTypeCreator.createRelationType(this.dataModel, this.protocolPluggableService, this.relationService, this);
     }
 
-    private void createDialectRelationTypes () throws BusinessException, SQLException {
+    private void createDialectRelationTypes () {
         for (DeviceProtocolDialect deviceProtocolDialect : this.getDeviceProtocol().getDeviceProtocolDialects()) {
             DeviceProtocolDialectUsagePluggableClass dialectUsagePluggableClass =
                     new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService);
@@ -151,13 +153,13 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public void delete() throws BusinessException, SQLException {
+    public void delete() {
         super.delete();
         this.deleteDialectRelationTypes();
         this.deleteSecurityRelationTypes();
     }
 
-    private void deleteDialectRelationTypes() throws BusinessException, SQLException {
+    private void deleteDialectRelationTypes() {
         DeviceProtocolDialectUsagePluggableClassImpl deviceProtocolDialectUsagePluggableClass;
         for (DeviceProtocolDialect deviceProtocolDialect : this.newInstance().getDeviceProtocolDialects()) {
             deviceProtocolDialectUsagePluggableClass = new DeviceProtocolDialectUsagePluggableClassImpl(this, deviceProtocolDialect, this.dataModel, this.relationService);
@@ -165,7 +167,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         }
     }
 
-    private void deleteSecurityRelationTypes() throws SQLException, BusinessException {
+    private void deleteSecurityRelationTypes() {
         DeviceProtocol deviceProtocol = this.newInstance();
         SecurityPropertySetRelationTypeSupport relationTypeSupport =
                 new SecurityPropertySetRelationTypeSupport(
@@ -201,15 +203,12 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     public void notifyDelete() {
-//        if (ManagerFactory.getCurrent().getMdwInterface().getDeviceTypeFactory().existsWithDeviceProtocol(this)) {
-//            throw new BusinessException(
-//                    "deviceProtocolXIsStillUsedByDeviceType",
-//                    "The device protocol pluggable class {0} is still in use by the at least one device type",
-//                    this.getName());
-//        }
         // Todo: throw event that will allow the DeviceType factory to check if this protocol is still used or not
-        //       until then, this method is marked as unsupported
-        throw new UnsupportedOperationException("DeviceProtocolPluggableClassImpl#notifyDelete");
+        //       until then, this method is using old school dependency mechanism of Environment
+        List<DeviceProtocolPluggableClassDependent> dependents = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceProtocolPluggableClassDependent.class);
+        for (DeviceProtocolPluggableClassDependent dependent : dependents) {
+            dependent.notifyDelete(this);
+        }
     }
 
 }
