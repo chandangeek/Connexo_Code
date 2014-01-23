@@ -1,5 +1,21 @@
 package com.elster.jupiter.orm.impl;
 
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
+import oracle.jdbc.OracleConnection;
+
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -15,32 +31,10 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
-import com.google.inject.TypeLiteral;
-import com.google.inject.util.Types;
-
-import oracle.jdbc.OracleConnection;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorFactory;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
-import java.lang.reflect.Type;
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 
 public class DataModelImpl implements DataModel {

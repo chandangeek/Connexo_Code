@@ -43,11 +43,6 @@ public class SingleDataMapperType<T> extends DataMapperType<T> {
 	Class<?> getType(String fieldName) {
 		return getDomainMapper().getType(implementation, fieldName);
 	}
-	
-	@Override
-	Object getEnum(String fieldName, String value) {
-		return getDomainMapper().getEnum(implementation, fieldName,value);			
-	}
 
 	@Override
 	String getDiscriminator(Class<?> clazz) {

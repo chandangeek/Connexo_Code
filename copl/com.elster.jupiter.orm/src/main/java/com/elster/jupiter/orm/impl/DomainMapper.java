@@ -98,9 +98,6 @@ public enum DomainMapper {
 	private void basicSet(Object target , String fieldName , Object value) {
 		Field field = getField(target.getClass(), fieldName);
 		if (field != null) {			
-			if (value != null && field.getType().isEnum() && !value.getClass().isEnum()) {
-				value = getEnum((Class<? extends Enum<?>>) field.getType(),value);
-			}
 			try {
 				Object currentValue = field.get(target);
 				if (currentValue instanceof Reference) {
@@ -112,32 +109,7 @@ public enum DomainMapper {
 				throw new MappingException(e);
 			}		
 		}
-	}
-		
-	private Object getEnum(Class<? extends Enum<?>> clazz, Object value) {
-		Enum<?>[] enumConstants = clazz.getEnumConstants();
-		if (value instanceof Integer) {
-			return enumConstants[(Integer) value];
-		} else {
-			for (Enum<?> each : clazz.getEnumConstants()) {
-				if (each.name().equals(value)) {
-					return each;
-				}
-			}
-		}
-		throw new IllegalArgumentException("" + value + " not appropriate for enum " + clazz);
-	}
-	
-	@SuppressWarnings("unchecked")
-	Object getEnum(Class<?> clazz , String fieldName , String value) {
-		Field field = getField(clazz, fieldName);
-		if (field == null) {
-			return null;
-		} else {
-			Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) getField(clazz,fieldName).getType();
-			return getEnum(enumClass,value);
-		}
-	}
+	}	
 	
 	Field getField(Class<?> clazz, String fieldName) {	
 		Class<?> current = clazz;

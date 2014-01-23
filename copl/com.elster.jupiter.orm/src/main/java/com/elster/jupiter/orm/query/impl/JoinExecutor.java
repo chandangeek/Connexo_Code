@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -176,11 +175,6 @@ final class JoinExecutor<T> {
 		return root.hasSemiJoin();
 	}
 	
-	private void setOwner() {
-		for (ForeignKeyConstraintImpl constraint : root.getTable().getForeignKeyConstraints()) {
-			String fieldName = constraint.getFieldName();
-		}
-	}
 }
 
 

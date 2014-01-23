@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import java.lang.reflect.Field;
 import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -156,12 +157,45 @@ public class ColumnImpl implements Column  {
 	}
 	
 	Object convertFromDb(ResultSet rs, int index) throws SQLException {
-		if (conversion == ColumnConversionImpl.CHAR2JSON) {
-			return jsonConverter().convertFromDb(rs,index);
-		} else {
-			return conversion.convertFromDb(rs,index);
-		}
+		switch (conversion) {
+			case CHAR2JSON:	
+				return jsonConverter().convertFromDb(rs,index);
+			case CHAR2ENUM:
+			case NUMBER2ENUM:
+			case NUMBER2ENUMPLUSONE:
+				return createEnum(conversion.convertFromDb(rs, index));
+			default:
+				return conversion.convertFromDb(rs, index);
+		} 
 	}
+	
+	private Field getField() {
+		if (fieldName != null) {
+			return getTable().getMapperType().getField(fieldName);
+		}
+		ForeignKeyConstraintImpl constraint = getForeignKeyConstraint();
+		int index = constraint.getColumns().indexOf(this);
+		ColumnImpl primaryKeyColumn = constraint.getReferencedTable().getPrimaryKeyColumns().get(index);
+		return primaryKeyColumn.getField();
+		
+	}
+	private Object createEnum(Object value) {
+		if (value == null) {
+			return null;
+		}
+		Enum<?>[] enumConstants = (Enum<?>[]) getField().getType().getEnumConstants();
+		if (value instanceof Integer) {
+			return enumConstants[(Integer) value];
+		} else {
+			for (Enum<?> each : enumConstants) {
+				if (each.name().equals(value)) {
+					return each;
+				}
+			}
+		}
+		throw new IllegalArgumentException("" + value + " not appropriate for enum " + getField().getType());
+	}
+	
 	
 	boolean isStandard() {
 		return 
@@ -197,7 +231,7 @@ public class ColumnImpl implements Column  {
 	
 	public Object convert(String in) {
 		if (isEnum()) {
-			return getTable().getMapperType().getEnum(fieldName, in);	
+			return createEnum(in);	
 		} else if (conversion == ColumnConversionImpl.CHAR2JSON) {
 			return jsonConverter().convert(in);
 		} else {

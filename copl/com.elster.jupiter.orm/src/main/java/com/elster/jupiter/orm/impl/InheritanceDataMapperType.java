@@ -60,17 +60,6 @@ public class InheritanceDataMapperType<T> extends DataMapperType<T> {
 	}
 	
 	@Override
-	Object getEnum(String fieldName, String value) {
-		for (Class<? extends T> implementation : implementations.values()) {
-			Object result = getDomainMapper().getEnum(implementation, fieldName,value);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;			
-	}
-	
-	@Override
 	String getDiscriminator(Class<?> clazz) {
 		for (Map.Entry<String,Class<? extends T>> entry : implementations.entrySet()) {
 			if (entry.getValue() == clazz) {

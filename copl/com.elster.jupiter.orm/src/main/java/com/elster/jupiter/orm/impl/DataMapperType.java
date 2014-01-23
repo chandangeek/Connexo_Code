@@ -20,7 +20,6 @@ abstract class DataMapperType<T> {
 	abstract T newInstance();
 	abstract T newInstance(String discriminator);
 	abstract Class<?> getType(String fieldName);
-	abstract Object getEnum(String fieldName, String value);
 	abstract String getDiscriminator(Class<?> clazz);
 	abstract Field getField(String fieldName);
 	abstract void addSqlFragment(List<SqlFragment> fragments , Class<? extends T> api, String alias);
