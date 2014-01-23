@@ -17,6 +17,8 @@ import java.util.Map;
 
 public class ConsecutiveZerosValidator implements Validator {
 
+    protected ConsecutiveZerosValidator() {}
+
     public ConsecutiveZerosValidator(Map<String, Quantity> props) {
         //TODO automatically generated method body, provide implementation.
 
@@ -24,7 +26,9 @@ public class ConsecutiveZerosValidator implements Validator {
 
     @Override
     public List<String> getRequiredKeys() {
-        return new ArrayList<>();
+        List<String> result = new ArrayList<>();
+        result.add("NumberOfConsecutiveZerosAllowed");
+        return result;
     }
 
     @Override
@@ -53,5 +57,10 @@ public class ConsecutiveZerosValidator implements Validator {
     public ValidationResult validate(ReadingRecord readingRecord) {
         //TODO automatically generated method body, provide implementation.
         return null;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Consecutive zero's";
     }
 }

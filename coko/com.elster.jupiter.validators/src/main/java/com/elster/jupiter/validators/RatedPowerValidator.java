@@ -17,6 +17,8 @@ import java.util.Map;
 
 public class RatedPowerValidator implements Validator {
 
+    protected RatedPowerValidator() {}
+
     public RatedPowerValidator(Map<String, Quantity> props) {
         //TODO automatically generated method body, provide implementation.
 
@@ -53,5 +55,10 @@ public class RatedPowerValidator implements Validator {
     public ValidationResult validate(ReadingRecord readingRecord) {
         //TODO automatically generated method body, provide implementation.
         return null;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Rated power";
     }
 }

@@ -27,6 +27,10 @@ public class MinMaxValidator implements Validator {
     private ReadingType readingType;
     private final Thesaurus thesaurus;
 
+    protected MinMaxValidator() {
+        thesaurus = null;
+    }
+
     public MinMaxValidator(Thesaurus thesaurus, Map<String, Quantity> properties) {
         this.thesaurus = thesaurus;
         Quantity min = getRequiredQuantity(properties, MIN);
@@ -74,6 +78,11 @@ public class MinMaxValidator implements Validator {
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
         return validateQuantity(readingRecord.getQuantity(readingType));
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Threshold";
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {

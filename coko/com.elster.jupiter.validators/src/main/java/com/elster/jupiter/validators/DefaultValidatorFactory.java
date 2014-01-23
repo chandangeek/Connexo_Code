@@ -30,11 +30,21 @@ public class DefaultValidatorFactory implements ValidatorFactory {
             Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
                 return new RatedPowerValidator(props);
             }
+
+            @Override
+            Validator createTemplate() {
+                return new RatedPowerValidator();
+            }
         },
         MINIMAL_USAGE("com.elster.jupiter.validators.MinimalUsageExpectedValidator") {
             @Override
             Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
                 return new MinimalUsageExpectedValidator(props);
+            }
+
+            @Override
+            Validator createTemplate() {
+                return new MinimalUsageExpectedValidator();
             }
         },
         MIN_MAX("com.elster.jupiter.validators.MinMaxValidator") {
@@ -42,11 +52,21 @@ public class DefaultValidatorFactory implements ValidatorFactory {
             Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
                 return new MinMaxValidator(thesaurus, props);
             }
+
+            @Override
+            Validator createTemplate() {
+                return new MinMaxValidator();
+            }
         },
         CONSECUTIVE_ZEROES("com.elster.jupiter.validators.ConsecutiveZerosValidator") {
             @Override
             Validator create(Thesaurus thesaurus, Map<String, Quantity> props) {
                 return new ConsecutiveZerosValidator(props);
+            }
+
+            @Override
+            Validator createTemplate() {
+                return new ConsecutiveZerosValidator();
             }
         };
 
@@ -61,6 +81,7 @@ public class DefaultValidatorFactory implements ValidatorFactory {
         }
 
         abstract Validator create(Thesaurus thesaurus, Map<String, Quantity> props);
+        abstract Validator createTemplate();
     }
 
     @Override
@@ -77,6 +98,16 @@ public class DefaultValidatorFactory implements ValidatorFactory {
         for (ValidatorDefinition definition : ValidatorDefinition.values()) {
             if (definition.getImplementation().equals(implementation)) {
                 return definition.create(thesaurus, props);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Validator createTemplate(String implementation) {
+        for (ValidatorDefinition definition : ValidatorDefinition.values()) {
+            if (definition.getImplementation().equals(implementation)) {
+                return definition.createTemplate();
             }
         }
         return null;

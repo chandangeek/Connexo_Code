@@ -17,6 +17,8 @@ import java.util.Map;
 
 public class MinimalUsageExpectedValidator implements Validator {
 
+    protected MinimalUsageExpectedValidator() {}
+
     public MinimalUsageExpectedValidator(Map<String, Quantity> props) {
         //TODO automatically generated method body, provide implementation.
 
@@ -53,5 +55,10 @@ public class MinimalUsageExpectedValidator implements Validator {
     public ValidationResult validate(ReadingRecord readingRecord) {
         //TODO automatically generated method body, provide implementation.
         return null;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Minimal usage";
     }
 }
