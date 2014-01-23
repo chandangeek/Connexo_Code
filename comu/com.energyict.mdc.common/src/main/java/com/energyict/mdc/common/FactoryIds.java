@@ -13,6 +13,7 @@ public enum FactoryIds {
     LOADPROFILE_TYPE(Constants.LOADPROFILE_TYPE_FACTORYID),
     LOADPROFILE(Constants.LOADPROFILE_FACTORYID),
     LOOKUP(Constants.LOOKUP_FACTORY_ID),
+    DEVICE_TYPE(Constants.DEVICE_TYPE_FACTORY_ID),
     REGISTER(Constants.REGISTER_FACTORY_ID),
     RELATION_TYPE(Constants.RELATION_TYPE_FACTORY_ID),
     TIMEZONE_IN_USE(Constants.TIMEZONE_IN_USE_FACTORYID),
@@ -38,6 +39,7 @@ public enum FactoryIds {
         public static final int USERFILE_FACTORY_ID = 18;
         public static final int RELATION_TYPE_FACTORY_ID = 26;
         public static final int LOOKUP_FACTORY_ID = 111;
+        public static final int DEVICE_TYPE_FACTORY_ID = 122;
         public static final int REGISTER_FACTORY_ID = 140;
         public static final int LOADPROFILE_TYPE_FACTORYID = 182;
         public static final int LOADPROFILE_FACTORYID = 185;
