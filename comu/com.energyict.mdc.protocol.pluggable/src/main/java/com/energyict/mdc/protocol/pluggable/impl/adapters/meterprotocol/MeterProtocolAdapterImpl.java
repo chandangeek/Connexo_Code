@@ -1,8 +1,9 @@
-package com.energyict.mdc.protocol.pluggable;
+package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -34,6 +35,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelInputStreamAdapter;
@@ -42,11 +45,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolA
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolClockAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolLoadProfileAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolMessageAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolRegisterAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolSecuritySupportAdapter;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.io.IOException;
@@ -68,6 +66,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      * The used <code>MeterProtocol</code> for which the adapter is working
      */
     private final MeterProtocol meterProtocol;
+
+    /**
+     * The use <code>IssueService</code> which can be used for this adapter
+     */
+    private final IssueService issueService;
 
     /**
      * The used <code>RegisterProtocol</code> for which the adapter is working
@@ -134,9 +137,10 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapterImpl(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+    public MeterProtocolAdapterImpl(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService) {
         super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
         if (meterProtocol instanceof RegisterProtocol) {
             this.registerProtocol = (RegisterProtocol) meterProtocol;
         }
@@ -161,13 +165,13 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
-        this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol);
-        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol);
+        this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService);
+        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService);
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
-        this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter();
+        this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.getProtocolPluggableService());
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.getProtocolPluggableService(), issueService);
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;

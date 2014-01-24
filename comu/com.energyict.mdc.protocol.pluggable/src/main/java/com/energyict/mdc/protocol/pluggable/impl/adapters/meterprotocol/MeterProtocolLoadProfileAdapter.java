@@ -1,7 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -16,11 +21,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.LoadProfileDataIdentifier;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import org.joda.time.DateTimeConstants;
@@ -44,14 +46,16 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      * The used <code>MeterProtocol</code> for which the adapter is working
      */
     private final MeterProtocol meterProtocol;
+    private final IssueService issueService;
 
     /**
      * The used <code>MeterProtocolClockAdapter</code> for the time handling of the {@link CollectedLoadProfile} interface
      */
     private final MeterProtocolClockAdapter meterProtocolClockAdapter;
 
-    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol) {
+    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
     }
 
@@ -162,7 +166,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      */
     private CollectedLoadProfile createUnSupportedCollectedLoadProfile(final LoadProfileReader loadProfileReader) {
         CollectedLoadProfile deviceLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(null);
-        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode());
+        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
         return deviceLoadProfile;
     }
 
@@ -172,7 +176,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         for (LogBookReader reader : logBookReaders) {
             if (!reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(reader.getLogBookIdentifier());
-                deviceLogBook.setFailureInformation(ResultType.NotSupported, reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode());
+                deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
                 collectedLogBookList.add(deviceLogBook);
             }
         }
@@ -207,9 +211,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             deviceLoadProfile.setCollectedData(profileData.getIntervalDatas(), convertToProperChannelInfos(profileData));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, loadProfileObisCode, "CouldNotReadoutLoadProfileData", e.getMessage());
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileObisCode, "CouldNotReadoutLoadProfileData", e.getMessage()));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, loadProfileObisCode, "CouldNotParseLoadProfileData");
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileObisCode, "CouldNotParseLoadProfileData"));
         }
         collectedDataList.add(deviceLoadProfile);
         return collectedDataList;
@@ -240,11 +244,11 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, loadProfileObisCode, "CouldNotReadoutLoadProfileData");
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData");
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileObisCode, "CouldNotReadoutLoadProfileData"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, loadProfileObisCode, "CouldNotParseLoadProfileData");
-            deviceLogBook.setFailureInformation(ResultType.InCompatible, logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData");
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileObisCode, "CouldNotParseLoadProfileData"));
+            deviceLogBook.setFailureInformation(ResultType.InCompatible, getIssue(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
         }
         collectedDataList.add(deviceLoadProfile);
         collectedDataList.add(deviceLogBook);
@@ -258,9 +262,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             ProfileData profileData = this.meterProtocol.getProfileData(logBookReader.getLastLogBook(), true);
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData");
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLogBook.setFailureInformation(ResultType.InCompatible, logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData");
+            deviceLogBook.setFailureInformation(ResultType.InCompatible, getIssue(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
         }
         collectedDataList.add(deviceLogBook);
         return collectedDataList;
@@ -302,4 +306,10 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         }
     }
 
+    private Issue getIssue(Object source, String description, Object... arguments){
+        return this.issueService.newProblem(
+                source,
+                Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),
+                arguments);
+    }
 }

@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -34,6 +35,7 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(ConnectionTypeService.class);
         requireBinding(InboundDeviceProtocolService.class);
         requireBinding(LicensedProtocolService.class);
+        requireBinding(IssueService.class);
 
         bind(ProtocolPluggableService.class).to(ProtocolPluggableServiceImpl.class).in(Scopes.SINGLETON);
         bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class).in(Scopes.SINGLETON);

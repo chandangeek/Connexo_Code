@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.issues.Bus;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -12,8 +12,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
@@ -36,9 +36,11 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
      * The used <code>SmartMeterProtocol</code> for which the adapter is working
      */
     private final SmartMeterProtocol smartMeterProtocol;
+    private final IssueService issueService;
 
-    public SmartMeterProtocolRegisterAdapter(final SmartMeterProtocol smartMeterProtocol) {
+    public SmartMeterProtocolRegisterAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService) {
         this.smartMeterProtocol = smartMeterProtocol;
+        this.issueService = issueService;
     }
 
     /**
@@ -66,7 +68,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                         collectedRegisters.add(adapterDeviceRegister);
                     } else {
                         CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
-                        defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                        defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                         collectedRegisters.add(defaultDeviceRegister);
                     }
                 }

@@ -7,6 +7,7 @@ import com.energyict.mdc.common.license.License;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -15,10 +16,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
@@ -47,15 +47,17 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     private RelationService relationService;
     private DataModel dataModel;
+    private IssueService issueService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel) {
+    public DeviceProtocolPluggableClassImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, IssueService issueService) {
         super();
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.relationService = relationService;
         this.dataModel = dataModel;
+        this.issueService = issueService;
     }
 
     static DeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -105,10 +107,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
+            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
         }
         else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel);
+            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
         }
         else {
             throw new ProtocolCreationException(protocol.getClass());

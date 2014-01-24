@@ -1,20 +1,20 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
-import com.energyict.mdc.issues.Bus;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 
@@ -35,8 +35,10 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
      * The used <code>RegisterProtocol</code> for which the adapter is working
      */
     private final RegisterProtocol registerProtocol;
+    private final IssueService issueService;
 
-    public MeterProtocolRegisterAdapter(final RegisterProtocol registerProtocol) {
+    public MeterProtocolRegisterAdapter(final RegisterProtocol registerProtocol, IssueService issueService) {
+        this.issueService = issueService;
         if (registerProtocol != null) {
             this.registerProtocol = registerProtocol;
         } else {
@@ -66,7 +68,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
                     collectedRegisters.add(adapterDeviceRegister);
                 } catch (UnsupportedException | NoSuchRegisterException e) {
                     CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 }
                 catch (IOException e) {

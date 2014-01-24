@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -22,11 +24,13 @@ import java.util.List;
  */
 public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
 
+    private final IssueService issueService;
     private DeviceIdentifier deviceIdentifier;
     private CollectedDataFactory collectedDataFactory;
 
-    public DeviceProtocolTopologyAdapter() {
+    public DeviceProtocolTopologyAdapter(IssueService issueService) {
         super();
+        this.issueService = issueService;
     }
 
     /**
@@ -39,8 +43,15 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
     @Override
     public CollectedTopology getDeviceTopology() {
         CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(deviceIdentifier);
-        deviceTopology.setFailureInformation(ResultType.NotSupported, deviceIdentifier.findDevice(), "devicetopologynotsupported");
+        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), "devicetopologynotsupported"));
         return deviceTopology;
+    }
+
+    private Issue getIssue(Object source, String description, Object... arguments){
+        return this.issueService.newProblem(
+                source,
+                Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),
+                arguments);
     }
 
     /**

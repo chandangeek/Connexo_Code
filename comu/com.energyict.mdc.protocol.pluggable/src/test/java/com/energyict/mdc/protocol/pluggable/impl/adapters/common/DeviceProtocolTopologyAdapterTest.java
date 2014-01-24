@@ -2,26 +2,27 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.issues.Bus;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link DeviceProtocolTopologyAdapter}.
@@ -70,18 +71,12 @@ public class DeviceProtocolTopologyAdapterTest {
 
     @Before
     public void initializeIssueService () {
-        Bus.setIssueService(this.issueService);
         when(this.issueService.newProblem(anyString(), anyString(), anyVararg())).thenReturn(mock(Problem.class));
-    }
-
-    @After
-    public void cleanupIssueService () {
-        Bus.clearIssueService(this.issueService);
     }
 
     @Test
     public void getUnsupportedCollectedTopology(){
-        DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter();
+        DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService);
         deviceProtocolTopologyAdapter.setDeviceIdentifier(getDeviceIdentifier());
         CollectedTopology deviceTopology = deviceProtocolTopologyAdapter.getDeviceTopology();
         assertEquals("Device topology should be unsupported", ResultType.NotSupported, deviceTopology.getResultType());

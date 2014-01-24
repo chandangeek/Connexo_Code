@@ -1,6 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -9,10 +13,8 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.StackTracePrinter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.LoadProfileDataIdentifier;
 import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
@@ -40,6 +42,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
      * The used {@link SmartMeterProtocol}
      */
     private final SmartMeterProtocol smartMeterProtocol;
+    private final IssueService issueService;
 
     /**
      * The used {@link SmartMeterProtocolClockAdapter}
@@ -49,10 +52,12 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     /**
      * Default constructor
      *
-     * @param smartMeterProtocol the {@link SmartMeterProtocol} to glue
+     * @param smartMeterProtocol the {@link com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol} to glue
+     * @param issueService
      */
-    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol) {
+    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService) {
         this.smartMeterProtocol = smartMeterProtocol;
+        this.issueService = issueService;
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(smartMeterProtocol);
     }
 
@@ -90,7 +95,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         List<CollectedLoadProfileConfiguration> configurations = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             CollectedLoadProfileConfiguration deviceLoadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber(), false);
-            deviceLoadProfileConfiguration.setFailureInformation(ResultType.DataIncomplete, this, "deviceprotocol.legacy.issue", StackTracePrinter.print(e));
+            deviceLoadProfileConfiguration.setFailureInformation(ResultType.DataIncomplete, getIssue(this, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)));
             configurations.add(deviceLoadProfileConfiguration);
         }
         return configurations;
@@ -144,7 +149,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                         deviceLoadProfile.setCollectedData(profileDataWithLoadProfileId.getIntervalDatas(), profileDataWithLoadProfileId.getChannelInfos());
                         deviceLoadProfile.setDoStoreOlderValues(profileDataWithLoadProfileId.shouldStoreOlderValues());
                     } else {
-                        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, loadProfile.getProfileObisCode(), "profileXnotsupported", loadProfile.getProfileObisCode());
+                        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfile.getProfileObisCode(), "profileXnotsupported", loadProfile.getProfileObisCode()));
                     }
                     collectedLoadProfiles.add(deviceLoadProfile);
                 }
@@ -195,6 +200,13 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         else {
             return factories.get(0);
         }
+    }
+
+    private Issue getIssue(Object source, String description, Object... arguments){
+        return this.issueService.newProblem(
+                source,
+                Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),
+                arguments);
     }
 
 }

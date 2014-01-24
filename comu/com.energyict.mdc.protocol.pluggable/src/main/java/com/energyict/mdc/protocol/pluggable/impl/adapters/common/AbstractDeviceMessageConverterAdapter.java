@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -15,7 +17,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -42,6 +43,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private DataModel dataModel;
     private ProtocolPluggableService protocolPluggableService;
+    private final IssueService issueService;
     private MessageProtocol messageProtocol;
     private String serialNumber = "";
 
@@ -70,10 +72,11 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
     private CollectedDataFactory collectedDataFactory;
 
-    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService) {
+    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, ProtocolPluggableService protocolPluggableService, IssueService issueService) {
         super();
         this.dataModel = dataModel;
         this.protocolPluggableService = protocolPluggableService;
+        this.issueService = issueService;
     }
 
     /**
@@ -134,7 +137,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
             this.messageProtocol.applyMessages(new ArrayList<>(messageEntries.keySet()));
         } catch (IOException e) {
             continueOnSendingPendingMessages = false;
-            collectedMessageList.setFailureInformation(ResultType.Other, this.messageProtocol, "messageadapter.applymessages.issue", e.getMessage());
+            collectedMessageList.setFailureInformation(ResultType.Other, getIssue(this.messageProtocol, "messageadapter.applymessages.issue", e.getMessage()));
         }
         if (continueOnSendingPendingMessages) {
             for (Map.Entry<MessageEntry, OfflineDeviceMessage> messageEntryMapElement : messageEntries.entrySet()) {
@@ -144,6 +147,13 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         }
 
         return collectedMessageList;
+    }
+
+    private Issue getIssue(Object source, String description, Object... arguments){
+        return this.issueService.newProblem(
+                source,
+                Environment.DEFAULT.get().getTranslation(description).replaceAll("'", "''"),
+                arguments);
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

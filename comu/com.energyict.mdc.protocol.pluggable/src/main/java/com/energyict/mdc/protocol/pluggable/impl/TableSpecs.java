@@ -60,7 +60,7 @@ public enum TableSpecs {
             table.map(DeviceCapabilityAdapterMappingImpl.class);
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").type("varchar2(255)").notNull().map("deviceProtocolJavaClassName").add();
-            Column capabilitiesColumn = table.column("deviceprotocolcapabilities").number().notNull().map("deviceProtocolCapabilities").add();
+            Column capabilitiesColumn = table.column("deviceprotocolcapabilities").number().notNull().map("deviceProtocolCapabilities").conversion(ColumnConversion.NUMBER2INT).add();
             table.primaryKey("PK_MDCCAPADAPTERMAPPING").on(deviceProtocolClassNameColumn, capabilitiesColumn).add();
         }
     };
