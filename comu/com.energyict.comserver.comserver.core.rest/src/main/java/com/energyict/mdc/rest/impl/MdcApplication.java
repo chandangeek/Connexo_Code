@@ -53,7 +53,6 @@ public class MdcApplication extends Application {
         Set<Object> hashSet = new HashSet<>();
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
-//        hashSet.add(new TransactionWrapper(transactionService));
         return Collections.unmodifiableSet(hashSet);
     }
 
@@ -80,16 +79,6 @@ public class MdcApplication extends Application {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setLogReaderService(LogReaderService logReaderService){
-        logReaderService.addLogListener(new LogListener() {
-            @Override
-            public void logged(LogEntry logEntry) {
-                System.err.println("Mdc: " + logEntry.getTime() + " " + logEntry.getBundle() + " " + logEntry.getLevel() + " " + logEntry.getServiceReference() + " " + logEntry.getMessage());
-            }
-        });
     }
 
     class HK2Binder extends AbstractBinder {

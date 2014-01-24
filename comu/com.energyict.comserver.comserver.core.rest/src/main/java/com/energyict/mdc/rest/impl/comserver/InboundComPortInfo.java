@@ -33,7 +33,10 @@ public abstract class InboundComPortInfo<T extends InboundComPort> extends ComPo
     @Override
     protected void writeTo(T source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        InboundComPortPool inboundComPortPool = engineModelService.findInboundComPortPool(this.comPortPool_id);
+        InboundComPortPool inboundComPortPool = null;
+        if (this.comPortPool_id!=null) {
+            inboundComPortPool=engineModelService.findInboundComPortPool(this.comPortPool_id);
+        }
         if(inboundComPortPool!=null){
             source.setComPortPool(inboundComPortPool);
         } else {

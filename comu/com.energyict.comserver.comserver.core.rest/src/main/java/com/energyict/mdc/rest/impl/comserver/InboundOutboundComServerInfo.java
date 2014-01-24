@@ -28,23 +28,14 @@ public abstract class InboundOutboundComServerInfo<S extends ComServer> extends 
     protected final void updateInboundComPorts(ComServer comServer,EngineModelService engineModelService) {
         List<ComPort> inboundComPorts = new ArrayList<>();
         for (InboundComPortInfo comPortInfo : this.inboundComPorts) {
-           if(comPortInfo.id>0){
-               InboundComPort comPort = (InboundComPort) engineModelService.findComPort(comPortInfo.id);
-               comPortInfo.writeTo(comPort,engineModelService);
-               inboundComPorts.add(comPort);
-           } else {
-               InboundComPort inboundComPort;
-               if(comPortInfo.comPortType == ComPortType.SERVLET){
-                    inboundComPort = engineModelService.newServletBasedInbound(comServer);
-               } else if(comPortInfo.comPortType == ComPortType.TCP){
-                   inboundComPort = engineModelService.newTCPBasedInbound(comServer);
-               } else if (comPortInfo.comPortType == ComPortType.UDP){
-                   inboundComPort = engineModelService.newUDPBasedInbound(comServer);
-               } else {
-                   inboundComPort = engineModelService.newModemBasedInbound(comServer);
-               }
-               comPortInfo.writeTo(inboundComPort,engineModelService);
-           }
+            InboundComPort inboundComPort;
+            if(comPortInfo.id>0){
+               inboundComPort = (InboundComPort) engineModelService.findComPort(comPortInfo.id);
+            } else {
+               inboundComPort = comPortInfo.createNew(comServer, engineModelService);
+            }
+            comPortInfo.writeTo(inboundComPort,engineModelService);
+            inboundComPorts.add(inboundComPort);
             comServer.setComPorts(inboundComPorts);
         }
     }
