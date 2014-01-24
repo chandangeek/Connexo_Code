@@ -4,6 +4,12 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.impl.ComPortImpl;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -89,6 +95,14 @@ public class ComServerResource {
             OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
             comServerInfo.writeTo(onlineComServer,engineModelService);
             onlineComServer.save();
+
+            List<ComPortInfo> allComPorts = new ArrayList<>();
+            allComPorts.addAll(comServerInfo.inboundComPorts);
+            allComPorts.addAll(comServerInfo.outboundComPorts);
+
+            for (ComPortInfo comPortInfo : allComPorts) {
+                comPortInfo.createNew(onlineComServer, engineModelService);
+            }
             return ComServerInfoFactory.asInfo(onlineComServer);
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
@@ -117,6 +131,11 @@ public class ComServerResource {
             }
 
             comServerInfo.writeTo(comServer,engineModelService);
+            List<ComPortInfo> allComPorts = new ArrayList<>();
+            allComPorts.addAll(comServerInfo.inboundComPorts);
+            allComPorts.addAll(comServerInfo.outboundComPorts);
+            updateComPorts(comServer, allComPorts);
+
             comServer.save();
             return ComServerInfoFactory.asInfo(comServer);
         } catch (IllegalArgumentException e) {
@@ -124,5 +143,29 @@ public class ComServerResource {
         }
     }
 
+    private void updateComPorts(ComServer comServer, List<ComPortInfo> newComPorts) {
+        Map<Long, ComPortInfo> newComPortIdMap = asIdz(newComPorts);
+        for (ComPort comPort : comServer.getComPorts()) {
+            if (newComPortIdMap.containsKey(comPort.getId())) {
+                newComPortIdMap.get(comPort.getId()).writeTo(comPort, engineModelService);
+                newComPortIdMap.remove(comPort.getId());
+                comPort.save();
+            } else {
+                comServer.removeComPort(comPort.getId());
+            }
+        }
+
+        for (ComPortInfo comPortInfo : newComPortIdMap.values()) {
+            comPortInfo.createNew(comServer, engineModelService);
+        }
+    }
+
+    private Map<Long, ComPortInfo> asIdz(Collection<ComPortInfo> comPortInfos) {
+        Map<Long, ComPortInfo> comPortIdMap = new HashMap<>();
+        for (ComPortInfo comPort : comPortInfos) {
+            comPortIdMap.put(comPort.id, comPort);
+        }
+        return comPortIdMap;
+    }
 
 }

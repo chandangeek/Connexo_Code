@@ -10,7 +10,7 @@ import java.util.List;
 
 @XmlRootElement
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
-public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServer> {
+public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
 
     public OnlineComServerInfo() {
     }
@@ -50,9 +50,6 @@ public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComS
         comServerSource.setStoreTaskQueueSize(storeTaskQueueSize);
         comServerSource.setStoreTaskThreadPriority(storeTaskThreadPriority);
         comServerSource.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
-
-        updateInboundComPorts(comServerSource,engineModelService);
-        updateOutboundComPorts(comServerSource,engineModelService);
 
         return comServerSource;
     }

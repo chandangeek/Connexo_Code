@@ -9,7 +9,7 @@ import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 
 public class ComPortInfoFactory {
-    public static ComPortInfo<? extends ComPort> asInfo(ComPort comPort) {
+    public static ComPortInfo asInfo(ComPort comPort) {
         if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return asInboundInfo(comPort);
         } else {
@@ -17,7 +17,7 @@ public class ComPortInfoFactory {
         }
     }
 
-    public static InboundComPortInfo<? extends InboundComPort> asInboundInfo(ComPort comPort) {
+    public static InboundComPortInfo asInboundInfo(ComPort comPort) {
         if (TCPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort);
         }

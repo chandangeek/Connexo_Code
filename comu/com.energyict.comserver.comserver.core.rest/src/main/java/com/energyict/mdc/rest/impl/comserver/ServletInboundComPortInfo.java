@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
-public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort> {
+public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort, ServletBasedInboundComPort.ServletBasedInboundComPortBuilder> {
 
     public ServletInboundComPortInfo() {
         this.comPortType = ComPortType.SERVLET;
@@ -35,7 +35,21 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
     }
 
     @Override
+    protected ServletBasedInboundComPort.ServletBasedInboundComPortBuilder build(ServletBasedInboundComPort.ServletBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
+        return super.build(
+                builder.
+                https(useHttps).
+                keyStoreSpecsFilePath(keyStoreFilePath).
+                keyStoreSpecsPassword(keyStorePassword).
+                trustStoreSpecsFilePath(trustStoreFilePath).
+                trustStoreSpecsPassword(trustStorePassword).
+                portNumber(portNumber).
+                contextPath(contextPath).
+                numberOfSimultaneousConnections(numberOfSimultaneousConnections), engineModelService);
+    }
+
+    @Override
     protected ServletBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return engineModelService.newServletBasedInbound(comServer);
+        return build(comServer.newServletBasedInboundComPort(), engineModelService).add();
     }
 }

@@ -1,16 +1,19 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
+import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
+import java.math.BigDecimal;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -214,8 +217,10 @@ public class ComServerResourceTest extends JerseyTest {
         long comServer_id = 3;
         long comPortPool_id = 16;
 
+        MockModemBasedBuilder modemBasedComPortBuilder = new MockModemBasedBuilder();
         ComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(serverSideComServer.newModemBasedInboundComport()).thenReturn(modemBasedComPortBuilder);
         when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(comPortPool_id);
@@ -234,13 +239,11 @@ public class ComServerResourceTest extends JerseyTest {
         modemInboundComPortInfo.comServer_id = comServer_id;
         modemInboundComPortInfo.comPortPool_id = comPortPool_id;
         modemInboundComPortInfo.flowControl = FlowControl.XONXOFF;
-        List<InboundComPortInfo<? extends InboundComPort>> inboundPorts = new ArrayList<>();
+        List<InboundComPortInfo> inboundPorts = new ArrayList<>();
         inboundPorts.add(modemInboundComPortInfo);
         onlineComServerInfo.inboundComPorts =inboundPorts;
         onlineComServerInfo.outboundComPorts =new ArrayList<>();
 
-        MockModemBasedInboundComPort mockModemBasedInboundComPort = new MockModemBasedInboundComPort();
-        when(engineModelService.newModemBasedInbound(serverSideComServer)).thenReturn(mockModemBasedInboundComPort);
 
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
@@ -249,10 +252,10 @@ public class ComServerResourceTest extends JerseyTest {
 
         verify(serverSideComServer).save();
 
-        assertThat(mockModemBasedInboundComPort.getComPortPool().getId()).isEqualTo(comPortPool_id);
-        assertThat(mockModemBasedInboundComPort.getRingCount()).isEqualTo(100);
-        assertThat(mockModemBasedInboundComPort.getMaximumDialErrors()).isEqualTo(101);
-        assertThat(mockModemBasedInboundComPort.getAtCommandTimeout().getSeconds()).isEqualTo(2);
+        assertThat(modemBasedComPortBuilder.comPortPool).isEqualTo(comPortPool);
+        assertThat(modemBasedComPortBuilder.ringCount).isEqualTo(100);
+        assertThat(modemBasedComPortBuilder.maximumDialErrors).isEqualTo(101);
+        assertThat(modemBasedComPortBuilder.atCommandTimeout.getSeconds()).isEqualTo(2);
     }
 
     @Test
@@ -313,5 +316,126 @@ public class ComServerResourceTest extends JerseyTest {
     public void testDeleteNonExistingComServerThrows404() throws Exception {
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+    
+    class MockModemBasedBuilder implements ModemBasedInboundComPort.ModemBasedInboundComPortBuilder {
+
+        public int ringCount;
+        public int maximumDialErrors;
+        public TimeDuration connectTimeout;
+        public TimeDuration delayAfterConnect;
+        public TimeDuration delayBeforeSend;
+        public TimeDuration atCommandTimeout;
+        public BigDecimal atCommandTry;
+        public List<String> initStrings;
+        public String addressSelector;
+        public String postDialCommands;
+        public SerialPortConfiguration serialPortConfiguration;
+        public InboundComPortPool comPortPool;
+        public String name;
+        public ComPortType comPortType;
+        public boolean active;
+        public String description;
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder ringCount(int ringCount) {
+            this.ringCount = ringCount;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder maximumDialErrors(int maximumDialErrors) {
+            this.maximumDialErrors = maximumDialErrors;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder connectTimeout(TimeDuration connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect) {
+            this.delayAfterConnect = delayAfterConnect;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend) {
+            this.delayBeforeSend = delayBeforeSend;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atCommandTimeout(TimeDuration atCommandTimeout) {
+            this.atCommandTimeout = atCommandTimeout;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry) {
+            this.atCommandTry = atCommandTry;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings) {
+            this.initStrings = initStrings;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder addressSelector(String addressSelector) {
+            this.addressSelector = addressSelector;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands) {
+            this.postDialCommands = postDialCommands;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
+            this.serialPortConfiguration = serialPortConfiguration;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortPool(InboundComPortPool comPortPool) {
+            this.comPortPool = comPortPool;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortType(ComPortType comPortType) {
+            this.comPortType = comPortType;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder active(boolean active) {
+            this.active = active;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        @Override
+        public ModemBasedInboundComPort add() {
+            return null;
+        }
     }
 }

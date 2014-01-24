@@ -39,7 +39,7 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
                 } else {
                     ComServer comServer = engineModelService.findComServer(outboundComPortInfo.comServer_id);
                     if(comServer!=null){
-                        outboundComPort = outboundComPortInfo.createNew(comServer,engineModelService);
+                        outboundComPort = outboundComPortInfo.createNew(comServer, engineModelService);
                         outboundComPortInfo.writeTo(outboundComPort,engineModelService);
                     } else {
                         throw new WebApplicationException("Could not find comserver with id "+outboundComPortInfo.comServer_id, Response.Status.BAD_REQUEST);

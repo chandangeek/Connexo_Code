@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
 
-public class OutboundComPortInfo extends ComPortInfo<OutboundComPort> {
+public class OutboundComPortInfo extends ComPortInfo<OutboundComPort, OutboundComPort.OutboundComPortBuilder> {
 
     public OutboundComPortInfo() {
         this.direction = "outbound";
@@ -17,13 +17,18 @@ public class OutboundComPortInfo extends ComPortInfo<OutboundComPort> {
 
     @Override
     protected void writeTo(OutboundComPort source,EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
+        super.writeTo(source, engineModelService);
         source.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
     }
 
     @Override
+    protected OutboundComPort.OutboundComPortBuilder build(OutboundComPort.OutboundComPortBuilder builder, EngineModelService engineModelService) {
+        return super.build(builder.numberOfSimultaneousConnections(this.numberOfSimultaneousConnections), engineModelService);
+    }
+
+    @Override
     protected OutboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return engineModelService.newOutbound(comServer);
+        return build(comServer.newOutboundComPort(), engineModelService).add();
     }
 
 }

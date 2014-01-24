@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
-public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPort> {
+public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPort, TCPBasedInboundComPort.TCPBasedInboundComPortBuilder> {
 
     public TcpInboundComPortInfo() {
         this.comPortType = ComPortType.TCP;
@@ -17,12 +17,17 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
     }
 
     protected void writeTo(TCPBasedInboundComPort source,EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
+        super.writeTo(source, engineModelService);
         source.setPortNumber(this.portNumber);
     }
 
     @Override
+    protected TCPBasedInboundComPort.TCPBasedInboundComPortBuilder build(TCPBasedInboundComPort.TCPBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
+        return super.build(builder.portNumber(portNumber).numberOfSimultaneousConnections(numberOfSimultaneousConnections), engineModelService);
+    }
+
+    @Override
     protected TCPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return engineModelService.newTCPBasedInbound(comServer);
+        return build(comServer.newTCPBasedInboundComPort(), engineModelService).add();
     }
 }

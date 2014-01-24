@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPort> {
+public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPort, UDPBasedInboundComPort.UDPBasedInboundComPortBuilder> {
 
     public UdpInboundComPortInfo() {
         this.comPortType = ComPortType.UDP;
@@ -38,7 +38,15 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     }
 
     @Override
+    protected UDPBasedInboundComPort.UDPBasedInboundComPortBuilder build(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
+        return super.build(builder.
+                portNumber(portNumber).
+                bufferSize(bufferSize).
+                numberOfSimultaneousConnections(numberOfSimultaneousConnections), engineModelService);
+    }
+
+    @Override
     protected UDPBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return engineModelService.newUDPBasedInbound(comServer);
+        return build(comServer.newUDPBasedInboundComPort(), engineModelService).add();
     }
 }

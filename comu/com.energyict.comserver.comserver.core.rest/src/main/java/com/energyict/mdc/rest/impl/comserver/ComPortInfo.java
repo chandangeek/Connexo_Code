@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @XmlRootElement
-public abstract class ComPortInfo<T extends ComPort> {
+public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B,T>> {
 
     public long id;
     public String direction;
@@ -85,6 +85,10 @@ public abstract class ComPortInfo<T extends ComPort> {
         source.setComPortType(this.comPortType);
     }
 
-    protected abstract T createNew(ComServer comServer,EngineModelService engineModelService);
+    protected B build(B builder, EngineModelService engineModelService) {
+        return builder.name(name).description(description).active(active).comPortType(comPortType);
+    }
+
+    protected abstract T createNew(ComServer comServer, EngineModelService engineModelService);
 
 }

@@ -37,7 +37,7 @@ public abstract class ComServerInfo<S extends ComServer> {
     @JsonProperty("schedulingInterPollDelay")
     public TimeDurationInfo schedulingInterPollDelay;
     @JsonProperty("inboundComPorts")
-    public List<InboundComPortInfo<? extends InboundComPort>> inboundComPorts;
+    public List<InboundComPortInfo> inboundComPorts;
     @JsonProperty("outboundComPorts")
     public List<OutboundComPortInfo> outboundComPorts;
     @JsonProperty("onlineComServerId")

@@ -26,23 +26,7 @@ public class OfflineComServerInfo extends ComServerInfo<OfflineComServer> {
     @Override
     public OfflineComServer writeTo(OfflineComServer source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
-        updateOutboundComPorts(source,engineModelService);
         return source;
     }
 
-    private void updateOutboundComPorts(OfflineComServer source,EngineModelService engineModelService) {
-        List<ComPort> outboundComPorts = new ArrayList<>();
-        for (OutboundComPortInfo outboundComPortInfo : this.outboundComPorts) {
-            if(outboundComPortInfo.id>0){
-                OutboundComPort comPort = (OutboundComPort) engineModelService.findComPort(outboundComPortInfo.id);
-                outboundComPortInfo.writeTo(comPort,engineModelService);
-                outboundComPorts.add(comPort);
-            } else {
-                OutboundComPort serverOutboundComPort = engineModelService.newOutbound(source);
-                outboundComPortInfo.writeTo(serverOutboundComPort,engineModelService);
-                outboundComPorts.add(serverOutboundComPort);
-            }
-        }
-        source.setComPorts(outboundComPorts);
-    }
 }

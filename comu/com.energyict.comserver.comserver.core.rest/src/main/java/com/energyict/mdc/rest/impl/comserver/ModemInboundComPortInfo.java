@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPort> {
+public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPort, ModemBasedInboundComPort.ModemBasedInboundComPortBuilder> {
 
     public static final String MAP_KEY = "modemInitString";
 
@@ -73,14 +73,45 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     @Override
+    protected ModemBasedInboundComPort.ModemBasedInboundComPortBuilder build(ModemBasedInboundComPort.ModemBasedInboundComPortBuilder builder, EngineModelService engineModelService) {
+        super.build(builder, engineModelService);
+        builder.ringCount(this.ringCount);
+        builder.maximumDialErrors(this.maximumNumberOfDialErrors);
+        if (this.connectTimeout!=null) {
+            builder.connectTimeout(this.connectTimeout.asTimeDuration());
+        }
+        if (this.delayAfterConnect!=null) {
+            builder.delayAfterConnect(this.delayAfterConnect.asTimeDuration());
+        }
+        if (this.delayBeforeSend!=null) {
+            builder.delayBeforeSend(this.delayBeforeSend.asTimeDuration());
+        }
+        if (this.atCommandTimeout!=null) {
+            builder.atCommandTimeout(this.atCommandTimeout.asTimeDuration());
+        }
+        builder.atCommandTry(this.atCommandTry);
+        builder.atModemInitStrings(fromMaps(MAP_KEY, this.modemInitStrings));
+        builder.addressSelector(this.addressSelector);
+        builder.postDialCommands(this.postDialCommands);
+        builder.serialPortConfiguration(new SerialPortConfiguration(
+                this.comPortName,
+                this.baudrate,
+                this.nrOfDataBits,
+                this.nrOfStopBits,
+                this.parity,
+                this.flowControl));
+        return super.build(builder, engineModelService);
+    }
+
+    @Override
     protected ModemBasedInboundComPort createNew(ComServer comServer, EngineModelService engineModelService) {
-        return engineModelService.newModemBasedInbound(comServer);
+        return build(comServer.newModemBasedInboundComport(), engineModelService).add();
     }
 
     private List<Map<String, String>> asMap(String key, List<String> strings) {
-        List<Map<String, String>> maps = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> maps = new ArrayList<>();
         for (String string : strings) {
-            Map<String, String> map = new HashMap<String, String>();
+            Map<String, String> map = new HashMap<>();
             map.put(key, string);
             maps.add(map);
         }
@@ -88,7 +119,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     private List<String> fromMaps(String key, List<Map<String, String>> maps) {
-        List<String> strings = new ArrayList<String>();
+        List<String> strings = new ArrayList<>();
         if (maps!=null) {
             for (Map<String, String> map : maps) {
                 strings.add(map.get(key));

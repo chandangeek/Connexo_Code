@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @XmlRootElement
-public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComServer> {
+public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
 
     public RemoteComServerInfo() {
     }
@@ -45,9 +45,6 @@ public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComS
         comServerSource.setOnlineComServer((OnlineComServer) engineModelService.findComServer(onlineComServerId));
         comServerSource.setQueryAPIPassword(queryAPIPassword);
         comServerSource.setQueryAPIUsername(queryAPIUsername);
-
-        updateInboundComPorts(comServerSource,engineModelService);
-        updateOutboundComPorts(comServerSource,engineModelService);
 
         return comServerSource;
     }
