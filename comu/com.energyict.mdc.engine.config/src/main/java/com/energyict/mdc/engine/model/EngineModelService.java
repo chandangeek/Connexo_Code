@@ -114,16 +114,6 @@ public interface EngineModelService {
      */
     public List<InboundComPort> findAllInboundComPorts();
 
-    public OutboundComPort newOutbound(ComServer owner);
-
-    public ModemBasedInboundComPort newModemBasedInbound(ComServer owner);
-
-    public TCPBasedInboundComPort newTCPBasedInbound(ComServer owner);
-
-    public UDPBasedInboundComPort newUDPBasedInbound(ComServer owner);
-
-    public ServletBasedInboundComPort newServletBasedInbound(ComServer owner);
-
     /**
      * Finds the {@link ComPortPool} with the specified unique identifier.
      *

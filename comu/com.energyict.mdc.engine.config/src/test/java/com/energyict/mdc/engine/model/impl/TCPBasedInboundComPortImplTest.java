@@ -45,37 +45,13 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testInbound() {
-        TCPBasedInboundComPort comPort = getEngineModelService().newTCPBasedInbound(createOnlineComServer());
-        assertTrue("TCP based inbound com ports are expected to be INBOUND", comPort.isInbound());
-    }
-
-    @Test
-    @Transactional
     public void testIsTCPBased() {
-        TCPBasedInboundComPort comPort = getEngineModelService().newTCPBasedInbound(createOnlineComServer());
+        TCPBasedInboundComPort comPort = createSimpleComPort(createOnlineComServer());
         assertTrue(comPort.isTCPBased());
-    }
-
-    @Test
-    @Transactional
-    public void testIsNotUDPBased() {
-        TCPBasedInboundComPort comPort = getEngineModelService().newTCPBasedInbound(createOnlineComServer());
         assertFalse(comPort.isUDPBased());
-    }
-
-    @Test
-    @Transactional
-    public void testIsNotModemBased() {
-        TCPBasedInboundComPort comPort = getEngineModelService().newTCPBasedInbound(createOnlineComServer());
         assertFalse(comPort.isModemBased());
-    }
-
-    @Test
-    @Transactional
-    public void testIsNotServletBased() {
-        TCPBasedInboundComPort comPort = getEngineModelService().newTCPBasedInbound(createOnlineComServer());
         assertFalse(comPort.isServletBased());
+        assertTrue("TCP based inbound com ports are expected to be INBOUND", comPort.isInbound());
     }
 
     @Test

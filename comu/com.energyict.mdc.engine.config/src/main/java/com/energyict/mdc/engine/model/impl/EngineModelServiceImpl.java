@@ -266,41 +266,6 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
 
     @Override
-    public OutboundComPort newOutbound(ComServer owner){
-        OutboundComPort instance = dataModel.getInstance(OutboundComPort.class);
-        ((ComPortImpl)instance).setComServer(owner);
-        return instance;
-    }
-
-    @Override
-    public ModemBasedInboundComPort newModemBasedInbound(ComServer owner){
-        ModemBasedInboundComPort instance = dataModel.getInstance(ModemBasedInboundComPort.class);
-        ((ComPortImpl)instance).setComServer(owner);
-        return instance;
-    }
-
-    @Override
-    public TCPBasedInboundComPort newTCPBasedInbound(ComServer owner){
-        TCPBasedInboundComPort instance = dataModel.getInstance(TCPBasedInboundComPort.class);
-        ((ComPortImpl)instance).setComServer(owner);
-        return instance;
-    }
-
-    @Override
-    public UDPBasedInboundComPort newUDPBasedInbound(ComServer owner){
-        UDPBasedInboundComPort instance = dataModel.getInstance(UDPBasedInboundComPort.class);
-        ((ComPortImpl)instance).setComServer(owner);
-        return instance;
-    }
-
-    @Override
-    public ServletBasedInboundComPort newServletBasedInbound(ComServer owner){
-        ServletBasedInboundComPort instance = dataModel.getInstance(ServletBasedInboundComPort.class);
-        ((ComPortImpl)instance).setComServer(owner);
-        return instance;
-    }
-
-    @Override
     public ComPortPool findComPortPool(long id) {
         return getComPortPoolDataMapper().getUnique("id", id).orNull();
     }

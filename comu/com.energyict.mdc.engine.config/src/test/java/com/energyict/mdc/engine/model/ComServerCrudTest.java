@@ -166,15 +166,8 @@ public class ComServerCrudTest extends PersistenceTest {
             onlineComServer.setStoreTaskThreadPriority(3);
             onlineComServer.setNumberOfStoreTaskThreads(6);
             onlineComServer.setUsesDefaultEventRegistrationUri(true);
-
-            OutboundComPort outboundComPort = getEngineModelService().newOutbound(onlineComServer);
-            outboundComPort.setName("some comport");
-            outboundComPort.setComPortType(ComPortType.TCP);
-            outboundComPort.setNumberOfSimultaneousConnections(4);
-            List<ComPort> comPorts = new ArrayList<>();
-            comPorts.add(outboundComPort);
-            onlineComServer.setComPorts(comPorts);
             onlineComServer.save();
+            onlineComServer.newOutboundComPort().name("some comport").comPortType(ComPortType.TCP).numberOfSimultaneousConnections(4).add();
             context.commit();
         }
 

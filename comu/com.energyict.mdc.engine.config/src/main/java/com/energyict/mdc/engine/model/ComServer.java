@@ -216,7 +216,6 @@ public interface ComServer {
      */
     public List<ComPort> getComPorts ();
 
-    public void setComPorts(List<ComPort> comPorts);
     /**
      * Makes this ComServer obsolete, i.e. it will no longer execute
      * nor will it be returned by ComServerFactory finder methods.
@@ -245,10 +244,10 @@ public interface ComServer {
     public String getType();
 
     public OutboundComPort.OutboundComPortBuilder newOutboundComPort();
-    public ComServerImpl.ServletBasedComPortBuilder newServletBasedInboundComPort();
-    public ComServerImpl.ModemBasedComPortBuilder newModemBasedInboundComport();
-    public ComServerImpl.TCPBasedComPortBuilder newTCPBasedInboundComPort();
-    public ComServerImpl.UDPBasedComPortBuilder newUDPBasedInboundComPort();
+    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort();
+    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport();
+    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort();
+    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort();
 
     public void removeComPort(long id);
 

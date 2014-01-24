@@ -154,30 +154,6 @@ public abstract class ComServerImpl implements ComServer {
         return ImmutableList.copyOf(this.comPorts);
     }
 
-    public void setComPorts(List<ComPort> newComPorts) {
-        Map<Long, ComPort> newComPortIdMap = asIdz(newComPorts);
-        for (ComPort comPort : this.comPorts) {
-            if (newComPortIdMap.containsKey(comPort.getId())) {
-                ((ComPortImpl)comPort).copyFrom(newComPortIdMap.get(comPort.getId()));
-                newComPortIdMap.remove(comPort.getId());
-            } else {
-                this.removeComPort(comPort.getId());
-            }
-        }
-
-        for (ComPort comPort : newComPortIdMap.values()) {
-            this.comPorts.add(comPort);
-        }
-    }
-
-    private Map<Long, ComPort> asIdz(Collection<ComPort> comPorts) {
-        Map<Long, ComPort> comPortIdMap = new HashMap<>();
-        for (ComPort comPort : comPorts) {
-            comPortIdMap.put(comPort.getId(), comPort);
-        }
-        return comPortIdMap;
-    }
-
     public final  List<InboundComPort> getInboundComPorts () {
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.getComPorts()) {
@@ -224,7 +200,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public ServletBasedComPortBuilder newServletBasedInboundComPort() {
+    public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort() {
         return new ServletBasedComPortBuilder();
     }
 
@@ -245,7 +221,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public ModemBasedComPortBuilder newModemBasedInboundComport() {
+    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport() {
         return new ModemBasedComPortBuilder();
     }
 
@@ -266,11 +242,12 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public TCPBasedComPortBuilder newTCPBasedInboundComPort() {
+    public TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort() {
         return new TCPBasedComPortBuilder();
     }
 
-    public class TCPBasedComPortBuilder extends TCPBasedInboundComPortImpl.TCPBasedInboundComPortBuilderImpl {
+    public class TCPBasedComPortBuilder extends TCPBasedInboundComPortImpl.TCPBasedInboundComPortBuilderImpl
+            implements TCPBasedInboundComPort.TCPBasedInboundComPortBuilder {
 
         protected TCPBasedComPortBuilder() {
             super(tcpBasedInboundComPortProvider);
@@ -287,11 +264,12 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
-    public UDPBasedComPortBuilder newUDPBasedInboundComPort() {
+    public UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort() {
         return new UDPBasedComPortBuilder();
     }
 
-    public class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl {
+    public class UDPBasedComPortBuilder extends UDPBasedInboundComPortImpl.UDPBasedInboundComPortBuilderImpl
+        implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
 
         protected UDPBasedComPortBuilder() {
             super(udpBasedInboundComPortProvider);
