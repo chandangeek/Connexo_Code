@@ -183,16 +183,18 @@ Ext.define('Mdc.controller.setup.ComServers', {
                 }
             });
         } else {
+            me.comserver = Ext.create(Mdc.model.ComServer);
             if(this.menuSelection.text==='Remote'){
-                this.createComServerType = 'Remote';
+                me.createComServerType = 'Remote';
                 me.comServerEditView = Ext.widget('remoteComServerEdit');
             } else if(this.menuSelection.text==='Online'){
-                this.createComServerType = 'Online';
+                me.createComServerType = 'Online';
                 me.comServerEditView = Ext.widget('comServerEdit');
             } else {
-                this.createComServerType = 'Mobile';
+                me.createComServerType = 'Mobile';
                 me.comServerEditView = Ext.widget('comServerEdit');
             }
+            me.comserver.set('comServerType',this.createComServerType);
         }
 
     },
@@ -203,7 +205,6 @@ Ext.define('Mdc.controller.setup.ComServers', {
             record = this.comserver,
             values = form.getValues();
         if(!record){
-            this.comserver = Ext.create(Mdc.model.ComServer);
             record = this.comserver;
             record.set(values);
             record.set('comServerType',this.createComServerType);
