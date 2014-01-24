@@ -36,7 +36,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-16 (10:57)
  */
-public class MockDeviceProtocol implements DeviceProtocol {
+public class MockDeviceProtocolWithTestPropertySpecs implements DeviceProtocol {
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -210,11 +210,12 @@ public class MockDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+        return DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getPropertySpecs();
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
-        return null;
+        return DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getPropertySpec(name);
     }
+
 }

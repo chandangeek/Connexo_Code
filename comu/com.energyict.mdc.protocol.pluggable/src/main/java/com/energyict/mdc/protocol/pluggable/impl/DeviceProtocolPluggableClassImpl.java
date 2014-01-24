@@ -79,6 +79,11 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
+    public TypedProperties getProperties() {
+        return super.getProperties();
+    }
+
+    @Override
     protected DeviceProtocol newInstance(PluggableClass pluggableClass) {
         Class protocolClass = this.protocolPluggableService.loadProtocolClass(pluggableClass.getJavaClassName());
         DeviceProtocol deviceProtocol;

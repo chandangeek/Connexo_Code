@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -65,6 +66,7 @@ public class InMemoryPersistence {
                 new ThreadSecurityModule(principal),
                 new PubSubModule(),
                 new TransactionModule(),
+                new NlsModule(),
                 new UtilModule(),
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
@@ -114,7 +116,6 @@ public class InMemoryPersistence {
     private static class MockModule extends AbstractModule {
 
         private BundleContext bundleContext;
-
         private EventAdmin eventAdmin;
 
         private MockModule(BundleContext bundleContext, EventAdmin eventAdmin) {

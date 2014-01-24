@@ -22,12 +22,19 @@ import java.util.List;
 public enum DeviceMessageTestSpec implements DeviceMessageSpec {
 
     TEST_SPEC_WITH_SIMPLE_SPECS(
-            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec("testMessageSpec.simpleBigDecimal"),
-            RequiredPropertySpecFactory.newInstance().stringPropertySpec("testMessageSpec.simpleString")),
+            RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(Constants.SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME),
+            RequiredPropertySpecFactory.newInstance().stringPropertySpec(Constants.SIMPLE_STRING_PROPERTY_SPEC_NAME)),
     TEST_SPEC_WITH_EXTENDED_SPECS(
-            RequiredPropertySpecFactory.newInstance().referencePropertySpec("testMessageSpec.codetable", getCodeFactory()),
-            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec("testMessageSpec.activationdate")),
+            RequiredPropertySpecFactory.newInstance().referencePropertySpec(Constants.CODETABLE_PROPERTY_SPEC_NAME, getCodeFactory()),
+            RequiredPropertySpecFactory.newInstance().dateTimePropertySpec(Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)),
     TEST_SPEC_WITHOUT_SPECS;
+
+    public static class Constants {
+        public static final String CODETABLE_PROPERTY_SPEC_NAME = "testMessageSpec.codetable";
+        public static final String ACTIVATIONDATE_PROPERTY_SPEC_NAME = "testMessageSpec.activationdate";
+        public static final String SIMPLE_STRING_PROPERTY_SPEC_NAME = "testMessageSpec.simpleString";
+        public static final String SIMPLE_BIGDECIMAL_PROPERTY_SPEC_NAME = "testMessageSpec.simpleBigDecimal";
+    }
 
     private static IdBusinessObjectFactory getCodeFactory() {
         return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());

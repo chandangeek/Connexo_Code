@@ -10,12 +10,17 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
+import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,7 +94,26 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     }
 
     public void setProperty(PropertySpec propertySpec, Object value) {
+        if (!isPropertySpec(propertySpec)) {
+            throw new UnknownPluggableClassPropertiesException(this.thesaurus, this.asSet(propertySpec.getName()), this.getJavaClassName());
+        }
         this.getPluggableClass().setProperty(propertySpec, value);
+    }
+
+    private Set<String> asSet(String propertySpecName) {
+        HashSet<String> set = new HashSet<>();
+        set.add(propertySpecName);
+        return set;
+
+    }
+
+    private boolean isPropertySpec(PropertySpec propertySpec) {
+        for (PropertySpec each : this.getPropertySpecs()) {
+            if (each.getName().equals(propertySpec.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void removeProperty(PropertySpec propertySpec) {

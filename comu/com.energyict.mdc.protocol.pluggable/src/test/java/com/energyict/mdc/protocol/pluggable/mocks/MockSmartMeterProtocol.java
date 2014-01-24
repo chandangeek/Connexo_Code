@@ -134,7 +134,7 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public String getFirmwareVersion() throws IOException {
-        return null;
+        return "1.0.0-SNAPSHOT";
     }
 
     @Override
@@ -209,7 +209,7 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
 
     @Override
     public String getVersion() {
-        return null;
+        return "1.0.0-SNAPSHOT";
     }
 
     @Override
