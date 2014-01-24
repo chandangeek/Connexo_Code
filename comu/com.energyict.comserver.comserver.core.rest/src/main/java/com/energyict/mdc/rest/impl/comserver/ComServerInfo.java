@@ -9,6 +9,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,9 @@ public abstract class ComServerInfo<S extends ComServer> {
     public long id;
     public String name;
     public boolean active;
+    @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel serverLogLevel;
+    @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
