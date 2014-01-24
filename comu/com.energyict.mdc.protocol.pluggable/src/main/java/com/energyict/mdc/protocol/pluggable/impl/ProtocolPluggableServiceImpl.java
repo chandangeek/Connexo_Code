@@ -14,6 +14,8 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
@@ -69,6 +71,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile List<DeviceProtocolSecurityService> deviceProtocolSecurityServices = new CopyOnWriteArrayList<>();
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile ConnectionTypeService connectionTypeService;
+    private volatile IssueService issueService;
 
     public ProtocolPluggableServiceImpl() {
         super();
@@ -479,6 +482,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.connectionTypeService = connectionTypeService;
     }
 
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -491,6 +499,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(RelationService.class).toInstance(relationService);
                 bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
                 bind(ConnectionTypeService.class).toInstance(connectionTypeService);
+                bind(IssueService.class).toInstance(issueService);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
             }

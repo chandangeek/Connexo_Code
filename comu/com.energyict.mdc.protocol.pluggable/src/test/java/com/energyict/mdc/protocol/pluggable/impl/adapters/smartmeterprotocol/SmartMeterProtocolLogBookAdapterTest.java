@@ -1,9 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.issues.Bus;
-import com.energyict.mdc.issues.impl.IssueServiceImpl;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -11,8 +9,9 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 import org.joda.time.DateMidnight;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,19 +50,8 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
     private static final String SERIAL_NUMBER = "SerialNumber";
 
-    private IssueServiceImpl issueService;
-
-    @Before
-    public void initializeIssueService() {
-        issueService = new IssueServiceImpl();
-        issueService.setClock(new DefaultClock());
-        Bus.setIssueService(issueService);
-    }
-
-    @After
-    public void cleanupIssueService() {
-        Bus.clearIssueService(issueService);
-    }
+    @Mock
+    private IssueService issueService;
 
     @Test
     public void testGetLogBookData() throws IOException {
@@ -80,7 +68,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
         when(deviceProtocol.getMeterEvents(LAST_LOGBOOK2)).thenReturn(meterEvents);
         when(deviceProtocol.getMeterEvents(LAST_LOGBOOK3)).thenThrow(new IOException("IOException while reading logBook 3."));
 
-        SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(deviceProtocol);
+        SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(deviceProtocol, issueService);
 
         // Business method
         List<CollectedLogBook> logBookData = smartMeterProtocolLogBookAdapter.getLogBookData(logBookReaders);

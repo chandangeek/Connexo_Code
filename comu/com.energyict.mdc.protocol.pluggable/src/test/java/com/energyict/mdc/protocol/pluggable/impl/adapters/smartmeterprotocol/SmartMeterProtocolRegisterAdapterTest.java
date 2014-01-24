@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.util.time.impl.DefaultClock;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.issues.impl.IssueServiceImpl;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
@@ -13,8 +12,12 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -63,8 +66,8 @@ public class SmartMeterProtocolRegisterAdapterTest {
     private static UserEnvironment userEnvironment = mock(UserEnvironment.class);
     @Mock
     private Environment environment;
-
-    private IssueServiceImpl issueService;
+    @Mock
+    private IssueService issueService;
 
 
     @BeforeClass
@@ -92,14 +95,11 @@ public class SmartMeterProtocolRegisterAdapterTest {
                 return invocation.getArguments()[0];
             }
         });
-        issueService = new IssueServiceImpl();
-        issueService.setClock(new DefaultClock());
-        com.energyict.mdc.issues.Bus.setIssueService(issueService); }
+    }
 
     @After
     public void cleanupEnvironment() {
         Environment.DEFAULT.set(null);
-        com.energyict.mdc.issues.Bus.clearIssueService(issueService);
     }
 
     private RegisterValue getMockedRegisterValue() {
@@ -117,7 +117,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
 
     @Test
     public void getRegisterEmptyCallTest() {
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(null);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(null, issueService);
         assertNotNull("Should not get a null object back", smartMeterProtocolRegisterAdapter.readRegisters(null));
         assertEquals("Should at least get an empty list", Collections.emptyList(), smartMeterProtocolRegisterAdapter.readRegisters(null));
         assertNotNull("Should not get a null object back", smartMeterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>()));
@@ -128,7 +128,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
     public void deviceDoesNotSupportRegisterRequests() {
         OfflineRegister register = getMockedRegister();
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         assertEquals("Size of the collected registers should be 1", 1, collectedRegisters.size());
@@ -146,7 +146,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
             registerList.add(register);
         }
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(registerList);
         assertEquals("Should return " + registerListSize + " objects in the list", registerListSize, collectedRegisters.size());
     }
@@ -157,7 +157,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenThrow(new IOException("Failure during the reading"));
-        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol);
+        SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
     }
 
@@ -169,7 +169,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Arrays.asList(registerValue));
 
-        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol);
+        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
         assertEquals("FromDate should be the same", fromDate, collectedRegisters.get(0).getFromTime());
@@ -195,7 +195,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Arrays.asList(registerValue1, registerValue2));
 
 
-        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol);
+        SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register1, register2, register3));
 
         assertEquals("Size should be the same", 3, collectedRegisters.size());

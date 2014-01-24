@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -59,6 +60,11 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      * The used <code>MeterProtocol</code> for which the adapter is working
      */
     private final SmartMeterProtocol meterProtocol;
+
+    /**
+     * The use <code>IssueService</code> which can be used for this adapter
+     */
+    private final IssueService issueService;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication
@@ -125,9 +131,10 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+    public SmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService) {
         super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
         initializeAdapters();
         initInheritors();
     }
@@ -147,14 +154,14 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(getSmartMeterProtocol());
-        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol());
-        this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter();
-        this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol());
-        this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol());
+        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService);
+        this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService);
+        this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService);
+        this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol(), issueService);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.getProtocolPluggableService());
+            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.getProtocolPluggableService(), issueService);
         }
         else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
@@ -199,7 +206,8 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     private TimeZone getDeviceTimeZoneFromProperties() {
-        TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(DEVICE_TIMEZONE_PROPERTY_NAME);
+        String typedProperty = this.propertiesAdapter.getProperties().getTypedProperty(DEVICE_TIMEZONE_PROPERTY_NAME);
+        TimeZone timeZone = TimeZone.getTimeZone(typedProperty);
         if (timeZone == null) {
             return TimeZone.getDefault();
         }
@@ -231,7 +239,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     @Override
     public PropertySpec getPropertySpec(String name) {
         for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
+            if (name.equals(propertySpec)) {
                 return propertySpec;
             }
         }
