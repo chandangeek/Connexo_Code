@@ -9,9 +9,14 @@ Ext.define('Cfg.controller.history.Validation', {
 
 
     doConversion: function (tokens) {
-        if (tokens.length > 1 && tokens[1] === 'rules') {
-            var id = parseInt(tokens[2]);
-            this.showRulesContainer(id);
+        if (tokens.length > 1) {
+            if (tokens[1] === 'rules') {
+                var id = parseInt(tokens[2]);
+                this.showRules(id);
+            } else if (tokens[1] === 'overview') {
+                var id = parseInt(tokens[2]);
+                this.showRuleSetOverview(id);
+            }
         } else {
             this.unknownTokensReturnToOverview();
         }
@@ -21,8 +26,12 @@ Ext.define('Cfg.controller.history.Validation', {
         this.showOverview();
     },
 
-    showRulesContainer: function (ruleSetId) {
-        Cfg.getApplication().getValidationController().showRulesContainer(ruleSetId);
+    showRules: function (ruleSetId) {
+        Cfg.getApplication().getValidationController().showRules(ruleSetId);
+    },
+
+    showRuleSetOverview: function (ruleSetId) {
+        Cfg.getApplication().getValidationController().showRuleSetOverview(ruleSetId);
     }
 
 

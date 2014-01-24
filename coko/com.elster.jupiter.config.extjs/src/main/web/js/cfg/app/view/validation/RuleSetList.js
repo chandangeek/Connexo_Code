@@ -5,19 +5,30 @@ Ext.define('Cfg.view.validation.RuleSetList', {
     alias: 'widget.validationrulesetList',
     itemId: 'validationrulesetList',
     store: 'ValidationRuleSets',
-    //selType: 'checkboxmodel',
+
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
+    ],
+
+
+
+
 
     columns: {
         items: [
-            { header: 'Name', dataIndex: 'name', flex: 1 },
-            { header: 'Number of Rules', dataIndex: 'numberOfRules', flex: 1, align: 'right'  },
-            { header: 'Number of inactive rules', dataIndex: 'numberOfInactiveRules', flex: 1, align: 'right' },
+            { header: 'Name', dataIndex: 'name', flex: 1,
+                renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                    return '<a style="color:#007dc3" href="#/validation/overview/' + record.getId() + '">' + value + '</a>'
+                }
+            },
+            { header: 'Number of rules', dataIndex: 'numberOfRules', flex: 1, align: 'center'  },
+            { header: 'Number of inactive rules', dataIndex: 'numberOfInactiveRules', flex: 1, align: 'center' },
             {
                 xtype:'actioncolumn',
                 align: 'center',
                 header: 'Actions',
-                flex: 1,
-                //width:150,
+                width:150,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     handler: function(grid, rowIndex, colIndex,item,e) {
@@ -60,11 +71,8 @@ Ext.define('Cfg.view.validation.RuleSetList', {
         ]
     },
 
-    /*selModel: Ext.create('Ext.selection.CheckboxModel', {
-        mode: 'MULTI'
-        //checkOnly: true
-    }),   */
-    //selType: 'checkboxmodel',
+
+
     initComponent: function () {
         this.dockedItems = [
             {

@@ -90,9 +90,8 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
                         '->',
                         {
                             xtype: 'component',
-                            cls: 'content-container',
                             itemId: 'ruleSetDetailsLink',
-                            html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation/rules">View details</a>'
+                            html: '' // filled in in Controller
                         }
 
                     ]

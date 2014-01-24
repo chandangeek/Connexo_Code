@@ -6,6 +6,11 @@ Ext.define('Cfg.view.validation.RuleList', {
     itemId: 'validationruleList',
     store: 'ValidationRules',
 
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
+    ],
+
     columns: {
 
         items: [
@@ -22,9 +27,8 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 xtype:'actioncolumn',
                 header: 'Actions',
-                flex: 1,
                 align: 'center',
-                //width:100,
+                width:150,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
                     tooltip: 'View',
@@ -63,6 +67,7 @@ Ext.define('Cfg.view.validation.RuleList', {
             }
         ]
     },
+
     initComponent: function () {
         this.dockedItems = [
             {

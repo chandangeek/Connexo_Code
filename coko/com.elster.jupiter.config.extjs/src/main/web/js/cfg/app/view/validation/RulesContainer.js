@@ -24,15 +24,31 @@ Ext.define('Cfg.view.validation.RulesContainer', {
                 align: 'left'
             },
             items: [{
+                xtype: 'button',
+                enableToggle: true,
+                toggleGroup: 'ratings',
+                itemId: 'ruleSetOverviewLink',
+                href: 'www.google.com',
                 text: 'Overview',
-                itemId:'showRulesetOverviewAction',
-                action: 'showRulesetOverviewAction',
-                width: 130
+                hrefTarget: '_self',
+                width: 130,
+                style: {
+                    borderColor: '#007dc3',
+                    borderStyle: 'solid'
+                }
             }, {
+                xtype: 'button',
+                enableToggle: true,
+                toggleGroup: 'ratings',
+                itemId: 'rulesLink',
+                href: 'www.google.com',
                 text: 'Rules',
-                itemId:'showRulesAction',
-                action: 'showRulesAction',
-                width: 130
+                hrefTarget: '_self',
+                width: 130,
+                style: {
+                    borderColor: '#007dc3',
+                    borderStyle: 'solid'
+                }
             }]
         }]
     },{
