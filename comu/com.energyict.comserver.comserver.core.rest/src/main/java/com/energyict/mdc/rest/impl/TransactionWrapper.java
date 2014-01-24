@@ -37,15 +37,14 @@ public class TransactionWrapper implements ApplicationEventListener {
                     contextThreadLocal.set(transactionService.getContext());
                     break;
                 case FINISHED:
-                    if (requestEvent.isSuccess()) {
-                        contextThreadLocal.get().commit();
-                    }
+                    contextThreadLocal.get().commit();
                     contextThreadLocal.get().close();
                     break;
                 case ON_EXCEPTION:
                     if (requestEvent.getException()!=null) {
                         requestEvent.getException().printStackTrace();
                     }
+                    break;
                 }
             }
         };
