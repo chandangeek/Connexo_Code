@@ -202,6 +202,8 @@ public class PluggableClassImpl implements PluggableClass {
                             this,
                             propertySpec.getName(),
                             propertySpec.getValueFactory().toStringValue(value)));
+        } else {
+            property.value = propertySpec.getValueFactory().toStringValue(value);
         }
     }
 
