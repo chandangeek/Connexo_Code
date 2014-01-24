@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.properties;
 
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -10,6 +11,7 @@ import com.energyict.mdc.rest.impl.properties.validators.NumberValidationRules;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -116,11 +118,11 @@ public class MdcPropertyUtils {
     }
 
     //find propertyValue in info
-    public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
+    public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) throws ParseException {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.getKey().equals(propertySpec.getName())) {
                 if (propertyInfo.getPropertyValueInfo() != null) {
-                    return propertyInfo.getPropertyValueInfo().getValue();
+                    return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
                     return null;
                 }
@@ -128,6 +130,15 @@ public class MdcPropertyUtils {
         }
         return null;
     }
+
+    private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) throws ParseException {
+        SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+        if (propertySpec.getValueFactory().getValueType() == Password.class){
+            return new Password(value.toString());
+        }
+        return propertySpec.getValueFactory().fromStringValue(value.toString());
+    }
+
 
     private static Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {
         TypedProperties inheritedProperties = properties.getInheritedProperties();

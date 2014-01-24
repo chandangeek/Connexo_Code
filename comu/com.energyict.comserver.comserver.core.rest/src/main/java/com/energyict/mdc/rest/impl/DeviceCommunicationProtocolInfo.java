@@ -10,6 +10,7 @@ import com.energyict.mdc.rest.impl.properties.PropertyInfo;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,11 +58,11 @@ public class DeviceCommunicationProtocolInfo {
         return propertyInfoList;
     }
 
-    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    public void copyProperties(DeviceProtocolPluggableClass deviceProtocolPluggableClass) throws ParseException {
         List<PropertySpec> propertySpecs = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs();
         for (PropertySpec propertySpec : propertySpecs) {
             Object value = MdcPropertyUtils.findPropertyValue(propertySpec, this.propertyInfos);
-            if (value == null) {
+            if (value == null || value.equals("")) {
                 deviceProtocolPluggableClass.removeProperty(propertySpec);
             } else {
                 deviceProtocolPluggableClass.setProperty(propertySpec, value);
