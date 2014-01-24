@@ -1,9 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
@@ -26,7 +27,6 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,14 +42,19 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  */
 public final class ConnectionTypePluggableClassImpl extends PluggableClassWrapper<ConnectionType> implements ConnectionTypePluggableClass {
 
+    private DataModel dataModel;
+    private RelationService relationService;
+    private ConnectionTypeService connectionTypeService;
     private RelationType relationType;  // Cache
 
     @Inject
-    private DataModel dataModel;
-    @Inject
-    private RelationService relationService;
-    @Inject
-    private ConnectionTypeService connectionTypeService;
+    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, RelationType relationType, DataModel dataModel, RelationService relationService, ConnectionTypeService connectionTypeService) {
+        super(eventService, thesaurus);
+        this.relationType = relationType;
+        this.dataModel = dataModel;
+        this.relationService = relationService;
+        this.connectionTypeService = connectionTypeService;
+    }
 
     static ConnectionTypePluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
         return dataModel.getInstance(ConnectionTypePluggableClassImpl.class).initializeFrom(pluggableClass);
@@ -80,13 +85,13 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public void save() throws BusinessException, SQLException {
+    public void save() {
         this.findOrCreateRelationType(true);
         super.save();
     }
 
     @Override
-    public void delete() throws BusinessException, SQLException {
+    public void delete() {
         this.deleteRelationType();
         super.delete();
     }
@@ -185,7 +190,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public RelationType findOrCreateRelationType (boolean activate) throws BusinessException, SQLException {
+    public RelationType findOrCreateRelationType (boolean activate) {
         if (this.connectionTypeHasProperties()) {
             ConnectionType connectionType = this.newInstance();
             String relationTypeName = this.relationTypeNameFor(connectionType);
@@ -215,9 +220,8 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
      * uses the {@link RelationType} to hold attribute values.
      *
      * @param relationType The RelationType
-     * @throws SQLException Indicates failures to execute the sql that registers the usage
      */
-    private void registerRelationType(RelationType relationType) throws SQLException {
+    private void registerRelationType(RelationType relationType) {
         PluggableClassRelationAttributeTypeRegistry typeRegistry = this.getPluggableClassRelationAttributeTypeRegistry();
         RelationAttributeType attributeType = relationType.getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME);
         if (!typeRegistry.isRegistered(this, attributeType)) {
@@ -226,7 +230,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public void deleteRelationType () throws BusinessException, SQLException {
+    public void deleteRelationType () {
         RelationType relationType;
         try {
             relationType = this.findRelationType();
@@ -254,17 +258,15 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     /**
      * Undo the registration of the fact that this ConnectionTypePluggableClass
      * uses the {@link RelationType} to hold attribute values.
-     *
-     * @throws SQLException Indicates failures to execute the sql that registers the usage
      */
-    private void unregisterRelationType () throws SQLException {
+    private void unregisterRelationType () {
         if (this.connectionTypeHasProperties()) {
             RelationType relationType = this.findRelationType();
             this.getPluggableClassRelationAttributeTypeRegistry().unRegister(this, relationType.getAttributeType(CONNECTION_METHOD_ATTRIBUTE_NAME));
         }
     }
 
-    private RelationType createRelationType (ConnectionType connectionType) throws BusinessException, SQLException {
+    private RelationType createRelationType (ConnectionType connectionType) {
         RelationTypeShadow relationTypeShadow = new RelationTypeShadow();
         relationTypeShadow.setSystem(true);
         relationTypeShadow.setName(this.relationTypeNameFor(connectionType));
@@ -320,7 +322,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         return RelationUtils.createConformRelationAttributeName(name);
     }
 
-    private void activate (RelationType relationType) throws BusinessException, SQLException {
+    private void activate (RelationType relationType) {
         relationType.activate();
     }
 

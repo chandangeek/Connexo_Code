@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -29,6 +30,7 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -99,8 +101,6 @@ public class MeterProtocolAdapterTest {
     @Mock
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     @Mock
-    private DeviceProtocolSecurityService deviceProtocolSecurityService;
-    @Mock
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
     @Mock
     private DataModel dataModel;
@@ -108,6 +108,8 @@ public class MeterProtocolAdapterTest {
     private TransactionService transactionService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private NlsService nlsService;
     @Mock
     private EventService eventService;
     @Mock
@@ -117,12 +119,16 @@ public class MeterProtocolAdapterTest {
     @Mock
     private DeviceProtocolService deviceProtocolService;
     @Mock
+    private DeviceProtocolMessageService deviceProtocolMessageService;
+    @Mock
+    private DeviceProtocolSecurityService deviceProtocolSecurityService;
+    @Mock
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private ConnectionTypeService connectionTypeService;
+
     @Mock
     private PropertySpecService propertySpecService;
-
     private ProtocolPluggableService protocolPluggableService;
 
     @Before
@@ -136,10 +142,13 @@ public class MeterProtocolAdapterTest {
                 new ProtocolPluggableServiceImpl(
                         this.ormService,
                         this.eventService,
+                        this.nlsService,
                         this.propertySpecService,
                         this.pluggableService,
                         this.relationService,
                         this.deviceProtocolService,
+                        this.deviceProtocolMessageService,
+                        this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService);
     }
@@ -641,6 +650,7 @@ public class MeterProtocolAdapterTest {
                     new MeterProtocolSecuritySupportAdapter(
                             getMeterProtocol(),
                             this.getPropertySpecService(),
+                            protocolPluggableService,
                             mock(PropertiesAdapter.class),
                             this.getSecuritySupportAdapterMappingFactory()));
         }

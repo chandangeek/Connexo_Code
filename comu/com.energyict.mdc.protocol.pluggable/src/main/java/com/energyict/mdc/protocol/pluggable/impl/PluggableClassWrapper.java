@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -8,10 +9,10 @@ import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -29,9 +30,23 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
 
     private static final Pattern VERSION_DATE_PATTERN = Pattern.compile("\\$Date:(.*)\\$");
 
-    private PluggableClass pluggableClass;
-    @Inject
     private EventService eventService;
+    private Thesaurus thesaurus;
+    private PluggableClass pluggableClass;
+
+    @Inject
+    protected PluggableClassWrapper(EventService eventService, Thesaurus thesaurus) {
+        this.eventService = eventService;
+        this.thesaurus = thesaurus;
+    }
+
+    protected EventService getEventService() {
+        return eventService;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
 
     protected PluggableClass getPluggableClass() {
         return pluggableClass;
@@ -81,19 +96,19 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         this.getPluggableClass().removeProperty(propertySpec);
     }
 
-    public void save() throws BusinessException, SQLException {
+    public void save() {
         this.validate();
         this.getPluggableClass().save();
     }
 
-    public void delete() throws BusinessException, SQLException {
+    public void delete() {
         this.notifyDelete();
         this.getPluggableClass().delete();
     }
 
     protected abstract Discriminator discriminator();
 
-    protected abstract void validateLicense () throws BusinessException;
+    protected abstract void validateLicense ();
 
     protected void notifyDelete() {
         this.eventService.postEvent(EventType.DELETED.topic(), this);
@@ -101,14 +116,14 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
 
     protected abstract T newInstance (PluggableClass pluggableClass);
 
-    protected void validate () throws BusinessException {
+    protected void validate () {
         this.validateLicense();
         try {
             T pluggable = this.newInstance();
-            this.discriminator().checkInterfaceCompatibility(pluggable);
+            this.discriminator().checkInterfaceCompatibility(pluggable, this.getThesaurus());
         }
         catch (UnableToCreateConnectionType e) {
-            throw new BusinessException("PluggableClass.newInstance.failure", "Failure to create instance of pluggable class {0}", this.getJavaClassName(), e.getCause());
+            throw new PluggableClassCreationException(this.getThesaurus(), this.getJavaClassName(), e.getCause());
         }
     }
 

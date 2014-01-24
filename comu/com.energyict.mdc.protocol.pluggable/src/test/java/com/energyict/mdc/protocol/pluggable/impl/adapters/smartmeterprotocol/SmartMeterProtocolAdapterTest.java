@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.impl.DefaultClock;
-import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
@@ -34,6 +33,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
 import org.junit.*;
@@ -595,6 +595,7 @@ public class SmartMeterProtocolAdapterTest {
                     new SmartMeterProtocolSecuritySupportAdapter(
                             getSmartMeterProtocol(),
                             this.getPropertySpecService(),
+                            protocolPluggableService,
                             mock(PropertiesAdapter.class),
                             this.getSecuritySupportAdapterMappingFactory()));
         }

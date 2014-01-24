@@ -23,7 +23,7 @@ import java.sql.SQLException;
  */
 public class DeviceProtocolSecurityRelationTypeCreator {
 
-    public static void createRelationType(DataModel dataModel, ProtocolPluggableService protocolPluggableService, RelationService relationService, DeviceProtocolPluggableClass deviceProtocolPluggableClass) throws BusinessException, SQLException {
+    public static void createRelationType(DataModel dataModel, ProtocolPluggableService protocolPluggableService, RelationService relationService, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
         SecurityPropertySetRelationTypeSupport relationTypeSupport =
                 new SecurityPropertySetRelationTypeSupport(

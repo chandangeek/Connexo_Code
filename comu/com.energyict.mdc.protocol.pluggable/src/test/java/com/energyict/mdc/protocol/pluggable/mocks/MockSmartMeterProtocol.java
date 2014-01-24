@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
@@ -40,6 +41,11 @@ import java.util.logging.Logger;
  * @since 2014-01-16 (12:12)
  */
 public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+
+    }
 
     @Override
     public RegisterInfo translateRegister(Register register) throws IOException {

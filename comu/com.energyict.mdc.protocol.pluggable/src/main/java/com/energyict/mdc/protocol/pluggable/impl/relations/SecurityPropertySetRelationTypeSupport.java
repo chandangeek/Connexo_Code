@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.pluggable.impl.relations;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
@@ -21,8 +20,6 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.PluggableClassRelationAttributeTypeRegistry;
 import com.energyict.mdc.protocol.pluggable.impl.PluggableClassRelationAttributeTypeUsage;
-
-import java.sql.SQLException;
 
 /**
  * Provides {@link RelationTypeSupport} for the security properties of a {@link DeviceSecuritySupport}.
@@ -46,7 +43,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
     }
 
     @Override
-    public RelationType findOrCreateRelationType (boolean activate) throws BusinessException, SQLException {
+    public RelationType findOrCreateRelationType (boolean activate) {
         if (this.deviceProtocolHasSecurityProperties()) {
             String relationTypeName = this.appropriateRelationTypeName();
             RelationType relationType = this.findRelationType(relationTypeName);
@@ -66,7 +63,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         }
     }
 
-    private RelationType createRelationType (DeviceSecuritySupport securitySupport) throws BusinessException, SQLException {
+    private RelationType createRelationType (DeviceSecuritySupport securitySupport) {
         RelationTypeShadow relationTypeShadow = new RelationTypeShadow();
         relationTypeShadow.setSystem(true);
         relationTypeShadow.setName(this.appropriateRelationTypeName());
@@ -129,11 +126,11 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         return shadow;
     }
 
-    private void activate (RelationType relationType) throws BusinessException, SQLException {
+    private void activate (RelationType relationType) {
         relationType.activate();
     }
 
-    private void registerRelationType () throws SQLException {
+    private void registerRelationType () {
         RelationType relationType = this.findRelationType();
         PluggableClassRelationAttributeTypeRegistry registry = new PluggableClassRelationAttributeTypeRegistry(this.mapper);
         if (!registry.isDefaultAttribute(relationType.getAttributeType(DEVICE_ATTRIBUTE_NAME))) {
@@ -142,7 +139,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
         }
     }
 
-    private void unregisterRelationType () throws SQLException {
+    private void unregisterRelationType () {
         if (this.deviceProtocolHasSecurityProperties()) {
             RelationType relationType = this.findRelationType();
             PluggableClassRelationAttributeTypeRegistry registry = new PluggableClassRelationAttributeTypeRegistry(this.mapper);
@@ -152,7 +149,7 @@ public class SecurityPropertySetRelationTypeSupport extends AbstractSecurityProp
     }
 
     @Override
-    public void deleteRelationType () throws BusinessException, SQLException {
+    public void deleteRelationType () {
         RelationType relationType;
         try {
             relationType = this.findRelationType();

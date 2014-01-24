@@ -24,7 +24,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -60,7 +59,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public RelationType findOrCreateRelationType(boolean activate) throws BusinessException, SQLException {
+    public RelationType findOrCreateRelationType(boolean activate) {
         if (this.deviceProtocolDialectHasProperties()) {
             String relationTypeName = getConformRelationTypeName();
             RelationType relationType = this.findRelationType(relationTypeName);
@@ -87,7 +86,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
         return this.relationService.findRelationType(relationTypeName);
     }
 
-    private RelationType createRelationType(DeviceProtocolDialect deviceProtocolDialect) throws BusinessException, SQLException {
+    private RelationType createRelationType(DeviceProtocolDialect deviceProtocolDialect) {
         RelationTypeShadow relationTypeShadow = new RelationTypeShadow();
         relationTypeShadow.setSystem(true);
         relationTypeShadow.setName(getConformRelationTypeName());
@@ -110,7 +109,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
         return shadow;
     }
 
-    private void activate(RelationType relationType) throws BusinessException, SQLException {
+    private void activate(RelationType relationType) {
         relationType.activate();
     }
 
@@ -155,7 +154,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public void deleteRelationType() throws BusinessException, SQLException {
+    public void deleteRelationType() {
         RelationType relationType;
         try {
             relationType = this.findRelationType();
@@ -185,10 +184,8 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     /**
      * Registers the fact that this ConnectionTypePluggableClass
      * uses the {@link RelationType} to hold attribute values.
-     *
-     * @throws SQLException Indicates failures to execute the sql that registers the usage
      */
-    public void registerRelationType(RelationType relationType, PluggableClass pluggableClass) throws SQLException {
+    public void registerRelationType(RelationType relationType, PluggableClass pluggableClass) {
         PluggableClassRelationAttributeTypeRegistry typeRegistry =
                 new PluggableClassRelationAttributeTypeRegistry(this.dataModel.mapper(PluggableClassRelationAttributeTypeUsage.class));
         RelationAttributeType attributeType = relationType.getAttributeType(DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
@@ -202,9 +199,8 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
      * uses the {@link RelationType} to hold attribute values.
      *
      * @param pluggableClass The DeviceProtocolPluggableClass
-     * @throws SQLException Indicates failures to execute the sql that registers the usage
      */
-    private void unRegisterRelationType(DeviceProtocolPluggableClass pluggableClass) throws SQLException {
+    private void unRegisterRelationType(DeviceProtocolPluggableClass pluggableClass) {
         if (this.deviceProtocolDialectHasProperties()) {
             RelationType relationType = this.findRelationType();
             PluggableClassRelationAttributeTypeRegistry registry =
@@ -288,7 +284,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public void save() throws BusinessException, SQLException {
+    public void save() {
         this.deviceProtocolPluggableClass.save();
     }
 
@@ -298,7 +294,7 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
-    public void delete() throws BusinessException, SQLException {
+    public void delete() {
         this.deviceProtocolPluggableClass.delete();
     }
 

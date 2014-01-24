@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -32,6 +33,11 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     public static final PropertySpec thirdPropSpec = OptionalPropertySpecFactory.newInstance().stringPropertySpec(THIRD_PROPERTY_NAME);
     public static final int AUTHENTICATION_DEVICE_ACCESS_LEVEL_ID = 1000;
     public static final int ENCRYPTION_DEVICE_ACCESS_LEVEL_ID = 2000;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+
+    }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {

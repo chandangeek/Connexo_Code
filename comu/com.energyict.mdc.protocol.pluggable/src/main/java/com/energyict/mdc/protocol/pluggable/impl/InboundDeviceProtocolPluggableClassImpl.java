@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -20,8 +22,13 @@ import java.util.List;
  */
 public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClassWrapper<InboundDeviceProtocol> implements InboundDeviceProtocolPluggableClass {
 
-    @Inject
     private InboundDeviceProtocolService inboundDeviceProtocolService;
+
+    @Inject
+    public InboundDeviceProtocolPluggableClassImpl(EventService eventService, Thesaurus thesaurus, InboundDeviceProtocolService inboundDeviceProtocolService) {
+        super(eventService, thesaurus);
+        this.inboundDeviceProtocolService = inboundDeviceProtocolService;
+    }
 
     static InboundDeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
         return dataModel.getInstance(InboundDeviceProtocolPluggableClassImpl.class).initializeFrom(pluggableClass);
