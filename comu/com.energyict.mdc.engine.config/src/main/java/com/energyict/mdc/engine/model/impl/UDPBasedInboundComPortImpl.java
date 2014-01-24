@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.google.inject.Provider;
@@ -32,6 +33,11 @@ public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implem
         validateNotNull(this.bufferSize, "comport.datagrambuffersize");
     }
 
+    @Override
+    protected void copyFrom(ComPort source) {
+        super.copyFrom(source);
+        this.setBufferSize(((UDPBasedInboundComPort)source).getBufferSize());
+    }
 
     @Override
     public int getBufferSize () {

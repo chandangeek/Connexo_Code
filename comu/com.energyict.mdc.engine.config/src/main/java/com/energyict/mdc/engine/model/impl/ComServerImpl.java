@@ -18,6 +18,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 
+import java.util.Collection;
+import java.util.HashMap;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -77,10 +79,6 @@ public abstract class ComServerImpl implements ComServer {
         this.udpBasedInboundComPortProvider = udpBasedInboundComPortProvider;
     }
 
-    private List<ComPort> getServerComPorts () {
-        return ImmutableList.copyOf(this.comPorts);
-    }
-
     protected void validate(){
         this.validate(name);
         this.validateConstraint(name);
@@ -133,7 +131,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     private void makeComPortsObsolete () {
-        for (ComPort comPort : this.getServerComPorts()) {
+        for (ComPort comPort : this.getComPorts()) {
             comPort.makeObsolete();
         }
     }
@@ -153,24 +151,36 @@ public abstract class ComServerImpl implements ComServer {
 
     @Override
     public List<ComPort> getComPorts() {
-        List<ComPort> comPorts = new ArrayList<>();
-        for (ComPort comPort : this.getServerComPorts()) {
-            comPorts.add(comPort);
-        }
-        return ImmutableList.copyOf(comPorts);
+        return ImmutableList.copyOf(this.comPorts);
     }
 
-    public void setComPorts(List<ComPort> comPorts) {
-        //todo merge lists in stead of delting re-adding
-        this.comPorts.clear();
-        for (ComPort comPort : comPorts) {
-            this.comPorts.add((ComPort) comPort);
+    public void setComPorts(List<ComPort> newComPorts) {
+        Map<Long, ComPort> newComPortIdMap = asIdz(newComPorts);
+        for (ComPort comPort : this.comPorts) {
+            if (newComPortIdMap.containsKey(comPort.getId())) {
+                ((ComPortImpl)comPort).copyFrom(newComPortIdMap.get(comPort.getId()));
+                newComPortIdMap.remove(comPort.getId());
+            } else {
+                this.removeComPort(comPort.getId());
+            }
         }
+
+        for (ComPort comPort : newComPortIdMap.values()) {
+            this.comPorts.add(comPort);
+        }
+    }
+
+    private Map<Long, ComPort> asIdz(Collection<ComPort> comPorts) {
+        Map<Long, ComPort> comPortIdMap = new HashMap<>();
+        for (ComPort comPort : comPorts) {
+            comPortIdMap.put(comPort.getId(), comPort);
+        }
+        return comPortIdMap;
     }
 
     public final  List<InboundComPort> getInboundComPorts () {
         List<InboundComPort> inboundComPorts = new ArrayList<>();
-        for (ComPort comPort : this.getServerComPorts()) {
+        for (ComPort comPort : this.getComPorts()) {
             if (comPort.isInbound()) {
                 InboundComPort inboundComPort = (InboundComPort) comPort;
                 inboundComPorts.add(inboundComPort);
@@ -181,7 +191,7 @@ public abstract class ComServerImpl implements ComServer {
 
     public final List<OutboundComPort> getOutboundComPorts() {
         List<OutboundComPort> outboundComPorts = new ArrayList<>();
-        for (ComPort comPort : this.getServerComPorts()) {
+        for (ComPort comPort : this.getComPorts()) {
             if (!comPort.isInbound()) {
                 OutboundComPort outboundComPort = (OutboundComPort) comPort;
                 outboundComPorts.add(outboundComPort);
@@ -218,7 +228,8 @@ public abstract class ComServerImpl implements ComServer {
         return new ServletBasedComPortBuilder();
     }
 
-    public class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl {
+    public class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl
+        implements ServletBasedInboundComPort.ServletBasedInboundComPortBuilder {
 
         protected ServletBasedComPortBuilder() {
             super(servletBasedInboundComPortProvider);
@@ -238,7 +249,8 @@ public abstract class ComServerImpl implements ComServer {
         return new ModemBasedComPortBuilder();
     }
 
-    public class ModemBasedComPortBuilder extends ModemBasedInboundComPortImpl.ModemBasedInboundComPortBuilderImpl {
+    public class ModemBasedComPortBuilder extends ModemBasedInboundComPortImpl.ModemBasedInboundComPortBuilderImpl
+            implements ModemBasedInboundComPort.ModemBasedInboundComPortBuilder {
 
         protected ModemBasedComPortBuilder() {
             super(modemBasedInboundComPortProvider);

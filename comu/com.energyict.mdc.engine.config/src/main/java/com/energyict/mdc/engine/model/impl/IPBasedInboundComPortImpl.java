@@ -51,6 +51,14 @@ public abstract class IPBasedInboundComPortImpl extends InboundComPortImpl imple
         validateDuplicatePortNumber();
     }
 
+    @Override
+    protected void copyFrom(ComPort source) {
+        super.copyFrom(source);
+        IPBasedInboundComPort mySource = (IPBasedInboundComPort) source;
+        this.setPortNumber(mySource.getPortNumber());
+        this.setNumberOfSimultaneousConnections(mySource.getNumberOfSimultaneousConnections());
+    }
+
     private void validateDuplicatePortNumber()  {
         for (ComPort comPort : getComServer().getComPorts()) {
             if(comPort.getId() != this.getId()){

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -65,6 +66,12 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
         for (ComPortPool comPortPool : engineModelService.findContainingComPortPoolsForComPort(this)) {
             ((OutboundComPortPool)comPortPool).removeOutboundComPort(this);
         }
+    }
+
+    @Override
+    protected void copyFrom(ComPort source) {
+        super.copyFrom(source);
+        this.setNumberOfSimultaneousConnections(source.getNumberOfSimultaneousConnections());
     }
 
     /**

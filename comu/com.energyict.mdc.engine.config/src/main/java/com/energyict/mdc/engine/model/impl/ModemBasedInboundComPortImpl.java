@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
@@ -210,6 +211,23 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
             throw new TranslatableApplicationException("comport.serialportconfigurationcomportname", "The comport name of the serial port configuration ({0}) should match the name of the comport ({1}).",
                     this.getSerialPortConfiguration().getComPortName(), this.getName());
         }
+    }
+
+    @Override
+    protected void copyFrom(ComPort source) {
+        super.copyFrom(source);
+        ModemBasedInboundComPort mySource = (ModemBasedInboundComPort) source;
+        this.setRingCount(mySource.getRingCount());
+        this.setMaximumDialErrors(mySource.getMaximumDialErrors());
+        this.setConnectTimeout(mySource.getConnectTimeout());
+        this.setDelayAfterConnect(mySource.getDelayAfterConnect());
+        this.setDelayBeforeSend(mySource.getDelayBeforeSend());
+        this.setAtCommandTimeout(mySource.getAtCommandTimeout());
+        this.setAtCommandTry(mySource.getAtCommandTry());
+        this.setModemInitStrings(mySource.getModemInitStrings());
+        this.setAddressSelector(mySource.getAddressSelector());
+        this.setPostDialCommands(mySource.getPostDialCommands());
+        this.setSerialPortConfiguration(mySource.getSerialPortConfiguration());
     }
 
     public static class ModemBasedInboundComPortBuilderImpl extends InboundComPortBuilderImpl<ModemBasedInboundComPortBuilder, ModemBasedInboundComPort>

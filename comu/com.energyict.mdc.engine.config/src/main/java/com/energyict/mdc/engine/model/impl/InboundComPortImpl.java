@@ -71,6 +71,12 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
         return false;
     }
 
+    @Override
+    protected void copyFrom(ComPort source) {
+        super.copyFrom(source);
+        InboundComPort mySource = (InboundComPort) source;
+        this.setComPortPool(mySource.getComPortPool());
+    }
 
     static class InboundComPortBuilderImpl<B extends InboundComPortBuilder<B,C>, C extends InboundComPort>
             extends ComPortBuilderImpl<B, C> implements InboundComPortBuilder<B,C> {

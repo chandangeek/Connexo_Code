@@ -109,6 +109,18 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
         this.contextPath = contextPath;
     }
 
+    @Override
+    protected void copyFrom(ComPort source) {
+        super.copyFrom(source);
+        ServletBasedInboundComPort mySource = (ServletBasedInboundComPort) source;
+        this.setHttps(mySource.useHttps());
+        this.setKeyStoreSpecsFilePath(mySource.getKeyStoreSpecsFilePath());
+        this.setKeyStoreSpecsPassword(mySource.getKeyStoreSpecsPassword());
+        this.setTrustStoreSpecsFilePath(mySource.getTrustStoreSpecsFilePath());
+        this.setTrustStoreSpecsPassword(mySource.getTrustStoreSpecsPassword());
+        this.setContextPath(contextPath);
+    }
+
     static class ServletBasedInboundComPortBuilderImpl extends IpBasedInboundComPortBuilderImpl<ServletBasedInboundComPortBuilder, ServletBasedInboundComPort>
             implements ServletBasedInboundComPortBuilder {
 

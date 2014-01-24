@@ -189,6 +189,7 @@ public abstract class ComPortImpl implements ComPort {
             throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
             validateUpdateAllowed();
+            // TODO route to comServer instead
             dataModel.update(this);
         }
     }
@@ -208,6 +209,12 @@ public abstract class ComPortImpl implements ComPort {
                     this.getId(),
                     this.getObsoleteDate());
         }
+    }
+
+    protected void copyFrom(ComPort source) {
+        this.setName(source.getName());
+        this.setActive(source.isActive());
+        this.setDescription(source.getDescription());
     }
 
     static protected class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
