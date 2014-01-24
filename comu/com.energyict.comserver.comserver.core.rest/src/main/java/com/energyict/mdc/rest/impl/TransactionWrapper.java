@@ -2,11 +2,12 @@ package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import javax.inject.Inject;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
+
+import javax.inject.Inject;
 
 /**
  * This listener automatically closes DB connection after EVERY REST call

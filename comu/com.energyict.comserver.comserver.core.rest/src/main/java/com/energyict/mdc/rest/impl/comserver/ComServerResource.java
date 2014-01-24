@@ -77,7 +77,7 @@ public class ComServerResource {
             comServer.delete();
             return Response.ok().build();
         } catch (Exception e) {
-            throw new WebApplicationException(e, Response.serverError().build());
+            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
 
@@ -91,7 +91,7 @@ public class ComServerResource {
             onlineComServer.save();
             return ComServerInfoFactory.asInfo(onlineComServer);
         } catch (Exception e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
 
@@ -120,7 +120,7 @@ public class ComServerResource {
             comServer.save();
             return ComServerInfoFactory.asInfo(comServer);
         } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(e, Response.serverError().build());
+            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
 
