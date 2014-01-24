@@ -4,16 +4,14 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.issues.Bus;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.CanFindRegister;
 import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -21,16 +19,19 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -47,10 +48,7 @@ import java.util.List;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests that mock the comchannel and stub an incoming frame to test the inbound parsing of the RequestDiscover implementation
@@ -83,6 +81,8 @@ public class RequestDiscoverTest {
     protected CollectedDataFactory collectedDataFactory;
     @Mock
     protected IssueCollector issueCollector;
+    @Mock
+    protected IssueService issueService;
     @Mock
     private CollectedRegisterList collectedRegisterList;
 
@@ -126,9 +126,7 @@ public class RequestDiscoverTest {
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
         when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
-        IssueService issueService = mock(IssueService.class);
         when(issueService.newIssueCollector()).thenReturn(issueCollector);
-        Bus.setIssueService(issueService);
     }
 
     @Test

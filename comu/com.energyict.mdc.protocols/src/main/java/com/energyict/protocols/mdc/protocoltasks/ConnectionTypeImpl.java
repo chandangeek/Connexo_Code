@@ -28,7 +28,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (15:19)
  */
-public abstract class ConnectionTypeImpl implements ConnectionType {
+public abstract class ConnectionTypeImpl implements ServerConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
     private PropertySpecService propertySpecService;
