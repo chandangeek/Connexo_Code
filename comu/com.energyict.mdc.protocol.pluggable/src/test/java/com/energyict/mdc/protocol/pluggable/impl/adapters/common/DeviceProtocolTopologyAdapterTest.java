@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.UserEnvironment;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.device.Device;
@@ -10,20 +11,19 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -106,10 +106,12 @@ public class DeviceProtocolTopologyAdapterTest {
     public void getUnsupportedCollectedTopology(){
         DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService);
         deviceProtocolTopologyAdapter.setDeviceIdentifier(getDeviceIdentifier());
-        CollectedTopology deviceTopology = deviceProtocolTopologyAdapter.getDeviceTopology();
+
+        // Business method
+        deviceProtocolTopologyAdapter.getDeviceTopology();
 
         // Asserts
-        verify(this.collectedTopology).setFailureInformation(eq(ResultType.NotSupported), eq(this.device), anyString());
+        verify(this.collectedTopology).setFailureInformation(eq(ResultType.NotSupported), any(Issue.class));
         verify(this.issueService).newProblem(anyString(), anyString(), anyVararg());
     }
 

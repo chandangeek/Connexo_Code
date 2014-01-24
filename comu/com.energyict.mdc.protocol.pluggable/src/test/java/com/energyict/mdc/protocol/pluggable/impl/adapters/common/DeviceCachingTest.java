@@ -1,14 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -33,6 +34,8 @@ public class DeviceCachingTest {
 
     @Mock
     private DataModel dataModel;
+    @Mock
+    private IssueService issueService;
 
     @Test
     public void getCacheAlwaysChangedTest(){

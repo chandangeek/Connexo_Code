@@ -13,6 +13,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.impl.ServiceLocator;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -42,9 +43,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterR
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolSecuritySupportAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.SimpleTestMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
@@ -126,6 +124,8 @@ public class MeterProtocolAdapterTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private ConnectionTypeService connectionTypeService;
+    @Mock
+    private IssueService issueService;
 
     @Mock
     private PropertySpecService propertySpecService;
