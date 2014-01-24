@@ -48,9 +48,8 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     private RelationType relationType;  // Cache
 
     @Inject
-    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, RelationType relationType, DataModel dataModel, RelationService relationService, ConnectionTypeService connectionTypeService) {
+    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, DataModel dataModel, RelationService relationService, ConnectionTypeService connectionTypeService) {
         super(eventService, thesaurus);
-        this.relationType = relationType;
         this.dataModel = dataModel;
         this.relationService = relationService;
         this.connectionTypeService = connectionTypeService;
