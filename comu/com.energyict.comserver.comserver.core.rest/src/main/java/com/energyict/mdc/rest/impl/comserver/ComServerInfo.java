@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -20,24 +21,43 @@ import java.util.List;
      @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote") })
 public abstract class ComServerInfo<S extends ComServer> {
 
+    @JsonProperty("id")
     public long id;
+    @JsonProperty("name")
     public String name;
+    @JsonProperty("active")
     public boolean active;
+    @JsonProperty("serverLogLevel")
     public ComServer.LogLevel serverLogLevel;
+    @JsonProperty("communicationLogLevel")
     public ComServer.LogLevel communicationLogLevel;
+    @JsonProperty("changesInterPollDelay")
     public TimeDurationInfo changesInterPollDelay;
+    @JsonProperty("schedulingInterPollDelay")
     public TimeDurationInfo schedulingInterPollDelay;
+    @JsonProperty("inboundComPorts")
     public List<InboundComPortInfo<? extends InboundComPort>> inboundComPorts;
+    @JsonProperty("outboundComPorts")
     public List<OutboundComPortInfo> outboundComPorts;
+    @JsonProperty("onlineComServerId")
     public Long onlineComServerId;
+    @JsonProperty("queryAPIUsername")
     public String queryAPIUsername;
+    @JsonProperty("queryAPIPassword")
     public String queryAPIPassword;
+    @JsonProperty("queryAPIPostUri")
     public String queryAPIPostUri;
+    @JsonProperty("usesDefaultQueryAPIPostUri")
     public boolean usesDefaultQueryAPIPostUri;
+    @JsonProperty("eventRegistrationUri")
     public String eventRegistrationUri;
+    @JsonProperty("usesDefaultEventRegistrationUri")
     public boolean usesDefaultEventRegistrationUri;
+    @JsonProperty("storeTaskQueueSize")
     public int storeTaskQueueSize;
+    @JsonProperty("numberOfStoreTaskThreads")
     public int numberOfStoreTaskThreads;
+    @JsonProperty("storeTaskThreadPriority")
     public int storeTaskThreadPriority;
 
     public ComServerInfo() {
