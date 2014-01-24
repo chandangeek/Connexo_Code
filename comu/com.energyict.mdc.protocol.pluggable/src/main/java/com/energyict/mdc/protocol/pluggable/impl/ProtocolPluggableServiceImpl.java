@@ -45,7 +45,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -390,7 +389,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.dataModel = dataModel;
     }
 
-    DataModel getDataModel() {
+    public DataModel getDataModel() {
         return dataModel;
     }
 
