@@ -29,6 +29,12 @@ Ext.define('Mdc.controller.setup.Properties', {
             ref: 'codeTableSelectionGrid',
             selector: ' #codeTableSelectionGrid'}
     ],
+    timeDurationStore: Ext.create('Ext.data.Store', {
+        fields: [
+            {name: 'key', type: 'string'},
+            {name: 'value', type: 'string'}
+        ]
+    }),
 
     codeTableSelectionWindow: null,
     buttonClicked: null,
@@ -131,12 +137,16 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertiesView.addHexStringProperty(key, value);
                         break;
                     case 'BOOLEAN':
-                        propertiesView.addBooleanProperty(key, value);
+                        if (value === '1') {
+                            propertiesView.addBooleanProperty(key, true);
+                        } else {
+                            propertiesView.addBooleanProperty(key, false);
+                        }
                         break;
                     case 'NULLABLE_BOOLEAN':
-                        if (value === 'true') {
+                        if (value === '1') {
                             propertiesView.addNullableBooleanProperty(key, true, false, false);
-                        } else if (value === 'false') {
+                        } else if (value === '0') {
                             propertiesView.addNullableBooleanProperty(key, false, true, false);
                         } else {
                             propertiesView.addNullableBooleanProperty(key, false, false, true);
@@ -145,7 +155,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                         break;
                     case 'NUMBER':
                         if (selectionMode === 'COMBOBOX') {
-                            propertiesView.addComboBoxNumberProperty(key, predefinedPropertyValues, value, exhaustive);
+                            propertiesView.addComboBoxNumberProperty(key, predefinedPropertyValues, parseFloat(value), exhaustive);
                         } else {
                             var allowDecimals = true;
                             if (propertyValidationRule != null) {
@@ -160,10 +170,28 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertiesView.addDateTimeProperty(key, value);
                         break;
                     case 'DATE':
-                        propertiesView.addDateProperty(key, value);
+                        console.log('date');
+                        console.log(value);
+                        if (value !== null){
+                        propertiesView.addDateProperty(key, new Date(value));
+                        } else {
+                        propertiesView.addDateProperty(key, null);
+                        }
                         break;
                     case 'TIMEDURATION':
-                        propertiesView.addTimeDurationProperty(key, value);
+                        if (value != null) {
+                            var durationValue = moment.duration(value.seconds, 'seconds').humanize();
+                        }
+
+                        if (selectionMode === 'COMBOBOX') {
+                            for (var i = 0; i < predefinedPropertyValues.length; i++) {
+                                var timeDuration = moment.duration(predefinedPropertyValues[i].seconds, 'seconds').humanize();
+                                me.timeDurationStore.add({key: predefinedPropertyValues[i].seconds, value: timeDuration})
+                            }
+                            propertiesView.addComboBoxTextProperty(key, me.timeDurationStore, durationValue, exhaustive);
+                        } else {
+                            propertiesView.addTimeDurationProperty(key, durationValue);
+                        }
                         break;
                     case 'TIMEOFDAY':
                         propertiesView.addTimeProperty(key, value);
@@ -175,6 +203,15 @@ Ext.define('Mdc.controller.setup.Properties', {
                         if (selectionMode === 'COMBOBOX') {
                             properties.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive);
                         }
+                    case 'EAN13':
+                        propertiesView.addEan13StringProperty(key, value);
+                        break;
+                    case 'EAN18':
+                        propertiesView.addEan18StringProperty(key, value);
+                        break;
+                    case 'USERFILE':
+                        propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, value);
+                        break;
                     case 'UNKNOWN':
                         propertiesView.addTextProperty(key, value);
                         break;
@@ -220,22 +257,21 @@ Ext.define('Mdc.controller.setup.Properties', {
         var newValue;
         try {
             property.getPropertyValue().value = null;
-            property.data.isInheritedOrDefaultValue = true;
-            this.propertiesStore.commitChanges();
             newValue = property.getPropertyValue().data.inheritedValue;
             if (typeof(newValue) === 'undefined' || newValue === null || newValue === '') {
                 newValue = property.getPropertyValue().data.defaultValue;
             }
+
         } catch (ex) {
 
         }
         if (property.getPropertyType().data.simplePropertyType === 'NULLABLE_BOOLEAN') {
-            if (newValue === 'false') {
-                view.down('#' + 'rg' + key).setValue({rb: 2});
-            } else if (newValue === 'true') {
+            if (newValue === '0') {
+                view.down('#' + 'rg' + key).setValue({rb: 0});
+            } else if (newValue === '1') {
                 view.down('#' + 'rg' + key).setValue({rb: 1});
             } else {
-                view.down('#' + 'rg' + key).setValue({rb: 3});
+                view.down('#' + 'rg' + key).setValue({rb: null});
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
             view.down('#' + 'date' + key).setValue(newValue);
@@ -247,6 +283,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         } else {
             view.down('#' + key).setValue(newValue);
         }
+        property.data.isInheritedOrDefaultValue = true;
         this.disableDeleteButton(key);
     },
 
@@ -256,10 +293,6 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     changeProperty: function (field, value, options) {
         if (this.propertiesStore != null) {
-            console.log('field');
-            console.log(field);
-            console.log(value);
-            console.log(options);
             var itemId;
             if (field.xtype === 'datefield') {
                 itemId = field.itemId.substring(4);
@@ -270,40 +303,56 @@ Ext.define('Mdc.controller.setup.Properties', {
             }
             var property = this.propertiesStore.findRecord('key', itemId);
             property.data.isInheritedOrDefaultValue = false;
-            this.propertiesStore.commitChanges();
+            //this.propertiesStore.commitChanges();
             var required = property.data.required;
             this.enableDeleteButton(itemId, required, false);
         }
     },
     changeRadioGroupProperty: function (field, value, options) {
-        console.log(field);
         if (this.propertiesStore != null) {
             var property = this.propertiesStore.findRecord('key', field.itemId.substring(5));
             property.data.isInheritedOrDefaultValue = false;
-            this.propertiesStore.commitChanges();
+            //this.propertiesStore.commitChanges();
             var required = property.data.required;
             this.enableDeleteButton(field.itemId.substring(5), required, false);
-            console.log('change radio group property');
-            console.log(field);
-            console.log(value);
         }
     },
     updateProperties: function () {
-        properties = me.propertiesStore;
+        var view = this.getPropertyEdit();
+        var properties = this.propertiesStore;
         if (properties != null) {
             properties.each(function (property, id) {
+                console.log(property);
+                var propertyValue = Ext.create('Mdc.model.PropertyValue');
                 if (view.down('#' + property.data.key) != null) {
-                    var value = view.down('#' + property.data.key).getValue();
-                    var propertyValue = Ext.create('Mdc.model.PropertyValue');
-                    if (property.data.isInheritedOrDefaultValue === true) {
-                        propertyValue.data.value = null;
-                    } else {
-                        propertyValue.data.value = value;
+                    var field = view.down('#' + property.data.key);
+                    var value = field.getValue();
+                    if (field.xtype === 'checkbox') {
+                        if (value === true) {
+                            value = 1;
+                        } else {
+                            value = 0;
+                        }
                     }
-                    property.setPropertyValue(propertyValue);
-                    delete property.data.isInheritedOrDefaultValue;
-                    properties.commitChanges();
                 }
+                if (view.down('#rg' + property.data.key) != null) {
+                    var value = view.down('#rg' + property.data.key).getValue().rb;
+                }
+                if (view.down('#date' + property.data.key) != null) {
+                    var value = view.down('#date' + property.data.key).getValue();
+                }
+                if (view.down('#time' + property.data.key) != null) {
+                    var value = view.down('#time' + property.data.key).getValue();
+                }
+
+                if (property.data.isInheritedOrDefaultValue === true) {
+                    property.setPropertyValue(null);
+                } else {
+                    propertyValue.data.value = value;
+                    property.setPropertyValue(propertyValue);
+                }
+                delete property.data.isInheritedOrDefaultValue;
+                delete property.setPropertyType(null);
             });
         }
         return properties;

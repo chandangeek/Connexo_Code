@@ -51,10 +51,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
             },
             'setupDeviceCommunicationProtocols button[action=delete]': {
                 click: this.delete
-            },
+            }
+            /*,
             'deviceCommunicationProtocolEdit combobox': {
                 change: this.onChangeLicensedProtocol
-            }
+            }*/
         });
     },
 
@@ -74,7 +75,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
                             var devCommProtocolId = view.down('#deviceCommunicationProtocolId');
                             devCommProtocolId.hidden = false;
                             var licensedProtocol = deviceCommunicationProtocol.getLicensedProtocol();
-                            view.down('#licensedProtocol').setValue(licensedProtocol.data.licensedProtocolRuleCode);
+                            //view.down('#licensedProtocol').setValue(licensedProtocol.data.licensedProtocolRuleCode);
                             view.down('#protocolJavaClassName').setValue(licensedProtocol.data.protocolJavaClassName);
                             view.down('#protocolfamilygrid').reconfigure(licensedProtocol.protocolFamiliesStore);
                             me.getPropertiesController().showProperties(deviceCommunicationProtocol, view);
@@ -90,7 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
         return this.getController('Mdc.controller.setup.Properties');
     },
 
-    onChangeLicensedProtocol: function (field, value, options) {
+   /* onChangeLicensedProtocol: function (field, value, options) {
         var me = this;
         var view = this.getDeviceCommunicationProtocolEdit();
         if (view != undefined && field.name === 'licensedProtocol') {
@@ -100,7 +101,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
                 view.down('#protocolfamilygrid').reconfigure(licensedProtocol.protocolFamiliesStore);
             }
         }
-    },
+    },*/
 
     editDeviceCommunicationProtocol: function (grid, record) {
         var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols', record.getId());
@@ -113,8 +114,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
             record = form.getRecord() || Ext.create(Mdc.model.DeviceCommunicationProtocol),
             values = form.getValues();
         record.set(values);
-        var licensedProtocol = me.getLicensedProtocolsStore().findRecord('licensedProtocolRuleCode', values.licensedProtocol);
-        record.setLicensedProtocol(licensedProtocol);
+        /*var licensedProtocol = me.getLicensedProtocolsStore().findRecord('licensedProtocolRuleCode', values.licensedProtocol);
+        record.setLicensedProtocol(licensedProtocol);*/
 
         record.propertyInfosStore = me.getPropertiesController().updateProperties();
 

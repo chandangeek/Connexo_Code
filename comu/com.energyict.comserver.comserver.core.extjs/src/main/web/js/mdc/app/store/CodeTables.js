@@ -3,10 +3,9 @@ Ext.define('Mdc.store.CodeTables', {
     requires: [
         'Mdc.model.CodeTable'
     ],
-    autoLoad: true,
     model: 'Mdc.model.CodeTable',
     storeId: 'CodeTables',
-
+    autoLoad: true,
     proxy: {
         type: 'rest',
         url: '../../api/mdc/codetables',

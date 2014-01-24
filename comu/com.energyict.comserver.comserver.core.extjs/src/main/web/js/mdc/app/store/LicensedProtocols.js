@@ -3,7 +3,6 @@ Ext.define('Mdc.store.LicensedProtocols', {
     requires: [
         'Mdc.model.LicensedProtocol'
     ],
-    autoLoad: true,
     model: 'Mdc.model.LicensedProtocol',
     storeId: 'LicensedProtocols',
 

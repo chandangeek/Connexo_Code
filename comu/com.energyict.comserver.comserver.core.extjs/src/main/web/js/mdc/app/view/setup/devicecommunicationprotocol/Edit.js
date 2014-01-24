@@ -62,17 +62,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
                                 autoWidth: true,
                                 readOnly: true,
                                 size: 50
-                            },
-                            {
-                                xtype: 'combobox',
-                                name: 'licensedProtocol',
-                                itemId: 'licensedProtocol',
-                                fieldLabel: 'Licensed protocol',
-                                store: licensedProtocols,
-                                queryMode: 'local',
-                                displayField: 'protocolName',
-                                valueField: 'licensedProtocolRuleCode',
-                                size: 50
                             }
                         ]
                     }

@@ -1,43 +1,42 @@
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.setupDeviceCommunicationProtocols',
-    store: 'DeviceCommunicationProtocols',
     itemId: 'devicecommunicationprotocolgrid',
-    overflowY: 'auto',
-    layout: 'fit',
-    initComponent: function () {
-        this.columns = [
-            {
-                text: 'Device Communication Protocols',
-                xtype: 'templatecolumn',
-                tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
-                    '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
-                    '{id} - {name}' +
-                    '</caption>' +
-                    '<tr>' +
-                    '<td>Java class name: </td> ' +
-                    '<td>{licensedProtocol.protocolName}</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                    '<td>Device protocol version: </td>' +
-                    '<td>{deviceProtocolVersion}</td>' +
-                    '</tr>' +
-                    '</table>',
-                flex: 1
-            }
-        ];
+    title: 'All device communication protocols',
+    store: 'DeviceCommunicationProtocols',
 
-        this.buttons = [
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
+    ],
+
+    columns: {
+        defaults: {
+            flex: 1
+        },
+        items: [
+            { header: 'Id', dataIndex: 'id'},
+            { header: 'Name', dataIndex: 'name'},
+            { header: 'Java class name',
+                renderer: function (value, meta, record) {
+                return record.getLicensedProtocol().get('protocolJavaClassName');
+            }},
+            { header: 'Version', dataIndex: 'deviceProtocolVersion'}
+        ]
+    },
+    initComponent: function () {
+        this.dockedItems = [
             {
-                text: 'Add',
-                action: 'add'
+                xtype: 'pagingtoolbartop',
+                store: this.store,
+                dock: 'top'
             },
             {
-                text: 'Delete',
-                action: 'delete'
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                dock: 'bottom'
             }
         ];
-
         this.callParent(arguments);
     }
 });

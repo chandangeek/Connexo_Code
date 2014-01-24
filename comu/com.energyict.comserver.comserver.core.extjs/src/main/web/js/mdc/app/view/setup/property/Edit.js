@@ -117,7 +117,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
     },
     addHexStringProperty: function (key, text) {
         var me = this;
-        console.log('hex string');
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,
@@ -239,8 +238,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: key,
                     fieldLabel: key,
                     itemId: key,
-                    inputvalue: value,
-                    uncheckedValue: 'false',
+                    checked: value,
                     margin: '0 5 0 0',
                     width: 350,
                     cls: 'check'
@@ -287,7 +285,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                             name: 'rb',
                             itemId: 'rb_2_' + key,
                             checked: value2,
-                            inputValue: 2,
+                            inputValue: 0,
                             margin: '0 10 0 0'
                         },
                         {
@@ -295,7 +293,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                             name: 'rb',
                             itemId: 'rb_3_' + key,
                             checked: value3,
-                            inputValue: 3,
+                            inputValue: null,
                             margin: '0 10 0 0'
                         }
                     ]
@@ -436,10 +434,20 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 hideLabel: true
             },
             items: [
+                /*    {
+                 xtype: 'timeInfoField',
+                 name: key,
+                 fieldLabel: key
+                 },*/
                 {
-                    xtype: 'timeInfoField',
+                    xtype: 'textfield',
                     name: key,
-                    fieldLabel: key
+                    fieldLabel: key,
+                    itemId: key,
+                    value: value,
+                    size: 200,
+                    margin: '0 5 0 0',
+                    width: 350
                 },
                 {
                     xtype: 'button',
@@ -509,8 +517,52 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
+    addUserReferenceFilePropertyWithSelectionWindow: function (key, value) {
+        var me = this;
+        me.down('#fsproperties').add({
+            xtype: 'fieldcontainer',
+            combineErrors: true,
+            fieldLabel: key,
+            msgTarget: 'side',
+            layout: 'hbox',
+            defaults: {
+                hideLabel: true
+            },
+            items: [
+                {
+                    xtype: 'textfield',
+                    name: key,
+                    value: value,
+                    itemId: key,
+                    size: 75,
+                    margin: '0 5 0 0',
+                    width: 350
+                },
+                {
+                    xtype: 'button',
+                    name: 'btn_' + key,
+                    itemId: 'btn_' + key,
+                    text: '...',
+                    scale: 'small',
+                    action: 'showUserFileReference',
+                    margin: '0 5 0 0'
+                },
+                {
+                    xtype: 'button',
+                    name: 'btn_delete_' + key,
+                    itemId: 'btn_delete_' + key,
+                    text: 'Restore defaults',
+                    scale: 'small',
+                    action: 'delete',
+                    disabled: true
+                }
+            ]
+        });
+    },
     addComboBoxTextProperty: function (key, store, selectedValue, exhaustive) {
         var me = this;
+        console.log('store');
+        console.log(store);
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
             combineErrors: true,
@@ -528,8 +580,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     fieldLabel: key,
                     store: store,
                     queryMode: 'local',
-                    displayField: key,
-                    valueField: selectedValue,
+                    displayField: 'value',
+                    valueField: 'key',
                     value: selectedValue,
                     size: 50,
                     margin: '0 5 0 0',
@@ -567,13 +619,80 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     fieldLabel: key,
                     store: store,
                     queryMode: 'local',
-                    displayField: key,
+                    displayField: 'value',
+                    valueField: 'value',
                     value: selectedValue,
                     size: 50,
                     margin: '0 5 0 0',
                     width: 200,
                     fieldStyle: 'text-align:right;',
                     forceSelection: exhaustive
+                },
+                {
+                    xtype: 'button',
+                    name: 'btn_delete_' + key,
+                    itemId: 'btn_delete_' + key,
+                    text: 'Restore defaults',
+                    scale: 'small',
+                    action: 'delete',
+                    disabled: true
+                }
+            ]
+        });
+    },
+    addEan18StringProperty: function (key, text) {
+        var me = this;
+        me.down('#fsproperties').add({
+            xtype: 'fieldcontainer',
+            fieldLabel: key,
+            layout: 'hbox',
+            defaults: {
+                hideLabel: true
+            },
+            items: [
+                {
+                    xtype: 'textfield',
+                    name: key,
+                    fieldLabel: key,
+                    itemId: key,
+                    value: text,
+                    size: 200,
+                    margin: '0 5 0 0',
+                    width: 350,
+                    vtype: 'ean18'
+                },
+                {
+                    xtype: 'button',
+                    name: 'btn_delete_' + key,
+                    itemId: 'btn_delete_' + key,
+                    text: 'Restore defaults',
+                    scale: 'small',
+                    action: 'delete',
+                    disabled: true
+                }
+            ]
+        });
+    },
+    addEan13StringProperty: function (key, text) {
+        var me = this;
+        me.down('#fsproperties').add({
+            xtype: 'fieldcontainer',
+            fieldLabel: key,
+            layout: 'hbox',
+            defaults: {
+                hideLabel: true
+            },
+            items: [
+                {
+                    xtype: 'textfield',
+                    name: key,
+                    fieldLabel: key,
+                    itemId: key,
+                    value: text,
+                    size: 200,
+                    margin: '0 5 0 0',
+                    width: 350,
+                    vtype: 'ean13'
                 },
                 {
                     xtype: 'button',

@@ -3,7 +3,6 @@ Ext.define('Mdc.store.DeviceDiscoveryProtocols', {
     requires: [
         'Mdc.model.DeviceDiscoveryProtocol'
     ],
-    autoLoad: true,
     model: 'Mdc.model.DeviceDiscoveryProtocol',
     storeId: 'DeviceDiscoveryProtocols',
 

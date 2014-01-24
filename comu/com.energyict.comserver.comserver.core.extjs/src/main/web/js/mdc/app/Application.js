@@ -6,8 +6,7 @@ Ext.define('Mdc.Application', {
     requires: [
         'Mdc.PolyReader',
         'Mdc.PolyAssociation',
-        'Mdc.Association',
-        'Mdc.lib.form.field.Vtypes'
+        'Mdc.Association'
     ],
 
     views: [
@@ -25,10 +24,6 @@ Ext.define('Mdc.Application', {
     ],
 
     stores: [
-    ],
+    ]
 
-    launch: function () {
-        Ext.create('Mdc.lib.form.field.Vtypes').init();
-
-    }
 });
