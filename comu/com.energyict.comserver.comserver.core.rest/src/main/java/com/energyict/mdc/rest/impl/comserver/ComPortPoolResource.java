@@ -82,7 +82,9 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo createComPortPool(ComPortPoolInfo comPortPoolInfo) {
         try {
-            return ComPortPoolInfoFactory.asInfo(comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), engineModelService));
+            ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), engineModelService);
+            comPortPool.save();
+            return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
