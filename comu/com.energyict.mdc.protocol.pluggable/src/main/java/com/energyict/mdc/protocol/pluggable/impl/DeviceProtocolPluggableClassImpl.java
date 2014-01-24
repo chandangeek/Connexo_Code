@@ -21,11 +21,10 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolPluggableClassDependent;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
-import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
