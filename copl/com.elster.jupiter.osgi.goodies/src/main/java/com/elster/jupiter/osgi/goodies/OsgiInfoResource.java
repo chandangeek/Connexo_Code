@@ -3,6 +3,7 @@ package com.elster.jupiter.osgi.goodies;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -36,5 +37,13 @@ public class OsgiInfoResource {
 		return new GraphvizInterface().toSvg(result);
     }
     
+    @GET
+    @Path("/jupiter.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DependencyWheel getNetwork() {
+    	Analyzer analyzer = new Analyzer();
+		analyzer.build(context,admin);
+		return analyzer.getWheel();
+    }
 
 }

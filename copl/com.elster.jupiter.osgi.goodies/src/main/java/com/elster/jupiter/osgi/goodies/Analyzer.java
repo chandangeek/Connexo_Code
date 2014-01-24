@@ -220,4 +220,59 @@ public class Analyzer {
 		return bundleInfos.get(id);
 	}
 
+	Network getNetwork() {
+		Network result = new Network();
+		List<String> groups = new ArrayList<>();
+		for (BundleInfo each : bundleInfos.values()) {
+			if (each.getBundle().getSymbolicName().startsWith("com.elster.jupiter")) {
+				result.add(each.getBundle().getSymbolicName(), "" + getGroup(each.getBundle().getSymbolicName(),groups));
+			}
+		}
+		for (BundleInfo each : bundleInfos.values()) {
+			if (each.getBundle().getSymbolicName().startsWith("com.elster.jupiter")) {
+				Network.Node source = result.getNode(each.getBundle().getSymbolicName());
+				for (Bundle dependent : each.getDependents()) {
+					if (dependent.getSymbolicName().startsWith("com.elster.jupiter")) {				
+						Network.Node target = result.getNode(dependent.getSymbolicName());
+						result.add(source, target, source.group.equals(target.group) ? 1 : 10);
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	private int getGroup(String symbolicName, List<String> groups) {
+		if (symbolicName.contains(".rest")) {
+			return 10;
+		}
+		if (symbolicName.contains(".extjs")) {
+			return 11;
+		}
+		if (symbolicName.contains(".oracle")) {
+			return 12;
+		}
+		String[] parts = symbolicName.split("\\.");
+		return parts.length;
+ 	}
+	
+	DependencyWheel getWheel() {
+		DependencyWheel result = new DependencyWheel();
+		for (BundleInfo each : bundleInfos.values()) {
+			//if (each.getBundle().getSymbolicName().startsWith("com.elster")) {
+				result.add(each.getBundle().getSymbolicName());
+			//}
+		}
+		result.initMatrix();
+		for (BundleInfo each : bundleInfos.values()) {
+			//if (each.getBundle().getSymbolicName().startsWith("com.elster")) {
+				for (Bundle dependent : each.getDependents()) {
+					//if (dependent.getSymbolicName().startsWith("com.elster")) {
+						result.setDependency(dependent.getSymbolicName(),each.getBundle().getSymbolicName());
+					//}
+				}
+			//}
+		}
+		return result;
+	}
 }

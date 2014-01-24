@@ -2,6 +2,6 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.osgi.goodies,\
 	com.elster.jupiter.schema.oracle.impl
+Export-Package: com.elster.jupiter.schema.oracle
 Include-Resource: src/main/web
 
-Export-Package: com.elster.jupiter.schema.oracle

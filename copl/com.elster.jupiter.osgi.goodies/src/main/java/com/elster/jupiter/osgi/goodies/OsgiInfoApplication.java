@@ -27,7 +27,7 @@ public class OsgiInfoApplication extends Application implements BinderProvider {
 	}
 
 	public Set<Class<?>> getClasses() {
-		return ImmutableSet.of(OsgiInfoResource.class,DataModelResource.class);
+		return ImmutableSet.of(OsgiInfoResource.class,DataModelResource.class,Events.class);
 	}
 	
 	@Reference
