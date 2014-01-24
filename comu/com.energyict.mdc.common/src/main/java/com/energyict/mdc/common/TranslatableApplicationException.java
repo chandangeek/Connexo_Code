@@ -15,6 +15,7 @@ public class TranslatableApplicationException extends RuntimeException {
      * Creates new <code>BusinessException</code> without detail message.
      */
     public TranslatableApplicationException() {
+        this.printStackTrace();
     }
 
     /**
@@ -26,6 +27,7 @@ public class TranslatableApplicationException extends RuntimeException {
     @Deprecated
     public TranslatableApplicationException(String msg) {
         super(msg);
+        this.printStackTrace();
     }
 
     /**
@@ -37,6 +39,7 @@ public class TranslatableApplicationException extends RuntimeException {
     @Deprecated
     public TranslatableApplicationException(Throwable ex) {
         super(ex);
+        this.printStackTrace();
     }
 
 
@@ -51,6 +54,7 @@ public class TranslatableApplicationException extends RuntimeException {
         super(format(defaultPattern, arguments));
         this.messageId = messageId;
         this.arguments = arguments;
+        this.printStackTrace();
     }
 
     /**
@@ -65,6 +69,7 @@ public class TranslatableApplicationException extends RuntimeException {
         super(format(defaultPattern, arguments), ex);
         this.messageId = messageId;
         this.arguments = arguments;
+        this.printStackTrace();
     }
 
     /**
