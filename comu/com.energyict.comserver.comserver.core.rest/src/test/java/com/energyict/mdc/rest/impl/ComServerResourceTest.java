@@ -124,8 +124,8 @@ public class ComServerResourceTest extends JerseyTest {
                 .contains(MapEntry.entry("storeTaskThreadPriority", 4))
                 .containsKey("changesInterPollDelay")
                 .containsKey("schedulingInterPollDelay")
-                .contains(MapEntry.entry("communicationLogLevel", "ERROR"))
-                .contains(MapEntry.entry("serverLogLevel", "INFO"));
+                .contains(MapEntry.entry("communicationLogLevel", "Error"))
+                .contains(MapEntry.entry("serverLogLevel", "Information"));
 
         Map<String, Object> changesInterPollDelay = (Map<String, Object>) comServer1.get("changesInterPollDelay");
         assertThat(changesInterPollDelay).hasSize(2)

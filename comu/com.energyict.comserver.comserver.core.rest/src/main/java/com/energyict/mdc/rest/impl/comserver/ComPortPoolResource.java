@@ -57,7 +57,7 @@ public class ComPortPoolResource {
             comPortPool.save();
             return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
-            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
 
@@ -65,7 +65,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
-        try {
+       try {
             ComPortPool comPortPool = engineModelService.findComPortPool(id);
             if (comPortPool == null) {
                 throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
@@ -73,7 +73,7 @@ public class ComPortPoolResource {
             comPortPool.delete();
             return Response.ok().build();
         } catch (Exception e) {
-            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
 
@@ -82,9 +82,9 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo createComPortPool(ComPortPoolInfo comPortPoolInfo) {
         try {
-            return ComPortPoolInfoFactory.asInfo(comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService),engineModelService));
+            return ComPortPoolInfoFactory.asInfo(comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), engineModelService));
         } catch (Exception e) {
-            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
 

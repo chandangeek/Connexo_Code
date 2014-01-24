@@ -12,6 +12,9 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.log.LogEntry;
+import org.osgi.service.log.LogListener;
+import org.osgi.service.log.LogReaderService;
 
 import javax.ws.rs.core.Application;
 import java.util.Collections;
@@ -77,6 +80,16 @@ public class MdcApplication extends Application {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setLogReaderService(LogReaderService logReaderService){
+        logReaderService.addLogListener(new LogListener() {
+            @Override
+            public void logged(LogEntry logEntry) {
+                System.err.println("Mdc: " + logEntry.getTime() + " " + logEntry.getBundle() + " " + logEntry.getLevel() + " " + logEntry.getServiceReference() + " " + logEntry.getMessage());
+            }
+        });
     }
 
     class HK2Binder extends AbstractBinder {

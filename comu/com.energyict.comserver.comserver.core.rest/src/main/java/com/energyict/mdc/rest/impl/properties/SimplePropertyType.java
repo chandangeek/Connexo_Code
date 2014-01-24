@@ -4,8 +4,10 @@ import com.energyict.mdc.dynamic.*;
 import com.energyict.mdc.metering.mapping.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
+import com.energyict.mdc.rest.impl.UserFileReferenceInfo;
 import com.energyict.mdw.core.CodeFactory;
 import com.energyict.mdw.core.TimeZoneInUseFactory;
+import com.energyict.mdw.core.UserFileFactory;
 
 import java.util.Map;
 
@@ -41,7 +43,6 @@ public enum SimplePropertyType {
             throw new UnsupportedOperationException("GetInfoObject is not supported on the type 'NUMBER', JSON should have properly deserialized this");
         }
     },
-
     NULLABLE_BOOLEAN(false, ThreeStateFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
@@ -84,13 +85,13 @@ public enum SimplePropertyType {
             return new TimeZoneInUseInfo(map);
         }
     },
-  /*  USERFILEREFERENCE(true, UserFileFactory.class) {
+    USERFILEREFERENCE(true, UserFileFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
-            return new UserFileInfo(map);
+            return new UserFileReferenceInfo(map);
         }
     },
-    LOADPROFILETYPE(true, LoadProfileTypeFactory.class) {
+    /*LOADPROFILETYPE(true, LoadProfileTypeFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new LoadProfiletypeInfo(map);
