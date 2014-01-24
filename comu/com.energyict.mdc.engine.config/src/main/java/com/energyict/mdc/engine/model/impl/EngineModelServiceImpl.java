@@ -28,7 +28,6 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import java.util.Collection;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +39,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -383,7 +383,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<ComPortPool> findAllComPortPools() {
-        return getComPortPoolDataMapper().find();
+        Condition condition = Where.where("obsoleteDate").isNull();
+        return getComPortPoolDataMapper().select(condition);
     }
 
     @Override
@@ -418,7 +419,8 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<ComPort> findAllComPorts() {
-        return getComPortDataMapper().find("obsoleteFlag", false);
+        Condition condition = Where.where("obsoleteDate").isNull();
+        return getComPortDataMapper().select(condition);
     }
 
     @Override
