@@ -130,6 +130,7 @@ public class PluggableClassImpl implements PluggableClass {
     }
 
     public void delete() {
+        this.properties.clear();
         this.notifyDependents();
         this.getDataMapper().remove(this);
     }
@@ -187,7 +188,7 @@ public class PluggableClassImpl implements PluggableClass {
         for (PropertySpec propertySpec : propertySpecs) {
             PluggableClassProperty property = this.findProperty(propertySpec.getName());
             if (property != null) {
-                typedProperties.setProperty(property.name, property.value);
+                typedProperties.setProperty(property.name, propertySpec.getValueFactory().fromStringValue(property.value));
             }
         }
         return typedProperties;
