@@ -28,15 +28,6 @@ public interface CollectedData {
     public void setFailureInformation(ResultType resultType, Issue issue);
 
     /**
-     * Set all failure information.
-     *
-     * @param source The object that caused the problem
-     * @param description A description that can be translated (can contain an optional pattern to put in some arguments)
-     * @param arguments Additional arguments to put into the description
-     */
-    public void setFailureInformation(ResultType resultType, Object source, String description, Object... arguments);
-
-    /**
      * Tests if this type of CollectedData is configured
      * to be collected by the specified {@link DataCollectionConfiguration}.
      *
