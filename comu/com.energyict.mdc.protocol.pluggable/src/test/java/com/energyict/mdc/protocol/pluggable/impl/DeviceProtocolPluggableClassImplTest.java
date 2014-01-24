@@ -21,14 +21,18 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.common.license.License;
+import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -39,8 +43,11 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.LicenseServer;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestPropertySpecs;
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
@@ -48,6 +55,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.joda.time.DateMidnight;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -59,6 +67,7 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -77,15 +86,20 @@ public class DeviceProtocolPluggableClassImplTest {
 
     public static final String DEVICE_PROTOCOL_NAME = "DeviceProtocolPluggableClassName";
     public static final String MOCK_DEVICE_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol";
+    public static final String MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES = "com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestPropertySpecs";
     public static final String MOCK_METER_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol";
     public static final String MOCK_SMART_METER_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol";
     public static final String MOCK_NOT_A_DEVICE_PROTOCOL = "com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol";
+
+    private static final int CODE_ID = 97;
+    private static final String CODE_NAME = "Code for DeviceProtocolPluggableClassImplTest";
 
     private static TransactionService transactionService;
     private static ProtocolPluggableService protocolPluggableService;
     private static DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
 
     private static DataModel dataModel;
+    private static IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
     @Mock
     private License license;
 
@@ -126,7 +140,9 @@ public class DeviceProtocolPluggableClassImplTest {
         IdBusinessObjectFactory deviceProtocolDialectFactory = mock(IdBusinessObjectFactory.class);
         when(deviceProtocolDialectFactory.getInstanceType()).thenReturn(DeviceProtocolDialect.class);
         when(applicationContext.findFactory(FactoryIds.DEVICE_PROTOCOL_DIALECT.id())).thenReturn(deviceProtocolDialectFactory);
-        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(mock(IdBusinessObjectFactory.class));
+        when(codeFactory.getInstanceType()).thenReturn(Code.class);
+        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
+        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(mock(IdBusinessObjectFactory.class));  // SmartMeterProtocolAdapter is looking for the TimeZoneInUse factory
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -151,6 +167,7 @@ public class DeviceProtocolPluggableClassImplTest {
     @BeforeClass
     public static void initializeDeviceProtocolService () {
         when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL)).thenReturn(MockDeviceProtocol.class);
+        when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES)).thenReturn(MockDeviceProtocolWithTestPropertySpecs.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_METER_PROTOCOL)).thenReturn(MockMeterProtocol.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_SMART_METER_PROTOCOL)).thenReturn(MockSmartMeterProtocol.class);
         when(deviceProtocolService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
@@ -194,29 +211,152 @@ public class DeviceProtocolPluggableClassImplTest {
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
         assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_DEVICE_PROTOCOL);
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isNotNull();
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isInstanceOf(DeviceProtocol.class);
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        assertThat(deviceProtocol).isNotNull();
+        assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
     }
 
+    /**
+     * Creates a new {@link DeviceProtocolPluggableClass} with TypedProperties
+     * specified @ construction time.
+     */
     @Test
-    public void saveDeviceProtocolTest() throws BusinessException, SQLException {
+    public void newDeviceProtocolWithProperties() {
+        Code code = mock(Code.class);
+        when(code.getId()).thenReturn(CODE_ID);
+        when(code.getName()).thenReturn(CODE_NAME);
+        when(codeFactory.get(CODE_ID)).thenReturn(code);
+        final TypedProperties creationProperties = TypedProperties.empty();
+        Date activationDate = new DateMidnight().toDate();
+        creationProperties.setProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
+        creationProperties.setProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME, code);
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
                 execute(new Transaction<DeviceProtocolPluggableClass>() {
                     @Override
                     public DeviceProtocolPluggableClass perform() {
-                        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL);
-                        deviceProtocolPluggableClass.save();
-                        return deviceProtocolPluggableClass;
+                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES, creationProperties);
                     }
                 });
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
-        assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_DEVICE_PROTOCOL);
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isNotNull();
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isInstanceOf(DeviceProtocol.class);
+        assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        assertThat(deviceProtocol).isNotNull();
+        assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
+        assertThat(deviceProtocol.getPropertySpecs()).hasSize(2);
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        TypedProperties properties = deviceProtocolPluggableClass.getProperties();
+        assertThat(properties.getProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
+        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME);
+        assertThat(propertyValue).isInstanceOf(Code.class);
+        Code codePropertyValue = (Code) propertyValue;
+        assertThat(codePropertyValue.getId()).isEqualTo(CODE_ID);
+        assertThat(codePropertyValue.getName()).isEqualTo(CODE_NAME);
+    }
+
+    /**
+     * Creates a new {@link DeviceProtocolPluggableClass} and then
+     * updates it with TypedProperties.
+     */
+    @Test
+    public void saveDeviceProtocolProperties() {
+        final Code code = mock(Code.class);
+        when(code.getId()).thenReturn(CODE_ID);
+        when(code.getName()).thenReturn(CODE_NAME);
+        when(codeFactory.get(CODE_ID)).thenReturn(code);
+        final TypedProperties creationProperties = TypedProperties.empty();
+        final Date activationDate = new DateMidnight().toDate();
+        creationProperties.setProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
+        creationProperties.setProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME, code);
+
+        // Business method
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
+                execute(new Transaction<DeviceProtocolPluggableClass>() {
+                    @Override
+                    public DeviceProtocolPluggableClass perform() {
+                        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
+                        deviceProtocolPluggableClass.setProperty(
+                                DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getPropertySpec(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
+                                activationDate);
+                        deviceProtocolPluggableClass.setProperty(
+                                DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME),
+                                code);
+                        deviceProtocolPluggableClass.save();
+                        return deviceProtocolPluggableClass;
+
+                    }
+                });
+
+        // asserts
+        assertThat(deviceProtocolPluggableClass).isNotNull();
+        assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        assertThat(deviceProtocol).isNotNull();
+        assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
+        assertThat(deviceProtocol.getPropertySpecs()).hasSize(2);
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        TypedProperties properties = deviceProtocolPluggableClass.getProperties();
+        assertThat(properties.getProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
+        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME);
+        assertThat(propertyValue).isInstanceOf(Code.class);
+        Code codePropertyValue = (Code) propertyValue;
+        assertThat(codePropertyValue.getId()).isEqualTo(CODE_ID);
+        assertThat(codePropertyValue.getName()).isEqualTo(CODE_NAME);
+    }
+
+    /**
+     * Creates a new {@link DeviceProtocolPluggableClass} with TypedProperties
+     * specified @ construction time that do not actually exist on the protocol class.
+     */
+    @Test(expected = UnknownPluggableClassPropertiesException.class)
+    public void newDeviceProtocolWithNonExistingProperties() {
+        final TypedProperties creationProperties = TypedProperties.empty();
+        creationProperties.setProperty("foo", "bar");
+
+        // Business method
+        transactionService.
+                execute(new Transaction<DeviceProtocolPluggableClass>() {
+                    @Override
+                    public DeviceProtocolPluggableClass perform() {
+                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES, creationProperties);
+                    }
+                });
+
+        // Expected UnknownPluggableClassPropertiesException
+    }
+
+    /**
+     * Creates a new {@link DeviceProtocolPluggableClass} and then
+     * updates it with TypedProperties that do not actually exist on the protocol class.
+     */
+    @Test(expected = UnknownPluggableClassPropertiesException.class)
+    public void saveDeviceProtocolWithNonExistingProperties() {
+        final PropertySpec foo = mock(PropertySpec.class);
+        when(foo.getName()).thenReturn("foo");
+        when(foo.getValueFactory()).thenReturn(new StringFactory());
+        when(foo.isReference()).thenReturn(false);
+        when(foo.isRequired()).thenReturn(true);
+
+        // Business method
+        transactionService.
+                execute(new Transaction<DeviceProtocolPluggableClass>() {
+                    @Override
+                    public DeviceProtocolPluggableClass perform() {
+                        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
+                        deviceProtocolPluggableClass.setProperty(foo, "bar");
+                        deviceProtocolPluggableClass.save();
+                        return deviceProtocolPluggableClass;
+                    }
+                });
+
+        // Expected UnknownPluggableClassPropertiesException
     }
 
     @Test
@@ -233,8 +373,9 @@ public class DeviceProtocolPluggableClassImplTest {
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
         assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_METER_PROTOCOL);
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isNotNull();
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isInstanceOf(MeterProtocolAdapter.class);
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        assertThat(deviceProtocol).isNotNull();
+        assertThat(deviceProtocol).isInstanceOf(MeterProtocolAdapter.class);
     }
 
     @Test
@@ -251,8 +392,9 @@ public class DeviceProtocolPluggableClassImplTest {
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
         assertThat(deviceProtocolPluggableClass.getJavaClassName()).isEqualTo(MOCK_SMART_METER_PROTOCOL);
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isNotNull();
-        assertThat(deviceProtocolPluggableClass.getDeviceProtocol()).isInstanceOf(SmartMeterProtocolAdapter.class);
+        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+        assertThat(deviceProtocol).isNotNull();
+        assertThat(deviceProtocol).isInstanceOf(SmartMeterProtocolAdapter.class);
     }
 
     @Test(expected = ProtocolCreationException.class)

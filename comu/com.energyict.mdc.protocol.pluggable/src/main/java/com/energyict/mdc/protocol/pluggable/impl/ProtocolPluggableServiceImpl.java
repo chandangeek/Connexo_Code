@@ -31,6 +31,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
@@ -44,7 +45,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -153,13 +156,22 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties properties) {
+        boolean dirty = false;
+        Set<String> unsupportedPropertyNames = properties.propertyNames();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.newDeviceProtocolPluggableClass(name, className);
         for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
+            unsupportedPropertyNames.remove(propertySpec.getName());
             if (properties.hasValueFor(propertySpec.getName())) {
                 deviceProtocolPluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
+                dirty = true;
             }
         }
-        deviceProtocolPluggableClass.save();
+        if (!unsupportedPropertyNames.isEmpty()) {
+            throw new UnknownPluggableClassPropertiesException(this.thesaurus, unsupportedPropertyNames, className);
+        }
+        if (dirty) {
+            deviceProtocolPluggableClass.save();
+        }
         return deviceProtocolPluggableClass;
     }
 

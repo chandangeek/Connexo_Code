@@ -68,12 +68,12 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
 
     @Override
     public String getProtocolVersion() {
-        return null;
+        return "1.0.0-SNAPSHOT";
     }
 
     @Override
     public String getFirmwareVersion() throws IOException {
-        return null;
+        return "1.0.0-SNAPSHOT";
     }
 
     @Override
