@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
 
 /**
@@ -20,5 +21,7 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
     public String getVersion ();
 
     public DeviceProtocol getDeviceProtocol ();
+
+    public TypedProperties getProperties ();
 
 }
