@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.inject.Inject;
+
 /**
  * Copyrights EnergyICT
  * Date: 15/04/13
@@ -12,6 +14,7 @@ public class MessageAdapterMappingFactoryImpl implements MessageAdapterMappingFa
 
     private DataMapper<MessageAdapterMapping> mapper;
 
+    @Inject
     public MessageAdapterMappingFactoryImpl(DataModel dataModel) {
         this(dataModel.mapper(MessageAdapterMapping.class));
     }

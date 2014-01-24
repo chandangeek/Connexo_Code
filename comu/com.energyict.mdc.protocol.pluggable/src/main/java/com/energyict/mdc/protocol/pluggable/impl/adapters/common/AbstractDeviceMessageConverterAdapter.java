@@ -281,7 +281,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     private MessageAdapterMappingFactory getMessageAdapterMappingFactory() {
-        return new MessageAdapterMappingFactoryImpl(this.dataModel);
+        return this.dataModel.getInstance(MessageAdapterMappingFactory.class);
     }
 
 }

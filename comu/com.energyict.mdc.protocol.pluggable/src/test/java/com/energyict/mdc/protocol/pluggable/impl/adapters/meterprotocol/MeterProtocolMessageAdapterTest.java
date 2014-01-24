@@ -1,15 +1,27 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -20,18 +32,30 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.Scopes;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
+import java.security.Principal;
+import java.sql.SQLException;
 import java.util.Collections;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -55,63 +79,84 @@ public class MeterProtocolMessageAdapterTest {
     @Mock
     private MessageAdapterMappingFactory messageAdapterMappingFactory;
     @Mock
-    private Environment environment;
-    @Mock
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     @Mock
     private DeviceProtocolMessageService deviceProtocolMessageService;
-
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private OrmService ormService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private TransactionService transactionService;
-    @Mock
-    private EventService eventService;
-    @Mock
-    private PluggableService pluggableService;
-    @Mock
-    private RelationService relationService;
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private DeviceProtocolService deviceProtocolService;
-    @Mock
-    private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private ConnectionTypeService connectionTypeService;
     @Mock
     private DeviceProtocolSecurityService deviceProtocolSecurityService;
     @Mock
-    private IssueService issueService;
+    private DeviceProtocolService deviceProtocolService;
+    @Mock
+    private InboundDeviceProtocolService inboundDeviceProtocolService;
+    @Mock
+    private LicensedProtocolService licensedProtocolService;
+
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
+    private Principal principal;
+    @Mock
+    private EventAdmin eventAdmin;
 
     private ProtocolPluggableService protocolPluggableService;
+    private DataModel dataModel;
+    private IssueService issueService;
+
+    @Before
+    public void before () {
+        when(this.principal.getName()).thenReturn("MeterProtocolMessageAdapterTest.mdc.protocol.pluggable");
+        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        Injector injector = Guice.createInjector(
+                new MockModule(),
+                bootstrapModule,
+                new ThreadSecurityModule(this.principal),
+                new EventsModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new UtilModule(),
+                new NlsModule(),
+                new DomainUtilModule(),
+                new InMemoryMessagingModule(),
+                new EventsModule(),
+                new OrmModule(),
+                new IssuesModule(),
+                new PluggableModule(),
+                new MdcCommonModule(),
+                new MdcDynamicModule(),
+                new ProtocolPluggableModule());
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(OrmService.class);
+            this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            this.dataModel = ((ProtocolPluggableServiceImpl) protocolPluggableService).getDataModel();
+            this.issueService = injector.getInstance(IssueService.class);
+            ctx.commit();
+        }
+        Environment environment = injector.getInstance(Environment.class);
+        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        Translator translator = mock(Translator.class);
+        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
+        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
+        when(applicationContext.getTranslator()).thenReturn(translator);
+        environment.setApplicationContext(applicationContext);
+    }
+
+    @After
+    public void cleanUpDataBase() throws SQLException {
+        new InMemoryPersistence().cleanUpDataBase();
+    }
 
     @Before
     public void initializeMocks () {
         when(this.deviceProtocolMessageService.createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter")).
                 thenReturn(new SimpleLegacyMessageConverter());
         doThrow(DeviceProtocolAdapterCodingExceptions.class).when(this.deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
-        protocolPluggableService =
-                new ProtocolPluggableServiceImpl(
-                        this.ormService,
-                        this.eventService,
-                        this.nlsService,
-                        this.propertySpecService,
-                        this.pluggableService,
-                        this.relationService,
-                        this.deviceProtocolService,
-                        this.deviceProtocolMessageService,
-                        this.deviceProtocolSecurityService,
-                        this.inboundDeviceProtocolService,
-                        this.connectionTypeService);
     }
 
     @Before
-    public void before() {
+    public void initializeMessageAdapterMappingFactory() {
         when(messageAdapterMappingFactory.getMessageMappingJavaClassNameForDeviceProtocol(
                 "com.energyict.comserver.adapters.meterprotocol.SimpleTestMeterProtocol"))
                 .thenReturn("com.energyict.comserver.adapters.common.SimpleLegacyMessageConverter");
@@ -121,22 +166,6 @@ public class MeterProtocolMessageAdapterTest {
         when(messageAdapterMappingFactory.getMessageMappingJavaClassNameForDeviceProtocol(
                 "com.energyict.comserver.adapters.meterprotocol.ThirdSimpleTestMeterProtocol"))
                 .thenReturn("com.energyict.comserver.adapters.meterprotocol.ThirdSimpleTestMeterProtocol");
-    }
-
-    @Before
-    public void setUpEnvironment () {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0];
-            }
-        });
-    }
-
-    @After
-    public void tearDownEnvironment () {
-        Environment.DEFAULT.set(null);
     }
 
     @Test
@@ -171,6 +200,28 @@ public class MeterProtocolMessageAdapterTest {
         assertThat(protocolMessageAdapter.format(null, null)).isEqualTo("");
 
         assertThat(protocolMessageAdapter.getSupportedMessages()).isEmpty();
+    }
+
+    private class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
+            bind(MessageAdapterMappingFactory.class).toInstance(messageAdapterMappingFactory);
+            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
+            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
+            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
+            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
+            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
+            bind(DataModel.class).toProvider(new Provider<DataModel>() {
+                @Override
+                public DataModel get() {
+                    return dataModel;
+                }
+            });
+        }
+
     }
 
 }

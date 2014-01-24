@@ -82,6 +82,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             OrmService ormService,
             EventService eventService,
             NlsService nlsService,
+            IssueService issueService,
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
             RelationService relationService,
@@ -94,6 +95,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
