@@ -10,6 +10,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,9 +28,9 @@ public abstract class ComServerInfo<S extends ComServer> {
     public String name;
     @JsonProperty("active")
     public boolean active;
-    @JsonProperty("serverLogLevel")
+    @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel serverLogLevel;
-    @JsonProperty("communicationLogLevel")
+    @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel communicationLogLevel;
     @JsonProperty("changesInterPollDelay")
     public TimeDurationInfo changesInterPollDelay;
