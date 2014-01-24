@@ -1,4 +1,6 @@
 /**
+ * @class Uni.controller.history.Settings
+ *
  * History settings that mainly holds static history conversion settings.
  */
 Ext.define('Uni.controller.history.Settings', {

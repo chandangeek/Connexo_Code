@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.Configuration
+ */
 Ext.define('Uni.controller.Configuration', {
     extend: 'Ext.app.Controller',
 

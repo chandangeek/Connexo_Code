@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.notifications.Anchor
+ */
 Ext.define('Uni.view.notifications.Anchor', {
     extend: 'Ext.button.Button',
     alias: 'widget.notificationsAnchor',

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.history.Converter
+ */
 Ext.define('Uni.controller.history.Converter', {
     extend: 'Ext.app.Controller',
 

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.toolbar.PagingTop
+ */
 Ext.define('Uni.view.toolbar.PagingTop', {
     extend: 'Ext.toolbar.Paging',
     xtype: 'pagingtoolbartop',

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.Error
+ */
 Ext.define('Uni.controller.Error', {
     extend: 'Ext.app.Controller',
 

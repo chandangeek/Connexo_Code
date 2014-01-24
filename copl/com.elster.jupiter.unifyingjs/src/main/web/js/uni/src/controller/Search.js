@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.Search
+ */
 Ext.define('Uni.controller.Search', {
     extend: 'Ext.app.Controller',
 

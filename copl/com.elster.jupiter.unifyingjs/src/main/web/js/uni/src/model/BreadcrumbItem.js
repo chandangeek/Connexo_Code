@@ -1,3 +1,6 @@
+/**
+ * @class Uni.model.BreadcrumbItem
+ */
 Ext.define('Uni.model.BreadcrumbItem', {
     extend: 'Ext.data.Model',
     fields: [

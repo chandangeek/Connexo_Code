@@ -1,3 +1,6 @@
+/**
+ * @class Uni.override.ApplicationOverride
+ */
 Ext.define('Uni.override.ApplicationOverride', {
     override: 'Ext.app.Application',
 

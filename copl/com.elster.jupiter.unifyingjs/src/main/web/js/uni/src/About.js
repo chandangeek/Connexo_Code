@@ -1,3 +1,6 @@
+/**
+ * @class Uni.About
+ */
 Ext.define('Uni.About', {
 
     statics: {

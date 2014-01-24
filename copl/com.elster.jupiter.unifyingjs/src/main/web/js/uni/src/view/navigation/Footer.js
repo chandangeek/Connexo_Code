@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.navigation.Footer
+ */
 Ext.define('Uni.view.navigation.Footer', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationFooter',

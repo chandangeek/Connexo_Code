@@ -1,3 +1,6 @@
+/**
+ * @class Uni.util.History
+ */
 Ext.define('Uni.util.History', {
     singleton: true,
 

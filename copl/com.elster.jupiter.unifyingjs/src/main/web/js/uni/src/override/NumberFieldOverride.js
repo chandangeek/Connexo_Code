@@ -1,3 +1,6 @@
+/**
+ * @class Uni.override.NumberFieldOverride
+ */
 Ext.define('Uni.override.NumberFieldOverride', {
     override: 'Ext.form.field.Number',
 

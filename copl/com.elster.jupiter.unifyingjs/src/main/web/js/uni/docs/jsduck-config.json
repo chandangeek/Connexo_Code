@@ -1,0 +1,16 @@
+{
+    "--": "../src",
+    "--guides": "guides.json",
+    "--warnings": [
+        "-nodoc:../src",
+        "+nodoc(,public):../src",
+        "-link:../src",
+        "-type_name:../src"
+    ],
+    "--ignore-html": [
+        "locale",
+        "debug"
+    ],
+    "--images": "images",
+    "--builtin-classes": true
+}

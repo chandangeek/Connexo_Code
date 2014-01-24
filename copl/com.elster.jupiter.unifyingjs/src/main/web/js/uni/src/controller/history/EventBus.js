@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.history.EventBus
+ */
 Ext.define('Uni.controller.history.EventBus', {
     extend: 'Ext.app.Controller',
 

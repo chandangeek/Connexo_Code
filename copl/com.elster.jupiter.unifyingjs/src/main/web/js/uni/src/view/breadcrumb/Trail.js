@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.breadcrumb.Trail
+ */
 Ext.define('Uni.view.breadcrumb.Trail', {
     extend: 'Ext.container.Container',
     alias: 'widget.breadcrumbTrail',

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.form.field.Vtypes
+ */
 Ext.define('Uni.view.form.field.Vtypes', {
 
     requires: ['Ext.form.field.VTypes'],

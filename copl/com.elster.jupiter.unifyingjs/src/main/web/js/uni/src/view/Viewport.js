@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.Viewport
+ */
 Ext.define('Uni.view.Viewport', {
     extend: 'Ext.container.Viewport',
 

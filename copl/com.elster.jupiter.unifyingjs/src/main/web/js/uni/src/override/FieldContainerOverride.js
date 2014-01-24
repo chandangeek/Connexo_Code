@@ -1,3 +1,6 @@
+/**
+ * @class Uni.override.FieldContainerOverride
+ */
 Ext.define('Uni.override.FieldContainerOverride', {
     override: 'Ext.form.FieldContainer',
 

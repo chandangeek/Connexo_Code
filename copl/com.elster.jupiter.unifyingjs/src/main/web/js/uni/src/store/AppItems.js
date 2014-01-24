@@ -1,3 +1,6 @@
+/**
+ * @class Uni.store.AppItems
+ */
 Ext.define('Uni.store.AppItems', {
     extend: 'Ext.data.Store',
     model: 'Uni.model.AppItem',

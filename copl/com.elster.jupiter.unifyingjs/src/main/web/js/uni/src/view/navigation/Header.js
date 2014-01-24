@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.navigation.Header
+ */
 Ext.define('Uni.view.navigation.Header', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationHeader',

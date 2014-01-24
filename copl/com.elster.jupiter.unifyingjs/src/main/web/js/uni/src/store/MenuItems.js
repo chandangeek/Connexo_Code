@@ -1,3 +1,6 @@
+/**
+ * @class Uni.store.MenuItems
+ */
 Ext.define('Uni.store.MenuItems', {
     extend: 'Ext.data.Store',
     model: 'Uni.model.MenuItem',

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.navigation.AppSwitcher
+ */
 Ext.define('Uni.view.navigation.AppSwitcher', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationAppSwitcher',

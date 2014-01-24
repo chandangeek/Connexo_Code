@@ -1,6 +1,8 @@
 /**
+ * @class Uni.view.search.Basic
+ *
  * Temporary simple search button while features/stories are being developed.
- * Also see: http://jira.eict.vpdc/browse/JP-651
+ * Also see: {@link http://jira.eict.vpdc/browse/JP-651}
  */
 Ext.define('Uni.view.search.Basic', {
     extend: 'Ext.button.Button',

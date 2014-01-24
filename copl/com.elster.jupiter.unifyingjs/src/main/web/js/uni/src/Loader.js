@@ -1,8 +1,8 @@
 /**
+ * @class Uni.Loader
+ *
  * Loader class for the Unifying JS project, it makes sure every dependency is
  * ready to use.
- *
- * @note
  */
 Ext.define('Uni.Loader', {
 

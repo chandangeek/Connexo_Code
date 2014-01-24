@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.error.Window
+ */
 Ext.define('Uni.view.error.Window', {
     extend: 'Ext.window.Window',
     alias: 'widget.errorWindow',

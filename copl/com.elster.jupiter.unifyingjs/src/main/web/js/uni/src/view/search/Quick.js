@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.search.Quick
+ */
 Ext.define('Uni.view.search.Quick', {
     extend: 'Ext.container.Container',
     alias: 'widget.searchQuick',

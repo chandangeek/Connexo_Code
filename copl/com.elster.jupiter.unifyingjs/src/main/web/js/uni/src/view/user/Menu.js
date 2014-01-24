@@ -1,9 +1,13 @@
+/**
+ * @class Uni.view.user.Menu
+ */
 Ext.define('Uni.view.user.Menu', {
     extend: 'Ext.button.Button',
     alias: 'widget.userMenu',
     glyph: 'xe004@icomoon',
     scale: 'small',
     cls: 'user-menu',
+
     menu: [
         {
             text: 'Profile'
@@ -20,8 +24,8 @@ Ext.define('Uni.view.user.Menu', {
             glyph: 'xe00d@icomoon'
         }
     ],
+
     initComponent: function () {
-        // TODO
         this.callParent(arguments);
     }
 });

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.navigation.Logo
+ */
 Ext.define('Uni.view.navigation.Logo', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationLogo',

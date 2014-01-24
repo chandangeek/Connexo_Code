@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.Navigation
+ */
 Ext.define('Uni.controller.Navigation', {
     extend: 'Ext.app.Controller',
 

@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.navigation.Menu
+ */
 Ext.define('Uni.view.navigation.Menu', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationMenu',

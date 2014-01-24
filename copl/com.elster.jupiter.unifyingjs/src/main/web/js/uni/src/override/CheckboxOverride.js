@@ -1,3 +1,6 @@
+/**
+ * @class Uni.override.CheckboxOverride
+ */
 Ext.define('Uni.override.CheckboxOverride', {
     override: 'Ext.form.field.Checkbox',
 

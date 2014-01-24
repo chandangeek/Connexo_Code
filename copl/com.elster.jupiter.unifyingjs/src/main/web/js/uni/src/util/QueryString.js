@@ -1,3 +1,6 @@
+/**
+ * @class Uni.util.QueryString
+ */
 Ext.define('Uni.util.QueryString', {
     singleton: true,
 

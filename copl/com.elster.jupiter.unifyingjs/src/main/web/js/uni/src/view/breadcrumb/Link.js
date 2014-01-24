@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.breadcrumb.Link
+ */
 Ext.define('Uni.view.breadcrumb.Link', {
     extend: 'Ext.Component',
     alias: 'widget.breadcrumbLink',

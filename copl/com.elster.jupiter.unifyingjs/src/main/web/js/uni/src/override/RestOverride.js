@@ -1,4 +1,6 @@
 /**
+ * @class Uni.override.RestOverride
+ *
  * Formats reserved HTML tokens in the url builder.
  */
 Ext.define('Uni.override.RestOverride', {

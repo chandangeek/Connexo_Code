@@ -1,3 +1,6 @@
+/**
+ * @class Uni.store.Translations
+ */
 Ext.define('Uni.store.Translations', {
     extend: 'Ext.data.Store',
     model: 'Uni.model.Translation',

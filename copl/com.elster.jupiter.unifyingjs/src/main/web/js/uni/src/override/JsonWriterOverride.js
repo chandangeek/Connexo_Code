@@ -1,3 +1,6 @@
+/**
+ * @class Uni.override.JsonWriterOverride
+ */
 Ext.define('Uni.override.JsonWriterOverride', {
     override: 'Ext.data.writer.Json',
 

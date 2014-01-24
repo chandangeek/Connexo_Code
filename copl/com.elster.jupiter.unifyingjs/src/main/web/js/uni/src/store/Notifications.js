@@ -1,3 +1,6 @@
+/**
+ * @class Uni.store.Notifications
+ */
 Ext.define('Uni.store.Notifications', {
     extend: 'Ext.data.Store',
     model: 'Uni.model.Notification',

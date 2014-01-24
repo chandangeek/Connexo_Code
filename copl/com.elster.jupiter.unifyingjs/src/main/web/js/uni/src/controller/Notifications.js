@@ -1,3 +1,6 @@
+/**
+ * @class Uni.controller.Notifications
+ */
 Ext.define('Uni.controller.Notifications', {
     extend: 'Ext.app.Controller',
 

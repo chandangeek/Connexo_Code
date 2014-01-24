@@ -1,3 +1,6 @@
+/**
+ * @class Uni.view.navigation.Help
+ */
 Ext.define('Uni.view.navigation.Help', {
     extend: 'Ext.button.Button',
     alias: 'widget.navigationHelp',
