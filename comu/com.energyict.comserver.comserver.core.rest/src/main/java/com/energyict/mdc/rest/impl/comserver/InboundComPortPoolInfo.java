@@ -29,22 +29,11 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     protected InboundComPortPool writeTo(InboundComPortPool source,EngineModelService engineModelService) {
         super.writeTo(source,engineModelService);
         source.setDiscoveryProtocolPluggableClassId(this.discoveryProtocolPluggableClassId);
-        if (inboundComPorts !=null) {
-            for (InboundComPortInfo inboundComPortInfo : this.inboundComPorts) {
-                InboundComPort inboundComPort;
-                if(inboundComPortInfo.id>0){
-                    inboundComPort = (InboundComPort)engineModelService.findComPort(inboundComPortInfo.id);
-                } else {
-                    ComServer comServer = engineModelService.findComServer(inboundComPortInfo.comServer_id);
-                    if(comServer!=null){
-                        inboundComPort = inboundComPortInfo.createNew(comServer, engineModelService);
-                    } else {
-                        throw new WebApplicationException("Could not find comserver with id " + inboundComPortInfo.comServer_id, Response.Status.BAD_REQUEST);
-                    }
-                }
-                inboundComPortInfo.writeTo(inboundComPort,engineModelService);
-            }
-        }
+        // TODO throw an exception when comPorts differ: should be managed by ComPort, not InboundComPortPool
+//        if (this.inboundComPorts !=null && source.getComPorts()!=null) {
+//
+//            throw new WebApplicationException("Could not find comPort with id " + inboundComPortInfo.id, Response.Status.BAD_REQUEST);
+//        }
         return source;
     }
 

@@ -69,15 +69,18 @@ public class ComPortPoolResource {
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
+    public Response deleteComPortPool(@PathParam("id") int id) {
        try {
             ComPortPool comPortPool = engineModelService.findComPortPool(id);
             if (comPortPool == null) {
-                throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
+                throw new WebApplicationException("No ComPortPool with id "+id, Response.Status.NOT_FOUND);
             }
             comPortPool.delete();
             return Response.ok().build();
         } catch (Exception e) {
+            if (e.getClass().equals(WebApplicationException.class)) {
+               throw e;
+            }
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
