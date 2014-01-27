@@ -30,7 +30,12 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo getComPortPool(@PathParam("id") int id) {
-        return ComPortPoolInfoFactory.asInfo(engineModelService.findComPortPool(id));
+        ComPortPool comPortPool = engineModelService.findComPortPool(id);
+        if (comPortPool!=null) {
+            return ComPortPoolInfoFactory.asInfo(comPortPool);
+        } else {
+            throw new WebApplicationException("No ComPortPool with id "+id, Response.status(Response.Status.NOT_FOUND).build());
+        }
     }
 
     @GET
