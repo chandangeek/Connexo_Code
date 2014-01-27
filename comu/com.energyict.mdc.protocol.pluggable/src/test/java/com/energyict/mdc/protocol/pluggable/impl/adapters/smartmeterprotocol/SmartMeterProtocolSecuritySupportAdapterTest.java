@@ -1,29 +1,31 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.energyict.mdc.common.Environment;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.UserEnvironment;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
+import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+
+import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -42,67 +44,40 @@ import static org.mockito.Mockito.when;
 public class SmartMeterProtocolSecuritySupportAdapterTest {
 
     @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private SecuritySupportAdapterMappingFactoryImpl securitySupportAdapterMappingFactory;
-    @Mock
-    private static UserEnvironment userEnvironment = mock(UserEnvironment.class);
-    @Mock
-    private Environment environment;
-    @Mock
     private PropertiesAdapter propertiesAdapter;
-    @Mock
-    private ProtocolPluggableService protocolPluggableService;
-    @Mock
-    private DeviceProtocolSecurityService deviceProtocolSecurityService;
 
-    @BeforeClass
-    public static void initializeUserEnvironment() {
-        UserEnvironment.setDefault(userEnvironment);
-        when(userEnvironment.getErrorMsg(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return (String) invocation.getArguments()[0];
-            }
-        });
-    }
-
-    @AfterClass
-    public static void cleanupUserEnvironment() {
-        UserEnvironment.setDefault(null);
-    }
+    private InMemoryPersistence inMemoryPersistence;
+    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private DataModel dataModel;
 
     @Before
-    public void initializeEnvironment() {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0];
-            }
-        });
-        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                String javaClassName = (String) invocationOnMock.getArguments()[0];
-                    return Class.forName(javaClassName).newInstance();
-                }
-        });
+    public void initializeDatabaseAndMocks() {
+        this.inMemoryPersistence = new InMemoryPersistence();
+        this.inMemoryPersistence.initializeDatabase(
+                "SmartMeterProtocolSecuritySupportAdapterTest.mdc.protocol.pluggable",
+                new DataModelInitializer() {
+                    @Override
+                    public void initializeDataModel(DataModel dataModel) {
+                        dataModel.persist(new SecuritySupportAdapterMappingImpl(SimpleTestSmartMeterProtocol.class.getName(), SimpleTestDeviceSecuritySupport.class.getName()));
+                        dataModel.persist(new SecuritySupportAdapterMappingImpl(SecondSimpleTestSmartMeterProtocol.class.getName(), "com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass"));
+                        dataModel.persist(new SecuritySupportAdapterMappingImpl(ThirdSimpleTestSmartMeterProtocol.class.getName(), ThirdSimpleTestSmartMeterProtocol.class.getName()));
+                    }
+                });
+        this.protocolPluggableService = this.inMemoryPersistence.getProtocolPluggableService();
+        this.dataModel = this.protocolPluggableService.getDataModel();
+        this.initializeMocks();
+    }
+
+    private void initializeMocks() {
+        DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
+        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getCanonicalName())).thenReturn(new SimpleTestDeviceSecuritySupport());
+        doThrow(DeviceProtocolAdapterCodingExceptions.class).when(deviceProtocolSecurityService).createDeviceProtocolSecurityFor("com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass");
+        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(ThirdSimpleTestSmartMeterProtocol.class.getCanonicalName())).thenReturn(new ThirdSimpleTestSmartMeterProtocol());
     }
 
     @After
-    public void cleanupEnvironment() {
-        Environment.DEFAULT.set(null);
-    }
-
-    @Before
-    public void before() {
-        when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
-                ("com.energyict.comserver.adapters.smartmeterprotocol.SimpleTestSmartMeterProtocol")).thenReturn("com.energyict.comserver.adapters.common.SimpleTestDeviceSecuritySupport");
-        when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
-                ("com.energyict.comserver.adapters.smartmeterprotocol.SecondSimpleTestSmartMeterProtocol")).thenReturn("com.energyict.comserver.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass");
-        when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
-                ("com.energyict.comserver.adapters.smartmeterprotocol.ThirdSimpleTestSmartMeterProtocol")).thenReturn("com.energyict.comserver.adapters.smartmeterprotocol.ThirdSimpleTestSmartMeterProtocol");
+    public void cleanUpDataBase () throws SQLException {
+        this.inMemoryPersistence.cleanUpDataBase();
     }
 
     @Test
@@ -110,10 +85,10 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
         new SmartMeterProtocolSecuritySupportAdapter(
                 simpleTestMeterProtocol,
-                this.propertySpecService,
+                this.inMemoryPersistence.getPropertySpecService(),
                 this.protocolPluggableService,
                 this.propertiesAdapter,
-                this.securitySupportAdapterMappingFactory);
+                new SecuritySupportAdapterMappingFactoryImpl(this.dataModel));
 
         // all is safe if no errors occur
     }
@@ -124,10 +99,10 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         try {
             new SmartMeterProtocolSecuritySupportAdapter(
                     meterProtocol,
-                    this.propertySpecService,
+                    this.inMemoryPersistence.getPropertySpecService(),
                     this.protocolPluggableService,
                     this.propertiesAdapter,
-                    this.securitySupportAdapterMappingFactory);
+                    new SecuritySupportAdapterMappingFactoryImpl(this.dataModel));
         } catch (DeviceProtocolAdapterCodingExceptions e) {
             if (!e.getMessageId().equals("CSC-DEV-124")) {
                 fail("Exception should have indicated that the given meterProtocol is not known in the adapter, but was " + e.getMessage());
@@ -142,10 +117,10 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         SmartMeterProtocol meterProtocol = new ThirdSimpleTestSmartMeterProtocol();
         final SmartMeterProtocolSecuritySupportAdapter spy = spy(new SmartMeterProtocolSecuritySupportAdapter(
                 meterProtocol,
-                this.propertySpecService,
+                this.inMemoryPersistence.getPropertySpecService(),
                 this.protocolPluggableService,
                 this.propertiesAdapter,
-                this.securitySupportAdapterMappingFactory));
+                new SecuritySupportAdapterMappingFactoryImpl(this.dataModel)));
 
         // asserts
         verify(spy, never()).setLegacySecuritySupport(any(DeviceProtocolSecurityCapabilities.class));
@@ -159,10 +134,10 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         SimpleTestSmartMeterProtocol simpleTestSmartMeterProtocol = new SimpleTestSmartMeterProtocol();
         SmartMeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new SmartMeterProtocolSecuritySupportAdapter(
                 simpleTestSmartMeterProtocol,
-                this.propertySpecService,
+                this.inMemoryPersistence.getPropertySpecService(),
                 this.protocolPluggableService,
                 this.propertiesAdapter,
-                this.securitySupportAdapterMappingFactory);
+                new SecuritySupportAdapterMappingFactoryImpl(this.dataModel));
 
         // business method
         meterProtocolSecuritySupportAdapter.setSecurityPropertySet(deviceProtocolSecurityPropertySet);

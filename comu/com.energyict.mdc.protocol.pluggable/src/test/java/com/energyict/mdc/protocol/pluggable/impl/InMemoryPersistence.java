@@ -41,6 +41,7 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolMessageAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.SecondSimpleTestMeterProtocol;
