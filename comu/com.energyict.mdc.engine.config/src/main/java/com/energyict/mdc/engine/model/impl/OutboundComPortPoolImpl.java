@@ -57,6 +57,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
         ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
         comPortPoolMember.setComPort(outboundComPort);
         comPortPoolMember.setComPortPool(this);
+
         this.comPortPoolMembers.add(comPortPoolMember);
     }
 

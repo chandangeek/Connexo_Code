@@ -132,5 +132,4 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
          * so nothing to do here. */
     }
 
-
 }
