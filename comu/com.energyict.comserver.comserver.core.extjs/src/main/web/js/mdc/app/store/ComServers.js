@@ -3,7 +3,6 @@ Ext.define('Mdc.store.ComServers',{
     requires: [
         'Mdc.model.ComServer'
     ],
-    autoLoad: true,
     model: 'Mdc.model.ComServer',
     storeId: 'ComServers',
     pageSize: 10,

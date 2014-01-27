@@ -3,7 +3,6 @@ Ext.define('Mdc.store.ComPortPools',{
     requires: [
         'Mdc.model.ComPortPool'
     ],
-    autoLoad: true,
     model: 'Mdc.model.ComPortPool',
     storeId: 'comPortPools',
     pageSize: 10,

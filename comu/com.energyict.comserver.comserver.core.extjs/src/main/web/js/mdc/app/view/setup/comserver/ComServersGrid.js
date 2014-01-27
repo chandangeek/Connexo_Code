@@ -8,6 +8,10 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
     selModel: {
         mode: 'MULTI'
     },
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
+    ],
     selType: 'checkboxmodel',
     initComponent: function () {
         var me = this;
@@ -95,10 +99,9 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
         ];
 
         this.dockedItems = [{
-            xtype: 'pagingtoolbar',
-            store: 'ComServers',
-            dock: 'bottom',
-            displayInfo: true
+            xtype: 'pagingtoolbarbottom',
+            store: this.store,
+            dock: 'bottom'
         },{
             xtype: 'toolbar',
             dock: 'top',

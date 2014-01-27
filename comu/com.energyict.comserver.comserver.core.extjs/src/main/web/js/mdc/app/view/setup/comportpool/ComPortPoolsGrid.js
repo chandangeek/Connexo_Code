@@ -13,6 +13,10 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     },
     selType: 'checkboxmodel',
     store: 'ComPortPools',
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
+    ],
     initComponent: function () {
         this.columns = [
             {
@@ -80,10 +84,9 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
         ];
 
         this.dockedItems = [{
-            xtype: 'pagingtoolbar',
-            store: 'ComPortPools',
-            dock: 'bottom',
-            displayInfo: true
+            xtype: 'pagingtoolbarbottom',
+            store: this.store,
+            dock: 'bottom'
         },{
             xtype: 'toolbar',
             dock: 'top',
