@@ -111,14 +111,16 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 bind(Thesaurus.class).toInstance(thesaurus);
             }
         });
-        try {
-            List<ImportSchedule> importSchedules = importScheduleFactory().find();
-            int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
-            cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
-        } catch (RuntimeException e) {
-            MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
-            throw e;
-		}
+        if (dataModel.isInstalled()) {
+            try {
+                List<ImportSchedule> importSchedules = importScheduleFactory().find();
+                int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
+                cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
+            } catch (RuntimeException e) {
+                MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
+                throw e;
+            }
+        }
     }
 
     @Override

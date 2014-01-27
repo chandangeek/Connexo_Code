@@ -8,7 +8,7 @@ import com.google.common.base.Optional;
  */
 public interface FileImportService {
 
-    String COMPONENT_NAME = "FIS";
+    String COMPONENT_NAME = "FIM";
 
     /**
      * @return a builder for ImportSchedules
