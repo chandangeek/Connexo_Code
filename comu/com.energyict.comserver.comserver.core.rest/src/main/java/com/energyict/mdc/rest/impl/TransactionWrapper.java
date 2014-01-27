@@ -28,7 +28,7 @@ public class TransactionWrapper implements ApplicationEventListener {
     }
 
     @Override
-    public RequestEventListener onRequest(final RequestEvent requestEvent) {
+    public RequestEventListener onRequest(RequestEvent requestEvent) {
         return new RequestEventListener() {
 
             @Override
@@ -40,11 +40,6 @@ public class TransactionWrapper implements ApplicationEventListener {
                 case FINISHED:
                     contextThreadLocal.get().commit();
                     contextThreadLocal.get().close();
-                    break;
-                case ON_EXCEPTION:
-                    if (requestEvent.getException()!=null) {
-                        requestEvent.getException().printStackTrace();
-                    }
                     break;
                 }
             }

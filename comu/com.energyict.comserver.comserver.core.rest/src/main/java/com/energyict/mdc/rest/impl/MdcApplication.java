@@ -37,6 +37,7 @@ public class MdcApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(AutoCloseDatabaseConnection.class,
                 TransactionWrapper.class,
+                ExceptionLogger.class,
                 ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
