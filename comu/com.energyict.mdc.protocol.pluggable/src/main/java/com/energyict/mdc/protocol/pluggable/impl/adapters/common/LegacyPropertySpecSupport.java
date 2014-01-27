@@ -27,7 +27,10 @@ public final class LegacyPropertySpecSupport {
             return propertySpecService.referencePropertySpec(legacySpec.getName(), required, legacySpec.getObjectFactory());
         }
         else {
-            return propertySpecService.basicPropertySpec(legacySpec.getName(), required, newInstance(LegacyValueFactoryMapping.classForLegacy(legacySpec.getValueFactory().getClass())));
+            return propertySpecService.basicPropertySpec(
+                        legacySpec.getName(),
+                        required,
+                        newInstance(LegacyValueFactoryMapping.classForLegacy(legacySpec.getValueFactory().getClass())));
         }
     }
 

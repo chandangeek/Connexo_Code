@@ -1,20 +1,42 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.StringFactory;
+import com.energyict.mdc.dynamic.ValueFactory;
+import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.impl.ServiceLocator;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -37,8 +59,11 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
@@ -48,27 +73,35 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.Reg
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
 import org.fest.assertions.core.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -87,9 +120,15 @@ import static org.mockito.Mockito.withSettings;
 public class MeterProtocolAdapterTest {
 
     private static final String PROPERTY_SPEC_NAME = "whatever";
-    private static final String PROTOCOL_CLASS = "com.energyict.comserver.adapters.meterprotocol.SimpleTestMeterProtocol";
+    private static final String PROTOCOL_CLASS = "com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.SimpleTestMeterProtocol";
     private static final String AS220_PROTOCOL = "com.energyict.protocolimpl.dlms.as220.AS220";
 
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
+    private Principal principal;
+    @Mock
+    private EventAdmin eventAdmin;
     @Mock
     private CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
     @Mock
@@ -100,20 +139,6 @@ public class MeterProtocolAdapterTest {
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     @Mock
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private TransactionService transactionService;
-    @Mock
-    private OrmService ormService;
-    @Mock
-    private NlsService nlsService;
-    @Mock
-    private EventService eventService;
-    @Mock
-    private PluggableService pluggableService;
-    @Mock
-    private RelationService relationService;
     @Mock
     private DeviceProtocolService deviceProtocolService;
     @Mock
@@ -126,23 +151,80 @@ public class MeterProtocolAdapterTest {
     private ConnectionTypeService connectionTypeService;
     @Mock
     private IssueService issueService;
-
     @Mock
     private PropertySpecService propertySpecService;
-    private ProtocolPluggableService protocolPluggableService;
+
+    private TransactionService transactionService;
+    private OrmService ormService;
+    private EventService eventService;
+    private NlsService nlsService;
+    private DataModel dataModel;
+    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private PluggableService pluggableService;
+    private RelationService relationService;
 
     @Before
-    public void initializeMocks () {
+    public void before () {
+        when(this.principal.getName()).thenReturn("MeterProtocolAdapterTest.mdc.protocol.pluggable");
+        InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+        Injector injector = Guice.createInjector(
+                new MockModule(),
+                bootstrapModule,
+                new ThreadSecurityModule(this.principal),
+                new EventsModule(),
+                new PubSubModule(),
+                new TransactionModule(),
+                new UtilModule(),
+                new NlsModule(),
+                new DomainUtilModule(),
+                new InMemoryMessagingModule(),
+                new EventsModule(),
+                new OrmModule(),
+                new IssuesModule(),
+                new PluggableModule(),
+                new MdcCommonModule(),
+                new MdcDynamicModule());
+        this.transactionService = injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = this.transactionService.getContext()) {
+            this.ormService = injector.getInstance(OrmService.class);
+            this.eventService = injector.getInstance(EventService.class);
+            this.nlsService = injector.getInstance(NlsService.class);
+            this.pluggableService = injector.getInstance(PluggableService.class);
+            this.relationService = injector.getInstance(RelationService.class);
+            this.issueService = injector.getInstance(IssueService.class);
+            this.createNewProtocolPluggableService();
+            ctx.commit();
+        }
+        Environment environment = injector.getInstance(Environment.class);
+        environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        Translator translator = mock(Translator.class);
+        when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
+        when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
+        when(applicationContext.getTranslator()).thenReturn(translator);
+        IdBusinessObjectFactory timeZoneInUseFactory = mock(IdBusinessObjectFactory.class);
+        when(timeZoneInUseFactory.getInstanceType()).thenReturn(TimeZone.class);
+        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(timeZoneInUseFactory);  // DeviceProtocolAdapterImpl is looking for the TimeZoneInUse factory
+        environment.setApplicationContext(applicationContext);
+
+        this.initializeMocks();
+    }
+
+    private void initializeMocks() {
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol(PROTOCOL_CLASS)).
-        thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport");
+                thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport");
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
-        when(this.deviceProtocolSecurityService.createDeviceProtocolSecurityFor("com.energyict.comserver.adapters.common.SimpleTestDeviceSecuritySupport")).
+        when(this.deviceProtocolSecurityService.createDeviceProtocolSecurityFor("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport")).
                 thenReturn(new SimpleTestDeviceSecuritySupport());
-        protocolPluggableService =
+    }
+
+    private void createNewProtocolPluggableService() {
+        this.protocolPluggableService =
                 new ProtocolPluggableServiceImpl(
                         this.ormService,
                         this.eventService,
                         this.nlsService,
+                        this.issueService,
                         this.propertySpecService,
                         this.pluggableService,
                         this.relationService,
@@ -151,21 +233,16 @@ public class MeterProtocolAdapterTest {
                         this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService);
-    }
-
-    @Before
-    public void setUpEnvironment () {
-        Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0];
-            }
-        });
+        this.dataModel = this.protocolPluggableService.getDataModel();
     }
 
     @After
-    public void tearDownEnvironment () {
+    public void cleanUpDataBase() throws SQLException {
+        new InMemoryPersistence().cleanUpDataBase();
+    }
+
+    @AfterClass
+    public static void cleanUpEnvironment () {
         Environment.DEFAULT.set(null);
     }
 
@@ -298,11 +375,15 @@ public class MeterProtocolAdapterTest {
     @Test
     public void getDeviceProtocolDialect() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
-        final List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> optionalKeys = new ArrayList<>();
+        List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> optionalKeys = new ArrayList<>();
+        final List<String> optionalKeyNames = Arrays.asList("o1", "o2", "o3");
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1"));
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o2"));
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o3"));
         when(meterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
+        when(this.propertySpecService.basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o1", false, new StringFactory()));
+        when(this.propertySpecService.basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o2", false, new StringFactory()));
+        when(this.propertySpecService.basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class))).thenReturn(new BasicPropertySpec<>("o3", false, new StringFactory()));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
@@ -315,7 +396,7 @@ public class MeterProtocolAdapterTest {
             areExactly(optionalKeys.size(), new Condition<PropertySpec>() {
                 @Override
                 public boolean matches(PropertySpec propertySpec) {
-                    return optionalKeys.contains(propertySpec.getName());
+                    return optionalKeyNames.contains(propertySpec.getName());
                 }
             });
         assertThat(getRequiredPropertiesFromSet(deviceProtocolDialect.getPropertySpecs())).isEmpty();
@@ -498,6 +579,11 @@ public class MeterProtocolAdapterTest {
 
     @Test
     public void getCapabilitiesTest() throws ClassNotFoundException {
+        try (TransactionContext ctx = this.transactionService.getContext()) {
+            DeviceCapabilityAdapterMappingImpl deviceCapabilityMapping = new DeviceCapabilityAdapterMappingImpl(MockDeviceProtocol.class.getCanonicalName(), 6);
+            this.dataModel.persist(deviceCapabilityMapping);
+            ctx.commit();
+        }
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         MeterProtocolAdapterImpl meterProtocolAdapter = spy(newMeterProtocolAdapter(meterProtocol));
         when(meterProtocolAdapter.getProtocolClass()).thenReturn(MockDeviceProtocol.class);
@@ -654,6 +740,26 @@ public class MeterProtocolAdapterTest {
                             mock(PropertiesAdapter.class),
                             this.getSecuritySupportAdapterMappingFactory()));
         }
+    }
+
+    private class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
+            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
+            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
+            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
+            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
+            bind(DataModel.class).toProvider(new Provider<DataModel>() {
+                @Override
+                public DataModel get() {
+                    return dataModel;
+                }
+            });
+        }
+
     }
 
 }
