@@ -64,4 +64,6 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     }
 
     protected abstract S createNew(EngineModelService engineModelService);
+
+    protected abstract void handlePools(S comPortPool, EngineModelService engineModelService);
 }

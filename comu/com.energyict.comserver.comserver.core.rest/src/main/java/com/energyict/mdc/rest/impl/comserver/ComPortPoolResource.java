@@ -59,6 +59,7 @@ public class ComPortPoolResource {
                 throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
             }
             comPortPoolInfo.writeTo(comPortPool,engineModelService);
+            comPortPoolInfo.handlePools(comPortPool, engineModelService);
             comPortPool.save();
             return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
@@ -92,10 +93,12 @@ public class ComPortPoolResource {
         try {
             ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), engineModelService);
             comPortPool.save();
+            comPortPoolInfo.handlePools(null, engineModelService);
             return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }
     }
+
 
 }

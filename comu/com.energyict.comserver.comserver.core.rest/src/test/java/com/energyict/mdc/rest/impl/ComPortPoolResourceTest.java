@@ -2,22 +2,15 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
-import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
-import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
-import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
-import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +30,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -176,54 +168,53 @@ public class ComPortPoolResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testUpdateExistingComPortPoolAddInboundComPort() throws Exception {
+    public void testUpdateExistingComPortPoolAddOneDeleteOneAndKeepOne() throws Exception {
         long comPortPool_id = 16;
-        long comPort1_id = 166;
-        long comPort2_id = 167;
-        long comPort3_id = 168;
+        long comPort1_id_to_be_kept = 166;
+        long comPort2_id_to_be_added = 167;
+        long comPort3_id_to_be_removed = 168;
 
-        InboundComPortPoolInfo inboundComPortPoolInfo = new InboundComPortPoolInfo();
-        inboundComPortPoolInfo.id=comPortPool_id;
-        inboundComPortPoolInfo.active=true;
-        inboundComPortPoolInfo.name="Updated";
-        inboundComPortPoolInfo.description="description";
-        inboundComPortPoolInfo.discoveryProtocolPluggableClassId=13;
-        TcpInboundComPortInfo tcpInboundComPortInfo1 = new TcpInboundComPortInfo();
-        tcpInboundComPortInfo1.name="Port 1";
-        tcpInboundComPortInfo1.id=comPort1_id;
-        TcpInboundComPortInfo tcpInboundComPortInfo2 = new TcpInboundComPortInfo();
-        tcpInboundComPortInfo2.name="Port 2";
-        tcpInboundComPortInfo2.id=comPort2_id;
-        inboundComPortPoolInfo.inboundComPorts= new ArrayList<InboundComPortInfo>(Arrays.asList(tcpInboundComPortInfo1, tcpInboundComPortInfo2));
+        OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
+        outboundComPortPoolInfo.id=comPortPool_id;
+        outboundComPortPoolInfo.active=true;
+        outboundComPortPoolInfo.name="Updated";
+        outboundComPortPoolInfo.description="description";
+        outboundComPortPoolInfo.taskExecutionTimeout=new TimeDurationInfo(new TimeDuration(5, TimeDuration.MINUTES));
+        OutboundComPortInfo tcpOutboundComPortInfo1 = new OutboundComPortInfo();
+        tcpOutboundComPortInfo1.name="Port 1";
+        tcpOutboundComPortInfo1.id=comPort1_id_to_be_kept;
+        tcpOutboundComPortInfo1.comPortType=ComPortType.TCP;
+        OutboundComPortInfo tcpOutboundComPortInfo2 = new OutboundComPortInfo();
+        tcpOutboundComPortInfo2.name="Port 2";
+        tcpOutboundComPortInfo2.id=comPort2_id_to_be_added;
+        tcpOutboundComPortInfo2.comPortType=ComPortType.TCP;
+        outboundComPortPoolInfo.outboundComPorts= new ArrayList<>(Arrays.asList(tcpOutboundComPortInfo1, tcpOutboundComPortInfo2));
 
-        InboundComPortPool mockInboundComPortPool = mock(InboundComPortPool.class);
-        TCPBasedInboundComPort mockTcpPort1 = mock(TCPBasedInboundComPort.class);
+        OutboundComPortPool mockOutboundComPortPool = mock(OutboundComPortPool.class);
+        OutboundComPort mockTcpPort1 = mock(OutboundComPort.class);
         when(mockTcpPort1.getName()).thenReturn("Port 1");
-        when(mockTcpPort1.getId()).thenReturn(comPort1_id);
-        TCPBasedInboundComPort mockTcpPort2 = mock(TCPBasedInboundComPort.class);
-        when(mockTcpPort2.getName()).thenReturn("Port 3");
-        when(mockTcpPort2.getId()).thenReturn(comPort3_id);
+        when(mockTcpPort1.getId()).thenReturn(comPort1_id_to_be_kept);
+        OutboundComPort mockTcpPort2 = mock(OutboundComPort.class);
+        when(mockTcpPort2.getName()).thenReturn("Port 2");
+        when(mockTcpPort2.getId()).thenReturn(comPort2_id_to_be_added);
+        OutboundComPort mockTcpPort3 = mock(OutboundComPort.class);
+        when(mockTcpPort3.getName()).thenReturn("Port 3");
+        when(mockTcpPort3.getId()).thenReturn(comPort3_id_to_be_removed);
 
-        when(mockInboundComPortPool.getComPorts()).thenReturn(Arrays.<InboundComPort>asList(mockTcpPort1, mockTcpPort2));
-        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mockInboundComPortPool);
+        when(mockOutboundComPortPool.getComPorts()).thenReturn(Arrays.<OutboundComPort>asList(mockTcpPort1, mockTcpPort3));
+        when(engineModelService.findComPortPool(comPortPool_id)).thenReturn(mockOutboundComPortPool);
+        when(engineModelService.findComPort(comPort2_id_to_be_added)).thenReturn(mockTcpPort2);
 
-        Entity<InboundComPortPoolInfo> json = Entity.json(inboundComPortPoolInfo);
+        Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 
         final Response response = target("/comportpools/"+comPortPool_id).request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(mockInboundComPortPool).save();
-        ArgumentCaptor<String> nameArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mockInboundComPortPool).setName(nameArgumentCaptor.capture());
-        assertThat(nameArgumentCaptor.getValue()).isEqualTo("Updated");
-
-        ArgumentCaptor<String> descriptionArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mockInboundComPortPool).setDescription(descriptionArgumentCaptor.capture());
-        assertThat(descriptionArgumentCaptor.getValue()).isEqualTo("description");
-
-        ArgumentCaptor<Long> longArgumentCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(mockInboundComPortPool).setDiscoveryProtocolPluggableClassId(longArgumentCaptor.capture());
-        assertThat(longArgumentCaptor.getValue()).isEqualTo(13L);
+        verify(mockOutboundComPortPool).save();
+        verify(mockOutboundComPortPool).removeOutboundComPort(mockTcpPort3);
+        ArgumentCaptor<OutboundComPort> comPortArgumentCaptor = ArgumentCaptor.forClass(OutboundComPort.class);
+        verify(mockOutboundComPortPool).addOutboundComPort(comPortArgumentCaptor.capture());
+        assertThat(comPortArgumentCaptor.getValue().getName()).isEqualTo("Port 2");
     }
 
     @Test
@@ -244,6 +235,5 @@ public class ComPortPoolResourceTest extends JerseyTest {
         final Response response = target("/comportpools/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
-
 
 }
