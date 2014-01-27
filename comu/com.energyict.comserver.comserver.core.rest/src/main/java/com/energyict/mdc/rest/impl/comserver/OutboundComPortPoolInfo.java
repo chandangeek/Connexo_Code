@@ -6,13 +6,13 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.rest.impl.TimeDurationInfo;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 
 public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool> {
 
@@ -34,7 +34,7 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
 
     @Override
     protected OutboundComPortPool writeTo(OutboundComPortPool source, EngineModelService engineModelService) {
-        super.writeTo(source,engineModelService);
+        super.writeTo(source, engineModelService);
         if (this.taskExecutionTimeout!=null) {
             source.setTaskExecutionTimeout(this.taskExecutionTimeout.asTimeDuration());
         }

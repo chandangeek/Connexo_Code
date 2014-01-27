@@ -4,11 +4,13 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @XmlRootElement
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
 public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
 
     public RemoteComServerInfo() {
@@ -47,5 +49,10 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
         comServerSource.setQueryAPIUsername(queryAPIUsername);
 
         return comServerSource;
+    }
+
+    @Override
+    protected RemoteComServer createNew(EngineModelService engineModelService) {
+        return engineModelService.newRemoteComServerInstance();
     }
 }
