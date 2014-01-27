@@ -7,8 +7,8 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 
-import java.util.Objects;
 import javax.inject.Inject;
+import java.util.Objects;
 
 /**
  * Link table between ComPort and ComPortPool
