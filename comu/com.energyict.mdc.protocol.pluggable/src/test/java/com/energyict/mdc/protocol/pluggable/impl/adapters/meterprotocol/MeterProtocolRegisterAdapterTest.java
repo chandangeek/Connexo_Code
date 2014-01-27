@@ -1,21 +1,23 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.MockCollectedRegister;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -25,12 +27,14 @@ import org.mockito.stubbing.Answer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +58,10 @@ public class MeterProtocolRegisterAdapterTest {
     private IssueService issueService;
     @Mock
     private Environment environment;
+    @Mock
+    private ApplicationContext applicationContext;
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
 
     @Before
     public void initializeIssueService () {
@@ -62,13 +70,29 @@ public class MeterProtocolRegisterAdapterTest {
 
     @Before
     public void setUpEnvironment () {
+        when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
+        when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
+        when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class))).
+            thenAnswer(new Answer<CollectedRegister>() {
+                @Override
+                public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier);
+                    collectedRegister.setResultType(ResultType.Supported);
+                    return collectedRegister;
+                }
+            });
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).
+            thenAnswer(new Answer<CollectedRegister>() {
+                @Override
+                public CollectedRegister answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    return new MockCollectedRegister(registerIdentifier);
+                }
+            });
+        when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         Environment.DEFAULT.set(this.environment);
-        when(this.environment.getErrorMsg(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return invocation.getArguments()[0];
-            }
-        });
     }
 
     @After
@@ -97,17 +121,17 @@ public class MeterProtocolRegisterAdapterTest {
     @Test
     public void getRegisterEmptyCallTest() {
         MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService);
-        assertNotNull("Should not get a null object back", meterProtocolRegisterAdapter.readRegisters(null));
-        assertEquals("Should at least get an empty list", Collections.emptyList(), meterProtocolRegisterAdapter.readRegisters(null));
-        assertNotNull("Should not get a null object back", meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>()));
-        assertEquals("Should at least get an empty list", Collections.emptyList(), meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>()));
+        assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isNotNull();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isEmpty();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isNotNull();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isEmpty();
 
         RegisterSupportedMeterProtocol meterProtocol = mock(RegisterSupportedMeterProtocol.class);
         meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
-        assertNotNull("Should not get a null object back", meterProtocolRegisterAdapter.readRegisters(null));
-        assertEquals("Should at least get an empty list", Collections.emptyList(), meterProtocolRegisterAdapter.readRegisters(null));
-        assertNotNull("Should not get a null object back", meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>()));
-        assertEquals("Should at least get an empty list", Collections.emptyList(), meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>()));
+        assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isNotNull();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(null)).isEmpty();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isNotNull();
+        assertThat(meterProtocolRegisterAdapter.readRegisters(new ArrayList<OfflineRegister>())).isEmpty();
     }
 
     @Test
@@ -127,23 +151,23 @@ public class MeterProtocolRegisterAdapterTest {
         MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
-        assertEquals("Size of the collected registers should be 1", 1, collectedRegisters.size());
-        assertEquals("ResultType should be 'Not supported'", ResultType.NotSupported, collectedRegisters.get(0).getResultType());
-        assertEquals("registerXnotsupported", collectedRegisters.get(0).getIssues().get(0).getDescription());
-        assertTrue("The Problem should have the source ObisCode", collectedRegisters.get(0).getIssues().get(0).getSource() instanceof ObisCode);
+        assertThat(collectedRegisters).hasSize(1);
+        assertThat(collectedRegisters.get(0).getResultType()).isEqualTo(ResultType.NotSupported);
+        assertThat(collectedRegisters.get(0).getIssues().get(0).getDescription()).isEqualTo("registerXnotsupported");
+        assertThat(collectedRegisters.get(0).getIssues().get(0).getSource()).isInstanceOf(ObisCode.class);
     }
 
     @Test
     public void unSupportedSizeTest(){
         OfflineRegister register = getMockedRegister();
         final int registerListSize = 10;
-        List<OfflineRegister> registerList = new ArrayList<OfflineRegister>(registerListSize);
+        List<OfflineRegister> registerList = new ArrayList<>(registerListSize);
         for(int i = 0; i < registerListSize; i++){
             registerList.add(register);
         }
         MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(registerList);
-        assertEquals("Should return " + registerListSize + " objects in the list", registerListSize, collectedRegisters.size());
+        assertThat(collectedRegisters.size()).isEqualTo(registerListSize);
     }
 
     @Test(expected = LegacyProtocolException.class)
@@ -167,12 +191,13 @@ public class MeterProtocolRegisterAdapterTest {
         MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
-        assertEquals("FromDate should be the same", fromDate, collectedRegisters.get(0).getFromTime());
-        assertEquals("ToDate should be the same", toDate, collectedRegisters.get(0).getToTime());
-        assertEquals("EventDate should be the same", eventDate, collectedRegisters.get(0).getEventTime());
-        assertEquals("ReadDate should be the same", readDate, collectedRegisters.get(0).getReadTime());
-        assertEquals("RegisterValue text should be the same", text, collectedRegisters.get(0).getText());
-        assertEquals("RegisterValue quantity should be the same", quantity, collectedRegisters.get(0).getCollectedQuantity());
+        CollectedRegister collectedRegister = collectedRegisters.get(0);
+        assertThat(collectedRegister.getFromTime()).isEqualTo(fromDate);
+        assertThat(collectedRegister.getToTime()).isEqualTo(toDate);
+        assertThat(collectedRegister.getEventTime()).isEqualTo(eventDate);
+        assertThat(collectedRegister.getReadTime()).isEqualTo(readDate);
+        assertThat(collectedRegister.getText()).isEqualTo(text);
+        assertThat(collectedRegister.getCollectedQuantity()).isEqualTo(quantity);
     }
 
     @Test
@@ -189,9 +214,9 @@ public class MeterProtocolRegisterAdapterTest {
         MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(meterProtocol, issueService);
         final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register1, register2, register3));
 
-        assertEquals("Size should be the same", 3, collectedRegisters.size());
-        assertEquals("The first register should be supported", ResultType.Supported, collectedRegisters.get(0).getResultType());
-        assertEquals("The second register should not be supported", ResultType.NotSupported, collectedRegisters.get(1).getResultType());
-        assertEquals("The third register should be supported", ResultType.Supported, collectedRegisters.get(2).getResultType());
+        assertThat(collectedRegisters).hasSize(3);
+        assertThat(collectedRegisters.get(0).getResultType()).isEqualTo(ResultType.Supported);
+        assertThat(collectedRegisters.get(1).getResultType()).isEqualTo(ResultType.NotSupported);
+        assertThat(collectedRegisters.get(2).getResultType()).isEqualTo(ResultType.Supported);
     }
 }
