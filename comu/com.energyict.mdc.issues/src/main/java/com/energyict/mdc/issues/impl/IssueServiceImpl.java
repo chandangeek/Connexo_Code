@@ -8,6 +8,8 @@ import com.energyict.mdc.issues.Warning;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 /**
  * Provides an implementation for the {@link IssueService} interface
  * and registers itself as the preferred IssueService on the bus
@@ -23,6 +25,12 @@ public class IssueServiceImpl implements IssueService {
 
     public Clock getClock () {
         return clock;
+    }
+
+    @Inject
+    public IssueServiceImpl(Clock clock) {
+        super();
+        this.setClock(clock);
     }
 
     @Reference
