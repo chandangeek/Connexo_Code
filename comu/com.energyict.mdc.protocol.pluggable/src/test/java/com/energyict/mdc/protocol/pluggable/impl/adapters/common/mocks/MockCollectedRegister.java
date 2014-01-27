@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock;
+package com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.Issue;
