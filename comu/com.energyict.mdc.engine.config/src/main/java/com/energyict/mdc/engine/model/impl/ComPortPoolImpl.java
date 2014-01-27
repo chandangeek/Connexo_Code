@@ -29,8 +29,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
 
-    private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>(); // TODO REMOVE ME
-
     private final DataModel dataModel;
     private final EngineModelService engineModelService;
 
