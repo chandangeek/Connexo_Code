@@ -129,12 +129,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ComPortPoolMember> table = dataModel.addTable(name(), ComPortPoolMember.class);
    			table.map(ComPortPoolMemberImpl.class);
-   			Column comPortPoolIdColumn = table.column("POOL").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
+
+            Column comPortPoolIdColumn = table.column("POOL").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
    			Column comPortIdColumn = table.column("COMPORT").number().notNull().conversion(NUMBER2LONG).add(); // DO NOT MAP
    			table.primaryKey("CEM_PK_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
    			table.unique("CEM_U_COMPORTINPOOL").on(comPortPoolIdColumn , comPortIdColumn).add();
+
    			table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORT").on(comPortIdColumn).references(MDCCOMPORT.name()).map("comPort").add();
-            table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORTPOOL").on(comPortPoolIdColumn).references(MDCCOMPORTPOOL.name()).onDelete(DeleteRule.CASCADE).
+            table.foreignKey("CEM_FKCOMPORTINPOOLCOMPORTPOOL").on(comPortPoolIdColumn).references(MDCCOMPORTPOOL.name()).
                 map("comPortPool").reverseMap("comPortPoolMembers").composition().add();
    		}
    	};

@@ -39,12 +39,12 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
     }
 
     @Override
-    public TimeDuration getTaskExecutionTimeout () {
+    public TimeDuration getTaskExecutionTimeout() {
         return new TimeDuration(this.taskExecutionTimeout.getCount(), this.taskExecutionTimeout.getTimeUnitCode());
     }
 
     @Override
-    public List<OutboundComPort> getComPorts () {
+    public List<OutboundComPort> getComPorts() {
         List<OutboundComPort> outboundComPorts = new ArrayList<>();
         for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
             outboundComPorts.add((OutboundComPort) comPortPoolMember.getComPort());
