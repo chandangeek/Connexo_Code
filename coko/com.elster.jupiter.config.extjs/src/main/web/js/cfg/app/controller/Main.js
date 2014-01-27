@@ -27,7 +27,7 @@ Ext.define('Cfg.controller.Main', {
     },
 
     initDefaultHistoryToken: function () {
-        var controller = this.getController('Cfg.controller.history.Validation'),
+        var controller = this.getController('Cfg.controller.history.Administration'),
             eventBus = this.getController('Uni.controller.history.EventBus'),
             defaultToken = controller.tokenizeShowOverview();
 

@@ -108,6 +108,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     initMenu: function () {
+        Uni.store.MenuItems.removeAll();
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Validation',
             href: Cfg.getApplication().getHistoryValidationController().tokenizeShowOverview(),
@@ -118,6 +119,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     showOverview: function () {
+        this.initMenu();
         var widget = Ext.widget('validationrulesetBrowse');
         Cfg.getApplication().getMainController().showContent(widget);
     },
