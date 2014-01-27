@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 
@@ -89,7 +90,7 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortPoolInfo createComPortPool(ComPortPoolInfo comPortPoolInfo) {
+    public ComPortPoolInfo createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo) {
         try {
             ComPortPool comPortPool = comPortPoolInfo.writeTo(comPortPoolInfo.createNew(engineModelService), engineModelService);
             comPortPool.save();
