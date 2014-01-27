@@ -54,4 +54,8 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
         return comServerSource;
     }
 
+    @Override
+    protected OnlineComServer createNew(EngineModelService engineModelService) {
+        return engineModelService.newOnlineComServerInstance();
+    }
 }

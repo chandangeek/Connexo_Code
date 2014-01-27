@@ -107,4 +107,6 @@ public abstract class ComServerInfo<S extends ComServer> {
 
         return source;
     }
+
+    protected abstract S createNew(EngineModelService engineModelService);
 }

@@ -1,15 +1,19 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -206,6 +210,88 @@ public class ComServerResourceTest extends JerseyTest {
         ArgumentCaptor<Integer> numberOfStoreTaskThreadCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(serverSideComServer).setNumberOfStoreTaskThreads(numberOfStoreTaskThreadCaptor.capture());
         assertThat(numberOfStoreTaskThreadCaptor.getValue()).isEqualTo(9);
+    }
+
+    @Test
+    public void createOnlineComServer() throws Exception {
+        long comServer_id = 3;
+        long comPortPool_id = 16;
+
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(engineModelService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
+        timeDurationInfo.count=2;
+        timeDurationInfo.timeUnit="seconds";
+        List<InboundComPortInfo> inboundPorts = new ArrayList<>();
+        onlineComServerInfo.inboundComPorts =inboundPorts;
+        onlineComServerInfo.outboundComPorts =new ArrayList<>();
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
+        final Response response = target("/comservers").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(serverSideComServer).save();
+    }
+
+    @Test
+    public void createOfflineComServer() throws Exception {
+        long comServer_id = 3;
+
+
+        OfflineComServer serverSideComServer = mock(OfflineComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(engineModelService.newOfflineComServerInstance()).thenReturn(serverSideComServer);
+
+        OfflineComServerInfo offlineComServerInfo = new OfflineComServerInfo();
+        offlineComServerInfo.name="new name";
+        TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
+        timeDurationInfo.count=2;
+        timeDurationInfo.timeUnit="seconds";
+        offlineComServerInfo.inboundComPorts = new ArrayList<>();
+        offlineComServerInfo.outboundComPorts =new ArrayList<>();
+
+        Entity<OfflineComServerInfo> json = Entity.json(offlineComServerInfo);
+
+        final Response response = target("/comservers").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(serverSideComServer).save();
+    }
+
+    @Test
+    public void createRemoteComServer() throws Exception {
+        long comServer_id = 3;
+        long onlineComServerId = 5;
+
+
+        RemoteComServer serverSideComServer = mock(RemoteComServer.class);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(engineModelService.newRemoteComServerInstance()).thenReturn(serverSideComServer);
+
+        OnlineComServer onlineComServer = mock(OnlineComServer.class);
+        when(engineModelService.findComServer(onlineComServerId)).thenReturn(onlineComServer);
+
+        RemoteComServerInfo remoteComServerInfo = new RemoteComServerInfo();
+        remoteComServerInfo.name="new name";
+        remoteComServerInfo.onlineComServerId = 5L;
+        TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
+        timeDurationInfo.count=2;
+        timeDurationInfo.timeUnit="seconds";
+        remoteComServerInfo.inboundComPorts = new ArrayList<>();
+        remoteComServerInfo.outboundComPorts =new ArrayList<>();
+
+        Entity<RemoteComServerInfo> json = Entity.json(remoteComServerInfo);
+
+        final Response response = target("/comservers").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(serverSideComServer).save();
     }
 
     @Test

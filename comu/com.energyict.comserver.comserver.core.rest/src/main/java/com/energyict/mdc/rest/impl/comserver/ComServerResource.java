@@ -3,13 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OnlineComServer;
-import com.energyict.mdc.engine.model.impl.ComPortImpl;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,6 +16,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Path("/comservers")
 public class ComServerResource {
@@ -90,20 +89,20 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
+    public ComServerInfo createComServer(ComServerInfo comServerInfo) {
         try {
-            OnlineComServer onlineComServer = engineModelService.newOnlineComServerInstance();
-            comServerInfo.writeTo(onlineComServer,engineModelService);
-            onlineComServer.save();
+            ComServer comServer = comServerInfo.createNew(engineModelService);
+            comServerInfo.writeTo(comServer,engineModelService);
+            comServer.save();
 
             List<ComPortInfo> allComPorts = new ArrayList<>();
             allComPorts.addAll(comServerInfo.inboundComPorts);
             allComPorts.addAll(comServerInfo.outboundComPorts);
 
             for (ComPortInfo comPortInfo : allComPorts) {
-                comPortInfo.createNew(onlineComServer, engineModelService);
+                comPortInfo.createNew(comServer, engineModelService);
             }
-            return ComServerInfoFactory.asInfo(onlineComServer);
+            return ComServerInfoFactory.asInfo(comServer);
         } catch (Exception e) {
             throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
         }

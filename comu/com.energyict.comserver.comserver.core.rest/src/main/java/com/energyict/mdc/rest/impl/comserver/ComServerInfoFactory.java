@@ -13,7 +13,7 @@ public class ComServerInfoFactory {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
             return new OnlineComServerInfo((OnlineComServer) comServer);
         }
-        else if (OfflineComServerInfo.class.isAssignableFrom(comServer.getClass())) {
+        else if (OfflineComServer.class.isAssignableFrom(comServer.getClass())) {
             return new OfflineComServerInfo((OfflineComServer) comServer);
         }
         else if (RemoteComServer.class.isAssignableFrom(comServer.getClass())) {
@@ -28,7 +28,7 @@ public class ComServerInfoFactory {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
             return new OnlineComServerInfo((OnlineComServer) comServer, comPortList);
         }
-        else if (OfflineComServerInfo.class.isAssignableFrom(comServer.getClass())) {
+        else if (OfflineComServer.class.isAssignableFrom(comServer.getClass())) {
             return new OfflineComServerInfo((OfflineComServer) comServer, comPortList);
         }
         else if (RemoteComServer.class.isAssignableFrom(comServer.getClass())) {
