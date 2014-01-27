@@ -191,7 +191,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
                 me.createComServerType = 'Online';
                 me.comServerEditView = Ext.widget('comServerEdit');
             } else {
-                me.createComServerType = 'Mobile';
+                me.createComServerType = 'Offline';
                 me.comServerEditView = Ext.widget('comServerEdit');
             }
             me.comserver.set('comServerType',this.createComServerType);

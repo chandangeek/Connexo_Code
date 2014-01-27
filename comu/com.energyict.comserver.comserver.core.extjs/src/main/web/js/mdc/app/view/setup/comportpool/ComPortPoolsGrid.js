@@ -3,7 +3,9 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     alias: 'widget.comPortPoolsGrid',
 
     requires: [
-        'Mdc.store.ComPortPools'
+        'Mdc.store.ComPortPools',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom'
     ],
     overflowY: 'auto',
     layout: 'fit',
@@ -13,10 +15,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
     },
     selType: 'checkboxmodel',
     store: 'ComPortPools',
-    requires: [
-        'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
-    ],
+
     initComponent: function () {
         this.columns = [
             {
