@@ -30,97 +30,97 @@ public class MockModemBasedComPortBuilder implements ModemBasedInboundComPort.Mo
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder ringCount(int ringCount) {
         this.ringCount = ringCount;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder maximumDialErrors(int maximumDialErrors) {
         this.maximumDialErrors = maximumDialErrors;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder connectTimeout(TimeDuration connectTimeout) {
         this.connectTimeout = connectTimeout;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect) {
         this.delayAfterConnect = delayAfterConnect;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend) {
         this.delayBeforeSend = delayBeforeSend;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atCommandTimeout(TimeDuration atCommandTimeout) {
         this.atCommandTimeout = atCommandTimeout;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry) {
         this.atCommandTry = atCommandTry;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings) {
         this.initStrings = initStrings;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder addressSelector(String addressSelector) {
         this.addressSelector = addressSelector;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands) {
         this.postDialCommands = postDialCommands;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
         this.serialPortConfiguration = serialPortConfiguration;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortPool(InboundComPortPool comPortPool) {
         this.comPortPool = comPortPool;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder name(String name) {
         this.name = name;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortType(ComPortType comPortType) {
         this.comPortType = comPortType;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder active(boolean active) {
         this.active = active;
-        return null;
+        return this;
     }
 
     @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder description(String description) {
         this.description = description;
-        return null;
+        return this;
     }
 
     @Override
