@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.google.inject.Injector;
 
 import java.lang.reflect.Constructor;
@@ -47,7 +48,7 @@ public enum DomainMapper {
 			if (injector == null) {
 				throw new IllegalArgumentException("Needs injector");
 			} else {
-				return injector.getInstance(RefAny.class);
+				return injector.getInstance(RefAnyImpl.class);
 			}
 		}
 		Constructor<?> constructor = clazz.getDeclaredConstructor();

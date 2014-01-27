@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import com.elster.jupiter.orm.associations.RefAny;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public interface OrmService {
 	public static final String COMPONENTNAME = "ORM";
 
 	DataModel newDataModel(String name, String description);
+	RefAny createRefAny(String componentName, String tableName, Object... key);
 
 	/*
 	 * Only for applications that need to document the data model 

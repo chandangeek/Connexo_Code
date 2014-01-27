@@ -3,6 +3,8 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequiredException;
+import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -205,5 +207,10 @@ public class OrmServiceImpl implements OrmService, InstallService {
         } catch (UnderlyingSQLFailedException ex) {
             return false;
         }
+    }
+    
+    @Override
+    public RefAny createRefAny(String component, String table, Object... key) {
+    	return new RefAnyImpl(this, jsonService).init(component, table,key);
     }
 }

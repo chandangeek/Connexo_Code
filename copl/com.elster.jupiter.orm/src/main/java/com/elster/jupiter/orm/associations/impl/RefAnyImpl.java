@@ -42,6 +42,19 @@ public final class RefAnyImpl implements RefAny {
 		return this;
 	}	
 	
+	public RefAnyImpl init(String component, String table, Object... keys) {
+		this.component = component;
+		this.table = table;
+		this.key = jsonService.serialize(keys);
+		String value = key.replace("[", "").replace("]", "");
+		try {
+			id = Long.parseLong(value.trim());
+		} catch (NumberFormatException ex) {
+			id = 0;
+		}
+		return this;
+	}
+	
 	static RefAnyImpl from(DataModel dataModel, Object value , TableImpl<?> table) {
 		return dataModel.getInstance(RefAnyImpl.class).init(value,table);
 	}
@@ -52,8 +65,7 @@ public final class RefAnyImpl implements RefAny {
 	
 	private Optional<?> getTargetHolder() {
 		if (targetHolder == null) {
-			Object[] primaryKey = jsonService.deserialize(key,Object[].class);
-			targetHolder = getOrmService().getDataModel(component).get().getTable(table).getOptional(primaryKey);
+			targetHolder = getOrmService().getDataModel(component).get().getTable(table).getOptional(getPrimaryKey());
 		}
 		return targetHolder;
 	}
@@ -74,5 +86,39 @@ public final class RefAnyImpl implements RefAny {
 	@Override
 	public Object get() {
 		return getTargetHolder().get();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		
+		if (this.getClass() != other.getClass()) {
+			return false;
+		}
+		
+		RefAnyImpl o = (RefAnyImpl) other;
+		return this.component.equals(o.component) && this.table.equals(o.table) && this.key.equals(o.key);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(component,table,key);
+	}
+
+	@Override
+	public String getComponent() {
+		return component;
+	}
+
+	@Override
+	public String getTableName() {
+		return table;
+	}
+
+	@Override
+	public Object[] getPrimaryKey() {
+		return jsonService.deserialize(key,Object[].class);
 	}
 }
