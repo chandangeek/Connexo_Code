@@ -5,7 +5,6 @@
  * ready to use.
  */
 Ext.define('Uni.Loader', {
-
     scriptLoadingCount: 0,
 
     requires: [
@@ -27,7 +26,9 @@ Ext.define('Uni.Loader', {
      * @param {String} components Components to load
      */
     initI18n: function (components) {
-        I18n.init(components);
+        // The I18n singleton is not initialized here because there is no guarantee
+        // this method will be called since it is optional.
+        Uni.util.I18n.init(components);
     },
 
     onReady: function (callback) {
@@ -112,6 +113,7 @@ Ext.define('Uni.Loader', {
     },
 
     afterLoadingScripts: function (callback) {
+        I18n = Uni.util.I18n;
         I18n.load(function () {
             callback();
         });

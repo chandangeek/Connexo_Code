@@ -1,7 +1,92 @@
 /**
  * @class Uni.util.I18n
+ *
+ * Internationalization (I18N) class that can be used to retrieve translations from the translations
+ * REST interface. It uses the {@link Uni.store.Translations} store to retrieve all the available
+ * translations for certain components when loading an application.
+ *
+ * # How to initialize the component translations
+ *
+ * You need to initialize what translation components should be loaded before you start up the
+ * application. Otherwise your translations will not be available. This can be done before calling
+ * {@link Uni.Loader#onReady} with the {@link Uni.Loader#initI18n} method. Be sure to include
+ * an array of component aliases you want to have available in your application.
+ *
+ *      @example
+ *      Ext.require('Uni.Loader');
+ *      Ext.onReady(function () {
+ *          var loader = Ext.create('Uni.Loader');
+ *          loader.initI18n(['MTR', 'USR', 'PRT']); // Component UNI automatically included.
+ *
+ *          loader.onReady(function () {
+ *              // Start up the application.
+ *          });
+ *      });
+ *
+ * Note that the UnifyingJS (alias **UNI**) component translations are always loaded in as well.
+ * This is to make sure that the components render correctly for all languages.
+ *
+ * # Short notation
+ *
+ * There are 2 ways of using the internationalization object, the most pragmatic one being the preferred way.
+ * You can just call the global I18n variable that has a reference to a singleton {@link Uni.util.I18n}
+ * instance.
+ *
+ *     @example
+ *     Ext.create('Ext.panel.Panel' {
+ *         title: I18n.translate('my.key', 'CMP', 'Fallback')
+ *     });
+ *
+ * The main advantage of this way is that it can be used without having to declare separate variables,
+ * take requirements into consideration, and improve code readability. The other way is to call the
+ * fully qualified name of {@link Uni.util.I18n} instead, as shown below.
+ *
+ *     @example
+ *     Ext.create('Ext.panel.Panel' {
+ *         title: Uni.util.I18n.translate('my.key', 'CMP', 'Fallback')
+ *     });
+ *
+ * Be mindful that you will need to add {@link Uni.util.I18n} as a requirement every time, which can be
+ * easily forgotten for something as frequently used as internationalization.
+ *
+ * # Translating simple string values
+ *
+ * For simple translations you can directly ask the {@link #translate} method to return the translation
+ * for a component. Optionally, yet recommended, is to add a fallback translation in case no translation
+ * is found.
+ *
+ *     @example
+ *     Ext.create('Ext.panel.Panel' {
+ *         title: translate('my.key', 'CMP', 'Fallback')
+ *     });
+ *
+ * More information and examples can be found at the {@link #translate} method.
+ *
+ * # Translating plural string values
+ *
+ * There is built-in support for having simple plural versions of a string translation. Summarized, this
+ * means that you can have compounded keys that mention which translation should be used for what
+ * specific amount.
+ *
+ * A use case would be having a separate translation for 'no items', '1 item' and '2 items'.
+ *
+ * More information and examples can be found at the {@link #translatePlural} method.
+ *
+ * # Formatting dates
+ *
+ * **Under development**
+ *
+ * # Formatting numbers
+ *
+ * **Under development**
+ *
+ * # Formatting currency
+ *
+ * **Under development**
+ *
  */
 Ext.define('Uni.util.I18n', {
+    singleton: true,
     requires: ['Uni.store.Translations'],
 
     /**
@@ -84,9 +169,9 @@ Ext.define('Uni.util.I18n', {
      *
      * @param {String} key Translation key to look up
      * @param {String} component Component on which to filter
-     * @param {String} fallback Fallback value in case the tranlation was not found
+     * @param {String} fallback Fallback value in case the translation was not found
      * @param {String[]} [values] Values to replace in the translation
-     * @returns {String} Translation.
+     * @returns {String} Translation
      */
     translate: function (key, component, fallback, values) {
         var translation = this.lookupTranslation(key, component);
@@ -109,22 +194,24 @@ Ext.define('Uni.util.I18n', {
     /**
      * Looks up the plural translation of a number, e.g. for 0 items the translation could be
      * 'There no items', for 1 item 'There is 1 item', or for 7 items 'There are 7 items'.
-     * If your key is named 'itemCount' then for the number 0 will look up 'itemCount[0]',
-     * for the number 1 'itemCount[1]', and so on. It falls back on the generic 'itemCount' key.
+     * If your key is named 'itemCount' then for the amount 0 will look up 'itemCount[0]',
+     * for the amount 1 'itemCount[1]', and so on. It falls back on the generic 'itemCount' key.
      *
      * @param {String} key Translation key to look up
-     * @param {Number} number Number to translate with
+     * @param {Number/String} amount Amount to translate with
+     * @param {String} component Component to look up the translation for
+     * @param {String} fallback Fallback value in case the translation was not found
      */
-    translatePlural: function (key, number) {
-        var lookup = key + '[' + number + ']',
-            translation = this.lookupTranslation(lookup);
+    translatePlural: function (key, amount, component, fallback) {
+        var lookup = key + '[' + amount + ']',
+            translation = this.lookupTranslation(lookup, component);
 
         if (typeof translation === 'undefined') {
-            translation = this.lookupTranslation(key);
+            translation = this.lookupTranslation(key, component) || fallback;
         }
 
-        if (typeof number !== 'undefined') {
-            translation = this.replaceAll(translation, 0, number);
+        if (typeof amount !== 'undefined') {
+            translation = this.replaceAll(translation, 0, amount);
         }
 
         return translation;
@@ -132,26 +219,22 @@ Ext.define('Uni.util.I18n', {
 
     /**
      * Formats a date based on a translation key. If no date has been given, the current date is used.
-     * The date is formatted based on the browser's locale if no valid parse format has been found.
+     *
      * The used parse syntax is that of Moment.js which can be found here:
      * http://www.momentjs.com/docs/#/parsing/string-format/
      *
      * @param {String} key Translation key to format the date with
-     * @param {Date} [date] Date to format
+     * @param {Date} [date=new Date()] Date to format
+     * @param {String} [component] Component to look up the format for
+     * @param {String} [fallback] Fallback format
      * @returns {String} Formatted date as a string value
      */
-    formatDate: function (key, date) {
-        // TODO Use a fallback format by loading in languages from Moment.js.
+    formatDate: function (key, date, component, fallback) {
         date = date || new Date();
 
-        var format = this.t(key, undefined),
-            formattedDate = date.toLocaleString();
+        var format = this.translate(key, component, fallback);
 
-        if (format !== null) {
-            formattedDate = moment(date).format(format);
-        }
-
-        return formattedDate;
+        return moment(date).format(format);
     },
 
     /**
@@ -163,9 +246,9 @@ Ext.define('Uni.util.I18n', {
      * Adapted from: http://stackoverflow.com/a/149099/682311
      *
      * @param {Number} number Number to format
-     * @param {Number} [decimals] Number of required decimal places
-     * @param {String} [decimalSeparator] Required decimal separator
-     * @param {String} [thousandsSeparator] Required thousand separator
+     * @param {Number} [decimals=2] Number of required decimal places
+     * @param {String} [decimalSeparator=.] Required decimal separator
+     * @param {String} [thousandsSeparator=,] Required thousand separator
      * @returns {String} Formatted number
      */
     formatNumberWithSeparators: function (number, decimals, decimalSeparator, thousandsSeparator) {
@@ -186,15 +269,14 @@ Ext.define('Uni.util.I18n', {
      * 2 decimals are used. The translation lookup key for the decimal separator is 'decimalSeparator,
      * while the thousands separator has the lookup key 'thousandsSeparator'.
      *
-     * The 'n' short notation stands for 'number'.
-     *
      * @param {Number} number Number to internationalize
+     * @param {String} [component] Component to look up the format for
      * @param {Number} [decimals] Number of required decimal places
      * @returns {String} Internationalized number
      */
-    formatNumber: function (number, decimals) {
-        var decimalSeparator = this.translate('decimalSeparator') || '.',
-            thousandsSeparator = this.translate('thousandsSeparator') || ',';
+    formatNumber: function (number, component, decimals) {
+        var decimalSeparator = this.translate('decimalSeparator', component, '.'),
+            thousandsSeparator = this.translate('thousandsSeparator', component, ',');
 
         return this.formatNumberWithSeparators(number, decimals, decimalSeparator, thousandsSeparator);
     },
@@ -205,15 +287,14 @@ Ext.define('Uni.util.I18n', {
      * is 'currencyFormat'. If the currency format is not found, the formatted numeric value is used.
      *
      * @param {Number} value Currency value to internationalize
+     * @param {String} [component] Component to look up the format for
      * @param {Number} [decimals] Number of required decimal places
      * @returns {String} Internationalized currency value
      */
-    formatCurrency: function (value, decimals) {
-        var formattedValue = this.n(value, decimals);
+    formatCurrency: function (value, component, decimals) {
+        var formattedValue = this.formatNumber(value, component, decimals);
 
-        return this.translate('currencyFormat', undefined, '', [formattedValue]) || formattedValue;
+        return this.translate('currencyFormat', component, formattedValue, [formattedValue]);
     }
 
 });
-
-var I18n = I18n || Ext.create('Uni.util.I18n');

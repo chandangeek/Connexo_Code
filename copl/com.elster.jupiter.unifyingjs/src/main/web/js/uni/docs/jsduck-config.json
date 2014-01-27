@@ -1,11 +1,12 @@
 {
     "--": "../src",
+    "--title": "UnifyingJS",
     "--guides": "guides.json",
     "--warnings": [
-        "-nodoc:../src",
-        "+nodoc(,public):../src",
-        "-link:../src",
-        "-type_name:../src"
+        "-nodoc",
+        "+nodoc(,public)",
+        "-link",
+        "-type_name"
     ],
     "--ignore-html": [
         "locale",
