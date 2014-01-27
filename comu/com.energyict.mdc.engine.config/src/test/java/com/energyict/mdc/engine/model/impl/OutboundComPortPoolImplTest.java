@@ -14,10 +14,11 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.sql.SQLException;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
