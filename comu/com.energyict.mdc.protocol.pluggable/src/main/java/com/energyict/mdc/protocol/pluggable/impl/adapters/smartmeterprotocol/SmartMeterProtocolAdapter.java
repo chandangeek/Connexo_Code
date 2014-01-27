@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.issues.IssueService;
@@ -47,6 +48,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.Checks.*;
 
 /**
  * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceProtocol}
@@ -207,12 +210,17 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
     private TimeZone getDeviceTimeZoneFromProperties() {
         String typedProperty = this.propertiesAdapter.getProperties().getTypedProperty(DEVICE_TIMEZONE_PROPERTY_NAME);
-        TimeZone timeZone = TimeZone.getTimeZone(typedProperty);
-        if (timeZone == null) {
+        if (is(typedProperty).emptyOrOnlyWhiteSpace()) {
             return TimeZone.getDefault();
         }
         else {
-            return timeZone;
+            TimeZone timeZone = TimeZone.getTimeZone(typedProperty);
+            if (timeZone == null) {
+                return TimeZone.getDefault();
+            }
+            else {
+                return timeZone;
+            }
         }
     }
 
