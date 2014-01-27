@@ -1,7 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComServer;
@@ -12,8 +10,6 @@ import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
-import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import java.math.BigDecimal;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -217,7 +213,7 @@ public class ComServerResourceTest extends JerseyTest {
         long comServer_id = 3;
         long comPortPool_id = 16;
 
-        MockModemBasedBuilder modemBasedComPortBuilder = new MockModemBasedBuilder();
+        MockModemBasedComPortBuilder modemBasedComPortBuilder = new MockModemBasedComPortBuilder();
         ComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
         when(serverSideComServer.newModemBasedInboundComport()).thenReturn(modemBasedComPortBuilder);
@@ -317,125 +313,6 @@ public class ComServerResourceTest extends JerseyTest {
         final Response response = target("/comservers/5").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
-    
-    class MockModemBasedBuilder implements ModemBasedInboundComPort.ModemBasedInboundComPortBuilder {
 
-        public int ringCount;
-        public int maximumDialErrors;
-        public TimeDuration connectTimeout;
-        public TimeDuration delayAfterConnect;
-        public TimeDuration delayBeforeSend;
-        public TimeDuration atCommandTimeout;
-        public BigDecimal atCommandTry;
-        public List<String> initStrings;
-        public String addressSelector;
-        public String postDialCommands;
-        public SerialPortConfiguration serialPortConfiguration;
-        public InboundComPortPool comPortPool;
-        public String name;
-        public ComPortType comPortType;
-        public boolean active;
-        public String description;
 
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder ringCount(int ringCount) {
-            this.ringCount = ringCount;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder maximumDialErrors(int maximumDialErrors) {
-            this.maximumDialErrors = maximumDialErrors;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder connectTimeout(TimeDuration connectTimeout) {
-            this.connectTimeout = connectTimeout;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect) {
-            this.delayAfterConnect = delayAfterConnect;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend) {
-            this.delayBeforeSend = delayBeforeSend;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atCommandTimeout(TimeDuration atCommandTimeout) {
-            this.atCommandTimeout = atCommandTimeout;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry) {
-            this.atCommandTry = atCommandTry;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings) {
-            this.initStrings = initStrings;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder addressSelector(String addressSelector) {
-            this.addressSelector = addressSelector;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands) {
-            this.postDialCommands = postDialCommands;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder serialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-            this.serialPortConfiguration = serialPortConfiguration;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortPool(InboundComPortPool comPortPool) {
-            this.comPortPool = comPortPool;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortType(ComPortType comPortType) {
-            this.comPortType = comPortType;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder active(boolean active) {
-            this.active = active;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        @Override
-        public ModemBasedInboundComPort add() {
-            return null;
-        }
-    }
 }
