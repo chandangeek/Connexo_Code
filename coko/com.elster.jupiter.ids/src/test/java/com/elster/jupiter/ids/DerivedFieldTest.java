@@ -102,6 +102,15 @@ public class DerivedFieldTest {
         assertThat(entries.get(2).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(100));
         assertThat(entries.get(3).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(300));
         assertThat(entries.get(3).getVersion()).isEqualTo(2);
+        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        	TimeSeriesDataStorer storer = idsService.createStorer(true);
+	        dateTime = new DateTime(2014, 1, 1, 0, 0,0);
+	        dateTime = dateTime.plus(15*60000L);
+	        storer.add(ts, dateTime.toDate(),BigDecimal.valueOf(50));
+	        dateTime = dateTime.plus(15*60000L);
+	        storer.execute();
+	        ctx.commit();
+        }
     }
    
     
