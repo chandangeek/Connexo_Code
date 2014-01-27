@@ -25,7 +25,7 @@ public class MessageAdapterMappingFactoryImpl implements MessageAdapterMappingFa
     }
 
     public String getMessageMappingJavaClassNameForDeviceProtocol(String deviceProtocolJavaClassName) {
-        MessageAdapterMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).get();
+        MessageAdapterMapping mapping = this.mapper.getUnique("deviceProtocolJavaClassName", deviceProtocolJavaClassName).orNull();
         if (mapping == null) {
             return null;
         }

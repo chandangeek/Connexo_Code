@@ -41,7 +41,6 @@ public class ProtocolPluggableModule extends AbstractModule {
 
         bind(ProtocolPluggableService.class).to(ProtocolPluggableServiceImpl.class).in(Scopes.SINGLETON);
         bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class).in(Scopes.SINGLETON);
-        bind(MessageAdapterMappingFactory.class).to(MessageAdapterMappingFactoryImpl.class);
     }
 
 }
