@@ -19,23 +19,22 @@ class RestQueryImpl<T> implements RestQuery<T> {
 	}
 
 	@Override
-	public List<T> select(QueryParameters map) {
-        return select(map, Condition.TRUE);
+	public List<T> select(QueryParameters map,String ...orderBy) {
+        return select(map, Condition.TRUE, orderBy);
 	}
 
     @Override
-    public List<T> select(QueryParameters map, Condition condition) {
+    public List<T> select(QueryParameters map, Condition condition, String... orderBy) {
         int start = map.getStart();
         int limit = map.getLimit();
         condition = condition.and(convert(map));
         if (limit >= 0) {
-            return query.select(condition, start + 1, start + limit);
+            return query.select(condition, start + 1, start + limit,orderBy);
         } else {
-            return query.select(condition);
+            return query.select(condition,orderBy);
         }
     }
-
-	
+    
 	private Condition convert(MultivaluedMap<String, String> map) {
 		Condition condition = Condition.TRUE;
 		for (String key : map.keySet()) {
