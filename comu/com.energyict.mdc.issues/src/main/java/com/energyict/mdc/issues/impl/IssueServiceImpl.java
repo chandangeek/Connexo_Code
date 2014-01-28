@@ -23,14 +23,17 @@ public class IssueServiceImpl implements IssueService {
 
     private volatile Clock clock;
 
-    public Clock getClock () {
-        return clock;
+    public IssueServiceImpl() {
     }
 
     @Inject
     public IssueServiceImpl(Clock clock) {
         super();
         this.setClock(clock);
+    }
+
+    public Clock getClock () {
+        return clock;
     }
 
     @Reference
