@@ -2,6 +2,7 @@ package com.elster.jupiter.events.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.MessageSeeds;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -39,7 +40,8 @@ public class InstallerImpl implements InstallService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().createDestinationSpec(JUPITER_EVENTS, RETRY_DELAY);
+        DestinationSpec destinationSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get().createDestinationSpec(JUPITER_EVENTS, RETRY_DELAY);
+        destinationSpec.activate();
         createTranslations();
     }
 

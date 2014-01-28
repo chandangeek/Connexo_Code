@@ -77,6 +77,7 @@ public class LocalEventImpl implements LocalEvent {
             result.put(eventPropertyType.getName(), value);
         }        
         result.put(EventConstants.TIMESTAMP, dateTime.getTime());
+        result.put(EventConstants.EVENT_TOPIC, getType().getTopic());
         return result;
     }
 
