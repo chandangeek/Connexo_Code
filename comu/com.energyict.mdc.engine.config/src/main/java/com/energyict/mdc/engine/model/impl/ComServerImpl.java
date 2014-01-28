@@ -324,6 +324,7 @@ public abstract class ComServerImpl implements ComServer {
         while(iterator.hasNext()) {
             ComPort next = iterator.next();
             if (next.getId()==id) {
+                engineModelService.removeComPortFromPools(next);
                 iterator.remove();
             }
         }

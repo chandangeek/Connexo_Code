@@ -45,23 +45,6 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EngineModelServiceImplTest extends PersistenceTest {
-    @After
-    public void tearDown() throws Exception {
-        clearDB();
-
-    }
-
-    private void clearDB() {
-        for (ComServer comServer : getEngineModelService().findAllComServers()) {
-            for (ComPort comPort : comServer.getComPorts()) {
-                comServer.removeComPort(comPort.getId());
-            }
-            comServer.delete();
-        }
-        for (ComPortPool comPortPool : getEngineModelService().findAllComPortPools()) {
-            comPortPool.delete();
-        }
-    }
 
     @Test
     @Transactional

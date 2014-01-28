@@ -4,9 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
-import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
@@ -14,7 +12,6 @@ import com.google.inject.Provider;
 import java.util.List;
 
 import javax.inject.Inject;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.model.OutboundComPort} interface.
@@ -28,7 +25,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     private int numberOfSimultaneousConnections;
 
     @Inject
-    protected OutboundComPortImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider, EngineModelService engineModelService) {
+    protected OutboundComPortImpl(DataModel dataModel, EngineModelService engineModelService) {
         super(dataModel);
         this.engineModelService = engineModelService;
     }
@@ -58,14 +55,8 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     @Override
     public void makeObsolete() {
         validateMakeObsolete();
-        removeFromComPortPools();
+        engineModelService.removeComPortFromPools(this);
         super.makeObsolete();
-    }
-
-    private void removeFromComPortPools() {
-        for (ComPortPool comPortPool : engineModelService.findContainingComPortPoolsForComPort(this)) {
-            ((OutboundComPortPool)comPortPool).removeOutboundComPort(this);
-        }
     }
 
     @Override

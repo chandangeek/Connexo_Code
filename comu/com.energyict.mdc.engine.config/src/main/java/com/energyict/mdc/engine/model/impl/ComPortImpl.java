@@ -189,7 +189,6 @@ public abstract class ComPortImpl implements ComPort {
             throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
             validateUpdateAllowed();
-            // TODO route to comServer instead
             dataModel.update(this);
         }
     }

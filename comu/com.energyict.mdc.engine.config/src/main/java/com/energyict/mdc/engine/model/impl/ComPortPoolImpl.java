@@ -102,16 +102,16 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     protected void validate() {
         validateNotNull(this.getComPortType(), "comportpool.comporttype");
         validateNotNull(this.getName(), "name");
-//        validateUniqueName(this.getName());
+        validateUniqueName(this.getName());
         validateNotNull(this.getComPortType(), "type");
     }
 
-//    protected void validateUniqueName(String name) {
-//        ComPortPool comPortPool = engineModelService.findComPortPool(this.getName());
-//        if (comPortPool != null && comPortPool.getId()!=this.getId() && !comPortPool.isObsolete()) {
-//            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
-//        }
-//    }
+    protected void validateUniqueName(String name) {
+        ComPortPool comPortPool = engineModelService.findComPortPool(this.getName());
+        if (comPortPool != null && comPortPool.getId()!=this.getId() && !comPortPool.isObsolete()) {
+            throw new TranslatableApplicationException("duplicateComPortPoolX", "A ComPortPool by the name of \"{0}\" already exists", name);
+        }
+    }
 
     protected void validateNotNull (Object propertyValue, String propertyName) {
         if (propertyValue == null) {

@@ -187,7 +187,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
+    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortPoolX")
     public void testUpdateWithSameName() throws TranslatableApplicationException, SQLException {
         String name = NAME_BASIS + outboundComPortPoolIndex++;
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool();

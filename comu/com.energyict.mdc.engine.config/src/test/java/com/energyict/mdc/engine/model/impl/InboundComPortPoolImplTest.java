@@ -104,11 +104,21 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-//    @Expected(expected = TranslatableApplicationException.class)
+    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComPortPoolX")
     public void testUpdateWithSameName() {
-        InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
+        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
+        inboundComPortPool.setName("Test for duplication");
+        inboundComPortPool.setDescription(DESCRIPTION);
+        inboundComPortPool.setComPortType(ComPortType.TCP);
+        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.save();
         // Business method
-        InboundComPortPool duplicate = this.newInboundComPortPoolWithoutViolations();
+        inboundComPortPool = getEngineModelService().newInboundComPortPool();
+        inboundComPortPool.setName("Test for duplication");
+        inboundComPortPool.setDescription(DESCRIPTION);
+        inboundComPortPool.setComPortType(ComPortType.TCP);
+        inboundComPortPool.setDiscoveryProtocolPluggableClassId(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
+        inboundComPortPool.save();
         // Expecting a DuplicateException
     }
 

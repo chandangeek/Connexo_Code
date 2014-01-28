@@ -20,6 +20,7 @@ import com.google.inject.Injector;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -66,6 +67,31 @@ public class PersistenceTest {
     public static void staticTearDown() throws SQLException {
     	inMemoryBootstrapModule.deactivate();
     }
+
+    @After
+    public void tearDown() throws Exception {
+        clearDB();
+
+    }
+
+    private void clearDB() {
+        for (ComServer comServer : getEngineModelService().findAllRemoteComServers()) {
+            for (ComPort comPort : comServer.getComPorts()) {
+                comServer.removeComPort(comPort.getId());
+            }
+            comServer.delete();
+        }
+        for (ComServer comServer : getEngineModelService().findAllComServers()) {
+            for (ComPort comPort : comServer.getComPorts()) {
+                comServer.removeComPort(comPort.getId());
+            }
+            comServer.delete();
+        }
+        for (ComPortPool comPortPool : getEngineModelService().findAllComPortPools()) {
+            comPortPool.delete();
+        }
+    }
+
 
     public static TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);

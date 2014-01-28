@@ -2,9 +2,7 @@ package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.Expected;
-import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.Transactional;
-import com.energyict.mdc.TransactionalRule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -16,9 +14,7 @@ import com.energyict.mdc.engine.model.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
 import java.sql.SQLException;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +42,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
 
     @Test
     public void outBoundTest() {
-        OutboundComPort comPort = new OutboundComPortImpl(dataModel, comPortPoolMemberProvider, getEngineModelService());
+        OutboundComPort comPort = new OutboundComPortImpl(dataModel, getEngineModelService());
         assertThat(comPort.isInbound()).isFalse();
     }
 
