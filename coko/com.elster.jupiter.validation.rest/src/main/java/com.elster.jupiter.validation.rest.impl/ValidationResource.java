@@ -19,6 +19,7 @@ import java.util.Set;
 @Path("/validation")
 public class ValidationResource {
 
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
