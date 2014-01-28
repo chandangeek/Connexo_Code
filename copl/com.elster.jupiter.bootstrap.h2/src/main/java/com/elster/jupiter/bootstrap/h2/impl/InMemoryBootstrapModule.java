@@ -1,11 +1,10 @@
 package com.elster.jupiter.bootstrap.h2.impl;
 
-import javax.validation.ValidationProviderResolver;
-
 import com.elster.jupiter.bootstrap.BootstrapService;
-import com.elster.jupiter.bootstrap.validation.impl.ProviderResolverService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+
+import javax.validation.ValidationProviderResolver;
 
 public class InMemoryBootstrapModule extends AbstractModule {
 	
