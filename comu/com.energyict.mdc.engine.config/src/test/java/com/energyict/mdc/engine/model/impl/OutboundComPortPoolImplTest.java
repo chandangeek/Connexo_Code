@@ -81,8 +81,8 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-//    @Expected(expected = TranslatableApplicationException.class)
-    public void testCreateWithPortsWithNonMatchingComPortType() throws TranslatableApplicationException, SQLException {
+    @Expected(expected = TranslatableApplicationException.class, messageId = "comPortTypeOfComPortXDoesNotMatchWithComPortPoolY")
+    public void testAddComPortWithNonMatchingComPortType() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool comPortPool = newOutboundComPortPoolWithoutViolations();
         OnlineComServer onlineComServer = createOnlineComServer();
 

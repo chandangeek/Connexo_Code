@@ -54,6 +54,7 @@ public class OutboundComPortPoolImpl extends ComPortPoolImpl implements Outbound
 
     @Override
     public void addOutboundComPort(OutboundComPort outboundComPort) {
+        validateComPortForComPortType(outboundComPort, this.getComPortType());
         ComPortPoolMember comPortPoolMember = comPortPoolMemberProvider.get();
         comPortPoolMember.setComPort(outboundComPort);
         comPortPoolMember.setComPortPool(this);
