@@ -6,14 +6,19 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OfflineComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.RemoteComServer;
+import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
+import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import java.util.Arrays;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -35,8 +40,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,6 +54,8 @@ import static org.mockito.Mockito.when;
  * @author bvn
  */
 public class ComServerResourceTest extends JerseyTest {
+
+    public static final int tcpBasedInboundComPort_id = 1001;
     private static EngineModelService engineModelService;
 
     @BeforeClass
@@ -396,5 +406,121 @@ public class ComServerResourceTest extends JerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
+    @Test
+    public void testAddOutboundComPortIfOtherComPortsAlreadyExist() throws Exception {
+        long comServer_id = 131;
+        long inboundComPortPool_id = 61;
+        long tcpBasedInboundComPort_id = 1001;
+        long outboundComPortA_id = 1002;
+        long outboundComPortB_id = 1003;
+        long outboundComPortC_id = 1004;
 
+        InboundComPortPool inboundComPortPool = mock(InboundComPortPool.class);
+        when(inboundComPortPool.getId()).thenReturn(inboundComPortPool_id);
+        when(engineModelService.findInboundComPortPool(inboundComPortPool_id)).thenReturn(inboundComPortPool);
+
+        TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
+        when(tcpBasedInboundComPort.getId()).thenReturn(tcpBasedInboundComPort_id);
+        when(engineModelService.findComPort(tcpBasedInboundComPort_id)).thenReturn(tcpBasedInboundComPort);
+
+        OutboundComPort outboundComPortA = mock(OutboundComPort.class);
+        when(outboundComPortA.getId()).thenReturn(outboundComPortA_id);
+        when(engineModelService.findComPort(outboundComPortA_id)).thenReturn(outboundComPortA);
+
+        OutboundComPort outboundComPortB = mock(OutboundComPort.class);
+        when(outboundComPortB.getId()).thenReturn(outboundComPortB_id);
+        when(engineModelService.findComPort(outboundComPortB_id)).thenReturn(outboundComPortB);
+
+        when(engineModelService.findComPort(outboundComPortC_id)).thenReturn(null);
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(serverSideComServer.newOutboundComPort()).thenReturn(new MockOutboundComPortBuilder());
+        when(serverSideComServer.getComPorts()).thenReturn(Arrays.asList(outboundComPortB, tcpBasedInboundComPort, outboundComPortA));
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+
+        TcpInboundComPortInfo tcpInboundComPortInfo = new TcpInboundComPortInfo();
+        tcpInboundComPortInfo.id=tcpBasedInboundComPort_id;
+        tcpInboundComPortInfo.comPortPool_id=inboundComPortPool_id;
+        tcpInboundComPortInfo.portNumber=1024;
+        onlineComServerInfo.inboundComPorts=Arrays.<InboundComPortInfo>asList(tcpInboundComPortInfo);
+
+        OutboundComPortInfo outboundComPortInfoA = new OutboundComPortInfo();
+        outboundComPortInfoA.id = outboundComPortA_id;
+        OutboundComPortInfo outboundComPortInfoB = new OutboundComPortInfo();
+        outboundComPortInfoB.id = outboundComPortB_id;
+        OutboundComPortInfo outboundComPortInfoC = new OutboundComPortInfo();
+        outboundComPortInfoC.id = outboundComPortC_id;
+        onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfoC, outboundComPortInfoA, outboundComPortInfoB);
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
+        final Response response = target("/comservers/"+comServer_id).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(serverSideComServer).save();
+        verify(serverSideComServer).newOutboundComPort();
+        verify(serverSideComServer, never()).removeComPort(anyLong());
+    }
+
+    @Test
+    public void testAddAndRemoveOutboundComPortIfOtherComPortsAlreadyExist() throws Exception {
+        long comServer_id = 131;
+        long inboundComPortPool_id = 61;
+        long tcpBasedInboundComPort_id = 1001;
+        long outboundComPortA_id = 1002;
+        long outboundComPortB_id = 1003;
+        long outboundComPortC_id = 1004;
+
+        InboundComPortPool inboundComPortPool = mock(InboundComPortPool.class);
+        when(inboundComPortPool.getId()).thenReturn(inboundComPortPool_id);
+        when(engineModelService.findInboundComPortPool(inboundComPortPool_id)).thenReturn(inboundComPortPool);
+
+        TCPBasedInboundComPort tcpBasedInboundComPort = mock(TCPBasedInboundComPort.class);
+        when(tcpBasedInboundComPort.getId()).thenReturn(tcpBasedInboundComPort_id);
+        when(engineModelService.findComPort(tcpBasedInboundComPort_id)).thenReturn(tcpBasedInboundComPort);
+
+        OutboundComPort outboundComPortA = mock(OutboundComPort.class);
+        when(outboundComPortA.getId()).thenReturn(outboundComPortA_id);
+        when(engineModelService.findComPort(outboundComPortA_id)).thenReturn(outboundComPortA);
+
+        OutboundComPort outboundComPortB = mock(OutboundComPort.class);
+        when(outboundComPortB.getId()).thenReturn(outboundComPortB_id);
+        when(engineModelService.findComPort(outboundComPortB_id)).thenReturn(outboundComPortB);
+
+        when(engineModelService.findComPort(outboundComPortC_id)).thenReturn(null);
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        when(engineModelService.findComServer(comServer_id)).thenReturn(serverSideComServer);
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        when(serverSideComServer.newOutboundComPort()).thenReturn(new MockOutboundComPortBuilder());
+        when(serverSideComServer.getComPorts()).thenReturn(Arrays.asList(outboundComPortB, tcpBasedInboundComPort, outboundComPortA));
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+
+        TcpInboundComPortInfo tcpInboundComPortInfo = new TcpInboundComPortInfo();
+        tcpInboundComPortInfo.id=tcpBasedInboundComPort_id;
+        tcpInboundComPortInfo.comPortPool_id=inboundComPortPool_id;
+        tcpInboundComPortInfo.portNumber=1024;
+        onlineComServerInfo.inboundComPorts=Arrays.<InboundComPortInfo>asList(tcpInboundComPortInfo);
+
+        OutboundComPortInfo outboundComPortInfoA = new OutboundComPortInfo();
+        outboundComPortInfoA.id = outboundComPortA_id;
+        OutboundComPortInfo outboundComPortInfoB = new OutboundComPortInfo();
+        outboundComPortInfoB.id = outboundComPortB_id;
+        OutboundComPortInfo outboundComPortInfoC = new OutboundComPortInfo();
+        outboundComPortInfoC.id = outboundComPortC_id;
+        onlineComServerInfo.outboundComPorts = Arrays.asList(outboundComPortInfoC, outboundComPortInfoB);
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
+        final Response response = target("/comservers/"+comServer_id).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(serverSideComServer).save();
+        verify(serverSideComServer).newOutboundComPort();
+        verify(serverSideComServer, times(1)).removeComPort(outboundComPortA_id);
+    }
 }

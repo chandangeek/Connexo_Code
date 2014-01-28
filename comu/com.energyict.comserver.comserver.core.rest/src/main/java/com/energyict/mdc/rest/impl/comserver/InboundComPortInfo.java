@@ -40,7 +40,7 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
         if(inboundComPortPool!=null){
             source.setComPortPool(inboundComPortPool);
         } else {
-            throw new WebApplicationException("Failed to update ComPortPool",Response.Status.BAD_REQUEST);
+            throw new WebApplicationException("Failed to set ComPortPool "+this.comPortPool_id+" on ComPort "+this.id,Response.Status.BAD_REQUEST);
         }
         source.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
     }
@@ -55,7 +55,7 @@ public abstract class InboundComPortInfo<T extends InboundComPort, B extends Inb
         if(inboundComPortPool!=null){
             builder.comPortPool(inboundComPortPool);
         } else {
-            throw new WebApplicationException("Failed to update ComPortPool",Response.Status.BAD_REQUEST);
+            throw new WebApplicationException("Failed to set ComPortPool "+this.comPortPool_id+" on ComPort",Response.Status.BAD_REQUEST);
         }
         return builder;
     }
