@@ -256,7 +256,13 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test
     public void testGetRegisterReadings() {
-        when(regularTimeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
+
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1_IRR, "1");
+        readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
+
+        channel = new ChannelImpl(dataModel,idsService,clock).init(meterActivation,ImmutableList.of(readingType1,readingType2));
+
+        when(timeSeries.getEntries(INTERVAL)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
         List<ReadingRecord> registerReadings = channel.getRegisterReadings(INTERVAL);
