@@ -12,9 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogEntry;
-import org.osgi.service.log.LogListener;
-import org.osgi.service.log.LogReaderService;
 
 import javax.ws.rs.core.Application;
 import java.util.Collections;
@@ -46,6 +43,7 @@ public class MdcApplication extends Application {
                 DeviceDiscoveryProtocolsResource.class,
                 LicensedProtocolResource.class,
                 TimeZoneInUseResource.class,
+                UserFileReferenceResource.class,
                 CodeTableResource.class);
     }
 

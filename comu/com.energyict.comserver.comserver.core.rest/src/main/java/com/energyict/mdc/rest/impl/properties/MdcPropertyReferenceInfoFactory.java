@@ -1,11 +1,12 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.dynamic.PropertySpec;
-import com.energyict.mdc.rest.impl.CodeTableResource;
-import com.energyict.mdc.rest.impl.CodeTableInfo;
-import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
+import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.rest.impl.*;
 import com.energyict.mdw.core.TimeZoneInUse;
 
 import javax.ws.rs.core.UriInfo;
@@ -22,6 +23,7 @@ public class MdcPropertyReferenceInfoFactory {
 
     /**
      * Creates an 'xxxInfo' object from a given BusinessObject
+     *
      * @param property the BusinessObject
      * @return the Info version of the BusinessObject
      */
@@ -32,6 +34,14 @@ public class MdcPropertyReferenceInfoFactory {
                 info = new TimeZoneInUseInfo((TimeZoneInUse) property);
             } else if (Code.class.isAssignableFrom(property.getClass())) {
                 info = new CodeTableInfo((Code) property);
+            } else if (UserFile.class.isAssignableFrom(property.getClass())) {
+                info = new UserFileReferenceInfo((UserFile) property);
+            } else if (Password.class.isAssignableFrom(property.getClass())) {
+                info = ((Password) property).getValue();
+            } else if (HexString.class.isAssignableFrom(property.getClass())) {
+                info = property.toString();
+            } else if (TimeOfDay.class.isAssignableFrom(property.getClass())) {
+                info = ((TimeOfDay) property).getSeconds();
             }
         }
         return info;
@@ -42,7 +52,7 @@ public class MdcPropertyReferenceInfoFactory {
      * </br>
      * <i>NOTE:</i> add conversion where necessary.
      *
-     * @param propertySpec the propertySpec to deduce a propertyType from
+     * @param propertySpec       the propertySpec to deduce a propertyType from
      * @param simplePropertyType the simplePropertyType to use if we could not convert it
      * @return the converted simplePropertyType
      */
@@ -53,6 +63,8 @@ public class MdcPropertyReferenceInfoFactory {
             return SimplePropertyType.TIMEZONEINUSE;
         } else if (Code.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.CODETABLE;
+        } else if (UserFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+            return SimplePropertyType.USERFILEREFERENCE;
         } else {
             return simplePropertyType;
         }
@@ -71,6 +83,8 @@ public class MdcPropertyReferenceInfoFactory {
             // The TimeZoneInUse values are provided as possibleValues
         } else if (Code.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(CodeTableResource.class).path("/").build();
+        } else if (UserFile.class.isAssignableFrom(propertyClassType)){
+            uri = uriInfo.getBaseUriBuilder().path(UserFileReferenceResource.class).path("/").build();
         }
         return uri;
     }

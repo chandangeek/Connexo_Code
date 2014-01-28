@@ -12,6 +12,7 @@ import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -121,7 +122,7 @@ public class MdcPropertyUtils {
     public static Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) throws ParseException {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.getKey().equals(propertySpec.getName())) {
-                if (propertyInfo.getPropertyValueInfo() != null) {
+                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
                     return null;
@@ -132,9 +133,11 @@ public class MdcPropertyUtils {
     }
 
     private static Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) throws ParseException {
-        SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+        //SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
         if (propertySpec.getValueFactory().getValueType() == Password.class){
             return new Password(value.toString());
+        } else if (propertySpec.getValueFactory().getValueType() == Date.class){
+            return new Date((long)value);
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }

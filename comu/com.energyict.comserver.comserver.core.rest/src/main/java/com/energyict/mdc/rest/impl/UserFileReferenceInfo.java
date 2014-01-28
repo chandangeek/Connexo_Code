@@ -2,14 +2,14 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
-import com.energyict.mdw.coreimpl.CodeFactoryImpl;
+import com.energyict.mdw.coreimpl.UserFileFactoryImpl;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
 /**
  * Represents the Info object for a {@link UserFile}
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 21/11/13
  * Time: 15:08
@@ -35,6 +35,6 @@ public class UserFileReferenceInfo implements MdcResourceProperty {
 
     @Override
     public Object fromInfoObject() {
-        return new CodeFactoryImpl().find(userFileReferenceId);
+        return new UserFileFactoryImpl().find(userFileReferenceId);
     }
 }
