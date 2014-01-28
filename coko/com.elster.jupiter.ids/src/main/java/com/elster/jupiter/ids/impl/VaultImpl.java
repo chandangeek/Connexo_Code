@@ -456,8 +456,12 @@ public final class VaultImpl implements Vault {
 	
 	private String rangeSql(TimeSeries timeSeries) {
 		StringBuilder builder = selectSql(timeSeries);
-		builder.append(" AND UTCSTAMP > ? and UTCSTAMP <= ? order by UTCSTAMP");
-		return builder.toString();
+        if (isRegular()) {
+            builder.append(" AND UTCSTAMP > ? and UTCSTAMP <= ? order by UTCSTAMP");
+        } else {
+            builder.append(" AND UTCSTAMP >= ? and UTCSTAMP <= ? order by UTCSTAMP");
+        }
+        return builder.toString();
 	}
 	
 	private String entrySql(TimeSeries timeSeries) {
