@@ -31,7 +31,9 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                         {
                             text: 'Create new ruleset',
                             itemId: 'newRuleset',
-                            action: 'newRuleset'
+                            xtype: 'button',
+                            href: '#/validation/createset',
+                            hrefTarget: '_self'
                         },
                         {
                             text: 'Bulk action',

@@ -28,14 +28,14 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     tbar: [
                         '->',
                         {
-                            text: 'Create new ruleset',
-                            itemId: 'newRuleset',
-                            action: 'newRuleset'
+                            text: 'Add Rule',
+                            itemId: 'newRule',
+                            action: 'newRule'
                         },
                         {
                             text: 'Bulk action',
-                            itemId: 'rulesetBulkAction',
-                            action: 'rulesetBulkAction'
+                            itemId: 'ruleBulkAction',
+                            action: 'ruleBulkAction'
                         }]
                 },
                 {

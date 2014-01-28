@@ -49,7 +49,10 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'ruleSetDetails',selector: 'ruleSetPreview #ruleSetDetails'},
         {ref: 'ruleSetEdit',selector: 'validationrulesetEdit'},
 
-        {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'}
+        {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
+        {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
+
+        {ref: 'createRuleSet',selector: 'createRuleSet'}
     ],
 
     init: function () {
@@ -62,45 +65,26 @@ Ext.define('Cfg.controller.Validation', {
             '#validationruleList': {
                 selectionchange: this.previewValidationRule
             },
-            'rulesContainer button[action=showRulesAction]': {
-                click: this.showRules
-            },
-            'rulesContainer button[action=showRulesetOverviewAction]': {
-                click: this.showRuleSetOverview
-            },
-
-
-            'validationrulesetList button[action=newRuleset]': {
-                click: this.newRuleSet
-            },
-            'ruleSetEdit button[action=saveRuleset]': {
-                click: this.saveRuleset
+            'createRuleSet button[action=createNewRuleSet]': {
+                click: this.createNewRuleSet
             }
+
         });
     },
 
-    saveRuleset: function() {
+    createNewRuleSet: function(button) {
         var me = this;
-        var win = button.up('window'),
-        form = win.down('form'),
-
-        record = form.getRecord(),
-        values = form.getValues();
-        if(!record){
-            record = Ext.create(Cfg.model.ValidationRuleSet);
-            record.set(values);
-        } else {
-            record.set(values);
-        }
-
+        var form = button.up('panel');
+        var record = record = Ext.create(Cfg.model.ValidationRuleSet);
+        var values = form.getValues();
+        record.set(values);
         record.save({
             success: function (record, operation) {
                 record.commit();
                 me.getValidationRuleSetsStore().reload(
                     {
                         callback: function(){
-                            win.close();
-                            me.showOverview();
+                            location.href = '#validation/rules/' + record.getId();
                         }
                     });
             }
@@ -116,6 +100,11 @@ Ext.define('Cfg.controller.Validation', {
         });
 
         Uni.store.MenuItems.add(menuItem);
+    },
+
+    newRuleSet: function () {
+        var view = Ext.create('Cfg.view.validation.CreateRuleSet');
+        Cfg.getApplication().getMainController().showContent(view);
     },
 
     showOverview: function () {
@@ -208,11 +197,6 @@ Ext.define('Cfg.controller.Validation', {
         while (widget = this.getRulesListContainer().items.first()) {
             this.getRulesListContainer().remove(widget,true);
         }
-    },
-
-    newRuleSet: function () {
-        var view = Ext.widget('validationrulesetEdit');
-        view.down('form').loadRecord(Ext.create('Cfg.model.ValidationRuleSet'));
     },
 
 

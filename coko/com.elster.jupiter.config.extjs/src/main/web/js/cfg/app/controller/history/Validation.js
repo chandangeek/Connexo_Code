@@ -16,6 +16,8 @@ Ext.define('Cfg.controller.history.Validation', {
             } else if (tokens[1] === 'overview') {
                 var id = parseInt(tokens[2]);
                 this.showRuleSetOverview(id);
+            }  else if (tokens[1] === 'createset') {
+                this.newRuleSet();
             }
         } else {
             this.unknownTokensReturnToOverview();
@@ -32,6 +34,10 @@ Ext.define('Cfg.controller.history.Validation', {
 
     showRuleSetOverview: function (ruleSetId) {
         Cfg.getApplication().getValidationController().showRuleSetOverview(ruleSetId);
+    },
+
+    newRuleSet: function (ruleSetId) {
+        Cfg.getApplication().getValidationController().newRuleSet();
     }
 
 

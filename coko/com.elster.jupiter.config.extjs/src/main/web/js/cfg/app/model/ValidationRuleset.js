@@ -14,7 +14,15 @@ Ext.define('Cfg.model.ValidationRuleSet', {
             associationKey: 'rules',
             name: 'rules'
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/val/validation',
+        reader: {
+            type: 'json',
+            root: 'ruleSets'
+        }
+    }
 
 
 });
