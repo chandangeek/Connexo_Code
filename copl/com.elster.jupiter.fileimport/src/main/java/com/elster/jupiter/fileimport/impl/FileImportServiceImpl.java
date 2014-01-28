@@ -118,7 +118,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
                 cronExpressionScheduler = new CronExpressionScheduler(clock, poolSize);
             } catch (RuntimeException e) {
                 MessageSeeds.FAILED_TO_START_IMPORT_SCHEDULES.log(LOGGER, thesaurus);
-                throw e;
             }
         }
     }
