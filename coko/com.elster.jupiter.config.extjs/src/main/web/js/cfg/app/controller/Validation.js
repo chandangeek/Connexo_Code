@@ -39,6 +39,7 @@ Ext.define('Cfg.controller.Validation', {
 
         {ref: 'ruleSetOverviewLink',selector: 'rulesContainer #ruleSetOverviewLink'} ,
         {ref: 'rulesLink',selector: 'rulesContainer #rulesLink'} ,
+        {ref: 'addRuleLink',selector: 'validationruleBrowse #addRuleLink'} ,
 
         {ref: 'rulesContainer',selector: 'rulesContainer'} ,
         {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
@@ -52,7 +53,10 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulesListContainer', selector: 'rulesContainer > #rulesListContainer'},
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
 
-        {ref: 'createRuleSet',selector: 'createRuleSet'}
+        {ref: 'createRuleSet',selector: 'createRuleSet'},
+        {ref: 'addRule',selector: 'addRule'}
+
+
     ],
 
     init: function () {
@@ -67,9 +71,17 @@ Ext.define('Cfg.controller.Validation', {
             },
             'createRuleSet button[action=createNewRuleSet]': {
                 click: this.createNewRuleSet
+            },
+            'addRule button[action=addRuleAction]': {
+                click: this.addRule
             }
 
         });
+    },
+
+    addRule: function(id) {
+        var view = Ext.create('Cfg.view.validation.AddRule');
+        Cfg.getApplication().getMainController().showContent(view);
     },
 
     createNewRuleSet: function(button) {
@@ -130,15 +142,16 @@ Ext.define('Cfg.controller.Validation', {
                     params: {
                         id: id
                     }});
-
                 var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
                 Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
 
                 me.updateMenulinks(id);
-;               me.highlightRulesButton();
+                me.highlightRulesButton();
 
                 me.getRulesListContainer().add(rulesWidget);
                 me.getRulesListContainer().doComponentLayout();
+                //me.getAddRuleLink().el.dom.href = '#/validation/addRule/';
+                me.getAddRuleLink().setHref('#/validation/addRule/' + id);
 
             }
         });

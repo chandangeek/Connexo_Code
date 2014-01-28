@@ -28,9 +28,11 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     tbar: [
                         '->',
                         {
+                            xtype: 'button',
                             text: 'Add Rule',
-                            itemId: 'newRule',
-                            action: 'newRule'
+                            itemId: 'addRuleLink',
+                            href: '#/validation/addRule',
+                            hrefTarget: '_self'
                         },
                         {
                             text: 'Bulk action',
