@@ -2,6 +2,7 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.MessageSeeds;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
@@ -58,7 +59,8 @@ class Installer implements InstallService {
     private void createAllServerTopic() {
         try {
             QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get();
-            defaultQueueTableSpec.createDestinationSpec(AppService.ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(AppService.ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

@@ -7,7 +7,6 @@ import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.MessageSeeds;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
-import com.elster.jupiter.appserver.UnknownAppServerNameException;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.Message;
@@ -96,7 +95,9 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
             }
         });
 
-        tryActivate(context);
+        if (dataModel.isInstalled()) {
+            tryActivate(context);
+        }
     }
 
     private void tryActivate(BundleContext context) {
@@ -115,7 +116,9 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     private void activateAs(String appServerName) {
         Optional<AppServer> foundAppServer = dataModel.mapper(AppServer.class).getOptional(appServerName);
         if (!foundAppServer.isPresent()) {
-            throw new UnknownAppServerNameException(appServerName, thesaurus);
+            LOGGER.log(Level.SEVERE, "AppServer with name " + appServerName + " not found.");
+            activateAnonymously();
+            return;
         }
         appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
@@ -242,10 +245,6 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Override
     public List<SubscriberExecutionSpec> getSubscriberExecutionSpecs() {
         return ImmutableList.copyOf(subscriberExecutionSpecs);
-    }
-
-    public ThreadPrincipalService getThreadPrincipalService() {
-        return threadPrincipalService;
     }
 
     @Reference

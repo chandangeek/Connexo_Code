@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Pair;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,8 +19,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -39,6 +42,7 @@ public class MessageHandlerLauncherService {
 
     private final Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
     private final Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
+    private final Queue<Pair<String, MessageHandlerFactory>> toBeLaunched = new LinkedList<>();
 
     private Principal batchPrincipal;
 
@@ -71,7 +75,9 @@ public class MessageHandlerLauncherService {
 
     @Activate
     public void activate() {
-        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(getThesaurus()), appService);
+        for (Pair<String, MessageHandlerFactory> pair : toBeLaunched) {
+            addMessageHandlerFactory(pair.getFirst(), pair.getLast());
+        }
     }
 
     private Thesaurus getThesaurus() {
@@ -88,6 +94,10 @@ public class MessageHandlerLauncherService {
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
         String subscriberName = (String) map.get("subscriber");
+        if (transactionService == null || threadPrincipalService == null) {
+            toBeLaunched.add(Pair.of(subscriberName, factory));
+            return;
+        }
         addMessageHandlerFactory(subscriberName, factory);
     }
     
@@ -129,7 +139,7 @@ public class MessageHandlerLauncherService {
     }
 
     private ExecutorService newExecutorService(int threadCount) {
-        return new CancellableTaskExecutorService(threadCount, threadFactory);
+        return new CancellableTaskExecutorService(threadCount, getThreadFactory());
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {
@@ -157,5 +167,12 @@ public class MessageHandlerLauncherService {
         }
     }
 
+
+    private ThreadFactory getThreadFactory() {
+        if (threadFactory == null) {
+            threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(getThesaurus()), appService);
+        }
+        return threadFactory;
+    }
 
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.google.common.base.Optional;
@@ -29,21 +28,17 @@ public class DefaultAppServerCreator implements AppServerCreator {
 
     @Override
     public AppServer createAppServer(final String name, final CronExpression cronExpression) {
-        return transactionService.execute(new Transaction<AppServer>() {
-            @Override
-            public AppServer perform() {
-                AppServerImpl server = AppServerImpl.from(dataModel, name, cronExpression);
-                dataModel.mapper(AppServer.class).persist(server);
-                QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(server.messagingName(), DEFAULT_RETRY_DELAY_IN_SECONDS);
-                destinationSpec.subscribe(server.messagingName());
-                Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
-                if (allServersTopic.isPresent()) {
-                    allServersTopic.get().subscribe(server.messagingName());
-                }
-                return server;
-            }
-        });
+        AppServerImpl server = AppServerImpl.from(dataModel, name, cronExpression);
+        dataModel.mapper(AppServer.class).persist(server);
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(server.messagingName(), DEFAULT_RETRY_DELAY_IN_SECONDS);
+        destinationSpec.activate();
+        destinationSpec.subscribe(server.messagingName());
+        Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
+        if (allServersTopic.isPresent()) {
+            allServersTopic.get().subscribe(server.messagingName());
+        }
+        return server;
     }
 
 }
