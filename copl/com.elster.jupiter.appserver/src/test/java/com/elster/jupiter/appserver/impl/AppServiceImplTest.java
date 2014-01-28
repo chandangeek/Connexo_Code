@@ -6,7 +6,6 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
-import com.elster.jupiter.appserver.UnknownAppServerNameException;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -20,9 +19,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -125,6 +124,7 @@ public class AppServiceImplTest {
         when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
         when(dataModel.mapper(AppServer.class)).thenReturn(appServerFactory);
         when(dataModel.mapper(ImportScheduleOnAppServer.class)).thenReturn(importScheduleOnAppServerFactory);
+        when(dataModel.isInstalled()).thenReturn(true);
         when(appServer.getSubscriberExecutionSpecs()).thenReturn(Collections.<SubscriberExecutionSpec>emptyList());
         when(importScheduleOnAppServerFactory.find("appServer", appServer)).thenReturn(Collections.<ImportScheduleOnAppServer>emptyList());
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
@@ -320,13 +320,15 @@ public class AppServiceImplTest {
         assertThat(appService.getAppServer()).isAbsent();
     }
 
-    @Test(expected=UnknownAppServerNameException.class)
-    public void testActivateWithUnknownNameThrowsException() {
+    @Test
+    public void testActivateWithUnknownNameRunsAnonymously() {
         when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>absent());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
         appService.activate(context);
+
+        assertThat(appService.getAppServer()).isAbsent();
     }
 
     @Test
