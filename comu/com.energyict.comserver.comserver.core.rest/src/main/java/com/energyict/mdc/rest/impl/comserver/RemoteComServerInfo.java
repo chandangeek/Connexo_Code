@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 @XmlRootElement
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
 public class RemoteComServerInfo extends ComServerInfo<RemoteComServer> {
 
     public RemoteComServerInfo() {
