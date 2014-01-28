@@ -27,6 +27,55 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>0.7.5</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <specVersion>2.2</specVersion>
+                            <generatePackage>com.elster.jupiter.metering.cim.impl</generatePackage>
+                            <schemaDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</schemaDirectory>
+                            <schemaIncludes>
+                                <include>*.xsd</include>
+                            </schemaIncludes>
+                            <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</bindingDirectory>
+                            <bindingIncludes>
+                                <include>*.xjb</include>
+                            </bindingIncludes>
+                            <verbose>true</verbose>
+                            <removeOldOutput>true</removeOldOutput>
+                            <extension>true</extension>
+                            <!--<clearOutputDir>false</clearOutputDir>-->
+                            <forceRegenerate>true</forceRegenerate>
+                            <generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <specVersion>2.2</specVersion>
+                    <generatePackage>com.elster.jupiter.metering.cim.impl</generatePackage>
+                    <schemaDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</schemaDirectory>
+                    <schemaIncludes>
+                        <include>*.xsd</include>
+                    </schemaIncludes>
+                    <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</bindingDirectory>
+                    <bindingIncludes>
+                        <include>*.xjb</include>
+                    </bindingIncludes>
+                    <verbose>true</verbose>
+                    <removeOldOutput>false</removeOldOutput>
+                    <extension>true</extension>
+                    <!--<clearOutputDir>false</clearOutputDir>-->
+                    <forceRegenerate>true</forceRegenerate>
+                    <generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -41,11 +90,11 @@
         </dependency>
         <dependency>
     		<groupId>javax.annotation</groupId>
-    		<artifactId>javax.annotation-api</artifactId>    		
+    		<artifactId>javax.annotation-api</artifactId>
 		</dependency>	
         <dependency>
             <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>         
+            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -73,5 +122,10 @@
             <artifactId>transaction</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.servicemix.bundles</groupId>-->
+            <!--<artifactId>org.apache.servicemix.bundles.dom4j</artifactId>-->
+            <!--<version>1.6.1_4</version>-->
+        <!--</dependency>-->
     </dependencies>
 </project>

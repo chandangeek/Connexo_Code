@@ -1,0 +1,8 @@
+package com.elster.jupiter.metering.cim;
+
+public class UnderlyingXmlException extends RuntimeException {
+
+    public UnderlyingXmlException(Throwable cause) {
+        super(cause);
+    }
+}
