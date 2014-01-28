@@ -1,7 +1,9 @@
 {
     "--": "../src",
-    "--title": "UnifyingJS",
-    "--guides": "guides.json",
+    "--title": "Unifying JS documentation",
+    "--guides": "guides/guides.json",
+    "--videos": "videos/videos.json",
+    "--examples": "examples/examples.json",
     "--warnings": [
         "-nodoc",
         "+nodoc(,public)",

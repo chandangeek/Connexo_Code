@@ -78,8 +78,8 @@
  * a value to format, a component for which it applies, and a fallback format. The date format needs
  * to conform to the Moment.js library.
  *
- * A full list of supported formats can be found at the Moment.js documentation page:
- * http://momentjs.com/docs/
+ * A full list of supported formats can be found on the
+ * [Moment.js documentation page](http://momentjs.com/docs/ 'Moment.js documentation').
  *
  *     @example
  *     var formattedNow = I18n.formatDate('long.date.format', new Date(), 'CMP', 'D MMMM YYYY LT');
@@ -267,8 +267,8 @@ Ext.define('Uni.util.I18n', {
     /**
      * Formats a date based on a translation key. If no date has been given, the current date is used.
      *
-     * The used parse syntax is that of Moment.js which can be found here:
-     * http://www.momentjs.com/docs/#/parsing/string-format/
+     * The used parse syntax is that of Moment.js which can be found in the
+     * [Moment.js documentation](http://www.momentjs.com/docs/#/parsing/string-format/ 'Moment.js documentation')
      *
      * @param {String} key Translation key to format the date with
      * @param {Date} [date=new Date()] Date to format
@@ -290,7 +290,7 @@ Ext.define('Uni.util.I18n', {
      * decimals is not specified, 2 decimals are used. By default the decimal separator is '.' and
      * the thousands separator is ','.
      *
-     * Adapted from: http://stackoverflow.com/a/149099/682311
+     * Adapted from: [http://stackoverflow.com/a/149099/682311](http://stackoverflow.com/a/149099/682311)
      *
      * @param {Number} number Number to format
      * @param {Number} [decimals=2] Number of required decimal places

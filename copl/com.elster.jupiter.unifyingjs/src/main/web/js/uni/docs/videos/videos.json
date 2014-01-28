@@ -1,0 +1,14 @@
+[
+    {
+        "title": "Ext JS",
+        "items": [
+            {
+                "name": "documenting-with-jsduck",
+                "title": "Documenting with JSDuck",
+                "description": "Documentation is an important part of any project, especially when there is an API to be exposed to other developers. JSDuck is an open source ExtJS 4 project developed at Sencha to help Javascript developers generate beautiful documentation viewable in a web browser. Based loosely on JavaDoc, JSDuck parses documentation embedded in the source files of your project enabling you to keep your docs close to your code. In this session we will cover the many features of JSDuck and by the end you will know how to create API documentation, guides, videos and examples for your own project or application.",
+                "id": "33465319",
+                "thumb": "http://b.vimeocdn.com/ts/227/178/227178682_960.jpg"
+            }
+        ]
+    }
+]
