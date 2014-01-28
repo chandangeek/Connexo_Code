@@ -354,17 +354,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public void removeComPortFromPools(ComPort comPort) {
-        for (ComPortPoolMember comPortPoolMember : getComPortPoolMemberDataMapper().find("comPort", comPort)) {
-            comPortPoolMember.remove();
-        }
-
-    }
-
-    @Override
-    public List<ComPortPool> findContainingComPortPoolsForComPort(ComPort comPort) {
+    public List<OutboundComPortPool> findContainingComPortPoolsForComPort(OutboundComPort comPort) {
         List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberDataMapper().find("comPort", comPort);
-        List<ComPortPool> comPortPools = new ArrayList<>();
+        List<OutboundComPortPool> comPortPools = new ArrayList<>();
         for (ComPortPoolMember comPortPoolMember : comPortPoolMembers) {
             comPortPools.add(comPortPoolMember.getComPortPool());
         }
@@ -375,7 +367,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     public List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer) {
         List<ComPortPool> comPortPools = new ArrayList<>();
         for (ComPort comPort : comServer.getComPorts()) {
-            comPortPools.addAll(findContainingComPortPoolsForComPort(comPort));
+            if (OutboundComPort.class.isAssignableFrom(comPort.getClass())) {
+                comPortPools.addAll(findContainingComPortPoolsForComPort((OutboundComPort) comPort));
+            }
         }
 
         return comPortPools;

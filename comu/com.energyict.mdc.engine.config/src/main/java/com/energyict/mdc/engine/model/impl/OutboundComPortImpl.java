@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
@@ -55,9 +56,16 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     @Override
     public void makeObsolete() {
         validateMakeObsolete();
-        engineModelService.removeComPortFromPools(this);
+        removeFromComPortPools();
         super.makeObsolete();
     }
+
+    private void removeFromComPortPools() {
+        for (ComPortPool comPortPool : engineModelService.findContainingComPortPoolsForComPort(this)) {
+            ((OutboundComPortPool)comPortPool).removeOutboundComPort(this);
+        }
+    }
+
 
     @Override
     protected void copyFrom(ComPort source) {
@@ -70,7 +78,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
      */
     private void validatePoolType(ComPortType newType) {
         if (newType != this.getComPortType()) {
-         List<ComPortPool> comPortPools = engineModelService.findContainingComPortPoolsForComPort(this);
+         List<OutboundComPortPool> comPortPools = engineModelService.findContainingComPortPoolsForComPort(this);
          if (!comPortPools.isEmpty()) {
              throw new TranslatableApplicationException("outboundComPortXStillMemberOfPool", "Outbound comport {0} is still a member of comport pool {1}. The comport type cannot be changed.", this.getName(), comPortPools.get(0).getName());
          }

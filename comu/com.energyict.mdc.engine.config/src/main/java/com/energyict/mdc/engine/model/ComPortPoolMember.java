@@ -2,13 +2,12 @@ package com.energyict.mdc.engine.model;
 
 public interface ComPortPoolMember {
 
-    public ComPortPool getComPortPool();
+    public OutboundComPortPool getComPortPool();
 
-    public void setComPortPool(ComPortPool comPortPoolReference);
+    public void setComPortPool(OutboundComPortPool comPortPoolReference);
 
     public ComPort getComPort();
 
-    public void setComPort(ComPort comPort);
+    public void setComPort(OutboundComPort comPort);
 
-    public void remove();
 }

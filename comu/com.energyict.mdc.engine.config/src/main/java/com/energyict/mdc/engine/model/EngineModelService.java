@@ -184,9 +184,7 @@ public interface EngineModelService {
     public OutboundComPortPool newOutboundComPortPool ();
 
 
-    void removeComPortFromPools(ComPort comPort);
-
-    List<ComPortPool> findContainingComPortPoolsForComPort(ComPort comPort);
+    List<OutboundComPortPool> findContainingComPortPoolsForComPort(OutboundComPort comPort);
 
     List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer);
 

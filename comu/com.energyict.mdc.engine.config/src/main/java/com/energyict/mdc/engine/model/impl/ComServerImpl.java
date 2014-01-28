@@ -151,13 +151,20 @@ public abstract class ComServerImpl implements ComServer {
 
     @Override
     public List<ComPort> getComPorts() {
-        return ImmutableList.copyOf(this.comPorts);
+        List<ComPort> nonObsoleteComPorts = new ArrayList<>();
+        for (ComPort comPort : this.comPorts) {
+            if (!comPort.isObsolete()) {
+                nonObsoleteComPorts.add(comPort);
+            }
+        }
+
+        return nonObsoleteComPorts;
     }
 
     public final  List<InboundComPort> getInboundComPorts () {
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.getComPorts()) {
-            if (comPort.isInbound()) {
+            if (comPort.isInbound() && !comPort.isObsolete()) {
                 InboundComPort inboundComPort = (InboundComPort) comPort;
                 inboundComPorts.add(inboundComPort);
             }
@@ -168,7 +175,7 @@ public abstract class ComServerImpl implements ComServer {
     public final List<OutboundComPort> getOutboundComPorts() {
         List<OutboundComPort> outboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.getComPorts()) {
-            if (!comPort.isInbound()) {
+            if (!comPort.isInbound() && !comPort.isObsolete()) {
                 OutboundComPort outboundComPort = (OutboundComPort) comPort;
                 outboundComPorts.add(outboundComPort);
             }
@@ -320,12 +327,11 @@ public abstract class ComServerImpl implements ComServer {
 
     @Override
     public void removeComPort(long id) {
-        Iterator<ComPort> iterator = comPorts.iterator();
-        while(iterator.hasNext()) {
-            ComPort next = iterator.next();
-            if (next.getId()==id) {
-                engineModelService.removeComPortFromPools(next);
-                iterator.remove();
+        for (ComPort next : comPorts) {
+            if (next.getId() == id) {
+                if (!next.isObsolete()) {
+                    next.makeObsolete();
+                }
             }
         }
     }

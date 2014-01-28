@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.model.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.Expected;
 import com.energyict.mdc.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TimeDuration;
@@ -33,8 +33,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
     private static final String INVALID_URL = "Anything but a valid URL";
     private static final String EVENT_REGISTRATION_URI = "ws://comserver.energyict.com/custom/events/registration";
 
-    private static final com.energyict.mdc.engine.model.ComServer.LogLevel SERVER_LOG_LEVEL = com.energyict.mdc.engine.model.ComServer.LogLevel.ERROR;
-    private static final com.energyict.mdc.engine.model.ComServer.LogLevel COMMUNICATION_LOG_LEVEL = com.energyict.mdc.engine.model.ComServer.LogLevel.TRACE;
+    private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
+    private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.HOURS);
     private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.MINUTES);
     private static final String NO_VIOLATIONS_NAME = "Online-No-Violations";
@@ -82,24 +82,6 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Asserts
         assertThat(comServer.getEventRegistrationUri()).isNotNull();
         assertThat(comServer.getQueryApiPostUri()).isNotNull();
-    }
-
-    private OnlineComServer createWithoutComPortsWithoutViolations (String name) throws SQLException, BusinessException {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setStoreTaskQueueSize(1);
-
-        // Business method
-        onlineComServer.save();
-        return onlineComServer;
     }
 
     @Test
@@ -189,7 +171,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         assertThat(QUERY_API_POST_URI).isEqualTo(loadedOnlineServer.getQueryApiPostUri());
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "nameXcontainsInvalidChars")
     @Transactional
     public void testCreateWithInvalidQueryAPIURL () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -231,7 +214,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         assertThat(EVENT_REGISTRATION_URI).isEqualTo(onlineComServer.getEventRegistrationUri());
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XisNotAValidURI")
     @Transactional
     public void testCreateWithInvalidEventRegistrationURI () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -250,7 +234,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an BusinessException because the event registration URL is not valid
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "valueXforPropertyshouldBeInRangeFromYandZ")
     @Transactional
     public void testCreateWithTooSmallQueueSize () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -270,7 +255,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "valueXforPropertyshouldBeInRangeFromYandZ")
     @Transactional
     public void testCreateWithTooBigQueueSize () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -290,7 +276,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "valueXforPropertyshouldBeInRangeFromYandZ")
     @Transactional
     public void testCreateWithTooSmallNumberOfThreads () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -310,7 +297,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "valueXforPropertyshouldBeInRangeFromYandZ")
     @Transactional
     public void testCreateWithTooManyNumberOfThreads () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -330,7 +318,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "valueXforPropertyshouldBeInRangeFromYandZ")
     @Transactional
     public void testCreateWithTooLowThreadPriority () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -350,7 +339,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "valueXforPropertyshouldBeInRangeFromYandZ")
     @Transactional
     public void testCreateWithTooHighThreadPriority () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -370,7 +360,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting an TranslatableApplicationException
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testCreateWithoutName () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -386,7 +377,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the name is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testCreateWithoutServerLogLevel () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -404,7 +396,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the server log level is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testCreateWithoutCommunicationLogLevel () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -422,7 +415,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the communication log level is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testCreateWithoutChangesInterPollDelay () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -440,7 +434,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the changes interpoll delay is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
     @Transactional
     public void testCreateWithoutSchedulingInterPollDelay () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance(); 
@@ -458,7 +453,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // Expecting a BusinessException to be thrown because the scheduling interpoll delay is not set
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "duplicateComServerX")
     @Transactional
     public void testCreateWithExistingName () throws BusinessException, SQLException {
         String name = "DuplicateExceptionExpected";
@@ -650,7 +646,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         assertThat(EVENT_REGISTRATION_URI).isEqualTo(onlineComServer.getEventRegistrationUri());
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "onlineComServerXStillReferenced")
     @Transactional
     public void testDeleteWhileStillUsedByRemoteComServer() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
@@ -660,6 +657,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
         onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        onlineComServer.setStoreTaskQueueSize(5);
+        onlineComServer.setNumberOfStoreTaskThreads(5);
+        onlineComServer.setStoreTaskThreadPriority(3);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.save();
@@ -683,7 +683,8 @@ public class OnlineComServerImplTest extends PersistenceTest {
         // We expect a BusinessException, cause an OnlineComServer cannot be deleted when it is still referenced from a RemoteComServer
     }
 
-    @Test(expected = TranslatableApplicationException.class)
+    @Test
+    @Expected(expected = TranslatableApplicationException.class, messageId = "onlineComServerXStillReferenced")
     @Transactional
     public void testMakeObsoleteWhileStillUsedByRemoteComServer () throws BusinessException, SQLException {
         OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
@@ -693,6 +694,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
         onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        onlineComServer.setStoreTaskQueueSize(5);
+        onlineComServer.setNumberOfStoreTaskThreads(5);
+        onlineComServer.setStoreTaskThreadPriority(3);
         onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
         onlineComServer.save();
@@ -715,5 +719,24 @@ public class OnlineComServerImplTest extends PersistenceTest {
 
         // We expect a BusinessException, cause an OnlineComServer cannot be deleted when it is still referenced from a RemoteComServer
     }
+
+    private OnlineComServer createWithoutComPortsWithoutViolations (String name) throws SQLException, BusinessException {
+        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName(name);
+        onlineComServer.setActive(true);
+        onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
+        onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URI);
+        onlineComServer.setNumberOfStoreTaskThreads(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setStoreTaskQueueSize(1);
+
+        // Business method
+        onlineComServer.save();
+        return onlineComServer;
+    }
+
 
 }

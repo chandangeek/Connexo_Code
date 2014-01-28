@@ -77,7 +77,7 @@ public abstract class ComPortImpl implements ComPort {
 
     private void validateName(String nameToValidate)  {
         for (ComPort comPort : comServer.get().getComPorts()) {
-            if (comPort.getId()!=this.getId() && comPort.getName().equals(nameToValidate)) {
+            if (comPort.getId()!=this.getId() && comPort.getName().equals(nameToValidate) && !comPort.isObsolete()) {
                 throw new TranslatableApplicationException("duplicateComPortX", "A ComPort by the name of \"{0}\" already exists", nameToValidate);
             }
         }
