@@ -9,7 +9,7 @@
  *
  * You need to initialize what translation components should be loaded before you start up the
  * application. Otherwise your translations will not be available. This can be done before calling
- * {@link Uni.Loader#onReady} with the {@link Uni.Loader#initI18n} method. Be sure to include
+ * {@link Uni.Loader#onReady} with the {@link Uni.Loader#initI18n} function. Be sure to include
  * an array of component aliases you want to have available in your application.
  *
  *      @example
@@ -51,7 +51,7 @@
  *
  * # Translating simple string values
  *
- * For simple translations you can directly ask the {@link #translate} method to return the translation
+ * For simple translations you can directly ask the {@link #translate} function to return the translation
  * for a component. Optionally, yet recommended, is to add a fallback translation in case no translation
  * is found.
  *
@@ -60,7 +60,7 @@
  *         title: translate('my.key', 'CMP', 'Fallback')
  *     });
  *
- * More information and examples can be found at the {@link #translate} method.
+ * More information and examples can be found at the {@link #translate} function.
  *
  * # Translating plural string values
  *
@@ -70,24 +70,71 @@
  *
  * A use case would be having a separate translation for 'no items', '1 item' and '2 items'.
  *
- * More information and examples can be found at the {@link #translatePlural} method.
+ * More information and examples can be found at the {@link #translatePlural} function.
  *
  * # Formatting dates
  *
- * **Under development**
+ * When you want to format dates a similar template applies as with string formatting. You need a key,
+ * a value to format, a component for which it applies, and a fallback format. The date format needs
+ * to conform to the Moment.js library.
+ *
+ * A full list of supported formats can be found at the Moment.js documentation page:
+ * http://momentjs.com/docs/
+ *
+ *     @example
+ *     var formattedNow = I18n.formatDate('long.date.format', new Date(), 'CMP', 'D MMMM YYYY LT');
+ *     console.log(formattedNow); // January 28 2014 11:14 AM
+ *
+ * More information and examples can be found at the {@link #formatDate} function.
  *
  * # Formatting numbers
  *
- * **Under development**
+ * To format numbers in a simple way, there is the {@link #formatNumber} function which requires
+ * only a few parameters to work. First of all, a number to format, and secondly, the component for
+ * which to format the number. There's also an optional parameter for the number of decimals that
+ * should be used.
+ *
+ *     @example
+ *     var formattedNumber = I18n.formatNumber(130000.037, 'CMP');
+ *     console.log(formattedNumber); // 130,000.04
+ *
+ * More information and examples can be found at the {@link #formatNumber} function.
  *
  * # Formatting currency
  *
- * **Under development**
+ * Currency formatting relates to number formatting, in a way that the number representing is
+ * formatted first by the {@link #formatNumber} function. That formatted number is then used to
+ * create a complete formatted currency string.
+ *
+ *     @example
+ *     var formattedCurrency = I18n.formatCurrency(130000.037, 'CMP');
+ *     console.log(formattedCurrency); // €130,000.04
+ *
+ * More information and examples can be found at the {@link #formatCurrency} function.
  *
  */
 Ext.define('Uni.util.I18n', {
     singleton: true,
     requires: ['Uni.store.Translations'],
+
+    /**
+     * Default currency format key to perform translation look-ups with.
+     *
+     * @property {String} [currencyFormatKey='currencyFormat']
+     */
+    currencyFormatKey: 'currencyFormat',
+    /**
+     * Default decimal separator format key to perform translation look-ups with.
+     *
+     * @property {String} [decimalSeparatorKey='decimalSeparator']
+     */
+    decimalSeparatorKey: 'decimalSeparator',
+    /**
+     * Default thousands separator format key to perform translation look-ups with.
+     *
+     * @property {String} [thousandsSeparatorKey='thousandsSeparator']
+     */
+    thousandsSeparatorKey: 'thousandsSeparator',
 
     /**
      * Initializes the internationalization components that should be used during loading.
@@ -275,8 +322,8 @@ Ext.define('Uni.util.I18n', {
      * @returns {String} Internationalized number
      */
     formatNumber: function (number, component, decimals) {
-        var decimalSeparator = this.translate('decimalSeparator', component, '.'),
-            thousandsSeparator = this.translate('thousandsSeparator', component, ',');
+        var decimalSeparator = this.translate(this.decimalSeparatorKey, component, '.'),
+            thousandsSeparator = this.translate(this.thousandsSeparatorKey, component, ',');
 
         return this.formatNumberWithSeparators(number, decimals, decimalSeparator, thousandsSeparator);
     },
@@ -294,7 +341,7 @@ Ext.define('Uni.util.I18n', {
     formatCurrency: function (value, component, decimals) {
         var formattedValue = this.formatNumber(value, component, decimals);
 
-        return this.translate('currencyFormat', component, formattedValue, [formattedValue]);
+        return this.translate(this.currencyFormatKey, component, formattedValue, [formattedValue]);
     }
 
 });
