@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
         var parities =  Ext.create('Mdc.store.Parities');
         var baudRates =  Ext.create('Mdc.store.BaudRates');
         comportpools.filter('direction','inbound');
+        comportpools.load();
         this.items = [
             {
                 xtype: 'form',

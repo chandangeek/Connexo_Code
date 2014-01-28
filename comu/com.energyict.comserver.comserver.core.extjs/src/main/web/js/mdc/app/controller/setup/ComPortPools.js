@@ -187,6 +187,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     removeOutboundComPort: function(){
         var comport = this.getOutboundComPortGrid().getSelectionModel().getSelection()[0];
         this.outboundComPortStore.removeAt(this.outboundComPortStore.indexOf(comport));
+        this.saveComPortPool();
     },
 
     selectComPort: function(){
