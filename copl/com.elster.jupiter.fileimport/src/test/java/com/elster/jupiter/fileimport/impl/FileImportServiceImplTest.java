@@ -71,6 +71,7 @@ public class FileImportServiceImplTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
+        when(dataModel.isInstalled()).thenReturn(true);
         when(importScheduleFactory.getOptional(15L)).thenReturn(Optional.of(importSchedule));
 
         fileImportService = new FileImportServiceImpl();
