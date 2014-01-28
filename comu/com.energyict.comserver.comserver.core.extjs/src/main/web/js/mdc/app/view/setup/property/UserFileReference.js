@@ -1,7 +1,7 @@
-Ext.define('Mdc.view.setup.property.CodeTable', {
+Ext.define('Mdc.view.setup.property.UserFileReference', {
     extend: 'Ext.window.Window',
-    alias: 'widget.codeTableSelectionWindow',
-    title: 'Select a codeTable',
+    alias: 'widget.userFileReferenceSelectionWindow',
+    title: 'Select a user File Reference',
     layout: 'fit',
     width: 350,
     height: 400,
@@ -16,20 +16,20 @@ Ext.define('Mdc.view.setup.property.CodeTable', {
     party: null,
 
     initComponent: function () {
-        var codeTables = Ext.create('Mdc.store.CodeTables');
+        var userFileReferences = Ext.create('Mdc.store.UserFileReferences');
         this.items = [
             {
                 xtype: 'grid',
-                itemId: 'codeTableSelectionGrid',
+                itemId: 'userFileReferenceSelectionGrid',
                 autoScroll: true,
-                store: codeTables,
+                store: userFileReferences,
                 columns: [
                     {
-                        text: 'CodeTables',
+                        text: 'User File References',
                         xtype: 'templatecolumn',
                         tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                             '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
-                            '{codeTableId} - {name}' +
+                            '{userFileReferenceId} - {name}' +
                             '</caption>' +
                             '</table>',
                         flex:1

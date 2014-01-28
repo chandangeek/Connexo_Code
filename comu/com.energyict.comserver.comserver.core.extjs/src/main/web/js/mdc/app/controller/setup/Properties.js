@@ -7,6 +7,7 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     requires: [
         'Mdc.store.CodeTables',
+        'Mdc.store.UserFileReferences',
         'Mdc.model.Property',
         'Mdc.model.PossibleValue',
         'Mdc.view.setup.property.Edit'
@@ -18,7 +19,8 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     views: [
         'setup.property.Edit',
-        'setup.property.CodeTable'
+        'setup.property.CodeTable',
+        'setup.property.UserFileReference'
     ],
     refs: [
         {
@@ -27,7 +29,12 @@ Ext.define('Mdc.controller.setup.Properties', {
         },
         {
             ref: 'codeTableSelectionGrid',
-            selector: ' #codeTableSelectionGrid'}
+            selector: '#codeTableSelectionGrid'
+        },
+        {
+            ref: 'userFileReferenceSelectionGrid',
+            selector: '#userFileReferenceSelectionGrid'
+        }
     ],
     timeDurationStore: Ext.create('Ext.data.Store', {
         fields: [
@@ -37,6 +44,7 @@ Ext.define('Mdc.controller.setup.Properties', {
     }),
 
     codeTableSelectionWindow: null,
+    userFileReferenceSelectionWindow: null,
     buttonClicked: null,
     propertiesStore: null,
 
@@ -44,6 +52,9 @@ Ext.define('Mdc.controller.setup.Properties', {
         this.control({
             'propertyEdit button[action=showCodeTable]': {
                 click: this.showCodeTableOverview
+            },
+            'propertyEdit button[action=showUserFileReference]': {
+                click: this.showUserFileReferenceOverview
             },
             'propertyEdit button[action=delete]': {
                 click: this.restoreDefaultProperty
@@ -56,6 +67,12 @@ Ext.define('Mdc.controller.setup.Properties', {
             },
             'codeTableSelectionWindow button[action=select]': {
                 click: this.selectCodeTable
+            },
+            'userFileReferenceSelectionWindow button[action=cancel]': {
+                click: this.closeUserFileReferenceSelectionWindow
+            },
+            'userFileReferenceSelectionWindow button[action=select]': {
+                click: this.selectUserFileReference
             },
             'propertyEdit textfield': {
                 change: this.changeProperty
@@ -137,16 +154,16 @@ Ext.define('Mdc.controller.setup.Properties', {
                         propertiesView.addHexStringProperty(key, value);
                         break;
                     case 'BOOLEAN':
-                        if (value === '1') {
+                        if (value === true) {
                             propertiesView.addBooleanProperty(key, true);
                         } else {
                             propertiesView.addBooleanProperty(key, false);
                         }
                         break;
                     case 'NULLABLE_BOOLEAN':
-                        if (value === '1') {
+                        if (value === true) {
                             propertiesView.addNullableBooleanProperty(key, true, false, false);
-                        } else if (value === '0') {
+                        } else if (value === false) {
                             propertiesView.addNullableBooleanProperty(key, false, true, false);
                         } else {
                             propertiesView.addNullableBooleanProperty(key, false, false, true);
@@ -167,15 +184,20 @@ Ext.define('Mdc.controller.setup.Properties', {
                         }
                         break;
                     case 'CLOCK':
-                        propertiesView.addDateTimeProperty(key, value);
+                        if (value !== null && value !== '') {
+                            var date = new Date(value);
+                            var dateValue = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+                            var timeValue = new Date(1970, 0, 1, date.getHours(), date.getMinutes(), date.getSeconds(), 0);
+                            propertiesView.addDateTimeProperty(key, dateValue, timeValue);
+                        } else {
+                            propertiesView.addDateTimeProperty(key);
+                        }
                         break;
                     case 'DATE':
-                        console.log('date');
-                        console.log(value);
-                        if (value !== null){
-                        propertiesView.addDateProperty(key, new Date(value));
+                        if (value !== null) {
+                            propertiesView.addDateProperty(key, new Date(value));
                         } else {
-                        propertiesView.addDateProperty(key, null);
+                            propertiesView.addDateProperty(key, null);
                         }
                         break;
                     case 'TIMEDURATION':
@@ -194,10 +216,18 @@ Ext.define('Mdc.controller.setup.Properties', {
                         }
                         break;
                     case 'TIMEOFDAY':
-                        propertiesView.addTimeProperty(key, value);
+                        if (value !== null) {
+                            propertiesView.addTimeProperty(key, new Date(value * 1000));
+                        } else {
+                            propertiesView.addTimeProperty(key);
+                        }
                         break;
                     case 'CODETABLE':
-                        propertiesView.addCodeTablePropertyWithSelectionWindow(key, value);
+                        if (value !== null) {
+                            propertiesView.addCodeTablePropertyWithSelectionWindow(key, value.codeTableId + '-' + value.name);
+                        } else {
+                            propertiesView.addCodeTablePropertyWithSelectionWindow(key, null);
+                        }
                         break;
                     case 'REFERENCE':
                         if (selectionMode === 'COMBOBOX') {
@@ -209,8 +239,13 @@ Ext.define('Mdc.controller.setup.Properties', {
                     case 'EAN18':
                         propertiesView.addEan18StringProperty(key, value);
                         break;
-                    case 'USERFILE':
-                        propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, value);
+                    case 'USERFILEREFERENCE':
+
+                        if (value !== null) {
+                            propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, value.userFileReferenceId + '-' + value.name);
+                        } else {
+                            propertiesView.addUserReferenceFilePropertyWithSelectionWindow(key, null);
+                        }
                         break;
                     case 'UNKNOWN':
                         propertiesView.addTextProperty(key, value);
@@ -230,7 +265,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         if (this.getCodeTableSelectionGrid().getSelectionModel().hasSelection()) {
             var codeTable = this.getCodeTableSelectionGrid().getSelectionModel().getSelection()[0];
             var view = this.getPropertyEdit();
-            view.down('#' + this.buttonClicked.itemId.substr(4)).setValue(codeTable.data.codeTableId);
+            view.down('#' + this.buttonClicked.itemId.substr(4)).setValue(codeTable.data.codeTableId + '-' + codeTable.data.name);
         }
         this.codeTableSelectionWindow.close();
     },
@@ -266,20 +301,48 @@ Ext.define('Mdc.controller.setup.Properties', {
 
         }
         if (property.getPropertyType().data.simplePropertyType === 'NULLABLE_BOOLEAN') {
-            if (newValue === '0') {
+            if (newValue === 'false') {
                 view.down('#' + 'rg' + key).setValue({rb: 0});
-            } else if (newValue === '1') {
+            } else if (newValue === 'true') {
                 view.down('#' + 'rg' + key).setValue({rb: 1});
             } else {
                 view.down('#' + 'rg' + key).setValue({rb: null});
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
-            view.down('#' + 'date' + key).setValue(newValue);
-            view.down('#' + 'time' + key).setValue(newValue);
+            if (newValue !== null && newValue !== '') {
+                var newDate = new Date(newValue);
+                var dateValue = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0);
+                var timeValue = new Date(1970, 0, 1, newDate.getHours(), newDate.getMinutes(), newDate.getSeconds(), 0);
+                view.down('#' + 'date' + key).setValue(dateValue);
+                view.down('#' + 'time' + key).setValue(timeValue);
+            } else {
+                view.down('#' + 'date' + key).setValue(null);
+                view.down('#' + 'time' + key).setValue(null);
+            }
         } else if (property.getPropertyType().data.simplePropertyType === 'TIMEOFDAY') {
-            view.down('#' + 'time' + key).setValue(newValue);
+            if (newValue !== null && newValue !== '') {
+                view.down('#' + 'time' + key).setValue(new Date(newValue));
+            } else {
+                view.down('#' + 'time' + key).setValue(null);
+            }
         } else if (property.getPropertyType().data.simplePropertyType === 'DATE') {
-            view.down('#' + 'date' + key).setValue(newValue);
+            if (newValue !== null && newValue !== '') {
+                view.down('#' + 'date' + key).setValue(new Date(newValue));
+            } else {
+                view.down('#' + 'date' + key).setValue(null);
+            }
+        } else if (property.getPropertyType().data.simplePropertyType === 'CODETABLE') {
+            if (property.getPropertyValue().defaultValue !== undefined) {
+                view.down('#' + key).setValue(property.getPropertyValue().defaultValue.codeTableId + '-' + property.getPropertyValue().defaultValue.name);
+            } else {
+                view.down('#' + key).setValue('');
+            }
+        } else if (property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE') {
+            if (property.getPropertyValue().defaultValue !== undefined) {
+                view.down('#' + key).setValue(property.getPropertyValue().defaultValue.userFileReferenceId + '-' + property.getPropertyValue().defaultValue.name);
+            } else {
+                view.down('#' + key).setValue('');
+            }
         } else {
             view.down('#' + key).setValue(newValue);
         }
@@ -322,40 +385,86 @@ Ext.define('Mdc.controller.setup.Properties', {
         var properties = this.propertiesStore;
         if (properties != null) {
             properties.each(function (property, id) {
-                console.log(property);
-                var propertyValue = Ext.create('Mdc.model.PropertyValue');
-                if (view.down('#' + property.data.key) != null) {
-                    var field = view.down('#' + property.data.key);
-                    var value = field.getValue();
-                    if (field.xtype === 'checkbox') {
-                        if (value === true) {
-                            value = 1;
-                        } else {
-                            value = 0;
+                    var propertyValue = Ext.create('Mdc.model.PropertyValue');
+                    var value;
+                    if (view.down('#' + property.data.key) != null) {
+                        var field = view.down('#' + property.data.key);
+                        value = field.getValue();
+                        if (field.xtype === 'checkbox') {
+                            if (value === true) {
+                                value = 1;
+                            } else {
+                                value = 0;
+                            }
+                        }
+                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE') {
+                            if (value !== '') {
+                                value = value.substr(0, value.indexOf('-'));
+                            }
+                        }
+                        if (property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE') {
+                            if (value !== '') {
+                                value = value.substr(0, value.indexOf('-'));
+                            }
                         }
                     }
+                    if (property.getPropertyType().data.simplePropertyType === 'NULLABLE_BOOLEAN') {
+                        value = view.down('#rg' + property.data.key).getValue().rb;
+                    }
+                    if (property.getPropertyType().data.simplePropertyType === 'DATE') {
+                        value = view.down('#date' + property.data.key).getValue();
+                        if (value !== null && value !== '') {
+                            var newDate = new Date(value.getFullYear(), value.getMonth(), value.getDate(),
+                                0, 0, 0, 0);
+                            value = value.getTime();
+                        }
+                    }
+                    if (property.getPropertyType().data.simplePropertyType === 'TIMEOFDAY') {
+                        value = view.down('#time' + property.data.key).getValue();
+                        if (value !== null && value !== '') {
+                            var newDate = new Date(1970, 0, 1, value.getHours(), value.getMinutes(), value.getSeconds(), 0);
+                            value = newDate.getTime() / 1000;
+                        }
+                    }
+                    if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
+                        var timeValue = view.down('#time' + property.data.key).getValue();
+                        var dateValue = view.down('#date' + property.data.key).getValue();
+                        if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
+                            var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
+                                timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
+                            value = newDate.getTime();
+                        }
+                    }
+                    if (property.data.isInheritedOrDefaultValue === true) {
+                        property.setPropertyValue(null);
+                    } else {
+                        propertyValue.data.value = value;
+                        property.setPropertyValue(propertyValue);
+                    }
+                    delete property.data.isInheritedOrDefaultValue;
+                    delete property.setPropertyType(null);
                 }
-                if (view.down('#rg' + property.data.key) != null) {
-                    var value = view.down('#rg' + property.data.key).getValue().rb;
-                }
-                if (view.down('#date' + property.data.key) != null) {
-                    var value = view.down('#date' + property.data.key).getValue();
-                }
-                if (view.down('#time' + property.data.key) != null) {
-                    var value = view.down('#time' + property.data.key).getValue();
-                }
-
-                if (property.data.isInheritedOrDefaultValue === true) {
-                    property.setPropertyValue(null);
-                } else {
-                    propertyValue.data.value = value;
-                    property.setPropertyValue(propertyValue);
-                }
-                delete property.data.isInheritedOrDefaultValue;
-                delete property.setPropertyType(null);
-            });
+            );
         }
         return properties;
+    },
+
+    showUserFileReferenceOverview: function (button) {
+        this.buttonClicked = button;
+        this.userFileReferenceSelectionWindow = Ext.widget('userFileReferenceSelectionWindow');
+    },
+
+    selectUserFileReference: function () {
+        if (this.getUserFileReferenceSelectionGrid().getSelectionModel().hasSelection()) {
+            var userFileReference = this.getUserFileReferenceSelectionGrid().getSelectionModel().getSelection()[0];
+            var view = this.getPropertyEdit();
+            view.down('#' + this.buttonClicked.itemId.substr(4)).setValue(userFileReference.data.userFileReferenceId + '-' + userFileReference.data.name);
+        }
+        this.userFileReferenceSelectionWindow.close();
+    },
+
+    closeUserFileReferenceSelectionWindow: function () {
+        this.userFileReferenceSelectionWindow.close();
     }
 })
 ;

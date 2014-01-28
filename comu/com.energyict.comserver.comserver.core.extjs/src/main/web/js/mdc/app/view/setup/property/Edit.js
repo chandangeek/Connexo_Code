@@ -12,6 +12,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
     autoWidth: true,
     requires: ['Ext.form.Panel',
         'Mdc.view.setup.property.CodeTableSelector',
+        'Mdc.view.setup.property.CodeTable',
+        'Mdc.view.setup.property.UserFileReference',
         'Mdc.widget.TimeInfoField'
     ],
 
@@ -186,7 +188,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             layout: 'hbox',
             defaults: {
@@ -225,7 +226,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -259,7 +259,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -314,7 +313,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -349,7 +347,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -379,11 +376,10 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addDateTimeProperty: function (key, value) {
+    addDateTimeProperty: function (key, dateValue, timeValue) {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -396,7 +392,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: key,
                     fieldLabel: key,
                     itemId: 'date' + key,
-                    value: value,
+                    value: dateValue,
                     format: 'd/m/Y',
                     altFormats: 'd.m.Y|d m Y',
                     margin: '0 5 0 0'
@@ -406,7 +402,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     name: key,
                     fieldLabel: key,
                     itemId: 'time' + key,
-                    value: value,
+                    value: timeValue,
                     format: 'H:i:s',
                     margin: '0 5 0 0'
                 },
@@ -426,7 +422,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -479,7 +474,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -521,7 +515,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -565,7 +558,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         console.log(store);
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
@@ -604,7 +596,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
-            combineErrors: true,
             fieldLabel: key,
             msgTarget: 'side',
             layout: 'hbox',
