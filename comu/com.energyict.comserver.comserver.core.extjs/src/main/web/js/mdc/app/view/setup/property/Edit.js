@@ -14,6 +14,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
         'Mdc.view.setup.property.CodeTableSelector',
         'Mdc.view.setup.property.CodeTable',
         'Mdc.view.setup.property.UserFileReference',
+        'Mdc.view.setup.property.LoadProfileType',
         'Mdc.widget.TimeInfoField'
     ],
 
@@ -538,6 +539,47 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     text: '...',
                     scale: 'small',
                     action: 'showUserFileReference',
+                    margin: '0 5 0 0'
+                },
+                {
+                    xtype: 'button',
+                    name: 'btn_delete_' + key,
+                    itemId: 'btn_delete_' + key,
+                    text: 'Restore defaults',
+                    scale: 'small',
+                    action: 'delete',
+                    disabled: true
+                }
+            ]
+        });
+    },
+    addLoadProfileTypePropertyWithSelectionWindow: function (key, value) {
+        var me = this;
+        me.down('#fsproperties').add({
+            xtype: 'fieldcontainer',
+            fieldLabel: key,
+            msgTarget: 'side',
+            layout: 'hbox',
+            defaults: {
+                hideLabel: true
+            },
+            items: [
+                {
+                    xtype: 'textfield',
+                    name: key,
+                    value: value,
+                    itemId: key,
+                    size: 75,
+                    margin: '0 5 0 0',
+                    width: 350
+                },
+                {
+                    xtype: 'button',
+                    name: 'btn_' + key,
+                    itemId: 'btn_' + key,
+                    text: '...',
+                    scale: 'small',
+                    action: 'showLoadProfileType',
                     margin: '0 5 0 0'
                 },
                 {
