@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingStorer;
@@ -11,7 +12,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.base.Optional;
-
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -23,10 +23,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.inject.Provider;
 import java.util.Date;
 import java.util.List;
-
-import javax.inject.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -56,6 +55,8 @@ public class MeterReadingStorerTest {
     private Thesaurus thesaurus;
     @Mock
     private Provider<EndDeviceEventRecordImpl> deviceEventFactory;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void setUp() {
@@ -83,7 +84,7 @@ public class MeterReadingStorerTest {
         endDeviceEvent.eventTypeCode = EVENTTYPECODE;
         endDeviceEvent.eventData.put("A", "B");
         meterReading.addEndDeviceEvent(endDeviceEvent);
-        MeterReadingStorer meterReadingStorer = new MeterReadingStorer(dataModel, meteringService, meter, meterReading, thesaurus, deviceEventFactory);
+        MeterReadingStorer meterReadingStorer = new MeterReadingStorer(dataModel, meteringService, meter, meterReading, thesaurus, eventService, deviceEventFactory);
 
         meterReadingStorer.store();
 

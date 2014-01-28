@@ -10,12 +10,11 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
-import java.util.Objects;
-
-import java.util.Date;
-import java.util.Map;
 
 import javax.inject.Provider;
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements EndDevice {
 	static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
@@ -167,6 +166,8 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     public int hashCode() {
     	return Objects.hashCode(id);
     }
-    
-    
-} 
+
+    EventService getEventService() {
+        return eventService;
+    }
+}

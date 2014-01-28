@@ -37,7 +37,7 @@ public class ReadingStorerImpl implements ReadingStorer {
 		this.storer.add(channel.getTimeSeries(), dateTime, entries);
 	}
 
-	@Override 
+	@Override
 	public void addReading(Channel channel , Reading reading) {
         this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),DEFAULTPROCESSSTATUS.getBits(), reading.getValue());
         addScope(channel, reading.getTimeStamp());

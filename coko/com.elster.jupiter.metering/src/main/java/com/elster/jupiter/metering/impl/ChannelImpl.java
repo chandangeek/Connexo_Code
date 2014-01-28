@@ -1,16 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.TimeZone;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -37,6 +26,17 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.TimeZone;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements Channel {
 	
@@ -166,6 +166,9 @@ public final class ChannelImpl implements Channel {
 
 	@Override
 	public List<IntervalReadingRecord> getIntervalReadings(Interval interval) {
+        if (!isRegular()) {
+            return Collections.emptyList();
+        }
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
 		ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
@@ -201,6 +204,9 @@ public final class ChannelImpl implements Channel {
 	
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Interval interval) {
+        if (!isRegular()) {
+            return Collections.emptyList();
+        }
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
@@ -212,6 +218,9 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Interval interval) {
+        if (isRegular()) {
+            return Collections.emptyList();
+        }
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
         ImmutableList.Builder<ReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
@@ -237,6 +246,9 @@ public final class ChannelImpl implements Channel {
     }
     @Override
 	public List<ReadingRecord> getRegisterReadings(Interval interval) {
+        if (isRegular()) {
+            return Collections.emptyList();
+        }
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(interval);
 		ImmutableList.Builder <ReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {

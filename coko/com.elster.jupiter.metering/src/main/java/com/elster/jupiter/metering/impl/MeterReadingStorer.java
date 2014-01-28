@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
@@ -30,6 +31,7 @@ public class MeterReadingStorer {
 	private final ReadingStorer readingStorer;
 	private final MeterReadingFacade facade;
 	private final Meter meter;
+    private final EventService eventService;
 
     private static final Logger logger = Logger.getLogger(MeterReadingStorer.class.getName());
     private final MeteringService meteringService;
@@ -38,11 +40,12 @@ public class MeterReadingStorer {
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
 
     MeterReadingStorer(DataModel dataModel, MeteringService meteringService, Meter meter,
-    		MeterReading meterReading, Thesaurus thesaurus, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
+                       MeterReading meterReading, Thesaurus thesaurus, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.meter= meter;
         this.thesaurus = thesaurus;
+        this.eventService = eventService;
         this.facade = new MeterReadingFacade(meterReading);
 		this.readingStorer = this.meteringService.createOverrulingStorer();
 		this.deviceEventFactory = deviceEventFactory;
@@ -58,7 +61,44 @@ public class MeterReadingStorer {
         storeEvents(facade.getMeterReading().getEvents());
 
         readingStorer.execute();
+        eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().getTime(), facade.getInterval().getEnd().getTime()));
 	}
+
+    public static class EventSource {
+        private long start;
+        private long end;
+        private long meterId;
+
+        public EventSource(long meterId, long start, long end) {
+            this.end = end;
+            this.meterId = meterId;
+            this.start = start;
+        }
+
+        public long getEnd() {
+            return end;
+        }
+
+        public void setEnd(long end) {
+            this.end = end;
+        }
+
+        public long getMeterId() {
+            return meterId;
+        }
+
+        public void setMeterId(long meterId) {
+            this.meterId = meterId;
+        }
+
+        public long getStart() {
+            return start;
+        }
+
+        public void setStart(long start) {
+            this.start = start;
+        }
+    }
 
     private void storeEvents(List<EndDeviceEvent> events) {
         List<EndDeviceEventRecord> records = new ArrayList<>(events.size());
@@ -171,6 +211,5 @@ public class MeterReadingStorer {
 		}
 		return null;
 	}
-	
-	
- }
+
+}

@@ -31,6 +31,8 @@ public interface MeteringService {
 
     Optional<UsagePoint> findUsagePoint(long id);
 
+    Optional<Meter> findMeter(long id);
+
     Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
 
     Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);

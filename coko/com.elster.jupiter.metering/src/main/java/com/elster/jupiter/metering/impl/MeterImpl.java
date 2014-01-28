@@ -10,11 +10,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import javax.inject.Provider;
 import javax.inject.Inject;
-
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +31,8 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
 
     @Inject
-	MeterImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory, 
-			MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory) {
+	MeterImpl(DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
+              MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory) {
         super(dataModel, eventService, deviceEventFactory, MeterImpl.class);
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
@@ -47,7 +47,7 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 		
 	@Override
 	public void store(MeterReading meterReading) {
-		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, deviceEventFactory).store();
+		new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, getEventService(), deviceEventFactory).store();
 	}
 	
 	@Override
@@ -57,5 +57,15 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         meterActivations.add(result);
 		return result;
 	}
+
+    @Override
+    public Optional<MeterActivation> getCurrentMeterActivation() {
+        for (MeterActivation meterActivation : meterActivations) {
+            if (meterActivation.isCurrent()) {
+                return Optional.of(meterActivation);
+            }
+        }
+        return Optional.absent();
+    }
 
 }

@@ -27,7 +27,22 @@ public enum EventType {
                     .component(MeteringService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System")
-                    .shouldPublish().create().save();
+                    .create().save();
+        }
+    },
+    METERREADING_CREATED("meterreading/CREATED") {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(MeteringService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish()
+                    .withProperty("start", ValueType.LONG, "start")
+                    .withProperty("end", ValueType.LONG, "end")
+                    .withProperty("meterId", ValueType.LONG, "meterId")
+                    .create().save();
         }
     };
 

@@ -1,15 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -47,6 +37,14 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService, InstallService {
@@ -113,6 +111,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public Optional<UsagePoint> findUsagePoint(long id) {
         return dataModel.mapper(UsagePoint.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<Meter> findMeter(long id) {
+        return dataModel.mapper(Meter.class).getOptional(id);
     }
 
     @Override
@@ -222,6 +225,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
                 bind(IdsService.class).toInstance(idsService);
                 bind(PartyService.class).toInstance(partyService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(Clock.class).toInstance(clock);
             }
         });
     }
