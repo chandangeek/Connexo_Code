@@ -55,7 +55,6 @@ import static org.mockito.Mockito.when;
  */
 public class ComServerResourceTest extends JerseyTest {
 
-    public static final int tcpBasedInboundComPort_id = 1001;
     private static EngineModelService engineModelService;
 
     @BeforeClass
