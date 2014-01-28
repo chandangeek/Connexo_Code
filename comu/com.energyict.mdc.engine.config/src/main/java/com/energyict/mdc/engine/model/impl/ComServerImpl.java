@@ -163,7 +163,7 @@ public abstract class ComServerImpl implements ComServer {
 
     public final  List<InboundComPort> getInboundComPorts () {
         List<InboundComPort> inboundComPorts = new ArrayList<>();
-        for (ComPort comPort : this.getComPorts()) {
+        for (ComPort comPort : this.comPorts) {
             if (comPort.isInbound() && !comPort.isObsolete()) {
                 InboundComPort inboundComPort = (InboundComPort) comPort;
                 inboundComPorts.add(inboundComPort);
@@ -174,7 +174,7 @@ public abstract class ComServerImpl implements ComServer {
 
     public final List<OutboundComPort> getOutboundComPorts() {
         List<OutboundComPort> outboundComPorts = new ArrayList<>();
-        for (ComPort comPort : this.getComPorts()) {
+        for (ComPort comPort : this.comPorts) {
             if (!comPort.isInbound() && !comPort.isObsolete()) {
                 OutboundComPort outboundComPort = (OutboundComPort) comPort;
                 outboundComPorts.add(outboundComPort);
