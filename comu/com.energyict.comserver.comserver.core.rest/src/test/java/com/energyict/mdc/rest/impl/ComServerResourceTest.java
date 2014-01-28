@@ -215,8 +215,6 @@ public class ComServerResourceTest extends JerseyTest {
     @Test
     public void createOnlineComServer() throws Exception {
         long comServer_id = 3;
-        long comPortPool_id = 16;
-
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
@@ -243,7 +241,6 @@ public class ComServerResourceTest extends JerseyTest {
     public void createOfflineComServer() throws Exception {
         long comServer_id = 3;
 
-
         OfflineComServer serverSideComServer = mock(OfflineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
         when(engineModelService.newOfflineComServerInstance()).thenReturn(serverSideComServer);
@@ -268,7 +265,6 @@ public class ComServerResourceTest extends JerseyTest {
     public void createRemoteComServer() throws Exception {
         long comServer_id = 3;
         long onlineComServerId = 5;
-
 
         RemoteComServer serverSideComServer = mock(RemoteComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
