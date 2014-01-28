@@ -44,6 +44,7 @@ public class MdcApplication extends Application {
                 LicensedProtocolResource.class,
                 TimeZoneInUseResource.class,
                 UserFileReferenceResource.class,
+                LoadProfileTypeResource.class,
                 CodeTableResource.class);
     }
 
