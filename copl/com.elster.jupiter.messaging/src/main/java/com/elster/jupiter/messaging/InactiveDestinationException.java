@@ -12,7 +12,7 @@ public class InactiveDestinationException extends LocalizedException {
     private static final String SUBSCRIBER_NAME = "subscriberName";
 
     public InactiveDestinationException(Thesaurus thesaurus, DestinationSpec destinationSpec, String subscriberName) {
-        super(thesaurus, MessageSeeds.CANNOT_SUBSCRIBE_ON_INACTIVE_DESTINATION, destinationSpec, subscriberName);
+        super(thesaurus, MessageSeeds.CANNOT_SUBSCRIBE_ON_INACTIVE_DESTINATION, destinationSpec.getName(), subscriberName);
         set(DESTINATION, destinationSpec);
         set(SUBSCRIBER_NAME, subscriberName);
     }
