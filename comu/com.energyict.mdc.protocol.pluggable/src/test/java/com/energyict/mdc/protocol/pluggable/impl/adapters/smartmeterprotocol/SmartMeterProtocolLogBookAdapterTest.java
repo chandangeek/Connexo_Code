@@ -1,26 +1,38 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLogBook;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 import org.joda.time.DateMidnight;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,6 +64,49 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
     @Mock
     private IssueService issueService;
+    @Mock
+    private Environment environment;
+    @Mock
+    private ApplicationContext applicationContext;
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
+
+    @Before
+    public void initializeMocks () {
+        when(this.collectedDataFactory.createCollectedLogBook(any(LogBookIdentifier.class))).
+                thenAnswer(new Answer<CollectedLogBook>() {
+                    @Override
+                    public CollectedLogBook answer(InvocationOnMock invocationOnMock) throws Throwable {
+                        LogBookIdentifier logBookIdentifier = (LogBookIdentifier) invocationOnMock.getArguments()[0];
+                        MockCollectedLogBook collectedLoadProfile = new MockCollectedLogBook(logBookIdentifier);
+                        collectedLoadProfile.setResultType(ResultType.Supported);
+                        return collectedLoadProfile;
+                    }
+                });
+        when(this.applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
+        when(this.environment.getApplicationContext()).thenReturn(this.applicationContext);
+        when(this.environment.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
+        when(this.environment.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
+        Environment.DEFAULT.set(this.environment);
+    }
+
+    @Before
+    public void initializeIssueService () {
+        when(this.issueService.newProblem(any(), anyString(), anyVararg())).thenAnswer(new Answer<Problem>() {
+            @Override
+            public Problem answer(InvocationOnMock invocationOnMock) throws Throwable {
+                Problem problem = mock(Problem.class);
+                when(problem.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
+                when(problem.getDescription()).thenReturn((String) invocationOnMock.getArguments()[1]);
+                return problem;
+            }
+        });
+    }
+
+    @AfterClass
+    public static void cleanEnvironment () {
+        Environment.DEFAULT.set(null);
+    }
 
     @Test
     public void testGetLogBookData() throws IOException {
@@ -81,7 +136,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
         assertThat(LOGBOOK1_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(0).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.NotSupported).isEqualTo(logBookData.get(0).getResultType());
-        assertThat(true).isEqualTo(logBookData.get(0).getIssues().get(0).getDescription().contains("logBookXnotsupported"));
+        assertThat(logBookData.get(0).getIssues().get(0).getDescription()).isNotEmpty();
         assertEquals(logBookData.get(0).getIssues().get(0).getSource(), LOGBOOK1_OBIS);
 
         assertThat(LOGBOOK2_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(1).getLogBookIdentifier()).getLogBookId());
@@ -99,7 +154,8 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
         assertThat(LOGBOOK3_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(2).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.InCompatible).isEqualTo(logBookData.get(2).getResultType());
-        assertThat(true).isEqualTo(logBookData.get(2).getIssues().get(0).getDescription().contains("logBookXissue"));
+        assertThat(logBookData.get(2).getIssues().get(0).getDescription()).isNotEmpty();
         assertEquals(logBookData.get(2).getIssues().get(0).getSource(), LOGBOOK_OBIS);
     }
+
 }

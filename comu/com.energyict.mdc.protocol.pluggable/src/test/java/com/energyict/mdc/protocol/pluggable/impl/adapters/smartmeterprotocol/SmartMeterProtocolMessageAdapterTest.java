@@ -65,6 +65,8 @@ public class SmartMeterProtocolMessageAdapterTest {
 
     @Mock
     private CollectedDataFactory collectedDataFactory;
+    @Mock
+    private IdBusinessObjectFactory codeFactory;
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -96,9 +98,8 @@ public class SmartMeterProtocolMessageAdapterTest {
 
         ApplicationContext applicationContext = this.inMemoryPersistence.getApplicationContext();
         when(applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
-        IdBusinessObjectFactory codeFactory = mock(IdBusinessObjectFactory.class);
-        when(codeFactory.getInstanceType()).thenReturn(Code.class);
-        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
+        when(this.codeFactory.getInstanceType()).thenReturn(Code.class);
+        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(this.codeFactory);
         when(this.collectedDataFactory.createCollectedMessageList(anyList())).thenReturn(new MockCollectedMessageList());
         when(this.collectedDataFactory.createCollectedMessage(any(MessageIdentifier.class))).thenAnswer(
                 new Answer<CollectedMessage>() {
@@ -167,8 +168,8 @@ public class SmartMeterProtocolMessageAdapterTest {
         // asserts
         assertThat(supportedMessages).isNotNull();
         assertThat(supportedMessages).containsOnly(
-                DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS,
-                DeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS);
+                DeviceMessageTestSpec.extendedSpecs(this.codeFactory),
+                DeviceMessageTestSpec.allSimpleSpecs());
     }
 
     @Test

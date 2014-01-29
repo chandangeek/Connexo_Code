@@ -1,11 +1,13 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,36 +22,33 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
     FIRST_TEST_CATEGORY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Arrays.<DeviceMessageSpec>asList(DeviceMessageTestSpec.values());
+            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
 
         }
     },
     SECOND_TEST_CATEGORY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Arrays.<DeviceMessageSpec>asList(DeviceMessageTestSpec.values());
+            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
 
         }
     },
     THIRD_TEST_CATEGORY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Arrays.<DeviceMessageSpec>asList(DeviceMessageTestSpec.values());
-
+            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
         }
     },
     SECURITY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Arrays.<DeviceMessageSpec>asList(DeviceMessageTestSpec.values());
-
+            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
         }
     },
     CONNECTIVITY_SETUP {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Arrays.<DeviceMessageSpec>asList(DeviceMessageTestSpec.values());
-
+            return DeviceMessageTestSpec.allTestSpecs(getCodeFactory());
         }
     };
 
@@ -95,6 +94,10 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
     @Override
     public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
         return new DeviceMessageCategoryPrimaryKey(this, name());
+    }
+
+    protected IdBusinessObjectFactory getCodeFactory() {
+        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
     }
 
 }

@@ -70,6 +70,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -141,6 +142,14 @@ public class DeviceProtocolPluggableClassImplTest {
         when(deviceProtocolDialectFactory.getInstanceType()).thenReturn(DeviceProtocolDialect.class);
         when(applicationContext.findFactory(FactoryIds.DEVICE_PROTOCOL_DIALECT.id())).thenReturn(deviceProtocolDialectFactory);
         when(codeFactory.getInstanceType()).thenReturn(Code.class);
+
+        if (Environment.DEFAULT.get().getApplicationContext() != null) {
+            fail("Application context was not cleaned up properly by previous test");
+            if (Environment.DEFAULT.get().getApplicationContext().findFactory(FactoryIds.CODE.id()) != null) {
+                fail("Code Factory was not cleaned up properly by previous test");
+            }
+        }
+
         when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
         when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(mock(IdBusinessObjectFactory.class));  // SmartMeterProtocolAdapter is looking for the TimeZoneInUse factory
         Translator translator = mock(Translator.class);
@@ -228,8 +237,8 @@ public class DeviceProtocolPluggableClassImplTest {
         when(codeFactory.get(CODE_ID)).thenReturn(code);
         final TypedProperties creationProperties = TypedProperties.empty();
         Date activationDate = new DateMidnight().toDate();
-        creationProperties.setProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
-        creationProperties.setProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME, code);
+        creationProperties.setProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
+        creationProperties.setProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME, code);
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
@@ -247,12 +256,11 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocol).isNotNull();
         assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
         assertThat(deviceProtocol.getPropertySpecs()).hasSize(2);
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
-        assertThat(properties.getProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
-        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME);
+        assertThat(properties.getProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
+        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME);
         assertThat(propertyValue).isInstanceOf(Code.class);
         Code codePropertyValue = (Code) propertyValue;
         assertThat(codePropertyValue.getId()).isEqualTo(CODE_ID);
@@ -271,8 +279,8 @@ public class DeviceProtocolPluggableClassImplTest {
         when(codeFactory.get(CODE_ID)).thenReturn(code);
         final TypedProperties creationProperties = TypedProperties.empty();
         final Date activationDate = new DateMidnight().toDate();
-        creationProperties.setProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
-        creationProperties.setProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME, code);
+        creationProperties.setProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME, activationDate);
+        creationProperties.setProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME, code);
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
@@ -281,10 +289,10 @@ public class DeviceProtocolPluggableClassImplTest {
                     public DeviceProtocolPluggableClass perform() {
                         DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
                         deviceProtocolPluggableClass.setProperty(
-                                DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getPropertySpec(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
+                                DeviceMessageTestSpec.extendedSpecs(codeFactory).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
                                 activationDate);
                         deviceProtocolPluggableClass.setProperty(
-                                DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME),
+                                DeviceMessageTestSpec.extendedSpecs(codeFactory).getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME),
                                 code);
                         deviceProtocolPluggableClass.save();
                         return deviceProtocolPluggableClass;
@@ -299,12 +307,12 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocol).isNotNull();
         assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
         assertThat(deviceProtocol.getPropertySpecs()).hasSize(2);
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME)).isNotNull();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
-        assertThat(properties.getProperty(DeviceMessageTestSpec.Constants.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
-        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.Constants.CODETABLE_PROPERTY_SPEC_NAME);
+        assertThat(properties.getProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
+        Object propertyValue = properties.getProperty(DeviceMessageTestSpec.CODETABLE_PROPERTY_SPEC_NAME);
         assertThat(propertyValue).isInstanceOf(Code.class);
         Code codePropertyValue = (Code) propertyValue;
         assertThat(codePropertyValue.getId()).isEqualTo(CODE_ID);

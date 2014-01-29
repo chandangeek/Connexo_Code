@@ -1,5 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
@@ -28,8 +31,12 @@ public class SimpleLegacyMessageConverter implements LegacyMessageConverter {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
-                DeviceMessageTestSpec.TEST_SPEC_WITH_EXTENDED_SPECS,
-                DeviceMessageTestSpec.TEST_SPEC_WITH_SIMPLE_SPECS);
+                DeviceMessageTestSpec.extendedSpecs(getCodeFactory()),
+                DeviceMessageTestSpec.allSimpleSpecs());
+    }
+
+    private IdBusinessObjectFactory getCodeFactory() {
+        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
     }
 
     @Override
