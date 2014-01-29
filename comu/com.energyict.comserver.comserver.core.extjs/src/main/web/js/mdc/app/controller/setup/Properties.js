@@ -8,6 +8,7 @@ Ext.define('Mdc.controller.setup.Properties', {
     requires: [
         'Mdc.store.CodeTables',
         'Mdc.store.UserFileReferences',
+        'Mdc.store.LoadProfileTypes',
         'Mdc.model.Property',
         'Mdc.model.PossibleValue',
         'Mdc.view.setup.property.Edit'
@@ -20,7 +21,8 @@ Ext.define('Mdc.controller.setup.Properties', {
     views: [
         'setup.property.Edit',
         'setup.property.CodeTable',
-        'setup.property.UserFileReference'
+        'setup.property.UserFileReference',
+        'setup.property.LoadProfileType'
     ],
     refs: [
         {
@@ -34,6 +36,10 @@ Ext.define('Mdc.controller.setup.Properties', {
         {
             ref: 'userFileReferenceSelectionGrid',
             selector: '#userFileReferenceSelectionGrid'
+        },
+        {
+            ref: 'loadProfileTypeSelectionGrid',
+            selector: '#loadProfileTypeSelectionGrid'
         }
     ],
     timeDurationStore: Ext.create('Ext.data.Store', {
@@ -56,6 +62,9 @@ Ext.define('Mdc.controller.setup.Properties', {
             'propertyEdit button[action=showUserFileReference]': {
                 click: this.showUserFileReferenceOverview
             },
+            'propertyEdit button[action=showLoadProfileType]': {
+                click: this.showLoadProfileTypeOverview
+            },
             'propertyEdit button[action=delete]': {
                 click: this.restoreDefaultProperty
             },
@@ -73,6 +82,12 @@ Ext.define('Mdc.controller.setup.Properties', {
             },
             'userFileReferenceSelectionWindow button[action=select]': {
                 click: this.selectUserFileReference
+            },
+            'loadProfileTypeSelectionWindow button[action=cancel]': {
+                click: this.closeLoadProfileTypeSelectionWindow
+            },
+            'loadProfileTypeSelectionWindow button[action=select]': {
+                click: this.selectLoadProfileType
             },
             'propertyEdit textfield': {
                 change: this.changeProperty
@@ -229,6 +244,13 @@ Ext.define('Mdc.controller.setup.Properties', {
                             propertiesView.addCodeTablePropertyWithSelectionWindow(key, null);
                         }
                         break;
+                    case 'LOADPROFILETYPE':
+                        if (value !== null) {
+                            propertiesView.addLoadProfileTypePropertyWithSelectionWindow(key, value.loadProfileTypeId + '-' + value.name);
+                        } else {
+                            propertiesView.addLoadProfileTypePropertyWithSelectionWindow(key, null);
+                        }
+                        break;
                     case 'REFERENCE':
                         if (selectionMode === 'COMBOBOX') {
                             properties.addComboBoxTextProperty(key, predefinedPropertyValues, value, exhaustive);
@@ -343,6 +365,12 @@ Ext.define('Mdc.controller.setup.Properties', {
             } else {
                 view.down('#' + key).setValue('');
             }
+        } else if (property.getPropertyType().data.simplePropertyType === 'LOADPROFILETYPE') {
+            if (property.getPropertyValue().defaultValue !== undefined) {
+                view.down('#' + key).setValue(property.getPropertyValue().defaultValue.loadProfileTypeId + '-' + property.getPropertyValue().defaultValue.name);
+            } else {
+                view.down('#' + key).setValue('');
+            }
         } else {
             view.down('#' + key).setValue(newValue);
         }
@@ -397,16 +425,14 @@ Ext.define('Mdc.controller.setup.Properties', {
                                 value = 0;
                             }
                         }
-                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE') {
+                        if (property.getPropertyType().data.simplePropertyType === 'CODETABLE' ||
+                            property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE' ||
+                            property.getPropertyType().data.simplePropertyType === 'LOADPROFILETYPE') {
                             if (value !== '') {
                                 value = value.substr(0, value.indexOf('-'));
                             }
                         }
-                        if (property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE') {
-                            if (value !== '') {
-                                value = value.substr(0, value.indexOf('-'));
-                            }
-                        }
+
                     }
                     if (property.getPropertyType().data.simplePropertyType === 'NULLABLE_BOOLEAN') {
                         value = view.down('#rg' + property.data.key).getValue().rb;
@@ -465,6 +491,24 @@ Ext.define('Mdc.controller.setup.Properties', {
 
     closeUserFileReferenceSelectionWindow: function () {
         this.userFileReferenceSelectionWindow.close();
+    },
+
+    showLoadProfileTypeOverview: function (button) {
+        this.buttonClicked = button;
+        this.loadProfileTypeSelectionWindow = Ext.widget('loadProfileTypeSelectionWindow');
+    },
+
+    selectLoadProfileType: function () {
+        if (this.getLoadProfileTypeSelectionGrid().getSelectionModel().hasSelection()) {
+            var loadProfileType = this.getLoadProfileTypeSelectionGrid().getSelectionModel().getSelection()[0];
+            var view = this.getPropertyEdit();
+            view.down('#' + this.buttonClicked.itemId.substr(4)).setValue(loadProfileType.data.loadProfileTypeId + '-' + loadProfileType.data.name);
+        }
+        this.loadProfileTypeSelectionWindow.close();
+    },
+
+    closeLoadProfileTypeSelectionWindow: function () {
+        this.loadProfileTypeSelectionWindow.close();
     }
 })
 ;
