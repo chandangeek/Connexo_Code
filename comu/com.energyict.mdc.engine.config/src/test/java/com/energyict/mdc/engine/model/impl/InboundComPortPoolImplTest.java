@@ -197,7 +197,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
         onlineComServer.newTCPBasedInboundComPort()
                 .name("port").numberOfSimultaneousConnections(1).portNumber(8080).description("hello world")
-                .active(true).comPortPool(comPortPool).comPortType(ComPortType.TCP)
+                .active(true).comPortPool(comPortPool)
                 .add();
 
         // Business method
@@ -257,7 +257,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
         onlineComServer.newTCPBasedInboundComPort()
                 .name("port").numberOfSimultaneousConnections(1).portNumber(8080).description("hello world")
-                .active(true).comPortPool(comPortPool).comPortType(ComPortType.TCP)
+                .active(true).comPortPool(comPortPool)
                 .add();
 
         // Business method
@@ -341,11 +341,11 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
         TCPBasedInboundComPort portA = onlineComServer.newTCPBasedInboundComPort()
                 .name("portA").numberOfSimultaneousConnections(1).portNumber(8080).description("hello world")
-                .active(true).comPortPool(comPortPool).comPortType(ComPortType.TCP)
+                .active(true).comPortPool(comPortPool)
                 .add();
         TCPBasedInboundComPort portB = onlineComServer.newTCPBasedInboundComPort()
                 .name("portB").numberOfSimultaneousConnections(1).portNumber(8081).description("hello world")
-                .active(true).comPortPool(comPortPool).comPortType(ComPortType.TCP)
+                .active(true).comPortPool(comPortPool)
                 .add();
         ModemBasedInboundComPort portC = onlineComServer.newModemBasedInboundComport()
                 .name("portC")
@@ -353,7 +353,6 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
                 .active(true)
                 .ringCount(10)
                 .maximumDialErrors(3)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(comPortPool)
                 .connectTimeout(new TimeDuration(60))
                 .atCommandTimeout(new TimeDuration(60))

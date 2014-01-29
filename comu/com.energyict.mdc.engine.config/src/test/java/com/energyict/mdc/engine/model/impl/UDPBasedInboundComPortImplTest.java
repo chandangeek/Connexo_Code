@@ -102,7 +102,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting an InvalidValueException to be thrown because the ComPortPool is not set
     }
@@ -118,7 +118,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting an TranslatableApplicationException to be thrown because the ComPortPool is not an InboundComPortPool
     }
@@ -133,7 +133,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
@@ -151,7 +151,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .portNumber(PORT_NUMBER)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
     }
@@ -167,7 +167,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .portNumber(PORT_NUMBER)
         .numberOfSimultaneousConnections(0)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
@@ -183,7 +183,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .portNumber(0)
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
@@ -199,23 +199,9 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         .portNumber(PORT_NUMBER)
         .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
         .bufferSize(0)
-        .comPortType(ComPortType.UDP).add();
+        .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
-    }
-
-    @Test
-    @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
-    public void testWithoutComPortType() throws BusinessException, SQLException {
-        createOnlineComServer().newUDPBasedInboundComPort()
-        .name(COMPORT_NAME)
-        .description(DESCRIPTION)
-        .active(ACTIVE)
-        .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-        .portNumber(PORT_NUMBER)
-        .bufferSize(DATAGRAM_BUFFER_SIZE)
-        .comPortType(null).add();
     }
 
     @Test
@@ -282,7 +268,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.UDP)
+                
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .bufferSize(DATAGRAM_BUFFER_SIZE)

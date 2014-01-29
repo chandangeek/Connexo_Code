@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.IPBasedInboundComPort;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -126,6 +127,7 @@ public class ServletBasedInboundComPortImpl extends IPBasedInboundComPortImpl im
 
         protected ServletBasedInboundComPortBuilderImpl(Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider) {
             super(ServletBasedInboundComPortBuilder.class, servletBasedInboundComPortProvider);
+            comPort.setComPortType(ComPortType.SERVLET);
         }
 
         @Override

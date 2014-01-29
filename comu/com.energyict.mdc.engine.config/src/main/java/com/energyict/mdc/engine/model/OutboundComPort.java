@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.model;
 
+import com.energyict.mdc.protocol.api.ComPortType;
+
 /**
  * Models a {@link ComPort} that is dedicated to outbound communication.
  * Outbound ComPorts will sit in a {@link ComPortPool pool}
@@ -21,6 +23,7 @@ public interface OutboundComPort extends ComPort {
 
     interface OutboundComPortBuilder extends ComPort.Builder<OutboundComPortBuilder, OutboundComPort>{
         public OutboundComPortBuilder numberOfSimultaneousConnections(int number);
+        public OutboundComPortBuilder comPortType(ComPortType comPortType);
     }
 
 }

@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
@@ -235,6 +236,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
         protected ModemBasedInboundComPortBuilderImpl(Provider<ModemBasedInboundComPort> inboundComPortProvider) {
             super(ModemBasedInboundComPortBuilder.class, inboundComPortProvider);
+            comPort.setComPortType(ComPortType.SERIAL);
         }
 
         @Override

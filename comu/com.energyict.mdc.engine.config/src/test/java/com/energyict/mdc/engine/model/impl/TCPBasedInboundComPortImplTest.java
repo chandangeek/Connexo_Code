@@ -91,7 +91,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .active(ACTIVE)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .portNumber(PORT_NUMBER)
-                .comPortType(ComPortType.TCP).add();
+                .add();
 
         // Expecting an InvalidValueException to be thrown because the ComPortPool is not set
     }
@@ -110,7 +110,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .comPortPool(createComPortPool())
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
                 .portNumber(PORT_NUMBER)
-                .comPortType(ComPortType.TCP).add();
+                .add();
 
         // Expecting a BusinessException to be thrown because a ComPort with the same name already exists
     }
@@ -126,7 +126,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .active(ACTIVE)
                 .portNumber(PORT_NUMBER)
                 .numberOfSimultaneousConnections(0)
-                .comPortType(ComPortType.TCP).add();
+                .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
@@ -142,7 +142,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .active(ACTIVE)
                 .portNumber(0)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortType(ComPortType.TCP).add();
+                .add();
 
         // Expecting a BusinessException to be thrown because the name is not set
     }
@@ -159,7 +159,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .portNumber(PORT_NUMBER)
                 .comPortPool(createComPortPool())
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortType(ComPortType.TCP).add();
+                .add();
 
         onlineComServer.newTCPBasedInboundComPort()
                 .name("createWithExistingPortNumberTest")
@@ -168,23 +168,9 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .active(ACTIVE)
                 .portNumber(PORT_NUMBER)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortType(ComPortType.TCP).add();
+                .add();
 
         // Business method
-    }
-
-    @Test
-    @Transactional
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
-    public void testWithoutComPortType() throws BusinessException, SQLException {
-        createOnlineComServer().newTCPBasedInboundComPort()
-                .name(COMPORT_NAME)
-                .description(DESCRIPTION)
-                .active(ACTIVE)
-                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .comPortPool(createComPortPool())
-                .portNumber(PORT_NUMBER)
-                .comPortType(null).add();
     }
 
     @Test
@@ -248,7 +234,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.TCP)
+                
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)

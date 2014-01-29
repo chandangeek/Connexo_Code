@@ -102,7 +102,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
@@ -124,7 +123,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
                 .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
@@ -148,7 +146,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
@@ -170,7 +167,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
@@ -192,7 +188,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(0)
                 .contextPath(CONTEXT_PATH)
@@ -214,7 +209,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(null)
@@ -236,7 +230,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath("")
@@ -247,25 +240,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
 
         // Expecting a BusinessException to be thrown because the name is not set
-    }
-
-    @Test
-    @Expected(expected = TranslatableApplicationException.class, messageId = "XcannotBeEmpty")
-    @Transactional
-    public void testWithoutComPortType() throws SQLException, BusinessException {
-        createOnlineComServer().newServletBasedInboundComPort()
-                .name(COMPORT_NAME)
-                .https(true)
-                .description(DESCRIPTION)
-                .active(ACTIVE)
-                .comPortPool(createComPortPool())
-                .portNumber(PORT_NUMBER)
-                .contextPath(CONTEXT_PATH)
-                .numberOfSimultaneousConnections(NUMBER_OF_SIMULTANEOUS_CONNECTIONS)
-                .keyStoreSpecsFilePath(KEY_STORE_FILE_PATH)
-                .keyStoreSpecsPassword(KEY_STORE_PASSWORD)
-                .trustStoreSpecsFilePath(TRUST_STORE_FILE_PATH)
-                .trustStoreSpecsPassword(TRUST_STORE_PASSWORD).add();
     }
 
     /**
@@ -283,7 +257,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .name(COMPORT_NAME)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)
@@ -582,7 +555,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool();
-        inboundComPortPool.setComPortType(ComPortType.SERIAL);
+        inboundComPortPool.setComPortType(ComPortType.SERVLET);
         inboundComPortPool.setName("comPortPool"+comPortPoolIndex++);
         inboundComPortPool.setDiscoveryProtocolPluggableClassId(1);
         inboundComPortPool.save();
@@ -599,7 +572,6 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .https(true)
                 .description(DESCRIPTION)
                 .active(ACTIVE)
-                .comPortType(ComPortType.SERIAL)
                 .comPortPool(createComPortPool())
                 .portNumber(PORT_NUMBER)
                 .contextPath(CONTEXT_PATH)

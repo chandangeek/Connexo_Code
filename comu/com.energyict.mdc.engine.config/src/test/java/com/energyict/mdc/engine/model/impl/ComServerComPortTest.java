@@ -278,14 +278,12 @@ public class ComServerComPortTest extends PersistenceTest {
                 .name("TCP1")
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .comPortType(ComPortType.TCP)
                 .portNumber(duplicatePortNumber).add();
 
         shadow.newTCPBasedInboundComPort()
                 .name("TCP2")
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .comPortType(ComPortType.TCP)
                 .portNumber(duplicatePortNumber).add();
     }
 
@@ -312,7 +310,7 @@ public class ComServerComPortTest extends PersistenceTest {
                         NrOfStopBits.ONE,
                         Parities.NONE,
                         FlowControl.NONE))
-                .comPortType(ComPortType.SERIAL).add();
+                .add();
     }
 
     private TCPBasedInboundComPort tcpComPort(ComServer comServer) {
@@ -321,7 +319,6 @@ public class ComServerComPortTest extends PersistenceTest {
                 .name(name)
                 .active(true)
                 .comPortPool(tcpBasedInboundComPortPool)
-                .comPortType(ComPortType.TCP)
                 .portNumber(9000)
                 .add();
     }
@@ -332,7 +329,6 @@ public class ComServerComPortTest extends PersistenceTest {
                 .name(name)
                 .active(true)
                 .comPortPool(udpBasedInboundComPortPool)
-                .comPortType(ComPortType.UDP)
                 .portNumber(9001)
                 .bufferSize(1024)
                 .add();

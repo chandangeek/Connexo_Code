@@ -226,12 +226,6 @@ public abstract class ComPortImpl implements ComPort {
         }
 
         @Override
-        public B comPortType(ComPortType comPortType) {
-            comPort.setComPortType(comPortType);
-            return self;
-        }
-
-        @Override
         public B name(String name) {
             comPort.setName(name);
             return self;
