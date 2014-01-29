@@ -3,9 +3,11 @@ package com.energyict.mdc.rest.impl.properties;
 import com.energyict.mdc.dynamic.*;
 import com.energyict.mdc.metering.mapping.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.rest.impl.CodeTableInfo;
+import com.energyict.mdc.rest.impl.LoadProfileTypeInfo;
 import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdc.rest.impl.UserFileReferenceInfo;
 import com.energyict.mdw.core.CodeFactory;
+import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.mdw.core.TimeZoneInUseFactory;
 import com.energyict.mdw.core.UserFileFactory;
 
@@ -91,13 +93,13 @@ public enum SimplePropertyType {
             return new UserFileReferenceInfo(map);
         }
     },
-    /*LOADPROFILETYPE(true, LoadProfileTypeFactory.class) {
+    LOADPROFILETYPE(true, LoadProfileTypeFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
-            return new LoadProfiletypeInfo(map);
+            return new LoadProfileTypeInfo(map);
         }
     },
-    LOADPROFILE(true, LoadProfileTypeFactory.class) {
+  /*  LOADPROFILE(true, LoadProfileFactory.class) {
         @Override
         public Object getInfoObject(Map<String, Object> map) {
             return new LoadProfileInfo(map);

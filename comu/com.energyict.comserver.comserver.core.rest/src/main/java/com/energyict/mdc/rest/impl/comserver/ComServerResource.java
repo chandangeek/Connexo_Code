@@ -125,33 +125,29 @@ public class ComServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServer> comServerInfo) {
-        try {
-            if (comServerInfo.inboundComPorts ==null) {
-                throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
-                    Response.status(Response.Status.BAD_REQUEST).build());
-            }
-            if (comServerInfo.outboundComPorts ==null) {
-                throw new WebApplicationException("ComServer is missing list of outbound ComPorts",
-                    Response.status(Response.Status.BAD_REQUEST).build());
-            }
-
-            ComServer comServer = engineModelService.findComServer(id);
-            if (comServer == null) {
-                throw new WebApplicationException("No ComServer with id "+id,
-                    Response.status(Response.Status.NOT_FOUND).build());
-            }
-
-            comServerInfo.writeTo(comServer,engineModelService);
-            List<ComPortInfo> allComPorts = new ArrayList<>();
-            allComPorts.addAll(comServerInfo.inboundComPorts);
-            allComPorts.addAll(comServerInfo.outboundComPorts);
-            updateComPorts(comServer, allComPorts);
-
-            comServer.save();
-            return ComServerInfoFactory.asInfo(comServer);
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(e.getLocalizedMessage(), e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build());
+        if (comServerInfo.inboundComPorts ==null) {
+            throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
+                Response.status(Response.Status.BAD_REQUEST).build());
         }
+        if (comServerInfo.outboundComPorts ==null) {
+            throw new WebApplicationException("ComServer is missing list of outbound ComPorts",
+                Response.status(Response.Status.BAD_REQUEST).build());
+        }
+
+        ComServer comServer = engineModelService.findComServer(id);
+        if (comServer == null) {
+            throw new WebApplicationException("No ComServer with id "+id,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+
+        comServerInfo.writeTo(comServer,engineModelService);
+        List<ComPortInfo> allComPortInfos = new ArrayList<>();
+        allComPortInfos.addAll(comServerInfo.inboundComPorts);
+        allComPortInfos.addAll(comServerInfo.outboundComPorts);
+        updateComPorts(comServer, allComPortInfos);
+
+        comServer.save();
+        return ComServerInfoFactory.asInfo(comServer);
     }
 
     private void updateComPorts(ComServer comServer, List<ComPortInfo> newComPorts) {

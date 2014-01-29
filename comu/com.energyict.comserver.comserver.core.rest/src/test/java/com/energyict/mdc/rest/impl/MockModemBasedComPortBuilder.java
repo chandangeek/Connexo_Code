@@ -106,12 +106,6 @@ public class MockModemBasedComPortBuilder implements ModemBasedInboundComPort.Mo
     }
 
     @Override
-    public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder comPortType(ComPortType comPortType) {
-        this.comPortType = comPortType;
-        return this;
-    }
-
-    @Override
     public ModemBasedInboundComPort.ModemBasedInboundComPortBuilder active(boolean active) {
         this.active = active;
         return this;
