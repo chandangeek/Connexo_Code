@@ -183,6 +183,7 @@ public class MeterReadingStorer {
 	private Channel findOrCreateChannel(IntervalReading reading , String readingTypeCode) {
 		Optional<ReadingType> readingTypeHolder = getReadingType(readingTypeCode);
 		if (!readingTypeHolder.isPresent()) {
+			MessageSeeds.READINGTYPE_IGNORED.log(logger, thesaurus, readingTypeCode, meter.getMRID());
 			return null;
 		}
 		Channel channel = getChannel(reading,readingTypeHolder.get());
@@ -192,6 +193,7 @@ public class MeterReadingStorer {
 					return meterActivation.createChannel(readingTypeHolder.get());
 				}
 			}
+			MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getMRID(),reading.getTimeStamp());
 			return null;
 		} else {
 			return channel;
