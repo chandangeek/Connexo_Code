@@ -57,7 +57,7 @@
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: translate('my.key', 'CMP', 'Fallback')
+ *         title: I18n.translate('my.key', 'CMP', 'Fallback')
  *     });
  *
  * More information and examples can be found at the {@link #translate} function.
