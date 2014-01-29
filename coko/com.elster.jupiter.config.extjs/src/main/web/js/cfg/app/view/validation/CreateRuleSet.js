@@ -48,6 +48,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         },
                         {
                             xtype: 'fieldcontainer',
+                            margin: '20 0 0 0',
                             fieldLabel: '&nbsp',
                             labelAlign: 'right',
                             labelWidth:	150,

@@ -5,8 +5,11 @@ Ext.define('Cfg.view.validation.AddRule', {
     cls: 'content-container',
     overflowY: 'auto',
     requires: [
-
+        'Cfg.store.Validators',
+        'Cfg.model.Validator'
     ],
+
+
 
     items: [
         {
@@ -25,13 +28,62 @@ Ext.define('Cfg.view.validation.AddRule', {
                     xtype: 'form',
                     itemId: 'addRuleForm',
                     padding: '10 10 0 10',
+                    //width: 500,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
                     },
-                    width: 500,
+                    items:[
+                        {
+                            xtype: 'combobox',
+                            name: 'implementation',
+                            store: Ext.create('Cfg.store.Validators'),
+                            valueField: 'implementation',
+                            displayField: 'displayName',
+                            queryMode: 'local',
+                            fieldLabel: 'Rule:',
+                            labelAlign: 'right',
+                            forceSelection: false,
+                            emptyText: 'Select a rule...',
+                            labelWidth:	150,
+                            width: 400
+                        },
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: 'Reading value(s):',
+                            labelAlign: 'right',
+                            labelWidth:	150,
+                            width: 400
+                        },
 
-                    items: [
+                        {
+                            xtype: 'fieldcontainer',
+                            fieldLabel: '&nbsp',
+                            labelAlign: 'right',
+                            labelWidth:	150,
+                            //width: 430,
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    xtype: 'textfield',
+                                    /*fieldLabel: '&nbsp',
+                                    labelAlign: 'right',
+                                    labelWidth:	150,   */
+                                    width: 400
+                                },
+                                {
+                                    text: '-',
+                                    xtype: 'button',
+                                    action: 'removeReadingTypeAction',
+                                    itemId: 'removeReadingTypeAction',
+                                    margin: '0 0 0 10',
+                                    width: 30
+                                }
+                            ]
+                        },
 
                         {
                             xtype: 'fieldcontainer',
@@ -39,10 +91,23 @@ Ext.define('Cfg.view.validation.AddRule', {
                             labelAlign: 'right',
                             labelWidth:	150,
                             layout: 'hbox',
-                            defaults: {
-                                //flex: 1,
-                                //hideLabel: true
-                            },
+                            items: [
+                                {
+                                    text: '+ Add another',
+                                    xtype: 'button',
+                                    action: 'addReadingTypeAction',
+                                    itemId: 'addReadingTypeAction',
+                                    width: 100
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            margin: '20 0 0 0',
+                            fieldLabel: '&nbsp',
+                            labelAlign: 'right',
+                            labelWidth:	150,
+                            layout: 'hbox',
                             items: [
                                 {
                                     text: 'Create',
@@ -60,10 +125,9 @@ Ext.define('Cfg.view.validation.AddRule', {
                             ]
                         }
                     ]
-                }
-            ]
-        }
-    ],
+                }]
+            }
+        ],
 
     initComponent: function () {
         this.callParent(arguments);
