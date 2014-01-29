@@ -244,6 +244,24 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 fieldLabel: 'trustStorePassword'
                             }
                         ]
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: 'Udp',
+                        itemId: 'udpFieldSet',
+                        defaults: {
+                            labelWidth: 200
+                        },
+                        collapsible: true,
+                        layout: 'anchor',
+                        hidden: true,
+                        items: [
+                            {
+                                xtype: 'numberfield',
+                                name: 'bufferSize',
+                                fieldLabel: 'bufferSize'
+                            }
+                        ]
                     }
                 ]
             }
