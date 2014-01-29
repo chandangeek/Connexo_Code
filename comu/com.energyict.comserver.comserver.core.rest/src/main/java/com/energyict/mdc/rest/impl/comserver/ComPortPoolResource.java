@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 
@@ -13,9 +12,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 @Path("/comportpools")
 public class ComPortPoolResource {
@@ -41,9 +42,19 @@ public class ComPortPoolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Object getAllComPortPools() {
+    public Object getAllComPortPools(@QueryParam("limit") Integer limit,@QueryParam("start") Integer start,@QueryParam("sort") String sort,@QueryParam("dir") String dir) {
+        List<ComPortPool> allComPortPools;
         final ComPortPoolsInfo infos = new ComPortPoolsInfo();
-        for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
+        if(limit!=null && start!=null){
+            String[] sortStrings = {sort + " " + dir} ;
+            allComPortPools = engineModelService.findAllComPortPools(start, limit, sortStrings);
+            if(allComPortPools.size()==limit){
+                infos.setCouldHaveNextPage();
+            }
+        } else {
+            allComPortPools = engineModelService.findAllComPortPools();
+        }
+        for (ComPortPool comPortPool : allComPortPools) {
             infos.comPortPools.add(ComPortPoolInfoFactory.asInfo(comPortPool));
         }
         return infos;
