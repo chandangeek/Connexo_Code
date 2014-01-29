@@ -76,6 +76,51 @@
                     <generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <wsdlDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</wsdlDirectory>
+                    <sourceDestDir>${project.build.directory}/jaxws/wsimport/java</sourceDestDir>
+                    <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</bindingDirectory>
+                    <bindingFiles>
+                        <bindingFile>bindings.xjb</bindingFile>
+                    </bindingFiles>
+                    <!--<xnocompile>true</xnocompile>-->
+                    <keep>true</keep>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>jaxws-tools</artifactId>
+                        <version>2.1.4</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.xml.ws</groupId>
+                        <artifactId>jaxws-api</artifactId>
+                        <version>2.1-1</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>javax.jws</groupId>
+                                <artifactId>jsr181</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.jws</groupId>
+                        <artifactId>jsr181-api</artifactId>
+                        <version>1.0-MR1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
 
@@ -122,10 +167,26 @@
             <artifactId>transaction</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.servicemix.bundles</groupId>-->
-            <!--<artifactId>org.apache.servicemix.bundles.dom4j</artifactId>-->
-            <!--<version>1.6.1_4</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <version>2.1-1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.jws</groupId>
+                    <artifactId>jsr181</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>javax.jws</groupId>
+            <artifactId>jsr181-api</artifactId>
+            <version>1.0-MR1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

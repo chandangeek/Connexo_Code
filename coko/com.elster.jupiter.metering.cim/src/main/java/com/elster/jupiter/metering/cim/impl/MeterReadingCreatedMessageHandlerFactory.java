@@ -13,12 +13,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 @Component(name="com.elster.jupiter.metering.cim", service = { MessageHandlerFactory.class, CimMessageHandlerFactory.class }, property = {"subscriber=METERREADINGEXPORTER", "destination=" + EventService.JUPITER_EVENTS}, immediate = true)
 public class MeterReadingCreatedMessageHandlerFactory implements MessageHandlerFactory, CimMessageHandlerFactory {
 
-    private final CompositeOutputStreamProvider outputStreamProvider = new CompositeOutputStreamProvider(Arrays.<OutputStreamProvider>asList(new ConsoleOutputStreamProvider()));
+    private final CompositeOutputStreamProvider outputStreamProvider = new CompositeOutputStreamProvider(Collections.<OutputStreamProvider>emptyList());
     private volatile JsonService jsonService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
@@ -32,7 +32,6 @@ public class MeterReadingCreatedMessageHandlerFactory implements MessageHandlerF
 
     @Activate
     public void activate() {
-        System.out.println("Activated");
     }
 
     @Deactivate

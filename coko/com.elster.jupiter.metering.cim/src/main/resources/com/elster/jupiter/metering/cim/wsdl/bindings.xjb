@@ -1,0 +1,10 @@
+<jxb:bindings version="2.1" xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema" schemaLocation="../GetMeterReadingsMessage.xsd"
+              node="/xs:schema">
+
+    <jxb:globalBindings>
+        <jxb:javaType name="java.util.Date" xmlType="xs:dateTime"/>
+    </jxb:globalBindings>
+
+
+</jxb:bindings>
