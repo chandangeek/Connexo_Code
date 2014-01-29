@@ -118,6 +118,9 @@ class ThesaurusImpl implements Thesaurus {
 
     @Override
     public Map<String, String> getTranslations() {
+        if (translations.isEmpty()) {
+            initTranslations(component, layer);
+        }
         Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, NlsKeyImpl> entry : translations.entrySet()) {
             map.put(entry.getKey(), translate(entry.getValue()));
