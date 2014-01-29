@@ -20,7 +20,7 @@ public interface ValidationService {
 
     List<ValidationRuleSet> getValidationRuleSets();
 
-    List<String> getAvailableValidatorNames();
+    List<Validator> getAvailableValidators();
 
     void validate(MeterActivation meterActivation, Interval interval);
 

@@ -150,11 +150,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
 
     @Override
-     public List<String> getAvailableValidatorNames() {
-        List<String> result = new ArrayList<String>();
+     public List<Validator> getAvailableValidators() {
+        ValidatorCreator validatorCreator = new DefaultValidatorCreator();
+        List<Validator> result = new ArrayList<Validator>();
         for (ValidatorFactory factory : validatorFactories) {
             for (String implementation : factory.available()) {
-                result.add(implementation);
+                Validator validator = validatorCreator.getTemplateValidator(implementation);
+                result.add(validator);
             }
         }
         return result;
