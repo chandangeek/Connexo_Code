@@ -1,7 +1,10 @@
-package com.energyict.mdc.device.config;
+package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.RegisterGroup;
+import com.energyict.mdc.device.config.RegisterMapping;
 
 import java.util.List;
 
@@ -23,8 +26,20 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException registerGroupIsTillInUse (Thesaurus thesaurus, RegisterGroup registerGroup, List<RegisterMapping> registerMappings) {
+    public static CannotDeleteBecauseStillInUseException registerGroupIsStillInUse(Thesaurus thesaurus, RegisterGroup registerGroup, List<RegisterMapping> registerMappings) {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerGroup.getName(), namesToStringList(registerMappings));
+    }
+
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link ProductSpec}
+     * while it is still in use the specified {@link RegisterMapping}s.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static CannotDeleteBecauseStillInUseException productSpecIsStillInUse (Thesaurus thesaurus, ProductSpec productSpec, List<RegisterMapping> registerMappings) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, productSpec.getDescription(), namesToStringList(registerMappings));
     }
 
     private static String namesToStringList(List<RegisterMapping> registerMappings) {

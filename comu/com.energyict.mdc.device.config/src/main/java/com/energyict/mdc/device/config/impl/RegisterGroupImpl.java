@@ -5,9 +5,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.device.config.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.device.config.DuplicateNameException;
-import com.energyict.mdc.device.config.NameIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
+import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.pluggable.impl.EventType;
@@ -135,7 +135,7 @@ public class RegisterGroupImpl implements RegisterGroup {
     private void validateDelete() {
         List<RegisterMapping> registerMappings = this.dataModel.mapper(RegisterMapping.class).find("registerGroup", this.getId());
         if (!registerMappings.isEmpty()) {
-            CannotDeleteBecauseStillInUseException.registerGroupIsTillInUse(this.thesaurus, this, registerMappings);
+            CannotDeleteBecauseStillInUseException.registerGroupIsStillInUse(this.thesaurus, this, registerMappings);
         }
     }
 

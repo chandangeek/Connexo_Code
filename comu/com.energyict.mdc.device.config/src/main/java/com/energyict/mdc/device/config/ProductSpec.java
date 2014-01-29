@@ -34,8 +34,12 @@ public interface ProductSpec {
      */
     public String getDescription();
 
-    public void setDescription(String description);
-
     public ReadingType getReadingType();
+
+    public void setReadingType(ReadingType readingType);
+
+    public void save();
+
+    public void delete();
 
 }
