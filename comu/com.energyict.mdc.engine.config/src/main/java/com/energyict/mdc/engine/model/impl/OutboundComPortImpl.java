@@ -90,10 +90,18 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
             super(OutboundComPortBuilder.class, outboundComPortProvider.get());
         }
 
+        @Override
         public OutboundComPortBuilder numberOfSimultaneousConnections(int number) {
             comPort.setNumberOfSimultaneousConnections(number);
             return this;
         }
+
+        @Override
+        public OutboundComPortBuilder comPortType(ComPortType comPortType) {
+            comPort.setComPortType(comPortType);
+            return self;
+        }
+
     }
 
 
