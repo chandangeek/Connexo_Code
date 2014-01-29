@@ -181,9 +181,9 @@ public class ValidationResource {
             @Produces(MediaType.APPLICATION_JSON)
             public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
                 ValidatorInfos infos = new ValidatorInfos();
-                List<String> toAdd = Bus.getValidationService().getAvailableValidatorNames();
-                for (String implementation : toAdd) {
-                    infos.add(implementation);
+                List<Validator> toAdd = Bus.getValidationService().getAvailableValidators();
+                for (Validator validator : toAdd) {
+                    infos.add(validator.getClass().getName(), validator.getDisplayName());
                 }
                 infos.total = toAdd.size();
                 return infos;

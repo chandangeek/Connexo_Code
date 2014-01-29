@@ -13,13 +13,13 @@ public class ValidatorInfos {
     ValidatorInfos() {
     }
 
-    ValidatorInfos(String implementation) {
-        add(implementation);
+    ValidatorInfos(String implementation, String displayName) {
+        add(implementation, displayName);
     }
 
 
-    ValidatorInfo add(String implementation) {
-        ValidatorInfo result = new ValidatorInfo(implementation);
+    ValidatorInfo add(String implementation, String displayName) {
+        ValidatorInfo result = new ValidatorInfo(implementation, displayName);
         validators.add(result);
         total++;
         return result;
