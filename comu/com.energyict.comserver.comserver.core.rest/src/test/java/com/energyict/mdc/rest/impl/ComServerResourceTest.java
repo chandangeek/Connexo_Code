@@ -18,7 +18,6 @@ import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
-import java.util.Arrays;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -36,6 +35,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -122,7 +122,7 @@ public class ComServerResourceTest extends JerseyTest {
         when(mock.getSchedulingInterPollDelay()).thenReturn(new TimeDuration("7 minutes"));
 
         final Map<String, Object> response = target("/comservers").request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'comServers'").containsKey("comServers").hasSize(1);
+        assertThat(response).describedAs("Should contain field 'comServers'").containsKey("comServers").containsKey("total").hasSize(2);
         List<Map<String, Object>> comServers1 = (List<Map<String, Object>>) response.get("comServers");
         assertThat(comServers1).describedAs("Expected only 1 comServer").hasSize(1);
         Map<String, Object> comServer1 = comServers1.get(0);

@@ -86,7 +86,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     }
 
     protected B build(B builder, EngineModelService engineModelService) {
-        return builder.name(name).description(description).active(active).comPortType(comPortType);
+        return builder.name(name).description(description).active(active);
     }
 
     protected abstract T createNew(ComServer comServer, EngineModelService engineModelService);

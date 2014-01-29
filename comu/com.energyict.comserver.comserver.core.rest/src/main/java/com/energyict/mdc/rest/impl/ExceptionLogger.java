@@ -17,6 +17,7 @@ import org.glassfish.jersey.server.monitoring.RequestEventListener;
  */
 public class ExceptionLogger implements ApplicationEventListener {
     private static final Logger LOGGER = Logger.getLogger("CoreRest");
+    private final ExceptionLoggingRequestEventListener requestEventListener = new ExceptionLoggingRequestEventListener();
 
     @Override
     public void onEvent(ApplicationEvent event) {
@@ -24,24 +25,31 @@ public class ExceptionLogger implements ApplicationEventListener {
     }
 
     @Override
-    public RequestEventListener onRequest(final RequestEvent requestEvent) {
-        return new RequestEventListener() {
+    public RequestEventListener onRequest(RequestEvent requestEvent) {
+        return requestEventListener;
+    }
 
-            @Override
-            public void onEvent(final RequestEvent event) {
-                switch (event.getType()) {
-                case ON_EXCEPTION:
-                    Throwable exception = event.getException();
-                    if (exception !=null) {
-                        LOGGER.severe(exception.getMessage());
-                        LOGGER.log(Level.FINE, exception.getMessage(), exception);
+    private class ExceptionLoggingRequestEventListener implements RequestEventListener {
+
+        @Override
+        public void onEvent(RequestEvent event) {
+            switch (event.getType()) {
+            case ON_EXCEPTION:
+                Throwable exception = event.getException();
+                if (exception !=null) {
+                    LOGGER.severe(exception.getMessage());
+                    LOGGER.log(Level.FINE, exception.getMessage(), exception);
+                    if (!(exception instanceof WebApplicationException)) {
                         throw new WebApplicationException(exception.getLocalizedMessage(),
                                 exception,
                                 Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exception.getLocalizedMessage()).build());
+                    } else {
+                        throw (WebApplicationException)exception;
                     }
-                    break;
                 }
+                break;
             }
-        };
+        }
     }
+
 }

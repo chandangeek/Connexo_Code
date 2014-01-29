@@ -16,6 +16,7 @@ public class TransactionWrapper implements ApplicationEventListener {
 
     private final TransactionService transactionService;
     private final ThreadLocal<TransactionContext> contextThreadLocal = new ThreadLocal<>();
+    private final TransactionManagingEventListener transactionManagingEventListener = new TransactionManagingEventListener();
 
     @Inject
     public TransactionWrapper(TransactionService transactionService) {
@@ -29,20 +30,25 @@ public class TransactionWrapper implements ApplicationEventListener {
 
     @Override
     public RequestEventListener onRequest(RequestEvent requestEvent) {
-        return new RequestEventListener() {
+        return transactionManagingEventListener;
+    }
 
-            @Override
-            public void onEvent(final RequestEvent event) {
-                switch (event.getType()) {
-                case RESOURCE_METHOD_START:
-                    contextThreadLocal.set(transactionService.getContext());
-                    break;
-                case FINISHED:
-                    contextThreadLocal.get().commit();
-                    contextThreadLocal.get().close();
-                    break;
+    private class TransactionManagingEventListener implements RequestEventListener {
+
+        @Override
+        public void onEvent(final RequestEvent event) {
+            switch (event.getType()) {
+            case RESOURCE_METHOD_START:
+                contextThreadLocal.set(transactionService.getContext());
+                break;
+            case RESOURCE_METHOD_FINISHED:
+                TransactionContext context = contextThreadLocal.get();
+                if (context!=null) {
+                    context.commit();
+                    context.close();
                 }
+                break;
             }
-        };
+        }
     }
 }

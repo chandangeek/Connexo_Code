@@ -11,13 +11,6 @@ import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -30,6 +23,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,7 +105,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         when(mock.getComPortType()).thenReturn(ComPortType.TCP);
 
         final Map<String, Object> response = target("/comportpools").request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'comPortPool'").containsKey("comPortPools").hasSize(1);
+        assertThat(response).describedAs("Should contain field 'comPortPool'").containsKey("comPortPools").containsKey("total").hasSize(2);
         List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("comPortPools");
         assertThat(comPortPools1).describedAs("Expected only 1 comPortPool").hasSize(1);
         Map<String, Object> comPortPool1 = comPortPools1.get(0);
@@ -131,7 +132,7 @@ public class ComPortPoolResourceTest extends JerseyTest {
         when(mock.getTaskExecutionTimeout()).thenReturn(new TimeDuration(5, TimeDuration.MINUTES));
 
         final Map<String, Object> response = target("/comportpools").request().get(Map.class); // Using MAP instead of *Info to resemble JS
-        assertThat(response).describedAs("Should contain field 'comPortPool'").containsKey("comPortPools").hasSize(1);
+        assertThat(response).describedAs("Should contain field 'comPortPool'").containsKey("comPortPools").containsKey("total").hasSize(2);
         List<Map<String, Object>> comPortPools1 = (List<Map<String, Object>>) response.get("comPortPools");
         assertThat(comPortPools1).describedAs("Expected only 1 comPortPool").hasSize(1);
         Map<String, Object> comPortPool1 = comPortPools1.get(0);

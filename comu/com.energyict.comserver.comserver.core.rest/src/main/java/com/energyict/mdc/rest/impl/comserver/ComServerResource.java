@@ -13,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -34,11 +35,22 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServersInfo getComServers() {
+    public ComServersInfo getComServers(@QueryParam("start") Integer start,@QueryParam("limit") Integer limit,@QueryParam("sort") String sort,@QueryParam("dir") String dir) {
         ComServersInfo comServers = new ComServersInfo();
-        for (ComServer comServer : engineModelService.findAllComServers()) {
+        String[] sortStrings = {sort + " " + dir} ;
+        List<ComServer> allComServers;
+        if(start!=null && limit!=null){
+            allComServers  = engineModelService.findAllComServers(start, limit, sortStrings);
+            if(allComServers.size()==limit){
+                comServers.setCouldHaveNextPage();
+            }
+        } else {
+            allComServers  = engineModelService.findAllComServers();
+        }
+        for (ComServer comServer : allComServers) {
             comServers.comServers.add(ComServerInfoFactory.asInfo(comServer));
         }
+
         return comServers;
     }
 
