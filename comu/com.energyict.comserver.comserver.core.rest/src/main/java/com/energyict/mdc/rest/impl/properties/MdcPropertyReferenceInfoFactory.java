@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.rest.impl.*;
+import com.energyict.mdw.core.LoadProfileType;
 import com.energyict.mdw.core.TimeZoneInUse;
 
 import javax.ws.rs.core.UriInfo;
@@ -36,6 +37,8 @@ public class MdcPropertyReferenceInfoFactory {
                 info = new CodeTableInfo((Code) property);
             } else if (UserFile.class.isAssignableFrom(property.getClass())) {
                 info = new UserFileReferenceInfo((UserFile) property);
+            } else if (LoadProfileType.class.isAssignableFrom(property.getClass())) {
+                info = new LoadProfileTypeInfo((LoadProfileType) property);
             } else if (Password.class.isAssignableFrom(property.getClass())) {
                 info = ((Password) property).getValue();
             } else if (HexString.class.isAssignableFrom(property.getClass())) {
@@ -65,6 +68,8 @@ public class MdcPropertyReferenceInfoFactory {
             return SimplePropertyType.CODETABLE;
         } else if (UserFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.USERFILEREFERENCE;
+        } else if (LoadProfileType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+            return SimplePropertyType.LOADPROFILETYPE;
         } else {
             return simplePropertyType;
         }
@@ -83,8 +88,10 @@ public class MdcPropertyReferenceInfoFactory {
             // The TimeZoneInUse values are provided as possibleValues
         } else if (Code.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(CodeTableResource.class).path("/").build();
-        } else if (UserFile.class.isAssignableFrom(propertyClassType)){
+        } else if (UserFile.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(UserFileReferenceResource.class).path("/").build();
+        } else if (LoadProfileType.class.isAssignableFrom(propertyClassType)) {
+            uri = uriInfo.getBaseUriBuilder().path(LoadProfileTypeResource.class).path("/").build();
         }
         return uri;
     }
