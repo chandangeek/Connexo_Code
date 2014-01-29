@@ -1,7 +1,4 @@
-package com.elster.jupiter.metering.cim.impl;
-
-import com.elster.jupiter.metering.cim.OutputStreamClosure;
-import com.elster.jupiter.metering.cim.OutputStreamProvider;
+package com.elster.jupiter.metering.cim;
 
 public class ConsoleOutputStreamProvider implements OutputStreamProvider {
 
