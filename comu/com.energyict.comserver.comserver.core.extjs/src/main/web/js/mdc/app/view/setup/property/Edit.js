@@ -419,7 +419,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
             ]
         });
     },
-    addTimeDurationProperty: function (key, value) {
+    addTimeDurationProperty: function (key, count, unit, timeUnitsStore) {
         var me = this;
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
@@ -430,21 +430,32 @@ Ext.define('Mdc.view.setup.property.Edit', {
                 hideLabel: true
             },
             items: [
-                /*    {
-                 xtype: 'timeInfoField',
-                 name: key,
-                 fieldLabel: key
-                 },*/
                 {
-                    xtype: 'textfield',
+                    xtype: 'numberfield',
                     name: key,
                     fieldLabel: key,
                     itemId: key,
-                    value: value,
+                    value: count,
                     size: 200,
                     margin: '0 5 0 0',
-                    width: 350
+                    width: 200
                 },
+                {
+                    xtype: 'combobox',
+                    itemId: 'tu_' + key,
+                    name: 'tu_' + key,
+                    store: timeUnitsStore,
+                    queryMode: 'local',
+                    displayField: 'timeUnit',
+                    valueField: 'timeUnit',
+                    value: unit,
+                    size: 50,
+                    margin: '0 5 0 0',
+                    width: 200,
+                    forceSelection: false
+
+                },
+
                 {
                     xtype: 'button',
                     name: 'btn_delete_' + key,
@@ -596,8 +607,6 @@ Ext.define('Mdc.view.setup.property.Edit', {
     },
     addComboBoxTextProperty: function (key, store, selectedValue, exhaustive) {
         var me = this;
-        console.log('store');
-        console.log(store);
         me.down('#fsproperties').add({
             xtype: 'fieldcontainer',
             fieldLabel: key,

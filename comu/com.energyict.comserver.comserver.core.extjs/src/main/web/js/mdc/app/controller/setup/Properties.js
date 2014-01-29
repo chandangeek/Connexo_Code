@@ -2,13 +2,14 @@ Ext.define('Mdc.controller.setup.Properties', {
     extend: 'Ext.app.Controller',
 
     stores: [
-
+        'TimeUnits'
     ],
 
     requires: [
         'Mdc.store.CodeTables',
         'Mdc.store.UserFileReferences',
         'Mdc.store.LoadProfileTypes',
+        'Mdc.store.TimeUnits',
         'Mdc.model.Property',
         'Mdc.model.PossibleValue',
         'Mdc.view.setup.property.Edit'
@@ -216,18 +217,29 @@ Ext.define('Mdc.controller.setup.Properties', {
                         }
                         break;
                     case 'TIMEDURATION':
+                        var unit;
+                        var count;
+                        var timeDuration = null;
                         if (value != null) {
-                            var durationValue = moment.duration(value.seconds, 'seconds').humanize();
+                            //var durationValue = moment.duration(value.seconds, 'seconds').humanize();
+                            unit = value.timeUnit;
+                            count = value.count;
+                            timeDuration = count + ':' + unit;
                         }
 
                         if (selectionMode === 'COMBOBOX') {
+                            //clear store
+                            me.timeDurationStore.loadData([], false);
                             for (var i = 0; i < predefinedPropertyValues.length; i++) {
-                                var timeDuration = moment.duration(predefinedPropertyValues[i].seconds, 'seconds').humanize();
-                                me.timeDurationStore.add({key: predefinedPropertyValues[i].seconds, value: timeDuration})
+                                //var timeDuration = moment.duration(predefinedPropertyValues[i].seconds, 'seconds').humanize();
+                                //me.timeDurationStore.add({key: predefinedPropertyValues[i].seconds, value: timeDuration})
+                                var timeDurationValue = predefinedPropertyValues[i].count + " " + predefinedPropertyValues[i].timeUnit;
+                                var timeDurationKey = predefinedPropertyValues[i].count + ":" + predefinedPropertyValues[i].timeUnit;
+                                me.timeDurationStore.add({key: timeDurationKey, value: timeDurationValue});
                             }
-                            propertiesView.addComboBoxTextProperty(key, me.timeDurationStore, durationValue, exhaustive);
+                            propertiesView.addComboBoxTextProperty(key, me.timeDurationStore, timeDuration, exhaustive);
                         } else {
-                            propertiesView.addTimeDurationProperty(key, durationValue);
+                            propertiesView.addTimeDurationProperty(key, count, unit, me.getTimeUnitsStore());
                         }
                         break;
                     case 'TIMEOFDAY':
@@ -371,6 +383,28 @@ Ext.define('Mdc.controller.setup.Properties', {
             } else {
                 view.down('#' + key).setValue('');
             }
+        } else if (property.getPropertyType().data.simplePropertyType === 'TIMEDURATION') {
+            try {
+                var selectionMode = property.getPropertyType().getPredefinedPropertyValue().data.selectionMode;
+            } catch (ex) {
+
+            }
+            if (selectionMode === 'COMBOBOX') {
+                if (newValue !== null && newValue !== '' && newValue !== undefined) {
+                    view.down('#' + key).setValue(newValue.count + ':' + newValue.timeUnit);
+                } else {
+                    view.down('#' + key).setValue(null);
+                }
+            } else {
+
+                if (newValue !== null && newValue !== '') {
+                    view.down('#' + key).setValue(newValue.count);
+                    view.down('#tu_' + key).setValue(newValue.timeUnit);
+                } else {
+                    view.down('#' + key).setValue(null);
+                    view.down('#tu_' + key).setValue(null);
+                }
+            }
         } else {
             view.down('#' + key).setValue(newValue);
         }
@@ -389,6 +423,8 @@ Ext.define('Mdc.controller.setup.Properties', {
                 itemId = field.itemId.substring(4);
             } else if (field.xtype === 'timefield') {
                 itemId = field.itemId.substring(4);
+            } else if (field.displayField === 'timeUnit') {
+                itemId = field.itemId.substring(3);
             } else {
                 itemId = field.itemId;
             }
@@ -460,6 +496,25 @@ Ext.define('Mdc.controller.setup.Properties', {
                                 timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
                             value = newDate.getTime();
                         }
+                    }
+                    if (property.getPropertyType().data.simplePropertyType === 'TIMEDURATION') {
+                        var count = view.down('#' + property.data.key);
+                        var unitField = view.down('#tu_' + property.data.key);
+                        if (unitField === null) {
+                            if (count.getValue() != null) {
+                                var countValue = count.getValue().substr(0, count.getValue().indexOf(':'));
+                                var timeUnitValue = count.getValue().substr(count.getValue().indexOf(':') + 1);
+                                value = countValue + ' ' + timeUnitValue;
+                            } else {
+                                value = null;
+                            }
+                        } else {
+                            /*value = new Object();
+                             value.count = count.getValue();
+                             value.timeUnit = unitField.getValue();*/
+                            value = count.getValue() + ' ' + unitField.getValue();
+                        }
+
                     }
                     if (property.data.isInheritedOrDefaultValue === true) {
                         property.setPropertyValue(null);
