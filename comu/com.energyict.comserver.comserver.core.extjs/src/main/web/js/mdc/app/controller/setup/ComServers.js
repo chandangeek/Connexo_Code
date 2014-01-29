@@ -28,6 +28,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
         {ref: 'remoteComServerEdit',selector:'remoteComServerEdit'},
         {ref: 'serialFieldSet',selector:'#serialFieldSet'},
         {ref: 'servletFieldSet',selector:'#servletFieldSet'},
+        {ref: 'udpFieldSet',selector:'#udpFieldSet'},
         {ref: 'modemInitStringGrid',selector:'#modeminitstringgrid'},
         {ref: 'comServerPreview',selector:'#comserverpreview'}
     ],
@@ -121,7 +122,8 @@ Ext.define('Mdc.controller.setup.ComServers', {
         if(newValue!==oldValue){
             var fieldSets = [
                 {id:'SERIAL',field:this.getSerialFieldSet()},
-                {id:'SERVLET',field:this.getServletFieldSet()}
+                {id:'SERVLET',field:this.getServletFieldSet()},
+                {id:'UDP',field:this.getUdpFieldSet()},
             ];
             for(var i = 0;i<fieldSets.length;i++){
                 fieldSets[i].field && fieldSets[i].field.setVisible(fieldSets[i].id===newValue);
@@ -245,6 +247,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
             this.comPortEditView = Ext.widget('inboundComPortEdit');
             this.comPortEditView.down('#serialFieldSet').setVisible(record.get('comPortType')==='SERIAL');
             this.comPortEditView.down('#servletFieldSet').setVisible(record.get('comPortType')==='SERVLET');
+            this.comPortEditView.down('#udpFieldSet').setVisible(record.get('comPortType')==='UDP');
             this.comPortEditView.down('#modeminitstringgrid').reconfigure(record.modemInitStrings());
         } else if (record instanceof Mdc.model.OutboundComPort){
             this.comPortEditView = Ext.widget('outboundComPortEdit');

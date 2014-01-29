@@ -5,13 +5,18 @@ Ext.define('Mdc.store.ComPortPools',{
     ],
     model: 'Mdc.model.ComPortPool',
     storeId: 'comPortPools',
-    pageSize: 10,
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
+    remoteSort: true,
     proxy: {
         type: 'rest',
         url: '../../api/mdc/comportpools',
         reader: {
             type: 'json',
             root: 'comPortPools'
-        }
+        },
+        simpleSortMode: true
     }
 });
