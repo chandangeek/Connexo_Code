@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.BoundedBigDecimalPropertySpec;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -138,6 +139,8 @@ public class MdcPropertyUtils {
             return new Password(value.toString());
         } else if (propertySpec.getValueFactory().getValueType() == Date.class){
             return new Date((long)value);
+        } else if (propertySpec.getValueFactory().getValueType() == TimeDuration.class) {
+            return new TimeDuration(value.toString());
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }

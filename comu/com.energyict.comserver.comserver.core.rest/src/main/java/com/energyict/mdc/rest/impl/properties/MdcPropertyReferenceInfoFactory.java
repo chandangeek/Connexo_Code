@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.UserFile;
@@ -45,6 +46,8 @@ public class MdcPropertyReferenceInfoFactory {
                 info = property.toString();
             } else if (TimeOfDay.class.isAssignableFrom(property.getClass())) {
                 info = ((TimeOfDay) property).getSeconds();
+            } else if (TimeDuration.class.isAssignableFrom(property.getClass())) {
+                info = new TimeDurationInfo((TimeDuration) property);
             }
         }
         return info;
@@ -70,6 +73,8 @@ public class MdcPropertyReferenceInfoFactory {
             return SimplePropertyType.USERFILEREFERENCE;
         } else if (LoadProfileType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.LOADPROFILETYPE;
+        } else if (TimeDuration.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+            return SimplePropertyType.TIMEDURATION;
         } else {
             return simplePropertyType;
         }
