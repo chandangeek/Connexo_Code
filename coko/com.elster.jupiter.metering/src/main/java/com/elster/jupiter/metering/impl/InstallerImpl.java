@@ -69,7 +69,11 @@ public class InstallerImpl {
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            eventType.install(eventService);
+            try {
+                eventType.install(eventService);
+            } catch (Exception e) {
+                System.out.println("Could not create event type : " + eventType.name());
+            }
         }
     }
 
