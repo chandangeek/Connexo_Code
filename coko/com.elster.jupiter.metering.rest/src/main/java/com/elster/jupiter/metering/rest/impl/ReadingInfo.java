@@ -19,7 +19,10 @@ public class ReadingInfo {
         List<Quantity> quantities = reading.getQuantities();
         values = new ArrayList<>(quantities.size());
         for (Quantity quantity : quantities) {
-            values.add(quantity.getValue());
+        	if (quantity != null) {
+        		values.add(quantity.getValue());
+        	}
         }
     }
+    
 }

@@ -23,10 +23,14 @@ public class ReadingInfos {
     }
 
     ReadingInfo add(BaseReadingRecord reading) {
-        ReadingInfo result = new ReadingInfo(reading);
-        readingInfos.add(result);
-        total++;
-        return result;
+    	if (reading.getQuantity(0) != null) {
+    		ReadingInfo result = new ReadingInfo(reading);
+    		readingInfos.add(result);
+    		total++;
+    		return result;
+    	} else {
+    		return null;
+    	}
     }
 
     void addAll(Iterable<? extends BaseReadingRecord> readings) {
