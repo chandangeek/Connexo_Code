@@ -206,4 +206,9 @@ public interface EngineModelService {
 
     ComPort parseComPortQueryResult(JSONObject comPortJSon);
 
+    List<ComServer> findAllComServers(int from, int pageSize, String[] orderBy);
+
+    List<ComPortPool> findAllComPortPools(int from,int pageSize,String[] orderBy);
+
+
 }

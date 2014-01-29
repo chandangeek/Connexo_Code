@@ -125,6 +125,12 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
+    public List<ComServer> findAllComServers(int from, int pageSize, String[] orderBy) {
+        return dataModel.query(ComServer.class).select(Where.where("obsoleteDate").isNull(), orderBy, true, new String[0], from + 1, from + pageSize);
+    }
+
+
+    @Override
     public ComServer findComServerBySystemName() {
         return this.findComServer(HostName.getCurrent());
     }
@@ -379,6 +385,11 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     public List<ComPortPool> findAllComPortPools() {
         Condition condition = Where.where("obsoleteDate").isNull();
         return getComPortPoolDataMapper().select(condition);
+    }
+
+    @Override
+    public List<ComPortPool> findAllComPortPools(int from, int pageSize, String[] orderBy) {
+        return dataModel.query(ComPortPool.class).select(Where.where("obsoleteDate").isNull(), orderBy, true, new String[0], from + 1, from + pageSize);
     }
 
     @Override
