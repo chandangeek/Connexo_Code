@@ -23,11 +23,8 @@ public interface RegisterGroup {
 
     public void setName (String newName);
 
-    /**
-     * Flag indicating if this group will be collected during Manual Meter reading webinput (flex)
-     *
-     * @return true if this group will be collected during MMR webinput
-     */
-    public boolean isUseableInMmr();
+    public void save();
+
+    public void delete();
 
 }

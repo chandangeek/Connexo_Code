@@ -99,7 +99,7 @@ public enum TableSpecs {
             table.map(RegisterGroupImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(256).notNull().map("name").add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modDate").insert("sysdate").update("sysdate").add();
+            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
             table.column("USEABLEINMMR").number().map("useableinmmr").add();
             table.unique("UK_RTUREGISTERGROUP").on(name).add();
             table.primaryKey("PK_RTUREGISTERGROUP").on(id).add();
