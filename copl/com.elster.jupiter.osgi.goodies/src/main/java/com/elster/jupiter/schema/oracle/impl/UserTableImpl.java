@@ -48,7 +48,7 @@ public class UserTableImpl implements UserTable {
 		code.add(Joiner.on(" ").join(name,"{"));
 		code.add("\t@Override");
 		code.add("\tpublic void addTo(DataModel dataModel) {");
-		code.add(Joiner.on("").join("\t\tTable<Api.class> table = dataModel.add(", name, ".name(), Api.class);"));
+		code.add("\t\tTable<Api> table = dataModel.add(name(), Api.class);");
 		code.add("\t\ttable.map(Implementation.class);");
 		for (UserColumnImpl column : columns) {
 			column.generate(code);
