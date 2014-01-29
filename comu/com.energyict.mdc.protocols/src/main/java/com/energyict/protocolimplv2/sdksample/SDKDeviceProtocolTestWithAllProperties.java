@@ -1,29 +1,11 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.*;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -40,12 +22,7 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -152,7 +129,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().dateTimePropertySpec("SDKDateTimeProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec("SDKTimeDurationProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpec("SDKTimeDurationPropertyWithDefault", new TimeDuration(3,3)));
-        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpecWithValues("SDKTimeDurationPropertyWithValues", new TimeDuration(3,3), new TimeDuration(4,4), new TimeDuration(5,5)));
+        optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeDurationPropertySpecWithValues("SDKTimeDurationPropertyWithValues", new TimeDuration(4,5), new TimeDuration(5,5), new TimeDuration(3,3)));
 
         //optionalProperties.add(OptionalPropertySpecFactory.newInstance().timeZoneInUseReferencePropertySpec("SDKTimeZoneInUseProperty"));
         optionalProperties.add(OptionalPropertySpecFactory.newInstance().obisCodePropertySpecWithValues("SDKObisCodeProperty",
