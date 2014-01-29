@@ -23,7 +23,7 @@ public class OutboundComPortInfo extends ComPortInfo<OutboundComPort, OutboundCo
 
     @Override
     protected OutboundComPort.OutboundComPortBuilder build(OutboundComPort.OutboundComPortBuilder builder, EngineModelService engineModelService) {
-        return super.build(builder.numberOfSimultaneousConnections(this.numberOfSimultaneousConnections), engineModelService);
+        return super.build(builder.numberOfSimultaneousConnections(this.numberOfSimultaneousConnections).comPortType(comPortType), engineModelService);
     }
 
     @Override
