@@ -40,6 +40,11 @@ public class NewDateCheckTest {
 		if (classInfo.getName().endsWith("Test")) {
 			return false;
 		}
-		return !excludes.contains(classInfo.load());
+		try {
+			return !excludes.contains(classInfo.load());
+		} catch (Throwable ex) {
+			return false;
+		}
 	}
 }
+
