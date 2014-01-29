@@ -69,7 +69,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         this.store.load({
             callback: function (records) {
-                if (records.length === 0 && pageNum > 1) {
+                if (records !== null && records.length === 0 && pageNum > 1) {
                     me.initPageSizeAndStart(pageSize, pageStart - pageSize);
                 }
             }
