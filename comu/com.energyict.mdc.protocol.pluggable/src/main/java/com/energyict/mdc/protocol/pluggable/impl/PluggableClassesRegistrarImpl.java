@@ -79,7 +79,7 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
                     LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
                 }
                 else {
-                    LOGGER.fine("Skipping " + definition.getProtocolTypeClass().getName() + ": already exists");
+                    LOGGER.fine("Skipping  " + definition.getProtocolTypeClass().getName() + ": already exists");
                 }
             }
         }
@@ -122,20 +122,20 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
     }
 
     private void registerDeviceProtocolPluggableClasses(License license) {
-        try {
-            for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
+
+        for (LicensedProtocol licensedProtocolRule : this.licensedProtocolService.getAllLicensedProtocols(license)) {
+            try {
                 if (this.deviceProtocolDoesNotExist(licensedProtocolRule)) {
                     this.createDeviceProtocol(licensedProtocolRule);
                     LOGGER.fine("Created pluggable class for " + licensedProtocolRule.getClassName());
-                }
-                else {
+                } else {
                     LOGGER.fine("Skipping " + licensedProtocolRule.getClassName() + ": already exists");
                 }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Failed to register any device protocol: " + e, e);
             }
         }
-        catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to register any device protocol: " + e, e);
-        }
+
     }
 
     private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
