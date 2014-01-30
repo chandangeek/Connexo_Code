@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:hdr="http://iec.ch/TC57/2011/schema/message">
-    <xs:import schemaLocation="Message.xsd" namespace="http://iec.ch/TC57/2011/schema/message"/>
+           xmlns="http://iec.ch/TC57/2011/schema/message">
+    <xs:include schemaLocation="Message.xsd"/>
+    <!--<xs:include schemaLocation="Message.xsd"/>-->
     <xs:element name="CreatedMeterReadings">
         <xs:complexType>
             <xs:complexContent>
-                <xs:extension base="hdr:MessageType"/>
+                <xs:extension base="MessageType"/>
             </xs:complexContent>
         </xs:complexType>
     </xs:element>

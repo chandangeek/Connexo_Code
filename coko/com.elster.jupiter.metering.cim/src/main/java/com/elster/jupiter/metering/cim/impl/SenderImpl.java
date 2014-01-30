@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.cim.impl;
 
+import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
 import com.elster.jupiter.metering.cim.OutputStreamClosure;
 import com.elster.jupiter.metering.cim.OutputStreamProvider;
 import com.elster.jupiter.metering.cim.UnderlyingXmlException;

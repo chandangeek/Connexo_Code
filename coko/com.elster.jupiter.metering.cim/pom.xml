@@ -27,55 +27,55 @@
                     </instructions>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <version>0.7.5</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <specVersion>2.2</specVersion>
-                            <generatePackage>com.elster.jupiter.metering.cim.impl</generatePackage>
-                            <schemaDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</schemaDirectory>
-                            <schemaIncludes>
-                                <include>*.xsd</include>
-                            </schemaIncludes>
-                            <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</bindingDirectory>
-                            <bindingIncludes>
-                                <include>*.xjb</include>
-                            </bindingIncludes>
-                            <verbose>true</verbose>
-                            <removeOldOutput>true</removeOldOutput>
-                            <extension>true</extension>
-                            <!--<clearOutputDir>false</clearOutputDir>-->
-                            <forceRegenerate>true</forceRegenerate>
-                            <generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <specVersion>2.2</specVersion>
-                    <generatePackage>com.elster.jupiter.metering.cim.impl</generatePackage>
-                    <schemaDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</schemaDirectory>
-                    <schemaIncludes>
-                        <include>*.xsd</include>
-                    </schemaIncludes>
-                    <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</bindingDirectory>
-                    <bindingIncludes>
-                        <include>*.xjb</include>
-                    </bindingIncludes>
-                    <verbose>true</verbose>
-                    <removeOldOutput>false</removeOldOutput>
-                    <extension>true</extension>
-                    <!--<clearOutputDir>false</clearOutputDir>-->
-                    <forceRegenerate>true</forceRegenerate>
-                    <generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.jvnet.jaxb2.maven2</groupId>-->
+                <!--<artifactId>maven-jaxb2-plugin</artifactId>-->
+                <!--<version>0.7.5</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>generate-sources</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>generate</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<specVersion>2.2</specVersion>-->
+                            <!--<generatePackage>com.elster.jupiter.metering.cim.impl</generatePackage>-->
+                            <!--<schemaDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</schemaDirectory>-->
+                            <!--<schemaIncludes>-->
+                                <!--<include>CreatedMeterReadings.xsd</include>-->
+                            <!--</schemaIncludes>-->
+                            <!--<bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</bindingDirectory>-->
+                            <!--<bindingIncludes>-->
+                                <!--<include>*.xjb</include>-->
+                            <!--</bindingIncludes>-->
+                            <!--<verbose>true</verbose>-->
+                            <!--<removeOldOutput>true</removeOldOutput>-->
+                            <!--<extension>true</extension>-->
+                            <!--&lt;!&ndash;<clearOutputDir>false</clearOutputDir>&ndash;&gt;-->
+                            <!--<forceRegenerate>true</forceRegenerate>-->
+                            <!--<generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<specVersion>2.2</specVersion>-->
+                    <!--<generatePackage>com.elster.jupiter.metering.cim.impl</generatePackage>-->
+                    <!--<schemaDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</schemaDirectory>-->
+                    <!--<schemaIncludes>-->
+                        <!--<include>*.xsd</include>-->
+                    <!--</schemaIncludes>-->
+                    <!--<bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim</bindingDirectory>-->
+                    <!--<bindingIncludes>-->
+                        <!--<include>*.xjb</include>-->
+                    <!--</bindingIncludes>-->
+                    <!--<verbose>true</verbose>-->
+                    <!--<removeOldOutput>false</removeOldOutput>-->
+                    <!--<extension>true</extension>-->
+                    <!--&lt;!&ndash;<clearOutputDir>false</clearOutputDir>&ndash;&gt;-->
+                    <!--<forceRegenerate>true</forceRegenerate>-->
+                    <!--<generateDirectory>${project.build.directory}/generated-sources/xjc</generateDirectory>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
@@ -89,7 +89,7 @@
                 </executions>
                 <configuration>
                     <wsdlDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</wsdlDirectory>
-                    <sourceDestDir>${project.build.directory}/jaxws/wsimport/java</sourceDestDir>
+                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
                     <bindingDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl</bindingDirectory>
                     <bindingFiles>
                         <bindingFile>bindings.xjb</bindingFile>

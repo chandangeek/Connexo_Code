@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.cim.impl;
 
+import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -27,7 +29,7 @@ public class Marshaller {
         DOMResult result = new DOMResult();
         getMarshaller().marshal(new JAXBElement<>(new QName("http://iec.ch/TC57/2011/MeterReadings#", "MeterReadings"), MeterReadings.class, meterReadings ), result);
         Element payloadElement = ((Document) result.getNode()).getDocumentElement();
-        createdMeterReadings.getPayload().any.add(payloadElement);
+        createdMeterReadings.getPayload().getAny().add(payloadElement);
     }
 
 

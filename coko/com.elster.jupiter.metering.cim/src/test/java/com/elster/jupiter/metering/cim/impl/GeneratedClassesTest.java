@@ -1,5 +1,13 @@
 package com.elster.jupiter.metering.cim.impl;
 
+import ch.iec.tc57._2011.meterreadings_.Meter;
+import ch.iec.tc57._2011.meterreadings_.MeterReading;
+import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.meterreadings_.Reading;
+import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ObjectFactory;
+import ch.iec.tc57._2011.schema.message.PayloadType;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -12,10 +20,11 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class GeneratedClassesTest {
+
+    private ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
 
     @Test
     public void testGenerateMeterReadingMessage() throws JAXBException {
@@ -41,16 +50,14 @@ public class GeneratedClassesTest {
 
     private PayloadType createPayLoad() {
         PayloadType payload = new ObjectFactory().createPayloadType();
-        payload.any = new ArrayList<>();
-        payload.any.add(createElement());
+        payload.getAny().add(createElement());
         return payload;
     }
 
     private Element createElement() {
         try {
-            MeterReadings meterReadings = new ObjectFactory().createMeterReadings();
-            meterReadings.meterReading = new ArrayList<>();
-            meterReadings.meterReading.add(createMeterReading());
+            MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
+            meterReadings.getMeterReading().add(createMeterReading());
             JAXBContext jc = JAXBContext.newInstance("com.elster.jupiter.metering.cim.impl");
             Marshaller m = jc.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -68,17 +75,16 @@ public class GeneratedClassesTest {
     }
 
     private MeterReading createMeterReading() {
-        MeterReading meterReading = new MeterReading();
+        MeterReading meterReading = payloadObjectFactory.createMeterReading();
         Meter value = new Meter();
         value.setMRID("MRID");
         meterReading.setMeter(value);
-        meterReading.readings = new ArrayList<>();
-        meterReading.readings.add(createReading());
+        meterReading.getReadings().add(createReading());
         return meterReading;
     }
 
     private Reading createReading() {
-        Reading reading = new Reading();
+        Reading reading = new ch.iec.tc57._2011.meterreadings_.ObjectFactory().createReading();
         Reading.ReadingType readingType = new Reading.ReadingType();
         readingType.setRef("1.2.3");
         reading.setReadingType(readingType);
@@ -88,7 +94,7 @@ public class GeneratedClassesTest {
     }
 
     private HeaderType createHeader() {
-        HeaderType header = new HeaderType();
+        HeaderType header = new ObjectFactory().createHeaderType();
         header.setVerb("created");
         header.setNoun("MeterReadings");
         header.setRevision("");
