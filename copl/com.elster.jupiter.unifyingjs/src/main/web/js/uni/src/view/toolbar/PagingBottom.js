@@ -12,6 +12,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     totalCount: 0,
     totalPages: 0,
+    isFullTotalCount: false,
     pageSizeParam: 'limit',
     pageStartParam: 'start',
     pageSizeStore: Ext.create('Ext.data.Store', {
@@ -177,7 +178,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             {
                 xtype: 'component',
                 html: '&nbsp;',
-                flex: 0.7
+                flex: 0.66
             },
             {
                 itemId: 'first',
@@ -214,6 +215,15 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
                 scope: me
             },
             {
+                itemId: 'last',
+                tooltip: me.lastText,
+                overflowText: me.lastText,
+                iconCls: Ext.baseCSSPrefix + 'tbar-page-last',
+                disabled: true,
+                handler: me.moveLast,
+                scope: me
+            },
+            {
                 xtype: 'component',
                 html: '&nbsp;',
                 flex: 1
@@ -239,6 +249,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
             me.totalCount = me.totalCount < me.store.getTotalCount() ? me.store.getTotalCount() : me.totalCount;
             me.totalPages = Math.ceil(me.totalCount / me.store.pageSize);
+
         } else {
             currPage = 0;
             pageCount = 0;
@@ -251,11 +262,29 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.setChildDisabled('#first', currPage === 1 || isEmpty);
         me.setChildDisabled('#prev', currPage === 1 || isEmpty);
         me.setChildDisabled('#next', currPage === pageCount || isEmpty);
+
+        if (me.isFullTotalCount || (typeof pageData !== 'undefined' && me.store.pageSize * pageData.currentPage >= me.totalCount)) {
+            me.setChildDisabled('#last', false);
+            me.isFullTotalCount = true;
+        }
+
         me.updateInfo();
         Ext.resumeLayouts(true);
 
         me.fireEvent('change', me, pageData);
         me.resetQueryString();
+    },
+
+    moveLast: function () {
+        var me = this,
+            pageCount = me.getPageData().pageCount,
+            last = pageCount < me.totalPages ? me.totalPages : pageCount;
+
+        if (me.fireEvent('beforechange', me, last) !== false) {
+            me.store.loadPage(last);
+            return true;
+        }
+        return false;
     },
 
     initPageNavItems: function (container, currPage, pageCount) {
