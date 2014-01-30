@@ -78,16 +78,16 @@ public enum TableSpecs {
             table.map(RegisterMappingImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            Column obiscode = table.column("OBISCODE").varChar(80).notNull().map("obiscode").add();
-            Column productspecid = table.column("PRODUCTSPECID").number().notNull().add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modDate").insert("sysdate").update("sysdate").add();
+            Column obiscode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
+            Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
+            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
             table.column("CUMULATIVE").number().notNull().map("cumulative").add();
-            Column registergroupid = table.column("REGISTERGROUPID").number().add();
+            Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
-            table.foreignKey("FK_EISREGMAPREGGROUP").on(registergroupid).references(EISRTUREGISTERGROUP.name()).map("eisrturegistergroup").add();
-            table.foreignKey("FK_EISREGMAPPRODSPEC").on(productspecid).references(EISPRODUCTSPEC.name()).map("eisproductspec").add();
+            table.foreignKey("FK_EISREGMAPREGGROUP").on(registerGroup).references(EISRTUREGISTERGROUP.name()).map("registerGroup").add();
+            table.foreignKey("FK_EISREGMAPPRODSPEC").on(productSpec).references(EISPRODUCTSPEC.name()).map("productSpec").add();
             table.unique("UK_RTUREGMAPPINGNAME").on(name).add();
-            table.unique("UK_RTUREGMAPPINGOBISPROD").on(obiscode,productspecid).add();
+            table.unique("UK_RTUREGMAPPINGOBISPROD").on(obiscode,productSpec).add();
             table.primaryKey("PK_RTUREGISTERMAPPING").on(id).add();
         }
     },
@@ -115,6 +115,54 @@ public enum TableSpecs {
             table.column("READINGTYPE").varChar(100).map("readingType").add();
             table.column("MOD_DATE").type("DATE").notNull().map("modDate").insert("sysdate").update("sysdate").add();
             table.primaryKey("PK_PRODUCTSPEC").on(id).add();
+        }
+    },
+
+    EISLOADPRFTYPEFORRTUTYPE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceTypeLoadProfileTypeUsage> table = dataModel.addTable(name(), DeviceTypeLoadProfileTypeUsage.class);
+            table.map(DeviceTypeLoadProfileTypeUsage.class);
+            Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
+            Column deviceType = table.column("RTUTYPEID").number().notNull().add();
+            table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypes").composition().add();
+            table.foreignKey("FK_LPTID_LPT_RTUTYPE_JOIN").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
+        }
+    },
+
+    EISREGMAPFORRTUTYPE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceTypeRegisterMappingUsage> table = dataModel.addTable(name(), DeviceTypeRegisterMappingUsage.class);
+            table.map(DeviceTypeRegisterMappingUsage.class);
+            Column registermapping = table.column("REGISTERMAPPINGID").number().notNull().add();
+            Column deviceType = table.column("RTUTYPEID").number().notNull().add();
+            table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappings").composition().add();
+            table.foreignKey("FK_MAPID_REGMAP_RTUTYPE_JOIN").on(registermapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
+        }
+    },
+
+    EISLOGBOOKTYPEFORRTUTYPE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceTypeLogBookTypeUsage> table = dataModel.addTable(name(), DeviceTypeLogBookTypeUsage.class);
+            table.map(DeviceTypeLogBookTypeUsage.class);
+            Column logBookType = table.column("LOGBOOKTYPEID").number().notNull().add();
+            Column deviceType = table.column("RTUTYPEID").number().notNull().add();
+            table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").add();
+            table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
+        }
+    },
+
+    EISREGMAPPINGINLOADPROFILETYPE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LoadProfileTypeRegisterMappingUsage> table = dataModel.addTable(name(), LoadProfileTypeRegisterMappingUsage.class);
+            table.map(LoadProfileTypeRegisterMappingUsage.class);
+            Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
+            Column registerMapping = table.column("REGMAPPINGID").number().notNull().add();
+            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMapping").composition().add();
+            table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
     };
 

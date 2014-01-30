@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.RegisterGroup;
 
 /**
  * Models the exceptional situation that occurs when an
@@ -16,7 +15,7 @@ public class DuplicateNameException extends LocalizedException {
 
     /**
      * Creates a new DuplicateNameException that models the exceptional situation
-     * that occurs when an attempt is made to create a {@link RegisterGroup}
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.RegisterGroup}
      * but another one with the same name already exists.
      *
      * @param thesaurus The Thesaurus
@@ -25,6 +24,19 @@ public class DuplicateNameException extends LocalizedException {
      */
     public static DuplicateNameException registerGroupAlreadyExists (Thesaurus thesaurus, String name) {
         return new DuplicateNameException(thesaurus, MessageSeeds.REGISTER_GROUP_ALREADY_EXISTS, name);
+    }
+
+    /**
+     * Creates a new DuplicateNameException that models the exceptional situation
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.RegisterMapping}
+     * but another one with the same name already exists.
+     *
+     * @param thesaurus The Thesaurus
+     * @param name The name of the RegisterMapping that already exists
+     * @return The DuplicateNameException
+     */
+    public static DuplicateNameException registerMappingAlreadyExists (Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.REGISTER_MAPPING_ALREADY_EXISTS, name);
     }
 
     private DuplicateNameException(Thesaurus thesaurus, MessageSeeds messageSeeds, String name) {

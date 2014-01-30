@@ -7,7 +7,7 @@ import com.energyict.mdc.common.Unit;
 import java.util.Date;
 
 /**
- * Represents a register definition
+ * Represents a register definition.
  *
  * @author Geert
  */
@@ -45,12 +45,7 @@ public interface RegisterMapping {
      */
     public boolean isCumulative();
 
-    /**
-     * Test if this mapping represents a cumulative reading
-     *
-     * @return true if cumulative , false otherwise
-     */
-    public boolean getCumulative();
+    public void setCumulative(boolean cumulative);
 
     /**
      * Returns the product spec for this mapping
@@ -59,6 +54,8 @@ public interface RegisterMapping {
      * @deprecated use getReadingType() instead
      */
     public ProductSpec getProductSpec();
+
+    public void setProductSpec(ProductSpec productSpec);
 
     /**
      * Returns the mapping's unit
@@ -74,7 +71,9 @@ public interface RegisterMapping {
      *
      * @return the <code>RegisterGroup</code> the receiver belongs to
      */
-    public RegisterGroup getRtuRegisterGroup();
+    public RegisterGroup getRegisterGroup();
+
+    public void setRegisterGroup(RegisterGroup registerGroup);
 
     /**
      * Returns the receiver's description
