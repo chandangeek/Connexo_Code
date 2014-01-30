@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 
 public class LogLevelAdapter extends MapBasedXmlAdapter<ComServer.LogLevel> {
 

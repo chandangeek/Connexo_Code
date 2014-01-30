@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement
-@JsonPropertyOrder({"total","comServers"})
+@JsonPropertyOrder({"total", "comServers"})
 public class ComServersInfo {
     @JsonIgnore
     private int couldHaveNextPage = 0;

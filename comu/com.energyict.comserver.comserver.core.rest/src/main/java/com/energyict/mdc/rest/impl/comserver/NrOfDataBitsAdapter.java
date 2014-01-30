@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.protocol.api.channels.serial.NrOfDataBits;
+import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 
 public class NrOfDataBitsAdapter extends MapBasedXmlAdapter<NrOfDataBits> {
     public NrOfDataBitsAdapter() {
