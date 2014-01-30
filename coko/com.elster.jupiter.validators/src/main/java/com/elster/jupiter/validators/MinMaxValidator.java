@@ -82,7 +82,7 @@ public class MinMaxValidator implements Validator {
 
     @Override
     public String getDisplayName() {
-        return "Threshold";
+        return "Min Max";
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {
