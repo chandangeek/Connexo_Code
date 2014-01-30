@@ -71,7 +71,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testGetSingleDeviceTypeList() throws Exception {
+    public void testDeviceTypeInfoJavaScriptMappings() throws Exception {
         int NUMBER_OF_CONFIGS = 4;
         int NUMBER_OF_LOADPROFILES = 6;
         int NUMBER_OF_REGISTERS = 8;
@@ -114,7 +114,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Map<String, Object> jsonDeviceProtocol = (Map<String, Object>) jsonDeviceType.get("communicationProtocol");
         assertThat(jsonDeviceProtocol).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceProtocol.get("name")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceProtocol.get("serviceKind")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceProtocol.get("serviceCategory")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceProtocol.get("deviceFunction")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 }

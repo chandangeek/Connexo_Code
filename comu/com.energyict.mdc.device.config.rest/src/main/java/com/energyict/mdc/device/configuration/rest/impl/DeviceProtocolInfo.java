@@ -11,9 +11,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class DeviceProtocolInfo {
     @JsonProperty("name")
     private String name;
-    @JsonProperty("serviceKind")
+    @JsonProperty("serviceCategory")
     @XmlJavaTypeAdapter(ServiceKindAdapter.class)
-    private ServiceKind serviceKind; // TODO XmlAdaptor
+    private ServiceKind serviceKind;
     @JsonProperty("deviceFunction")
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     private DeviceFunction deviceFunction;
