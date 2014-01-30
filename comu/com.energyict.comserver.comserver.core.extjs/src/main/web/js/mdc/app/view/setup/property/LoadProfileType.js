@@ -1,7 +1,7 @@
-Ext.define('Mdc.view.setup.property.CodeTable', {
+Ext.define('Mdc.view.setup.property.LoadProfileType', {
     extend: 'Ext.window.Window',
-    alias: 'widget.codeTableSelectionWindow',
-    title: 'Select a codeTable',
+    alias: 'widget.loadProfileTypeSelectionWindow',
+    title: 'Select a load profile type',
     layout: 'fit',
     width: 350,
     height: 400,
@@ -16,20 +16,20 @@ Ext.define('Mdc.view.setup.property.CodeTable', {
     party: null,
 
     initComponent: function () {
-        var codeTables = Ext.create('Mdc.store.CodeTables');
+        var loadProfileTypes = Ext.create('Mdc.store.LoadProfileTypes');
         this.items = [
             {
                 xtype: 'grid',
-                itemId: 'codeTableSelectionGrid',
+                itemId: 'loadProfileTypeSelectionGrid',
                 autoScroll: true,
-                store: codeTables,
+                store: loadProfileTypes,
                 columns: [
                     {
-                        text: 'CodeTables',
+                        text: 'Load Profile Types',
                         xtype: 'templatecolumn',
                         tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                             '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
-                            '{codeTableId} - {name}' +
+                            '{loadProfileTypeId} - {name}' +
                             '</caption>' +
                             '</table>',
                         flex:1

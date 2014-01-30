@@ -3,16 +3,21 @@ Ext.define('Mdc.store.ComServers',{
     requires: [
         'Mdc.model.ComServer'
     ],
-    autoLoad: true,
     model: 'Mdc.model.ComServer',
     storeId: 'ComServers',
     pageSize: 10,
+    sorters: [{
+       property: 'name',
+       direction: 'ASC'
+    }],
+    remoteSort: true,
     proxy: {
         type: 'rest',
         url: '../../api/mdc/comservers',
         reader: {
             type: 'json',
             root: 'comServers'
-        }
+        },
+        simpleSortMode: true
     }
 });
