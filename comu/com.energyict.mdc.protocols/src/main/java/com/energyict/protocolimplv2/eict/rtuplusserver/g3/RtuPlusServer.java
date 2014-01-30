@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -124,6 +125,11 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
     @Override
     public String getProtocolDescription() {
         return "EnergyICT RTU+Server2 G3 PLC";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -112,6 +113,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
 
     @Override
     public void terminate() {
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override

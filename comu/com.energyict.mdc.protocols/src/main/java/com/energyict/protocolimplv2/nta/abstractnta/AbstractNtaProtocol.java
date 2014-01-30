@@ -5,6 +5,7 @@ import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -263,5 +264,10 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         } catch (IOException e) {
             throw new CommunicationException(e);
         }
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 }

@@ -11,6 +11,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -350,6 +351,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public String getProtocolDescription() {
         return "EICT SDK DeviceProtocol";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override

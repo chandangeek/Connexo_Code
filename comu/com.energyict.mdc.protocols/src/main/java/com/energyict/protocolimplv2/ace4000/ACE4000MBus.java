@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 
 import java.util.ArrayList;
@@ -24,6 +25,11 @@ public class ACE4000MBus extends ACE4000Outbound {
     @Override
     public String getProtocolDescription() {
         return "Actaris ACE4000 Mbus Slave";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -79,6 +80,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public String getProtocolDescription() {
         return "Actaris ACE4000";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     public String getVersion() {

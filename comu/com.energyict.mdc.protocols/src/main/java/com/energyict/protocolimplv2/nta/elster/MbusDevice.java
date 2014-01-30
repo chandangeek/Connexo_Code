@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.elster;
 
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
@@ -33,6 +34,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public String getProtocolDescription() {
         return "Elster AS220/AS1440 AM100 NTA Mbus Slave";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override

@@ -357,6 +357,11 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
     }
 
     @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

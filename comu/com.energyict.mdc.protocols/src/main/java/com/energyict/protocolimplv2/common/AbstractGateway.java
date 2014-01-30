@@ -4,6 +4,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -46,6 +47,11 @@ public abstract class AbstractGateway implements DeviceProtocol {
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         throw CommunicationException.unsupportedMethod(this.getClass(), "getDeviceProtocolCapabilities");
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override
