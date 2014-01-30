@@ -139,7 +139,9 @@ public class RegisterMappingImpl implements RegisterMapping {
     @Override
     public void setName(String name) {
         this.validateName(name);
-        this.validateUniqueName(name);
+        if (!name.equals(this.getName())) {
+            this.validateUniqueName(name);
+        }
         this.name = name;
     }
 

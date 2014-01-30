@@ -6,12 +6,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteDefaultProductSpecException;
 import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
-import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.exceptions.ReadingTypeIsRequiredException;
-import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
@@ -52,8 +52,6 @@ public class ProductSpecImpl implements ProductSpec {
     }
 
     ProductSpecImpl initialize (ReadingType readingType) {
-        this.validateReadingType(readingType);
-        this.validateUniqueReadingType(readingType);
         this.setReadingType(readingType);
         return this;
     }
@@ -81,17 +79,17 @@ public class ProductSpecImpl implements ProductSpec {
     }
 
     private void validateUniqueReadingType(String readingType) {
-        if (!this.findOthersByReadingType(readingType).isEmpty()) {
+        if (this.findOthersByReadingType(readingType) != null) {
             throw new DuplicateReadingTypeException(this.thesaurus, readingType);
         }
     }
 
     private void validateUniqueReadingType(ReadingType readingType) {
-        this.validateUniqueReadingType(readingTypeString.toString());
+        this.validateUniqueReadingType(readingType.toString());
     }
 
-    private List<ProductSpec> findOthersByReadingType(String readingType) {
-        return this.getDataMapper().find("readingType", readingType);
+    private ProductSpec findOthersByReadingType(String readingType) {
+        return this.getDataMapper().getUnique("readingType", readingType).orNull();
     }
 
     private DataMapper<ProductSpec> getDataMapper() {
@@ -160,6 +158,8 @@ public class ProductSpecImpl implements ProductSpec {
 
     @Override
     public void setReadingType(ReadingType readingType) {
+        this.validateReadingType(readingType);
+        this.validateUniqueReadingType(readingType);
         this.readingType = readingType;
         this.readingTypeString = readingType.toString();
     }

@@ -39,9 +39,7 @@ public class RegisterGroupImpl implements RegisterGroup {
     }
 
     RegisterGroupImpl initialize (String name) {
-        this.validateName(name);
-        this.validateUniqueName(name);
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -59,13 +57,13 @@ public class RegisterGroupImpl implements RegisterGroup {
     }
 
     private void validateUniqueName(String name) {
-        if (!this.findOthersByName(name).isEmpty()) {
+        if (this.findOtherByName(name) != null) {
             throw DuplicateNameException.registerGroupAlreadyExists(this.thesaurus, name);
         }
     }
 
-    private List<RegisterGroup> findOthersByName (String name) {
-        return this.getDataMapper().find("name", name);
+    private RegisterGroup findOtherByName(String name) {
+        return this.getDataMapper().getUnique("name", name).orNull();
     }
 
     private DataMapper<RegisterGroup> getDataMapper() {
