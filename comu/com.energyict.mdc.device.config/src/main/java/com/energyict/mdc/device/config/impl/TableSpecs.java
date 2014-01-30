@@ -162,7 +162,7 @@ public enum TableSpecs {
             table.map(LoadProfileTypeRegisterMappingUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column registerMapping = table.column("REGMAPPINGID").number().notNull().add();
-            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMapping").composition().add();
+            table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMappingUsages").composition().add();
             table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
     };
