@@ -69,6 +69,8 @@ public class PluggableClassesRegistrarImpl implements PluggableClassesRegistrar 
         registerInboundDeviceProtocolPluggableClasses();
         registerDeviceProtocolPluggableClasses(license);
         registerConnectionTypePluggableClasses();
+        LOGGER.info("Finished registering pluggable classes...");
+
     }
 
     private void registerInboundDeviceProtocolPluggableClasses() {
