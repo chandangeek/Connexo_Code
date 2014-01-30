@@ -10,6 +10,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         'Uni.util.History'
     ],
 
+    totalCount: 0,
     totalPages: 0,
     pageSizeParam: 'limit',
     pageStartParam: 'start',
@@ -236,9 +237,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             currPage = pageData.currentPage;
             pageCount = pageData.pageCount;
 
-            if (me.totalPages < pageCount) {
-                me.totalPages = pageCount;
-            }
+            me.totalCount = me.totalCount < me.store.getTotalCount() ? me.store.getTotalCount() : me.totalCount;
+            me.totalPages = Math.ceil(me.totalCount / me.store.pageSize);
         } else {
             currPage = 0;
             pageCount = 0;
@@ -260,10 +260,15 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
     initPageNavItems: function (container, currPage, pageCount) {
         var me = this,
-            startPage = currPage - 5,
-            endPage = currPage + 4,
+            pagesShowingCount = 10,
+            startPage = Math.max(1, currPage - 5),
+            endPage = Math.min(startPage + pagesShowingCount - 1, pageCount),
             pageOffset,
             start;
+
+        if (endPage - startPage < pagesShowingCount - 1) {
+            startPage = Math.max(1, endPage - pagesShowingCount + 1);
+        }
 
         startPage = startPage < 1 ? 1 : startPage;
         endPage = endPage > pageCount ? pageCount : endPage;
