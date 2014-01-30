@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 

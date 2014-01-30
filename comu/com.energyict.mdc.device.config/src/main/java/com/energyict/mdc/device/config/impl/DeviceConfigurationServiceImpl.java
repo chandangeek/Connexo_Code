@@ -1,16 +1,20 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -52,13 +56,33 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
+    public List<ProductSpec> findAllProductSpecs() {
+        return this.getDataModel().mapper(ProductSpec.class).find();
+    }
+
+    @Override
+    public ProductSpec newProductSpec(ReadingType readingType) {
+        return ProductSpecImpl.from(this.getDataModel(), readingType);
+    }
+
+    @Override
     public List<RegisterMapping> findAllRegisterMappings() {
         return this.getDataModel().mapper(RegisterMapping.class).find();
     }
 
     @Override
+    public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec) {
+        return RegisterMappingImpl.from(this.getDataModel(), name, obisCode, productSpec);
+    }
+
+    @Override
     public List<LoadProfileType> findAllLoadProfileTypes() {
         return this.getDataModel().mapper(LoadProfileType.class).find();
+    }
+
+    @Override
+    public LoadProfileType newLoadProfileType(String name, ObisCode obisCode, TimeDuration interval) {
+        return LoadProfileTypeImpl.from(this.getDataModel(), name, obisCode, interval);
     }
 
     @Override
