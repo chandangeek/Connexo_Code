@@ -14,6 +14,7 @@ import com.energyict.mdc.dynamic.StringFactory;
 import com.energyict.mdc.dynamic.ValueFactory;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
 import com.energyict.mdc.protocol.api.ComChannel;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -621,6 +622,11 @@ public class MeterProtocolAdapterTest {
                             protocolPluggableService,
                             mock(PropertiesAdapter.class),
                             this.getSecuritySupportAdapterMappingFactory()));
+        }
+
+        @Override
+        public DeviceFunction getDeviceFunction() {
+            return null;
         }
     }
 

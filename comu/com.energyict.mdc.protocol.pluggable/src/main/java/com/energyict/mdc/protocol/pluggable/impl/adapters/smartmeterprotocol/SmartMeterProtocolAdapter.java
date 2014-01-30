@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
@@ -237,6 +238,11 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     @Override
     public String getProtocolDescription() {
         return "";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
     }
 
     @Override
