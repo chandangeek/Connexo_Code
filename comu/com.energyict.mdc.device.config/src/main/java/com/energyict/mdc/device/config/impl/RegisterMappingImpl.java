@@ -34,7 +34,6 @@ import java.util.Set;
 public class RegisterMappingImpl implements RegisterMapping {
 
     private long id;
-    @NotNull
     private String name;
     private String obisCodeString;
     private ObisCode obisCode;

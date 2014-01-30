@@ -4,7 +4,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -23,13 +22,12 @@ import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.elster.jupiter.util.Checks.*;
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Copyrights EnergyICT
@@ -39,7 +37,6 @@ import static com.elster.jupiter.util.Checks.*;
 public class LoadProfileTypeImpl implements LoadProfileType {
 
     private long id;
-    @NotNull
     private String name;
     private String obisCodeString;
     private ObisCode obisCode;

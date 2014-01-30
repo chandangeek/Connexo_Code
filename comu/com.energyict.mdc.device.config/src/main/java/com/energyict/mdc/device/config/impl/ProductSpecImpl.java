@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.exceptions.ReadingTypeIsRequiredException
 import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -27,7 +26,6 @@ import java.util.List;
 public class ProductSpecImpl implements ProductSpec {
 
     private long id;
-    @NotNull
     private String readingTypeString;
     private ReadingType readingType;
 
