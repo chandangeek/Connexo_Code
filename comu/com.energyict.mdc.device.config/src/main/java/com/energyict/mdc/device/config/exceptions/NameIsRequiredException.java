@@ -36,6 +36,18 @@ public class NameIsRequiredException extends LocalizedException {
         return new NameIsRequiredException(thesaurus, MessageSeeds.REGISTER_MAPPING_NAME_IS_REQUIRED);
     }
 
+    /**
+     * Creates a new NameIsRequiredException that models the exceptional
+     * situation that occurs when an attempt is made to create
+     * a {@link com.energyict.mdc.device.config.LoadProfileType} without a name.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static NameIsRequiredException loadProfileTypeNameIsRequired (Thesaurus thesaurus) {
+        return new NameIsRequiredException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_NAME_IS_REQUIRED);
+    }
+
     private NameIsRequiredException(Thesaurus thesaurus, MessageSeeds messageSeeds) {
         super(thesaurus, messageSeeds);
     }

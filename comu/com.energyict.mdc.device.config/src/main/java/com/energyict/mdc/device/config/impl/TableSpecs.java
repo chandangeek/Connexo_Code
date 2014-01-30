@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceType;
@@ -63,9 +64,9 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
             table.column("OBISCODE").varChar(80).notNull().map("obiscode").add();
-            table.column("INTERVALCOUNT").number().notNull().map("intervalcount").add();
-            table.column("INTERVALUNIT").number().notNull().map("intervalunit").add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modDate").insert("sysdate").update("sysdate").add();
+            table.column("INTERVALCOUNT").number().notNull().map("interval.count").add();
+            table.column("INTERVALUNIT").number().notNull().map("interval.timeUnitCode").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.unique("UK_LOADPROFILETYPE").on(name).add();
             table.primaryKey("PK_LOADPROFILETYPE").on(id).add();
         }
@@ -80,7 +81,7 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
             Column obiscode = table.column("OBISCODE").varChar(80).notNull().map("obisCodeString").add();
             Column productSpec = table.column("PRODUCTSPECID").number().notNull().add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("CUMULATIVE").number().notNull().map("cumulative").add();
             Column registerGroup = table.column("REGISTERGROUPID").number().add();
             table.column("DESCRIPTION").varChar(255).map("description").add();
@@ -99,7 +100,7 @@ public enum TableSpecs {
             table.map(RegisterGroupImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(256).notNull().map("name").add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
             table.column("USEABLEINMMR").number().map("useableinmmr").add();
             table.unique("UK_RTUREGISTERGROUP").on(name).add();
             table.primaryKey("PK_RTUREGISTERGROUP").on(id).add();
@@ -113,7 +114,7 @@ public enum TableSpecs {
             table.map(ProductSpecImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("READINGTYPE").varChar(100).map("readingType").add();
-            table.column("MOD_DATE").type("DATE").notNull().map("modDate").insert("sysdate").update("sysdate").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modDate").add();
             table.primaryKey("PK_PRODUCTSPEC").on(id).add();
         }
     },

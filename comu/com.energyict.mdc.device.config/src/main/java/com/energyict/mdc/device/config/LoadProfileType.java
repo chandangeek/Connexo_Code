@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 
@@ -61,6 +62,10 @@ public interface LoadProfileType {
      * @return a list of RegisterMapping
      */
     public List<RegisterMapping> getRegisterMappings();
+
+    public void addRegisterMapping (RegisterMapping registerMapping);
+
+    public void removeRegisterMapping (RegisterMapping registerMapping);
 
     /**
      * Indicates if this load profile type is in use (e.g. by a load profile spec, ...) somewhere

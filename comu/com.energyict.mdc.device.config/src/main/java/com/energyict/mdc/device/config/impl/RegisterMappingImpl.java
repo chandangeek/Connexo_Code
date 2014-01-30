@@ -82,23 +82,8 @@ public class RegisterMappingImpl implements RegisterMapping {
             this.post();
         }
         else {
-            if (this.isInUse()) {
-                if (this.obisCodeChanged) {
-                    throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
-                }
-                if (this.productSpecChanged) {
-                    throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
-                }
-            }
-            this.validateDeviceConfigurations();
             this.postNew();
         }
-    }
-
-    private void validateDeviceConfigurations() {
-        /* Todo: find all DeviceConfigurations that use this mapping via ChannelSpec or RegisterSpec
-         *       and validate that the changes applied to this RegisterMapping
-         *       does not violate any device configuration business constraints. */
     }
 
     /**
@@ -112,9 +97,25 @@ public class RegisterMappingImpl implements RegisterMapping {
      * Updates the changes made to this object.
      */
     protected void post() {
+        if (this.isInUse()) {
+            if (this.obisCodeChanged) {
+                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
+            }
+            if (this.productSpecChanged) {
+                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
+            }
+        }
+        this.validateDeviceConfigurations();
         this.getDataMapper().update(this);
+        this.obisCodeChanged = false;
+        this.productSpecChanged = false;
     }
 
+    private void validateDeviceConfigurations() {
+        /* Todo: find all DeviceConfigurations that use this mapping via ChannelSpec or RegisterSpec
+         *       and validate that the changes applied to this RegisterMapping
+         *       do not violate any device configuration business constraints. */
+    }
 
     public void delete() {
         this.validateDelete();
