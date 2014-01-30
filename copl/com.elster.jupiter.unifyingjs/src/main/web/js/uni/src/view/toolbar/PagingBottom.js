@@ -264,7 +264,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.setChildDisabled('#next', currPage === pageCount || isEmpty);
 
         if (me.isFullTotalCount || (typeof pageData !== 'undefined' && me.store.pageSize * pageData.currentPage >= me.totalCount)) {
-            me.setChildDisabled('#last', false);
+            me.setChildDisabled('#last', typeof pageData === 'undefined' || me.totalPages === pageData.currentPage);
             me.isFullTotalCount = true;
         }
 
