@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.model.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -80,7 +79,7 @@ public enum TableSpecs {
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").type("varchar2(80)").map("description").add();
-            table.column("OBSOLETE_DATE").type("DATE").map("obsoleteDate").add();
+            table.column("OBSOLETE_DATE").type("DATE").conversion(ColumnConversion.DATE2DATE).map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("type").add();
             // no mapping required for comPortPoolMembers
             // IPBasedInboundComPortImpl & OutboundComPortImpl
