@@ -14,7 +14,7 @@ Ext.define('Cfg.view.validation.RuleList', {
     columns: {
 
         items: [
-            { header: 'Name', dataIndex: 'displayName', flex: 1},
+            { header: 'Rule', dataIndex: 'displayName', flex: 1},
             { header: 'Active', dataIndex: 'active', flex: 1,
                 renderer:function(value){
                     if (value) {

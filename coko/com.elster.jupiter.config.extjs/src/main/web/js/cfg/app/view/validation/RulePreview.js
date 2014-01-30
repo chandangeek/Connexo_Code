@@ -62,7 +62,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                 {
                     xtype: 'displayfield',
                     name: 'displayName',
-                    fieldLabel: 'Name:',
+                    fieldLabel: 'Rule:',
                     labelAlign: 'right',
                     labelWidth:	150
                 },
