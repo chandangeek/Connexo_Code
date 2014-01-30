@@ -38,9 +38,7 @@ public class RegisterMappingImpl implements RegisterMapping {
     private String name;
     private String obisCodeString;
     private ObisCode obisCode;
-    private boolean obisCodeChanged = false;
     private ProductSpec productSpec;
-    private boolean productSpecChanged = false;
     private boolean cumulative;
     private RegisterGroup registerGroup;
     private String description;
@@ -97,18 +95,8 @@ public class RegisterMappingImpl implements RegisterMapping {
      * Updates the changes made to this object.
      */
     protected void post() {
-        if (this.isInUse()) {
-            if (this.obisCodeChanged) {
-                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
-            }
-            if (this.productSpecChanged) {
-                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
-            }
-        }
         this.validateDeviceConfigurations();
         this.getDataMapper().update(this);
-        this.obisCodeChanged = false;
-        this.productSpecChanged = false;
     }
 
     private void validateDeviceConfigurations() {
@@ -178,13 +166,15 @@ public class RegisterMappingImpl implements RegisterMapping {
             throw new ObisCodeIsRequiredException(this.thesaurus);
         }
         if (!this.getObisCode().equals(obisCode)) {
+            if (this.isInUse()) {
+                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
+            }
             RegisterMapping otherRegisterMapping = this.findOtherByObisCode(obisCode);
             if (otherRegisterMapping != null) {
                 throw new DuplicateObisCodeException(this.thesaurus, obisCode, otherRegisterMapping);
             }
             this.obisCodeString = obisCode.toString();
             this.obisCode = obisCode;
-            this.obisCodeChanged = true;
         }
     }
 
@@ -213,8 +203,10 @@ public class RegisterMappingImpl implements RegisterMapping {
             throw new ProductSpecIsRequiredException(this.thesaurus);
         }
         if (this.productSpec.getId() != productSpec.getId()) {
+            if (this.isInUse()) {
+                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
+            }
             this.productSpec = productSpec;
-            this.productSpecChanged = true;
         }
     }
 

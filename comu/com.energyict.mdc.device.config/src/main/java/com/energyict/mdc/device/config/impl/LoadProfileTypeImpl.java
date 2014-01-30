@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
@@ -28,6 +29,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.elster.jupiter.util.Checks.*;
+
 /**
  * Copyrights EnergyICT
  * Date: 11-jan-2011
@@ -40,9 +43,7 @@ public class LoadProfileTypeImpl implements LoadProfileType {
     private String name;
     private String obisCodeString;
     private ObisCode obisCode;
-    private boolean obisCodeChanged = false;
     private TimeDuration interval;
-    private boolean intervalChanged = false;
     private String description;
     private Date modificationDate;
     private List<LoadProfileTypeRegisterMappingUsage> registerMappingUsages = new ArrayList<>();
@@ -98,18 +99,8 @@ public class LoadProfileTypeImpl implements LoadProfileType {
      * Updates the changes made to this object.
      */
     protected void post() {
-        if (this.isInUse()) {
-            if (this.obisCodeChanged) {
-                throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.thesaurus, this);
-            }
-            if (this.intervalChanged) {
-                throw new CannotUpdateIntervalWhenLoadProfileTypeIsInUseException(this.thesaurus, this);
-            }
-        }
         this.validateDeviceConfigurations();
         this.getDataMapper().update(this);
-        this.obisCodeChanged = false;
-        this.intervalChanged = false;
     }
 
 
@@ -179,9 +170,11 @@ public class LoadProfileTypeImpl implements LoadProfileType {
         if (obisCode == null) {
             throw new ObisCodeIsRequiredException(this.thesaurus);
         }
+        if (this.isInUse()) {
+            throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.thesaurus, this);
+        }
         this.obisCodeString = obisCode.toString();
         this.obisCode = obisCode;
-        this.obisCodeChanged = true;
     }
 
     @Override
@@ -191,6 +184,11 @@ public class LoadProfileTypeImpl implements LoadProfileType {
 
     @Override
     public void setInterval(TimeDuration interval) {
+        if (!is(this.interval).equalTo(interval)) {
+            if (this.isInUse()) {
+                throw new CannotUpdateIntervalWhenLoadProfileTypeIsInUseException(this.thesaurus, this);
+            }
+        }
         if (interval == null || interval.isEmpty()) {
             throw new IntervalIsRequiredException(this.thesaurus);
         }
