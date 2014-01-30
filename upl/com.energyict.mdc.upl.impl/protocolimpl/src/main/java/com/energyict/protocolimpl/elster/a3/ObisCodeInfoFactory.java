@@ -10,22 +10,33 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.cbo.NestedIOException;
-import com.energyict.cbo.Quantity;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocolimpl.elster.a3.tables.ObisCodeDescriptor;
-import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.ansi.c12.tables.ActualRegisterTable;
+import com.energyict.protocolimpl.ansi.c12.tables.DataBlock;
+import com.energyict.protocolimpl.ansi.c12.tables.ElectricConstants;
+import com.energyict.protocolimpl.ansi.c12.tables.RegisterData;
+import com.energyict.protocolimpl.ansi.c12.tables.RegisterInf;
+import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
+import com.energyict.protocolimpl.elster.a1800.tables.ABBInstrumentConstants;
+import com.energyict.protocolimpl.elster.a1800.tables.ActualService;
+import com.energyict.protocolimpl.elster.a1800.tables.DSPRawInstrumentationCache;
+import com.energyict.protocolimpl.elster.a3.tables.ObisCodeDescriptor;
+import com.energyict.protocolimpl.elster.a3.tables.SourceDefinitionTable;
+import com.energyict.protocolimpl.elster.a3.tables.SourceInfo;
 /**
  *
  * @author Koen
@@ -176,6 +187,11 @@ public class ObisCodeInfoFactory {
 
 		ObisCodeInfo obi = findObisCodeInfo(obisCode);
 		RegisterValue registerValue=null;
+		
+		if (computePhaseBInstrumentation(obisCode)) {
+        	return getRegisterFromDSPInstrumentationCache(obisCode, obi);
+        }
+			 
 
 		if (obi.isCurrent()) { // F FIELD
 			RegisterData registerData = alphaA3.getStandardTableFactory().getCurrentRegisterDataTable().getRegisterData();
@@ -211,6 +227,142 @@ public class ObisCodeInfoFactory {
 		}
 
 		return registerValue;
+	}
+	
+	private RegisterValue getRegisterFromDSPInstrumentationCache(
+			ObisCode obisCode, ObisCodeInfo obi) throws IOException {
+		
+		ActualService actualService = alphaA3.getManufacturerTableFactory().getActualService();
+        ABBInstrumentConstants abbic = alphaA3.getManufacturerTableFactory().getABBInstrumentConstants();
+        DSPRawInstrumentationCache dspic = alphaA3.getManufacturerTableFactory().getDSPRawInstrumentationCache();
+        int sourceIndex = obi.getDatacontrolEntryIndex();
+    	SourceDefinitionTable sourceDefinitionTable = alphaA3.getManufacturerTableFactory().getSourceDefinitionTable();
+
+        int multiplierSelect = sourceDefinitionTable.getSourceDefinitionEntries()[sourceIndex].getMultiplierSelect();
+        int scale = alphaA3.getManufacturerTableFactory().getFactoryDefaultMeteringInformation().getInstrumentationScale();
+        if (obisCode.getC()==52) {
+        	BigDecimal voltAC = abbic.getVoltage_mult().multiply(dspic.getLine_c_to_a_voltage());
+        	BigDecimal vt = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().getRatioP1();
+        	vt = apply10Scaler(vt, scale);
+        	voltAC = voltAC.multiply(vt);
+        	return new RegisterValue(obisCode, new Quantity(voltAC, Unit.get(BaseUnit.VOLT)), new Date());
+        }
+        
+        
+        // //    	1 - From MT51, determine if phase rotation is ABC or CBA
+//    	2 - Read MT55 to get multiplier values to convert raw Voltage, Current & Energy values from MT71
+//    	Do following steps on each read of MT71
+//    	3 - Read MT71 and convert raw values with MT55 multipliers to engineering units
+    	
+        
+    	BigDecimal voltA = abbic.getVoltage_mult().multiply(dspic.getPhase_a_v_rms());//480.5;
+    	BigDecimal currA = abbic.getCurrent_mult().multiply(dspic.getPhase_a_i_rms());
+    	BigDecimal wattA = abbic.getWatts_mult().multiply(dspic.getPhase_a_w());
+    	BigDecimal varA = abbic.getCurrent_mult().multiply(abbic.getVoltage_mult().multiply(dspic.getPhase_a_var()));
+    	BigDecimal voltC = abbic.getVoltage_mult().multiply(dspic.getPhase_c_v_rms());
+    	BigDecimal currC = abbic.getCurrent_mult().multiply(dspic.getPhase_c_i_rms());
+    	BigDecimal wattC = abbic.getWatts_mult().multiply(dspic.getPhase_c_w());
+    	BigDecimal varC = abbic.getCurrent_mult().multiply(abbic.getVoltage_mult().multiply(dspic.getPhase_c_var()));
+    	BigDecimal voltAC = abbic.getVoltage_mult().multiply(dspic.getLine_c_to_a_voltage());//479.2;
+    	
+    	int rotation = actualService.getRotation();
+    	
+
+//    	4 - Use Wa and VARa to determine Phase angle of Ia with respect to Vab
+//			=MOD(DEGREES(ATAN(VARa/Wa))+IF(Wa<0,180,0),360)
+    	double pA = Math.toDegrees(Math.atan(varA.doubleValue()/wattA.doubleValue()));
+    	if (wattA.doubleValue()<0) {
+    		pA += 180;
+    	}    	
+    	if (pA<0) {
+    		pA = pA+360;
+    	}
+
+//    	4a - Use Ia magnitude & phase angle to get real and imaginary components of Ia
+//			Ia_real=Ia*COS(RADIANS(Pa))
+//    		Ia_imag=Ia*SIN(RADIANS(Pa))
+    	double currA_real = currA.doubleValue() * Math.cos(Math.toRadians(pA));
+    	double currA_imag = currA.doubleValue() * Math.sin(Math.toRadians(pA));
+
+//
+//    	5 - use three line to line voltage magnitudes to determine the actual angle of Vcb to Vab
+//    	6 - use phase rotation or nominal angle Vcb to Vab to determine the sign of the angle from step 2
+//			PVac=
+    	int mult = 1;
+    	if (rotation==1) {
+    		mult = -1;
+    	}
+    	double pvCA = 360+(mult*Math.toDegrees((Math.acos((Math.pow(voltA.doubleValue(),2)+Math.pow(voltC.doubleValue(),2)-Math.pow(voltAC.doubleValue(),2))/(2*voltA.doubleValue()*voltC.doubleValue()))))); 
+    	pvCA = pvCA % 360;
+
+//    	7 - Use Wc and VARc to determine Phase angle of Ic with respect to Vcb
+//			Pc=MOD(DEGREES(ATAN(VARc/Wc))+IF(Wc<0,180,0),360)
+    	double pC = Math.toDegrees(Math.atan(varC.doubleValue()/wattC.doubleValue()));
+    	if (wattC.doubleValue()<0) {
+    		pC += 180;
+    	}    	
+    	if (pC<0) {
+    		pC = pC+360;
+    	}
+
+//    	8 - Add the angle from step 4 to the resultant angle from steps 2 & 3 to get the angle of Ic to Vab
+//			Pca=MOD(Pc+PVca,360)
+    	double pCA=(pC+pvCA)%360;
+//    	System.out.println("pCA " + pCA);
+//    	8a - Use Ic magnitude & phase angle to get real and imaginary components of Ic
+//			Ic_real=Ic*COS(RADIANS(Pca))
+//    		Ic_imag=Ic*SIN(RADIANS(Pca))
+    	double currC_real = currC.doubleValue() * Math.cos(Math.toRadians(pCA));
+    	double currC_imag = currC.doubleValue() * Math.sin(Math.toRadians(pCA));
+//    	System.out.println("currC_real " + currC_real);
+//    	System.out.println("currC_imag " + currC_imag);
+
+//
+//    	9 - Negate the sum of the real components of Ia and Ic to get the real component of Ib
+//			Ib_real=-(Ia_real+Ic_real)
+    	double currB_real = -1 * (currA_real+currC_real);
+//    	System.out.println("currB_real " + currB_real);
+
+//    	10 - Negate the sum of the imaginary components of Ia and Ic to get the imaginary component of Ib
+//			Ib_imag=-(Ia_imag+Ic_imag)
+    	double currB_imag = -1 * (currA_imag+currC_imag);
+
+//    	11 - Use the real and imaginary components of Ib to calculate a magnitude and phase angle for Ib
+//			Ib_mag=(Ib_real^2+Ib_imag^2)^0.5
+//    		Pba=MOD(DEGREES(ATAN(Ib_imag/Ib_real))+IF(Ib_real<0,180,0),360)
+    	BigDecimal currB = new BigDecimal(Math.sqrt(Math.pow(currB_real, 2)+Math.pow(currB_imag, 2)));
+    	double pBA = Math.toDegrees(Math.atan(currB_imag/currB_real));
+    	if (currB_real < 0 ) {
+    		pBA += 180;
+    	}
+    	pBA = pBA % 360;
+    	
+    	BigDecimal ct = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[0]).getSet1Constants().getRatioF1();
+        ct = apply10Scaler(ct, scale);
+        currB = currB.multiply(ct);
+        
+		return new RegisterValue(obisCode, new Quantity(currB, Unit.get(BaseUnit.AMPERE)), new Date());
+	}
+	
+	private BigDecimal apply10Scaler(BigDecimal bd, int scale) {
+        if (scale > 0)
+            return(bd.movePointRight(scale));
+        else if (scale < 0)
+            return(bd.movePointLeft((-1)*scale));
+        else
+            return bd;
+    }
+	
+	private boolean computePhaseBInstrumentation(ObisCode obisCode) throws IOException {
+		int c = obisCode.getC();
+		int d = obisCode.getD();
+		int e = obisCode.getE();
+		int f = obisCode.getF();
+		ActualService actualService = alphaA3.getManufacturerTableFactory().getActualService();
+		//ensure we're looking for phase B current or voltage, the meter has 2 elements, and the meter
+		//is wired in a 3 wire wye or 3 wire delta configuration
+		return (c == 51 || c == 52) && (d == 7) && (e == 0) && (f == 255) &&
+				(actualService.getMeterElements()==0 && (actualService.getServiceType()==0 || actualService.getServiceType()==2));
 	}
 
 	private RegisterValue doGetRegister(ObisCodeInfo obi,DataBlock dataBlock) throws IOException {

@@ -12,6 +12,9 @@ package com.energyict.protocolimpl.elster.a3.tables;
 
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
 import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
+import com.energyict.protocolimpl.elster.a1800.tables.ABBInstrumentConstants;
+import com.energyict.protocolimpl.elster.a1800.tables.ActualService;
+import com.energyict.protocolimpl.elster.a1800.tables.DSPRawInstrumentationCache;
 import com.energyict.protocolimpl.elster.a1800.tables.PowerQualityMonitorLog;
 import com.energyict.protocolimpl.elster.a1800.tables.PowerQualityMonitorTests;
 
@@ -46,6 +49,9 @@ public class ManufacturerTableFactory extends TableFactory {
     private OriginateSchedulingTablesforRemotePorts originateSchedulingTablesforRemotePorts=null;
     private PowerQualityMonitorLog powerQualityMonitorLog=null;
     private PowerQualityMonitorTests powerQualityMonitorTests=null;
+	private ActualService actualService=null;
+	private ABBInstrumentConstants aBBInstrumentConstants=null;
+	private DSPRawInstrumentationCache dspRawInstrumentationCache=null;
 
     /** Creates a new instance of TableFactory */
     public ManufacturerTableFactory(C12ProtocolLink c12ProtocolLink) {
@@ -213,6 +219,30 @@ public class ManufacturerTableFactory extends TableFactory {
             powerQualityMonitorTests.build();
         }
         return powerQualityMonitorTests;
+    }
+    
+    public ActualService getActualService() throws IOException {
+        if (actualService==null) {
+        	actualService = new ActualService(this);
+        	actualService.build();
+        }
+        return actualService;
+    }
+
+    public ABBInstrumentConstants getABBInstrumentConstants() throws IOException {
+        if (aBBInstrumentConstants==null) {
+        	aBBInstrumentConstants = new ABBInstrumentConstants(this);
+        	aBBInstrumentConstants.build();
+        }
+        return aBBInstrumentConstants;
+    }
+
+    public DSPRawInstrumentationCache getDSPRawInstrumentationCache() throws IOException {
+        if (dspRawInstrumentationCache==null) {
+        	dspRawInstrumentationCache = new DSPRawInstrumentationCache(this);
+        	dspRawInstrumentationCache.build();
+        }
+        return dspRawInstrumentationCache;
     }
 
 
