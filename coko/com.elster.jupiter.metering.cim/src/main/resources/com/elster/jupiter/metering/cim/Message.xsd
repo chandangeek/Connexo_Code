@@ -33,6 +33,7 @@ string -->
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://iec.ch/TC57/2011/schema/message"
            elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0.0">
+    <xs:include schemaLocation="CreatedMeterReadings.xsd"/>
     <xs:complexType name="RequestType">
         <xs:annotation>
             <xs:documentation>Request type definition</xs:documentation>

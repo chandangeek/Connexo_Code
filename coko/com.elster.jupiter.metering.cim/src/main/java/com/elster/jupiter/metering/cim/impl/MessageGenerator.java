@@ -1,5 +1,12 @@
 package com.elster.jupiter.metering.cim.impl;
 
+import ch.iec.tc57._2011.meterreadings_.Meter;
+import ch.iec.tc57._2011.meterreadings_.MeterReading;
+import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.meterreadings_.Reading;
+import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ObjectFactory;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -8,7 +15,6 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +22,8 @@ public class MessageGenerator {
 
     private final Sender sender;
     private final Clock clock;
-    private final ObjectFactory objectFactory = new ObjectFactory();
+    private final ObjectFactory messageObjectFactory = new ObjectFactory();
+    private final ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
 
     public MessageGenerator(Sender sender, Clock clock) {
         this.sender = sender;
@@ -26,10 +33,12 @@ public class MessageGenerator {
     public void generateMessage(com.elster.jupiter.metering.Meter meter, Interval interval) {
         MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
 
-        CreatedMeterReadings message = objectFactory.createCreatedMeterReadings();
+        CreatedMeterReadings message = messageObjectFactory.createCreatedMeterReadings();
         message.setHeader(createHeader());
-        message.setPayload(createPayLoadType());
-        MeterReadings meterReadings = createMeterReadings();
+        message.setPayload(messageObjectFactory.createPayloadType());
+
+
+        MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
         MeterReading meterReading = createMeterReading(meterReadings, createMeter(meter));
         for (Channel channel : meterActivation.getChannels()) {
             addBaseReadings(meterReading, channel.getIntervalReadings(interval));
@@ -37,12 +46,6 @@ public class MessageGenerator {
         }
 
         sender.send(message, meterReadings);
-    }
-
-    private PayloadType createPayLoadType() {
-        PayloadType payloadType = new PayloadType();
-        payloadType.any = new ArrayList<>();
-        return payloadType;
     }
 
     void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings) {
@@ -55,7 +58,7 @@ public class MessageGenerator {
     }
 
     HeaderType createHeader() {
-        HeaderType header = new HeaderType();
+        HeaderType header = messageObjectFactory.createHeaderType();
         header.setVerb("created");
         header.setNoun("MeterReadings");
         header.setRevision("");
@@ -71,39 +74,30 @@ public class MessageGenerator {
         return header;
     }
 
-    MeterReadings createMeterReadings() {
-        MeterReadings meterReadings = objectFactory.createMeterReadings();
-        meterReadings.meterReading = new ArrayList<MeterReading>();
-        return meterReadings;
-
-
-    }
-
     MeterReading createMeterReading(MeterReadings meterReadings, Meter meter) {
-        MeterReading meterReading = objectFactory.createMeterReading();
+        MeterReading meterReading = payloadObjectFactory.createMeterReading();
         meterReading.setMeter(meter);
-        meterReading.readings = new ArrayList<Reading>();
-        meterReadings.meterReading.add(meterReading);
+        meterReadings.getMeterReading().add(meterReading);
         return meterReading;
     }
 
     Meter createMeter(com.elster.jupiter.metering.Meter meter) {
-        Meter value = objectFactory.createMeter();
+        Meter value = payloadObjectFactory.createMeter();
         value.setMRID(meter.getMRID());
         return value;
     }
 
     Reading createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType) {
-        Reading reading = objectFactory.createReading();
+        Reading reading = payloadObjectFactory.createReading();
         reading.setReadingType(readingType);
         reading.setReportedDateTime(baseReading.getTimeStamp());
         reading.setValue(baseReading.getValue().toString());
-        meterReading.readings.add(reading);
+        meterReading.getReadings().add(reading);
         return reading;
     }
 
     Reading.ReadingType createReadingType(ReadingType type) {
-        Reading.ReadingType readingType = objectFactory.createReadingReadingType();
+        Reading.ReadingType readingType = payloadObjectFactory.createReadingReadingType();
         readingType.setRef(type.getMRID());
         return readingType;
     }

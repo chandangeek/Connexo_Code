@@ -1,5 +1,11 @@
 package com.elster.jupiter.metering.cim.impl;
 
+import ch.iec.tc57._2011.meterreadings_.ObjectFactory;
+import ch.iec.tc57._2011.meterreadings_.Meter;
+import ch.iec.tc57._2011.meterreadings_.MeterReading;
+import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.meterreadings_.Reading;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -18,6 +24,7 @@ public class MeterReadingCreatedMessageHandler implements MessageHandler {
     private final JsonService jsonService;
     private final MeteringService meteringService;
     private final MessageGenerator messageGenerator;
+    private ObjectFactory payloadObjectFactory = new ObjectFactory();
 
     public MeterReadingCreatedMessageHandler(JsonService jsonService, MeteringService meteringService, MessageGenerator generator) {
         this.jsonService = jsonService;
@@ -40,8 +47,7 @@ public class MeterReadingCreatedMessageHandler implements MessageHandler {
         Long meterId = getLong(map, "meterId");
 
         Interval interval = new Interval(new Date(start), new Date(end));
-        com.elster.jupiter.metering.Meter meter = meteringService.findMeter(meterId).get();
-        messageGenerator.generateMessage(meter, interval);
+        messageGenerator.generateMessage(meteringService.findMeter(meterId).get(), interval);
     }
 
     private Long getLong(Map<?, ?> map, String key) {
@@ -64,9 +70,7 @@ public class MeterReadingCreatedMessageHandler implements MessageHandler {
     }
 
     private MeterReadings createMeterReadings() {
-
-
-        return messageGenerator.createMeterReadings();
+        return payloadObjectFactory.createMeterReadings();
     }
 
     private MeterReading createMeterReading(MeterReadings meterReadings, Meter meter) {
