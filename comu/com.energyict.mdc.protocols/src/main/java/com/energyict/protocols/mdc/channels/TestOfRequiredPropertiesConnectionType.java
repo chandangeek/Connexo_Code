@@ -95,11 +95,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
                         referencePropertySpec(
                                 "Lookup",
                                 (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.LOOKUP.id())));
-        propertySpecs.add(
-                requiredPropertySpecFactory.
-                        referencePropertySpec(
-                                "TimeZoneInUse",
-                                (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.TIMEZONE_IN_USE.id())));
+        propertySpecs.add(requiredPropertySpecFactory.timeZonePropertySpec("TimeZoneInUse"));
         propertySpecs.add(
                 requiredPropertySpecFactory.
                         referencePropertySpec(
