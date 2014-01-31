@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.ProductSpec;
 public class DuplicateReadingTypeException extends LocalizedException {
 
     public DuplicateReadingTypeException(Thesaurus thesaurus, String readingType) {
-        super(thesaurus, MessageSeeds.READING_TYPE_IS_REQUIRED);
+        super(thesaurus, MessageSeeds.READING_TYPE_ALREADY_EXISTS, readingType);
         this.set("readingType", readingType);
     }
 

@@ -2,13 +2,10 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 
@@ -21,24 +18,15 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 24/10/12
  * Time: 10:35
  */
-public class LogBookTypeImpl implements LogBookType {
+public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
-    private long id;
-    private String name;
     private String obisCodeString;
     private ObisCode obisCode;
     private String description;
 
-    private DataModel dataModel;
-    private EventService eventService;
-    private Thesaurus thesaurus;
-
     @Inject
     public LogBookTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super();
-        this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.thesaurus = thesaurus;
+        super(LogBookType.class, dataModel, eventService, thesaurus);
     }
 
     LogBookTypeImpl initialize(String name, ObisCode obisCode) {
@@ -49,20 +37,6 @@ public class LogBookTypeImpl implements LogBookType {
 
     static LogBookTypeImpl from (DataModel dataModel, String name, ObisCode obisCode) {
         return dataModel.getInstance(LogBookTypeImpl.class).initialize(name, obisCode);
-    }
-
-    private DataMapper<LogBookType> getDataMapper() {
-        return this.dataModel.mapper(LogBookType.class);
-    }
-
-    @Override
-    public void save () {
-        if (this.id > 0) {
-            this.post();
-        }
-        else {
-            this.postNew();
-        }
     }
 
     /**
@@ -78,7 +52,6 @@ public class LogBookTypeImpl implements LogBookType {
     protected void post() {
         this.validateDeviceConfigurations();
         this.getDataMapper().update(this);
-        this.eventService.postEvent(EventType.UPDATED.topic(), this);
     }
 
     private void validateDeviceConfigurations() {
@@ -87,51 +60,18 @@ public class LogBookTypeImpl implements LogBookType {
          *       do not violate any device configuration business constraints. */
     }
 
-    public void delete() {
-        this.notifyDependents();
+    @Override
+    protected void validateDelete() {
+        // Nothing to validate
+    }
+
+    protected void doDelete() {
         this.getDataMapper().remove(this);
     }
 
-    private void notifyDependents() {
-        this.eventService.postEvent(EventType.DELETED.topic(), this);
-    }
-
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.validateName(name);
-        if (!name.equals(this.getName())) {
-            this.validateUniqueName(name);
-        }
-        this.name = name;
-    }
-
-    private void validateName(String newName) {
-        if (newName == null) {
-            throw NameIsRequiredException.logBookTypeNameIsRequired(this.thesaurus);
-        }
-        if (newName.trim().isEmpty()) {
-            throw NameIsRequiredException.logBookTypeNameIsRequired(this.thesaurus);
-        }
-    }
-
-    private void validateUniqueName(String name) {
-        if (this.findOtherByName(name) != null) {
-            throw DuplicateNameException.logBookTypeAlreadyExists(this.thesaurus, name);
-        }
-    }
-
-    private LogBookType findOtherByName(String name) {
-        return this.getDataMapper().getUnique("name", name).orNull();
+    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
+        throw NameIsRequiredException.logBookTypeNameIsRequired(thesaurus);
     }
 
     @Override
@@ -145,11 +85,11 @@ public class LogBookTypeImpl implements LogBookType {
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw ObisCodeIsRequiredException.logBookTypeRequiresObisCode(this.thesaurus);
+            throw ObisCodeIsRequiredException.logBookTypeRequiresObisCode(this.getThesaurus());
         }
         if (!is(this.obisCodeString).equalTo(obisCode.toString())) {
             if (!canChangeObisCode()) {
-                throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.thesaurus, this);
+                throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.getThesaurus(), this);
             }
         }
         this.obisCodeString = obisCode.toString();

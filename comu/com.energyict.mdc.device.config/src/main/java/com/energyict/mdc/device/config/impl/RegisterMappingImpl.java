@@ -29,10 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RegisterMappingImpl implements RegisterMapping {
+public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> implements RegisterMapping {
 
-    private long id;
-    private String name;
     private String obisCodeString;
     private ObisCode obisCode;
     private ProductSpec productSpec;
@@ -41,17 +39,11 @@ public class RegisterMappingImpl implements RegisterMapping {
     private String description;
     private Date modificationDate;
 
-    private DataModel dataModel;
-    private EventService eventService;
-    private Thesaurus thesaurus;
     private Clock clock;
 
     @Inject
     public RegisterMappingImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
-        super();
-        this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.thesaurus = thesaurus;
+        super(RegisterMapping.class, dataModel, eventService, thesaurus);
         this.clock = clock;
     }
 
@@ -66,19 +58,10 @@ public class RegisterMappingImpl implements RegisterMapping {
         return dataModel.getInstance(RegisterMappingImpl.class).initialize(name, obisCode, productSpec);
     }
 
-    private DataMapper<RegisterMapping> getDataMapper() {
-        return this.dataModel.mapper(RegisterMapping.class);
-    }
-
     @Override
     public void save () {
         this.modificationDate = this.clock.now();
-        if (this.id > 0) {
-            this.post();
-        }
-        else {
-            this.postNew();
-        }
+        super.save();
     }
 
     /**
@@ -102,52 +85,14 @@ public class RegisterMappingImpl implements RegisterMapping {
          *       do not violate any device configuration business constraints. */
     }
 
-    public void delete() {
-        this.validateDelete();
-        this.notifyDependents();
+    @Override
+    protected void doDelete() {
         this.getDataMapper().remove(this);
     }
 
-    private void notifyDependents() {
-        this.eventService.postEvent(EventType.DELETED.topic(), this);
-    }
-
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.validateName(name);
-        if (!name.equals(this.getName())) {
-            this.validateUniqueName(name);
-        }
-        this.name = name;
-    }
-
-    private void validateName(String newName) {
-        if (newName == null) {
-            throw NameIsRequiredException.registerMappingNameIsRequired(this.thesaurus);
-        }
-        if (newName.trim().isEmpty()) {
-            throw NameIsRequiredException.registerMappingNameIsRequired(this.thesaurus);
-        }
-    }
-
-    private void validateUniqueName(String name) {
-        if (this.findOtherByName(name) != null) {
-            throw DuplicateNameException.registerMappingAlreadyExists(this.thesaurus, name);
-        }
-    }
-
-    private RegisterMapping findOtherByName(String name) {
-        return this.getDataMapper().getUnique("name", name).orNull();
+    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
+        return NameIsRequiredException.registerMappingNameIsRequired(thesaurus);
     }
 
     public ObisCode getObisCode() {
@@ -160,15 +105,15 @@ public class RegisterMappingImpl implements RegisterMapping {
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw ObisCodeIsRequiredException.registerMappingRequiresObisCode(this.thesaurus);
+            throw ObisCodeIsRequiredException.registerMappingRequiresObisCode(this.getThesaurus());
         }
         if (!this.getObisCode().equals(obisCode)) {
             if (this.isInUse()) {
-                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
+                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
             RegisterMapping otherRegisterMapping = this.findOtherByObisCode(obisCode);
             if (otherRegisterMapping != null) {
-                throw new DuplicateObisCodeException(this.thesaurus, obisCode, otherRegisterMapping);
+                throw new DuplicateObisCodeException(this.getThesaurus(), obisCode, otherRegisterMapping);
             }
             this.obisCodeString = obisCode.toString();
             this.obisCode = obisCode;
@@ -176,7 +121,7 @@ public class RegisterMappingImpl implements RegisterMapping {
     }
 
     private RegisterMapping findOtherByObisCode(ObisCode obisCode) {
-        return this.dataModel.mapper(RegisterMapping.class).getUnique("obisCodeString", obisCode.toString()).orNull();
+        return this.getDataMapper().getUnique("obisCodeString", obisCode.toString()).orNull();
     }
 
     @Override
@@ -197,11 +142,11 @@ public class RegisterMappingImpl implements RegisterMapping {
     @Override
     public void setProductSpec(ProductSpec productSpec) {
         if (productSpec == null) {
-            throw new ProductSpecIsRequiredException(this.thesaurus);
+            throw new ProductSpecIsRequiredException(this.getThesaurus());
         }
         if (this.productSpec.getId() != productSpec.getId()) {
             if (this.isInUse()) {
-                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
+                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.getThesaurus(), this);
             }
             this.productSpec = productSpec;
         }
@@ -230,38 +175,38 @@ public class RegisterMappingImpl implements RegisterMapping {
     }
 
     private void validateNotUsedByRegisterSpecs() {
-        List<RegisterSpec> registerSpecs = this.dataModel.mapper(RegisterSpec.class).find("registerMapping", this);
+        List<RegisterSpec> registerSpecs = this.mapper(RegisterSpec.class).find("registerMapping", this);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.thesaurus, this, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, registerSpecs);
         }
     }
 
     private void validateNotUsedByChannelSpecs() {
-        List<ChannelSpec> channelSpecs = this.dataModel.mapper(ChannelSpec.class).find("registerMapping", this);
+        List<ChannelSpec> channelSpecs = this.mapper(ChannelSpec.class).find("registerMapping", this);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.thesaurus, this, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, channelSpecs);
         }
     }
 
     private void validateNotUsedByLoadProfileTypes() {
-        List<LoadProfileTypeRegisterMappingUsage> loadProfileTypeUsages = this.dataModel.mapper(LoadProfileTypeRegisterMappingUsage.class).find("registerMapping", this);
+        List<LoadProfileTypeRegisterMappingUsage> loadProfileTypeUsages = this.mapper(LoadProfileTypeRegisterMappingUsage.class).find("registerMapping", this);
         if (!loadProfileTypeUsages.isEmpty()) {
             Set<LoadProfileType> loadProfileTypes = new HashSet<>();
             for (LoadProfileTypeRegisterMappingUsage loadProfileTypeUsage : loadProfileTypeUsages) {
                 loadProfileTypes.add(loadProfileTypeUsage.loadProfileType);
             }
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.thesaurus, this, new ArrayList<>(loadProfileTypes));
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, new ArrayList<>(loadProfileTypes));
         }
     }
 
     private void validateNotUsedByDeviceTypes() {
-        List<DeviceTypeRegisterMappingUsage> deviceTypeUsages = this.dataModel.mapper(DeviceTypeRegisterMappingUsage.class).find("registerMapping", this);
+        List<DeviceTypeRegisterMappingUsage> deviceTypeUsages = this.mapper(DeviceTypeRegisterMappingUsage.class).find("registerMapping", this);
         if (!deviceTypeUsages.isEmpty()) {
             Set<DeviceType> deviceTypes = new HashSet<>();
             for (DeviceTypeRegisterMappingUsage deviceTypeUsage : deviceTypeUsages) {
                 deviceTypes.add(deviceTypeUsage.deviceType);
             }
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.thesaurus, this, deviceTypes);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, deviceTypes);
         }
     }
 
@@ -272,12 +217,12 @@ public class RegisterMappingImpl implements RegisterMapping {
     }
 
     private boolean usedByChannelSpecs() {
-        List<ChannelSpec> channelSpecs = this.dataModel.mapper(ChannelSpec.class).find("registerMapping", this);
+        List<ChannelSpec> channelSpecs = this.mapper(ChannelSpec.class).find("registerMapping", this);
         return !channelSpecs.isEmpty();
     }
 
     private boolean usedByRegisterSpecs() {
-        List<RegisterSpec> registerSpecs = this.dataModel.mapper(RegisterSpec.class).find("registerMapping", this);
+        List<RegisterSpec> registerSpecs = this.mapper(RegisterSpec.class).find("registerMapping", this);
         return !registerSpecs.isEmpty();
     }
 
