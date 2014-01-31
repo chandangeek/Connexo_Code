@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
+import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -56,6 +57,11 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
+    public ProductSpec findProductSpec(long id) {
+        return this.getDataModel().mapper(ProductSpec.class).getUnique("id", id).orNull();
+    }
+
+    @Override
     public List<ProductSpec> findAllProductSpecs() {
         return this.getDataModel().mapper(ProductSpec.class).find();
     }
@@ -71,8 +77,38 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
+    public RegisterMapping findRegisterMapping(long id) {
+        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public RegisterMapping findRegisterMappingByName(String name) {
+        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("name", name).orNull();
+    }
+
+    @Override
+    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec(ObisCode obisCode, ProductSpec productSpec) {
+        return this.getDataModel().mapper((RegisterMapping.class)).getUnique("obisCodeString", obisCode.toString(), "productSpec", productSpec).orNull();
+    }
+
+    @Override
     public RegisterMapping newRegisterMapping(String name, ObisCode obisCode, ProductSpec productSpec) {
         return RegisterMappingImpl.from(this.getDataModel(), name, obisCode, productSpec);
+    }
+
+    @Override
+    public List<RegisterGroup> findAllRegisterGroups() {
+        return this.getDataModel().mapper(RegisterGroup.class).find();
+    }
+
+    @Override
+    public RegisterGroup findRegisterGroup(long id) {
+        return this.getDataModel().mapper(RegisterGroup.class).getUnique("id", id).orNull();
+    }
+
+    @Override
+    public RegisterGroup newRegisterGroup(String name) {
+        return RegisterGroupImpl.from(this.getDataModel(), name);
     }
 
     @Override
