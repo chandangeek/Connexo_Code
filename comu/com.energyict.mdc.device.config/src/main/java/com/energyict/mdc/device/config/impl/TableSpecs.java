@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceType;
@@ -9,6 +10,7 @@ import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 
 /**
  * Models the database tables that hold the data of the
@@ -164,7 +166,31 @@ public enum TableSpecs {
             table.foreignKey("FK_REGMAPLPT_LOADPROFILETYPEID").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").reverseMap("registerMapping").composition().add();
             table.foreignKey("FK_REGMAPLPT_REGMAPPINGID").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
-    };
+    },
+
+    EISRTUREGISTERSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<RegisterSpec> table = dataModel.addTable(name(), RegisterSpec.class);
+            table.map(RegisterSpecImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column registerMapping = table.column("REGISTERMAPPINGID").number().notNull().add();
+            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("numberOfDigits").add();
+            table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
+            table.column("DEVICEOBISCODE").varChar(80).notNull().map("overruledObisCodeString").add();
+            table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfFractionDigits").add();
+            table.column("OVERFLOWVALUE").number().map("overflow").add();
+            Column deviceConfiguration = table.column("DEVICECONFIGID").number().add();
+            table.column("MULTIPLIER").number().map("multiplier").add();
+            table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
+            Column channelSpec = table.column("CHANNELSPECID").number().add();
+            table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
+            table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
+            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").add(); // TODO .reverseMap("registerMapping").composition().add();
+            table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
+        }
+    },
+    ;
 
     abstract void addTo(DataModel component);
 
