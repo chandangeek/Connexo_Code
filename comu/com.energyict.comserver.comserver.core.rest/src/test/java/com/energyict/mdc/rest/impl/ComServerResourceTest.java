@@ -1,6 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
@@ -18,6 +20,7 @@ import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
+import java.util.Collections;
 import org.assertj.core.data.MapEntry;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -40,7 +43,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -108,7 +115,9 @@ public class ComServerResourceTest extends JerseyTest {
         OnlineComServer mock = mock(OnlineComServer.class);
         List<ComServer> comServers = new ArrayList<>();
         comServers.add(mock);
-        when(engineModelService.findAllComServers()).thenReturn(comServers);
+        Finder<ComServer> finder = mock(Finder.class);
+        when(engineModelService.findAllComServers()).thenReturn(finder);
+        when(finder.find()).thenReturn(comServers);
         when(mock.getName()).thenReturn("Test");
         when(mock.getQueryApiPostUri()).thenReturn("/test");
         when(mock.getId()).thenReturn(1L);
@@ -521,5 +530,25 @@ public class ComServerResourceTest extends JerseyTest {
         verify(serverSideComServer).save();
         verify(serverSideComServer).newOutboundComPort();
         verify(serverSideComServer, times(1)).removeComPort(outboundComPortA_id);
+    }
+
+    @Test
+    public void testGetComServersPaged() throws Exception {
+        Finder<ComServer> finder = mock(Finder.class);
+        when(engineModelService.findAllComServers()).thenReturn(finder);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.<ComServer>emptyList());
+
+        final Response response = target("/comservers/").queryParam("start", 10).queryParam("limit", 20).queryParam("sort", "name").queryParam("dir", "ASC").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        ArgumentCaptor<Integer> startArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(finder).paged(startArgumentCaptor.capture(), limitArgumentCaptor.capture());
+        ArgumentCaptor<String> sortColumnArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(finder).sorted(sortColumnArgumentCaptor.capture(), any(SortOrder.class));
+        assertThat(startArgumentCaptor.getValue()).isEqualTo(10);
+        assertThat(limitArgumentCaptor.getValue()).isEqualTo(20);
+        assertThat(sortColumnArgumentCaptor.getValue()).isEqualTo("name");
     }
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -37,16 +39,11 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServersInfo getComServers(@QueryParam("start") Integer start,@QueryParam("limit") Integer limit,@QueryParam("sort") String sort,@QueryParam("dir") String dir) {
         ComServersInfo comServers = new ComServersInfo();
-        String[] sortStrings = {sort + " " + dir} ;
-        List<ComServer> allComServers;
-        if(start!=null && limit!=null){
-            allComServers  = engineModelService.findAllComServers(start, limit, sortStrings);
-            if(allComServers.size()==limit){
-                comServers.setCouldHaveNextPage();
-            }
-        } else {
-            allComServers  = engineModelService.findAllComServers();
-        }
+        List<ComServer> allComServers = engineModelService.findAllComServers()
+                .paged(start, limit)
+                .sorted(sort, "asc".equalsIgnoreCase(dir)?SortOrder.ASCENDING:SortOrder.DESCENDING)
+                .find();
+
         for (ComServer comServer : allComServers) {
             comServers.comServers.add(ComServerInfoFactory.asInfo(comServer));
         }
