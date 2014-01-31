@@ -44,8 +44,13 @@ public enum MessageSeeds implements MessageSeed {
     LOG_BOOK_TYPE_ALREADY_EXISTS(5002, "logBookType.duplicateNameX", "A log book type with name '{0}' already exists", Level.SEVERE),
     LOG_BOOK_TYPE_OBIS_CODE_IS_REQUIRED(5003, "logBookType.obisCode.required", "The obis code of a log book type is required", Level.SEVERE),
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5004, "logBookType.cannotUpdateObisCode", "The obis code of the log book type '{0}' cannot be updated because it is in use", Level.SEVERE),
-
     REGISTER_SPEC_NUMBER_OF_DIGITS_LARGER_THAN_ONE(6001, "registerSpec.invalidNumberOfDigits", "Invalid number of digits. At least 1 digit is required", Level.SEVERE),
+    REGISTER_SPEC_DEVICE_CONFIG_IS_REQUIRED(6002, "registerSpec.deviceConfig.required","The device configuration of a register specification is required", Level.SEVERE),
+    REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED(6003, "registerSpec.registerMapping.required","The register mapping of a register specification is required", Level.SEVERE),
+    REGISTER_SPEC_CHANNEL_SPEC_OF_ANOTHER_DEVICE_CONFIG(6004, "registerSpec.channelSpec.fromOtherConfig","The provide channel spec '{0}' has a different device configuration '{1}' than the device configuration '{2}' of the register mapping", Level.SEVERE),
+    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value '{0}' may not exceed '{1}' (according to the provided number of digits '{2}')", Level.SEVERE),
+    REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value '{0}' must be larger then zero (0))", Level.SEVERE),
+    REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value '{0}' more fraction digits '{1}' than provided '{2}')", Level.SEVERE),
     ;
 
     private final int number;

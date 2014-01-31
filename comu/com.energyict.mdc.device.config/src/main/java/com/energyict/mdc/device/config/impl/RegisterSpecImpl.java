@@ -9,13 +9,17 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.RegisterConfiguration;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
+import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
+import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
+import com.energyict.mdc.device.config.exceptions.RegisterMappingIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import javax.inject.Inject;
@@ -37,6 +41,7 @@ public class RegisterSpecImpl implements RegisterSpec {
     private BigDecimal overflow;
     private BigDecimal multiplier;
     private MultiplierMode multiplierMode;
+    private ChannelSpecLinkType channelSpecLinkType;
 
     private Date modificationDate;
 
@@ -102,6 +107,26 @@ public class RegisterSpecImpl implements RegisterSpec {
         return modificationDate;
     }
 
+    public int getNumberOfDigits() {
+        return numberOfDigits;
+    }
+
+    public int getNumberOfFractionDigits() {
+        return numberOfFractionDigits;
+    }
+
+    public BigDecimal getOverflowValue() {
+        return overflow;
+    }
+
+    public MultiplierMode getMultiplierMode() {
+        return multiplierMode;
+    }
+
+    public BigDecimal getMultiplier() {
+        return multiplier;
+    }
+
     @Override
     public void save() {
         this.modificationDate = this.clock.now();
@@ -138,92 +163,21 @@ public class RegisterSpecImpl implements RegisterSpec {
 
     protected void validateNew(RegisterSpecShadow shadow) throws BusinessException {
         validate(shadow);
-        int linkedChannelSpecId = shadow.getLinkedChannelSpecId()==0 && shadow.getLinkedChannelSpecShadow()!=null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
-        if (linkedChannelSpecId>0) {
+        int linkedChannelSpecId = shadow.getLinkedChannelSpecId() == 0 && shadow.getLinkedChannelSpecShadow() != null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
+        if (linkedChannelSpecId > 0) {
             RegisterSpec currentPrimeRegisterSpec = RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory().findByChannelSpecAndType(linkedChannelSpecId, ChannelSpecLinkType.PRIME);
-            if (currentPrimeRegisterSpec!=null && shadow.getLinkedChannelSpecType()==ChannelSpecLinkType.PRIME) {
+            if (currentPrimeRegisterSpec != null && shadow.getLinkedChannelSpecType() == ChannelSpecLinkType.PRIME) {
                 throw new BusinessException("duplicatePrimeRegisterSpecForChannelSpec", "Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", shadow.getLinkedChannelSpecId(), currentPrimeRegisterSpec.getId());
             }
         }
     }
 
-    protected void checkDigitsOverflowValue(RegisterSpecShadow shadow) throws BusinessException {
-        BigDecimal overflowValue = shadow.getOverflowValue();
-        if (overflowValue != null) {
-            int numberOfFractionDigits = shadow.getNumberOfFractionDigits();
-            int scale = overflowValue.scale();
-            DecimalFormat format = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(scale, true);
-            if (scale > numberOfFractionDigits) {
-                throw new BusinessException("overflowValueXHasInvalidNumberOfFractionDigitsY",
-                        "Overflow value '{0}' has too much fraction digits, only {1} allowed", format.format(overflowValue), numberOfFractionDigits);
-            }
-        }
-    }
-
-    @SuppressWarnings(value = {"unchecked"})
-    protected void validate(RegisterSpecShadow shadow) throws BusinessException {
-        DeviceConfiguration deviceConfiguration = getDeviceConfigFactory().find(shadow.getDeviceConfigId());
-
-        if (getRtuRegisterMappingFactory().find(shadow.getRegisterMappingId()) == null) {
-            throw new BusinessException("invalidRegisterMappingIdX", "Invalid device register mapping (id={0,number})", shadow.getRegisterMappingId());
-        }
-        int linkedChannelSpecId = shadow.getLinkedChannelSpecId()==0 && shadow.getLinkedChannelSpecShadow()!=null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
-        if (linkedChannelSpecId>0) {
-            ChannelSpec spec = getChannelSpecFactory().find(shadow.getLinkedChannelSpecId());
-            if (spec == null) {
-                throw new BusinessException("invalidLinkedChannelSpecNotExisting", "Non existing linked channel spec (id={0,number})", shadow.getLinkedChannelSpecId());
-            } else {
-                if (!deviceConfiguration.equals(spec.getDeviceConfig())) {
-                    throw new BusinessException("invalidLinkedChannelSpecOtherConfig", "Linked channel spec (id={0,number}) is of different device configuration", shadow.getLinkedChannelSpecId());
-                }
-            }
-            if (shadow.getLinkedChannelSpecType()==null) {
-                throw new BusinessException("linkedChannelSpecTypeCannotBeNull", "Linked channel spec type cannot be null if linked channel spec is specified");
-            }
-        } else {
-            if (shadow.getLinkedChannelSpecType()!=null) {
-                throw new BusinessException("linkedChannelSpecTypeCannotBeSpecified", "Linked channel spec type cannot be specified if linked channel spec is not specified");
-            }
-        }
-
-        validateOverflow(shadow);
-        checkDigitsOverflowValue(shadow);
-    }
-
-    private DeviceConfigurationFactory getDeviceConfigFactory() {
-        return DeviceConfigurationFactoryProvider.instance.get().getDeviceConfigurationFactory();
-    }
-
-    private RegisterMappingFactory getRtuRegisterMappingFactory() {
-        return RegisterMappingFactoryProvider.instance.get().getRegisterMappingFactory();
-    }
-
-    private ChannelSpecFactory getChannelSpecFactory() {
-        return ChannelSpecFactoryProvider.instance.get().getChannelSpecFactory();
-    }
-
-    private void validateOverflow(RegisterSpecShadow shadow) throws BusinessException {
-        if (shadow.getOverflowValue() == null) {
-            return;
-        }
-        double overflow = shadow.getOverflowValue().doubleValue();
-        int numberOfDigits = shadow.getNumberOfDigits();
-        if (!(overflow <= Math.pow(10, numberOfDigits))) {
-            DecimalFormat df = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(shadow.getNumberOfFractionDigits(), true);
-            throw new BusinessException("overflowValueCannotExceedX",
-                    "The overflow value cannot exceed {0}", df.format(Math.pow(10, shadow.getNumberOfDigits())));
-        } else if (overflow <= 0.0) {
-            throw new BusinessException("XcannotBeEqualOrLessThanZero", "{0} should have a value greater than 0",
-                    UserEnvironment.getDefault().getTranslation("overflowValue"));
-        }
-    }
-
     protected void validateUpdate(RegisterSpecShadow shadow) throws BusinessException {
         validate(shadow);
-        int linkedChannelSpecId = shadow.getLinkedChannelSpecId()==0 && shadow.getLinkedChannelSpecShadow()!=null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
-        if (linkedChannelSpecId>0) {
+        int linkedChannelSpecId = shadow.getLinkedChannelSpecId() == 0 && shadow.getLinkedChannelSpecShadow() != null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
+        if (linkedChannelSpecId > 0) {
             RegisterSpec currentPrimeRegisterSpec = RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory().findByChannelSpecAndType(linkedChannelSpecId, ChannelSpecLinkType.PRIME);
-            if (currentPrimeRegisterSpec!=null && currentPrimeRegisterSpec.getId()!=shadow.getId() && shadow.getLinkedChannelSpecType()==ChannelSpecLinkType.PRIME) {
+            if (currentPrimeRegisterSpec != null && currentPrimeRegisterSpec.getId() != shadow.getId() && shadow.getLinkedChannelSpecType() == ChannelSpecLinkType.PRIME) {
                 throw new BusinessException("duplicatePrimeRegisterSpecForChannelSpec", "Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", shadow.getLinkedChannelSpecId(), currentPrimeRegisterSpec.getId());
             }
         }
@@ -251,25 +205,46 @@ public class RegisterSpecImpl implements RegisterSpec {
 
     @Override
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
-        if (deviceConfig == null) {
-            throw new BusinessException("invalidDeviceConfigurationIdX", "Invalid device configuration (id={0,number})", shadow.getDeviceConfigId());
-        }
+        validateDeviceConfiguration(deviceConfig);
         this.deviceConfig = deviceConfig;
+    }
+
+    private void validateDeviceConfiguration(DeviceConfiguration deviceConfig) {
+        if (deviceConfig == null) {
+            throw DeviceConfigIsRequiredException.registerSpecRequiresDeviceConfig(this.thesaurus);
+        }
     }
 
     @Override
     public void setRegisterMapping(RegisterMapping registerMapping) {
+        validateRegisterMapping(registerMapping);
         this.registerMapping = registerMapping;
+    }
+
+    private void validateRegisterMapping(RegisterMapping registerMapping) {
+        if (registerMapping == null) {
+            throw RegisterMappingIsRequiredException.registerSpecRequiresRegisterMapping(this.thesaurus);
+        }
     }
 
     @Override
     public void setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
+        validateLinkedChannelSpec(linkedChannelSpec);
         this.linkedChannelSpec = linkedChannelSpec;
+    }
+
+    private void validateLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
+        if (linkedChannelSpec != null) {
+            if (getDeviceConfiguration() != null && !linkedChannelSpec.getDeviceConfig().equals(getDeviceConfiguration())) {
+                throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfig(), getDeviceConfiguration());
+            }
+        }
     }
 
     @Override
     public void setNumberOfDigits(int numberOfDigits) {
         validateNumberOfDigits(numberOfDigits);
+        validateOverFlowAndNumberOfDigits(getOverflowValue(), numberOfDigits);
         this.numberOfDigits = numberOfDigits;
     }
 
@@ -291,7 +266,36 @@ public class RegisterSpecImpl implements RegisterSpec {
 
     @Override
     public void setOverflow(BigDecimal overflow) {
+        validateOverFlowAndNumberOfDigits(overflow, getNumberOfDigits());
+        validateNumberOfFractionDigitsOfOverFlowValue(overflow, getNumberOfFractionDigits());
         this.overflow = overflow;
+    }
+
+    private void validateNumberOfFractionDigitsOfOverFlowValue(BigDecimal overflow, int numberOfFractionDigits) {
+        if (overflow != null) {
+            int scale = overflow.scale();
+            DecimalFormat format = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(scale, true);
+            if (scale > numberOfFractionDigits) {
+                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, overflow, scale, numberOfFractionDigits);
+            }
+        }
+    }
+
+    /**
+     * We need to validate the OverFlow value and the NumberOfDigits together
+     *
+     * @param overflow       the OverFlow value
+     * @param numberOfDigits the Number of digits of this RegisterSpec
+     */
+    private void validateOverFlowAndNumberOfDigits(BigDecimal overflow, int numberOfDigits) {
+        if (overflow != null && numberOfDigits > 0) {
+            if (!(overflow.intValue() <= Math.pow(10, numberOfDigits))) {
+                DecimalFormat df = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(numberOfDigits, true);
+                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, overflow, df.format(Math.pow(10, numberOfDigits)), numberOfDigits);
+            } else if (overflow.intValue() <= 0) {
+                throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, overflow);
+            }
+        }
     }
 
     @Override
@@ -309,57 +313,12 @@ public class RegisterSpecImpl implements RegisterSpec {
     }
 
     @Override
-    public RegisterConfiguration getRegisterConfiguration() {
-        return new RegisterConfiguration() {
-            @Override
-            public int getNumberOfDigits() {
-                return numberOfDigits;
-            }
+    public ChannelSpecLinkType getChannelSpecLinkType() {
+        return channelSpecLinkType;
+    }
 
-            @Override
-            public int getNumberOfFractionDigits() {
-                return numberOfFractionDigits;
-            }
-
-            @Override
-            public BigDecimal getMultiplier() {
-                return multiplier;
-            }
-
-            @Override
-            public MultiplierMode getMultiplierMode() {
-                return multiplierMode;
-            }
-
-            @Override
-            public BigDecimal getOverflowValue() {
-                return overflow;
-            }
-
-            @Override
-            public boolean isMultiplierModeOverruled() {
-                return false;
-            }
-
-            @Override
-            public boolean isMultiplierOverruled() {
-                return false;
-            }
-
-            @Override
-            public boolean isNumberOfDigitsOverruled() {
-                return false;
-            }
-
-            @Override
-            public boolean isNumberOfFractionDigitsOverruled() {
-                return false;
-            }
-
-            @Override
-            public boolean isOverflowOverruled() {
-                return false;
-            }
-        };
+    @Override
+    public void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
+        this.channelSpecLinkType = channelSpecLinkType;
     }
 }

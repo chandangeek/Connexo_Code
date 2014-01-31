@@ -70,14 +70,44 @@ public interface RegisterSpec {
     public Date getModificationDate();
 
     /**
-     * @return the default configuration, which may be changed per individual Register of this RegisterSpec
-     */
-    public RegisterConfiguration getRegisterConfiguration();
-
-    /**
      * @return the linked ChannelSpec in case of a Prime register
      */
     public ChannelSpec getLinkedChannelSpec();
+
+    /**
+     * Returns the number of digits for this spec
+     *
+     * @return the number of digits
+     */
+    public int getNumberOfDigits();
+
+    /**
+     * Returns the number of fraction digits for this spec
+     *
+     * @return the number of fraction digits
+     */
+    public int getNumberOfFractionDigits();
+
+    /**
+     * Returns the configured multiplier.
+     *
+     * @return the receiver's multiplier.
+     */
+    BigDecimal getMultiplier();
+
+    /**
+     * Returns the configured multiplier mode.
+     *
+     * @return the receiver's multiplier mode.
+     */
+    MultiplierMode getMultiplierMode();
+
+    /**
+     * Returns the overflow value
+     *
+     * @return the overflow value
+     */
+    public BigDecimal getOverflowValue();
 
     public void save ();
 
@@ -100,4 +130,8 @@ public interface RegisterSpec {
     void setMultiplier(BigDecimal multiplier);
 
     void setMultiplierMode(MultiplierMode multiplierMode);
+
+    ChannelSpecLinkType getChannelSpecLinkType();
+
+    void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType);
 }
