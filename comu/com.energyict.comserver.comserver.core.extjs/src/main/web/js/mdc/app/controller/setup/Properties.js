@@ -323,7 +323,7 @@ Ext.define('Mdc.controller.setup.Properties', {
         var view = this.getPropertyEdit();
         var key = button.itemId.substr(11);
         var property = this.propertiesStore.findRecord('key', key);
-        var newValue;
+        var newValue = null;
         try {
             property.getPropertyValue().value = null;
             newValue = property.getPropertyValue().data.inheritedValue;
@@ -343,7 +343,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                 view.down('#' + 'rg' + key).setValue({rb: null});
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CLOCK') {
-            if (newValue !== null && newValue !== '') {
+            if (newValue !== null && newValue !== '' && newValue !== undefined) {
                 var newDate = new Date(newValue);
                 var dateValue = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate(), 0, 0, 0, 0);
                 var timeValue = new Date(1970, 0, 1, newDate.getHours(), newDate.getMinutes(), newDate.getSeconds(), 0);
@@ -354,32 +354,32 @@ Ext.define('Mdc.controller.setup.Properties', {
                 view.down('#' + 'time' + key).setValue(null);
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'TIMEOFDAY') {
-            if (newValue !== null && newValue !== '') {
+            if (newValue !== null && newValue !== '' && newValue !== undefined) {
                 view.down('#' + 'time' + key).setValue(new Date(newValue));
             } else {
                 view.down('#' + 'time' + key).setValue(null);
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'DATE') {
-            if (newValue !== null && newValue !== '') {
+            if (newValue !== null && newValue !== '' && newValue !== undefined) {
                 view.down('#' + 'date' + key).setValue(new Date(newValue));
             } else {
                 view.down('#' + 'date' + key).setValue(null);
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'CODETABLE') {
-            if (property.getPropertyValue().defaultValue !== undefined) {
-                view.down('#' + key).setValue(property.getPropertyValue().defaultValue.codeTableId + '-' + property.getPropertyValue().defaultValue.name);
+            if (newValue !== null && newValue != '' && newValue != undefined) {
+                view.down('#' + key).setValue(newValue.codeTableId + '-' + newValue.name);
             } else {
                 view.down('#' + key).setValue('');
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'USERFILEREFERENCE') {
-            if (property.getPropertyValue().defaultValue !== undefined) {
-                view.down('#' + key).setValue(property.getPropertyValue().defaultValue.userFileReferenceId + '-' + property.getPropertyValue().defaultValue.name);
+            if (newValue !== null && newValue != '' && newValue != undefined) {
+                view.down('#' + key).setValue(newValue.userFileReferenceId + '-' + newValue.name);
             } else {
                 view.down('#' + key).setValue('');
             }
         } else if (property.getPropertyType().data.simplePropertyType === 'LOADPROFILETYPE') {
-            if (property.getPropertyValue().defaultValue !== undefined) {
-                view.down('#' + key).setValue(property.getPropertyValue().defaultValue.loadProfileTypeId + '-' + property.getPropertyValue().defaultValue.name);
+            if (newValue !== null && newValue != '' && newValue != undefined) {
+                view.down('#' + key).setValue(newValue.loadProfileTypeId + '-' + newValue.name);
             } else {
                 view.down('#' + key).setValue('');
             }
@@ -397,7 +397,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                 }
             } else {
 
-                if (newValue !== null && newValue !== '') {
+                if (newValue !== null && newValue !== '' && newValue !== undefined) {
                     view.down('#' + key).setValue(newValue.count);
                     view.down('#tu_' + key).setValue(newValue.timeUnit);
                 } else {
