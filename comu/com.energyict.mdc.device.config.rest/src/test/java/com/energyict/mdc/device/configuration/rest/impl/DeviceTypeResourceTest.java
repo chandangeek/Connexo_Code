@@ -19,10 +19,15 @@ import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceTypeResourceTest extends JerseyTest {
@@ -68,6 +73,28 @@ public class DeviceTypeResourceTest extends JerseyTest {
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List)map.get("deviceTypes")).isEmpty();
+    }
+
+    @Test
+    public void testGetEmptyDeviceTypeListPaged() throws Exception {
+        Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(0);
+        assertThat((List)map.get("deviceTypes")).isEmpty();
+        ArgumentCaptor<Integer> startArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(deviceConfigurationService).findAllDeviceTypes(startArgumentCaptor.capture(), limitArgumentCaptor.capture(), anyList());
+        assertThat(startArgumentCaptor.getValue()).isEqualTo(100);
+        assertThat(limitArgumentCaptor.getValue()).isEqualTo(20);
+    }
+
+    @Test
+    public void testGetEmptyDeviceTypeListSorted() throws Exception {
+        Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).queryParam("sortColumns", new String[] {"name", "class"}).request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(0);
+        assertThat((List)map.get("deviceTypes")).isEmpty();
+        ArgumentCaptor<List> sortColumnsArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(deviceConfigurationService).findAllDeviceTypes(anyInt(), anyInt(), sortColumnsArgumentCaptor.capture());
+        assertThat(sortColumnsArgumentCaptor.getValue()).hasSize(2).containsExactly("name", "class");
     }
 
     @Test
