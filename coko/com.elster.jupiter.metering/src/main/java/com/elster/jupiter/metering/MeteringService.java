@@ -33,9 +33,13 @@ public interface MeteringService {
 
     Optional<Meter> findMeter(long id);
 
+    Optional<EndDevice> findEndDevice(String mRid);
+
     Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
 
     Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
+
+    Optional<UsagePointGroup> findUsagePointGroup(String mRID);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 
@@ -58,4 +62,6 @@ public interface MeteringService {
     Condition hasAccountability(Date when);
 
 	Query<Meter> getMeterQuery();
+
+    Optional<UsagePoint> findUsagePoint(String mRID);
 }

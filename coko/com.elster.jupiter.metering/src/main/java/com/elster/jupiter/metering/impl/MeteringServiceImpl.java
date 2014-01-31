@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -114,8 +115,20 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Override
+    public Optional<UsagePoint> findUsagePoint(String mRID) {
+        List<UsagePoint> usagePoints = dataModel.mapper(UsagePoint.class).select(Operator.EQUAL.compare("mRID", mRID));
+        return usagePoints.isEmpty() ? Optional.<UsagePoint>absent() : Optional.of(usagePoints.get(0));
+    }
+
+    @Override
     public Optional<Meter> findMeter(long id) {
         return dataModel.mapper(Meter.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<EndDevice> findEndDevice(String mRid) {
+        List<EndDevice> endDevices = dataModel.mapper(EndDevice.class).select(Operator.EQUAL.compare("mRID", mRid));
+        return endDevices.isEmpty() ? Optional.<EndDevice>absent() : Optional.of(endDevices.get(0));
     }
 
     @Override
@@ -284,6 +297,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Override
     public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
         return dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
+        List<UsagePointGroup> found = dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID));
+        return found.isEmpty() ? Optional.<UsagePointGroup>absent() : Optional.of(found.get(0));
     }
 
     @Override
