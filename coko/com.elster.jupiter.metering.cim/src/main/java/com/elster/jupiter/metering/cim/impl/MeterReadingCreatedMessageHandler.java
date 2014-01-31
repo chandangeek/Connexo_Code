@@ -1,22 +1,14 @@
 package com.elster.jupiter.metering.cim.impl;
 
 import ch.iec.tc57._2011.meterreadings_.ObjectFactory;
-import ch.iec.tc57._2011.meterreadings_.Meter;
-import ch.iec.tc57._2011.meterreadings_.MeterReading;
-import ch.iec.tc57._2011.meterreadings_.MeterReadings;
-import ch.iec.tc57._2011.meterreadings_.Reading;
-import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class MeterReadingCreatedMessageHandler implements MessageHandler {
@@ -54,40 +46,5 @@ public class MeterReadingCreatedMessageHandler implements MessageHandler {
         Object contents = map.get(key);
         return contents instanceof Long ? (Long) contents : ((Integer) contents).longValue();
     }
-
-    public void generateMessage(com.elster.jupiter.metering.Meter meter, Interval interval) {
-
-        messageGenerator.generateMessage(meter, interval);
-    }
-
-    private void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings) {
-        messageGenerator.addBaseReadings(meterReading, intervalReadings);
-    }
-
-    private HeaderType createHeader() {
-
-        return messageGenerator.createHeader();
-    }
-
-    private MeterReadings createMeterReadings() {
-        return payloadObjectFactory.createMeterReadings();
-    }
-
-    private MeterReading createMeterReading(MeterReadings meterReadings, Meter meter) {
-        return messageGenerator.createMeterReading(meterReadings, meter);
-    }
-
-    private Meter createMeter(com.elster.jupiter.metering.Meter meter) {
-        return messageGenerator.createMeter(meter);
-    }
-
-    private Reading createReading(MeterReading meterReading, BaseReading baseReading, Reading.ReadingType readingType) {
-        return messageGenerator.createReading(meterReading, baseReading, readingType);
-    }
-
-    private Reading.ReadingType createReadingType(com.elster.jupiter.metering.ReadingType type) {
-        return messageGenerator.createReadingType(type);
-    }
-
 
 }

@@ -1,12 +1,16 @@
 package com.elster.jupiter.metering.cim.soap.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.soap.whiteboard.EndPointProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.elster.jupiter.metering.cim.soap", service = { EndPointProvider.class }, immediate = true, property = {"alias=cim"})
+@Component(name="com.elster.jupiter.metering.cim.soap", service = { EndPointProvider.class }, immediate = true, property = {"alias=/cim"})
 public class GetMeterReadingsEndpointProvider implements EndPointProvider {
+
+    private volatile MeteringService meteringService;
 
     @Activate
     public void activate() {
@@ -20,7 +24,11 @@ public class GetMeterReadingsEndpointProvider implements EndPointProvider {
 
     @Override
     public Object get() {
-        return new GetMeterReadingsPortImpl();
+        return new GetMeterReadingsPortImpl(meteringService);
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
 }
