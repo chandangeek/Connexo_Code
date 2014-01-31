@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
@@ -121,10 +119,8 @@ public class SmartMeterProtocolAdapterTest {
         when(this.securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (SimpleTestSmartMeterProtocol.class.getName())).thenReturn(SimpleTestDeviceSecuritySupport.class.getName());
 
-        ApplicationContext applicationContext = this.inMemoryPersistence.getApplicationContext();
         IdBusinessObjectFactory timeZoneInUseFactory = mock(IdBusinessObjectFactory.class);
         when(timeZoneInUseFactory.getInstanceType()).thenReturn(TimeZone.class);
-        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(timeZoneInUseFactory);
     }
 
     @After

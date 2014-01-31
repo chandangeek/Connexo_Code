@@ -151,7 +151,6 @@ public class DeviceProtocolPluggableClassImplTest {
         }
 
         when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(codeFactory);
-        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(mock(IdBusinessObjectFactory.class));  // SmartMeterProtocolAdapter is looking for the TimeZoneInUse factory
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");

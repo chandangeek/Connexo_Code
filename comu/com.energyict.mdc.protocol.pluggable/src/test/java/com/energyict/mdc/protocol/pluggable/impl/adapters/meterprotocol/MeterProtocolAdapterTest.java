@@ -106,7 +106,6 @@ public class MeterProtocolAdapterTest {
         ApplicationContext applicationContext = this.inMemoryPersistence.getApplicationContext();
         IdBusinessObjectFactory timeZoneInUseFactory = mock(IdBusinessObjectFactory.class);
         when(timeZoneInUseFactory.getInstanceType()).thenReturn(TimeZone.class);
-        when(applicationContext.findFactory(FactoryIds.TIMEZONE_IN_USE.id())).thenReturn(timeZoneInUseFactory);  // DeviceProtocolAdapterImpl is looking for the TimeZoneInUse factory
 
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol(PROTOCOL_CLASS)).
                 thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport");

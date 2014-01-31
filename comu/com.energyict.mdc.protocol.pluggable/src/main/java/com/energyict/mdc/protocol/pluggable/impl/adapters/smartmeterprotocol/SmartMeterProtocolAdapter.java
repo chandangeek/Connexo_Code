@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpec;
 import com.energyict.mdc.issues.IssueService;
@@ -50,7 +49,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.util.Checks.*;
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Adapter between a {@link SmartMeterProtocol} and a {@link DeviceProtocol}

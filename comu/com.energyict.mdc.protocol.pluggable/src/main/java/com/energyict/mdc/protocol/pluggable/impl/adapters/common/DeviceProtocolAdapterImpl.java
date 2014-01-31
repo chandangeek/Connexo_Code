@@ -2,9 +2,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpec;
@@ -219,9 +216,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         else {
             factory = OptionalPropertySpecFactory.newInstance();
         }
-        return factory.referencePropertySpec(
-                    DEVICE_TIMEZONE_PROPERTY_NAME,
-                    (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.TIMEZONE_IN_USE.id()));
+        return factory.timeZonePropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME);
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {
