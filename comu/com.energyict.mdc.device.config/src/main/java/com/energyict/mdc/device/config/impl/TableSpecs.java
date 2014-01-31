@@ -27,14 +27,13 @@ public enum TableSpecs {
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(80).notNull().map("name").add();
-            table.column("CHANNELCOUNT").number().notNull().map("channelcount").add();
+            table.column("CHANNELCOUNT").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("channelCount").add();
             table.column("DESCRIPTION").varChar(4000).map("description").add();
-            table.column("PROTOTYPEID").number().map("prototypeid").add();
-            table.column("USECHANNELJOURNAL").number().notNull().map("usechanneljournal").add();
-            table.column("NEEDSPROXY").number().map("needsproxy").add();
-            table.column("DEVICEPROTOCOLPLUGGABLEID").number().map("deviceprotocolpluggableid").add();
-            table.column("DEVICEUSAGETYPE").number().map("deviceusagetype").add();
-            table.column("DEVICECOLLECTIONMETHOD").number().map("devicecollectionmethod").add();
+            table.column("PROTOTYPEID").number().conversion(ColumnConversion.NUMBER2INT).map("prototypeId").add();
+            table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
+            table.column("NEEDSPROXY").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("needsproxy").add();
+            table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2INT).map("deviceProtocolPluggableClassId").add();
+            table.column("DEVICEUSAGETYPE").number().map("deviceUsageType").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().map("communicationfunctionmask").add();
             table.unique("UK_SYSRTUTYPE").on(name).add();
             table.primaryKey("PK_SYSRTUTYPE").on(id).add();
@@ -126,7 +125,7 @@ public enum TableSpecs {
             table.map(DeviceTypeLoadProfileTypeUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
-            table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypes").composition().add();
+            table.foreignKey("FK_RTUTYPEID_LPT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("loadProfileTypeUsages").composition().add();
             table.foreignKey("FK_LPTID_LPT_RTUTYPE_JOIN").on(loadProfileType).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
         }
     },
@@ -138,7 +137,7 @@ public enum TableSpecs {
             table.map(DeviceTypeRegisterMappingUsage.class);
             Column registermapping = table.column("REGISTERMAPPINGID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
-            table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappings").composition().add();
+            table.foreignKey("FK_RTUTPID_REGMAP_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("registerMappingUsages").composition().add();
             table.foreignKey("FK_MAPID_REGMAP_RTUTYPE_JOIN").on(registermapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
         }
     },
@@ -150,7 +149,7 @@ public enum TableSpecs {
             table.map(DeviceTypeLogBookTypeUsage.class);
             Column logBookType = table.column("LOGBOOKTYPEID").number().notNull().add();
             Column deviceType = table.column("RTUTYPEID").number().notNull().add();
-            table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").add();
+            table.foreignKey("FK_RTUTYPEID_LBT_RTUTYPE_JOIN").on(deviceType).references(EISSYSRTUTYPE.name()).map("deviceType").reverseMap("logBookTypeUsages").composition().add();
             table.foreignKey("FK_LBTYPEID_LBTT_RTUTYPE_JOIN").on(logBookType).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
         }
     },
