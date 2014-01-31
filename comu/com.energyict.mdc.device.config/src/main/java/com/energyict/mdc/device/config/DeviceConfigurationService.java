@@ -20,6 +20,14 @@ public interface DeviceConfigurationService {
 
     public List<DeviceType> findAllDeviceTypes ();
 
+    /**
+     * Finds the {@link ProductSpec} that is uniquely identified by the specified number.
+     *
+     * @param id The unique identifier
+     * @return The ProductSpec or <code>null</code> if there is no such ProductSpec
+     */
+    public ProductSpec findProductSpec (long id);
+
     public List<ProductSpec> findAllProductSpecs ();
 
     /**
@@ -35,7 +43,53 @@ public interface DeviceConfigurationService {
      */
     public ProductSpec newProductSpec (ReadingType readingType);
 
+    /**
+     * Finds the {@link RegisterGroup} that is uniquely identified by the specified number.
+     *
+     * @param id The unique identifier
+     * @return The RegisterGroup or <code>null</code> if there is no such RegisterGroup
+     */
+    public RegisterGroup findRegisterGroup (long id);
+
+    public List<RegisterGroup> findAllRegisterGroups ();
+
+    /**
+     * Creates a new {@link RegisterGroup} with the specified name.
+     * Note that the RegisterGroup is only saved in the database
+     * after a call to the "save" method.
+     *
+     * @param name The name of the RegisterGroup
+     * @return The new RegisterGroup
+     * @see RegisterGroup#save()
+     */
+    public RegisterGroup newRegisterGroup (String name);
+
     public List<RegisterMapping> findAllRegisterMappings ();
+
+    /**
+     * Finds the {@link RegisterMapping} that is uniquely identified by the specified number.
+     *
+     * @param id The unique identifier
+     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
+     */
+    public RegisterMapping findRegisterMapping (long id);
+
+    /**
+     * Finds the {@link RegisterMapping} that is uniquely identified by the name.
+     *
+     * @param name The name
+     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
+     */
+    public RegisterMapping findRegisterMappingByName (String name);
+
+    /**
+     * Finds the {@link RegisterMapping} that is uniquely identified by the name.
+     *
+     * @param obisCode The ObisCode
+     * @param productSpec The ProductSpec
+     * @return The RegisterMapping or <code>null</code> if there is no such RegisterMapping
+     */
+    public RegisterMapping findRegisterMappingByObisCodeAndProductSpec (ObisCode obisCode, ProductSpec productSpec);
 
     /**
      * Creates a new {@link RegisterMapping} with the specified required properties.
