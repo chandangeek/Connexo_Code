@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -7,6 +9,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.core.DeviceType;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Application;
@@ -25,8 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,6 +75,12 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetEmptyDeviceTypeList() throws Exception {
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
+
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List)map.get("deviceTypes")).isEmpty();
@@ -77,24 +88,37 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetEmptyDeviceTypeListPaged() throws Exception {
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
+
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List)map.get("deviceTypes")).isEmpty();
         ArgumentCaptor<Integer> startArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> limitArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(deviceConfigurationService).findAllDeviceTypes(startArgumentCaptor.capture(), limitArgumentCaptor.capture(), anyList());
+        verify(finder).paged(startArgumentCaptor.capture(), limitArgumentCaptor.capture());
         assertThat(startArgumentCaptor.getValue()).isEqualTo(100);
         assertThat(limitArgumentCaptor.getValue()).isEqualTo(20);
     }
 
     @Test
     public void testGetEmptyDeviceTypeListSorted() throws Exception {
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
+
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).queryParam("sortColumns", new String[] {"name", "class"}).request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List)map.get("deviceTypes")).isEmpty();
-        ArgumentCaptor<List> sortColumnsArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(deviceConfigurationService).findAllDeviceTypes(anyInt(), anyInt(), sortColumnsArgumentCaptor.capture());
-        assertThat(sortColumnsArgumentCaptor.getValue()).hasSize(2).containsExactly("name", "class");
+        ArgumentCaptor<String> sortColumnsArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(finder, times(2)).sorted(sortColumnsArgumentCaptor.capture(), any(SortOrder.class));
+        assertThat(sortColumnsArgumentCaptor.getAllValues().get(0)).isEqualTo("name");
+        assertThat(sortColumnsArgumentCaptor.getAllValues().get(1)).isEqualTo("class");
     }
 
     @Test
@@ -127,7 +151,11 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(registerList);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
 
-        when(deviceConfigurationService.findAllDeviceTypes()).thenReturn(Arrays.asList(deviceType));
+        Finder<DeviceType> finder = mock(Finder.class);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(Arrays.asList(deviceType));
+        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);

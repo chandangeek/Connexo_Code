@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.core.DeviceType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -29,13 +30,12 @@ public class DeviceTypeResource {
     public DeviceTypeInfos getAllDeviceTypes(@QueryParam("start") Integer start, @QueryParam("limit") Integer limit, @QueryParam("sortColumns") List<String> sortColumns) {
         DeviceTypeInfos deviceTypeInfos = new DeviceTypeInfos();
         deviceTypeInfos.deviceTypes = new ArrayList<>();
-        List<DeviceType> allDeviceTypes;
-        if (start!=null && limit!=null) {
-            System.out.println(String.format("query from %d counting %d sorted by %s", start, limit, sortColumns));
-            allDeviceTypes = deviceConfigurationService.findAllDeviceTypes(start, limit, sortColumns);
-        } else {
-            allDeviceTypes = deviceConfigurationService.findAllDeviceTypes();
+        Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.allDeviceTypes().paged(start, limit);
+        for (String sortColumn : sortColumns) {
+            deviceTypeFinder.sorted(sortColumn, SortOrder.ASCENDING);
         }
+        List<DeviceType> allDeviceTypes = deviceTypeFinder.find();
+
         for (DeviceType deviceType : allDeviceTypes) {
             deviceTypeInfos.deviceTypes.add(new DeviceTypeInfo(deviceType));
         }
