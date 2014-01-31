@@ -81,7 +81,7 @@ public class PersistenceTest {
             }
             comServer.delete();
         }
-        for (ComServer comServer : getEngineModelService().findAllComServers()) {
+        for (ComServer comServer : getEngineModelService().findAllComServers().find()) {
             for (ComPort comPort : comServer.getComPorts()) {
                 comServer.removeComPort(comPort.getId());
             }

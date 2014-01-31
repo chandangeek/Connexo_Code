@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.model;
 
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import org.json.JSONObject;
@@ -24,7 +25,7 @@ public interface EngineModelService {
      *
      * @return All the ComServers, including the obsolete ones
      */
-    public List<ComServer> findAllComServers();
+    public Finder<ComServer> findAllComServers();
 
     /**
      * Finds the ComServer with the name of the system that is currently running this software.
@@ -205,8 +206,6 @@ public interface EngineModelService {
     ComServer parseComServerQueryResult(JSONObject comServerJSon);
 
     ComPort parseComPortQueryResult(JSONObject comPortJSon);
-
-    List<ComServer> findAllComServers(int from, int pageSize, String[] orderBy);
 
     List<ComPortPool> findAllComPortPools(int from,int pageSize,String[] orderBy);
 

@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComPortPoolMember;
@@ -118,17 +120,9 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
     }
 
     @Override
-    public List<ComServer> findAllComServers() {
-        List<ComServer> comServers = new ArrayList<>();
-        comServers.addAll(getComServerDataMapper().find());
-        return comServers;
+    public Finder<ComServer> findAllComServers() {
+        return DefaultFinder.of(ComServer.class, Where.where("obsoleteDate").isNull(), dataModel);
     }
-
-    @Override
-    public List<ComServer> findAllComServers(int from, int pageSize, String[] orderBy) {
-        return dataModel.query(ComServer.class).select(Where.where("obsoleteDate").isNull(), orderBy, true, new String[0], from + 1, from + pageSize);
-    }
-
 
     @Override
     public ComServer findComServerBySystemName() {
