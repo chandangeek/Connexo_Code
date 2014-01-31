@@ -2,6 +2,7 @@ package com.energyict.comserver.core.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -18,9 +19,9 @@ public class Activator implements BundleActivator {
 
     public void start(BundleContext bundleContext) throws Exception {
         String alias = "/mdc";
-        HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext), new DefaultStartPage("Meter data collection"));
+//        HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext), new DefaultStartPage("Meter data collection"));
 //        Comment above and uncomment next line for file based javascript serving, changing second argument as appropriate
-//        HttpResource resource = new HttpResource(alias, "C:/jupiterrepo/comserver-all/com.energyict.comserver.comserver.core.extjs/src/main/web/js/mdc" , new FileResolver());
+        HttpResource resource = new HttpResource(alias, "/home/bvn/codebase/jupiter/mdc/com.energyict.comserver.comserver.core.extjs/src/main/web/js/mdc" , new FileResolver());
         registration = bundleContext.registerService(HttpResource.class, resource , null);
     }
 
