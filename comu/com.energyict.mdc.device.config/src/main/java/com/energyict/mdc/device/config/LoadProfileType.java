@@ -62,6 +62,10 @@ public interface LoadProfileType {
      */
     public List<RegisterMapping> getRegisterMappings();
 
+    public void addRegisterMapping (RegisterMapping registerMapping);
+
+    public void removeRegisterMapping (RegisterMapping registerMapping);
+
     /**
      * Indicates if this load profile type is in use (e.g. by a load profile spec, ...) somewhere
      * @return true if this load profile type is used

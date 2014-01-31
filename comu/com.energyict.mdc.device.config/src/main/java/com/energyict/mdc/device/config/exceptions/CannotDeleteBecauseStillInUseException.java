@@ -92,6 +92,30 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerMapping.getDescription(), namesToStringList(deviceTypes));
     }
 
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link LoadProfileType}
+     * while it is still used by the specified {@link LoadProfileSpec}s.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUse (Thesaurus thesaurus, LoadProfileType loadProfileType, List<LoadProfileSpec> loadProfileSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS, loadProfileType.getName(), namesToStringList(loadProfileSpecs));
+    }
+
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link LoadProfileType}
+     * while it is still used by the specified {@link DeviceType}s.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUse (Thesaurus thesaurus, LoadProfileType loadProfileType, List<DeviceType> deviceTypes) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES, loadProfileType.getName(), namesToStringList(deviceTypes));
+    }
+
     private static String namesToStringList(List<RegisterMapping> registerMappings) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
@@ -152,6 +176,19 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
                 builder.append(", ");
             }
             builder.append(deviceType.getName());
+            notFirst = true;
+        }
+        return builder.toString();
+    }
+
+    private static String namesToStringList(List<LoadProfileSpec> loadProfileSpecs) {
+        StringBuilder builder = new StringBuilder();
+        boolean notFirst = false;
+        for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
+            if (notFirst) {
+                builder.append(", ");
+            }
+            builder.append(loadProfileSpec.getName());
             notFirst = true;
         }
         return builder.toString();

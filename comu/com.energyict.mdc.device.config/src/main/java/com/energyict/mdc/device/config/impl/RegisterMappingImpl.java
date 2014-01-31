@@ -21,10 +21,8 @@ import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
-import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -34,13 +32,10 @@ import java.util.Set;
 public class RegisterMappingImpl implements RegisterMapping {
 
     private long id;
-    @NotNull
     private String name;
     private String obisCodeString;
     private ObisCode obisCode;
-    private boolean obisCodeChanged = false;
     private ProductSpec productSpec;
-    private boolean productSpecChanged = false;
     private boolean cumulative;
     private RegisterGroup registerGroup;
     private String description;
@@ -82,23 +77,8 @@ public class RegisterMappingImpl implements RegisterMapping {
             this.post();
         }
         else {
-            if (this.isInUse()) {
-                if (this.obisCodeChanged) {
-                    throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
-                }
-                if (this.productSpecChanged) {
-                    throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
-                }
-            }
-            this.validateDeviceConfigurations();
             this.postNew();
         }
-    }
-
-    private void validateDeviceConfigurations() {
-        /* Todo: find all DeviceConfigurations that use this mapping via ChannelSpec or RegisterSpec
-         *       and validate that the changes applied to this RegisterMapping
-         *       does not violate any device configuration business constraints. */
     }
 
     /**
@@ -112,9 +92,15 @@ public class RegisterMappingImpl implements RegisterMapping {
      * Updates the changes made to this object.
      */
     protected void post() {
+        this.validateDeviceConfigurations();
         this.getDataMapper().update(this);
     }
 
+    private void validateDeviceConfigurations() {
+        /* Todo: find all DeviceConfigurations that use this mapping via ChannelSpec or RegisterSpec
+         *       and validate that the changes applied to this RegisterMapping
+         *       do not violate any device configuration business constraints. */
+    }
 
     public void delete() {
         this.validateDelete();
@@ -174,16 +160,18 @@ public class RegisterMappingImpl implements RegisterMapping {
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw new ObisCodeIsRequiredException(this.thesaurus);
+            throw ObisCodeIsRequiredException.registerMappingRequiresObisCode(this.thesaurus);
         }
         if (!this.getObisCode().equals(obisCode)) {
+            if (this.isInUse()) {
+                throw new CannotUpdateObisCodeWhenRegisterMappingIsInUseException(this.thesaurus, this);
+            }
             RegisterMapping otherRegisterMapping = this.findOtherByObisCode(obisCode);
             if (otherRegisterMapping != null) {
                 throw new DuplicateObisCodeException(this.thesaurus, obisCode, otherRegisterMapping);
             }
             this.obisCodeString = obisCode.toString();
             this.obisCode = obisCode;
-            this.obisCodeChanged = true;
         }
     }
 
@@ -212,8 +200,10 @@ public class RegisterMappingImpl implements RegisterMapping {
             throw new ProductSpecIsRequiredException(this.thesaurus);
         }
         if (this.productSpec.getId() != productSpec.getId()) {
+            if (this.isInUse()) {
+                throw new CannotUpdateProductSpecWhenRegisterMappingIsInUseException(this.thesaurus, this);
+            }
             this.productSpec = productSpec;
-            this.productSpecChanged = true;
         }
     }
 

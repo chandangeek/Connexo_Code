@@ -12,4 +12,16 @@ import com.energyict.mdc.device.config.RegisterMapping;
 class LoadProfileTypeRegisterMappingUsage {
     LoadProfileType loadProfileType;
     RegisterMapping registerMapping;
+
+    // For ORM layer only
+    LoadProfileTypeRegisterMappingUsage() {
+        super();
+    }
+
+    LoadProfileTypeRegisterMappingUsage(LoadProfileType loadProfileType, RegisterMapping registerMapping) {
+        this();
+        this.loadProfileType = loadProfileType;
+        this.registerMapping = registerMapping;
+    }
+
 }
