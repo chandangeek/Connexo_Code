@@ -10,11 +10,11 @@ import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.coordinates.SpatialCoordinates;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
-import com.energyict.mdc.dynamic.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Models the behavior of a component that will provide
@@ -225,6 +225,14 @@ public interface PropertySpecFactory {
      * @return The PropertySpec
      */
     public PropertySpec<ObisCode> obisCodePropertySpecWithValues(String name, ObisCode... values);
+
+    /**
+     * Creates a {@link PropertySpec} for a TimeZone value.
+     *
+     * @param name The name of the PropertySpec
+     * @return The PropertySpec
+     */
+    public PropertySpec<TimeZone> timeZonePropertySpec (String name);
 
     /**
      * Creates a new {@link PropertySpec} for a reference to an {@link IdBusinessObject}

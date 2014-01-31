@@ -16,6 +16,7 @@ import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Provides factory services for optional {@link PropertySpec}s.
@@ -27,6 +28,11 @@ public class OptionalPropertySpecFactory extends PropertySpecFactoryImpl {
 
     public static PropertySpecFactory newInstance() {
         return new OptionalPropertySpecFactory();
+    }
+
+    @Override
+    public PropertySpec<TimeZone> timeZonePropertySpec(String name) {
+        return simpleOptionalPropertySpec(name, new TimeZoneFactory());
     }
 
     @Override

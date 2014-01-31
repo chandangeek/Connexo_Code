@@ -16,6 +16,7 @@ import com.energyict.mdc.dynamic.impl.PropertySpecFactoryImpl;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Provides factory services for required {@link PropertySpec}s.
@@ -27,6 +28,11 @@ public class RequiredPropertySpecFactory extends PropertySpecFactoryImpl {
 
     public static PropertySpecFactory newInstance () {
         return new RequiredPropertySpecFactory();
+    }
+
+    @Override
+    public PropertySpec<TimeZone> timeZonePropertySpec(String name) {
+        return simpleRequiredPropertySpec(name, new TimeZoneFactory());
     }
 
     @Override
