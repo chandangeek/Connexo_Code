@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.CannotDeleteDefaultProductSpecException;
 import com.energyict.mdc.device.config.exceptions.DuplicateReadingTypeException;
 import com.energyict.mdc.device.config.exceptions.ReadingTypeIsRequiredException;
-import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
 import java.util.List;

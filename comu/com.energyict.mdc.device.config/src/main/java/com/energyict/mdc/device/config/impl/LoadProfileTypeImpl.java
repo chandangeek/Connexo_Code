@@ -19,7 +19,6 @@ import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
-import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -165,7 +164,7 @@ public class LoadProfileTypeImpl implements LoadProfileType {
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw new ObisCodeIsRequiredException(this.thesaurus);
+            throw ObisCodeIsRequiredException.loadProfileTypeRequiresObisCode(this.thesaurus);
         }
         if (this.isInUse()) {
             throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.thesaurus, this);

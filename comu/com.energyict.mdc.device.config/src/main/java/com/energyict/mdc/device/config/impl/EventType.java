@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
  */
 public enum EventType {
 
+    UPDATED("UPDATED"),
     DELETED("DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";

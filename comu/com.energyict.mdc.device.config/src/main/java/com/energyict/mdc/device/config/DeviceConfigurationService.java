@@ -58,4 +58,6 @@ public interface DeviceConfigurationService {
 
     public List<LogBookType> findAllLogBookTypes ();
 
+    public LogBookType newLogBookType (String name, ObisCode obisCode);
+
 }

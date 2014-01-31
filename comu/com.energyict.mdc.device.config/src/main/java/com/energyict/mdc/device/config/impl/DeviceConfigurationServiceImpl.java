@@ -90,6 +90,11 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
         return this.getDataModel().mapper(LogBookType.class).find();
     }
 
+    @Override
+    public LogBookType newLogBookType(String name, ObisCode obisCode) {
+        return LogBookTypeImpl.from(this.getDataModel(), name, obisCode);
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "DeviceType and configurations");

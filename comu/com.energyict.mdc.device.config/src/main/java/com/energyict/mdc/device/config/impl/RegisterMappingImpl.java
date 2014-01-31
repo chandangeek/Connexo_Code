@@ -21,10 +21,8 @@ import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ProductSpecIsRequiredException;
-import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -162,7 +160,7 @@ public class RegisterMappingImpl implements RegisterMapping {
     @Override
     public void setObisCode(ObisCode obisCode) {
         if (obisCode == null) {
-            throw new ObisCodeIsRequiredException(this.thesaurus);
+            throw ObisCodeIsRequiredException.registerMappingRequiresObisCode(this.thesaurus);
         }
         if (!this.getObisCode().equals(obisCode)) {
             if (this.isInUse()) {

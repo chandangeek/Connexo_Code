@@ -48,6 +48,18 @@ public class NameIsRequiredException extends LocalizedException {
         return new NameIsRequiredException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_NAME_IS_REQUIRED);
     }
 
+    /**
+     * Creates a new NameIsRequiredException that models the exceptional
+     * situation that occurs when an attempt is made to create
+     * a {@link com.energyict.mdc.device.config.LogBookType} without a name.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static NameIsRequiredException logBookTypeNameIsRequired (Thesaurus thesaurus) {
+        return new NameIsRequiredException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_ALREADY_EXISTS);
+    }
+
     private NameIsRequiredException(Thesaurus thesaurus, MessageSeeds messageSeeds) {
         super(thesaurus, messageSeeds);
     }

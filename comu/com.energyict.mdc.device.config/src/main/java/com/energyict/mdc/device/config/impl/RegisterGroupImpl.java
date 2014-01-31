@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
-import com.energyict.mdc.pluggable.impl.EventType;
 
 import javax.inject.Inject;
 import java.util.Date;
