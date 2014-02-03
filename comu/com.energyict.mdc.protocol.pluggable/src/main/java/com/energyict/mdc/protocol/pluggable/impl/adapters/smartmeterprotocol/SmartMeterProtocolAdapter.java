@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -241,6 +242,11 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
     @Override
     public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
 

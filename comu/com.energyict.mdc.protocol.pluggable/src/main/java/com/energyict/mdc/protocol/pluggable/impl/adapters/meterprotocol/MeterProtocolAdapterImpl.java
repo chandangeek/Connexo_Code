@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -240,6 +241,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
 

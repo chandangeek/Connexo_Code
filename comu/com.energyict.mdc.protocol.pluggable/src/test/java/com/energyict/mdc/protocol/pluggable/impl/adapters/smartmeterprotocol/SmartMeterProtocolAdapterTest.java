@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -588,6 +589,11 @@ public class SmartMeterProtocolAdapterTest {
 
         @Override
         public DeviceFunction getDeviceFunction() {
+            return null;
+        }
+
+        @Override
+        public ManufacturerInformation getManufacturerInformation() {
             return null;
         }
     }

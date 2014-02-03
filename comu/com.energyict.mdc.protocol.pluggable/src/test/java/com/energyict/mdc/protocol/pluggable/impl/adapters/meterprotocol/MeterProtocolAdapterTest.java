@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -625,6 +626,11 @@ public class MeterProtocolAdapterTest {
 
         @Override
         public DeviceFunction getDeviceFunction() {
+            return null;
+        }
+
+        @Override
+        public ManufacturerInformation getManufacturerInformation() {
             return null;
         }
     }
