@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.BusinessException;
@@ -28,12 +27,11 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Date;
 
-public class RegisterSpecImpl implements RegisterSpec {
+public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
-    private long id;
     private DeviceConfiguration deviceConfig;
     private RegisterMapping registerMapping;
-    private ChannelSpec linkedChannelSpec = null;
+    private ChannelSpec linkedChannelSpec;
     private int numberOfDigits;
     private int numberOfFractionDigits;
     private String overruledObisCodeString;
@@ -52,15 +50,8 @@ public class RegisterSpecImpl implements RegisterSpec {
 
     @Inject
     public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
-        this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.thesaurus = thesaurus;
+        super(RegisterSpec.class, dataModel, eventService, thesaurus);
         this.clock = clock;
-    }
-
-    @Override
-    public long getId() {
-        return this.id;
     }
 
     @Override
@@ -130,46 +121,31 @@ public class RegisterSpecImpl implements RegisterSpec {
     @Override
     public void save() {
         this.modificationDate = this.clock.now();
-        if (this.id > 0) {
-            this.post();
-        } else {
-
-        }
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    /**
-     * Saves this object for the first time.
-     */
-    protected void postNew() {
-        this.getDataMapper().persist(this);
-    }
-
-    /**
-     * Updates the changes made to this object.
-     */
-    protected void post() {
-        this.getDataMapper().update(this);
-    }
-
-    private DataMapper<RegisterMapping> getDataMapper() {
-        return this.dataModel.mapper(RegisterMapping.class);
+        super.save();
     }
 
     @Override
-    public void delete() {
+    protected void doDelete() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    protected void validateDelete() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    protected void postNew() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    protected void post() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     protected void validateNew(RegisterSpecShadow shadow) throws BusinessException {
-        validate(shadow);
-        int linkedChannelSpecId = shadow.getLinkedChannelSpecId() == 0 && shadow.getLinkedChannelSpecShadow() != null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
-        if (linkedChannelSpecId > 0) {
-            RegisterSpec currentPrimeRegisterSpec = RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory().findByChannelSpecAndType(linkedChannelSpecId, ChannelSpecLinkType.PRIME);
-            if (currentPrimeRegisterSpec != null && shadow.getLinkedChannelSpecType() == ChannelSpecLinkType.PRIME) {
-                throw new BusinessException("duplicatePrimeRegisterSpecForChannelSpec", "Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", shadow.getLinkedChannelSpecId(), currentPrimeRegisterSpec.getId());
-            }
-        }
+
     }
 
     protected void validateUpdate(RegisterSpecShadow shadow) throws BusinessException {
@@ -319,6 +295,16 @@ public class RegisterSpecImpl implements RegisterSpec {
 
     @Override
     public void setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
+        validateChannelSpecLinkType(channelSpecLinkType, getLinkedChannelSpec());
         this.channelSpecLinkType = channelSpecLinkType;
+    }
+
+    private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
+        if (channelSpec != null && channelSpecLinkType != null) {
+            RegisterSpec currentPrimeRegisterSpec = RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory().findByChannelSpecAndType(linkedChannelSpecId, ChannelSpecLinkType.PRIME);
+            if (currentPrimeRegisterSpec != null && shadow.getLinkedChannelSpecType() == ChannelSpecLinkType.PRIME) {
+                throw new BusinessException("duplicatePrimeRegisterSpecForChannelSpec", "Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", shadow.getLinkedChannelSpecId(), currentPrimeRegisterSpec.getId());
+            }
+        }
     }
 }

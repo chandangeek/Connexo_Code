@@ -15,83 +15,12 @@ import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-31 (13:38)
  */
-public abstract class PersistentNamedObject<T> {
+public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
-    private long id;
     private String name;
 
-    private Class<T> domainClass;
-    private DataModel dataModel;
-    private EventService eventService;
-    private Thesaurus thesaurus;
-
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super();
-        this.domainClass = domainClass;
-        this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.thesaurus = thesaurus;
-    }
-
-    protected DataMapper<T> getDataMapper() {
-        return this.dataModel.mapper(this.domainClass);
-    }
-
-    protected Thesaurus getThesaurus() {
-        return thesaurus;
-    }
-
-    protected <T> DataMapper<T> mapper(Class<T> api) {
-        return this.dataModel.mapper(api);
-    }
-
-    public void save () {
-        if (this.id > 0) {
-            this.post();
-            this.notifyUpdated();
-        }
-        else {
-            this.postNew();
-        }
-    }
-
-    public void delete() {
-        this.validateDelete();
-        this.doDelete();
-        this.notifyDeleted();
-    }
-
-    private void notifyUpdated() {
-        this.eventService.postEvent(EventType.UPDATED.topic(), this);
-    }
-
-    private void notifyDeleted() {
-        this.eventService.postEvent(EventType.DELETED.topic(), this);
-    }
-
-    /**
-     * Saves this object for the first time.
-     */
-    protected abstract void postNew();
-
-    /**
-     * Updates the changes made to this object.
-     */
-    protected abstract void post();
-
-    /**
-     * Deletes this object using the mapper.
-     */
-    protected abstract void doDelete();
-
-    /**
-     * Validates that this object can safely be deleted
-     * and throws a {@link LocalizedException} if that is not the case.
-     */
-    protected abstract void validateDelete();
-
-    public long getId() {
-        return id;
+        super(domainClass, dataModel, eventService, thesaurus);
     }
 
     public String getName() {
@@ -108,10 +37,10 @@ public abstract class PersistentNamedObject<T> {
 
     private void validateName(String newName) {
         if (newName == null) {
-            throw nameIsRequiredException(this.thesaurus);
+            throw nameIsRequiredException(this.getThesaurus());
         }
         if (newName.trim().isEmpty()) {
-            throw nameIsRequiredException(this.thesaurus);
+            throw nameIsRequiredException(this.getThesaurus());
         }
     }
 
@@ -119,7 +48,7 @@ public abstract class PersistentNamedObject<T> {
 
     private void validateUniqueName(String name) {
         if (this.findOtherByName(name) != null) {
-            throw DuplicateNameException.registerMappingAlreadyExists(this.thesaurus, name);
+            throw DuplicateNameException.registerMappingAlreadyExists(this.getThesaurus(), name);
         }
     }
 
