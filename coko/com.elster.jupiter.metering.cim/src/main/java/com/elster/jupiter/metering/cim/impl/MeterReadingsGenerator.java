@@ -30,17 +30,26 @@ public class MeterReadingsGenerator {
     public void addMeterReadings(MeterReadings meterReadings, MeterActivation meterActivation, Interval interval) {
         MeterReading meterReading = createMeterReading(meterReadings, createMeter(meterActivation.getMeter().get()));
         for (Channel channel : meterActivation.getChannels()) {
-            addBaseReadings(meterReading, channel.getIntervalReadings(interval));
-            addBaseReadings(meterReading, channel.getRegisterReadings(interval));
+            addBaseReadings(meterReading, getReadings(channel, interval));
         }
     }
 
+    private List<? extends BaseReadingRecord> getReadings(Channel channel, Interval interval) {
+        if (channel.isRegular()) {
+            return channel.getIntervalReadings(interval);
+        }
+        return channel.getRegisterReadings(interval);
+    }
+
     void addBaseReadings(MeterReading meterReading, List<? extends BaseReadingRecord> intervalReadings) {
-        for (BaseReadingRecord intervalReading : intervalReadings) {
-            for (ReadingType readingType : intervalReading.getReadingTypes()) {
-                Reading.ReadingType type = createReadingType(readingType);
-                createReading(meterReading, intervalReading, type);
-            }
+        for (BaseReadingRecord baseReading : intervalReadings) {
+            addReadingsPerReadingType(meterReading, baseReading);
+        }
+    }
+
+    private void addReadingsPerReadingType(MeterReading meterReading, BaseReadingRecord baseReading) {
+        for (ReadingType readingType : baseReading.getReadingTypes()) {
+            createReading(meterReading, baseReading, createReadingType(readingType));
         }
     }
 
