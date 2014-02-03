@@ -167,6 +167,51 @@ public enum TableSpecs {
         }
     },
 
+    EISDEVICECONFIG {
+        @Override
+        public void addTo(DataModel dataModel) {
+//            Table<Api> table = dataModel.add(name(), Api.class);
+//            table.map(Implementation.class);
+//            Column id = table.addAutoIdColumn();
+//            table.column("NAME").varChar(80).notNull().map("name").add();
+//            table.column("DESCRIPTION").varChar(4000).map("description").add();
+//            table.column("PROTOTYPEID").number().map("prototypeid").add();
+//            Column devicetypeid = table.column("DEVICETYPEID").number().notNull().add();
+//            table.column("MOD_DATE").type("DATE").notNull().map("modDate").add();
+//            table.column("ACTIVE").number().map("active").add();
+//            table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
+//            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(devicetypeid).references(EISSYSRTUTYPE.name()).map("eissysrtutype").add();
+        }
+    },
+
+    EISCHANNELSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+//            Table<Api> table = dataModel.add(name(), Api.class);
+//            table.map(Implementation.class);
+//            Column id = table.addAutoIdColumn();
+//            table.column("NAME").varChar(80).notNull().map("name").add();
+//            Column deviceconfigid = table.column("DEVICECONFIGID").number().notNull().add();
+//            Column rturegistermappingid = table.column("RTUREGISTERMAPPINGID").number().notNull().add();
+//            table.column("OBISCODE").varChar(80).map("obiscode").add();
+//            table.column("FRACTIONDIGITS").number().map("fractiondigits").add();
+//            table.column("OVERFLOWVALUE").number().map("overflowvalue").add();
+//            Column phenomenonid = table.column("PHENOMENONID").number().notNull().add();
+//            table.column("READINGMETHOD").number().notNull().map("readingmethod").add();
+//            table.column("MULTIPLIERMODE").number().notNull().map("multipliermode").add();
+//            table.column("MULTIPLIER").number().notNull().map("multiplier").add();
+//            table.column("VALUECALCULATIONMETHOD").number().notNull().map("valuecalculationmethod").add();
+//            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
+//            table.column("INTERVAL").number().map("interval").add();
+//            table.column("INTERVALCODE").number().map("intervalcode").add();
+//            table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
+//            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("eisdeviceconfig").add();
+//            table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("eisrturegistermapping").add();
+//            table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("eisphenomenon").add();
+//            table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("eisloadprofilespec").add();
+        }
+    },
+
     EISRTUREGISTERSPEC {
         @Override
         public void addTo(DataModel dataModel) {
@@ -186,7 +231,7 @@ public enum TableSpecs {
             table.column("CHANNELLINKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map("channelSpecLinkType").add();
             table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
             table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
-            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").add(); // TODO .reverseMap("registerMapping").composition().add();
+            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().add();
             table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
         }
     },

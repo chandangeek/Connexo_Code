@@ -51,6 +51,8 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value '{0}' may not exceed '{1}' (according to the provided number of digits '{2}')", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value '{0}' must be larger then zero (0))", Level.SEVERE),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value '{0}' more fraction digits '{1}' than provided '{2}')", Level.SEVERE),
+    REGISTER_SPEC_PRIME_CHANNEL_SPEC_ALREADY_EXISTS(6008, "registerSpec.duplicatePrimeRegisterSpecForChannelSpec","Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", Level.SEVERE),
+    REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to delete a register spec from an active device configuration", Level.SEVERE),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required", Level.SEVERE),
     DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name '{0}' already exists", Level.SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, "deviceType.XstillHasActiveConfigurations", "The device type {0} cannot be deleted because it still has active configurations", Level.SEVERE),

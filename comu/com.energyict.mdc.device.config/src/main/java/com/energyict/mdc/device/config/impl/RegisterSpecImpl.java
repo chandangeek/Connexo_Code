@@ -14,6 +14,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
+import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
 import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
@@ -26,6 +28,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.List;
 
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
@@ -42,10 +45,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private ChannelSpecLinkType channelSpecLinkType;
 
     private Date modificationDate;
-
-    private DataModel dataModel;
-    private EventService eventService;
-    private Thesaurus thesaurus;
     private Clock clock;
 
     @Inject
@@ -121,53 +120,49 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void save() {
         this.modificationDate = this.clock.now();
+        validateDependentAttributes();
         super.save();
+    }
+
+    private void validateDependentAttributes() {
+        validateLinkedChannelSpec();
+        validateOverFlowAndNumberOfDigits();
+        validateNumberOfFractionDigitsOfOverFlowValue();
     }
 
     @Override
     protected void doDelete() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // TODO Check that the EISRTUREGISTERREADINGS and EISRTUREGISTERS get deleted via cascading ...
+        this.getDataMapper().remove(this);
     }
 
     @Override
     protected void validateDelete() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // we should rely on the 'Activation' state of the Configuration. If the Configuration is not active, then we must be able to delete them.
+        if(getDeviceConfiguration().getActive()){
+            throw DeviceConfigurationIsActiveException.canNotDeleteRegisterSpec(this.thesaurus);
+        }
     }
 
     @Override
     protected void postNew() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.getDataMapper().update(this);
     }
 
     @Override
     protected void post() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.getDataMapper().persist(this);
     }
 
-    protected void validateNew(RegisterSpecShadow shadow) throws BusinessException {
-
-    }
-
-    protected void validateUpdate(RegisterSpecShadow shadow) throws BusinessException {
-        validate(shadow);
-        int linkedChannelSpecId = shadow.getLinkedChannelSpecId() == 0 && shadow.getLinkedChannelSpecShadow() != null ? shadow.getLinkedChannelSpecShadow().getId() : shadow.getLinkedChannelSpecId();
-        if (linkedChannelSpecId > 0) {
-            RegisterSpec currentPrimeRegisterSpec = RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory().findByChannelSpecAndType(linkedChannelSpecId, ChannelSpecLinkType.PRIME);
-            if (currentPrimeRegisterSpec != null && currentPrimeRegisterSpec.getId() != shadow.getId() && shadow.getLinkedChannelSpecType() == ChannelSpecLinkType.PRIME) {
-                throw new BusinessException("duplicatePrimeRegisterSpecForChannelSpec", "Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", shadow.getLinkedChannelSpecId(), currentPrimeRegisterSpec.getId());
-            }
-        }
-    }
-
-    protected void deleteDependents() throws SQLException, BusinessException {
-        super.deleteDependents();
-        StringBuffer buffer = new StringBuffer("delete FROM eisrturegisterreading WHERE ");
-        buffer.append("rturegisterid IN ");
-        buffer.append("(select id FROM eisrturegister WHERE rturegspecid = ?)");
-        bindAndExecute(buffer.toString(), getId());
-        buffer = new StringBuffer("delete from eisrturegister where rturegspecid = ?");
-        bindAndExecute(buffer.toString(), getId());
-    }
+//    protected void deleteDependents() throws SQLException, BusinessException {
+//        super.deleteDependents();
+//        StringBuffer buffer = new StringBuffer("delete FROM eisrturegisterreading WHERE ");
+//        buffer.append("rturegisterid IN ");
+//        buffer.append("(select id FROM eisrturegister WHERE rturegspecid = ?)");
+//        bindAndExecute(buffer.toString(), getId());
+//        buffer = new StringBuffer("delete from eisrturegister where rturegspecid = ?");
+//        bindAndExecute(buffer.toString(), getId());
+//    }
 
     public String toString() {
         return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
@@ -205,12 +200,11 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-        validateLinkedChannelSpec(linkedChannelSpec);
         this.linkedChannelSpec = linkedChannelSpec;
     }
 
-    private void validateLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
-        if (linkedChannelSpec != null) {
+    private void validateLinkedChannelSpec() {
+        if (this.linkedChannelSpec != null) {
             if (getDeviceConfiguration() != null && !linkedChannelSpec.getDeviceConfig().equals(getDeviceConfiguration())) {
                 throw new InCorrectDeviceConfigOfChannelSpecException(this.thesaurus, linkedChannelSpec, linkedChannelSpec.getDeviceConfig(), getDeviceConfiguration());
             }
@@ -220,7 +214,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void setNumberOfDigits(int numberOfDigits) {
         validateNumberOfDigits(numberOfDigits);
-        validateOverFlowAndNumberOfDigits(getOverflowValue(), numberOfDigits);
         this.numberOfDigits = numberOfDigits;
     }
 
@@ -237,39 +230,34 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
-        this.overruledObisCode = overruledObisCode;
+        this.overruledObisCodeString = overruledObisCode.toString();
+        this.overruledObisCode = null;
     }
 
     @Override
     public void setOverflow(BigDecimal overflow) {
-        validateOverFlowAndNumberOfDigits(overflow, getNumberOfDigits());
-        validateNumberOfFractionDigitsOfOverFlowValue(overflow, getNumberOfFractionDigits());
         this.overflow = overflow;
     }
 
-    private void validateNumberOfFractionDigitsOfOverFlowValue(BigDecimal overflow, int numberOfFractionDigits) {
-        if (overflow != null) {
-            int scale = overflow.scale();
-            DecimalFormat format = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(scale, true);
-            if (scale > numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, overflow, scale, numberOfFractionDigits);
+    private void validateNumberOfFractionDigitsOfOverFlowValue() {
+        if (this.overflow != null) {
+            int scale = this.overflow.scale();
+            if (scale > this.numberOfFractionDigits) {
+                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, this.overflow, scale,this. numberOfFractionDigits);
             }
         }
     }
 
     /**
      * We need to validate the OverFlow value and the NumberOfDigits together
-     *
-     * @param overflow       the OverFlow value
-     * @param numberOfDigits the Number of digits of this RegisterSpec
      */
-    private void validateOverFlowAndNumberOfDigits(BigDecimal overflow, int numberOfDigits) {
-        if (overflow != null && numberOfDigits > 0) {
-            if (!(overflow.intValue() <= Math.pow(10, numberOfDigits))) {
-                DecimalFormat df = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(numberOfDigits, true);
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, overflow, df.format(Math.pow(10, numberOfDigits)), numberOfDigits);
-            } else if (overflow.intValue() <= 0) {
-                throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, overflow);
+    private void validateOverFlowAndNumberOfDigits() {
+        if (this.overflow != null && this.numberOfDigits > 0) {
+            if (!(this.overflow.intValue() <= Math.pow(10, this.numberOfDigits))) {
+                DecimalFormat df = Environment.DEFAULT.get().getFormatPreferences().getNumberFormat(this.numberOfDigits, true);
+                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.thesaurus, this.overflow, df.format(Math.pow(10, this.numberOfDigits)), this.numberOfDigits);
+            } else if (this.overflow.intValue() <= 0) {
+                throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflow);
             }
         }
     }
@@ -301,9 +289,10 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
         if (channelSpec != null && channelSpecLinkType != null) {
-            RegisterSpec currentPrimeRegisterSpec = RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory().findByChannelSpecAndType(linkedChannelSpecId, ChannelSpecLinkType.PRIME);
-            if (currentPrimeRegisterSpec != null && shadow.getLinkedChannelSpecType() == ChannelSpecLinkType.PRIME) {
-                throw new BusinessException("duplicatePrimeRegisterSpecForChannelSpec", "Linked channel spec (id={0,number}) already has a PRIME register spec (id={1,number})", shadow.getLinkedChannelSpecId(), currentPrimeRegisterSpec.getId());
+            List<RegisterSpec> registerSpecs = this.mapper(RegisterSpec.class).find("channelspecid", channelSpec.getId(), "class", ChannelSpecLinkType.PRIME);
+            RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
+            if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
+                throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);
             }
         }
     }
