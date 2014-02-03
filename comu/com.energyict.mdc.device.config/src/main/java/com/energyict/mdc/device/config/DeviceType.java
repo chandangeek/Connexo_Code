@@ -73,11 +73,25 @@ public interface DeviceType {
      */
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
+    public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
     public List<LogBookType> getLogBookTypes();
+
+    public void addLogBookType (LogBookType logBookType);
+
+    public void removeLogBookType (LogBookType logBookType);
 
     public List<RegisterMapping> getRegisterMappings();
 
+    public void addRegisterMapping (RegisterMapping registerMapping);
+
+    public void removeRegisterMapping (RegisterMapping registerMapping);
+
     public List<LoadProfileType> getLoadProfileTypes();
+
+    public void addLoadProfileType (LoadProfileType loadProfileType);
+
+    public void removeLoadProfileType (LoadProfileType loadProfileType);
 
     public DeviceUsageType getDeviceUsageType();
 

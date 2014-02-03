@@ -118,6 +118,18 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES, loadProfileType.getName(), namesToStringList(deviceTypes));
     }
 
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link DeviceType}
+     * while it has active {@link com.energyict.mdc.device.config.DeviceConfiguration}s.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static CannotDeleteBecauseStillInUseException deviceTypeIsStillInUse (Thesaurus thesaurus, DeviceType deviceType) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS, deviceType.getName());
+    }
+
     private static String namesToStringList(List<RegisterMapping> registerMappings) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
@@ -200,6 +212,11 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         super(thesaurus, messageSeeds, registerGroupName, dependendObjectNames);
         this.set("registerGroupName", registerGroupName);
         this.set("dependendObjectNames", dependendObjectNames);
+    }
+
+    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeeds messageSeeds, String deviceTypeName) {
+        super(thesaurus, messageSeeds, deviceTypeName);
+        this.set("deviceTypeName", deviceTypeName);
     }
 
 }
