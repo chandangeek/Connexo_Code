@@ -62,5 +62,7 @@ public interface DeviceProtocol extends Pluggable, DeviceAccessSupport, DeviceCl
 
     public DeviceFunction getDeviceFunction();
 
+//    public ManufacturerInformation getManufacturerInformation();
+
 
 }
