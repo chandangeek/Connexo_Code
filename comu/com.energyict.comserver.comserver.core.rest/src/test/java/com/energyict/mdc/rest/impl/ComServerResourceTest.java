@@ -116,8 +116,10 @@ public class ComServerResourceTest extends JerseyTest {
         List<ComServer> comServers = new ArrayList<>();
         comServers.add(mock);
         Finder<ComServer> finder = mock(Finder.class);
-        when(engineModelService.findAllComServers()).thenReturn(finder);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
         when(finder.find()).thenReturn(comServers);
+        when(engineModelService.findAllComServers()).thenReturn(finder);
         when(mock.getName()).thenReturn("Test");
         when(mock.getQueryApiPostUri()).thenReturn("/test");
         when(mock.getId()).thenReturn(1L);
