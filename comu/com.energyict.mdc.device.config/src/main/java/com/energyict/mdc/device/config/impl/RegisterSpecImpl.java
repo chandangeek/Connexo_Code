@@ -53,6 +53,16 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.clock = clock;
     }
 
+    static RegisterSpecImpl from (DataModel dataModel, DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
+        return dataModel.getInstance(RegisterSpecImpl.class).initialize(deviceConfig, registerMapping);
+    }
+
+    RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
+        this.setDeviceConfig(deviceConfig);
+        this.setRegisterMapping(registerMapping);
+        return this;
+    }
+
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
         return deviceConfig;

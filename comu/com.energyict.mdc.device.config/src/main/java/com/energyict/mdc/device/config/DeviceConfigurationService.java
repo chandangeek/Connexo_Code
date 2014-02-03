@@ -114,4 +114,27 @@ public interface DeviceConfigurationService {
 
     public LogBookType newLogBookType (String name, ObisCode obisCode);
 
+    public DeviceConfiguration findDeviceConfiguration(long deviceConfigId);
+
+    public RegisterSpec newRegisterSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping);
+
+    public ChannelSpec findChannelSpec(long channelSpecId);
+
+    public RegisterSpec findRegisterSpec(long id);
+
+    public List<RegisterMapping> findRegisterMappingByDeviceType(int deviceTypeId);
+
+    public List<RegisterSpec> findRegisterSpecsByRegisterMappings(List<RegisterMapping> mappings);
+
+    public DeviceType findDeviceType(long deviceTypeId);
+
+    public List<RegisterSpec> findRegisterSpecsByDeviceTypeAndRegisterMapping(DeviceType deviceType, RegisterMapping registerMapping);
+
+    public List<RegisterSpec> findRegisterSpecsByRegisterMapping(long registerMappingId);
+
+    public List<RegisterSpec> findRegisterSpecsByDeviceConfiguration(DeviceConfiguration deviceConfig);
+
+    public List<RegisterSpec> findByChannelSpecAndLinkType(long channelSpecId, ChannelSpecLinkType linkType);
+
+    public List<RegisterSpec> findRegisterSpecsByDeviceConfigurationAndRegisterMapping(long deviceConfigId, long registerMappingId);
 }
