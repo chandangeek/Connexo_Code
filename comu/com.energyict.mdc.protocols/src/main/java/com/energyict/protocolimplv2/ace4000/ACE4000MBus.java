@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,11 @@ public class ACE4000MBus extends ACE4000Outbound {
 
     @Override
     public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
@@ -38,6 +39,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
         return null;
     }
 
