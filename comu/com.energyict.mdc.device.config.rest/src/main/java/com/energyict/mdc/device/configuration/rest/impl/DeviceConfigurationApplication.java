@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -18,6 +20,7 @@ public class DeviceConfigurationApplication extends Application {
     private static final Logger LOGGER = Logger.getLogger(DeviceConfigurationApplication.class.getSimpleName());
 
     private DeviceConfigurationService deviceConfigurationService;
+    private ProtocolPluggableService protocolPluggableService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -25,7 +28,8 @@ public class DeviceConfigurationApplication extends Application {
                 AutoCloseDatabaseConnection.class,
 //                TransactionWrapper.class,
 //                ExceptionLogger.class,
-                DeviceTypeResource.class
+                DeviceTypeResource.class,
+                DeviceProtocolResource.class
         );
     }
 
@@ -42,12 +46,18 @@ public class DeviceConfigurationApplication extends Application {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    @Reference
+    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
+        this.protocolPluggableService = protocolPluggableService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
         protected void configure() {
             LOGGER.fine("Binding services using HK2");
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+            bind(protocolPluggableService).to(ProtocolPluggableService.class);
         }
     }
 
