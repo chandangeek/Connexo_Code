@@ -6,6 +6,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,6 +25,7 @@ public class RolesResource {
     private final TransactionService transactionService;
     private final PartyService partyService;
 
+    @Inject
     public RolesResource(TransactionService transactionService, PartyService partyService) {
         this.transactionService = transactionService;
         this.partyService = partyService;
