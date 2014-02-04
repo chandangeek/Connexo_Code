@@ -297,6 +297,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.channelSpecLinkType = channelSpecLinkType;
     }
 
+    // TODO check if this validation is oké
     private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
         if (channelSpec != null && channelSpecLinkType != null) {
             List<RegisterSpec> registerSpecs = this.mapper(RegisterSpec.class).find("channelspecid", channelSpec.getId(), "class", ChannelSpecLinkType.PRIME);
