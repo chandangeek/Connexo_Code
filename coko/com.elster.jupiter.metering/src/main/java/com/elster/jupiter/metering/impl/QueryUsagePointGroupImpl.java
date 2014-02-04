@@ -3,11 +3,15 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMembership;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.IntermittentInterval;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +32,16 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
     @Override
     public List<UsagePoint> getMembers(Date date) {
         return meteringService.getUsagePointQuery().select(getCondition());
+    }
+
+    @Override
+    public List<UsagePointMembership> getMembers(Interval interval) {
+        IntermittentInterval intervals = new IntermittentInterval(interval);
+        List<UsagePointMembership> memberships = new ArrayList<>();
+        for (UsagePoint usagePoint : getMembers((Date) null)) {
+            memberships.add(new UsagePointMembershipImpl(usagePoint, intervals));
+        }
+        return memberships;
     }
 
     @Override

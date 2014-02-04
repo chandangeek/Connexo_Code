@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointMembership;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
@@ -25,7 +26,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     private List<EntryImpl> entries;
 
-    private final List<UsagePointMembership> memberships = new ArrayList<>();
+    private final List<UsagePointMembershipImpl> memberships = new ArrayList<>();
 
     private final DataModel dataModel;
 
@@ -47,54 +48,24 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     }
 
     private void buildMemberships() {
-        Map<UsagePoint, UsagePointMembership> map = new HashMap<>();
+        Map<UsagePoint, UsagePointMembershipImpl> map = new HashMap<>();
         for (EntryImpl entry : entries) {
             if (!map.containsKey(entry.getUsagePoint())) {
-                UsagePointMembership newMembership = new UsagePointMembership(entry.getUsagePoint(), IntermittentInterval.NEVER);
+                UsagePointMembershipImpl newMembership = new UsagePointMembershipImpl(entry.getUsagePoint(), IntermittentInterval.NEVER);
                 map.put(entry.getUsagePoint(), newMembership);
                 memberships.add(newMembership);
             }
-            UsagePointMembership membership = map.get(entry.getUsagePoint());
+            UsagePointMembershipImpl membership = map.get(entry.getUsagePoint());
             membership.addInterval(entry.getInterval());
         }
 
     }
 
-    private List<UsagePointMembership> getMemberships() {
+    private List<UsagePointMembershipImpl> getMemberships() {
         if (entries == null) {
             getEntries();
         }
         return memberships;
-    }
-
-    private static class UsagePointMembership {
-        private final UsagePoint usagePoint;
-        private IntermittentInterval intervals;
-
-        private UsagePointMembership(UsagePoint usagePoint, IntermittentInterval intervals) {
-            this.usagePoint = usagePoint;
-            this.intervals = intervals;
-        }
-
-        private IntermittentInterval getIntervals() {
-            return intervals;
-        }
-
-        private UsagePoint getUsagePoint() {
-            return usagePoint;
-        }
-
-        public void addInterval(Interval interval) {
-            intervals = intervals.addInterval(interval);
-        }
-
-        public void removeInterval(Interval interval) {
-            intervals = intervals.remove(interval);
-        }
-
-        private Interval resultingInterval(Interval interval) {
-            return getIntervals().intervalAt(interval.getStart());
-        }
     }
 
     static class EntryImpl implements Entry {
@@ -168,9 +139,9 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     @Override
     public Entry add(UsagePoint usagePoint, Interval interval) {
-        UsagePointMembership membership = forUsagePoint(usagePoint);
+        UsagePointMembershipImpl membership = forUsagePoint(usagePoint);
         if (membership == null) {
-            membership = new UsagePointMembership(usagePoint, IntermittentInterval.NEVER);
+            membership = new UsagePointMembershipImpl(usagePoint, IntermittentInterval.NEVER);
             getMemberships().add(membership);
         }
         membership.addInterval(interval);
@@ -181,7 +152,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     @Override
     public void remove(Entry entry) {
-        UsagePointMembership membership = forUsagePoint(entry.getUsagePoint());
+        UsagePointMembershipImpl membership = forUsagePoint(entry.getUsagePoint());
         Interval interval = membership.getIntervals().intervalAt(entry.getInterval().getStart());
         if (interval != null && interval.equals(entry.getInterval())) {
             membership.removeInterval(interval);
@@ -237,6 +208,20 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     }
 
     @Override
+    public List<UsagePointMembership> getMembers(Interval interval) {
+        final IntermittentInterval intervalScope = IntermittentInterval.from(interval);
+        return FluentIterable.from(getMemberships())
+                .filter(Active.during(interval))
+                .transform(new Function<UsagePointMembershipImpl, UsagePointMembership>() {
+                    @Override
+                    public UsagePointMembership apply(UsagePointMembershipImpl input) {
+                        return input.withIntervals(input.getIntervals().intersection(intervalScope));
+                    }
+                })
+                .toList();
+    }
+
+    @Override
     public boolean isMember(final UsagePoint usagePoint, Date date) {
         return !FluentIterable.from(getMemberships())
                 .filter(With.usagePoint(usagePoint))
@@ -246,7 +231,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     @Override
     public void endMembership(UsagePoint usagePoint, Date date) {
-        Optional<UsagePointMembership> first = FluentIterable.from(getMemberships())
+        Optional<UsagePointMembershipImpl> first = FluentIterable.from(getMemberships())
                 .filter(With.usagePoint(usagePoint))
                 .filter(Active.at(date)).first();
         if (first.isPresent()) {
@@ -254,26 +239,46 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         }
     }
 
-    private UsagePointMembership forUsagePoint(UsagePoint usagePoint) {
+    private UsagePointMembershipImpl forUsagePoint(UsagePoint usagePoint) {
         return FluentIterable.from(getMemberships())
                 .filter(With.usagePoint(usagePoint))
                 .first().orNull();
     }
 
-    private static class Active implements Predicate<UsagePointMembership> {
-
-        private final Date date;
-
-        private Active(Date date) {
-            this.date = date;
-        }
+    private static abstract class Active implements Predicate<UsagePointMembershipImpl> {
 
         public static Active at(Date date) {
-            return new Active(date);
+            return new ActiveAt(date);
+        }
+
+        public static Active during(Interval interval) {
+            return new ActiveDuring(interval);
+        }
+    }
+
+    private static class ActiveDuring extends Active {
+        private final Interval interval;
+
+        private ActiveDuring(Interval interval) {
+            this.interval = interval;
         }
 
         @Override
-        public boolean apply(UsagePointMembership membership) {
+        public boolean apply(UsagePointMembershipImpl membership) {
+            return membership != null && membership.getIntervals().overlaps(IntermittentInterval.from(interval));
+        }
+    }
+
+
+    private static class ActiveAt extends Active {
+        private final Date date;
+
+        private ActiveAt(Date date) {
+            this.date = date;
+        }
+
+        @Override
+        public boolean apply(UsagePointMembershipImpl membership) {
             return membership != null && membership.getIntervals().contains(date);
         }
     }
