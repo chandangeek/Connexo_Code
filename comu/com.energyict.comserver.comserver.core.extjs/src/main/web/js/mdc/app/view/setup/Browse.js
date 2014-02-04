@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.Browse', {
     alias: 'widget.setupBrowse',
     overflowY: 'auto',
     padding: 10,
+    cls: 'content-wrapper',
     items: [
         {
             xtype: 'container',
@@ -20,22 +21,18 @@ Ext.define('Mdc.view.setup.Browse', {
                     items: [
                         {
                             xtype: 'component',
-                            cls: 'content-container',
                             html: '<a href="#/setup/comservers">comservers</a>'
                         },
                         {
                             xtype: 'component',
-                            cls: 'content-container',
                             html: '<a href="#/setup/comportpools">communication port pools</a>'
                         },
                         {
                             xtype: 'component',
-                            cls: 'content-container',
                             html: '<a href="#/setup/devicecommunicationprotocols">device communication protocols</a>'
                         },
                         {
                             xtype: 'component',
-                            cls: 'content-container',
                             html: '<a href="#/setup/licensedprotocols">licensed protocols</a>'
                         }
                     ],
@@ -43,7 +40,17 @@ Ext.define('Mdc.view.setup.Browse', {
                     margin: '10 5 10 10'
                 },
                 {
-                    border: 0,
+                    xtype: 'fieldset',
+                    collapsible: true,
+                    title: 'Device management',
+                    padding: 10,
+                    layout: 'vbox',
+                    items: [
+                        {
+                            xtype: 'component',
+                            html: '<a href="#/setup/devicetypes">devicetypes</a>'
+                        }
+                    ],
                     columnWidth: 0.5,
                     margin: '10 5 10 10'
                 }

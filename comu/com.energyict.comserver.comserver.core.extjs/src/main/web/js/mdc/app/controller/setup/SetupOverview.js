@@ -8,7 +8,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.comportpool.ComPortPoolsGrid',
         'setup.comportpool.ComPortPoolsSetup',
         'setup.devicecommunicationprotocol.List',
-        'setup.licensedprotocol.List'
+        'setup.licensedprotocol.List',
+        'setup.devicetype.DeviceTypesSetup'
     ],
 
     init: function () {
@@ -44,6 +45,10 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
     showComPortPools: function () {
         var widget = Ext.widget('comPortPoolsSetup');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+    showDeviceTypes: function(){
+        var widget = Ext.widget('deviceTypesSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     }
 });

@@ -234,6 +234,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
                 recordArray[0].destroy({
                     callback: function(){
                         callbackCount--;
+                        callbackCount--;
                         if(callbackCount==0){
                             me.getComServerGrid().getStore().load();
                         }

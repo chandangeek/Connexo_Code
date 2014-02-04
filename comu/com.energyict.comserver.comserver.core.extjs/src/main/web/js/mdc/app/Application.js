@@ -20,7 +20,8 @@ Ext.define('Mdc.Application', {
         'setup.ComPortPools',
         'history.Setup',
         'setup.DeviceCommunicationProtocol',
-        'setup.LicensedProtocol'
+        'setup.LicensedProtocol',
+        'setup.DeviceTypes'
     ],
 
     stores: [

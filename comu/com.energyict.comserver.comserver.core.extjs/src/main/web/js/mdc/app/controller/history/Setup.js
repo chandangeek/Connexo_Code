@@ -12,6 +12,8 @@ Ext.define('Mdc.controller.history.Setup', {
             this.handleComPortPoolTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'licensedprotocols') {
             this.handleLicensedProtocolTokens(tokens);
+        } else if (tokens.length > 1 && tokens[1] === 'devicetypes'){
+            this.handleDeviceTypeTokens(tokens);
         } else {
             this.unknownTokensReturnToOverview();
         }
@@ -63,6 +65,12 @@ Ext.define('Mdc.controller.history.Setup', {
             } else {
                 Mdc.getApplication().getSetupComPortPoolsController().showEditView(tokens[2]);
             }
+        }
+    },
+
+    handleDeviceTypeTokens: function (tokens){
+        if (tokens.length === 2) {
+            Mdc.getApplication().getSetupSetupOverviewController().showDeviceTypes();
         }
     },
 

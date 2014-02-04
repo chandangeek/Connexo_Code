@@ -8,7 +8,6 @@ Ext.define('Mdc.model.InboundComPort', {
         {name:'ringCount',type: 'int',useNull: true},
         {name:'maximumNumberOfDialErrors',type: 'int',useNull: true},
         {name:'atCommandTry',type: 'string',useNull: true},
-        {name:'comPortName',type: 'string',useNull: true},
         {name:'baudrate',type: 'string',useNull: true},
         {name:'nrOfDataBits',type: 'int',useNull: true},
         {name:'nrOfStopBits',type: 'int',useNull: true},
