@@ -55,6 +55,18 @@ public class DeviceTypeResource {
     }
 
     @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DeviceTypeInfo findDeviceType(@PathParam("id") String name) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        return new DeviceTypeInfo(deviceType);
+    }
+
+    @GET
     @Path("/{id}/loadprofiletypes")
     @Produces(MediaType.APPLICATION_JSON)
     public List<LoadProfileTypeInfo> getLoadProfilesForDeviceType(@PathParam("id") String name) {
