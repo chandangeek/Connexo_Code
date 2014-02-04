@@ -1,14 +1,17 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -45,6 +48,21 @@ public class DeviceTypeResource {
         }
 
         return deviceTypeInfos;
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteDeviceType(@PathParam("id") String name) throws SQLException, BusinessException {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+
+        deviceType.delete();
+        return Response.ok().build();
+
     }
 
     @PUT
