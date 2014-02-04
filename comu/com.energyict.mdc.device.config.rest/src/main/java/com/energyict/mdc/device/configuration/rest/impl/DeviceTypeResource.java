@@ -4,6 +4,7 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.LoadProfileType;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -11,9 +12,12 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -47,7 +51,23 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
-
         return new DeviceTypeInfo(null);
     }
+
+    @GET
+    @Path("/{id}/loadprofiletypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<LoadProfileTypeInfo> getLoadProfilesForDeviceType(@PathParam("id") String name) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        List<LoadProfileTypeInfo> loadProfileTypeInfos = new ArrayList<>();
+        for (LoadProfileType loadProfileType : deviceType.getLoadProfileTypes()) {
+            loadProfileTypeInfos.add(new LoadProfileTypeInfo(loadProfileType));
+        }
+        return loadProfileTypeInfos;
+    }
+
 }
