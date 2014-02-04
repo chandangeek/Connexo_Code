@@ -27,7 +27,6 @@ import org.mockito.ArgumentCaptor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -75,10 +74,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetEmptyDeviceTypeList() throws Exception {
-        Finder<DeviceType> finder = mock(Finder.class);
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        Finder<DeviceType> finder = mockFinder(Collections.<DeviceType>emptyList());
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
@@ -88,10 +84,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetEmptyDeviceTypeListPaged() throws Exception {
-        Finder<DeviceType> finder = mock(Finder.class);
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        Finder<DeviceType> finder = mockFinder(Collections.<DeviceType>emptyList());
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).request().get(Map.class);
@@ -106,10 +99,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetEmptyDeviceTypeListSorted() throws Exception {
-        Finder<DeviceType> finder = mock(Finder.class);
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.<DeviceType>emptyList());
+        Finder<DeviceType> finder = mockFinder(Collections.<DeviceType>emptyList());
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).queryParam("sortColumns", new String[] {"name", "class"}).request().get(Map.class);
@@ -151,10 +141,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         when(deviceType.getRegisterMappings()).thenReturn(registerList);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
 
-        Finder<DeviceType> finder = mock(Finder.class);
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(Arrays.asList(deviceType));
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(deviceType));
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
@@ -171,5 +158,13 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("serviceCategory")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("deviceFunction")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
+    }
+
+    private <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(SortOrder.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        return finder;
     }
 }
