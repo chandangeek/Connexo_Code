@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
 import com.energyict.mdw.core.LogBookType;
@@ -115,6 +116,22 @@ public class DeviceTypeResource {
             logBookTypeInfos.add(new LogBookTypeInfo(logBookType));
         }
         return logBookTypeInfos;
+    }
+
+    @GET
+    @Path("/{id}/deviceconfigurations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<DeviceConfigurationInfo> getDeviceConfigurationsForDeviceType(@PathParam("id") String name) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        List<DeviceConfigurationInfo> deviceConfigurationInfos = new ArrayList<>();
+        for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
+            deviceConfigurationInfos.add(new DeviceConfigurationInfo(deviceConfiguration));
+        }
+        return deviceConfigurationInfos;
     }
 
 }
