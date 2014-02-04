@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
@@ -11,7 +10,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointGroup;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.Column;
@@ -279,52 +277,6 @@ public enum TableSpecs {
 			table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE").on(roleMRIDColumn).references("PRT", "PRT_PARTYROLE").onDelete(RESTRICT).map("role").add();
  		}
 	},
-    MTR_UP_GROUP {
-        @Override
-        void addTo(DataModel dataModel) {
-			Table<UsagePointGroup> table = dataModel.addTable(name(),UsagePointGroup.class);
-            table.map(AbstractUsagePointGroup.IMPLEMENTERS);
-            Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").type("varchar2(80)").map("name").add();
-            Column mRIDColumn = table.column("MRID").type("varchar2(80)").map("mRID").add();
-            table.column("DESCRIPTION").type("varchar2(256)").map("description").add();
-            table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
-            table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
-            table.addAuditColumns();
-            table.primaryKey("MTR_PK_ENUM_UP_GROUP").on(idColumn).add();
-            table.unique("MTR_U_ENUM_UP_GROUP").on(mRIDColumn).add();
-        }
-    },
-    MTR_ENUM_UP_IN_GROUP {
-        @Override
-        void addTo(DataModel dataModel) {
-			Table<EnumeratedUsagePointGroup.Entry> table = dataModel.addTable(name(),EnumeratedUsagePointGroup.Entry.class);
-            table.map(EnumeratedUsagePointGroupImpl.EntryImpl.class);
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.primaryKey("MTR_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_UPGE_UPG").references(MTR_UP_GROUP.name()).onDelete(DeleteRule.CASCADE).map("usagePointGroup").on(groupColumn).add();
-            table.foreignKey("MTR_FK_UPGE_UP").references(MTR_USAGEPOINT.name()).onDelete(DeleteRule.RESTRICT).map("usagePoint").on(usagePointColumn).add();
-        }
-    },
-    MTR_QUERY_UP_GROUP_OP {
-        @Override
-        void addTo(DataModel dataModel) {
-			Table<QueryBuilderOperation> table = dataModel.addTable(name(),QueryBuilderOperation.class);
-            table.map(AbstractQueryBuilderOperation.IMPLEMENTERS);
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-            table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.column("OPERATOR").type("VARCHAR2(80)").map("operator").add();
-            table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
-            table.column("BINDVALUES").type("VARCHAR2(256)").conversion(CHAR2JSON).map("values").add();
-
-            table.primaryKey("MTR_PK_QUPGOP").on(groupColumn, positionColumn).add();
-            table.foreignKey("MTR_FK_QUPG_QUPGOP").references(MTR_UP_GROUP.name()).onDelete(DeleteRule.CASCADE).map("usagePointGroup").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
-
-        }
-    },
     MTR_READINGQUALITY {
         @Override
         void addTo(DataModel dataModel) {

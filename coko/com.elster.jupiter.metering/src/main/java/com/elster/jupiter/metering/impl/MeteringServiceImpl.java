@@ -7,11 +7,9 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -19,7 +17,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -273,36 +270,6 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
-    }
-
-    @Override
-    public QueryUsagePointGroup createQueryUsagePointGroup(Condition condition) {
-        QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl(dataModel, this);
-        queryUsagePointGroup.setCondition(condition);
-        return queryUsagePointGroup;
-    }
-
-    @Override
-    public Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id) {
-        return dataModel.mapper(QueryUsagePointGroup.class).getOptional(id);
-    }
-
-    @Override
-    public EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name) {
-        EnumeratedUsagePointGroup group = new EnumeratedUsagePointGroupImpl(dataModel);
-        group.setName(name);
-        return group;
-    }
-
-    @Override
-    public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
-        return dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(id);
-    }
-
-    @Override
-    public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
-        List<UsagePointGroup> found = dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID));
-        return found.isEmpty() ? Optional.<UsagePointGroup>absent() : Optional.of(found.get(0));
     }
 
     @Override

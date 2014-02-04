@@ -13,10 +13,6 @@ public interface MeteringService {
 
     ServiceLocation newServiceLocation();
 
-    QueryUsagePointGroup createQueryUsagePointGroup(Condition condition);
-
-    EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name);
-
     ReadingStorer createOverrulingStorer();
 
     ReadingStorer createNonOverrulingStorer();
@@ -34,12 +30,6 @@ public interface MeteringService {
     Optional<Meter> findMeter(long id);
 
     Optional<EndDevice> findEndDevice(String mRid);
-
-    Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
-
-    Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
-
-    Optional<UsagePointGroup> findUsagePointGroup(String mRID);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 
