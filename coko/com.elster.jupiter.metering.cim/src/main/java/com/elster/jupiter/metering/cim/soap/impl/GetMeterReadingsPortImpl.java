@@ -14,7 +14,8 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePointMembership;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.metering.cim.impl.MeterReadingsGenerator;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
@@ -34,12 +35,14 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
 
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupsService;
     private final ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
     private final MeterReadingsGenerator meterReadingsGenerator = new MeterReadingsGenerator();
     private final Clock clock;
 
-    GetMeterReadingsPortImpl(MeteringService meteringService, Clock clock) {
+    GetMeterReadingsPortImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, Clock clock) {
         this.meteringService = meteringService;
+        this.meteringGroupsService = meteringGroupsService;
         this.clock = clock;
     }
 
@@ -95,7 +98,7 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
             }
 
             for (String usagePointGroupMrID : usagePointGroups) {
-                Optional<com.elster.jupiter.metering.UsagePointGroup> found = meteringService.findUsagePointGroup(usagePointGroupMrID);
+                Optional<com.elster.jupiter.metering.groups.UsagePointGroup> found = meteringGroupsService.findUsagePointGroup(usagePointGroupMrID);
                 if (found.isPresent()) {
                     List<UsagePointMembership> memberships = found.get().getMembers(interval);
                     for (UsagePointMembership membership : memberships) {
