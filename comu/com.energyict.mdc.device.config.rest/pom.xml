@@ -11,7 +11,7 @@
         <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>comserver-device-config-rest</artifactId>
+    <artifactId>mdc.device.config.rest</artifactId>
     <packaging>bundle</packaging>
     <version>${comserver.version}</version>
     <name>EIServer - ComServer - Device Configuration Rest</name>
