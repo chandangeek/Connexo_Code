@@ -1,18 +1,29 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import com.energyict.mdw.core.LogBookType;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -40,6 +51,21 @@ public class DeviceTypeResource {
         }
 
         return deviceTypeInfos;
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteDeviceType(@PathParam("id") String name) throws SQLException, BusinessException {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+
+        deviceType.delete();
+        return Response.ok().build();
+
     }
 
     @PUT
@@ -75,6 +101,38 @@ public class DeviceTypeResource {
             loadProfileTypeInfos.add(new LoadProfileTypeInfo(loadProfileType));
         }
         return loadProfileTypeInfos;
+    }
+
+    @GET
+    @Path("/{id}/logbooktypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") String name) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
+        for (LogBookType logBookType : deviceType.getLogBookTypes()) {
+            logBookTypeInfos.add(new LogBookTypeInfo(logBookType));
+        }
+        return logBookTypeInfos;
+    }
+
+    @GET
+    @Path("/{id}/deviceconfigurations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<DeviceConfigurationInfo> getDeviceConfigurationsForDeviceType(@PathParam("id") String name) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        List<DeviceConfigurationInfo> deviceConfigurationInfos = new ArrayList<>();
+        for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
+            deviceConfigurationInfos.add(new DeviceConfigurationInfo(deviceConfiguration));
+        }
+        return deviceConfigurationInfos;
     }
 
     @GET

@@ -112,6 +112,22 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testGetDeviceTypeByName() throws Exception {
+        DeviceType deviceType = mock(DeviceType.class);
+        String webRTUKP = "WebRTUKP";
+        when(deviceType.getName()).thenReturn(webRTUKP);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.GATEWAY);
+        when(deviceConfigurationService.findDeviceType(webRTUKP)).thenReturn(deviceType);
+
+        Map<String, Object> map = target("/devicetypes/WebRTUKP").request().get(Map.class);
+        assertThat(map.get("name")).isEqualTo(webRTUKP);
+    }
+
+    @Test
     public void testDeviceTypeInfoJavaScriptMappings() throws Exception {
         int NUMBER_OF_CONFIGS = 4;
         int NUMBER_OF_LOADPROFILES = 6;
