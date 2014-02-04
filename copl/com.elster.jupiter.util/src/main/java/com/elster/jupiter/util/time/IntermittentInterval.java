@@ -202,13 +202,17 @@ public final class IntermittentInterval implements Iterable<Interval> {
         return copy().doAdd(period);
     }
 
+    public static IntermittentInterval from(Interval... interval) {
+        return new IntermittentInterval(interval);
+    }
+
     /**
      * Tests whether the given {@link java.util.Date} is contained in any of its {@link Interval}s.
      *
      * @param date the {@link java.util.Date} to test
      * @return true if the given {@link java.util.Date} is contained in any of its {@link Interval}s, false otherwise.
      */
-    public boolean contains(Date date) {
+    public final boolean contains(Date date) {
         for (Interval period : intervals) {
             if (period.contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
                 return true;
@@ -224,7 +228,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * @param other {@link IntermittentInterval} to exclude
      * @return a {@link IntermittentInterval} that is the difference of this and the other, never null.
      */
-    public IntermittentInterval difference(IntermittentInterval other) {
+    public final IntermittentInterval difference(IntermittentInterval other) {
         IntermittentInterval copy = copy();
         for (Interval Interval : other.intervals) {
             copy.doRemove(Interval);
@@ -270,7 +274,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * @param other the instance to intersect with
      * @return a {@link IntermittentInterval} that is the union of this and the given {@link IntermittentInterval}
      */
-    public IntermittentInterval intersection(IntermittentInterval other) {
+    public final IntermittentInterval intersection(IntermittentInterval other) {
         if (triviallyCannotOverlap(other)) {
             return NEVER;
         }
@@ -282,11 +286,11 @@ public final class IntermittentInterval implements Iterable<Interval> {
      *
      * @return true if getIntervals() would return an empty {@link java.util.List}, false otherwise.
      */
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return intervals.isEmpty();
     }
 
-    public Iterator<Interval> iterator() {
+    public final Iterator<Interval> iterator() {
         return getIntervals().iterator();
     }
 
@@ -295,7 +299,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      *
      * @return a {@link IntermittentInterval} that is the negative of this one.
      */
-    public IntermittentInterval negative() {
+    public final IntermittentInterval negative() {
         IntermittentInterval negative = new IntermittentInterval(new Interval(null, null));
         for (Interval Interval : intervals) {
             negative.doRemove(Interval);
@@ -310,7 +314,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * @return true if at at least one {@link java.util.Date} exists for which contains() would return true for both this as the given
      *         {@link IntermittentInterval}, false otherwise.
      */
-    public boolean overlaps(IntermittentInterval other) {
+    public final boolean overlaps(IntermittentInterval other) {
         if (triviallyCannotOverlap(other)) {
             return false;
         }
@@ -335,7 +339,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * @return a {@link Interval} spanning from the earliest from to the latest to in this instance, or null if this is an empty
      *         {@link IntermittentInterval}.
      */
-    public Interval toSpanningInterval() {
+    public final Interval toSpanningInterval() {
         if (isEmpty()) {
             return null;
         }
@@ -343,7 +347,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return intervals.toString();
     }
 
@@ -353,7 +357,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * @param other the {@link Interval} to unite with
      * @return a {@link IntermittentInterval} that is the union of this and the given instance, never null.
      */
-    public IntermittentInterval union(IntermittentInterval other) {
+    public final IntermittentInterval union(IntermittentInterval other) {
         IntermittentInterval copy = copy();
         for (Interval Interval : other.intervals) {
             copy.doAdd(Interval);
@@ -361,7 +365,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
         return copy;
     }
 
-    public Interval intervalAt(Date date) {
+    public final Interval intervalAt(Date date) {
         int i = Collections.binarySearch(intervals, Interval.startAt(date), IntervalComparators.FROM_COMPARATOR);
         if (i >=0) {
             return intervals.get(i);
