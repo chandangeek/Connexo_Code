@@ -33,7 +33,6 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         this.addressSelector = comPort.getAddressSelector();
         this.postDialCommands = comPort.getPostDialCommands();
         if (comPort.getSerialPortConfiguration()!=null) {
-            this.comPortName = comPort.getSerialPortConfiguration().getComPortName();
             this.baudrate = comPort.getSerialPortConfiguration().getBaudrate();
             this.nrOfDataBits = comPort.getSerialPortConfiguration().getNrOfDataBits();
             this.nrOfStopBits = comPort.getSerialPortConfiguration().getNrOfStopBits();
@@ -64,7 +63,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         source.setAddressSelector(this.addressSelector);
         source.setPostDialCommands(this.postDialCommands);
         source.setSerialPortConfiguration(new SerialPortConfiguration(
-                this.comPortName,
+                this.name,
                 this.baudrate,
                 this.nrOfDataBits,
                 this.nrOfStopBits,
@@ -94,7 +93,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
         builder.addressSelector(this.addressSelector);
         builder.postDialCommands(this.postDialCommands);
         builder.serialPortConfiguration(new SerialPortConfiguration(
-                this.comPortName,
+                this.name,
                 this.baudrate,
                 this.nrOfDataBits,
                 this.nrOfStopBits,

@@ -7,9 +7,9 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
-import com.energyict.mdc.engine.model.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.channels.serial.BaudrateValue;
 import com.energyict.mdc.protocol.api.channels.serial.FlowControl;
@@ -20,7 +20,6 @@ import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
 import com.energyict.protocols.mdc.channels.serial.SerialPortConfiguration;
-import com.google.common.base.Optional;
 import org.assertj.core.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
@@ -31,17 +30,6 @@ import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
@@ -302,7 +290,7 @@ public class ComPortResourceTest extends JerseyTest {
         when(modemBasedInboundComPort.getRingCount()).thenReturn(11);
         when(modemBasedInboundComPort.getModemInitStrings()).thenReturn(Arrays.asList("comme ci", "comme ca"));
         when(modemBasedInboundComPort.getAtCommandTimeout()).thenReturn(atCommandTimeout);
-        when(modemBasedInboundComPort.getSerialPortConfiguration()).thenReturn(new SerialPortConfiguration("port name", BaudrateValue.BAUDRATE_1200, NrOfDataBits.FIVE, NrOfStopBits.TWO, Parities.EVEN, FlowControl.XONXOFF));
+        when(modemBasedInboundComPort.getSerialPortConfiguration()).thenReturn(new SerialPortConfiguration("modem inbound", BaudrateValue.BAUDRATE_1200, NrOfDataBits.FIVE, NrOfStopBits.TWO, Parities.EVEN, FlowControl.XONXOFF));
 
         when(engineModelService.findComPort(comPort_id)).thenReturn(modemBasedInboundComPort);
         final Map<String, Object> response = target(COMPORTS_RESOURCE_URL+"/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
@@ -328,7 +316,6 @@ public class ComPortResourceTest extends JerseyTest {
                 MapEntry.entry("postDialCommands", "byebye"),
                 MapEntry.entry("ringCount", 11),
                 MapEntry.entry("modemInitStrings", Arrays.asList(map, map2)),
-                MapEntry.entry("comPortName", "port name"),
                 MapEntry.entry("baudrate", "1200"),
                 MapEntry.entry("nrOfDataBits", "5"),
                 MapEntry.entry("nrOfStopBits", "2"),

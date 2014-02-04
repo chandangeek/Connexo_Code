@@ -42,7 +42,6 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public List<Map<String, String>> modemInitStrings;
     public String addressSelector;
     public String postDialCommands;
-    public String comPortName;
     @XmlJavaTypeAdapter(BaudrateAdapter.class)
     public BaudrateValue baudrate;
     @XmlJavaTypeAdapter(NrOfDataBitsAdapter.class)
