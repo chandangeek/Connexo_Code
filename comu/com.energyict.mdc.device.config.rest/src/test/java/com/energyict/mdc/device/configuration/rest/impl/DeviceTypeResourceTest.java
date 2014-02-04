@@ -168,10 +168,8 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("name")).isEqualTo("unique name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("isDirectlyAddressable")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        Map<String, Object> jsonDeviceProtocol = (Map<String, Object>) jsonDeviceType.get("communicationProtocol");
-        assertThat(jsonDeviceProtocol).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceProtocol.get("name")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceProtocol.get("serviceCategory")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceProtocol.get("deviceFunction")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("serviceCategory")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("deviceFunction")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 }

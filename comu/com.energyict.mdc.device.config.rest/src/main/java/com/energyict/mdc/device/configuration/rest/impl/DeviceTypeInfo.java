@@ -1,33 +1,31 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.metering.ServiceKind;
 import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdw.core.DeviceType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @XmlRootElement
 public class DeviceTypeInfo {
 
     @JsonProperty("name")
-    private String name;
-    @JsonProperty("communicationProtocol")
-    private DeviceProtocolInfo deviceProtocolInfo;
+    public String name;
     @JsonProperty("loadProfileCount")
-    private int loadProfileCount;
+    public int loadProfileCount;
     @JsonProperty("registerCount")
-    private int registerCount;
+    public int registerCount;
     @JsonProperty("logBookCount")
-    private int logBookCount;
+    public int logBookCount;
     @JsonProperty("deviceConfigurationCount")
-    private int deviceConfigurationCount;
+    public int deviceConfigurationCount;
     @JsonProperty("isDirectlyAddressable")
-    private boolean isDirectlyAddressable;
+    public boolean isDirectlyAddressable;
     @JsonProperty("canBeGateway")
-    private boolean canBeGateway;
+    public boolean canBeGateway;
+    @JsonUnwrapped // As requested by ExtJS people
+    public DeviceProtocolInfo deviceProtocolInfo;
 
     public DeviceTypeInfo() {
     }

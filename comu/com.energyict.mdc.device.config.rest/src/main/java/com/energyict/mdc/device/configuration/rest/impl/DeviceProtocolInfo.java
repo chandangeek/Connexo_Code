@@ -12,7 +12,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @XmlRootElement
 public class DeviceProtocolInfo {
 
-    @JsonProperty("name")
+    @JsonProperty("communicationProtocolName")
     public String name;
     @JsonProperty("serviceCategory")
     @XmlJavaTypeAdapter(ServiceKindAdapter.class)
@@ -20,13 +20,10 @@ public class DeviceProtocolInfo {
     @JsonProperty("deviceFunction")
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     public DeviceFunction deviceFunction;
-    @JsonProperty("manufacturer")
-    public ManufacturerInfo manufacturerInfo;
 
     public DeviceProtocolInfo(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         this.name = deviceProtocolPluggableClass.getName();
         this.deviceFunction = deviceProtocolPluggableClass.getDeviceProtocol().getDeviceFunction();
         this.serviceKind = deviceFunction.getServiceKind();
-        this.manufacturerInfo = new ManufacturerInfo(deviceProtocolPluggableClass.getDeviceProtocol().getManufacturerInformation().getManufacturer());
     }
 }
