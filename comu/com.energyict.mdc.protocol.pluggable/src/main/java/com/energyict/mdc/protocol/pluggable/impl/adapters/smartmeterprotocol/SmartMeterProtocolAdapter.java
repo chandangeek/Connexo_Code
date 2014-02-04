@@ -242,7 +242,8 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return null;
+        //todo
+        return DeviceFunction.METER;
     }
 
     @Override
