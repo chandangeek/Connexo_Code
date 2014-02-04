@@ -6,6 +6,7 @@ import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.LogBookType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +99,22 @@ public class DeviceTypeResource {
             loadProfileTypeInfos.add(new LoadProfileTypeInfo(loadProfileType));
         }
         return loadProfileTypeInfos;
+    }
+
+    @GET
+    @Path("/{id}/logbooktypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<LogBookTypeInfo> getLogBookTypesForDeviceType(@PathParam("id") String name) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(name);
+        if (deviceType==null) {
+            throw new WebApplicationException("No device type with name "+name,
+                Response.status(Response.Status.NOT_FOUND).build());
+        }
+        List<LogBookTypeInfo> logBookTypeInfos = new ArrayList<>();
+        for (LogBookType logBookType : deviceType.getLogBookTypes()) {
+            logBookTypeInfos.add(new LogBookTypeInfo(logBookType));
+        }
+        return logBookTypeInfos;
     }
 
 }
