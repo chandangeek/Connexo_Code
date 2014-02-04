@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -11,6 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 public class GetMeterReadingsEndpointProvider implements EndPointProvider {
 
     private volatile MeteringService meteringService;
+    private volatile Clock clock;
 
     @Activate
     public void activate() {
@@ -24,11 +26,16 @@ public class GetMeterReadingsEndpointProvider implements EndPointProvider {
 
     @Override
     public Object get() {
-        return new GetMeterReadingsPortImpl(meteringService);
+        return new GetMeterReadingsPortImpl(meteringService, clock);
     }
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

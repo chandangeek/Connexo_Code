@@ -35,7 +35,7 @@ public class Marshaller {
 
     private javax.xml.bind.Marshaller getMarshaller() {
         try {
-            JAXBContext jc = JAXBContext.newInstance("com.elster.jupiter.metering.cim.impl", Marshaller.class.getClassLoader());
+            JAXBContext jc = JAXBContext.newInstance("ch.iec.tc57._2011.meterreadings_", Marshaller.class.getClassLoader());
             javax.xml.bind.Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, true);
             return marshaller;

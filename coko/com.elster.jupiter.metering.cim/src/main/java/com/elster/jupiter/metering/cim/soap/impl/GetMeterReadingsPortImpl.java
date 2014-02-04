@@ -9,19 +9,19 @@ import ch.iec.tc57._2011.getmeterreadings_.UsagePointGroup;
 import ch.iec.tc57._2011.getmeterreadingsmessage.GetMeterReadingsRequestType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.MeterReadingsPayloadType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.ObjectFactory;
-import ch.iec.tc57._2011.meterreadings_.MeterReading;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePointMembership;
 import com.elster.jupiter.metering.cim.impl.MeterReadingsGenerator;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,9 +36,11 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
     private final MeteringService meteringService;
     private final ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
     private final MeterReadingsGenerator meterReadingsGenerator = new MeterReadingsGenerator();
+    private final Clock clock;
 
-    GetMeterReadingsPortImpl(MeteringService meteringService) {
+    GetMeterReadingsPortImpl(MeteringService meteringService, Clock clock) {
         this.meteringService = meteringService;
+        this.clock = clock;
     }
 
     @Override
@@ -77,10 +79,8 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
             for (String usagePointMrid : usagePointMrids) {
                 Optional<com.elster.jupiter.metering.UsagePoint> found = meteringService.findUsagePoint(usagePointMrid);
                 if (found.isPresent()) {
-                    Set<Map.Entry<Interval,MeterActivation>> entries = getMeterActivationsPerInterval(found.get(), interval).entrySet();
-                    for (Map.Entry<Interval, MeterActivation> entry : entries) {
-                        meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
-                    }
+                    com.elster.jupiter.metering.UsagePoint usagePoint = found.get();
+                    addForUsagePoint(meterReadingsPayloadType, usagePoint, interval);
                 }
             }
 
@@ -94,9 +94,28 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
                 }
             }
 
-            for (String usagePointGroup : usagePointGroups) {
-
+            for (String usagePointGroupMrID : usagePointGroups) {
+                Optional<com.elster.jupiter.metering.UsagePointGroup> found = meteringService.findUsagePointGroup(usagePointGroupMrID);
+                if (found.isPresent()) {
+                    List<UsagePointMembership> memberships = found.get().getMembers(interval);
+                    for (UsagePointMembership membership : memberships) {
+                        addForMembership(meterReadingsPayloadType, membership);
+                    }
+                }
             }
+        }
+    }
+
+    private void addForMembership(MeterReadingsPayloadType meterReadingsPayloadType, UsagePointMembership membership) {
+        for (Interval subInterval : membership.getIntervals()) {
+            addForUsagePoint(meterReadingsPayloadType, membership.getUsagePoint(), subInterval);
+        }
+    }
+
+    private void addForUsagePoint(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.UsagePoint usagePoint, Interval interval) {
+        Set<Map.Entry<Interval,MeterActivation>> entries = getMeterActivationsPerInterval(usagePoint, interval).entrySet();
+        for (Map.Entry<Interval, MeterActivation> entry : entries) {
+            meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
         }
     }
 
@@ -115,14 +134,6 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
         Date startTime = request.getStartTime();
         Date endTime = request.getEndTime();
         return new Interval(startTime, endTime);
-    }
-
-    private MeterReading createMeterReading() {
-        return payloadObjectFactory.createMeterReading();
-    }
-
-    private Principal determinePrincipal() {
-        return null;
     }
 
     private Map<Interval, MeterActivation> getMeterActivationsPerInterval(Meter meter, Interval interval) {

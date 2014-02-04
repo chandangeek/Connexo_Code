@@ -34,7 +34,7 @@ public class GeneratedClassesTest {
     }
 
     public void marshal(OutputStream out) throws JAXBException {
-        JAXBContext jc = JAXBContext.newInstance("com.elster.jupiter.metering.cim.impl");
+        JAXBContext jc = JAXBContext.newInstance("ch.iec.tc57._2011.schema.message");
         Marshaller m = jc.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
@@ -58,7 +58,7 @@ public class GeneratedClassesTest {
         try {
             MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
             meterReadings.getMeterReading().add(createMeterReading());
-            JAXBContext jc = JAXBContext.newInstance("com.elster.jupiter.metering.cim.impl");
+            JAXBContext jc = JAXBContext.newInstance("ch.iec.tc57._2011.meterreadings_");
             Marshaller m = jc.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
