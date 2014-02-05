@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
 
 import java.util.List;
 
@@ -225,11 +226,11 @@ public interface DeviceConfigurationService {
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are linked to the given {@link ChannelSpec} and
      * has the given {@link ChannelSpecLinkType}
      *
-     * @param channelSpecId the ID of the {@link ChannelSpec}
-     * @param linkType      the {@link ChannelSpecLinkType}
+     * @param channelSpec the {@link com.energyict.mdc.device.config.ChannelSpec}
+     * @param linkType    the {@link com.energyict.mdc.device.config.ChannelSpecLinkType}
      * @return the list of RegisterSpecs
      */
-    public List<RegisterSpec> findByChannelSpecAndLinkType(long channelSpecId, ChannelSpecLinkType linkType);
+    public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given DeviceConfiguration and
@@ -240,4 +241,12 @@ public interface DeviceConfigurationService {
      * @return the list of RegisterSpecs
      */
     public List<RegisterSpec> findRegisterSpecsByDeviceConfigurationAndRegisterMapping(long deviceConfigId, long registerMappingId);
+
+    /**
+     * Finds a list of {@link ChannelSpec ChannelSpecs} which are linked to the given {@link LoadProfileSpec}
+     *
+     * @param loadProfileSpec the LoadProfileSpec
+     * @return the list of ChannelSpecs
+     */
+    public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec);
 }

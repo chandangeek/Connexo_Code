@@ -57,6 +57,13 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE_ALREADY_EXISTS(7002, "deviceType.duplicateNameX", "A device type with name '{0}' already exists", Level.SEVERE),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, "deviceType.XstillHasActiveConfigurations", "The device type {0} cannot be deleted because it still has active configurations", Level.SEVERE),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, "deviceType.protocol.required", "The protocol of a device type is required", Level.SEVERE),
+    LOAD_PROFILE_SPEC_DEVICE_CONFIG_IS_REQUIRED(8001, "loadProfileSpec.deviceConfig.required", "The device configuration of a loadprofile specification is required", Level.SEVERE),
+    LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseRtuTypeYDoesNotContainIt", "The load profile spec contains a load profile type {0} which is not configured on the device type", Level.SEVERE),
+    LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile spec to an active device configuration", Level.SEVERE),
+    LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile specification", Level.SEVERE),
+    LOAD_PROFILE_SPEC_CANNOT_CHANGE_LOAD_PROFILE_TYPE(8005, "loadProfileSpec.change.loadProfileType", "You can not change the load profile type of an existing load profile spec", Level.SEVERE),
+    LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(8006, "loadProfileSpec.cannot.delete.active.config", "You can not delete a load profile spec '{0}' from an active device configuration '{1}'", Level.SEVERE),
+    LOAD_PROFILE_SPEC_CANNOT_DELETE_STILL_LINKED_CHANNEL_SPECS(8007, "loadProfileSpec.cannot.delete.linked.channel.specs", "Cannot delete Load profile spec because there are still channel specs linked", Level.SEVERE),
     ;
 
     private final int number;

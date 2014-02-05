@@ -8,8 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.Provider;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ObisCode;
@@ -43,6 +43,8 @@ import java.util.List;
 @Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class})
 public class DeviceConfigurationServiceImpl implements DeviceConfigurationService, InstallService {
 
+    private Provider<RegisterSpecImpl> registerSpecProvider;
+    private Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -52,8 +54,12 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
+                                          Provider<RegisterSpecImpl> registerSpecProvider,
+                                          Provider<LoadProfileSpecImpl> loadProfileSpecProvider) {
         this();
+        this.registerSpecProvider = registerSpecProvider;
+        this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -146,7 +152,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Override
     public RegisterSpec newRegisterSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-        return RegisterSpecImpl.from(this.getDataModel(), deviceConfiguration, registerMapping);
+        return this.registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
     }
 
     @Override
@@ -194,8 +200,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public List<RegisterSpec> findByChannelSpecAndLinkType(long channelSpecId, ChannelSpecLinkType linkType) {
-        ChannelSpec channelSpec = findChannelSpec(channelSpecId);
+    public List<RegisterSpec> findRegisterSpecsByChannelSpecAndLinkType(ChannelSpec channelSpec, ChannelSpecLinkType linkType) {
         Condition condition = Where.where("linkedChannelSpec").isEqualTo(channelSpec).and(Where.where("channelSpecLinkType").isEqualTo(linkType));
         return this.getDataModel().query(RegisterSpec.class, ChannelSpec.class).select(condition);
     }

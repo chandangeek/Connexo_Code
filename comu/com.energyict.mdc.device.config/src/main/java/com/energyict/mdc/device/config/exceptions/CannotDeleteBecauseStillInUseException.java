@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
@@ -150,7 +151,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(registerSpec.getName());
+            builder.append(registerSpec.getRegisterMapping().getName());
             notFirst = true;
         }
         return builder.toString();
@@ -202,7 +203,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
             if (notFirst) {
                 builder.append(", ");
             }
-            builder.append(loadProfileSpec.getName());
+            builder.append(loadProfileSpec.getLoadProfileType().getName());
             notFirst = true;
         }
         return builder.toString();

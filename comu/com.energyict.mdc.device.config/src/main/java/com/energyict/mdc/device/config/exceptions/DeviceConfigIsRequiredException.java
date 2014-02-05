@@ -30,4 +30,16 @@ public class DeviceConfigIsRequiredException extends LocalizedException {
     public static DeviceConfigIsRequiredException registerSpecRequiresDeviceConfig(Thesaurus thesaurus){
         return new DeviceConfigIsRequiredException(thesaurus, MessageSeeds.REGISTER_SPEC_DEVICE_CONFIG_IS_REQUIRED);
     }
+
+    /**
+     * Creates a new DeviceConfigIsRequiredException that models the
+     * exceptional situation that occurs when an attempt is made to create
+     * a {@link com.energyict.mdc.device.config.LoadProfileSpec} without a
+     * {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * @param thesaurus The Thesaurus
+     * @return the newly create DeviceConfigIsRequiredException
+     */
+    public static DeviceConfigIsRequiredException loadProfileSpecRequiresDeviceConfig(Thesaurus thesaurus){
+        return new DeviceConfigIsRequiredException(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_DEVICE_CONFIG_IS_REQUIRED);
+    }
 }

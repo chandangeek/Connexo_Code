@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
@@ -184,6 +185,8 @@ public enum TableSpecs {
         }
     },
 
+
+
     EISCHANNELSPEC {
         @Override
         public void addTo(DataModel dataModel) {
@@ -235,6 +238,23 @@ public enum TableSpecs {
             table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
         }
     },
+
+
+    EISLOADPROFILESPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LoadProfileSpec> table = dataModel.addTable(name(), LoadProfileSpec.class);
+            table.map(LoadProfileSpecImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceconfigid = table.column("DEVICECONFIGID").number().notNull().add();
+            Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().notNull().add();
+            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
+            table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("eisloadprofiletype").add();
+            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("eisdeviceconfig").reverseMap("loadProfileSpecs").composition().add();
+        }
+    },
+
     ;
 
     abstract void addTo(DataModel component);

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+
 /**
  * Add behavior to {@link ServerDeviceConfiguration} that is
  * specific to server side components.

@@ -11,6 +11,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
@@ -32,6 +33,8 @@ import java.util.List;
 
 public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implements RegisterSpec {
 
+    private final DeviceConfigurationService deviceConfigurationService;
+
     private DeviceConfiguration deviceConfig;
     private RegisterMapping registerMapping;
     private ChannelSpec linkedChannelSpec;
@@ -42,19 +45,16 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private BigDecimal overflow;
     private BigDecimal multiplier;
     private MultiplierMode multiplierMode;
-    private ChannelSpecLinkType channelSpecLinkType;
 
+    private ChannelSpecLinkType channelSpecLinkType;
     private Date modificationDate;
     private Clock clock;
 
     @Inject
-    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+    public RegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, DeviceConfigurationService deviceConfigurationService) {
         super(RegisterSpec.class, dataModel, eventService, thesaurus);
         this.clock = clock;
-    }
-
-    static RegisterSpecImpl from (DataModel dataModel, DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
-        return dataModel.getInstance(RegisterSpecImpl.class).initialize(deviceConfig, registerMapping);
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
@@ -241,7 +241,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         this.overruledObisCodeString = overruledObisCode.toString();
-        this.overruledObisCode = null;
+        this.overruledObisCode = overruledObisCode;
     }
 
     @Override
@@ -300,10 +300,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     // TODO check if this validation is oké
     private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
         if (channelSpec != null && channelSpecLinkType != null) {
-            List<RegisterSpec> registerSpecs = this.mapper(RegisterSpec.class).find("channelspecid", channelSpec.getId(), "class", ChannelSpecLinkType.PRIME);
-            RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
-            if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
-                throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);
+            List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
+            if(registerSpecs.size() > 0){
+                RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
+                if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
+                    throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);
+                }
             }
         }
     }

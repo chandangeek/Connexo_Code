@@ -8,11 +8,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
@@ -206,7 +208,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
             for (DeviceTypeRegisterMappingUsage deviceTypeUsage : deviceTypeUsages) {
                 deviceTypes.add(deviceTypeUsage.deviceType);
             }
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, deviceTypes);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, new ArrayList<>(deviceTypes));
         }
     }
 
