@@ -16,7 +16,7 @@ import java.util.List;
  * User: gde
  * Date: 5/11/12
  */
-public interface DeviceConfiguration extends NamedBusinessObject, Exportable<DeviceConfiguration> {
+public interface DeviceConfiguration {
 
     /**
      * Returns a description of the receiver
@@ -45,22 +45,6 @@ public interface DeviceConfiguration extends NamedBusinessObject, Exportable<Dev
      * @return the <code>DeviceType</code> this device config belongs to
      */
     DeviceType getDeviceType();
-
-    /**
-     * Returns a <code>DeviceConfigurationShadow</code> initialized with the receiver
-     *
-     * @return a shadow object
-     */
-    DeviceConfigurationShadow getShadow();
-
-    /**
-     * Updates the receiver with information provided by the argument
-     *
-     * @param shadow the shadow object
-     * @throws SQLException      if a database error occurred
-     * @throws BusinessException if a businessexception occurred
-     */
-    void update(final DeviceConfigurationShadow shadow) throws SQLException, BusinessException;
 
     List<RegisterSpec> getRegisterSpecs();
 

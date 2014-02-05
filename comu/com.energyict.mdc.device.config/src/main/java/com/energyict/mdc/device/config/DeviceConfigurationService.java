@@ -249,4 +249,48 @@ public interface DeviceConfigurationService {
      * @return the list of ChannelSpecs
      */
     public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec);
+
+    /**
+     * Find the {@link LoadProfileType} with the given ID
+     *
+     * @param loadProfileTypeId the ID of the {@link LoadProfileType}
+     * @return the LoadProfileType or <code>null</code> if there is no such LoadProfileType
+     */
+    public LoadProfileType findLoadProfileType(long loadProfileTypeId);
+
+    /**
+     * Creates a new {@link LoadProfileSpec} based on the given parameters
+     *
+     * @param deviceConfiguration the DeviceConfiguration
+     * @param loadProfileType     the LoadProfileType that will model the specification
+     * @return the newly created LoadProfileSpec
+     */
+    public LoadProfileSpec newLoadProfileSpec(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType);
+
+    /**
+     * Find the {@link LoadProfileSpec} with the given ID
+     *
+     * @param loadProfileSpecId the ID of the LoadProfileSpec
+     * @return the LoadProfileSpec or <code>null</code> if there is no such LoadProfileSpec
+     */
+    public LoadProfileSpec findLoadProfileSpec(int loadProfileSpecId);
+
+    /**
+     * Finds a list of {@link LoadProfileSpec LoadProfileSpecs} which are defined for the
+     * given {@link DeviceConfiguration}
+     *
+     * @param deviceConfig the DeviceConfiguration
+     * @return the list of LoadProfileSpecs for the given DeviceConfiguration
+     */
+    public List<LoadProfileSpec> findLoadProfileSpecsByDeviceConfig(DeviceConfiguration deviceConfig);
+
+    /**
+     * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
+     * {@link DeviceConfiguration}
+     *
+     * @param deviceConfig    the DeviceConfiguration
+     * @param loadProfileType the LoadProfileType which models the LoadProfileSpec
+     * @return the requested LoadProfileSpec
+     */
+    public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
 }

@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
@@ -45,6 +46,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     private Provider<RegisterSpecImpl> registerSpecProvider;
     private Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
+    private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -56,10 +58,12 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Inject
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
                                           Provider<RegisterSpecImpl> registerSpecProvider,
-                                          Provider<LoadProfileSpecImpl> loadProfileSpecProvider) {
+                                          Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
+                                          Provider<LoadProfileTypeImpl> loadProfileTypeProvider) {
         this();
         this.registerSpecProvider = registerSpecProvider;
         this.loadProfileSpecProvider = loadProfileSpecProvider;
+        this.loadProfileTypeProvider = loadProfileTypeProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -211,6 +215,36 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
         RegisterMapping registerMapping = findRegisterMapping(registerMappingId);
         Condition condition = Where.where("deviceConfig").isEqualTo(deviceConfiguration).and(Where.where("registerMapping").isEqualTo(registerMapping));
         return this.getDataModel().query(RegisterSpec.class, DeviceConfiguration.class, RegisterMapping.class).select(condition);
+    }
+
+    @Override
+    public List<ChannelSpec> findChannelSpecsForLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
+        return this.getDataModel().mapper(ChannelSpec.class).find("loadProfileSpec", loadProfileSpec);
+    }
+
+    @Override
+    public LoadProfileType findLoadProfileType(long loadProfileTypeId) {
+        return this.getDataModel().mapper(LoadProfileType.class).getUnique("id", loadProfileTypeId).orNull();
+    }
+
+    @Override
+    public LoadProfileSpec newLoadProfileSpec(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType) {
+        return this.loadProfileSpecProvider.get().initialize(deviceConfiguration, loadProfileType);
+    }
+
+    @Override
+    public LoadProfileSpec findLoadProfileSpec(int loadProfileSpecId) {
+        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId).orNull();
+    }
+
+    @Override
+    public List<LoadProfileSpec> findLoadProfileSpecsByDeviceConfig(DeviceConfiguration deviceConfiguration) {
+        return this.getDataModel().mapper(LoadProfileSpec.class).find("deviceConfiguration", deviceConfiguration);
+    }
+
+    @Override
+    public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
+        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType).orNull();
     }
 
     @Reference

@@ -44,7 +44,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         return dataModel.getInstance(LoadProfileSpecImpl.class).initialize(deviceConfig, loadProfileType);
     }
 
-    private LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
+    public LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
         setDeviceConfiguration(deviceConfig);
         setLoadProfileType(loadProfileType);
         return this;
@@ -155,6 +155,11 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
+        if(overruledObisCode != null){
+            this.overruledObisCodeString = overruledObisCode.toString();
+        } else {
+            this.overruledObisCodeString = "";
+        }
         this.overruledObisCode = overruledObisCode;
     }
 

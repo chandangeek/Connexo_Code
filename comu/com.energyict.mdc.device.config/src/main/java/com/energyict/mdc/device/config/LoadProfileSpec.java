@@ -12,6 +12,8 @@ import com.energyict.mdc.common.TimeDuration;
  */
 public interface LoadProfileSpec {
 
+    public long getId();
+
     public LoadProfileType getLoadProfileType();
 
     public DeviceConfiguration getDeviceConfig();
