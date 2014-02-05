@@ -40,10 +40,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    static LoadProfileSpecImpl from (DataModel dataModel, DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
-        return dataModel.getInstance(LoadProfileSpecImpl.class).initialize(deviceConfig, loadProfileType);
-    }
-
     public LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
         setDeviceConfiguration(deviceConfig);
         setLoadProfileType(loadProfileType);
@@ -101,7 +97,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     protected void postNew() {
-        this.getDataMapper().update(this);
+        this.getDataMapper().persist(this);
     }
 
     private void validateActiveConfig() {
@@ -112,12 +108,13 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     protected void post() {
-        this.getDataMapper().persist(this);
+        this.getDataMapper().update(this);
     }
 
     @Override
     protected void doDelete() {
         validateDelete();
+        this.getDataMapper().remove(this);
     }
 
     @Override
@@ -149,7 +146,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     private void validateLoadProfileType() {
         if (this.loadProfileType == null) {
-            throw LoadProfileTypeIsRequiredException.loadProfileSpecRequiresLoadProfiletype(this.thesaurus);
+            throw LoadProfileTypeIsRequiredException.loadProfileSpecRequiresLoadProfileType(this.thesaurus);
         }
     }
 

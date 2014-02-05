@@ -18,6 +18,15 @@ import java.util.List;
  */
 public interface DeviceConfiguration {
 
+    long getId();
+
+    /**
+     * Gets the name of the DeviceConfiguration which will be unique within a DeviceType
+     *
+     * @return the name of the DeviceConfiguration
+     */
+    String getName();
+
     /**
      * Returns a description of the receiver
      *
@@ -72,7 +81,7 @@ public interface DeviceConfiguration {
      *
      * @return The DeviceCommunicationConfiguration
      */
-    public DeviceCommunicationConfiguration getCommunicationConfiguration ();
+    public DeviceCommunicationConfiguration getCommunicationConfiguration();
 
     /**
      * Returns a new {@link CreateDeviceTransaction transaction}
@@ -85,7 +94,7 @@ public interface DeviceConfiguration {
      *
      * @return The CreateDeviceTransaction
      */
-    public CreateDeviceTransaction newDeviceTransaction ();
+    public CreateDeviceTransaction newDeviceTransaction();
 
     /**
      * Returns a new {@link CreateDeviceTransaction transaction}
@@ -96,7 +105,7 @@ public interface DeviceConfiguration {
      * @param device The original Device
      * @return The cloned device
      */
-    public CreateDeviceTransaction newDeviceTransactionForCloning (Device device);
+    public CreateDeviceTransaction newDeviceTransactionForCloning(Device device);
 
     /**
      * Creates a DeviceConfigurationChanges object that allows to perform a device configuration change

@@ -293,4 +293,47 @@ public interface DeviceConfigurationService {
      * @return the requested LoadProfileSpec
      */
     public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
+
+    /**
+     * Find a {@link LogBookType} with the given ID
+     *
+     * @param logBookTypeId the ID of the LogBookType
+     * @return the LogBookType or <code>null</code> if there is no such LogBookType
+     */
+    public LogBookType findLogBookType(long logBookTypeId);
+
+    /**
+     * Creates a new {@link LogBookSpec} based on the given parameters
+     *
+     * @param deviceConfiguration the DeviceConfiguration
+     * @param logBookType         the {@link LogBookType} which models the LogBookSpec
+     * @return the newly created LogBookSpec
+     */
+    public LogBookSpec newLogBookSpec(DeviceConfiguration deviceConfiguration, LogBookType logBookType);
+
+    /**
+     * Find a {@link LogBookSpec} with the given ID
+     *
+     * @param id the ID of the LogBookSpec
+     * @return the LogBookSpec or <code>null</code> if there is no such LogBookSpec
+     */
+    public LogBookSpec findLogBookSpec(long id);
+
+    /**
+     * Find the {@link LogBookSpec LogBookSpecs} for the given {@link DeviceConfiguration}
+     *
+     * @param deviceConfiguration the DeviceConfiguration
+     * @return the requested LogBookSpecs
+     */
+    public List<LogBookSpec> findLogBookSpecsByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
+
+    /**
+     * Find the {@link LogBookSpec} which is modeled by the given {@link LogBookType}
+     * for the given {@link DeviceConfiguration}
+     *
+     * @param deviceConfig the DeviceConfiguration
+     * @param type         the LogBookType which models the LogBookSpec
+     * @return the requested LogBookSpec
+     */
+    public LogBookSpec findLogBookSpecByDeviceConfigAndLogBookType(DeviceConfiguration deviceConfig, LogBookType type);
 }

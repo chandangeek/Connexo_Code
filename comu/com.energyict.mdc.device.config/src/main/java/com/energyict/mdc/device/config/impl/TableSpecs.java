@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
@@ -221,13 +222,13 @@ public enum TableSpecs {
             Table<RegisterSpec> table = dataModel.addTable(name(), RegisterSpec.class);
             table.map(RegisterSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            Column registerMapping = table.column("REGISTERMAPPINGID").number().notNull().add();
+            Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("numberOfDigits").add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
             table.column("DEVICEOBISCODE").varChar(80).notNull().map("overruledObisCodeString").add();
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
-            Column deviceConfiguration = table.column("DEVICECONFIGID").number().add();
+            Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("MULTIPLIER").number().map("multiplier").add();
             table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             Column channelSpec = table.column("CHANNELSPECID").number().add();
@@ -239,19 +240,33 @@ public enum TableSpecs {
         }
     },
 
-
     EISLOADPROFILESPEC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<LoadProfileSpec> table = dataModel.addTable(name(), LoadProfileSpec.class);
             table.map(LoadProfileSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            Column deviceconfigid = table.column("DEVICECONFIGID").number().notNull().add();
-            Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().notNull().add();
+            Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column loadprofiletypeid = table.column("LOADPROFILETYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
-            table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("eisloadprofiletype").add();
-            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("eisdeviceconfig").reverseMap("loadProfileSpecs").composition().add();
+            table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
+            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().add();
+        }
+    },
+
+    EISLOGBOOKSPEC {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<LogBookSpec> table = dataModel.addTable(name(), LogBookSpec.class);
+            table.map(LogBookSpecImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column logbooktypeid = table.column("LOGBOOKTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
+            table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().add();
+            table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
         }
     },
 

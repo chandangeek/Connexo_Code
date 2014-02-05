@@ -28,7 +28,7 @@ public class LoadProfileTypeIsRequiredException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return the newly create LoadProfileTypeIsRequiredException
      */
-    public static LoadProfileTypeIsRequiredException loadProfileSpecRequiresLoadProfiletype(Thesaurus thesaurus){
-        return new LoadProfileTypeIsRequiredException(thesaurus, MessageSeeds.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED);
+    public static LoadProfileTypeIsRequiredException loadProfileSpecRequiresLoadProfileType(Thesaurus thesaurus){
+        return new LoadProfileTypeIsRequiredException(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED);
     }
 }

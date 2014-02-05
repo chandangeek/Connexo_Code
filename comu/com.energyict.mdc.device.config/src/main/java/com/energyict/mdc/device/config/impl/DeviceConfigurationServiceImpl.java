@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
@@ -47,6 +48,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     private Provider<RegisterSpecImpl> registerSpecProvider;
     private Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
+    private Provider<LogBookSpecImpl> logBookSpecProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -59,11 +61,13 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
                                           Provider<RegisterSpecImpl> registerSpecProvider,
                                           Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
-                                          Provider<LoadProfileTypeImpl> loadProfileTypeProvider) {
+                                          Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
+                                          Provider<LogBookSpecImpl> logBookSpecProvider) {
         this();
         this.registerSpecProvider = registerSpecProvider;
         this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.loadProfileTypeProvider = loadProfileTypeProvider;
+        this.logBookSpecProvider = logBookSpecProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -245,6 +249,31 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
         return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType).orNull();
+    }
+
+    @Override
+    public LogBookType findLogBookType(long logBookTypeId) {
+        return this.getDataModel().mapper(LogBookType.class).getUnique("id", logBookTypeId).orNull();
+    }
+
+    @Override
+    public LogBookSpec newLogBookSpec(DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
+        return this.logBookSpecProvider.get().initialize(deviceConfiguration, logBookType);
+    }
+
+    @Override
+    public LogBookSpec findLogBookSpec(long logBookSpecId) {
+        return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId).orNull();
+    }
+
+    @Override
+    public List<LogBookSpec> findLogBookSpecsByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        return this.getDataModel().mapper(LogBookSpec.class).find("deviceConfiguration", deviceConfiguration);
+    }
+
+    @Override
+    public LogBookSpec findLogBookSpecByDeviceConfigAndLogBookType(DeviceConfiguration deviceConfig, LogBookType logBookType) {
+        return this.getDataModel().mapper(LogBookSpec.class).getUnique("deviceConfiguration", deviceConfig, "logBookType", logBookType).orNull();
     }
 
     @Reference

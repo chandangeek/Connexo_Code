@@ -14,6 +14,7 @@ import com.energyict.mdc.common.SoftTypeId;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TypeId;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.devices.configuration.DeviceCommunicationConfiguration;
 import com.energyict.mdc.protocol.api.device.Device;
 import com.energyict.mdw.amr.RegisterMappingFactoryProvider;

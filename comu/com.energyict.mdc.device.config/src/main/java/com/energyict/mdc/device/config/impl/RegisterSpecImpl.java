@@ -156,12 +156,12 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
 
     @Override
     protected void postNew() {
-        this.getDataMapper().update(this);
+        this.getDataMapper().persist(this);
     }
 
     @Override
     protected void post() {
-        this.getDataMapper().persist(this);
+        this.getDataMapper().update(this);
     }
 
 //    protected void deleteDependents() throws SQLException, BusinessException {
@@ -177,12 +177,6 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     public String toString() {
         return getDeviceConfiguration().getName() + " - " + getRegisterMapping().getName();
     }
-//
-//    @Override
-//    public Command<RegisterSpec> createConstructor() {
-//        return new RtuRegisterSpecCommand(this);
-//    }
-
 
     @Override
     public void setDeviceConfig(DeviceConfiguration deviceConfig) {
