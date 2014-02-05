@@ -48,6 +48,7 @@ public class EnumeratedUsagePointGroupImplTest {
     public void tearDown() {
 
     }
+
     @Test
     public void test() {
         EnumeratedUsagePointGroupImpl group = new EnumeratedUsagePointGroupImpl(dataModel);
