@@ -41,11 +41,13 @@ public class TransactionWrapper implements ApplicationEventListener {
             case RESOURCE_METHOD_START:
                 contextThreadLocal.set(transactionService.getContext());
                 break;
-            case RESOURCE_METHOD_FINISHED:
+            case FINISHED:
                 TransactionContext context = contextThreadLocal.get();
-                if (context!=null) {
-                    context.commit();
-                    context.close();
+                if (context!=null) { // context will be null if METHOD was never started, e.g. in case of 404
+                    if (event.isSuccess()) {
+                        context.commit();
+                    }
+                    context.close(); // will rollback if called without commit()
                 }
                 break;
             }
