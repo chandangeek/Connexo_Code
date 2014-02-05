@@ -14,11 +14,12 @@ import java.io.OutputStream;
 
 public class Marshaller {
 
-    private javax.xml.bind.Marshaller marshaller = getMarshaller();
+    private javax.xml.bind.Marshaller payloadMarshaller = getMarshallerForContext("ch.iec.tc57._2011.meterreadings_");
+    private javax.xml.bind.Marshaller messageMarshaller = getMarshallerForContext("ch.iec.tc57._2011.schema.message");
 
     void marshal(CreatedMeterReadings createdMeterReadings, OutputStream out) {
         try {
-            marshaller.marshal(createdMeterReadings, out);
+            messageMarshaller.marshal(createdMeterReadings, out);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }
@@ -27,15 +28,15 @@ public class Marshaller {
 
     void addPayload(CreatedMeterReadings createdMeterReadings, MeterReadings meterReadings) throws JAXBException {
         DOMResult result = new DOMResult();
-        getMarshaller().marshal(new JAXBElement<>(new QName("http://iec.ch/TC57/2011/MeterReadings#", "MeterReadings"), MeterReadings.class, meterReadings ), result);
+        payloadMarshaller.marshal(new JAXBElement<>(new QName("http://iec.ch/TC57/2011/MeterReadings#", "MeterReadings"), MeterReadings.class, meterReadings), result);
         Element payloadElement = ((Document) result.getNode()).getDocumentElement();
         createdMeterReadings.getPayload().getAny().add(payloadElement);
     }
 
 
-    private javax.xml.bind.Marshaller getMarshaller() {
+    private javax.xml.bind.Marshaller getMarshallerForContext(String contextPath) {
         try {
-            JAXBContext jc = JAXBContext.newInstance("ch.iec.tc57._2011.meterreadings_", Marshaller.class.getClassLoader());
+            JAXBContext jc = JAXBContext.newInstance(contextPath, Marshaller.class.getClassLoader());
             javax.xml.bind.Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, true);
             return marshaller;
@@ -43,4 +44,5 @@ public class Marshaller {
             throw new RuntimeException(e);
         }
     }
+
 }
