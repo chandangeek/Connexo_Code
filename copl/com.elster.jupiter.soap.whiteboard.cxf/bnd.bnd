@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.soap.whiteboard.impl
+Export-Package:
