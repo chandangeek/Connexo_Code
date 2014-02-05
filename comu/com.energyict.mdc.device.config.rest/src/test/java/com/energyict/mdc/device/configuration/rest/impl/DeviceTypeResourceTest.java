@@ -98,20 +98,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testGetEmptyDeviceTypeListSorted() throws Exception {
-        Finder<DeviceType> finder = mockFinder(Collections.<DeviceType>emptyList());
-        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
-
-        Map<String, Object> map = target("/devicetypes/").queryParam("start", 100).queryParam("limit", 20).queryParam("sortColumns", new String[] {"name", "class"}).request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(0);
-        assertThat((List)map.get("deviceTypes")).isEmpty();
-        ArgumentCaptor<String> sortColumnsArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(finder, times(2)).sorted(sortColumnsArgumentCaptor.capture(), any(SortOrder.class));
-        assertThat(sortColumnsArgumentCaptor.getAllValues().get(0)).isEqualTo("name");
-        assertThat(sortColumnsArgumentCaptor.getAllValues().get(1)).isEqualTo("class");
-    }
-
-    @Test
     public void testGetDeviceTypeByName() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
         String webRTUKP = "WebRTUKP";

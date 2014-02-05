@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.QueryParameters;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
@@ -12,11 +13,13 @@ import com.energyict.mdw.core.LogBookType;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.UriInfo;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -30,20 +33,16 @@ public class DeviceTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceTypeInfos getAllDeviceTypes(@QueryParam("start") Integer start, @QueryParam("limit") Integer limit, @QueryParam("sortColumns") List<String> sortColumns) {
-        DeviceTypeInfos deviceTypeInfos = new DeviceTypeInfos();
-        deviceTypeInfos.deviceTypes = new ArrayList<>();
-        Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.allDeviceTypes().paged(start, limit);
-        for (String sortColumn : sortColumns) {
-            deviceTypeFinder.sorted(sortColumn, SortOrder.ASCENDING);
-        }
-        List<DeviceType> allDeviceTypes = deviceTypeFinder.find();
-
+    public PagedInfoList getAllDeviceTypes(@Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<DeviceTypeInfo> deviceTypeInfos = new ArrayList<>();
+        Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.allDeviceTypes();
+        List<DeviceType> allDeviceTypes = deviceTypeFinder.paged(queryParameters.getStart(), queryParameters.getLimit()).find();
         for (DeviceType deviceType : allDeviceTypes) {
-            deviceTypeInfos.deviceTypes.add(new DeviceTypeInfo(deviceType));
+            deviceTypeInfos.add(new DeviceTypeInfo(deviceType));
         }
 
-        return deviceTypeInfos;
+        return PagedInfoList.forJson("deviceTypes", deviceTypeInfos, deviceTypeInfos.size()==queryParameters.getLimit());
     }
 
     @DELETE
