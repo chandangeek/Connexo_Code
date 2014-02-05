@@ -1,7 +1,7 @@
 Ext.define('Mdc.store.RegisterTypes', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.RegisterTable'
+        'Mdc.model.RegisterType'
     ],
     model: 'Mdc.model.RegisterType',
     storeId: 'RegisterTypes',
