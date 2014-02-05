@@ -39,7 +39,7 @@ public class PagedInfoListTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String response = objectMapper.writeValueAsString(PagedInfoList.forJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2), true));
         assertThat(response).contains("\"deviceTypes\":[{");
-        assertThat(response).contains("\"total\":4");
+        assertThat(response).contains("\"total\":3");
     }
 
 }
