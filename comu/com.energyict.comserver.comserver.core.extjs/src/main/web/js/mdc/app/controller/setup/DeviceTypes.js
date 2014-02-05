@@ -27,7 +27,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             '#devicetypegrid actioncolumn':{
                 edit: this.editDeviceType,
-                delete: this.deleteDeviceType
+                deleteItem: this.deleteDeviceType
             },
             '#deviceTypeSetup button[action = createDeviceType]':{
                 click: this.createDeviceType

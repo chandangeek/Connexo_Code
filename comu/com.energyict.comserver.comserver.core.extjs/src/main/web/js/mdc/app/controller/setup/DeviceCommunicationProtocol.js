@@ -50,7 +50,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
                 click: this.add
             },
             'setupDeviceCommunicationProtocols button[action=delete]': {
-                click: this.delete
+                click: this.deleteProtocol
             }
             /*,
             'deviceCommunicationProtocolEdit combobox': {
@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
         Ext.History.add(url);
     },
 
-    delete: function () {
+    deleteProtocol: function () {
         var recordArray = this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection();
         if (recordArray.length > 0) {
             recordArray[0].destroy();

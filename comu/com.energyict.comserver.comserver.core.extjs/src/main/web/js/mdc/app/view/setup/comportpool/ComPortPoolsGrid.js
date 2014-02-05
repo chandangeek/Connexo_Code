@@ -67,8 +67,8 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            console.log('delete');
-                                            this.fireEvent('delete',grid,grid.getSelectionModel().getSelection());
+                                            console.log('deleteItem');
+                                            this.fireEvent('deleteItem',grid,grid.getSelectionModel().getSelection());
                                         },
                                         scope: this
                                     }

@@ -62,11 +62,11 @@ Ext.define('Mdc.controller.setup.ComServers', {
             },
             'comServersGrid actioncolumn': {
                 edit: this.editComServer,
-                delete: this.delete,
+                deleteItem: this.deleteComserver,
                 startStopComserver: this.startStopComserver
             },
             'comServersGrid button[action=delete]': {
-                click: this.delete
+                click: this.deleteComserver
             },
             'outboundComPorts': {
                 itemdblclick: this.editComPort
@@ -224,7 +224,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
         this.showEditView();
     },
 
-    delete: function () {
+    deleteComserver: function () {
         var recordArray = this.getComServerGrid().getSelectionModel().getSelection();
         var me = this;
         var callbackCount = recordArray.length;
