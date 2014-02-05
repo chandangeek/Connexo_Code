@@ -21,6 +21,9 @@ public class DeviceProtocolInfo {
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     public DeviceFunction deviceFunction;
 
+    public DeviceProtocolInfo() {
+    }
+
     public DeviceProtocolInfo(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         this.name = deviceProtocolPluggableClass.getName();
         this.deviceFunction = deviceProtocolPluggableClass.getDeviceProtocol().getDeviceFunction();
