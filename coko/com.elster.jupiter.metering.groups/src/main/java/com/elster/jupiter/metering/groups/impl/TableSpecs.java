@@ -26,8 +26,8 @@ public enum TableSpecs {
             table.column("ALIASNAME").type("varchar2(80)").map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_ENUM_UP_GROUP").on(idColumn).add();
-            table.unique("MTR_U_ENUM_UP_GROUP").on(mRIDColumn).add();
+            table.primaryKey("MTG_PK_ENUM_UP_GROUP").on(idColumn).add();
+            table.unique("MTG_U_ENUM_UP_GROUP").on(mRIDColumn).add();
         }
     },
     MTG_ENUM_UP_IN_GROUP {
@@ -38,9 +38,9 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.primaryKey("MTR_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_UPGE_UPG").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").on(groupColumn).add();
-            table.foreignKey("MTR_FK_UPGE_UP").references(MeteringService.COMPONENTNAME, "MTR_USAGEPOINT").onDelete(RESTRICT).map("usagePoint").on(usagePointColumn).add();
+            table.primaryKey("MTG_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
+            table.foreignKey("MTG_FK_UPGE_UPG").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").on(groupColumn).add();
+            table.foreignKey("MTG_FK_UPGE_UP").references(MeteringService.COMPONENTNAME, "MTR_USAGEPOINT").onDelete(RESTRICT).map("usagePoint").on(usagePointColumn).add();
         }
     },
     MTG_QUERY_UP_GROUP_OP {
@@ -55,8 +55,8 @@ public enum TableSpecs {
             table.column("FIELDNAME").type("VARCHAR2(80)").map("fieldName").add();
             table.column("BINDVALUES").type("VARCHAR2(256)").conversion(CHAR2JSON).map("values").add();
 
-            table.primaryKey("MTR_PK_QUPGOP").on(groupColumn, positionColumn).add();
-            table.foreignKey("MTR_FK_QUPG_QUPGOP").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
+            table.primaryKey("MTG_PK_QUPGOP").on(groupColumn, positionColumn).add();
+            table.foreignKey("MTG_FK_QUPG_QUPGOP").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
 
         }
     };

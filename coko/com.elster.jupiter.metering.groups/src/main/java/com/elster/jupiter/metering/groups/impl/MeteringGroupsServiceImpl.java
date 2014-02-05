@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
 
     private volatile DataModel dataModel;
@@ -45,13 +45,17 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Activate
     public void activate() {
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(MeteringGroupsService.class).toInstance(MeteringGroupsServiceImpl.this);
-                bind(DataModel.class).toInstance(dataModel);
-            }
-        });
+        try {
+            dataModel.register(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(MeteringGroupsService.class).toInstance(MeteringGroupsServiceImpl.this);
+                    bind(DataModel.class).toInstance(dataModel);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Deactivate
