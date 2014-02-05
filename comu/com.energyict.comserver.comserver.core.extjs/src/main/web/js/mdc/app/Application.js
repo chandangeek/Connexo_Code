@@ -6,7 +6,8 @@ Ext.define('Mdc.Application', {
     requires: [
         'Mdc.PolyReader',
         'Mdc.PolyAssociation',
-        'Mdc.Association'
+        'Mdc.Association',
+        'Mdc.MdcProxy'
     ],
 
     views: [
@@ -21,7 +22,8 @@ Ext.define('Mdc.Application', {
         'history.Setup',
         'setup.DeviceCommunicationProtocol',
         'setup.LicensedProtocol',
-        'setup.DeviceTypes'
+        'setup.DeviceTypes',
+        'setup.RegisterMappings'
     ],
 
     stores: [

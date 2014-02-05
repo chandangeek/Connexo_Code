@@ -9,7 +9,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.comportpool.ComPortPoolsSetup',
         'setup.devicecommunicationprotocol.List',
         'setup.licensedprotocol.List',
-        'setup.devicetype.DeviceTypesSetup'
+        'setup.devicetype.DeviceTypesSetup',
+        'setup.register.RegisterMappingsSetup'
     ],
 
     init: function () {
@@ -45,6 +46,10 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
     showComPortPools: function () {
         var widget = Ext.widget('comPortPoolsSetup');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+    showRegisterMappings: function () {
+        var widget = Ext.widget('registerMappingsSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     },
     showDeviceTypes: function(){

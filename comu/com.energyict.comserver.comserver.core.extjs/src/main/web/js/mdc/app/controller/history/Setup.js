@@ -8,12 +8,16 @@ Ext.define('Mdc.controller.history.Setup', {
             this.handleComServerTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicecommunicationprotocols') {
             this.handleCommunicationProtocolTokens(tokens);
-        }  else if (tokens.length > 1 && tokens[1] === 'comportpools'){
+        } else if (tokens.length > 1 && tokens[1] === 'comportpools') {
             this.handleComPortPoolTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'licensedprotocols') {
             this.handleLicensedProtocolTokens(tokens);
-        } else if (tokens.length > 1 && tokens[1] === 'devicetypes'){
-            this.handleDeviceTypeTokens(tokens);
+        } else if (tokens.length > 1 && tokens[1] === 'devicetypes') {
+            if (tokens[3] === 'registermappings') {
+                this.handleRegisterMappingTokens(tokens);
+            } else {
+                this.handleDeviceTypeTokens(tokens);
+            }
         } else {
             this.unknownTokensReturnToOverview();
         }
@@ -56,7 +60,7 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
-    handleComPortPoolTokens: function(tokens){
+    handleComPortPoolTokens: function (tokens) {
         if (tokens.length === 2) {
             Mdc.getApplication().getSetupSetupOverviewController().showComPortPools();
         } else if (tokens.length === 3) {
@@ -68,7 +72,7 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
-    handleDeviceTypeTokens: function (tokens){
+    handleDeviceTypeTokens: function (tokens) {
         if (tokens.length === 2) {
             Mdc.getApplication().getSetupSetupOverviewController().showDeviceTypes();
         } else if (tokens.length === 3) {
@@ -78,6 +82,13 @@ Ext.define('Mdc.controller.history.Setup', {
             } else {
                 Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeDetailsView(tokens[2]);
             }
+        }
+    },
+
+    handleRegisterMappingTokens: function (tokens) {
+        if (tokens.length === 4) {
+            console.log('show register mappings');
+            Mdc.getApplication().getSetupSetupOverviewController().showRegisterMappings();
         }
     },
 
@@ -101,7 +112,7 @@ Ext.define('Mdc.controller.history.Setup', {
         return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
     },
 
-    tokenizeAddComPortPool: function(){
+    tokenizeAddComPortPool: function () {
         return this.tokenize([this.rootToken, 'comportpools', 'create']);
     }
 });
