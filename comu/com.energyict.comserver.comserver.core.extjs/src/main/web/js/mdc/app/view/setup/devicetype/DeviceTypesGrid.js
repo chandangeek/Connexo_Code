@@ -56,7 +56,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            console.log('delete');
                                             this.fireEvent('delete',grid,grid.getSelectionModel().getSelection());
                                         },
                                         scope: this

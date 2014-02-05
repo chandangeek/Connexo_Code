@@ -51,4 +51,5 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         var widget = Ext.widget('deviceTypesSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     }
+
 });

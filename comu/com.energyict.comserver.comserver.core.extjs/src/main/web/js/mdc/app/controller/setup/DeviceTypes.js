@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     views: [
         'setup.devicetype.DeviceTypesSetup',
         'setup.devicetype.DeviceTypesGrid',
-        'setup.devicetype.DeviceTypePreview'
+        'setup.devicetype.DeviceTypePreview',
+        'setup.devicetype.DeviceTypeDetail'
     ],
 
     stores: [
@@ -23,6 +24,19 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         this.control({
             '#devicetypegrid': {
                 selectionchange: this.previewDeviceType
+            },
+            '#devicetypegrid actioncolumn':{
+                edit: this.editDeviceType,
+                delete: this.deleteDeviceType
+            },
+            '#deviceTypeSetup button[action = createDeviceType]':{
+                click: this.createDeviceType
+            },
+            '#deviceTypePreview menuitem[action=editDeviceType]':{
+                click: this.editDeviceType
+            },
+            '#deviceTypePreview menuitem[action=deleteDeviceType]':{
+                click: this.deleteDeviceType
             }
         });
     },
@@ -42,6 +56,31 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         } else {
             this.getDeviceTypePreview().hide();
         }
+    },
+
+    showDeviceTypeDetailsView: function(deviceType){
+        var me= this;
+        var widget = Ext.widget('deviceTypeDetail');
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
+            success: function (deviceType) {
+                widget.down('form').loadRecord(deviceType);
+                me.getDeviceTypePreviewTitle().update('<h4>' + deviceType.get('name') + ' Overview' + '</h4>');
+            }
+        });
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+
+    createDeviceType: function(){
+        location.href = '#setup/devicetypes/create';
+    },
+
+    editDeviceType: function(){
+        location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get('name')+'/edit';
+    },
+
+    deleteDeviceType: function(){
+      var deviceTypeToDelete = this.getDeviceTypeGrid.getSelectionModel().getSelection()[0];
+        deviceTypeToDelete.destroy();
     }
 
 })

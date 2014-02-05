@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
     extend: 'Ext.container.Container',
     alias: 'widget.deviceTypesSetup',
     autoScroll: true,
+    itemId: 'deviceTypeSetup',
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
         'Mdc.view.setup.devicetype.DeviceTypePreview'
@@ -36,8 +37,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                             text: 'Create device type',
                             itemId: 'createDeviceType',
                             xtype: 'button',
-                            href: '#/setup/createdevicetype',
-                            hrefTarget: '_self'
+                            action: 'createDeviceType'
                         },
                         {
                             text: 'Bulk action',

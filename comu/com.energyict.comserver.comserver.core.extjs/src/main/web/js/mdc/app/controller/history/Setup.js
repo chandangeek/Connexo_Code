@@ -71,6 +71,13 @@ Ext.define('Mdc.controller.history.Setup', {
     handleDeviceTypeTokens: function (tokens){
         if (tokens.length === 2) {
             Mdc.getApplication().getSetupSetupOverviewController().showDeviceTypes();
+        } else if (tokens.length === 3) {
+            debugger;
+            if (tokens[2] === 'create') {
+                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeDetailsView(null);
+            } else {
+                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeDetailsView(tokens[2]);
+            }
         }
     },
 

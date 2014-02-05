@@ -14,6 +14,14 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'communicationProtocolName', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'deviceFunction', type: 'string', useNull: true},
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '../../api/dtc/devicetypes',
+        reader: {
+            type: 'json'
+        }
+    }
 
 });
