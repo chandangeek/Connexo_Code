@@ -1,6 +1,8 @@
 package com.energyict.mdc.common.services;
 
+import com.elster.jupiter.rest.util.QueryParameters;
 import java.util.List;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * The Kore Finder backported for use by legacy factories
@@ -30,6 +32,11 @@ public class FactoryFinder<T> implements Finder<T> {
     @Override
     public List<T> find() {
         return callback.getDataFromFactory();
+    }
+
+    @Override
+    public Finder<T> from(QueryParameters queryParameters) {
+        return this;
     }
 
     public interface Callback<T> {
