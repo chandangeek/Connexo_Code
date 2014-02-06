@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
 import ch.iec.tc57._2011.getmeterreadings_.EndDevice;
+import ch.iec.tc57._2011.getmeterreadings_.EndDeviceGroup;
 import ch.iec.tc57._2011.getmeterreadings_.GetMeterReadings;
 import ch.iec.tc57._2011.getmeterreadings_.UsagePoint;
 import ch.iec.tc57._2011.getmeterreadings_.UsagePointGroup;
@@ -14,6 +15,7 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.metering.cim.impl.MeterReadingsGenerator;
@@ -60,6 +62,7 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
         List<String> endDeviceMrids = new ArrayList<>();
         List<String> usagePointMrids = new ArrayList<>();
         List<String> usagePointGroups = new ArrayList<>();
+        List<String> endDeviceGroups = new ArrayList<>();
 
         if (request != null) {
             Interval interval = getInterval(request);
@@ -73,6 +76,9 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
                 }
                 for (UsagePointGroup usagePointGroup : getMeterReadings.getUsagePointGroup()) {
                     usagePointGroups.add(usagePointGroup.getMRID());
+                }
+                for (EndDeviceGroup endDeviceGroup : getMeterReadings.getEndDeviceGroup()) {
+                    endDeviceGroups.add(endDeviceGroup.getMRID());
                 }
             }
             MeterReadingsPayloadType meterReadingsPayloadType = objectFactory.createMeterReadingsPayloadType();
@@ -106,6 +112,16 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
                     }
                 }
             }
+
+            for (String endDeviceGroupMrid : endDeviceGroups) {
+                Optional<com.elster.jupiter.metering.groups.EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupMrid);
+                if (found.isPresent()) {
+                    List<EndDeviceMembership> memberships = found.get().getMembers(interval);
+                    for (EndDeviceMembership membership : memberships) {
+                        addForMembership(meterReadingsPayloadType, membership);
+                    }
+                }
+            }
         }
     }
 
@@ -115,10 +131,25 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
         }
     }
 
+    private void addForMembership(MeterReadingsPayloadType meterReadingsPayloadType, EndDeviceMembership membership) {
+        for (Interval subInterval : membership.getIntervals()) {
+            addForEndDevice(meterReadingsPayloadType, membership.getEndDevice(), subInterval);
+        }
+    }
+
     private void addForUsagePoint(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.UsagePoint usagePoint, Interval interval) {
         Set<Map.Entry<Interval,MeterActivation>> entries = getMeterActivationsPerInterval(usagePoint, interval).entrySet();
         for (Map.Entry<Interval, MeterActivation> entry : entries) {
             meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
+        }
+    }
+
+    private void addForEndDevice(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.EndDevice endDevice, Interval interval) {
+        if (endDevice instanceof Meter) {
+            Set<Map.Entry<Interval,MeterActivation>> entries = getMeterActivationsPerInterval((Meter) endDevice, interval).entrySet();
+            for (Map.Entry<Interval, MeterActivation> entry : entries) {
+                meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
+            }
         }
     }
 
