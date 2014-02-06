@@ -7,7 +7,6 @@ public enum FlowDirection {
 		LEADING (3,"Leading"),
 		NET (4,"Net"),
 		Q1PLUSQ2  (5,"Q1+Q2"),
-		Q1PLUSQ2PLUSQ3PLUSQ4 (6,"Q1+Q2+Q3+Q4"),
 		Q1PLUSQ3 (7,"Q1+Q3"),
 		Q1PLUQQ4 (8,"Q1+Q4"),
 		Q1MINUSQ4 (9,"Q1-Q4"),

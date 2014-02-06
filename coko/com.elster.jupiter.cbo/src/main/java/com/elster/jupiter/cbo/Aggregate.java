@@ -10,13 +10,14 @@ public enum Aggregate {
 	MINIMUM (9,"Minimum"),
 	NOMINAL (11,"Nominal"),
 	NORMAL (12,"Normal"),
-	RELATIVE (13,"Relative"),
 	SECONDMAXIMUM (16,"SecondMaximum"),
 	SECONDMINIMUM (17,"SecondMinimum"),
 	THIRDMAXIMUM (23,"ThirdMaximum"),
 	FOURTHMAXIMUM (24,"FourthMaximum"),
 	FIFTHMAXIMIMUM (25,"FifthMaximum"),
-	SUM (26,"Sum");
+	SUM (26,"Sum"),
+	HIGH(27,"High"),
+	LOW(28,"Low");
 	
 	private final int id;
 	private final String description;

@@ -51,10 +51,10 @@ public enum MeasurementKind {
 	UNIPEDEVOLTAGEDIP30TO60 (51, "UNIPEDEVOLTAGEDIP30TO60"),
 	UNIPEDEVOLTAGEDIP60TO90 (52, "UNIPEDEVOLTAGEDIP60TO90"),
 	UNIPEDEVOLTAGEDIP90TO100 (53, "UNIPEDEVOLTAGEDIP90TO100"),
-	VOLTAGE (54, "Voltage"),
+	RMSVOLTAGE (54, "Voltage (rms)"),
 	VOLTAGEANGLE (55,"VoltageAngle"),
 	VOLTAGEEXCURSION (56, "VoltageExcursion"),
-	VOLTAGEIMBALANCE5 (57, "VoltageImbalance"),
+	VOLTAGEIMBALANCE (57, "VoltageImbalance"),
 	VOLUME (58, "Volume"),
 	ZEROFLOWDURATION (59, "ZeroFlowDuration"),
 	ZEROSEQUENCE (60, "ZeroSequence"),
@@ -125,7 +125,13 @@ public enum MeasurementKind {
 	BILLCARRYOVER(152,"BillCarryOver"),
 	CONNECTIONFEE(153,"ConnectionFee"),
 	AUDIBLEVOLUME(154,"AudibleVolume"),
-	VOLUMETRICFLOW(155,"VolumeMetricFlow");
+	VOLUMETRICFLOW(155,"VolumeMetricFlow"),
+	RELATIVEHUMIDITY(156,"RelativeHumidity"),
+	SKYCOVER(157,"skyCover"),
+	VOLTAGE(158,"voltage"),
+	DCVOLTAGE(159,"dcVoltage"),
+	ACVOLTAGEPEAK(160,"acVoltagePeak"),
+	ACVOLTAGEPEAKTOPEAK(161,"acVoltagePeakToPeak");
 
 	private final int id;
 	private final String description;

@@ -14,26 +14,17 @@ public class ReadingTypeUnitTest {
     @Test
     public void testCimCode() {
         for (ReadingTypeUnit each : ReadingTypeUnit.values()) {
-            assertThat(each == ReadingTypeUnit.get(each.getId()));
+            assertThat(each).isEqualTo(ReadingTypeUnit.get(each.getId()));
         }
     }
     
     @Test
-    public void testUnits() {
-    	 Set<Unit> units = new HashSet<>();
-    	 for (ReadingTypeUnit each : ReadingTypeUnit.values()) {
-    		 units.add(each.getUnit());
-    	 }
-         assertThat(ReadingTypeUnit.values().length == units.size());
-    }
-    
-    @Test
-    public void testSymbols() {
-    	 Set<String> symbols = new HashSet<>();
-    	 for (ReadingTypeUnit each : ReadingTypeUnit.values()) {
-    		 symbols.add(each.getSymbol());
-    	 }
-         assertThat(ReadingTypeUnit.values().length == symbols.size());
+    public void testCimCodeUnique() {
+    	Set<Integer> codes = new HashSet<>();
+    	for (ReadingTypeUnit each : ReadingTypeUnit.values()) {
+    		codes.add(each.getId());
+        }
+    	assertThat(codes).hasSize(ReadingTypeUnit.values().length);
     }
 
 }

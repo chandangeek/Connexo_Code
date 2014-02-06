@@ -26,7 +26,23 @@ public enum Commodity {
 	SF6(22,"SF6"),
     TVLICENSE(23,"TV License"),
     INTERNET(24,"Internet"),
-    REFUSE(25,"Trash");
+    REFUSE(25,"Trash"),
+	H2(26,"Hydrogen"),
+	C2H2(27,"Acetylene"),
+	C2H4(28,"Ethylene"),
+	C2H6(29,"Ethane"),
+	CO(30,"Carbon monoxide"),
+	O2(31,"Oxygen"),
+	DISSOLVEDCOMBUSTIBLEGAS(32,"Dissolved Combustible Gas"),
+	CO2E(33,"Carbon Dioxide Equivalent"),
+	LEAD(34,"lead"),
+	MERCURY(35,"Mercury"),
+	OZONE(36,"Ozone"),
+	PM10(37,"Particulate matter maximum size 10 \u00B5m"),
+	PM25(38,"Particulate matter maximum size 2.5 \u00B5m"),
+	SOX(39,"Sulfur Oxides"),
+	WEATHER(40,"Weather or meterological conditions"),
+	DEVICE(41,"End Device Condition");
 	
 	private final int id;
 	private final String description;

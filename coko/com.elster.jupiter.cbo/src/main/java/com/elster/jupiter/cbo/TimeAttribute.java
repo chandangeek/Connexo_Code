@@ -9,8 +9,6 @@ public enum TimeAttribute {
 	MINUTE30 (5,"30-minute",30),
 	MINUTE5 (6,"5-minute",5),
 	MINUTE60 (7,"60-minute",60),
-	BILLINGPERIOD (8,"BillingPeriod",0),
-	BLOCK (9,"block",0),
 	MINUTE2 (10,"2-minute",2),
 	MINUTE3 (14,"3-minute",3),
 	PRESENT (15,"Present",0),
@@ -43,7 +41,16 @@ public enum TimeAttribute {
 	ROLLING10_5(74,"Rolling Block 10-Minute with 5-Minute Sub-intervals",10),
 	ROLLING10_2(75,"Rolling Block 10-Minute with 2-Minute Sub-intervals",10),
 	ROLLING10_1(76,"Rolling Block 10-Minute with 2-Minute Sub-intervals",10),
-	ROLLING5_1(77,"Rolling Block 5-Minute with 1-Minute Sub-intervals",5);
+	ROLLING5_1(77,"Rolling Block 5-Minute with 1-Minute Sub-intervals",5),
+	MINUTE12 (78,"12-minute",12),
+	HOUR2(79,"2-hour",120),
+	HOUR4(80,"4-hour",240),
+	HOUR6(81,"6-hour",360),
+	HOUR12(82,"12-hour",720),
+	HOUR3(83,"3-hour",180),
+	SPECIFIEDINTERVAL(100,"Specified Interval",0),
+	SPECIFIEDFIXEDBLOCK(101,"Specified Fixed Block",0),
+	SPECIFIEDROLLINGBLOCK(102,"Specified Rolling Block",0);
 	
 	private final int id;
 	private final String description;

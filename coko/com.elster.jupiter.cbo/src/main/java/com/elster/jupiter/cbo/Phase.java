@@ -18,7 +18,20 @@ public enum Phase {
 	PHASECAN (false,false,true,false,true,false,false,true),
 	PHASECN (false,false,true,false,false,false,false,true),
 	PHASEN (false,false,false,true,false,false,false,false),
-	PHASEABC (true,true,true,false,false,false,false,false);
+	PHASEABC (true,true,true,false,false,false,false,false),
+	PHASES2(256),
+	PHASES2N(257),
+	PHASES1(512),
+	PHASES1N(513),
+	PHASES12(768),
+	PHASES12N(769),
+	PHASETHREEWIREWYE(1248),
+	PHASEFOURWIREWYE(1249),
+	PHASETHREEWIREDELTA(2272),
+	PHASEFOURWIREDELTA(2273),
+	PHASEFOURWIREHLDELTA(6369),
+	PHASEFOURWIREOPENDELTA(10465),
+	PHASENETWORKED(17153);
 	
 	private final boolean a1;
 	private final boolean b1;
@@ -28,6 +41,13 @@ public enum Phase {
 	private final boolean b2;
 	private final boolean c2;
 	private final boolean n2;
+	private final boolean s1;
+	private final boolean s2;
+	private final boolean wye;
+	private final boolean delta;
+	private final boolean highLeg;
+	private final boolean open;
+	private final boolean networked;
 	
 	Phase(boolean a1,boolean b1,boolean c1, boolean n1, boolean a2, boolean b2, boolean c2, boolean n2) {
 		this.a1 = a1;
@@ -38,6 +58,46 @@ public enum Phase {
 		this.b2 = b2;
 		this.c2 = c2;
 		this.n2 = n2;
+		this.s1 = false;
+		this.s2 = false;
+		this.wye = false;
+		this.delta = false;
+		this.highLeg = false;
+		this.open = false;
+		this.networked = false;
+	}
+	
+	Phase(int value) {
+		int mask = 1;
+		this.n2 = (value & mask) != 0;
+		mask <<= 1;
+		this.c2 = (value & mask) != 0;
+		mask <<= 1;
+		this.b2 = (value & mask) != 0;
+		mask <<= 1;
+		this.a2 = (value & mask) != 0;
+		mask <<= 1;
+		this.n1 = (value & mask) != 0;
+		mask <<= 1;
+		this.c1 = (value & mask) != 0;
+		mask <<= 1;
+		this.b1 = (value & mask) != 0;
+		mask <<= 1;
+		this.a1 = (value & mask) != 0;
+		mask <<= 1;
+		this.s2 = (value & mask) != 0;
+		mask <<= 1;
+		this.s1 = (value & mask) != 0;
+		mask <<= 1;
+		this.wye = (value & mask) != 0;
+		mask <<= 1;
+		this.delta = (value & mask) != 0;
+		mask <<= 1;
+		this.highLeg = (value & mask) != 0;
+		mask <<= 1;
+		this.open = (value & mask) != 0;
+		mask <<= 1;
+		this.networked = (value & mask) != 0;
 	}
 	
 	public static Phase get(int id) {
@@ -50,7 +110,14 @@ public enum Phase {
 	}
 	
 	public int getId() {
-		int value = shiftAndAdd(0,a1);
+		int value = shiftAndAdd(0,networked);
+		value = shiftAndAdd(0,open);
+		value = shiftAndAdd(value,highLeg);
+		value = shiftAndAdd(value,delta);
+		value = shiftAndAdd(value,wye);
+		value = shiftAndAdd(value,s1);
+		value = shiftAndAdd(value,s2);
+		value = shiftAndAdd(value,a1);
 		value = shiftAndAdd(value,b1);
 		value = shiftAndAdd(value,c1);
 		value = shiftAndAdd(value,n1);
@@ -108,7 +175,7 @@ public enum Phase {
 	}
 	
 	public boolean isApplicable() {
-		return a1 || b1 || c1 || n1;
+		return s1 || s2  || a1 || b1 || c1 || n1;
 	}
 
 }
