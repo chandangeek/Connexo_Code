@@ -54,4 +54,8 @@ public interface MeteringService {
 	Query<Meter> getMeterQuery();
 
     Optional<UsagePoint> findUsagePoint(String mRID);
+
+    Query<EndDevice> getEndDeviceQuery();
+
+    Optional<EndDevice> findEndDevice(long id);
 }

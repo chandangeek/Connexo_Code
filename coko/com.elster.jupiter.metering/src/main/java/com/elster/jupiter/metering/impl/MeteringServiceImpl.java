@@ -123,6 +123,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Override
+    public Optional<EndDevice> findEndDevice(long id) {
+        return dataModel.mapper(EndDevice.class).getOptional(id);
+    }
+
+    @Override
     public Optional<EndDevice> findEndDevice(String mRid) {
         List<EndDevice> endDevices = dataModel.mapper(EndDevice.class).select(Operator.EQUAL.compare("mRID", mRid));
         return endDevices.isEmpty() ? Optional.<EndDevice>absent() : Optional.of(endDevices.get(0));
@@ -150,7 +155,17 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
                         Party.class,
                         PartyRepresentation.class));
     }
-    
+
+    @Override
+    public Query<EndDevice> getEndDeviceQuery() {
+        return queryService.wrap(
+                dataModel.query(
+                        EndDevice.class,
+                        MeterActivation.class
+                )
+        );
+    }
+
     @SuppressWarnings("unchecked")
 	@Override
     public Query<Meter> getMeterQuery() {
