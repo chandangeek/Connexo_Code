@@ -13,7 +13,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'isDirectlyAddressable', type: 'boolean', useNull: true},
         {name: 'communicationProtocolName', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
-        {name: 'deviceFunction', type: 'string', useNull: true},
+        {name: 'deviceFunction', type: 'string', useNull: true}
     ],
 
     proxy: {

@@ -44,7 +44,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             },
             'comPortPoolsGrid actioncolumn':{
                 edit: this.editComPortPool,
-                delete: this.delete
+                deleteItem: this.deleteComPortPool
             },
             'inboundComPortPoolEdit button[action=save]': {
                 click: this.update
@@ -68,7 +68,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
                 click: this.add
             },
             'comPortPoolsGrid button[action=delete]': {
-                click: this.delete
+                click: this.deleteComPortPool
             },
             'poolOutboundComPorts button[action=add]': {
                 click: this.addOutboundComPort
@@ -146,7 +146,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         Ext.History.add(url);
     },
 
-    delete: function () {
+    deleteComPortPool: function () {
         var recordArray = this.getComPortPoolGrid().getSelectionModel().getSelection();
         var me = this;
         var callbackCount = recordArray.length;

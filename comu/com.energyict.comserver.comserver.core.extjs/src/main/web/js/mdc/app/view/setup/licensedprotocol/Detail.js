@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.licensedprotocol.Detail', {
                                 readOnly: true,
                                 size: 50
                             },
-                            {"xtype": 'setupProtocolFamilies'},
+                            {"xtype": 'setupProtocolFamilies'}
                         ]
                     }
                 ]
