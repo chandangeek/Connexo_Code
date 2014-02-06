@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.DeviceFunction;
 public class DeviceFunctionAdapter extends MapBasedXmlAdapter<DeviceFunction> {
 
     public DeviceFunctionAdapter() {
-//        register("", DeviceFunction.NONE);
+        register("", DeviceFunction.NONE);
         register("No function", DeviceFunction.NONE);
         register("Gateway", DeviceFunction.GATEWAY);
         register("Concentrator", DeviceFunction.CONCENTRATOR);
