@@ -28,7 +28,13 @@ public class UnitTest {
 
     @Test
     public void testGetByAsciiSymbol() {
+    	Set<String> asciiSymbols = new HashSet<>();
         for (Unit unit : Unit.values()) {
+        	boolean added = asciiSymbols.add(unit.getAsciiSymbol());
+        	if (!added) {
+        		System.out.println("Duplicate ascii symbol: " + unit.getAsciiSymbol());
+        	}
+        	assertThat(added).isTrue();
             assertThat(Unit.get(unit.getAsciiSymbol())).isEqualTo(unit);
         }
     }
@@ -37,11 +43,24 @@ public class UnitTest {
     public void testName() {
     	Set<String> set = new HashSet<>();
     	for (Unit unit : Unit.values()) {
-    		set.add(unit.getName());
+    		if (!set.add(unit.getName())) {
+    			System.out.println("Duplicate name: " + unit.getName());
+    		}
     	}
-    	assertThat(Unit.values().length == set.size());
+    	assertThat(set).hasSize(Unit.values().length);
     }
 
+    @Test
+    public void testSymbol() {
+    	Set<String> set = new HashSet<>();
+    	for (Unit unit : Unit.values()) {
+    		if (!set.add(unit.getSymbol())) {
+    			System.out.println("Duplicate symbol: " + unit.getSymbol());
+    		}
+    	}
+    	assertThat(set).hasSize(Unit.values().length);
+    }
+    
     @Test(expected = IllegalArgumentException.class)
     public void testUnitForSymbolNotExists() {
         Unit.unitForSymbol("NotAUnitSymbol");
@@ -101,4 +120,8 @@ public class UnitTest {
         assertThat(Unit.FOOT.getSiDivisor()).isEqualTo(BigDecimal.ONE);
     }
 
+    @Test
+    public void scaler() {
+    	assertThat(BigDecimal.valueOf(1602176L,25).doubleValue()).isEqualTo(1.602176e-19);
+    }
 }
