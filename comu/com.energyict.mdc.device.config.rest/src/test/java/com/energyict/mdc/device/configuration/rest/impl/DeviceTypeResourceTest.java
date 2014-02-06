@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -7,12 +8,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceConfigurationService;
+import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdw.amr.RegisterMappingFactory;
 import com.energyict.mdw.core.DeviceType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -21,6 +26,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -36,17 +42,19 @@ import static org.mockito.Mockito.when;
 public class DeviceTypeResourceTest extends JerseyTest {
 
     private static DeviceConfigurationService deviceConfigurationService;
+    private static RegisterMappingFactory registerMappingFactory;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         deviceConfigurationService = mock(DeviceConfigurationService.class);
+        registerMappingFactory = mock(RegisterMappingFactory.class);
     }
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        reset(deviceConfigurationService);
+        reset(deviceConfigurationService, registerMappingFactory);
     }
 
     @Override
@@ -59,6 +67,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
             @Override
             protected void configure() {
                 bind(deviceConfigurationService).to(DeviceConfigurationService.class);
+                bind(registerMappingFactory).to(RegisterMappingFactory.class);
             }
         });
         return resourceConfig;
@@ -183,11 +192,36 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(jsonDeviceType.get("loadProfileCount")).isEqualTo(NUMBER_OF_LOADPROFILES).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("name")).isEqualTo("unique name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
-        assertThat(jsonDeviceType.get("isDirectlyAddressable")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("canBeDirectlyAddressed")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("communicationProtocolName")).isEqualTo("device protocol name").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("serviceCategory")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("deviceFunction")).isNotNull().describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
+
+    @Test
+    @Ignore
+    public void testUpdateRegisters() throws Exception {
+        RegisterMappingInfo registerMappingInfo1 = new RegisterMappingInfo();
+        registerMappingInfo1.name="mapping 1";
+        registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
+        RegisterMappingInfo registerMappingInfo2 = new RegisterMappingInfo();
+        registerMappingInfo2.name="mapping 2";
+        registerMappingInfo2.obisCode=new ObisCode(11,111,12,112,13,113);
+
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn(101);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn(102);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
+        when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+
+        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
+        Response response = target("/devicetypes/31/registers").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);

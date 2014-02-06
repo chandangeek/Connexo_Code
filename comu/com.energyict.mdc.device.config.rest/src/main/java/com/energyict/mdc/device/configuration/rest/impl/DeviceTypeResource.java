@@ -6,6 +6,7 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdw.amr.RegisterMappingFactory;
 import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
@@ -13,6 +14,9 @@ import com.energyict.mdw.core.LogBookType;
 
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
+import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,10 +29,12 @@ import java.util.List;
 public class DeviceTypeResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
+    private final RegisterMappingFactory registerMappingFactory;
 
     @Inject
-    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService) {
+    public DeviceTypeResource(DeviceConfigurationService deviceConfigurationService, RegisterMappingFactory registerMappingFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
+        this.registerMappingFactory = registerMappingFactory;
     }
 
     @GET
@@ -138,6 +144,54 @@ public class DeviceTypeResource {
         }
         return registerMappingInfos;
     }
+
+    @PUT
+    @Path("/{id}/registers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RegisterMappingInfo> updateRegistersForDeviceType(@PathParam("id") long id, List<RegisterMappingInfo> registerMappingInfos) {
+        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+
+        updateRegisterMappings(deviceType, registerMappingInfos);
+
+        return getRegistersForDeviceType(id);
+    }
+    
+    private void updateRegisterMappings(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
+
+        DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
+        Map<Long, RegisterMappingInfo> newRegisterMappingsIdMap = asIdz(newRegisterMappings);
+        for (RegisterMapping existingRegisterMapping : deviceType.getRegisterMappings()) {
+            if (newRegisterMappingsIdMap.containsKey(Long.valueOf(existingRegisterMapping.getId()))) {
+                newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId())); // We don't update anything in the resource
+            } else {
+                deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), existingRegisterMapping.getId()));
+            }
+        }
+
+        for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
+            deviceTypeShadow.getRegisterMappingShadows().add(registerMappingFactory.find((int) registerMappingInfo.id).getShadow());
+        }
+    }
+
+    private RegisterMappingShadow getRegisterMappingById(List<RegisterMappingShadow> registerMappingShadows, int id) {
+        for (RegisterMappingShadow registerMappingShadow : registerMappingShadows) {
+            if (registerMappingShadow.getId()==id) {
+                return registerMappingShadow;
+            }
+        }
+        return null;
+    }
+
+    private Map<Long, RegisterMappingInfo> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
+        Map<Long, RegisterMappingInfo> registerMappingIdMap = new HashMap<>();
+        for (RegisterMappingInfo registerMappingInfo : registerMappingInfos) {
+            registerMappingIdMap.put(registerMappingInfo.id, registerMappingInfo);
+        }
+        return registerMappingIdMap;
+    }
+    
+    
 
     private DeviceType findDeviceTypeByNameOrThrowException(long id) {
         DeviceType deviceType = deviceConfigurationService.findDeviceType(id);

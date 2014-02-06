@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -24,8 +23,8 @@ public class DeviceTypeInfo {
     public int logBookCount;
     @JsonProperty("deviceConfigurationCount")
     public int deviceConfigurationCount;
-    @JsonProperty("isDirectlyAddressable")
-    public boolean isDirectlyAddressable;
+    @JsonProperty("canBeDirectlyAddressed")
+    public boolean canBeDirectlyAddressed;
     @JsonProperty("canBeGateway")
     public boolean canBeGateway;
     @JsonUnwrapped // As requested by ExtJS people
@@ -46,10 +45,10 @@ public class DeviceTypeInfo {
             this.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
             if (deviceProtocol!=null) {
-                this.canBeGateway= DeviceFunction.GATEWAY.equals(deviceProtocol.getDeviceFunction());
                 List<DeviceProtocolCapabilities> deviceProtocolCapabilities = deviceProtocol.getDeviceProtocolCapabilities();
                 if (deviceProtocolCapabilities!=null) {
-                    this.isDirectlyAddressable= deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+                    this.canBeGateway= deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
+                    this.canBeDirectlyAddressed = deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
                 }
             }
         }

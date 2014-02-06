@@ -4,6 +4,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.services.DeviceConfigurationService;
+import com.energyict.mdw.amr.RegisterMappingFactory;
+import com.energyict.mdw.amrimpl.RegisterMappingFactoryImpl;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashSet;
@@ -58,6 +60,7 @@ public class DeviceConfigurationApplication extends Application {
             LOGGER.fine("Binding services using HK2");
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
+            bind(new RegisterMappingFactoryImpl()).to(RegisterMappingFactory.class);
         }
     }
 

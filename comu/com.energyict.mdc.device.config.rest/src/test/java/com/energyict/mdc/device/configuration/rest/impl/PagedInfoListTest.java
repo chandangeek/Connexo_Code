@@ -17,7 +17,7 @@ public class PagedInfoListTest {
     public void testObjectMapperSerializesTypeInformation() throws Exception {
         DeviceTypeInfo deviceTypeInfo1 = new DeviceTypeInfo();
         deviceTypeInfo1.name="new 1";
-        deviceTypeInfo1.isDirectlyAddressable=true;
+        deviceTypeInfo1.canBeDirectlyAddressed =true;
         deviceTypeInfo1.canBeGateway=false;
         deviceTypeInfo1.deviceConfigurationCount=4;
         deviceTypeInfo1.loadProfileCount=5;
@@ -29,7 +29,7 @@ public class PagedInfoListTest {
         deviceTypeInfo1.deviceProtocolInfo.deviceFunction= DeviceFunction.METER;
         DeviceTypeInfo deviceTypeInfo2 = new DeviceTypeInfo();
         deviceTypeInfo2.name="new 2";
-        deviceTypeInfo2.isDirectlyAddressable=true;
+        deviceTypeInfo2.canBeDirectlyAddressed =true;
         deviceTypeInfo2.canBeGateway=false;
         deviceTypeInfo2.deviceConfigurationCount=4;
         deviceTypeInfo2.loadProfileCount=5;
