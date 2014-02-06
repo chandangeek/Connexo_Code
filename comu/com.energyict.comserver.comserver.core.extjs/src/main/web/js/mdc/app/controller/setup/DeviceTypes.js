@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypesSetup',
         'setup.devicetype.DeviceTypesGrid',
         'setup.devicetype.DeviceTypePreview',
-        'setup.devicetype.DeviceTypeDetail'
+        'setup.devicetype.DeviceTypeDetail',
+        'setup.devicetype.DeviceTypeEdit',
     ],
 
     stores: [
@@ -26,14 +27,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 selectionchange: this.previewDeviceType
             },
             '#devicetypegrid actioncolumn':{
-                edit: this.editDeviceType,
+                edit: this.editDeviceTypeHistory,
                 delete: this.deleteDeviceType
             },
             '#deviceTypeSetup button[action = createDeviceType]':{
-                click: this.createDeviceType
+                click: this.createDeviceTypeHistory
             },
             '#deviceTypePreview menuitem[action=editDeviceType]':{
-                click: this.editDeviceType
+                click: this.editDeviceTypeHistory
             },
             '#deviceTypePreview menuitem[action=deleteDeviceType]':{
                 click: this.deleteDeviceType
@@ -61,6 +62,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeDetailsView: function(deviceType){
         var me= this;
         var widget = Ext.widget('deviceTypeDetail');
+//        Ext.ModelManager.getModel('Mdc.model.DeviceType').getProxy().setExtraParam('deviceType','WebRTUKP');
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
                 widget.down('form').loadRecord(deviceType);
@@ -70,17 +72,22 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         Mdc.getApplication().getMainController().showContent(widget);
     },
 
-    createDeviceType: function(){
+    createDeviceTypeHistory: function(){
         location.href = '#setup/devicetypes/create';
     },
 
-    editDeviceType: function(){
+    editDeviceTypeHistory: function(){
         location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get('name')+'/edit';
     },
 
     deleteDeviceType: function(){
       var deviceTypeToDelete = this.getDeviceTypeGrid.getSelectionModel().getSelection()[0];
         deviceTypeToDelete.destroy();
+    },
+
+    showDeviceTypeEditView: function(){
+        var widget = Ext.widget('deviceTypeEdit');
+        Mdc.getApplication().getMainController().showContent(widget);
     }
 
 })
