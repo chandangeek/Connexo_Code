@@ -6,7 +6,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.google.common.base.Optional;
 
@@ -16,13 +15,11 @@ public class DefaultAppServerCreator implements AppServerCreator {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private final DataModel dataModel;
-    private final TransactionService transactionService;
     private final MessageService messageService;
 
     @Inject
-    public DefaultAppServerCreator(DataModel dataModel, TransactionService transactionService, MessageService messageService) {
+    public DefaultAppServerCreator(DataModel dataModel, MessageService messageService) {
         this.dataModel = dataModel;
-        this.transactionService = transactionService;
         this.messageService = messageService;
     }
 

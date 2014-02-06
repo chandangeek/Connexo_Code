@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.util.Properties;
 
-public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer {
+public final class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer {
 
     private long importScheduleId;
     private transient ImportSchedule importSchedule;
@@ -23,7 +23,7 @@ public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer 
 
     @SuppressWarnings("unused")
     @Inject
-	private ImportScheduleOnAppServerImpl(DataModel dataModel, FileImportService fileImportService) {
+	ImportScheduleOnAppServerImpl(DataModel dataModel, FileImportService fileImportService) {
         this.dataModel = dataModel;
         this.fileImportService = fileImportService;
     }

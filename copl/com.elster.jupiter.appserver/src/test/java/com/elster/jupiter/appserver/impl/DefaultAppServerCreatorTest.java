@@ -88,7 +88,7 @@ public class DefaultAppServerCreatorTest {
     @Test
     public void testCreateAppServerSavesAppServerInstance() {
 
-        new DefaultAppServerCreator(dataModel, transactionService, messageService).createAppServer(NAME, cronExpression);
+        new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
         verify(appServerFactory).persist(appServerCaptor.capture());
 
@@ -99,7 +99,7 @@ public class DefaultAppServerCreatorTest {
     @Test
     public void testCreateAppServerCreatesDestinationAndSubscribes() {
 
-        new DefaultAppServerCreator(dataModel, transactionService, messageService).createAppServer(NAME, cronExpression);
+        new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
         verify(queueTableSpec).createDestinationSpec(anyString(), anyInt());
         verify(newDestination).subscribe(anyString());
@@ -108,7 +108,7 @@ public class DefaultAppServerCreatorTest {
     @Test
     public void testCreateAppServerSubscribesToAllServersDestination() {
 
-        new DefaultAppServerCreator(dataModel, transactionService, messageService).createAppServer(NAME, cronExpression);
+        new DefaultAppServerCreator(dataModel, messageService).createAppServer(NAME, cronExpression);
 
         verify(allServersDestination).subscribe(anyString());
     }

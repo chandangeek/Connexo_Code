@@ -21,7 +21,6 @@ import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -63,7 +62,6 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     private volatile TransactionService transactionService;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
-    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BundleContext context;
     private volatile JsonService jsonService;
     private volatile FileImportService fileImportService;
@@ -245,11 +243,6 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Override
     public List<SubscriberExecutionSpec> getSubscriberExecutionSpecs() {
         return ImmutableList.copyOf(subscriberExecutionSpecs);
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
