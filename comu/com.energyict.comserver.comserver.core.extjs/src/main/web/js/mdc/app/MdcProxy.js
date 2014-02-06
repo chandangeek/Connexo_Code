@@ -2,7 +2,6 @@ Ext.define('Mdc.MdcProxy', {
     override: 'Ext.data.proxy.Rest',
 
     buildUrl: function (request) {
-        debugger;
         //Create a template with the URL and replace the variables
         var me = this,
             url = me.callParent(arguments);

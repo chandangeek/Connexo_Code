@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.history.Setup', {
             }
         } else if (tokens.length === 4){
             if (tokens[3] === 'edit'){
-                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeEditView(tokens[3]);
+                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeEditView(tokens[2]);
             }
         }
     },

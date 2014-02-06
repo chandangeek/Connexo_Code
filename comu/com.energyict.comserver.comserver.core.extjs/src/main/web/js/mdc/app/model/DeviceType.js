@@ -4,7 +4,7 @@ Ext.define('Mdc.model.DeviceType', {
         'Mdc.model.DeviceProtocol'
     ],
     fields: [
-        {name: 'id',type:'number'},
+        {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'loadProfileCount', type: 'int', useNull: true},
         {name: 'registerCount', type: 'int', useNull: true},
@@ -19,7 +19,7 @@ Ext.define('Mdc.model.DeviceType', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/',
+        url: '../../api/dtc/devicetypes',
         reader: {
             type: 'json'
         }

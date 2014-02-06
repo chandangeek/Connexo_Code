@@ -8,6 +8,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         align: 'stretch'
     },
     cls: 'content-wrapper',
+    setEdit: function(edit,returnLink){
+        if(edit){
+            this.down('#createEditButton').setText('Edit');
+            this.down('#createEditButton').action = 'editDeviceType';
+        } else {
+            this.down('#createEditButton').setText('Create');
+            this.down('#createEditButton').action = 'createDeviceType';
+        }
+        this.down('#cancelLink').autoEl.href=returnLink;
+    },
     items: [
         {
             xtype: 'container',
@@ -65,15 +75,16 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                 {
                                     text: 'Create',
                                     xtype: 'button',
-                                    action: 'createEditAction',
+                                    action: 'createAction',
                                     itemId: 'createEditButton'
                                 },
                                 {
-                                    xtype: 'box',
+                                    xtype: 'component',
                                     padding: '2 0 0 10',
+                                    itemId: 'cancelLink',
                                     autoEl: {
                                         tag: 'a',
-                                        href: 'javascript:history.back()',
+                                        href: '#setup/devicetypes/',
                                         html: 'Cancel'
                                     }
                                 }
