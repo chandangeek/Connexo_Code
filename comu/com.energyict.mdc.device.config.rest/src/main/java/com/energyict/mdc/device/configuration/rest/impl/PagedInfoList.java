@@ -9,6 +9,10 @@ import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
+/**
+ * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
+ * @param <T>
+ */
 @JsonSerialize(using = PagedInfoList.Serializer.class)
 public class PagedInfoList<T> {
 
@@ -29,7 +33,9 @@ public class PagedInfoList<T> {
     /**
      * Create a Json serialized object for paged search results.
      * E.g.
-     *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, true}
+     *    ("deviceTypes", {deviceTypeInfo1, deviceTypeInfo2}, queryParameters}
+     *    with queryParameters,limit=2 (TWO)
+     *    returning 2 results when 2 were asked implicates a full page and the the field 'total' is increased by 1 to indicate there could be a next page.
      *
      * will end up serialized into the following JSON
      *
@@ -39,10 +45,11 @@ public class PagedInfoList<T> {
      *   }
      * @param jsonListName The name of the list property in JSON
      * @param infos The search results to assign to the list property
-     * @param queryParameters The original query parameters used for building the list that is being returned
+     * @param queryParameters The original query parameters used for building the list that is being returned. This is required as it is used to determine
+     *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static <T> PagedInfoList<T> forJson(String jsonListName, List<T> infos, QueryParameters queryParameters) {
+    public static <T> PagedInfoList<T> asJson(String jsonListName, List<T> infos, QueryParameters queryParameters) {
         return new PagedInfoList<>(jsonListName, infos, queryParameters);
     }
 
