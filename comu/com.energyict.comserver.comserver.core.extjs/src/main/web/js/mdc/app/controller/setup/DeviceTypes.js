@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     ],
 
     stores: [
-        'DeviceTypes'
+        'DeviceTypes',
+        'DeviceCommunicationProtocols'
     ],
 
     refs: [

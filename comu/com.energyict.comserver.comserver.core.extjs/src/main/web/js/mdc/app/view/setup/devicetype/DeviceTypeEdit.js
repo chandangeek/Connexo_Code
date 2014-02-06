@@ -3,6 +3,9 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     alias: 'widget.deviceTypeEdit',
     itemId: 'deviceTypeEdit',
     autoScroll: true,
+    requires: [
+        'Mdc.store.DeviceCommunicationProtocols'
+    ],
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -18,26 +21,29 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         }
         this.down('#cancelLink').autoEl.href=returnLink;
     },
-    items: [
-        {
-            xtype: 'container',
-            cls: 'content-container',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
 
-            items: [
+    initComponent: function () {
+        var deviceCommunicationProtocols = Ext.create('Mdc.store.DeviceCommunicationProtocols');
+        this.items = [
+            {
+                xtype: 'container',
+                cls: 'content-container',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
 
-                {
-                    xtype: 'form',
-                    border: false,
-                    itemId: 'deviceTypeEditForm',
-                    padding: '10 10 0 10',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
+                items: [
+
+                    {
+                        xtype: 'form',
+                        border: false,
+                        itemId: 'deviceTypeEditForm',
+                        padding: '10 10 0 10',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
 //                    tbar: [
 //                        {
 //                            xtype: 'component',
@@ -46,53 +52,60 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
 //                        }
 //                    ],
 
-                    items: [
-                        {
-                            xtype: 'textfield',
-                            name: 'name',
-                            fieldLabel: 'Name:',
-                            labelAlign: 'right',
-                            labelWidth:	150
-                        },
-                        {
-                            xtype: 'combobox',
-                            name: 'communicationProtocolName',
-                            fieldLabel: 'Device Communication protocol:',
-                            labelAlign: 'right',
-                            labelWidth:	150
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: '&nbsp',
-                            labelAlign: 'right',
-                            labelWidth:	150,
-                            //width: 430,
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'name',
+                                fieldLabel: 'Name:',
+                                labelAlign: 'right',
+                                labelWidth:	150
                             },
-                            items: [
-                                {
-                                    text: 'Create',
-                                    xtype: 'button',
-                                    action: 'createAction',
-                                    itemId: 'createEditButton'
+                            {
+                                xtype: 'combobox',
+                                name: 'communicationProtocolName',
+                                fieldLabel: 'Device Communication protocol:',
+                                store: deviceCommunicationProtocols,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'name',
+                                labelWidth:	150
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                fieldLabel: '&nbsp',
+                                labelAlign: 'right',
+                                labelWidth:	150,
+                                //width: 430,
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
                                 },
-                                {
-                                    xtype: 'component',
-                                    padding: '2 0 0 10',
-                                    itemId: 'cancelLink',
-                                    autoEl: {
-                                        tag: 'a',
-                                        href: '#setup/devicetypes/',
-                                        html: 'Cancel'
+                                items: [
+                                    {
+                                        text: 'Create',
+                                        xtype: 'button',
+                                        action: 'createAction',
+                                        itemId: 'createEditButton'
+                                    },
+                                    {
+                                        xtype: 'component',
+                                        padding: '2 0 0 10',
+                                        itemId: 'cancelLink',
+                                        autoEl: {
+                                            tag: 'a',
+                                            href: '#setup/devicetypes/',
+                                            html: 'Cancel'
+                                        }
                                     }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+        this.callParent(arguments);
+    }
+
+
 });
