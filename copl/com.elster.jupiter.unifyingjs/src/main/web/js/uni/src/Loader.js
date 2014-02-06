@@ -8,6 +8,8 @@ Ext.define('Uni.Loader', {
     scriptLoadingCount: 0,
 
     requires: [
+        'Uni.About',
+
         'Ext.tip.QuickTipManager',
         'Uni.util.I18n',
         'Ext.state.CookieProvider',

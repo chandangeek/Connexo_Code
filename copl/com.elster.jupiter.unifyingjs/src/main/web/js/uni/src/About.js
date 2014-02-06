@@ -4,9 +4,7 @@
 Ext.define('Uni.About', {
     singleton: true,
 
-    statics: {
-        version: '1.0',
-        startup: new Date()
-    }
-
+    version: '1.0',
+    startup: new Date(),
+    baseCssPrefix: 'uni-'
 });
