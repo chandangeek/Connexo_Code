@@ -11,20 +11,19 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.
- * @param <T>
  */
 @JsonSerialize(using = PagedInfoList.Serializer.class)
-public class PagedInfoList<T> {
+public class PagedInfoList {
 
     private final String jsonListName;
     private boolean couldHaveNextPage;
-    private List<T> infos = new ArrayList<>();
+    private List infos = new ArrayList<>();
 
     public int getTotal() {
         return infos.size() + (couldHaveNextPage?1:0);
     }
 
-    private PagedInfoList(String jsonListName, List<T> infos, QueryParameters queryParameters) {
+    private PagedInfoList(String jsonListName, List infos, QueryParameters queryParameters) {
         this.jsonListName = jsonListName;
         this.infos = infos;
         couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()==queryParameters.getLimit();
@@ -49,8 +48,8 @@ public class PagedInfoList<T> {
      *                        if the returned 'page' was full, if so, total is incremented by 1 to indicate to ExtJS there could be a next page.
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static <T> PagedInfoList<T> asJson(String jsonListName, List<T> infos, QueryParameters queryParameters) {
-        return new PagedInfoList<>(jsonListName, infos, queryParameters);
+    public static PagedInfoList asJson(String jsonListName, List infos, QueryParameters queryParameters) {
+        return new PagedInfoList(jsonListName, infos, queryParameters);
     }
 
     public static class Serializer extends JsonSerializer<PagedInfoList> {
