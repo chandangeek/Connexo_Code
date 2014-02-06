@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.groups.impl;
+package com.elster.jupiter.metering.groups.impl.query;
 
 
 public interface OperationVisitor {

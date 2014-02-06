@@ -1,11 +1,11 @@
-package com.elster.jupiter.metering.groups.impl;
+package com.elster.jupiter.metering.groups.impl.query;
 
 import com.elster.jupiter.util.conditions.Condition;
 
 public class OrOperation extends BooleanOperation {
 
     public static final OrOperation OR = new OrOperation();
-    static final String TYPE_IDENTIFIER = "IOR";
+    public static final String TYPE_IDENTIFIER = "IOR";
 
     public static OrOperation atPosition(int i) {
         OrOperation orOperation = new OrOperation();

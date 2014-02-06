@@ -1,24 +1,25 @@
-package com.elster.jupiter.metering.groups.impl;
+package com.elster.jupiter.metering.groups.impl.query;
 
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.collect.ImmutableSet;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Set;
 
 public class SimpleConditionOperation extends ConditionOperation {
 
     private static final Set<Class<?>> ALLOWED_VALUE_TYPES = ImmutableSet.<Class<?>>of(Integer.class, Long.class, Byte.class, Float.class, Character.class, Double.class, Short.class, Boolean.class, String.class);
-    static final String TYPE_IDENTIFIER = "SCD";
+    public static final String TYPE_IDENTIFIER = "SCD";
 
     private String fieldName;
     private String operator = Operator.EQUAL.getSymbol();
     private Object[] values;
 
-    @SuppressWarnings("unused")
-	private SimpleConditionOperation() {
+    @Inject
+	SimpleConditionOperation() {
         // for persistence
     }
 

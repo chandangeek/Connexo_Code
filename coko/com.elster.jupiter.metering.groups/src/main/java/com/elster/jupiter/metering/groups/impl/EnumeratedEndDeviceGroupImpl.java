@@ -1,9 +1,9 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
+import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.collections.ArrayDiffList;
@@ -23,22 +23,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements EnumeratedUsagePointGroup {
+public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
     private List<EntryImpl> entries;
 
-    private final List<UsagePointMembershipImpl> memberships = new ArrayList<>();
+    private final List<EndDeviceMembershipImpl> memberships = new ArrayList<>();
 
     private final DataModel dataModel;
 
     @Inject
-    EnumeratedUsagePointGroupImpl(DataModel dataModel) {
+    EnumeratedEndDeviceGroupImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     private List<EntryImpl> getEntries() {
         if (entries == null) {
-            List<Entry> entryList = dataModel.mapper(Entry.class).find("usagePointGroup", this);
+            List<Entry> entryList = dataModel.mapper(Entry.class).find("endDeviceGroup", this);
             entries = new ArrayList<>(entryList.size());
             for (Entry entry : entryList) {
                 entries.add((EntryImpl) entry);
@@ -49,20 +49,20 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     }
 
     private void buildMemberships() {
-        Map<UsagePoint, UsagePointMembershipImpl> map = new HashMap<>();
+        Map<EndDevice, EndDeviceMembershipImpl> map = new HashMap<>();
         for (EntryImpl entry : entries) {
-            if (!map.containsKey(entry.getUsagePoint())) {
-                UsagePointMembershipImpl newMembership = new UsagePointMembershipImpl(entry.getUsagePoint(), IntermittentInterval.NEVER);
-                map.put(entry.getUsagePoint(), newMembership);
+            if (!map.containsKey(entry.getEndDevice())) {
+                EndDeviceMembershipImpl newMembership = new EndDeviceMembershipImpl(entry.getEndDevice(), IntermittentInterval.NEVER);
+                map.put(entry.getEndDevice(), newMembership);
                 memberships.add(newMembership);
             }
-            UsagePointMembershipImpl membership = map.get(entry.getUsagePoint());
+            EndDeviceMembershipImpl membership = map.get(entry.getEndDevice());
             membership.addInterval(entry.getInterval());
         }
 
     }
 
-    private List<UsagePointMembershipImpl> getMemberships() {
+    private List<EndDeviceMembershipImpl> getMemberships() {
         if (entries == null) {
             getEntries();
         }
@@ -71,11 +71,11 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     static class EntryImpl implements Entry {
 
-        private transient EnumeratedUsagePointGroup usagePointGroup;
+        private transient EnumeratedEndDeviceGroup endDeviceGroup;
         private long groupId;
-        private transient UsagePoint usagePoint;
+        private transient EndDevice endDevice;
         private Interval interval;
-        private long usagePointId;
+        private long endDeviceId;
 
         private final DataModel dataModel;
         private final MeteringService meteringService;
@@ -86,17 +86,17 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             this.meteringService = meteringService;
         }
 
-        EntryImpl init(EnumeratedUsagePointGroup usagePointGroup, UsagePoint usagePoint, Interval interval) {
-            this.usagePointGroup = usagePointGroup;
-            this.groupId = usagePointGroup.getId();
-            this.usagePoint = usagePoint;
-            this.usagePointId = usagePoint.getId();
+        EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Interval interval) {
+            this.endDeviceGroup = endDeviceGroup;
+            this.groupId = endDeviceGroup.getId();
+            this.endDevice = endDevice;
+            this.endDeviceId = endDevice.getId();
             this.interval = interval;
             return this;
         }
 
-        static EntryImpl from(DataModel dataModel, EnumeratedUsagePointGroup usagePointGroup, UsagePoint usagePoint, Interval interval) {
-            return dataModel.getInstance(EntryImpl.class).init(usagePointGroup, usagePoint, interval);
+        static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Interval interval) {
+            return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, interval);
         }
 
         @Override
@@ -105,18 +105,18 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         }
 
         @Override
-        public UsagePoint getUsagePoint() {
-            if (usagePoint == null) {
-                usagePoint = meteringService.findUsagePoint(usagePointId).get();
+        public EndDevice getEndDevice() {
+            if (endDevice == null) {
+                endDevice = meteringService.findEndDevice(endDeviceId).get();
             }
-            return usagePoint;
+            return endDevice;
         }
 
-        public EnumeratedUsagePointGroup getUsagePointGroup() {
-            if (usagePointGroup == null) {
-                usagePointGroup = dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(groupId).get();
+        public EnumeratedEndDeviceGroup getEndDeviceGroup() {
+            if (endDeviceGroup == null) {
+                endDeviceGroup = dataModel.mapper(EnumeratedEndDeviceGroup.class).getOptional(groupId).get();
         }
-            return usagePointGroup;
+            return endDeviceGroup;
         }
 
         @Override
@@ -130,32 +130,32 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
             EntryImpl entry = (EntryImpl) o;
 
-            return groupId == entry.groupId && usagePointId == entry.usagePointId && Objects.equals(interval.getStart(), entry.interval.getStart());
+            return groupId == entry.groupId && endDeviceId == entry.endDeviceId && Objects.equals(interval.getStart(), entry.interval.getStart());
 
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(groupId, usagePointId, interval.getStart());
+            return Objects.hash(groupId, endDeviceId, interval.getStart());
         }
     }
 
     @Override
-    public Entry add(UsagePoint usagePoint, Interval interval) {
-        UsagePointMembershipImpl membership = forUsagePoint(usagePoint);
+    public Entry add(EndDevice endDevice, Interval interval) {
+        EndDeviceMembershipImpl membership = forEndDevice(endDevice);
         if (membership == null) {
-            membership = new UsagePointMembershipImpl(usagePoint, IntermittentInterval.NEVER);
+            membership = new EndDeviceMembershipImpl(endDevice, IntermittentInterval.NEVER);
             getMemberships().add(membership);
         }
         membership.addInterval(interval);
-        EntryImpl entry = EntryImpl.from(dataModel, this, usagePoint, membership.resultingInterval(interval));
+        EntryImpl entry = EntryImpl.from(dataModel, this, endDevice, membership.resultingInterval(interval));
         getEntries().add(entry);
         return entry;
     }
 
     @Override
     public void remove(Entry entry) {
-        UsagePointMembershipImpl membership = forUsagePoint(entry.getUsagePoint());
+        EndDeviceMembershipImpl membership = forEndDevice(entry.getEndDevice());
         Interval interval = membership.getIntervals().intervalAt(entry.getInterval().getStart());
         if (interval != null && interval.equals(entry.getInterval())) {
             membership.removeInterval(interval);
@@ -179,12 +179,12 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             entryFactory().persist(result);
         } else {
             factory().update(this);
-            List<Entry> existingEntries = entryFactory().find("usagePointGroup", this);
+            List<Entry> existingEntries = entryFactory().find("endDeviceGroup", this);
             DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
             entryDiff.clear();
-            for (UsagePointMembership membership : memberships) {
+            for (EndDeviceMembership membership : memberships) {
                 for (Interval interval : membership.getIntervals().getIntervals()) {
-                    entryDiff.add(EntryImpl.from(dataModel, this, membership.getUsagePoint(), interval));
+                    entryDiff.add(EntryImpl.from(dataModel, this, membership.getEndDevice(), interval));
                 }
             }
             entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
@@ -194,8 +194,8 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
 
     }
 
-    private DataMapper<EnumeratedUsagePointGroup> factory() {
-        return dataModel.mapper(EnumeratedUsagePointGroup.class);
+    private DataMapper<EnumeratedEndDeviceGroup> factory() {
+        return dataModel.mapper(EnumeratedEndDeviceGroup.class);
     }
 
     private DataMapper<Entry> entryFactory() {
@@ -203,21 +203,21 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     }
 
     @Override
-    public List<UsagePoint> getMembers(final Date date) {
+    public List<EndDevice> getMembers(final Date date) {
         return FluentIterable.from(getMemberships())
                 .filter(Active.at(date))
-                .transform(To.USAGE_POINT)
+                .transform(To.END_DEVICE)
                 .toList();
     }
 
     @Override
-    public List<UsagePointMembership> getMembers(Interval interval) {
+    public List<EndDeviceMembership> getMembers(Interval interval) {
         final IntermittentInterval intervalScope = IntermittentInterval.from(interval);
         return FluentIterable.from(getMemberships())
                 .filter(Active.during(interval))
-                .transform(new Function<UsagePointMembershipImpl, UsagePointMembership>() {
+                .transform(new Function<EndDeviceMembershipImpl, EndDeviceMembership>() {
                     @Override
-                    public UsagePointMembership apply(UsagePointMembershipImpl input) {
+                    public EndDeviceMembership apply(EndDeviceMembershipImpl input) {
                         return input.withIntervals(input.getIntervals().intersection(intervalScope));
                     }
                 })
@@ -225,30 +225,30 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     }
 
     @Override
-    public boolean isMember(final UsagePoint usagePoint, Date date) {
+    public boolean isMember(final EndDevice endDevice, Date date) {
         return !FluentIterable.from(getMemberships())
-                .filter(With.usagePoint(usagePoint))
+                .filter(With.endDevice(endDevice))
                 .filter(Active.at(date))
                 .isEmpty();
     }
 
     @Override
-    public void endMembership(UsagePoint usagePoint, Date date) {
-        Optional<UsagePointMembershipImpl> first = FluentIterable.from(getMemberships())
-                .filter(With.usagePoint(usagePoint))
+    public void endMembership(EndDevice endDevice, Date date) {
+        Optional<EndDeviceMembershipImpl> first = FluentIterable.from(getMemberships())
+                .filter(With.endDevice(endDevice))
                 .filter(Active.at(date)).first();
         if (first.isPresent()) {
             first.get().removeInterval(Interval.startAt(date));
         }
     }
 
-    private UsagePointMembershipImpl forUsagePoint(UsagePoint usagePoint) {
+    private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
         return FluentIterable.from(getMemberships())
-                .filter(With.usagePoint(usagePoint))
+                .filter(With.endDevice(endDevice))
                 .first().orNull();
     }
 
-    private static abstract class Active implements Predicate<UsagePointMembershipImpl> {
+    private static abstract class Active implements Predicate<EndDeviceMembershipImpl> {
 
         public static Active at(Date date) {
             return new ActiveAt(date);
@@ -267,7 +267,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         }
 
         @Override
-        public boolean apply(UsagePointMembershipImpl membership) {
+        public boolean apply(EndDeviceMembershipImpl membership) {
             return membership != null && membership.getIntervals().overlaps(IntermittentInterval.from(interval));
         }
     }
@@ -281,36 +281,36 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         }
 
         @Override
-        public boolean apply(UsagePointMembershipImpl membership) {
+        public boolean apply(EndDeviceMembershipImpl membership) {
             return membership != null && membership.getIntervals().contains(date);
         }
     }
 
-    private enum To implements Function<UsagePointMembership, UsagePoint> {
+    private enum To implements Function<EndDeviceMembership, EndDevice> {
 
-        USAGE_POINT;
+        END_DEVICE;
 
         @Override
-        public UsagePoint apply(UsagePointMembership membership) {
-            return membership.getUsagePoint();
+        public EndDevice apply(EndDeviceMembership membership) {
+            return membership.getEndDevice();
         }
     }
 
-    private static class With implements Predicate<UsagePointMembership> {
+    private static class With implements Predicate<EndDeviceMembership> {
 
-        private final UsagePoint usagePoint;
+        private final EndDevice endDevice;
 
-        private With(UsagePoint usagePoint) {
-            this.usagePoint = usagePoint;
+        private With(EndDevice endDevice) {
+            this.endDevice = endDevice;
         }
 
-        public static With usagePoint(UsagePoint usagePoint) {
-            return new With(usagePoint);
+        public static With endDevice(EndDevice endDevice) {
+            return new With(endDevice);
         }
 
         @Override
-        public boolean apply(UsagePointMembership membership) {
-            return membership.getUsagePoint().equals(usagePoint);
+        public boolean apply(EndDeviceMembership membership) {
+            return membership.getEndDevice().equals(endDevice);
         }
     }
 }

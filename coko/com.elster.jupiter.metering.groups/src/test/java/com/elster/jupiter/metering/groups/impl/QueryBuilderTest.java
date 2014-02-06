@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
 import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;

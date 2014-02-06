@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.metering.groups.impl.query.OperationVisitor;
 import com.elster.jupiter.util.conditions.Condition;
 
 public interface QueryBuilderOperation {

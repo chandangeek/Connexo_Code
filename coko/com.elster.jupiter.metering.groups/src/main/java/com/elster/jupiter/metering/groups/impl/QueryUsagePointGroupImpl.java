@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
+import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements QueryUsagePointGroup {
 
-    private List<QueryBuilderOperation> operations;
+    private List<UsagePointQueryBuilderOperation> operations;
     private transient QueryBuilder queryBuilder;
 
     private final MeteringService meteringService;
@@ -51,7 +52,16 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
 
     public void setCondition(Condition condition) {
         queryBuilder = QueryBuilder.parse(condition);
-        operations = queryBuilder.getOperations();
+        List<QueryBuilderOperation> builderOperations = queryBuilder.getOperations();
+        this.operations = convert(builderOperations);
+    }
+
+    private List<UsagePointQueryBuilderOperation> convert(List<QueryBuilderOperation> builderOperations) {
+        List<UsagePointQueryBuilderOperation> operations = new ArrayList<>();
+        for (QueryBuilderOperation builderOperation : builderOperations) {
+            operations.add((UsagePointQueryBuilderOperation) builderOperation);
+        }
+        return operations;
     }
 
     @Override
@@ -62,14 +72,14 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
             groupFactory().update(this);
             operationFactory().remove(readOperations());
         }
-        for (QueryBuilderOperation operation : getOperations()) {
+        for (UsagePointQueryBuilderOperation operation : getOperations()) {
             operation.setGroupId(id);
             operationFactory().persist(operation);
         }
     }
 
-    private DataMapper<QueryBuilderOperation> operationFactory() {
-        return dataModel.mapper(QueryBuilderOperation.class);
+    private DataMapper<UsagePointQueryBuilderOperation> operationFactory() {
+        return dataModel.mapper(UsagePointQueryBuilderOperation.class);
     }
 
     private DataMapper<QueryUsagePointGroup> groupFactory() {
@@ -83,14 +93,14 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
         return queryBuilder.toCondition();
     }
 
-    private List<QueryBuilderOperation> getOperations() {
+    private List<UsagePointQueryBuilderOperation> getOperations() {
         if (operations == null) {
             operations = readOperations();
         }
         return operations;
     }
 
-    private List<QueryBuilderOperation> readOperations() {
+    private List<UsagePointQueryBuilderOperation> readOperations() {
         return operationFactory().find("groupId", id);
     }
 }

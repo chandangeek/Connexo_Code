@@ -1,11 +1,11 @@
-package com.elster.jupiter.metering.groups.impl;
+package com.elster.jupiter.metering.groups.impl.query;
 
 import com.elster.jupiter.util.conditions.Condition;
 
 public final class OpenBracketOperation extends AbstractQueryBuilderOperation {
 
     public static final OpenBracketOperation OPEN = new OpenBracketOperation();
-    static final String TYPE_IDENTIFIER = " ( ";
+    public static final String TYPE_IDENTIFIER = "(((";
 
     public static OpenBracketOperation atPosition(int i) {
         OpenBracketOperation openBracketOperation = new OpenBracketOperation();

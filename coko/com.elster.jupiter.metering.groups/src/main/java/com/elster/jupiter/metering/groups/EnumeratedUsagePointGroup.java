@@ -7,7 +7,7 @@ import java.util.Date;
 
 public interface EnumeratedUsagePointGroup extends UsagePointGroup {
 
-    String TYPE_IDENTIFIER = "EUG";
+    String TYPE_IDENTIFIER = "EEG";
 
     void endMembership(UsagePoint usagePoint, Date now);
 

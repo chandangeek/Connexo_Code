@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
@@ -32,6 +33,8 @@ public class EnumeratedUsagePointGroupImplTest {
     private UsagePoint usagePoint;
     @Mock
     private DataMapper<EnumeratedUsagePointGroup.Entry> entryMapper;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void setUp() {
@@ -39,7 +42,7 @@ public class EnumeratedUsagePointGroupImplTest {
         when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel);
+                return new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel, meteringService);
             }
         });
     }
@@ -50,7 +53,7 @@ public class EnumeratedUsagePointGroupImplTest {
     }
 
     @Test
-    public void test() {
+    public void testGetMembersInInterval() {
         EnumeratedUsagePointGroupImpl group = new EnumeratedUsagePointGroupImpl(dataModel);
         group.add(usagePoint, interval(date(2013, 2, 3), date(2013, 2, 14)));
         group.add(usagePoint, interval(date(2013, 2, 20), date(2013, 2, 27)));
