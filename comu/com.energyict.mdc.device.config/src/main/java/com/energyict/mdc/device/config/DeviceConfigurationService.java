@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
-import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
+import com.energyict.mdc.common.Unit;
 
 import java.util.List;
 
@@ -336,4 +336,20 @@ public interface DeviceConfigurationService {
      * @return the requested LogBookSpec
      */
     public LogBookSpec findLogBookSpecByDeviceConfigAndLogBookType(DeviceConfiguration deviceConfig, LogBookType type);
+
+    /**
+     * Checks whether or not the given Phenomenon is in use
+     *
+     * @param phenomenon the Phenomenon to check
+     * @return true if some object uses this Phenomenon, false otherwise
+     */
+    public boolean isPhenomenonInUse(Phenomenon phenomenon);
+
+    public Phenomenon findPhenomenon(int phenomenonId);
+
+    public Phenomenon newPhenomenon(String name, Unit unit);
+
+    public Phenomenon findPhenomenonByNameAndUnit(String name, String unit);
+
+    public List<Phenomenon> findPhenomenonByEdiCode(String ediCode);
 }

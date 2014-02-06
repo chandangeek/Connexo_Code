@@ -26,6 +26,10 @@ public enum MessageSeeds implements MessageSeed {
     PRODUCT_SPEC_IS_REQUIRED(3005, "registerMapping.productSpec.required", "The product spec of a register mapping is required", Level.SEVERE),
     REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(3006, "registerMapping.cannotUpdateObisCode", "The obis code of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
     REGISTER_MAPPING_PRODUCT_SPEC_CANNOT_BE_UPDATED(3006, "registerMapping.cannotUpdateProductSpec", "The product spec of the register mapping '{0}' cannot be updated because it is in use", Level.SEVERE),
+    REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC(3007, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register specs: {1}", Level.SEVERE),
+    REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC(3008, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register specs: {1}", Level.SEVERE),
+    REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(3009, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register specs: {1}", Level.SEVERE),
+    REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE(3010, "registerMapping.usedBy.registerSpec", "The register mapping {0} cannot be deleted because it is still in use by the following register specs: {1}", Level.SEVERE),
     LOAD_PROFILE_TYPE_NAME_IS_REQUIRED(4001, "loadProfileType.name.required", "The name of a load profile type is required", Level.SEVERE),
     LOAD_PROFILE_TYPE_ALREADY_EXISTS(4002, "loadProfileType.duplicateNameX", "A load profile type with name '{0}' already exists", Level.SEVERE),
     INTERVAL_IS_REQUIRED(4002, "loadProfileType.interval.required", "The interval of a load profile type is required", Level.SEVERE),
@@ -71,6 +75,8 @@ public enum MessageSeeds implements MessageSeed {
     LOGBOOK_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(9004, "logBookSpec.change.configuration", "You can not change the device configuration of an existing logbook specification", Level.SEVERE),
     LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE(9005, "logBookSpec.change.logbookType", "You can not change the logbook type of an existing logbook specification", Level.SEVERE),
     LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(9006, "logBookSpec.cannot.delete.active.config", "You can not delete a logbook specification '{0}' from an active device configuration '{1}'", Level.SEVERE),
+    PHENOMENON_NAME_IS_REQUIRED(10001, "phenomenon.name.required", "The name of a phenomenon is required", Level.SEVERE),
+    PHENOMENON_STILL_IN_USE(10002, "phenomenon.stillInuse", "You can not delete a phenomenon when it is still in use", Level.SEVERE),
     ;
 
     private final int number;

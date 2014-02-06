@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;

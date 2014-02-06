@@ -14,6 +14,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -23,6 +24,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
+import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -49,6 +51,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     private Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
     private Provider<LogBookSpecImpl> logBookSpecProvider;
+    private Provider<PhenomenonImpl> phenomenonProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -62,12 +65,14 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
                                           Provider<RegisterSpecImpl> registerSpecProvider,
                                           Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
                                           Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
-                                          Provider<LogBookSpecImpl> logBookSpecProvider) {
+                                          Provider<LogBookSpecImpl> logBookSpecProvider,
+                                          Provider<PhenomenonImpl> phenomenonProvider) {
         this();
         this.registerSpecProvider = registerSpecProvider;
         this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.loadProfileTypeProvider = loadProfileTypeProvider;
         this.logBookSpecProvider = logBookSpecProvider;
+        this.phenomenonProvider = phenomenonProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -274,6 +279,31 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public LogBookSpec findLogBookSpecByDeviceConfigAndLogBookType(DeviceConfiguration deviceConfig, LogBookType logBookType) {
         return this.getDataModel().mapper(LogBookSpec.class).getUnique("deviceConfiguration", deviceConfig, "logBookType", logBookType).orNull();
+    }
+
+    @Override
+    public boolean isPhenomenonInUse(Phenomenon phenomenon) {
+        return this.getDataModel().mapper(ChannelSpec.class).find("phenomenon", phenomenon).size() > 0;
+    }
+
+    @Override
+    public Phenomenon findPhenomenon(int phenomenonId) {
+        return  this.getDataModel().mapper(Phenomenon.class).getUnique("id", phenomenonId).orNull();
+    }
+
+    @Override
+    public Phenomenon newPhenomenon(String name, Unit unit) {
+        return this.phenomenonProvider.get().initialize(name, unit);
+    }
+
+    @Override
+    public Phenomenon findPhenomenonByNameAndUnit(String name, String unit) {
+        return this.getDataModel().mapper(Phenomenon.class).getUnique("name", name, "unitString", unit).orNull();
+    }
+
+    @Override
+    public List<Phenomenon> findPhenomenonByEdiCode(String ediCode) {
+        return this.getDataModel().mapper(Phenomenon.class).find("ediCode", ediCode);
     }
 
     @Reference

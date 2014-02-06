@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Unit;
 
 /**
- * Represent a utility product, combinging a Phenomenon with a time of use.
+ * Represent a utility product, combining a Phenomenon with a time of use.
  * In CIM both Phenomenon and time of user are represented by {@link ReadingType}
  * so currently, a ProductSpec is actually a wrapper around a ReadingType
  * to keep the API and the database schema compatible.

@@ -4,6 +4,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.config.Phenomenon;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
@@ -186,33 +188,48 @@ public enum TableSpecs {
         }
     },
 
+    EISPHENOMENON {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<Phenomenon> table = dataModel.addTable(name(), Phenomenon.class);
+            table.map(PhenomenonImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar(80).notNull().map("name").add();
+            Column unit = table.column("UNIT").type("CHAR(7)").notNull().map("unit").add();
+            table.column("MEASUREMENTCODE").varChar(80).map("measurementCode").add();
+            table.column("EDICODE").varChar(80).map("ediCode").add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modDate").add();
+            table.primaryKey("PK_PHENOMENON").on(id).add();
+            table.unique("UK_EISPHENOMENON").on(name,unit).add();
+        }
+    },
 
 
     EISCHANNELSPEC {
         @Override
         public void addTo(DataModel dataModel) {
-//            Table<Api> table = dataModel.add(name(), Api.class);
-//            table.map(Implementation.class);
-//            Column id = table.addAutoIdColumn();
-//            table.column("NAME").varChar(80).notNull().map("name").add();
-//            Column deviceconfigid = table.column("DEVICECONFIGID").number().notNull().add();
-//            Column rturegistermappingid = table.column("RTUREGISTERMAPPINGID").number().notNull().add();
-//            table.column("OBISCODE").varChar(80).map("obiscode").add();
-//            table.column("FRACTIONDIGITS").number().map("fractiondigits").add();
-//            table.column("OVERFLOWVALUE").number().map("overflowvalue").add();
-//            Column phenomenonid = table.column("PHENOMENONID").number().notNull().add();
-//            table.column("READINGMETHOD").number().notNull().map("readingmethod").add();
-//            table.column("MULTIPLIERMODE").number().notNull().map("multipliermode").add();
-//            table.column("MULTIPLIER").number().notNull().map("multiplier").add();
-//            table.column("VALUECALCULATIONMETHOD").number().notNull().map("valuecalculationmethod").add();
-//            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
-//            table.column("INTERVAL").number().map("interval").add();
-//            table.column("INTERVALCODE").number().map("intervalcode").add();
-//            table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
-//            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("eisdeviceconfig").add();
-//            table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("eisrturegistermapping").add();
-//            table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("eisphenomenon").add();
-//            table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("eisloadprofilespec").add();
+            Table<ChannelSpec> table = dataModel.addTable(name(), ChannelSpec.class);
+            table.map(ChannelSpecImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("NAME").varChar(80).notNull().map("name").add();
+            Column deviceconfigid = table.column("DEVICECONFIGID").number().notNull().add();
+            Column rturegistermappingid = table.column("RTUREGISTERMAPPINGID").number().notNull().add();
+            table.column("OBISCODE").varChar(80).map("obiscode").add();
+            table.column("FRACTIONDIGITS").number().map("fractiondigits").add();
+            table.column("OVERFLOWVALUE").number().map("overflowvalue").add();
+            Column phenomenonid = table.column("PHENOMENONID").number().notNull().add();
+            table.column("READINGMETHOD").number().notNull().map("readingmethod").add();
+            table.column("MULTIPLIERMODE").number().notNull().map("multipliermode").add();
+            table.column("MULTIPLIER").number().notNull().map("multiplier").add();
+            table.column("VALUECALCULATIONMETHOD").number().notNull().map("valuecalculationmethod").add();
+            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
+            table.column("INTERVAL").number().map("interval").add();
+            table.column("INTERVALCODE").number().map("intervalcode").add();
+            table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
+            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("eisdeviceconfig").add();
+            table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("eisrturegistermapping").add();
+            table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("eisphenomenon").add();
+            table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("eisloadprofilespec").add();
         }
     },
 

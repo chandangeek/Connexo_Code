@@ -6,10 +6,12 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.impl.PhenomenonImpl;
 
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The NameIsRequiredException
      */
     public static CannotDeleteBecauseStillInUseException registerGroupIsStillInUse(Thesaurus thesaurus, RegisterGroup registerGroup, List<RegisterMapping> registerMappings) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerGroup.getName(), namesToStringList(registerMappings));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerGroup.getName(), namesToStringListForRegisterMappings(registerMappings));
     }
 
     /**
@@ -44,7 +46,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The NameIsRequiredException
      */
     public static CannotDeleteBecauseStillInUseException productSpecIsStillInUse (Thesaurus thesaurus, ProductSpec productSpec, List<RegisterMapping> registerMappings) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, productSpec.getDescription(), namesToStringList(registerMappings));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.PRODUCT_SPEC_STILL_IN_USE, productSpec.getDescription(), namesToStringListForRegisterMappings(registerMappings));
     }
 
     /**
@@ -55,8 +57,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUse (Thesaurus thesaurus, RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerMapping.getDescription(), namesToStringList(registerSpecs));
+    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByRegisterSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<RegisterSpec> registerSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_SPEC, registerMapping.getDescription(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**
@@ -67,8 +69,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUse (Thesaurus thesaurus, RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerMapping.getDescription(), namesToStringList(channelSpecs));
+    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByChannelSpecs(Thesaurus thesaurus, RegisterMapping registerMapping, List<ChannelSpec> channelSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_CHANNEL_SPEC, registerMapping.getDescription(), namesToStringListForChannelSpecs(channelSpecs));
     }
 
     /**
@@ -79,8 +81,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUse (Thesaurus thesaurus, RegisterMapping registerMapping, List<LoadProfileType> loadProfileTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerMapping.getDescription(), namesToStringList(loadProfileTypes));
+    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByLoadprofileTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<LoadProfileType> loadProfileTypes) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, registerMapping.getDescription(), namesToStringListForLoadProfileTypes(loadProfileTypes));
     }
 
     /**
@@ -91,8 +93,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUse (Thesaurus thesaurus, RegisterMapping registerMapping, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_GROUP_STILL_IN_USE, registerMapping.getDescription(), namesToStringList(deviceTypes));
+    public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByDeviceTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<DeviceType> deviceTypes) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE, registerMapping.getDescription(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
@@ -103,8 +105,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUse (Thesaurus thesaurus, LoadProfileType loadProfileType, List<LoadProfileSpec> loadProfileSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS, loadProfileType.getName(), namesToStringList(loadProfileSpecs));
+    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUseByLoadProfileSpec(Thesaurus thesaurus, LoadProfileType loadProfileType, List<LoadProfileSpec> loadProfileSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS, loadProfileType.getName(), namesToStringListForLoadProfileSpecs(loadProfileSpecs));
     }
 
     /**
@@ -115,8 +117,8 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @param thesaurus The Thesaurus
      * @return The NameIsRequiredException
      */
-    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUse (Thesaurus thesaurus, LoadProfileType loadProfileType, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES, loadProfileType.getName(), namesToStringList(deviceTypes));
+    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUseByDeviceType(Thesaurus thesaurus, LoadProfileType loadProfileType, List<DeviceType> deviceTypes) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES, loadProfileType.getName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
@@ -131,7 +133,12 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS, deviceType.getName());
     }
 
-    private static String namesToStringList(List<RegisterMapping> registerMappings) {
+    public static CannotDeleteBecauseStillInUseException phenomenonIsStillInUse(Thesaurus thesaurus, Phenomenon phenomenon) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.PHENOMENON_STILL_IN_USE, phenomenon.getName());
+
+    }
+
+    private static String namesToStringListForRegisterMappings(List<RegisterMapping> registerMappings) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
         for (RegisterMapping registerMapping : registerMappings) {
@@ -144,7 +151,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return builder.toString();
     }
 
-    private static String namesToStringList(List<RegisterSpec> registerSpecs) {
+    private static String namesToStringListForRegisterSpecs(List<RegisterSpec> registerSpecs) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
         for (RegisterSpec registerSpec : registerSpecs) {
@@ -157,7 +164,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return builder.toString();
     }
 
-    private static String namesToStringList(List<ChannelSpec> channelSpecs) {
+    private static String namesToStringListForChannelSpecs(List<ChannelSpec> channelSpecs) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
         for (ChannelSpec channelSpec : channelSpecs) {
@@ -170,7 +177,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return builder.toString();
     }
 
-    private static String namesToStringList(List<LoadProfileType> loadProfileTypes) {
+    private static String namesToStringListForLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -183,7 +190,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return builder.toString();
     }
 
-    private static String namesToStringList(List<DeviceType> deviceTypes) {
+    private static String namesToStringListForDeviceTypes(List<DeviceType> deviceTypes) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
         for (DeviceType deviceType : deviceTypes) {
@@ -196,7 +203,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return builder.toString();
     }
 
-    private static String namesToStringList(List<LoadProfileSpec> loadProfileSpecs) {
+    private static String namesToStringListForLoadProfileSpecs(List<LoadProfileSpec> loadProfileSpecs) {
         StringBuilder builder = new StringBuilder();
         boolean notFirst = false;
         for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
@@ -219,5 +226,4 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         super(thesaurus, messageSeeds, deviceTypeName);
         this.set("deviceTypeName", deviceTypeName);
     }
-
 }

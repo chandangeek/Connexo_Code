@@ -57,7 +57,7 @@ public class NameIsRequiredException extends LocalizedException {
      * @return The NameIsRequiredException
      */
     public static NameIsRequiredException logBookTypeNameIsRequired (Thesaurus thesaurus) {
-        return new NameIsRequiredException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_ALREADY_EXISTS);
+        return new NameIsRequiredException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_NAME_IS_REQUIRED);
     }
 
     /**
@@ -69,11 +69,22 @@ public class NameIsRequiredException extends LocalizedException {
      * @return The NameIsRequiredException
      */
     public static NameIsRequiredException deviceTypeNameIsRequired (Thesaurus thesaurus) {
-        return new NameIsRequiredException(thesaurus, MessageSeeds.DEVICE_TYPE_ALREADY_EXISTS);
+        return new NameIsRequiredException(thesaurus, MessageSeeds.DEVICE_TYPE_NAME_IS_REQUIRED);
+    }
+
+    /**
+     * Creates a new NameIsRequiredException that models the exceptional
+     * situation that occurs when an attempt is made to create
+     * a {@link com.energyict.mdc.device.config.Phenomenon} without a name.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static NameIsRequiredException phenomenonNameIsRequired(Thesaurus thesaurus) {
+        return new NameIsRequiredException(thesaurus, MessageSeeds.PHENOMENON_NAME_IS_REQUIRED);
     }
 
     private NameIsRequiredException(Thesaurus thesaurus, MessageSeeds messageSeeds) {
         super(thesaurus, messageSeeds);
     }
-
 }

@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
@@ -18,7 +17,6 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenRegisterMappingIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateProductSpecWhenRegisterMappingIsInUseException;
-import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.ObisCodeIsRequiredException;
@@ -179,14 +177,14 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
     private void validateNotUsedByRegisterSpecs() {
         List<RegisterSpec> registerSpecs = this.mapper(RegisterSpec.class).find("registerMapping", this);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByRegisterSpecs(this.getThesaurus(), this, registerSpecs);
         }
     }
 
     private void validateNotUsedByChannelSpecs() {
         List<ChannelSpec> channelSpecs = this.mapper(ChannelSpec.class).find("registerMapping", this);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByChannelSpecs(this.getThesaurus(), this, channelSpecs);
         }
     }
 
@@ -197,7 +195,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
             for (LoadProfileTypeRegisterMappingUsage loadProfileTypeUsage : loadProfileTypeUsages) {
                 loadProfileTypes.add(loadProfileTypeUsage.loadProfileType);
             }
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, new ArrayList<>(loadProfileTypes));
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByLoadprofileTypes(this.getThesaurus(), this, new ArrayList<>(loadProfileTypes));
         }
     }
 
@@ -208,7 +206,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
             for (DeviceTypeRegisterMappingUsage deviceTypeUsage : deviceTypeUsages) {
                 deviceTypes.add(deviceTypeUsage.deviceType);
             }
-            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUse(this.getThesaurus(), this, new ArrayList<>(deviceTypes));
+            throw CannotDeleteBecauseStillInUseException.registerMappingIsStillInUseByDeviceTypes(this.getThesaurus(), this, new ArrayList<>(deviceTypes));
         }
     }
 
