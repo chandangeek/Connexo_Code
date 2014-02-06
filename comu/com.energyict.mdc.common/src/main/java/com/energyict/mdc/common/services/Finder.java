@@ -1,8 +1,7 @@
 package com.energyict.mdc.common.services;
 
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Generic finder interfaces adding pagability and sortability to any query

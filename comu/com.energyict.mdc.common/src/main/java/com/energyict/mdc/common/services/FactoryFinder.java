@@ -1,8 +1,7 @@
 package com.energyict.mdc.common.services;
 
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * The Kore Finder backported for use by legacy factories
