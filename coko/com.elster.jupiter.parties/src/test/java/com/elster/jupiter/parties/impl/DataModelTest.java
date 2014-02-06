@@ -129,7 +129,7 @@ public class DataModelTest {
         PartyRole role = partyService.getRole("YYY").get();
         try (TransactionContext context = getTransactionService().getContext()) {
         	Condition condition = Where.where("party").isEqualTo(party).and(Where.where("role").isEqualTo(role));
-        	List<PartyInRole> representations = dataModel.query(PartyInRole.class).select(condition);
+        	List<PartyInRole> representations = dataModel.query(PartyInRole.class).select(condition,"version");
         	assertThat(representations).isNotEmpty();
         	for (PartyInRole each : representations) {
         		each.getParty().getAliasName();

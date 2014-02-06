@@ -27,7 +27,7 @@ public class PartyInRoleImpl implements PartyInRole {
     private UtcInstant modTime;
     private String userName;
     
-    private final Reference<Party> party = ValueReference.absent();
+    private Reference<Party> party = ValueReference.absent();
 	private Reference<PartyRole> role = ValueReference.absent();
     
     private final Clock clock;
