@@ -83,6 +83,26 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
+    public void testGetAllDeviceTypesWithoutPaging() throws Exception {
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1"),mockDeviceType("device type 2"),mockDeviceType("device type 3"),mockDeviceType("device type 4")));
+        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
+
+        Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(4);
+        assertThat((List)map.get("deviceTypes")).hasSize(4);
+    }
+
+    @Test
+    public void testGetAllDeviceTypesWithFullPage() throws Exception {
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1"),mockDeviceType("device type 2"),mockDeviceType("device type 3"),mockDeviceType("device type 4")));
+        when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
+
+        Map<String, Object> map = target("/devicetypes/").queryParam("start", 0).queryParam("limit", 4).request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(5);
+        assertThat((List)map.get("deviceTypes")).hasSize(4);
+    }
+
+    @Test
     public void testGetEmptyDeviceTypeListPaged() throws Exception {
         Finder<DeviceType> finder = mockFinder(Collections.<DeviceType>emptyList());
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
@@ -99,18 +119,23 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetDeviceTypeByName() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
         String webRTUKP = "WebRTUKP";
-        when(deviceType.getName()).thenReturn(webRTUKP);
+        DeviceType deviceType = mockDeviceType(webRTUKP);
+        when(deviceConfigurationService.findDeviceType(webRTUKP)).thenReturn(deviceType);
+
+        Map<String, Object> map = target("/devicetypes/WebRTUKP").request().get(Map.class);
+        assertThat(map.get("name")).isEqualTo(webRTUKP);
+    }
+
+    private DeviceType mockDeviceType(String name) {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getName()).thenReturn(name);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.GATEWAY);
-        when(deviceConfigurationService.findDeviceType(webRTUKP)).thenReturn(deviceType);
-
-        Map<String, Object> map = target("/devicetypes/WebRTUKP").request().get(Map.class);
-        assertThat(map.get("name")).isEqualTo(webRTUKP);
+        return deviceType;
     }
 
     @Test

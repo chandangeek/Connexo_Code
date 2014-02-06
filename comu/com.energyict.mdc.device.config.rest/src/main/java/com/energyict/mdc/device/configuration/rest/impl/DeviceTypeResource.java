@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.rest.util.QueryParameters;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.DeviceConfiguration;
@@ -13,13 +12,11 @@ import com.energyict.mdw.core.LogBookType;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.UriInfo;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -33,8 +30,7 @@ public class DeviceTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getAllDeviceTypes(@Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+    public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
         List<DeviceTypeInfo> deviceTypeInfos = new ArrayList<>();
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.allDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.paged(queryParameters.getStart(), queryParameters.getLimit()).find();
@@ -42,7 +38,7 @@ public class DeviceTypeResource {
             deviceTypeInfos.add(new DeviceTypeInfo(deviceType));
         }
 
-        return PagedInfoList.forJson("deviceTypes", deviceTypeInfos, deviceTypeInfos.size()==queryParameters.getLimit());
+        return PagedInfoList.forJson("deviceTypes", deviceTypeInfos, queryParameters);
     }
 
     @DELETE

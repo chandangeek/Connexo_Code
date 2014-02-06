@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.rest.QueryParameters;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +20,10 @@ public class PagedInfoList<T> {
         return infos.size() + (couldHaveNextPage?1:0);
     }
 
-    public void setCouldHaveNextPage(){
-        couldHaveNextPage = true;
-    }
-
-    private PagedInfoList(String jsonListName, List<T> infos, boolean couldHaveNextPage) {
+    private PagedInfoList(String jsonListName, List<T> infos, QueryParameters queryParameters) {
         this.jsonListName = jsonListName;
-        this.couldHaveNextPage = couldHaveNextPage;
         this.infos = infos;
+        couldHaveNextPage=queryParameters.getLimit()!=null && infos.size()==queryParameters.getLimit();
     }
 
     /**
@@ -42,11 +39,11 @@ public class PagedInfoList<T> {
      *   }
      * @param jsonListName The name of the list property in JSON
      * @param infos The search results to assign to the list property
-     * @param couldHaveNextPage Indicates that there is/could be a next page of search results
+     * @param queryParameters The original query parameters used for building the list that is being returned
      * @return A map that will be correctly serialized as JSON paging object, understood by ExtJS
      */
-    public static <T> PagedInfoList<T> forJson(String jsonListName, List<T> infos, boolean couldHaveNextPage) {
-        return new PagedInfoList<>(jsonListName, infos, couldHaveNextPage);
+    public static <T> PagedInfoList<T> forJson(String jsonListName, List<T> infos, QueryParameters queryParameters) {
+        return new PagedInfoList<>(jsonListName, infos, queryParameters);
     }
 
     public static class Serializer extends JsonSerializer<PagedInfoList> {
