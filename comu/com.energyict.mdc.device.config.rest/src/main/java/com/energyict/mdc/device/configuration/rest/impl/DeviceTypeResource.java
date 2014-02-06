@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.DeviceConfiguration;
@@ -10,6 +12,7 @@ import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
 import com.energyict.mdw.core.LogBookType;
 
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -60,15 +63,25 @@ public class DeviceTypeResource {
     }
 
     @PUT
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo updateDeviceType(DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = findDeviceTypeByNameOrThrowException(deviceTypeInfo.id);
-//        DeviceTypeShadow shadow = deviceType.getShadow();
-//        shadow.setName();
-
-
-        return new DeviceTypeInfo(deviceConfigurationService.createDeviceType(deviceTypeInfo.name, deviceTypeInfo.deviceProtocolInfo.name));
+        DeviceTypeShadow shadow = deviceType.getShadow();
+        shadow.setName(deviceTypeInfo.name);
+        List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = MeteringWarehouse.getCurrent().getProtocolPluggableService().findAllDeviceProtocolPluggableClasses();
+        for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : deviceProtocolPluggableClasses) {
+            if (deviceProtocolPluggableClass.getName().equals(deviceTypeInfo.deviceProtocolInfo.name)) {
+                shadow.setDeviceProtocolPluggableClassId(deviceProtocolPluggableClass.getId());
+            }
+        }
+        try {
+            deviceType.update(shadow);
+            return new DeviceTypeInfo(deviceType);
+        } catch (Exception e) {
+            throw new WebApplicationException("failed to update device type "+deviceTypeInfo.id, e, Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build());
+        }
     }
 
     @GET
