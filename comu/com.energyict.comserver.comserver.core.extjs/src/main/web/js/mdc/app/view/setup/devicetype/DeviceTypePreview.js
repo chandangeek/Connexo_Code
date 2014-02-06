@@ -22,8 +22,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
         {
             icon: 'resources/images/gear-16x16.png',
             text: 'Actions',
-            menu:{
-                items:[
+            menu: {
+                items: [
                     {
                         text: 'Edit',
                         itemId: 'editDeviceType',
@@ -41,8 +41,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                     }
                 ]
             }
-        }],
-
+        }
+    ],
     items: [
         {
             xtype: 'form',
@@ -75,21 +75,23 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                     name: 'name',
                                     fieldLabel: 'Name:',
                                     labelAlign: 'right',
-                                    labelWidth:	150
+                                    labelWidth: 150,
+                                    itemId: 'deviceName'
+
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'communicationProtocolName',
                                     fieldLabel: 'Device Communication protocol:',
                                     labelAlign: 'right',
-                                    labelWidth:	150
+                                    labelWidth: 150
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceFunction',
                                     fieldLabel: 'deviceFunction',
                                     labelAlign: 'right',
-                                    labelWidth:	150
+                                    labelWidth: 150
                                 },
                                 {
                                     xtype: 'checkboxfield',
@@ -97,14 +99,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                     fieldLabel: 'canBeGateway:',
                                     readOnly: true,
                                     labelAlign: 'right',
-                                    labelWidth:	150 },
+                                    labelWidth: 150 },
                                 {
                                     xtype: 'checkboxfield',
                                     name: 'isDirectlyAddressable',
                                     fieldLabel: 'isDirectlyAddressable:',
                                     readOnly: true,
                                     labelAlign: 'right',
-                                    labelWidth:	150
+                                    labelWidth: 150
                                 }
                             ]
                         },
@@ -117,43 +119,65 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             },
                             items: [
                                 {
-                                    xtype: 'displayfield',
-                                    name: 'registerCount',
+                                    xtype: 'fieldcontainer',
+                                    columnWidth: 0.5,
                                     fieldLabel: 'Data sources:',
-                                    renderer: function(item,b){
-                                        return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' registers</a>';
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
                                     },
-                                    labelAlign: 'right',
-                                    labelWidth:	150
+                                    items: [
+                                        {
+                                            xtype: 'component',
+                                            name: 'registerCount',
+                                            autoEl: {
+                                                tag: 'a',
+                                                href: '#',
+                                                html: 'Registers'
+                                            },
+                                            labelAlign: 'right',
+                                            labelWidth: 150,
+                                            itemId: 'deviceTypeRegistersLink'
+                                        },
+
+
+                                        {
+                                            xtype: 'component',
+                                            name: 'loadProfileCount',
+                                            autoEl: {
+                                                tag: 'a',
+                                                href: '#',
+                                                html: 'loadprofiles'
+                                            },
+                                            labelAlign: 'right',
+                                            labelWidth: 150,
+                                            itemId: 'deviceTypeLoadProfilesLink'
+
+                                        },
+                                        {
+                                            xtype: 'component',
+                                            name: 'logBookCount',
+                                            autoEl: {
+                                                tag: 'a',
+                                                href: '#',
+                                                html: 'logbooks'
+                                            },
+                                            labelAlign: 'right',
+                                            labelWidth: 150,
+                                            itemId: 'deviceTypeLogBooksLink'
+                                        }
+                                    ]
                                 },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'loadProfileCount',
-                                    fieldLabel: ' ',
-                                    renderer: function(item,b){
-                                        return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' loadprofiles</a>';
-                                    },
-                                    labelAlign: 'right',
-                                    labelWidth:	150
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'logBookCount',
-                                    fieldLabel: ' ',
-                                    renderer: function(item,b){
-                                        return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' logbooks</a>';
-                                    },
-                                    labelAlign: 'right',
-                                    labelWidth:	150 },
+
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceConfigurationCount',
                                     fieldLabel: 'deviceConfigurationCount:',
-                                    renderer: function(item,b){
-                                        return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' device configurations</a>';
+                                    renderer: function (item, b) {
+                                        return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">' + item + ' device configurations</a>';
                                     },
                                     labelAlign: 'right',
-                                    labelWidth:	150 }
+                                    labelWidth: 150 }
                             ]
                         }
 

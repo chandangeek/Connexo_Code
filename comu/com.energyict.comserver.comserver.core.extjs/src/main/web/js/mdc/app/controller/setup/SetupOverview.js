@@ -50,6 +50,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
     showRegisterMappings: function () {
         var widget = Ext.widget('registerMappingsSetup');
+     //   this.getRegisterMappingsStore().getProxy().setExtraParam('deviceType','WebRTUKP');
         Mdc.getApplication().getMainController().showContent(widget);
     },
     showDeviceTypes: function(){
