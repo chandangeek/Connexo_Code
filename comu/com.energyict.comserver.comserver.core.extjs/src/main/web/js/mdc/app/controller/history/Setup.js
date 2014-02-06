@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.history.Setup', {
             Mdc.getApplication().getSetupSetupOverviewController().showDeviceTypes();
         } else if (tokens.length === 3) {
             if (tokens[2] === 'create') {
-                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeEditView(null);
+                Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeCreateView(null);
             } else {
                 Mdc.getApplication().getSetupDeviceTypesController().showDeviceTypeDetailsView(tokens[2]);
             }

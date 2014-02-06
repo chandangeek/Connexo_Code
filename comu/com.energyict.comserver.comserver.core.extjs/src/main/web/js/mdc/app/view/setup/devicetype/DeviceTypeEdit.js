@@ -50,6 +50,34 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                             fieldLabel: 'Device Communication protocol:',
                             labelAlign: 'right',
                             labelWidth:	150
+                        },
+                        {
+                            xtype: 'fieldcontainer',
+                            fieldLabel: '&nbsp',
+                            labelAlign: 'right',
+                            labelWidth:	150,
+                            //width: 430,
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    text: 'Create',
+                                    xtype: 'button',
+                                    action: 'createEditAction',
+                                    itemId: 'createEditButton'
+                                },
+                                {
+                                    xtype: 'box',
+                                    padding: '2 0 0 10',
+                                    autoEl: {
+                                        tag: 'a',
+                                        href: 'javascript:history.back()',
+                                        html: 'Cancel'
+                                    }
+                                }
+                            ]
                         }
                     ]
                 }

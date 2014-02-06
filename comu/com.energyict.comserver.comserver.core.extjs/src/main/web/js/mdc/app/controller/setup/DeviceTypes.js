@@ -6,7 +6,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypesGrid',
         'setup.devicetype.DeviceTypePreview',
         'setup.devicetype.DeviceTypeDetail',
-        'setup.devicetype.DeviceTypeEdit',
+        'setup.devicetype.DeviceTypeEdit'
     ],
 
     stores: [
@@ -50,9 +50,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var deviceTypes = this.getDeviceTypeGrid().getSelectionModel().getSelection();
         if (deviceTypes.length == 1) {
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-            var deviceTypeName = this.getDeviceTypePreviewForm().form.findField('name').getSubmitValue();
+            var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypePreview().show();
-            this.getDeviceTypeDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/setup/devicetypes/' + deviceTypeName + '">View details</a>');
+            this.getDeviceTypeDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/setup/devicetypes/' + deviceTypeId + '">View details</a>');
             this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypeName + '</h4>');
         } else {
             this.getDeviceTypePreview().hide();
@@ -62,7 +62,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeDetailsView: function(deviceType){
         var me= this;
         var widget = Ext.widget('deviceTypeDetail');
-//        Ext.ModelManager.getModel('Mdc.model.DeviceType').getProxy().setExtraParam('deviceType','WebRTUKP');
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
                 widget.down('form').loadRecord(deviceType);
@@ -85,7 +84,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         deviceTypeToDelete.destroy();
     },
 
-    showDeviceTypeEditView: function(){
+    showDeviceTypeEditView: function(deviceType){
+        var widget = Ext.widget('deviceTypeEdit');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+
+    showDeviceTypeCreateView: function(){
         var widget = Ext.widget('deviceTypeEdit');
         Mdc.getApplication().getMainController().showContent(widget);
     }
