@@ -56,11 +56,11 @@ public class DeviceTypeResource {
 
     }
 
-    @PUT
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
-        return new DeviceTypeInfo(null);
+        return new DeviceTypeInfo(deviceConfigurationService.createDeviceType(deviceTypeInfo.name, deviceTypeInfo.deviceProtocolInfo.name));
     }
 
     @GET
