@@ -12,7 +12,8 @@ import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @XmlRootElement
 public class DeviceTypeInfo {
-
+    @JsonProperty("id")
+    public long id;
     @JsonProperty("name")
     public String name;
     @JsonProperty("loadProfileCount")
@@ -34,6 +35,7 @@ public class DeviceTypeInfo {
     }
 
     public DeviceTypeInfo(DeviceType deviceType) {
+        this.id=deviceType.getId();
         this.name=deviceType.getName();
         this.loadProfileCount = deviceType.getLoadProfileTypes().size();
         this.registerCount=deviceType.getRegisterMappings().size();

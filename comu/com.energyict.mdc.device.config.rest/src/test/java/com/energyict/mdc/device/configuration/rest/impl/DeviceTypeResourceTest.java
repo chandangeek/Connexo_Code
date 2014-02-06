@@ -30,7 +30,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -84,7 +83,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetAllDeviceTypesWithoutPaging() throws Exception {
-        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1"),mockDeviceType("device type 2"),mockDeviceType("device type 3"),mockDeviceType("device type 4")));
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66),mockDeviceType("device type 2", 66),mockDeviceType("device type 3", 66),mockDeviceType("device type 4", 66)));
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
@@ -94,7 +93,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetAllDeviceTypesWithFullPage() throws Exception {
-        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1"),mockDeviceType("device type 2"),mockDeviceType("device type 3"),mockDeviceType("device type 4")));
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66),mockDeviceType("device type 2", 66),mockDeviceType("device type 3", 66),mockDeviceType("device type 4", 66)));
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").queryParam("start", 0).queryParam("limit", 4).request().get(Map.class);
@@ -120,16 +119,17 @@ public class DeviceTypeResourceTest extends JerseyTest {
     @Test
     public void testGetDeviceTypeByName() throws Exception {
         String webRTUKP = "WebRTUKP";
-        DeviceType deviceType = mockDeviceType(webRTUKP);
-        when(deviceConfigurationService.findDeviceType(webRTUKP)).thenReturn(deviceType);
+        DeviceType deviceType = mockDeviceType(webRTUKP, 66);
+        when(deviceConfigurationService.findDeviceType(66)).thenReturn(deviceType);
 
-        Map<String, Object> map = target("/devicetypes/WebRTUKP").request().get(Map.class);
+        Map<String, Object> map = target("/devicetypes/66").request().get(Map.class);
         assertThat(map.get("name")).isEqualTo(webRTUKP);
     }
 
-    private DeviceType mockDeviceType(String name) {
+    private DeviceType mockDeviceType(String name, int id) {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn(name);
+        when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -147,6 +147,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("unique name");
+        when(deviceType.getId()).thenReturn(13);
         List configsList = mock(List.class);
         when(configsList.size()).thenReturn(NUMBER_OF_CONFIGS);
         List loadProfileList = mock(List.class);
@@ -175,6 +176,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List)map.get("deviceTypes")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceType = (Map) ((List) map.get("deviceTypes")).get(0);
+        assertThat(jsonDeviceType.get("id")).isEqualTo(13).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("logBookCount")).isEqualTo(NUMBER_OF_LOGBOOKS).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("registerCount")).isEqualTo(NUMBER_OF_REGISTERS).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("deviceConfigurationCount")).isEqualTo(NUMBER_OF_CONFIGS).describedAs("JSon representation of a field, JavaScript impact if it changed");
