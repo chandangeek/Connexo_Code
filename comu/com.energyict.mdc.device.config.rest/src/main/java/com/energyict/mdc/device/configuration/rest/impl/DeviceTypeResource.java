@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -42,7 +41,7 @@ public class DeviceTypeResource {
             deviceTypeInfos.add(new DeviceTypeInfo(deviceType));
         }
 
-        return PagedInfoList.forJson("deviceTypes", deviceTypeInfos, queryParameters);
+        return PagedInfoList.asJson("deviceTypes", deviceTypeInfos, queryParameters);
     }
 
     @DELETE
@@ -66,8 +65,8 @@ public class DeviceTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public DeviceTypeInfo updateDeviceType(DeviceTypeInfo deviceTypeInfo) {
-        DeviceType deviceType = findDeviceTypeByNameOrThrowException(deviceTypeInfo.id);
+    public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
+        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
         DeviceTypeShadow shadow = deviceType.getShadow();
         shadow.setName(deviceTypeInfo.name);
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = MeteringWarehouse.getCurrent().getProtocolPluggableService().findAllDeviceProtocolPluggableClasses();

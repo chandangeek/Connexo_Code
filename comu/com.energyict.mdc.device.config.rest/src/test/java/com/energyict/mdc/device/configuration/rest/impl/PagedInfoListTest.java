@@ -42,7 +42,7 @@ public class PagedInfoListTest {
         ObjectMapper objectMapper = new ObjectMapper();
         QueryParameters queryParameters = mock(QueryParameters.class);
         when(queryParameters.getLimit()).thenReturn(2);
-        String response = objectMapper.writeValueAsString(PagedInfoList.forJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2), queryParameters));
+        String response = objectMapper.writeValueAsString(PagedInfoList.asJson("deviceTypes", Arrays.asList(deviceTypeInfo1, deviceTypeInfo2), queryParameters));
         assertThat(response).contains("\"deviceTypes\":[{");
         assertThat(response).contains("\"total\":3");
     }
