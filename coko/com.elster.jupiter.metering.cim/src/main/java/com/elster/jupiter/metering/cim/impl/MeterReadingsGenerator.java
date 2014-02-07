@@ -11,14 +11,21 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.FluentIterable;
 
 import java.util.List;
 
 public class MeterReadingsGenerator {
 
-    final ObjectFactory payloadObjectFactory = new ObjectFactory();
+    private final ObjectFactory payloadObjectFactory = new ObjectFactory();
+    private final ReadingTypeFilter filter;
 
     public MeterReadingsGenerator() {
+        filter = AllReadingTypes.INSTANCE;
+    }
+
+    public MeterReadingsGenerator(ReadingTypeFilter filter) {
+        this.filter = filter;
     }
 
     public MeterReadings createMeterReadings(MeterActivation meterActivation, Interval interval) {
@@ -48,7 +55,7 @@ public class MeterReadingsGenerator {
     }
 
     private void addReadingsPerReadingType(MeterReading meterReading, BaseReadingRecord baseReading) {
-        for (ReadingType readingType : baseReading.getReadingTypes()) {
+        for (ReadingType readingType : FluentIterable.from(baseReading.getReadingTypes()).filter(filter)) {
             createReading(meterReading, baseReading, createReadingType(readingType));
         }
     }
