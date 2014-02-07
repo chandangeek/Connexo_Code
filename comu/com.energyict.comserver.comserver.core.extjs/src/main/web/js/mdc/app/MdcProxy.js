@@ -4,25 +4,7 @@ Ext.define('Mdc.MdcProxy', {
     buildUrl: function (request) {
         //Create a template with the URL and replace the variables
         var me = this,
-            url = me.getUrl(request),
-            format = me.format;
-
-
-        if (!url.match(/\/$/)) {
-            url += '/';
-        }
-
-        if (format) {
-            if (!url.match(/\.$/)) {
-                url += '.';
-            }
-
-            url += format;
-        }
-
-        if (me.noCache) {
-            url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
-        }
+            url = me.callParent(arguments);
 
         var urlTemplate = new Ext.Template(url),
             params = request.proxy.extraParams,

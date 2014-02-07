@@ -5,22 +5,25 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'setup.devicetype.DeviceTypesSetup',
         'setup.devicetype.DeviceTypesGrid',
         'setup.devicetype.DeviceTypePreview',
-        'setup.devicetype.DeviceTypeDetail'
+        'setup.devicetype.DeviceTypeDetail',
+        'setup.devicetype.DeviceTypeEdit'
     ],
 
     stores: [
-        'DeviceTypes'
+        'DeviceTypes',
+        'DeviceCommunicationProtocols'
     ],
 
     refs: [
-        {ref: 'deviceTypeGrid', selector: '#devicetypegrid'},
-        {ref: 'deviceTypePreviewForm', selector: '#deviceTypePreviewForm'},
-        {ref: 'deviceTypePreview', selector: '#deviceTypePreview'},
-        {ref: 'deviceTypeDetailsLink', selector: '#deviceTypeDetailsLink'},
+        {ref: 'deviceTypeGrid',selector: '#devicetypegrid'},
+        {ref: 'deviceTypePreviewForm',selector: '#deviceTypePreviewForm'},
+        {ref: 'deviceTypePreview',selector: '#deviceTypePreview'},
+        {ref: 'deviceTypeDetailsLink',selector: '#deviceTypeDetailsLink'},
+        {ref: 'deviceTypePreviewTitle',selector: '#deviceTypePreviewTitle'},
+        {ref: 'deviceTypeEditForm',selector: '#deviceTypeEditForm'},
         {ref: 'deviceTypeRegisterLink', selector: '#deviceTypeRegistersLink'},
-        {ref: 'deviceTypeLogBookLink', selector: '#deviceTypeLogBooksLink'},
-        {ref: 'deviceTypeLoadProfilesLink', selector: '#deviceTypeLoadProfilesLink'},
-        {ref: 'deviceTypePreviewTitle', selector: '#deviceTypePreviewTitle'}
+               {ref: 'deviceTypeLogBookLink', selector: '#deviceTypeLogBooksLink'},
+               {ref: 'deviceTypeLoadProfilesLink', selector: '#deviceTypeLoadProfilesLink'}
     ],
 
     init: function () {
@@ -28,18 +31,24 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             '#devicetypegrid': {
                 selectionchange: this.previewDeviceType
             },
-            '#devicetypegrid actioncolumn': {
-                edit: this.editDeviceType,
-                deleteItem: this.deleteDeviceType
+            '#devicetypegrid actioncolumn':{
+                edit: this.editDeviceTypeHistory,
+                delete: this.deleteDeviceType
             },
-            '#deviceTypeSetup button[action = createDeviceType]': {
+            '#deviceTypeSetup button[action = createDeviceType]':{
+                click: this.createDeviceTypeHistory
+            },
+            '#deviceTypePreview menuitem[action=editDeviceType]':{
+                click: this.editDeviceTypeHistory
+            },
+            '#deviceTypePreview menuitem[action=deleteDeviceType]':{
+                click: this.deleteDeviceType
+            },
+            '#createEditButton[action=createDeviceType]':{
                 click: this.createDeviceType
             },
-            '#deviceTypePreview menuitem[action=editDeviceType]': {
+            '#createEditButton[action=editDeviceType]':{
                 click: this.editDeviceType
-            },
-            '#deviceTypePreview menuitem[action=deleteDeviceType]': {
-                click: this.deleteDeviceType
             }
         });
     },
@@ -48,7 +57,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
     },
 
-    previewDeviceType: function (grid, record) {
+    previewDeviceType: function(grid,record){
         var deviceTypes = this.getDeviceTypeGrid().getSelectionModel().getSelection();
         if (deviceTypes.length == 1) {
             this.getDeviceTypeRegisterLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypes[0].get('name') + '/registermappings'});
@@ -58,17 +67,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypes[0].get('name') + '/loadprofiles'});
             this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' loadprofiles');
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-            var deviceTypeName = this.getDeviceTypePreviewForm().form.findField('name').getSubmitValue();
+            var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypePreview().show();
-            this.getDeviceTypeDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/setup/devicetypes/' + deviceTypeName + '">View details</a>');
-            this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypeName + '</h4>');
+            this.getDeviceTypeDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/setup/devicetypes/' + deviceTypeId + '">View details</a>');
+            this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypes[0].get('name') + '</h4>');
         } else {
             this.getDeviceTypePreview().hide();
         }
     },
 
-    showDeviceTypeDetailsView: function (deviceType) {
-        var me = this;
+    showDeviceTypeDetailsView: function(deviceType){
+        var me= this;
         var widget = Ext.widget('deviceTypeDetail');
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
@@ -79,18 +88,63 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         Mdc.getApplication().getMainController().showContent(widget);
     },
 
-    createDeviceType: function () {
+    createDeviceTypeHistory: function(){
         location.href = '#setup/devicetypes/create';
     },
 
-    editDeviceType: function () {
-        location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get('name') + '/edit';
+    editDeviceTypeHistory: function(){
+        location.href = '#setup/devicetypes/' + this.getDeviceTypeGrid().getSelectionModel().getSelection()[0].get('id')+'/edit';
     },
 
-    deleteDeviceType: function () {
-        var deviceTypeToDelete = this.getDeviceTypeGrid.getSelectionModel().getSelection()[0];
+    deleteDeviceType: function(){
+      var deviceTypeToDelete = this.getDeviceTypeGrid.getSelectionModel().getSelection()[0];
         deviceTypeToDelete.destroy();
-    }
+    },
 
-})
-;
+    showDeviceTypeEditView: function(deviceTypeId){
+        var widget = Ext.widget('deviceTypeEdit');
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                widget.down('form').loadRecord(deviceType);
+                widget.setEdit(true,'#setup/devicetypes/'+deviceType.get('id'));
+                Mdc.getApplication().getMainController().showContent(widget);
+            }
+        });
+
+
+    },
+
+    showDeviceTypeCreateView: function(){
+        var widget = Ext.widget('deviceTypeEdit');
+        widget.setEdit(false,'#setup/devicetypes/');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+
+    createDeviceType: function(){
+        var record = Ext.create(Mdc.model.DeviceType),
+            values = this.getDeviceTypeEditForm().getValues();
+        if (record) {
+            record.set(values);
+            record.save({
+                callback: function (record) {
+                    location.href = '#setup/devicetypes/'+record.get('id');
+                }
+            });
+
+        }
+    },
+
+    editDeviceType: function(){
+        var record = this.getDeviceTypeEditForm().getRecord(),
+            values = this.getDeviceTypeEditForm().getValues();
+        if (record) {
+            record.set(values);
+            record.save({
+                callback: function (record) {
+                    location.href = '#setup/devicetypes/'+record.get('id');
+                }
+            });
+
+        }
+    }
+});

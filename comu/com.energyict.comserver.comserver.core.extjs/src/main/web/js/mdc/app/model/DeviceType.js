@@ -4,6 +4,7 @@ Ext.define('Mdc.model.DeviceType', {
         'Mdc.model.DeviceProtocol'
     ],
     fields: [
+        {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
         {name: 'loadProfileCount', type: 'int', useNull: true},
         {name: 'registerCount', type: 'int', useNull: true},

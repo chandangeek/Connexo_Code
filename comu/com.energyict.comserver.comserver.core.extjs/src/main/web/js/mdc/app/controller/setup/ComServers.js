@@ -65,6 +65,9 @@ Ext.define('Mdc.controller.setup.ComServers', {
                 deleteItem: this.deleteComserver,
                 startStopComserver: this.startStopComserver
             },
+            'comServersGrid button[action=add] menuitem': {
+                click: this.add
+            },
             'comServersGrid button[action=delete]': {
                 click: this.deleteComserver
             },
