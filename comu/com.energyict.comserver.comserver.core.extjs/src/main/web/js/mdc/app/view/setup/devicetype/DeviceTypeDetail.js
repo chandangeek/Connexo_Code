@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                     }
                 ],
 
+
                 items: [
                     {
                         xtype: 'container',
@@ -59,42 +60,42 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
+                                defaults:{
+                                    labelWidth: 170
+                                },
                                 items: [
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: 'Name',
-                                        labelAlign: 'right',
-                                        labelWidth:	150
+                                        fieldLabel: 'Name'
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'communicationProtocolName',
-                                        fieldLabel: 'Device Communication protocol',
-                                        labelAlign: 'right',
-                                        labelWidth:	150
+                                        fieldLabel: 'Device Communication protocol'
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'deviceFunction',
-                                        fieldLabel: 'deviceFunction',
-                                        labelAlign: 'right',
-                                        labelWidth:	150
+                                        fieldLabel: 'deviceFunction'
                                     },
                                     {
-                                        xtype: 'checkboxfield',
+                                        xtype: 'displayfield',
                                         name: 'canBeGateway',
                                         fieldLabel: 'canBeGateway',
-                                        readOnly: true,
-                                        labelAlign: 'right',
-                                        labelWidth:	150 },
+                                        renderer: function (item) {
+                                            return item?'Yes':'No';
+                                        },
+                                        readOnly: true
+                                    },
                                     {
-                                        xtype: 'checkboxfield',
+                                        xtype: 'displayfield',
                                         name: 'canBeDirectlyAddressable',
                                         fieldLabel: 'canBeDirectlyAddressable',
-                                        readOnly: true,
-                                        labelAlign: 'right',
-                                        labelWidth:	150
+                                        renderer: function (item) {
+                                            return item?'Yes':'No';
+                                        },
+                                        readOnly: true
                                     }
                                 ]
                             },
@@ -105,45 +106,42 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
+                                defaults:{
+                                    labelWidth: 170
+                                },
                                 items: [
                                     {
                                         xtype: 'displayfield',
                                         name: 'registerCount',
                                         fieldLabel: 'Data sources',
-                                        renderer: function(item,b){
+                                        renderer: function(item){
                                             return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' registers</a>';
-                                        },
-                                        labelAlign: 'right',
-                                        labelWidth:	150
+                                        }
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'loadProfileCount',
                                         fieldLabel: ' ',
-                                        renderer: function(item,b){
+                                        renderer: function(item){
                                             return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' loadprofiles</a>';
-                                        },
-                                        labelAlign: 'right',
-                                        labelWidth:	150
+                                        }
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'logBookCount',
                                         fieldLabel: ' ',
-                                        renderer: function(item,b){
+                                        renderer: function(item){
                                             return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' logbooks</a>';
-                                        },
-                                        labelAlign: 'right',
-                                        labelWidth:	150 },
+                                        }
+                                    },
                                     {
                                         xtype: 'displayfield',
                                         name: 'deviceConfigurationCount',
                                         fieldLabel: 'deviceConfigurationCount',
-                                        renderer: function(item,b){
+                                        renderer: function(item){
                                             return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' device configurations</a>';
-                                        },
-                                        labelAlign: 'right',
-                                        labelWidth:	150 }
+                                        }
+                                    }
                                 ]
                             }
 

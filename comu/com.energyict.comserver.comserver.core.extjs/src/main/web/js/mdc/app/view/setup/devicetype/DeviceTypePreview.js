@@ -91,15 +91,21 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                     fieldLabel: 'deviceFunction'
                                 },
                                 {
-                                    xtype: 'checkboxfield',
+                                    xtype: 'displayfield',
                                     name: 'canBeGateway',
                                     fieldLabel: 'canBeGateway',
+                                    renderer: function (item) {
+                                        return item?'Yes':'No';
+                                    },
                                     readOnly: true
                                 },
                                 {
-                                    xtype: 'checkboxfield',
+                                    xtype: 'displayfield',
                                     name: 'canBeDirectlyAddressable',
                                     fieldLabel: 'canBeDirectlyAddressable',
+                                    renderer: function (item) {
+                                        return item?'Yes':'No';
+                                    },
                                     readOnly: true
                                 }
                             ]
@@ -165,7 +171,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                     name: 'deviceConfigurationCount',
                                     fieldLabel: 'deviceConfigurationCount',
                                     renderer: function (item, b) {
-                                        return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">' + item + ' device configurations</a>';
+                                        return '<a href="#' + item + '">' + item + ' device configurations</a>';
                                     }
                                 }
                             ]
