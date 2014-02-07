@@ -93,17 +93,12 @@ public class UnitTest {
 
     @Test
     public void testSiValue() {
-        assertThat(Unit.FOOT.siValue(BigDecimal.valueOf(20))).isEqualTo(new BigDecimal("6.096"));
+        assertThat(Unit.FOOT.siValue(BigDecimal.valueOf(20)).getValue()).isEqualTo(new BigDecimal("6.096"));
     }
 
     @Test
     public void testGetSiUnit() {
         assertThat(Unit.getSIUnit(Dimension.SPEED)).isEqualTo(Unit.METER_PER_SECOND);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetSiUnitNotExists() {
-        Unit.getSIUnit(Dimension.DIMENSIONLESS);
     }
 
     @Test

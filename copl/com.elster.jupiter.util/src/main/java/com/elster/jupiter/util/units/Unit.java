@@ -1,7 +1,11 @@
 package com.elster.jupiter.util.units;
 
 import static com.elster.jupiter.util.units.Dimension.*;
+
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
@@ -88,10 +92,11 @@ public enum Unit {
     BOOLEAN("boolean", "status", DIMENSIONLESS),
     BOOLEAN_ARRAY("boolean array", "statuses", DIMENSIONLESS),
     COUNT("count", "Count", DIMENSIONLESS),
-    BEL_MILLIWATT("bel milliwatt", "Bm", POWER) {
+    BEL_MILLIWATT("bel milliwatt", "Bm", POWER,ONE,ZERO) {
+    	// set siDivisor to ZERO to indicate si conversion overrule
     	@Override
-    	BigDecimal siValue(BigDecimal value) {
-    		return BigDecimal.valueOf(Math.pow(10.0,value.doubleValue()-3.0));
+    	Quantity siValue(BigDecimal value) {
+    		return Unit.WATT.amount(BigDecimal.valueOf(Math.pow(10.0,value.doubleValue()-3.0)));
     	}
     }, // TODO convert to SI
     ENCODED_VALUE("encoded value", "Code", DIMENSIONLESS),
@@ -177,7 +182,7 @@ public enum Unit {
     ELECTRON_VOLT("electronvolt","eV",ENERGY,BigDecimal.valueOf(1602176L, 25)),
     DALTON("dalton","Da",MASS,BigDecimal.valueOf(1660538L,33)),
     UNIFIED_MASS("unified mass","u",MASS,BigDecimal.valueOf(1660538L,33)),
-    ASTRONOMICAL_UNIT("astronomical unit","ua",LENGTH,BigDecimal.valueOf(1495978L,5)),
+    ASTRONOMICAL_UNIT("astronomical unit","ua",LENGTH,BigDecimal.valueOf(1495978L,-5)),
     LIGHT_SPEED("light speed","c\u2080","c0",SPEED,BigDecimal.valueOf(299192458L)),
     REDUCED_PLANCK("atomic unit of action","\u210F","(h-)",ACTION,BigDecimal.valueOf(1054571L,40)),
     ELECTRON_MASS("electron mass","m\u2091","me",MASS,BigDecimal.valueOf(9109382,37)),
@@ -188,11 +193,11 @@ public enum Unit {
     ATOMIC_TIME("atomic unit of time","\u210F/E\u2095","(h-)/Eh",TIME,BigDecimal.valueOf(2418883L,23)),
     BAR("bar","bar",PRESSURE,5),
     MM_MERCURY("millimeter of mercury","mmHg",PRESSURE,BigDecimal.valueOf(1333L,1)),
-    ANGSTROM("angstrom","\212B","Angstrom",LENGTH,-10),
+    ANGSTROM("angstrom","\u212B","Angstrom",LENGTH,-10),
     NAUTICAL_MILE("nautical mile","M",LENGTH,BigDecimal.valueOf(1852L)),
     BARN("barn","b",SURFACE,-28),
     KNOT("knot","kn",SPEED,BigDecimal.valueOf(1852L),Constants.BD3600),
-    CURIE("curie","Ci",RADIOACTIVITY,BigDecimal.valueOf(37,9)),
+    CURIE("curie","Ci",RADIOACTIVITY,BigDecimal.valueOf(37L,11)),
     ROENTGEN("roentgen","R",EXPOSURE,BigDecimal.valueOf(258,6)),
     RAD("rad","rd",ABSORBED_DOSE,-2),
     REM("rem","rem",DOSE_EQUIVALENT,-2),
@@ -236,7 +241,7 @@ public enum Unit {
     MILE_PER_IMPERIAL_GALLON("Mile per imperial gallon","mpg (Imp)", FUEL_EFFICIENCY, Constants.METER_PER_MILE,Constants.CUBIC_METER_PER_IMPERIALGALLON),
     MILE_PER_US_GALLON("Mile per US gallon","mpg (US)", FUEL_EFFICIENCY, Constants.METER_PER_MILE,Constants.CUBIC_METER_PER_USGALLON),
     MILE_PER_US_GALLON_EQUIVALENT("Mile per US gallon equivalent", "MPGe (US)", FUEL_EFFICIENCY, Constants.CUBIC_METER_PER_USGALLON),
-    LITER_PER_100_KM("Litre per 100 km","l/(100km)",FUEL_ECONOMY,BigDecimal.valueOf(1L,6)),
+    LITER_PER_100_KM("Litre per 100 km","l/(100km)",FUEL_ECONOMY,-8),
     WATT_HOUR_PER_MILE("Watt hour per mile","Wh/mi", FORCE , Constants.BD3600, Constants.METER_PER_MILE),
     WATT_HOUR_PER_100_MILE("Watt hour per 100 mile","Wh/(100mi)", FORCE , Constants.BD3600, Constants.METER_PER_MILE.scaleByPowerOfTen(2)),
     DEGREES_FAHRENHEIT("Degrees Fahrenheit","\u00b0F","deg F", TEMPERATURE, BigDecimal.valueOf(5L),BigDecimal.valueOf(9L),BigDecimal.valueOf(255372222222222L,12)),
@@ -249,7 +254,7 @@ public enum Unit {
     CUBIC_METER_PER_DAY("cubic meter per day", "m\u00b3/d", "m3/d", VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
     NORMAL_CUBIC_METER_PER_DAY("normal cubic meter per day", "Nm\u00b3/d", "Nm3/d", VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
     PER_HOUR("per hour", "/h", FREQUENCY, ONE, Constants.BD3600),
-    MOLE_PER_CENT("mole percent", "mol%/", DIMENSIONLESS, -2),
+    MOLE_PER_CENT("mole percent", "mol%", DIMENSIONLESS, -2),
     PERCENT("percent", "%", DIMENSIONLESS, -2),
     JOULE_PER_NORMAL_CUBIC_METER("joule per normal cubic meter", "J/Nm\u00b3", "J/Nm3", ENERGY_DENSITY),
     WATT_HOUR_PER_NORMAL_CUBIC_METER("watt hour per normal cubic meter", "Wh/Nm\u00b3", "Wh/Nm3", ENERGY_DENSITY, Constants.BD3600),
@@ -259,7 +264,11 @@ public enum Unit {
     FOOT_PER_SECOND("foot per second", "ft/s", SPEED, Constants.METER_PER_FOOT),
     CUBIC_FOOT_PER_DAY("cubic foot per day", "cf/d", VOLUME_FLOW, Constants.CUBIC_METER_PER_CUBIC_FOOT, Constants.BD86400),
     THERM_PER_HOUR("therm per hour", "thm/h", POWER, Constants.JOULE_PER_THERM, Constants.BD3600),
-    THERM_PER_DAY("therm per day", "thm/d", POWER, Constants.JOULE_PER_THERM, Constants.BD86400);
+    THERM_PER_DAY("therm per day", "thm/d", POWER, Constants.JOULE_PER_THERM, Constants.BD86400),
+    VOLT_SQUARED_SECOND("Volt squared second","V\u00b2s","V2s",ELECTRIC_POTENTIAL_SQUARED_TIME),
+    JOULE_SECOND("Joule second","Js",ACTION),
+    GRAM_PER_SECOND("kilogram per second", "g/s", MASSFLOW),
+    CUBIC_METER_PER_METER("cubic meter per meter" , "m\u00B3/m","m3/m",FUEL_ECONOMY);
    
     
     
@@ -365,15 +374,15 @@ public enum Unit {
         return dimension;
     }
 
-    public BigDecimal getSiMultiplier() {
+    BigDecimal getSiMultiplier() {
         return siMultiplier;
     }
 
-    public BigDecimal getSiDivisor() {
+    BigDecimal getSiDivisor() {
         return siDivisor;
     }
 
-    public BigDecimal getSiDelta() {
+    BigDecimal getSiDelta() {
         return siDelta;
     }
 
@@ -405,24 +414,59 @@ public enum Unit {
      * <a href="http://en.wikipedia.org/wiki/Coherence_(units_of_measurement)>See wikipedia article</a>
      * @return
      */
-    public boolean isCoherentSiUnit() {
-        return siMultiplier.equals(BigDecimal.ONE) && siDivisor.equals(BigDecimal.ONE) && siDelta.equals(BigDecimal.ZERO) && !isDimensionLess();
+    boolean isCoherentSiUnit() {
+        return siMultiplier.equals(BigDecimal.ONE) && siDivisor.equals(ONE) && siDelta.equals(BigDecimal.ZERO) && !isDimensionLess();
     }
 
+    private boolean isPowerOfTen() {
+    	if (!siDelta.equals(ZERO)) {
+    		return false;
+    	}
+    	return isPowerOfTen(siMultiplier) && isPowerOfTen(siDivisor);
+    }
+    
+    private int powerOfTen() {
+    	return powerOfTen(siMultiplier) - powerOfTen(siDivisor);
+    }
+    
+    private boolean isPowerOfTen(BigDecimal value) {
+    	return value.stripTrailingZeros().unscaledValue().equals(BigInteger.ONE);
+    }
+    
+    private int powerOfTen(BigDecimal value) {
+    	return -value.stripTrailingZeros().scale();
+    }
+    
     public static Unit getSIUnit(Dimension dimension) {
+    	Unit candidate = null;
         for (Unit each : values()) {
-            if (each.dimension.equals(dimension) && each.isCoherentSiUnit()) {
-                return each;
+            if (each.dimension.equals(dimension)) {
+            	if (each.isCoherentSiUnit()) {
+            		return each;
+            	}
+            	if (candidate == null && each.isPowerOfTen()) {
+            		candidate = each;
+            	}
             }
         }
-        throw new IllegalArgumentException(dimension.toString());
+        if (candidate == null) {
+        	for (Dimension alternateDimension : Dimension.values()) {
+        		if (alternateDimension != dimension && alternateDimension.hasSameDimensions(dimension)) {
+        			return Unit.getSIUnit(alternateDimension);
+        		}
+        	}
+        	throw new IllegalArgumentException(dimension.toString());
+        } else {
+        	return candidate;
+        }
     }
 
-    BigDecimal siValue(BigDecimal value) {
+    Quantity siValue(BigDecimal value) {
         BigDecimal newValue = value.multiply(siMultiplier);
         newValue = newValue.divide(siDivisor, newValue.scale() + siDivisor.precision() + EXTRA_PRECISION, BigDecimal.ROUND_HALF_UP);
-        newValue = newValue.add(siDelta);
-        return newValue.stripTrailingZeros();
+        newValue = newValue.add(siDelta).stripTrailingZeros();
+        Unit unit = Unit.getSIUnit(dimension);
+        return unit.amount(newValue,-unit.powerOfTen());
     }
 
 }

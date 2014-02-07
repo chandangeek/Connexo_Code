@@ -13,6 +13,10 @@ import java.util.Objects;
  */
 public final class Quantity implements Comparable<Quantity> {
 
+	private static final int YOCTO = -24;
+	private static final int ZEPTO = -21;
+	private static final int ATTO = -18;
+	private static final int FEMTO = -15;
     private static final int PICO = -12;
     private static final int NANO = -9;
     private static final int MICRO = -6;
@@ -27,6 +31,9 @@ public final class Quantity implements Comparable<Quantity> {
     private static final int TERA = 12;
     private static final int PETA = 15;
     private static final int EXA = 18;
+    private static final int ZETTA = 21;
+    private static final int YOTTA = 24;
+    
     private final Unit unit;
 	private final BigDecimal value;
 	private final int multiplier;
@@ -62,6 +69,14 @@ public final class Quantity implements Comparable<Quantity> {
 	
 	private String getCode(int exponent, boolean asciiOnly) {
 		switch(exponent) {
+			case YOCTO:
+				return "y";
+			case ZEPTO:
+				return "z";
+			case ATTO:
+				return "a";
+			case FEMTO:
+				return "f";
 			case PICO:
 				return "p";
 			case NANO:
@@ -92,6 +107,10 @@ public final class Quantity implements Comparable<Quantity> {
 				return "P";
 			case EXA:
 				return "E";
+			case ZETTA:
+				return "Z";
+			case YOTTA:
+				return "Y";
 			default:
 				return "*10^" + exponent;					
 		}
@@ -101,8 +120,7 @@ public final class Quantity implements Comparable<Quantity> {
 		if (unit.isDimensionLess() || unit.isCoherentSiUnit()) {
 			return this;
 		}
-		BigDecimal newValue = unit.siValue(value.scaleByPowerOfTen(multiplier));		
-		return new Quantity(Unit.getSIUnit(unit.getDimension()),newValue);
+		return unit.siValue(value.scaleByPowerOfTen(multiplier));		
 	}
 	
 	@Override

@@ -80,7 +80,7 @@ public enum Dimension implements HasName {
 	EXPOSURE("exposure",0,-1,1,1),
 	ABSORBED_DOSE_RATE("absorbed dose rate",2,0,-3,0),
 	RADIANCE("radiance",0,1,-3,0),
-	ACTION("energytime",2,1,-1,0);
+	ACTION("action",2,1,-1,0);
 	
 	private final String name;
 	private final int lengthDimension;
