@@ -12,6 +12,11 @@ Ext.define('Uni.override.LabelableOverride', {
     /**
      * Changes the default value 'left'.
      */
-    labelAlign: 'right'
+    labelAlign: 'right',
+
+    /**
+     * Adds extra styling to emphasize the label.
+     */
+    labelClsExtra: Uni.About.baseCssPrefix + 'form-item-bold'
 
 });
