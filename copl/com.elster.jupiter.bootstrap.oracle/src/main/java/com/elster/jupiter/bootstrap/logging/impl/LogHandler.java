@@ -73,6 +73,38 @@ class LogHandler extends Handler {
     }
 
     private String formatMessage(LogRecord record) {
+        // Do the formatting.
+        return formatMessage(record, getFormat(record));
+    }
+
+    private String formatMessage(LogRecord record, String format) {
+        try {
+            return tryFormatMessage(record, format);
+
+        } catch (Exception ex) {
+            // Formatting failed: use localized format string.
+            return format;
+        }
+    }
+
+    private String tryFormatMessage(LogRecord record, String format) {
+        Object parameters[] = record.getParameters();
+        if (parameters == null || parameters.length == 0) {
+            // No parameters.  Just return format string.
+            return format;
+        }
+        // Is it a java.text style format?
+        // Ideally we could match with
+        // Pattern.compile("\\{\\d").matcher(format).find())
+        // However the cost is 14% higher, so we cheaply check for
+        // 1 of the first 4 parameters
+        if (format.contains("{0") || format.contains("{1") || format.contains("{2") || format.contains("{3")) {
+            return java.text.MessageFormat.format(format, parameters);
+        }
+        return format;
+    }
+
+    private String getFormat(LogRecord record) {
         String format = record.getMessage();
         java.util.ResourceBundle catalog = record.getResourceBundle();
         if (catalog != null) {
@@ -83,28 +115,7 @@ class LogHandler extends Handler {
                 format = record.getMessage();
             }
         }
-        // Do the formatting.
-        try {
-            Object parameters[] = record.getParameters();
-            if (parameters == null || parameters.length == 0) {
-                // No parameters.  Just return format string.
-                return format;
-            }
-            // Is it a java.text style format?
-            // Ideally we could match with
-            // Pattern.compile("\\{\\d").matcher(format).find())
-            // However the cost is 14% higher, so we cheaply check for
-            // 1 of the first 4 parameters
-            if (format.indexOf("{0") >= 0 || format.indexOf("{1") >=0 ||
-                    format.indexOf("{2") >=0|| format.indexOf("{3") >=0) {
-                return java.text.MessageFormat.format(format, parameters);
-            }
-            return format;
-
-        } catch (Exception ex) {
-            // Formatting failed: use localized format string.
-            return format;
-        }
+        return format;
     }
 
 }
