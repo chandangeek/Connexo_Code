@@ -1,53 +1,44 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
-import com.energyict.cpo.PersistentNamedObject;
-import com.energyict.mdc.common.Transaction;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceConfigurationReferenceException;
+import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
+import com.energyict.mdc.device.config.exceptions.CannotChangeRegisterMappingOfChannelSpecException;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DuplicateNameException;
+import com.energyict.mdc.device.config.exceptions.DuplicateRegisterMappingException;
+import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.MultiplierIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.MultiplierModeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
-import com.energyict.mdw.amr.RegisterMappingFactory;
-import com.energyict.mdw.amr.RegisterMappingFactoryProvider;
-import com.energyict.mdw.core.AuditTrailFactoryProvider;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdw.core.DeviceCollectionMethodType;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdw.core.DeviceConfigurationFactory;
-import com.energyict.mdw.core.DeviceConfigurationFactoryProvider;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdw.core.LoadProfileSpecFactory;
-import com.energyict.mdw.core.LoadProfileSpecFactoryProvider;
-import com.energyict.mdc.device.config.LoadProfileType;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.device.config.exceptions.PhenomenonIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.ReadingMethodIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.RegisterMappingIsNotConfiguredException;
+import com.energyict.mdc.device.config.exceptions.RegisterMappingIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.UnitsNotCompatibleException;
+import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
+import com.energyict.mdc.device.config.exceptions.ValueCalculationMethodIsRequiredException;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import com.energyict.mdc.device.config.Phenomenon;
-import com.energyict.mdw.core.PhenomenonFactory;
-import com.energyict.mdw.core.PhenomenonFactoryProvider;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-import com.energyict.mdw.core.VirtualMeterType;
-import com.energyict.mdw.core.VirtualMeterTypeFactory;
-import com.energyict.mdw.core.VirtualMeterTypeFactoryProvider;
-import com.energyict.mdw.shadow.ChannelShadow;
-import com.energyict.mdw.shadow.ChannelSpecShadow;
-import com.energyict.mdw.shadow.VirtualMeterTypeFieldShadow;
-import com.energyict.mdw.shadow.VirtualMeterTypeShadow;
-import com.energyict.mdw.xml.ChannelSpecCommand;
-import com.energyict.mdw.xml.Command;
-import com.energyict.mdc.common.ObisCode;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.List;
-
-import static com.energyict.util.Equality.equalityHoldsFor;
 
 /**
  * Copyrights EnergyICT
@@ -56,13 +47,14 @@ import static com.energyict.util.Equality.equalityHoldsFor;
  */
 public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implements ChannelSpec {
 
+    private final DeviceConfigurationService deviceConfigurationService;
+
     private DeviceConfiguration deviceConfiguration;
     private RegisterMapping registerMapping;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     private int nbrOfFractionDigits;
     private BigDecimal overflow;
-//    private int phenomenonId;
     private Phenomenon phenomenon;
     private ReadingMethod readingMethod;
     private MultiplierMode multiplierMode;
@@ -72,25 +64,21 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     private TimeDuration interval;
     private ProductSpec productSpec;
 
-    ChannelSpecImpl(int id) {
-        super(id);
-    }
-
-    ChannelSpecImpl(ResultSet resultSet) throws SQLException {
-        doLoad(resultSet);
+    @Inject
+    public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+        super(ChannelSpec.class, dataModel, eventService, thesaurus);
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
-    public RegisterMapping getRtuRegisterMapping() {
-        if (registerMapping == null) {
-            registerMapping = RegisterMappingFactoryProvider.instance.get().getRegisterMappingFactory().find(rtuRegisterMappingId);
-        }
+    public RegisterMapping getRegisterMapping() {
         return registerMapping;
     }
 
     @Override
     public ObisCode getDeviceObisCode() {
-        if (overruledObisCode != null) {
+        if (!"".equals(this.overruledObisCodeString) && this.overruledObisCodeString != null) {
+            this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
         return getObisCode();
@@ -98,7 +86,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public ObisCode getObisCode() {
-        return getRtuRegisterMapping().getObisCode();
+        return getRegisterMapping().getObisCode();
     }
 
     @Override
@@ -113,7 +101,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public Phenomenon getPhenomenon() {
-        return PhenomenonFactoryProvider.instance.get().getPhenomenonFactory().find(phenomenonId);
+        return this.phenomenon;
     }
 
     @Override
@@ -138,16 +126,12 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public LoadProfileSpec getLoadProfileSpec() {
-        if (loadProfileSpecId > 0) {
-            return LoadProfileSpecFactoryProvider.instance.get().getLoadProfileSpecFactory().find(loadProfileSpecId);
-        }
-        return null;
-
+        return this.loadProfileSpec;
     }
 
     @Override
     public DeviceConfiguration getDeviceConfig() {
-        return DeviceConfigurationFactoryProvider.instance.get().getDeviceConfigurationFactory().find(deviceConfigId);
+        return this.deviceConfiguration;
     }
 
     @Override
@@ -155,490 +139,179 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         return (getLoadProfileSpec() != null ? getLoadProfileSpec().getInterval() : interval);
     }
 
-
     @Override
-    public int getLoadProfileSpecId() {
-        return loadProfileSpecId;
+    public void save() {
+        validateRequiredFields();
+        super.save();
     }
 
-    @Override
-    public int getRegisterMappingId() {
-        return rtuRegisterMappingId;
+    private void validateRequiredFields() {
+        validateDeviceConfiguration();
+        validateRegisterMapping();
+        validateDeviceTypeContainsRegisterMapping();
+        validateChannelSpecsForDuplicateRegisterMappings();
+        validateDeviceConfigurationContainsLoadProfileSpec();
+        validatePhenomenon();
+        validatePhenomenonAndRegisterMappingUnitCompatibility();
+        validateReadingMethod();
+        validateMultiplierMode();
+        validateValueCalculationMethod();
+        validateInterval();
+        validateForCollectionMethod();
     }
 
-    @Override
-    public ChannelSpecShadow getShadow() {
-        return new ChannelSpecShadow(this);
+    private void validateForCollectionMethod() {
+        // TODO Check if this is still required as CollectionMethod is not on DeviceType anymore ...
+
+//        if (DeviceCollectionMethodType.COMSERVER.equals(getDeviceConfig().getDeviceType().getC)) {
+//            if (spec == null) {
+//                throw new BusinessException("loadProfileSpecForChannelXCannotBeNull",
+//                        "Channel '{0}' cannot have an undefined load profile specification when the collection method of its device type = ComServer", name);
+//            }
+//        }
     }
 
-    @Override
-    public void update(final ChannelSpecShadow shadow) throws BusinessException, SQLException {
-        execute(new Transaction<Void>() {
-            @Override
-            public Void doExecute() throws BusinessException, SQLException {
-                doUpdate(shadow);
-                return null;
+    private void validateInterval() {
+        if (getLoadProfileSpec() == null) {
+            if (getInterval() == null) {
+                throw IntervalIsRequiredException.forChannelSpecWithoutLoadProfileSpec(this.thesaurus);
             }
-        });
-
+            if (getInterval().getCount() <= 0) {
+                throw UnsupportedIntervalException.intervalOfChannelSpecShouldBeLargerThanZero(this.thesaurus, getInterval().getCount());
+            }
+            if ((getInterval().getTimeUnitCode() == TimeDuration.DAYS ||
+                    getInterval().getTimeUnitCode() == TimeDuration.MONTHS ||
+                    getInterval().getTimeUnitCode() == TimeDuration.YEARS) &&
+                    getInterval().getCount() != 1) {
+                throw UnsupportedIntervalException.intervalOfChannelShouldBeOneIfUnitIsLargerThanOneHour(this.thesaurus, getInterval().getCount());
+            }
+            if (getInterval().getTimeUnitCode() == TimeDuration.WEEKS) {
+                throw UnsupportedIntervalException.weeksAreNotSupportedForChannelSpecs(this.thesaurus, this);
+            }
+        }
     }
 
-    @Override
-    public ChannelShadow newChannelShadow() {
-        ChannelShadow shadow = new ChannelShadow();
-        shadow.setName(getName());
-        shadow.setChannelSpecId(getId());
-        if (loadProfileSpecId == 0) {
-            shadow.setInterval(getInterval());
+    private void validateChannelSpecsForDuplicateRegisterMappings() {
+        ChannelSpec channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndRegisterMapping(getLoadProfileSpec(), getRegisterMapping());
+        if (channelSpec != null) {
+            throw DuplicateRegisterMappingException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getRegisterMapping(), loadProfileSpec);
+        }
+    }
+
+    private void validateValueCalculationMethod() {
+        if (this.valueCalculationMethod == null) {
+            throw ValueCalculationMethodIsRequiredException.forChannelSpec(this.thesaurus, this);
+        }
+    }
+
+    private void validateMultiplierMode() {
+        if (this.multiplierMode == null) {
+            throw MultiplierModeIsRequiredException.forChannelSpec(this.thesaurus, this);
         } else {
-            shadow.setInterval(getLoadProfileSpec().getLoadProfileType().getInterval());
-        }
-        return shadow;
-    }
-
-    private void doUpdate(ChannelSpecShadow shadow) throws BusinessException, SQLException {
-        validateUpdate(shadow);
-        String fieldToUpdate = getName();
-        boolean intervalChange = !(Equality.equalityHoldsFor(this.getInterval()).and(shadow.getInterval()));
-        boolean nameChange = !(Equality.equalityHoldsFor(this.getName())).and(shadow.getName());
-        copy(shadow);
-        post();
-        if (intervalChange) {
-            updateChannelIntervals();
-        }
-        if (nameChange) {
-            updateChannelName(fieldToUpdate);
-        }
-        updateLPSpecVMType(fieldToUpdate);
-        updated();
-    }
-
-    private void updateChannelName(String oldName) throws SQLException {
-        EndDeviceChannelFactory endDeviceChannelFactory = ServerChannelFactoryProvider.instance.get().getServerChannelFactory();
-        endDeviceChannelFactory.updateChannelNames(this, oldName);
-    }
-
-    private void updateChannelIntervals() throws SQLException {
-        EndDeviceChannelFactory endDeviceChannelFactory = ServerChannelFactoryProvider.instance.get().getServerChannelFactory();
-        endDeviceChannelFactory.updateChannelIntervals(this);
-    }
-
-    private void validateUpdate(ChannelSpecShadow shadow) throws BusinessException {
-        validate(shadow);
-        if (shadow.getDeviceConfigId() != this.deviceConfigId) {
-            throw new BusinessException("cannotUpdateDeviceConfigOfChannelSpec", "Cannot update Device config");
-        }
-        validateUniqueness(shadow.getName(), shadow.getDeviceConfigId(), this.getId());
-        DeviceConfiguration deviceConfig = getDeviceConfig();
-        if (deviceConfig.getActive()) {
-            if (shadow.getRtuRegisterMappingId() != this.rtuRegisterMappingId) {
-                throw new BusinessException("cannotUpdateRegisterMappingBecauseDeviceConfigXIsActive", "Cannot update Register mapping because device config {0} is active", deviceConfig.getName());
-            }
-            if (shadow.getLoadProfileTypeId() > 0) {
-                LoadProfileSpec spec = getLoadProfileSpecForType(deviceConfig, shadow.getLoadProfileTypeId());
-                if (spec == null) {
-                    throw new BusinessException("noLoadProfileSpecOfType", "Cannot find Load profile spec for LoadProfileType {0}", shadow.getLoadProfileTypeId());
-                }
-                if (spec.getId() != this.loadProfileSpecId) {
-                    throw new BusinessException("cannotUpdateLoadProfileSpecBecauseDeviceConfigXIsActive", "Cannot update Load profile spec because device config '{0}' is active", deviceConfig.getName());
-                }
-            } else {
-                if (shadow.getLoadProfileTypeId() != this.loadProfileSpecId) {
-                    throw new BusinessException("cannotUpdateLoadProfileSpecBecauseDeviceConfigXIsActive", "Cannot update Load profile spec because device config '{0}' is active", deviceConfig.getName());
-                }
+            if (MultiplierMode.CONFIGURED_ON_OBJECT.equals(this.multiplierMode) && getMultiplier() == null) {
+                throw MultiplierIsRequiredException.onChannelSpecWhenModeIsOnObject(thesaurus, this, this.multiplierMode);
             }
         }
     }
 
-    private LoadProfileSpec getLoadProfileSpecForType(DeviceConfiguration deviceConfig, int loadProfileTypeId) {
-        for (LoadProfileSpec loadProfileSpec : deviceConfig.getLoadProfileSpecs()) {
-            if (loadProfileSpec.getLoadProfileType().getId() == loadProfileTypeId) {
-                return loadProfileSpec;
+    private void validateReadingMethod() {
+        if (readingMethod == null) {
+            throw ReadingMethodIsRequiredException.forChannelSpec(this.thesaurus, this);
+        }
+
+    }
+
+    private void validatePhenomenonAndRegisterMappingUnitCompatibility() {
+        Unit registerMappingUnit = getRegisterMapping().getUnit();
+        if (!phenomenon.isUndefined() && !registerMappingUnit.isUndefined()) {
+            if (!phenomenon.getUnit().equalBaseUnit(registerMappingUnit)) {
+                throw UnitsNotCompatibleException.forChannelSpecPhenomenonAndRegisterMappingUnit(thesaurus, phenomenon, registerMappingUnit);
             }
         }
-        return null;
+    }
+
+    private void validateDeviceConfiguration() {
+        if (this.deviceConfiguration == null) {
+            throw DeviceConfigIsRequiredException.channelSpecRequiresDeviceConfig(this.thesaurus);
+        }
+    }
+
+    private void validateRegisterMapping() {
+        if (this.registerMapping == null) {
+            throw RegisterMappingIsRequiredException.channelSpecRequiresRegisterMapping(this.thesaurus);
+        }
+    }
+
+    private void validateDeviceTypeContainsRegisterMapping() {
+        if (getLoadProfileSpec() != null) { // then the RegisterMapping should be included in the LoadProfileSpec
+            if (!getLoadProfileSpec().getLoadProfileType().getRegisterMappings().contains(getRegisterMapping())) {
+                throw RegisterMappingIsNotConfiguredException.forChannelInLoadProfileSpec(thesaurus, getLoadProfileSpec(), getRegisterMapping(), this);
+            }
+        } else { // then the RegisterMapping should be included in the DeviceType
+            if (!getDeviceConfig().getDeviceType().getRegisterMappings().contains(getRegisterMapping())) {
+                throw RegisterMappingIsNotConfiguredException.forChannelInDeviceType(thesaurus, this, getRegisterMapping(), getDeviceConfig().getDeviceType());
+            }
+        }
+    }
+
+    private void validateActiveConfig() {
+        if (getDeviceConfig().getActive()) {
+            throw CannotAddToActiveDeviceConfigurationException.aNewChannelSpec(this.thesaurus);
+        }
+    }
+
+    private void validateDeviceConfigurationContainsLoadProfileSpec() {
+        if (getLoadProfileSpec() != null) {
+            if (!getDeviceConfig().getLoadProfileSpecs().contains(getLoadProfileSpec())) {
+                throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(this.thesaurus, getLoadProfileSpec());
+            }
+        }
+    }
+
+    private void validatePhenomenon() {
+        if (phenomenon == null) {
+            throw PhenomenonIsRequiredException.forChannelSpec(thesaurus, this);
+        }
     }
 
     @Override
     protected void postNew() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        validateActiveConfig();
+        this.getDataMapper().persist(this);
     }
 
     @Override
     protected void post() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.getDataMapper().update(this);
     }
 
     @Override
     protected void doDelete() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.getDataMapper().remove(this);
     }
 
     @Override
-    protected void validateDelete() throws SQLException, BusinessException {
-        super.validateDelete();
+    protected void validateDelete() {
         if (getDeviceConfig().getActive()) {
-            throw new BusinessException("cannotDeleteChannelSpecDeviceConfigIsActive", "Cannot delete Channel spec because its device config is still active");
+            throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.thesaurus, this, getDeviceConfig());
         }
     }
 
-    @Override
-    protected String[] getColumns() {
-        return ChannelSpecFactoryImpl.COLUMNS;
-    }
-
-    @Override
-    protected String getTableName() {
-        return ChannelSpecFactoryImpl.TABLE_NAME;
-    }
-
-    @Override
-    protected void doLoad(ResultSet resultSet) throws SQLException {
-        super.doLoad(resultSet);
-        deviceConfigId = resultSet.getInt(3);
-        rtuRegisterMappingId = resultSet.getInt(4);
-        String obisCodeString = resultSet.getString(5);
-        if (resultSet.wasNull()) {
-            overruledObisCode = null;
-        } else {
-            overruledObisCode = ObisCode.fromString(obisCodeString);
-        }
-        nbrOfFractionDigits = resultSet.getInt(6);
-        overflow = resultSet.getBigDecimal(7);
-        phenomenonId = resultSet.getInt(8);
-        readingMethod = ReadingMethod.fromDb(resultSet.getInt(9));
-        try {
-            multiplierMode = MultiplierMode.fromDb(resultSet.getInt(10));
-        } catch (BusinessException e) {
-            multiplierMode = MultiplierMode.CONFIGURED_ON_OBJECT;
-        }
-        multiplier = resultSet.getBigDecimal(11);
-        valueCalculationMethod = ValueCalculationMethod.fromDb(resultSet.getInt(12));
-        loadProfileSpecId = resultSet.getInt(13);
-        if (loadProfileSpecId != 0) {
-            interval = null;     // in case the channel is assigned to a loadprofile
-        } else {
-            interval = new TimeDuration(resultSet.getInt(14), resultSet.getInt(15));
-        }
-    }
-
-    @Override
-    protected int bindBody(PreparedStatement preparedStatement, int offset) throws SQLException {
-        preparedStatement.setInt(offset++, deviceConfigId);
-        preparedStatement.setInt(offset++, rtuRegisterMappingId);
-        if (overruledObisCode != null) {
-            preparedStatement.setString(offset++, overruledObisCode.toString());
-        } else {
-            preparedStatement.setNull(offset++, Types.VARCHAR);
-        }
-        preparedStatement.setInt(offset++, nbrOfFractionDigits);
-        preparedStatement.setBigDecimal(offset++, overflow);
-        preparedStatement.setInt(offset++, phenomenonId);
-        preparedStatement.setInt(offset++, readingMethod.getCode());
-        preparedStatement.setInt(offset++, multiplierMode.getCode());
-        preparedStatement.setBigDecimal(offset++, multiplier);
-        preparedStatement.setInt(offset++, valueCalculationMethod.getCode());
-        if (loadProfileSpecId > 0) {
-            preparedStatement.setInt(offset++, loadProfileSpecId);
-        } else {
-            preparedStatement.setNull(offset++, Types.INTEGER);
-        }
-        if (loadProfileSpecId != 0) {
-            preparedStatement.setInt(offset++, 0);
-            preparedStatement.setInt(offset++, TimeDuration.SECONDS);
-        } else {
-            preparedStatement.setInt(offset++, interval.getCount());
-            preparedStatement.setInt(offset++, interval.getTimeUnitCode());
-        }
-
-        return offset;
-    }
-
-    public void init(final ChannelSpecShadow shadow) throws BusinessException, SQLException {
-        execute(new Transaction<Void>() {
-            @Override
-            public Void doExecute() throws BusinessException, SQLException {
-                doInit(shadow);
-                return null;
-            }
-        });
-    }
-
-    private void doInit(ChannelSpecShadow shadow) throws SQLException, BusinessException {
-        validateNew(shadow);
-        copy(shadow);
-        postNew();
-        created();
-        addAsFieldOnLPSpecVMType();
-    }
-
-    @Override
-    protected void deleteDependents() throws SQLException, BusinessException {
-        super.deleteDependents();
-        deleteLPSpecVmTypField(getName());
-    }
-
-    private void deleteLPSpecVmTypField(String name) throws BusinessException, SQLException {
-        if (getLoadProfileSpec() != null) {
-            VirtualMeterTypeShadow virtualMeterTypeShadow = getLoadProfileSpec().getVirtualMeterType().getShadow();
-            VirtualMeterTypeFieldShadow virtualMeterTypeFieldShadow = getTypeFieldShadow(virtualMeterTypeShadow.getFieldShadows(), getCompliantName(name));
-            if (virtualMeterTypeFieldShadow != null) {
-                virtualMeterTypeShadow.getFieldShadows().remove(virtualMeterTypeFieldShadow);
-                getLoadProfileSpec().getVirtualMeterType().update(virtualMeterTypeShadow);
-            }
-        }
-    }
-
-    private void addAsFieldOnLPSpecVMType() throws BusinessException, SQLException {
-        if (getLoadProfileSpec() != null) {
-            VirtualMeterTypeShadow virtualMeterTypeShadow = getLoadProfileSpec().getVirtualMeterType().getShadow();
-            VirtualMeterTypeFieldShadow virtualMeterTypeFieldShadow = createFieldShadow(getCompliantName(getName()));
-            virtualMeterTypeShadow.getFieldShadows().add(virtualMeterTypeFieldShadow);
-            try {
-                getLoadProfileSpec().getVirtualMeterType().update(virtualMeterTypeShadow);
-            } catch (BusinessException | SQLException e) {
-                getVirtualMeterTypeFactory().clearFromCache(getLoadProfileSpec().getVirtualMeterType());
-                throw e;
-            }
-        }
-    }
-
-    private VirtualMeterTypeFactory getVirtualMeterTypeFactory() {
-        return VirtualMeterTypeFactoryProvider.instance.get().getVirtualMeterTypeFactory();
-    }
-
-    private VirtualMeterTypeFieldShadow createFieldShadow(String name) {
-        VirtualMeterTypeFieldShadow virtualMeterTypeFieldShadow = new VirtualMeterTypeFieldShadow();
-        virtualMeterTypeFieldShadow.setName(name);
-        return virtualMeterTypeFieldShadow;
-    }
-
-    // Package private so LoadProfile can also access this
-    static String getCompliantName(String channelSpecName) {
-        String compl = "ch_" + channelSpecName.replaceAll(" ", "_").replaceAll("-", "min").replaceAll("\\+", "plus").replaceAll("[^ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_]", "");
-        if (compl.length() > 30) {
-            compl = compl.substring(0, 30);
-        }
-        return compl.toLowerCase();
-    }
-
-    private void updateLPSpecVMType(String fieldToUpdate) throws BusinessException, SQLException {
-        if (getLoadProfileSpec() != null) {
-            VirtualMeterType virtualMeterType = getLoadProfileSpec().getVirtualMeterType();
-            VirtualMeterTypeShadow virtualMeterTypeShadow = virtualMeterType.getShadow();
-            List<VirtualMeterTypeFieldShadow> virtualMeterTypeFieldShadows = virtualMeterTypeShadow.getFieldShadows();
-            VirtualMeterTypeFieldShadow fieldShadow = getTypeFieldShadow(virtualMeterTypeFieldShadows, getCompliantName(fieldToUpdate));
-            if (fieldShadow == null) {
-                fieldShadow = createFieldShadow(getCompliantName(fieldToUpdate));
-                virtualMeterTypeFieldShadows.add(fieldShadow);
-            }
-            fieldShadow.setName(getCompliantName(getShadow().getName()));
-            virtualMeterTypeShadow.setFieldShadows(virtualMeterTypeFieldShadows);
-            virtualMeterType.update(virtualMeterTypeShadow);
-            String compliantFieldName = getCompliantName(fieldToUpdate);
-        }
-    }
-
-    private VirtualMeterTypeFieldShadow getTypeFieldShadow(List<VirtualMeterTypeFieldShadow> virtualMeterTypeFieldShadows, String name) {
-        if (virtualMeterTypeFieldShadows != null && virtualMeterTypeFieldShadows.size() > 0) {
-            for (VirtualMeterTypeFieldShadow fieldShadow : virtualMeterTypeFieldShadows) {
-                if (fieldShadow.getName().equals(name)) {
-                    return fieldShadow;
-                }
-            }
-        }
-        return null;
-    }
-
-
-    private void validateNew(ChannelSpecShadow shadow) throws BusinessException {
-        validate(shadow);
-        DeviceConfiguration deviceConfig = getDeviceConfigFactory().find(shadow.getDeviceConfigId());
-        if (deviceConfig.getActive()) {
-            throw new BusinessException("cannotAddChannelSpecDeviceConfigXIsActive", "Cannot add a channel spec because device config '{0}' is active", deviceConfig.getName());
-        }
-        validateUniqueness(shadow.getName(), shadow.getDeviceConfigId());
-    }
-
-    private void validate(ChannelSpecShadow shadow) throws BusinessException {
-        validate(shadow.getName());
-        if (shadow.getDeviceConfigId() <= 0) {
-            throw new BusinessException("deviceConfigCannotBeNull", "Device Config cannot be null");
-        }
-        DeviceConfiguration deviceConfig = getDeviceConfigFactory().find(shadow.getDeviceConfigId());
-        if (deviceConfig == null) {
-            throw new BusinessException("deviceConfigXDoesNotExist", "A device configuration with id {0,number} does not exist", shadow.getDeviceConfigId());
-        }
-        if (shadow.getRtuRegisterMappingId() <= 0) {
-            throw new BusinessException("rtuRegisterMappingCannotBeNull", "Register Mapping cannot be null");
-        }
-        RegisterMapping rtuRegisterMapping = getRtuRegisterMappingFactory().find(shadow.getRtuRegisterMappingId());
-        if (rtuRegisterMapping == null) {
-            throw new BusinessException("rtuRegisterMappingXDoesNotExist", "A register mapping with id {0,number} does not exist", shadow.getRtuRegisterMappingId());
-        }
-        DeviceType deviceType = deviceConfig.getDeviceType();
-        if (!DeviceCollectionMethodType.COMSERVER.equals(deviceType.getDeviceCollectionMethodType()) &&
-                shadow.getLoadProfileTypeId() == 0 &&
-                !getServerRtuTypeFactory().findRtuRegisterMappingIds(deviceType).contains(shadow.getRtuRegisterMappingId())) {
-            throw new BusinessException("cannotAddChannelSpecForMappingXBecauseRtuTypeYDoesNotHaveMapping",
-                    "Cannot add channel spec for mapping '{0}' because device type '{1}' doesn't have mapping '{0}'",
-                    rtuRegisterMapping.getName(), deviceType.getName());
-        }
-        if (shadow.getPhenomenonId() < 0) {
-            throw new BusinessException("phenomenonCannotBeNull", "Phenomenon cannot be null");
-        }
-        Phenomenon phenomenon = getPhenomenonFactory().find(shadow.getPhenomenonId());
-        if (phenomenon == null) {
-            throw new BusinessException("phenomenonXDoesNotExists", "Phenomenon with id '{0}' does not exists", shadow.getPhenomenonId());
-        }
-        Unit rtuRegisterMappingUnit = rtuRegisterMapping.getUnit();
-        if (!phenomenon.isUndefined() && !rtuRegisterMappingUnit.isUndefined()) {
-            if (!phenomenon.getUnit().equalBaseUnit(rtuRegisterMappingUnit)) {
-                throw new BusinessException("nonMatchingPhenomenon", "The phenomenon of the channel (\"{0}\") doesn't match the product specification of the device register mapping (\"{1}\").",
-                        phenomenon, rtuRegisterMapping.getProductSpec().getPhenomenon());
-            }
-        }
-
-        if (shadow.getReadingMethod() == null) {
-            throw new BusinessException("readingMethodCannotBeNull", "Reading Method cannot be null");
-        }
-        if (shadow.getMultiplierMode() == null) {
-            throw new BusinessException("multiplierModeCannotBeNull", "Multiplier mode cannot be null");
-        }
-        if (shadow.getValueCalculationMethod() == null) {
-            throw new BusinessException("valueCalculationMethodCannotBeNull", "Value calculation method cannot be null");
-        }
-        if (MultiplierMode.CONFIGURED_ON_OBJECT.equals(shadow.getMultiplierMode()) && shadow.getMultiplier() == null) {
-            throw new BusinessException("multiplierCannotBeNullForModeX", "Multiplier cannot be null for multiplier mode {0}", shadow.getMultiplierMode());
-        }
-
-        LoadProfileSpec loadProfileSpec = null;
-        if (shadow.getLoadProfileTypeId() != 0) {
-            loadProfileSpec = getLoadProfileSpecForType(deviceConfig, shadow.getLoadProfileTypeId());
-            if (loadProfileSpec == null) {
-                throw new BusinessException("noLoadProfileSpecOfType", "Cannot find Load profile spec for LoadProfileType {0}", shadow.getLoadProfileTypeId());
-            }
-            LoadProfileType loadProfileType = loadProfileSpec.getLoadProfileType();
-            if (!(((ServerLoadProfileType) loadProfileType).hasMapping(shadow.getRtuRegisterMappingId()))) {
-                throw new BusinessException("rtuRegisterMappingXCannotBeUsedForLoadProfileTypeY",
-                        "Device register mapping '{0}' cannot be used in a load profile specification of type '{1}'",
-                        rtuRegisterMapping.getName(), loadProfileType.getName());
-            }
-            if (((ServerLoadProfileSpec) loadProfileSpec).hasChannelSpecForMappingExcluding(shadow.getRtuRegisterMappingId(), this.getId())) {
-                throw new BusinessException("cannotMapMultipleChannelSpecsToLoadProfileSpecXForMappingY",
-                        "Cannot map multiple channel specifications to a load profile specification of type '{0}' for register mapping '{1}'",
-                        loadProfileType.getName(), rtuRegisterMapping.getName());
-            }
-        } else {
-            if (shadow.getInterval() == null) {
-                throw new BusinessException("intervalCantBeEmpty", "The interval cannot be undefined.");
-            }
-            if (shadow.getInterval() == null || shadow.getInterval().getCount() <= 0) {
-                throw new BusinessException("invalidChannelInterval", "\"{0}\" is not a valid value for channel interval.", shadow.getInterval());
-            }
-            if ((shadow.getInterval().getTimeUnitCode() == TimeDuration.DAYS || shadow.getInterval().getTimeUnitCode() == TimeDuration.MONTHS || shadow.getInterval().getTimeUnitCode() == TimeDuration.YEARS)
-                    && (shadow.getInterval().getCount() != 1)) {
-                throw new BusinessException("channelIntervalIllegal", "If unit of interval is greater than hours, count must be 1");
-            }
-            if ((shadow.getInterval().getTimeUnitCode() == TimeDuration.WEEKS)) {
-                throw new BusinessException("channelIntervalInWeeks", "Interval expressed in weeks is not supported");
-            }
-        }
-        validateForCollectionMethod(loadProfileSpec, deviceType.getDeviceCollectionMethodType(), shadow.getName());
-    }
-
-    private void validateForCollectionMethod(LoadProfileSpec spec, DeviceCollectionMethodType deviceCollectionMethodType, String name) throws BusinessException {
-        if (DeviceCollectionMethodType.COMSERVER.equals(deviceCollectionMethodType)) {
-            if (spec == null) {
-                throw new BusinessException("loadProfileSpecForChannelXCannotBeNull",
-                        "Channel '{0}' cannot have an undefined load profile specification when the collection method of its device type = ComServer", name);
-            }
-        }
-    }
-
-    private ServerDeviceTypeFactory getServerRtuTypeFactory() {
-        return ServerDeviceTypeFactoryProvider.instance.get().getServerDeviceTypeFactory();
-    }
-
-    private LoadProfileSpecFactory getLoadProfileSpecFactory() {
-        return LoadProfileSpecFactoryProvider.instance.get().getLoadProfileSpecFactory();
-    }
-
-    private void validateUniqueness(String name, int deviceConfigId) throws BusinessException {
-        validateUniqueness(name, deviceConfigId, -1);
-    }
-
-    private void validateUniqueness(String name, int deviceConfigId, int excludeId) throws BusinessException {
-        if (getServerChannelSpecFactory().hasFor(deviceConfigId, name, excludeId, false)) {
-            throw new BusinessException("nameMustBeUniquePerDeviceConfig", "Name of channel spec must be unique per Device Config");
+    protected void validateUniqueName(String name) {
+        if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfig(), name) != null) {
+            throw DuplicateNameException.channelSpecAlreadyExists(this.getThesaurus(), name);
         }
         if (name.length() > 27) {
-            if (getServerChannelSpecFactory().hasFor(deviceConfigId, name.substring(0, 27), excludeId, true)) {
-                throw new BusinessException("firstXCharactersOfNameMustBeUniquePerDeviceConfig", "First {0} characters of the name of channel spec must be unique per Device Config", 27);
+            if (this.deviceConfigurationService.findChannelSpecByDeviceConfigurationAndName(getDeviceConfig(), name.substring(0, 27)) != null) {
+                throw DuplicateNameException.channelSpecAlreadyExistsFirstChars(this.getThesaurus(), name.substring(0, 27));
             }
         }
     }
 
-    @Override
-    public void validateFor(DeviceCollectionMethodType collectionMethodType) throws BusinessException {
-        validateForCollectionMethod(getLoadProfileSpec(), collectionMethodType, getName());
-    }
-
-    private ServerChannelSpecFactory getServerChannelSpecFactory() {
-        return ServerChannelSpecFactoryProvider.instance.get().getServerChannelSpecFactory();
-    }
-
-    private PhenomenonFactory getPhenomenonFactory() {
-        return PhenomenonFactoryProvider.instance.get().getPhenomenonFactory();
-    }
-
-    private RegisterMappingFactory getRtuRegisterMappingFactory() {
-        return RegisterMappingFactoryProvider.instance.get().getRegisterMappingFactory();
-    }
-
-    private DeviceConfigurationFactory getDeviceConfigFactory() {
-        return DeviceConfigurationFactoryProvider.instance.get().getDeviceConfigurationFactory();
-    }
-
-    private void copy(ChannelSpecShadow shadow) {
-        setName(shadow.getName());
-        deviceConfigId = shadow.getDeviceConfigId();
-        rtuRegisterMappingId = shadow.getRtuRegisterMappingId();
-        overruledObisCode = shadow.getOverruledObisCode();
-        nbrOfFractionDigits = shadow.getNumberOfFractionDigits();
-        overflow = shadow.getOverflow();
-        phenomenonId = shadow.getPhenomenonId();
-        readingMethod = shadow.getReadingMethod();
-        multiplierMode = shadow.getMultiplierMode();
-        if (MultiplierMode.CONFIGURED_ON_OBJECT.equals(multiplierMode)) {
-            multiplier = shadow.getMultiplier();
-        } else {
-            multiplier = BigDecimal.ONE;
-        }
-        valueCalculationMethod = shadow.getValueCalculationMethod();
-        loadProfileSpecId = (shadow.getLoadProfileTypeId() == 0 ? 0 : getLoadProfileSpecForType(getDeviceConfig(), shadow.getLoadProfileTypeId()).getId());
-        interval = shadow.getInterval();
-        registerMapping = null;
-    }
-
-    @Override
-    protected void doUpdateAuditInfo(char action) throws SQLException, BusinessException {
-        AuditTrailFactoryProvider.instance.get().getAuditTrailFactory().create(getShadow(), MeteringWarehouse.FACTORYID_CHANNELSPEC, action);
-    }
-
-    @Override
-    public Command<ChannelSpec> createConstructor() {
-        return new ChannelSpecCommand(this);
-    }
-
-    @Override
-    public boolean isExportAllowed() {
-        return getId() != 0;
-    }
 
     @Override
     public String toString() {
-        return getDeviceConfig().getDeviceType() + getNameSeparator() + getDeviceConfig() + getNameSeparator() + getName();
+        return getDeviceConfig().getDeviceType() + "/" + getDeviceConfig() + "/" + getName();
     }
 
     protected String getInvalidCharacters() {
@@ -647,6 +320,101 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return NameIsRequiredException.channelSpecNameIsRequired(thesaurus);
+    }
+
+    @Override
+    public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        validateDeviceConfigurationForUpdate(deviceConfiguration);
+        this.deviceConfiguration = deviceConfiguration;
+    }
+
+    private void validateDeviceConfigurationForUpdate(DeviceConfiguration deviceConfiguration) {
+        if (this.deviceConfiguration != null && !this.deviceConfiguration.equals(deviceConfiguration)) {
+            throw CannotChangeDeviceConfigurationReferenceException.forChannelSpec(this.thesaurus, this);
+        }
+    }
+
+    @Override
+    public void setRegisterMapping(RegisterMapping registerMapping) {
+        validateRegisterMappingForUpdate(registerMapping);
+        this.registerMapping = registerMapping;
+    }
+
+    private void validateRegisterMappingForUpdate(RegisterMapping registerMapping) {
+        if (getDeviceConfig() != null && getDeviceConfig().getActive() && this.registerMapping != null && !this.registerMapping.equals(registerMapping)) {
+            throw new CannotChangeRegisterMappingOfChannelSpecException(this.thesaurus);
+        }
+    }
+
+
+    @Override
+    public void setOverruledObisCode(ObisCode overruledObisCode) {
+        if(overruledObisCode != null){
+            this.overruledObisCodeString = overruledObisCode.toString();
+        }
+        this.overruledObisCode = overruledObisCode;
+    }
+
+    @Override
+    public void setNbrOfFractionDigits(int nbrOfFractionDigits) {
+        this.nbrOfFractionDigits = nbrOfFractionDigits;
+    }
+
+    @Override
+    public void setOverflow(BigDecimal overflow) {
+        this.overflow = overflow;
+    }
+
+    @Override
+    public void setPhenomenon(Phenomenon phenomenon) {
+        this.phenomenon = phenomenon;
+    }
+
+    @Override
+    public void setReadingMethod(ReadingMethod readingMethod) {
+        this.readingMethod = readingMethod;
+    }
+
+    @Override
+    public void setMultiplierMode(MultiplierMode multiplierMode) {
+        this.multiplierMode = multiplierMode;
+    }
+
+    @Override
+    public void setMultiplier(BigDecimal multiplier) {
+        this.multiplier = multiplier;
+    }
+
+    @Override
+    public void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
+        this.valueCalculationMethod = valueCalculationMethod;
+    }
+
+    @Override
+    public void setLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
+        validateLoadProfileSpecForUpdate(loadProfileSpec);
+        this.loadProfileSpec = loadProfileSpec;
+    }
+
+    private void validateLoadProfileSpecForUpdate(LoadProfileSpec loadProfileSpec) {
+        if (getDeviceConfig() != null && getDeviceConfig().getActive() && !this.loadProfileSpec.equals(loadProfileSpec)) {
+            throw new CannotChangeLoadProfileSpecOfChannelSpec(this.thesaurus);
+        }
+    }
+
+    @Override
+    public void setInterval(TimeDuration interval) {
+        this.interval = interval;
+    }
+
+    @Override
+    public void setProductSpec(ProductSpec productSpec) {
+        this.productSpec = productSpec;
+    }
+
+    @Override
+    public ProductSpec getProductSpec() {
+        return productSpec;
     }
 }

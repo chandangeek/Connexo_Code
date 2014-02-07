@@ -352,4 +352,8 @@ public interface DeviceConfigurationService {
     public Phenomenon findPhenomenonByNameAndUnit(String name, String unit);
 
     public List<Phenomenon> findPhenomenonByEdiCode(String ediCode);
+
+    public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping);
+
+    public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
 }

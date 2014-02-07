@@ -9,7 +9,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
  * to create a new entity within this bundle without
  * specifying an {@link com.energyict.mdc.device.config.RegisterMapping}
  * where it is required
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 31/01/14
  * Time: 13:38
@@ -25,10 +25,24 @@ public class RegisterMappingIsRequiredException extends LocalizedException {
      * exceptional situation that occurs when an attempt is made to create
      * a {@link com.energyict.mdc.device.config.RegisterSpec} without a
      * {@link com.energyict.mdc.device.config.RegisterMapping}
+     *
      * @param thesaurus The Thesaurus
      * @return the newly create RegisterMappingIsRequiredException
      */
-    public static RegisterMappingIsRequiredException registerSpecRequiresRegisterMapping(Thesaurus thesaurus){
+    public static RegisterMappingIsRequiredException registerSpecRequiresRegisterMapping(Thesaurus thesaurus) {
         return new RegisterMappingIsRequiredException(thesaurus, MessageSeeds.REGISTER_SPEC_REGISTER_MAPPING_IS_REQUIRED);
+    }
+
+    /**
+     * Creates a new RegisterMappingIsRequiredException that models the
+     * exceptional situation that occurs when an attempt is made to create
+     * a {@link com.energyict.mdc.device.config.ChannelSpec} without a
+     * {@link com.energyict.mdc.device.config.RegisterMapping}
+     *
+     * @param thesaurus The Thesaurus
+     * @return the newly create RegisterMappingIsRequiredException
+     */
+    public static RegisterMappingIsRequiredException channelSpecRequiresRegisterMapping(Thesaurus thesaurus) {
+        return new RegisterMappingIsRequiredException(thesaurus, MessageSeeds.CHANNEL_SPEC_REGISTER_MAPPING_IS_REQUIRED);
     }
 }

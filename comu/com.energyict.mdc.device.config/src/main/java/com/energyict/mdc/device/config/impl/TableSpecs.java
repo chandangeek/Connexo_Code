@@ -204,7 +204,6 @@ public enum TableSpecs {
         }
     },
 
-
     EISCHANNELSPEC {
         @Override
         public void addTo(DataModel dataModel) {
@@ -212,24 +211,24 @@ public enum TableSpecs {
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
             table.column("NAME").varChar(80).notNull().map("name").add();
-            Column deviceconfigid = table.column("DEVICECONFIGID").number().notNull().add();
-            Column rturegistermappingid = table.column("RTUREGISTERMAPPINGID").number().notNull().add();
-            table.column("OBISCODE").varChar(80).map("obiscode").add();
-            table.column("FRACTIONDIGITS").number().map("fractiondigits").add();
-            table.column("OVERFLOWVALUE").number().map("overflowvalue").add();
+            Column deviceconfigid = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column rturegistermappingid = table.column("RTUREGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
+            table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
+            table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column phenomenonid = table.column("PHENOMENONID").number().notNull().add();
-            table.column("READINGMETHOD").number().notNull().map("readingmethod").add();
-            table.column("MULTIPLIERMODE").number().notNull().map("multipliermode").add();
+            table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("readingMethod").add();
+            table.column("MULTIPLIERMODE").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("multiplierMode").add();
             table.column("MULTIPLIER").number().notNull().map("multiplier").add();
-            table.column("VALUECALCULATIONMETHOD").number().notNull().map("valuecalculationmethod").add();
-            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
-            table.column("INTERVAL").number().map("interval").add();
-            table.column("INTERVALCODE").number().map("intervalcode").add();
+            table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("valueCalculationMethod").add();
+            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("INTERVAL").number().notNull().map("interval.count").add();
+            table.column("INTERVALCODE").number().notNull().map("interval.timeUnitCode").add();
             table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
-            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("eisdeviceconfig").add();
-            table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("eisrturegistermapping").add();
-            table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("eisphenomenon").add();
-            table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("eisloadprofilespec").add();
+            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().add();
+            table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
+            table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("phenomenon").add();
+            table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("loadProfileSpec").add();
         }
     },
 
@@ -242,7 +241,7 @@ public enum TableSpecs {
             Column registerMapping = table.column("REGISTERMAPPINGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).notNull().map("numberOfDigits").add();
             table.column("MOD_DATE").type("DATE").notNull().map("modificationDate").add();
-            table.column("DEVICEOBISCODE").varChar(80).notNull().map("overruledObisCodeString").add();
+            table.column("DEVICEOBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();

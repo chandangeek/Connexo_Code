@@ -44,7 +44,7 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
 
     protected abstract NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus);
 
-    private void validateUniqueName(String name) {
+    protected void validateUniqueName(String name) {
         if (this.findOtherByName(name) != null) {
             throw DuplicateNameException.registerMappingAlreadyExists(this.getThesaurus(), name);
         }

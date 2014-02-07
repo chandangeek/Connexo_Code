@@ -129,10 +129,10 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
             }
         }
         if (interval == null || interval.isEmpty()) {
-            throw new IntervalIsRequiredException(this.getThesaurus());
+            throw IntervalIsRequiredException.forLoadProfileType(getThesaurus());
         }
         if ((interval.getTimeUnitCode() == TimeDuration.WEEKS)) {
-            throw UnsupportedIntervalException.weeks(this.getThesaurus());
+            throw UnsupportedIntervalException.weeksAreNotSupportedForLoadProfileTypes(this.getThesaurus(), this);
         }
         if (countMustBeOneFor(interval) && interval.getCount() != 1) {
             throw UnsupportedIntervalException.multipleNotSupported(this.getThesaurus(), interval);

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 
@@ -42,7 +43,7 @@ public class CannotChangeDeviceConfigurationReferenceException extends Localized
      * of an existing {@link LogBookSpec}
      *
      * @param thesaurus   The Thesaurus
-     * @param logBookSpec the LoadProfileSpec to which the change was attempted
+     * @param logBookSpec the LogBookSpec to which the change was attempted
      * @return The CannotAddToActiveDeviceConfigurationException
      */
     public static CannotChangeDeviceConfigurationReferenceException forLogbookSpec(Thesaurus thesaurus, LogBookSpec logBookSpec) {
@@ -50,4 +51,21 @@ public class CannotChangeDeviceConfigurationReferenceException extends Localized
         exception.set("logBookSpec", logBookSpec);
         return exception;
     }
+
+    /**
+     * Creates a new CannotChangeDeviceConfigurationReferenceException that models the exceptional
+     * situation that occurs when an attempt is made to change the {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * of an existing {@link LogBookSpec}
+     *
+     * @param thesaurus   The Thesaurus
+     * @param channelSpec the ChannelSpec to which the change was attempted
+     * @return The CannotAddToActiveDeviceConfigurationException
+     */
+    public static CannotChangeDeviceConfigurationReferenceException forChannelSpec(Thesaurus thesaurus, ChannelSpec channelSpec) {
+        CannotChangeDeviceConfigurationReferenceException exception = new CannotChangeDeviceConfigurationReferenceException(thesaurus, MessageSeeds.CHANNEL_SPEC_CANNOT_CHANGE_DEVICE_CONFIG);
+        exception.set("channelSpec", channelSpec);
+        return exception;
+    }
+
+
 }

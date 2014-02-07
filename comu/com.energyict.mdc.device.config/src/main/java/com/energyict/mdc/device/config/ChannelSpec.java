@@ -20,7 +20,7 @@ public interface ChannelSpec {
      *
      * @return the id
      */
-    public int getId();
+    public long getId();
 
     /**
      * Returns the object's name
@@ -29,7 +29,9 @@ public interface ChannelSpec {
      */
     public String getName();
 
-    RegisterMapping getRtuRegisterMapping();
+    public void setName(String name);
+
+    RegisterMapping getRegisterMapping();
 
     ObisCode getDeviceObisCode();
 
@@ -54,4 +56,36 @@ public interface ChannelSpec {
     TimeDuration getInterval();
 
     DeviceConfiguration getDeviceConfig();
+
+    public void save ();
+
+    public void delete ();
+
+    void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
+
+    void setRegisterMapping(RegisterMapping registerMapping);
+
+    void setOverruledObisCode(ObisCode overruledObisCode);
+
+    void setNbrOfFractionDigits(int nbrOfFractionDigits);
+
+    void setOverflow(BigDecimal overflow);
+
+    void setPhenomenon(Phenomenon phenomenon);
+
+    void setReadingMethod(ReadingMethod readingMethod);
+
+    void setMultiplierMode(MultiplierMode multiplierMode);
+
+    void setMultiplier(BigDecimal multiplier);
+
+    void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+
+    void setLoadProfileSpec(LoadProfileSpec loadProfileSpec);
+
+    void setInterval(TimeDuration interval);
+
+    void setProductSpec(ProductSpec productSpec);
+
+    ProductSpec getProductSpec();
 }

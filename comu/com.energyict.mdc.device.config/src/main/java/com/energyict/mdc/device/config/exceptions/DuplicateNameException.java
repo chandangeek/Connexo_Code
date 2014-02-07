@@ -65,9 +65,34 @@ public class DuplicateNameException extends LocalizedException {
         return new DuplicateNameException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_ALREADY_EXISTS, name);
     }
 
+    /**
+     * Creates a new DuplicateNameException that models the exceptional situation
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.ChannelSpec}
+     * but another one with the same name already exists.
+     *
+     * @param thesaurus The Thesaurus
+     * @param name The name of the LogBookType that already exists
+     * @return The DuplicateNameException
+     */
+    public static DuplicateNameException channelSpecAlreadyExists(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.CHANNEL_SPEC_ALREADY_EXISTS, name);
+    }
+
+    /**
+     * Creates a new DuplicateNameException that models the exceptional situation
+     * that occurs when an attempt is made to create a {@link com.energyict.mdc.device.config.ChannelSpec}
+     * but another one already exists with the same 27 first characters ...
+     *
+     * @param thesaurus The Thesaurus
+     * @param name The name of the LogBookType that already exists
+     * @return The DuplicateNameException
+     */
+    public static DuplicateNameException channelSpecAlreadyExistsFirstChars(Thesaurus thesaurus, String name) {
+        return new DuplicateNameException(thesaurus, MessageSeeds.CHANNEL_SPEC_ALREADY_EXISTS_27_CHAR, name);
+    }
+
     private DuplicateNameException(Thesaurus thesaurus, MessageSeeds messageSeeds, String name) {
         super(thesaurus, messageSeeds, name);
         this.set("name", name);
     }
-
 }
