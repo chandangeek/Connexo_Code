@@ -29,7 +29,7 @@ import java.util.Properties;
  * </ul>
  */
 @Component(name = "com.elster.jupiter.bootstrap.oracle")
-public class BootstrapServiceImpl implements BootstrapService {
+public final class BootstrapServiceImpl implements BootstrapService {
 
     private static final String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
     private static final String JDBC_USER = "com.elster.jupiter.datasource.jdbcuser";

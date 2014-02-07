@@ -34,7 +34,28 @@ class LogHandler extends Handler {
 	}
 
     private String format(LogRecord record) {
-        Date date = new Date(record.getMillis());
+        return String.format(format,
+                dateFrom(record),
+                sourceFrom(record),
+                record.getLoggerName(),
+                record.getLevel().getLocalizedName(),
+                formatMessage(record),
+                throwableFrom(record));
+    }
+
+    private String throwableFrom(LogRecord record) {
+        if (record.getThrown() == null) {
+            return "";
+        }
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println();
+        record.getThrown().printStackTrace(pw);
+        pw.close();
+        return sw.toString();
+    }
+
+    private String sourceFrom(LogRecord record) {
         String source;
         if (record.getSourceClassName() != null) {
             source = record.getSourceClassName();
@@ -44,23 +65,11 @@ class LogHandler extends Handler {
         } else {
             source = record.getLoggerName();
         }
-        String message = formatMessage(record);
-        String throwable = "";
-        if (record.getThrown() != null) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            pw.println();
-            record.getThrown().printStackTrace(pw);
-            pw.close();
-            throwable = sw.toString();
-        }
-        return String.format(format,
-                date,
-                source,
-                record.getLoggerName(),
-                record.getLevel().getLocalizedName(),
-                message,
-                throwable);
+        return source;
+    }
+
+    private Date dateFrom(LogRecord record) {
+        return new Date(record.getMillis());
     }
 
     private String formatMessage(LogRecord record) {
