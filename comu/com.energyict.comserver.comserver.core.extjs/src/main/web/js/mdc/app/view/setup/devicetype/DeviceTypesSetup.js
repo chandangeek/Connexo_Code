@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                 },
                 {
                     xtype: 'component',
-                    height : 50
+                    height : 25
                 },
                 {
                     xtype: 'deviceTypePreview'

@@ -3,9 +3,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
     alias: 'widget.deviceTypesGrid',
     overflowY: 'auto',
     itemId: 'devicetypegrid',
-    selModel: {
-        mode: 'MULTI'
-    },
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -17,12 +14,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         var me = this;
         this.columns = [
             {
-                header : 'name',
+                header : 'Name',
                 dataIndex: 'name',
                 flex: 1
             },
             {
-                header: 'protocol',
+                header: 'Protocol',
                 dataIndex: 'communicationProtocolName',
                 flex: 1
             },

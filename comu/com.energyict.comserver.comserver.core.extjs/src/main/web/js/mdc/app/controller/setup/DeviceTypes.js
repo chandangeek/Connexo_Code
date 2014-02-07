@@ -23,7 +23,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeEditForm', selector: '#deviceTypeEditForm'},
         {ref: 'deviceTypeRegisterLink', selector: '#deviceTypeRegistersLink'},
         {ref: 'deviceTypeLogBookLink', selector: '#deviceTypeLogBooksLink'},
-        {ref: 'deviceTypeLoadProfilesLink', selector: '#deviceTypeLoadProfilesLink'}
+        {ref: 'deviceTypeLoadProfilesLink', selector: '#deviceTypeLoadProfilesLink'},
+        {ref: 'deviceTypeDetailForm',selector:'#deviceTypeDetailForm'},
+        {ref: 'editDeviceTypeNameField',selector:'#editDeviceTypeNameField'}
     ],
 
     init: function () {
@@ -49,7 +51,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             },
             '#createEditButton[action=editDeviceType]': {
                 click: this.editDeviceType
+            },
+            '#deviceTypeDetail #deleteButtonFromDetails[action=deleteDeviceType]': {
+                click: this.deleteDeviceTypeFromDetails
+            },
+            '#deviceTypeDetail #editButtonFromDetails[action=editDeviceType]': {
+                click: this.editDeviceTypeFromDetails
+            },
+            '#deviceTypeEdit #communicationProtocolComboBox': {
+                change: this.proposeDeviceTypeName
             }
+
         });
     },
 
@@ -68,11 +80,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
             this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' loadprofiles');
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-            this.getDeviceTypePreview().show();
+            this.getDeviceTypePreview().getLayout().setActiveItem(1);
             this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">View details</a>');
             this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypes[0].get('name') + '</h4>');
         } else {
-            this.getDeviceTypePreview().hide();
+            this.getDeviceTypePreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -99,6 +111,16 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     deleteDeviceType: function () {
         var deviceTypeToDelete = this.getDeviceTypeGrid.getSelectionModel().getSelection()[0];
         deviceTypeToDelete.destroy();
+    },
+
+    deleteDeviceTypeFromDetails: function () {
+        debugger;
+        var deviceTypeToDelete = this.getDeviceTypeDetailForm().getRecord();
+        deviceTypeToDelete.destroy({
+            callback: function(){
+                location.href = '#setup/devicetypes/';
+            }
+        });
     },
 
     showDeviceTypeEditView: function (deviceTypeId) {
@@ -146,5 +168,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             });
 
         }
+    },
+
+    editDeviceTypeFromDetails: function(){
+        var record = this.getDeviceTypeDetailForm().getRecord();
+        location.href = '#setup/devicetypes/' + record.get('id')+'/edit';
+
+    },
+
+    proposeDeviceTypeName: function(t,newValue){
+        console.log('propostion');
+        this.getEditDeviceTypeNameField().setValue(newValue);
+
     }
 });

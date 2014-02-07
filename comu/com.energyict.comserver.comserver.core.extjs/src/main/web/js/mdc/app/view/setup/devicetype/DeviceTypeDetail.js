@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
             {
                 xtype: 'form',
                 border: false,
-                itemId: 'deviceTypePreviewForm',
+                itemId: 'deviceTypeDetailForm',
                 padding: '10 10 0 10',
                 layout: {
                     type: 'vbox',
@@ -41,6 +41,22 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                         xtype: 'component',
                         html: '<h4>Overview</h4>',
                         itemId: 'deviceTypePreviewTitle'
+                    },
+                    {
+                        xtype: 'component',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Delete',
+                        itemId: 'deleteButtonFromDetails',
+                        action: 'deleteDeviceType'
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Edit',
+                        itemId: 'editButtonFromDetails',
+                        action: 'editDeviceType'
                     }
                 ],
 
@@ -115,7 +131,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         name: 'registerCount',
                                         fieldLabel: 'Data sources',
                                         renderer: function(item){
-                                            return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' registers</a>';
+                                            return '<a href="#' + item + '">'+ item  +' registers</a>';
                                         }
                                     },
                                     {
@@ -123,7 +139,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         name: 'loadProfileCount',
                                         fieldLabel: ' ',
                                         renderer: function(item){
-                                            return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' loadprofiles</a>';
+                                            return '<a href="#' + item + '">'+ item  +' loadprofiles</a>';
                                         }
                                     },
                                     {
@@ -131,7 +147,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         name: 'logBookCount',
                                         fieldLabel: ' ',
                                         renderer: function(item){
-                                            return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' logbooks</a>';
+                                            return '<a href="#' + item + '">'+ item  +' logbooks</a>';
                                         }
                                     },
                                     {
@@ -139,7 +155,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         name: 'deviceConfigurationCount',
                                         fieldLabel: 'deviceConfigurationCount',
                                         renderer: function(item){
-                                            return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' device configurations</a>';
+                                            return '<a href="#' + item + '">'+ item  +' device configurations</a>';
                                         }
                                     }
                                 ]

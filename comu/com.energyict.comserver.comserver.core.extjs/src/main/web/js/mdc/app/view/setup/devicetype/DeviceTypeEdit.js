@@ -68,6 +68,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 xtype: 'combobox',
                                                 name: 'communicationProtocolName',
                                                 fieldLabel: 'Device Communication protocol',
+                                                itemId: 'communicationProtocolComboBox',
                                                 store: deviceCommunicationProtocols,
                                                 queryMode: 'local',
                                                 displayField: 'name',
@@ -76,7 +77,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
-                                                fieldLabel: 'Name'
+                                                fieldLabel: 'Name',
+                                                itemId: 'editDeviceTypeNameField'
                                             },
                                             {
                                                 xtype: 'fieldcontainer',

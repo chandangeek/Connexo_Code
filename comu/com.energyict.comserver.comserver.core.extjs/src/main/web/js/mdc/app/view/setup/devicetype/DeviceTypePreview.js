@@ -4,46 +4,33 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     margins: '0 10 10 10',
     alias: 'widget.deviceTypePreview',
     itemId: 'deviceTypePreview',
-    hidden: true,
     requires: [
         'Mdc.model.DeviceType'
     ],
     layout: {
-        type: 'vbox',
+        type: 'card',
         align: 'stretch'
     },
-    tbar: [
-        {
-            xtype: 'component',
-            html: '<h4>Device type</h4>',
-            itemId: 'deviceTypePreviewTitle'
-        },
-        '->',
-        {
-            icon: 'resources/images/gear-16x16.png',
-            text: 'Actions',
-            menu: {
-                items: [
-                    {
-                        text: 'Edit',
-                        itemId: 'editDeviceType',
-                        action: 'editDeviceType'
 
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        text: 'Delete',
-                        itemId: 'deleteDeviceType',
-                        action: 'deleteDeviceType'
-
-                    }
-                ]
-            }
-        }
-    ],
     items: [
+        {
+            xtype: 'panel',
+            border: false,
+            tbar: [
+                {
+                    xtype: 'component',
+                    html: '<H4>No device type selected</H4>'
+                }
+            ],
+            items: [
+                {
+                    xtype: 'component',
+                    height: '100px',
+                    html: '<H5>Select a device type to view its detail.</H5>'
+                }
+            ]
+
+        },
         {
             xtype: 'form',
             border: false,
@@ -53,7 +40,37 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                 type: 'vbox',
                 align: 'stretch'
             },
+            tbar: [
+                {
+                    xtype: 'component',
+                    html: '<h4>Device type</h4>',
+                    itemId: 'deviceTypePreviewTitle'
+                },
+                '->',
+                {
+                    icon: 'resources/images/gear-16x16.png',
+                    text: 'Actions',
+                    menu: {
+                        items: [
+                            {
+                                text: 'Edit',
+                                itemId: 'editDeviceType',
+                                action: 'editDeviceType'
 
+                            },
+                            {
+                                xtype: 'menuseparator'
+                            },
+                            {
+                                text: 'Delete',
+                                itemId: 'deleteDeviceType',
+                                action: 'deleteDeviceType'
+
+                            }
+                        ]
+                    }
+                }
+            ],
             items: [
                 {
                     xtype: 'container',
@@ -61,6 +78,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                         type: 'column'
 //                        align: 'stretch'
                     },
+                    padding: '10 0 0 0',
                     items: [
                         {
                             xtype: 'container',
