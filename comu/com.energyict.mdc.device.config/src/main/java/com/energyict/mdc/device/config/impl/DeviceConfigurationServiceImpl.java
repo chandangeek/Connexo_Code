@@ -52,6 +52,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
     private Provider<LogBookSpecImpl> logBookSpecProvider;
     private Provider<PhenomenonImpl> phenomenonProvider;
+    private Provider<ChannelSpecImpl> channelSpecProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -66,13 +67,15 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
                                           Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
                                           Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
                                           Provider<LogBookSpecImpl> logBookSpecProvider,
-                                          Provider<PhenomenonImpl> phenomenonProvider) {
+                                          Provider<PhenomenonImpl> phenomenonProvider,
+                                          Provider<ChannelSpecImpl> channelSpecProvider) {
         this();
         this.registerSpecProvider = registerSpecProvider;
         this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.loadProfileTypeProvider = loadProfileTypeProvider;
         this.logBookSpecProvider = logBookSpecProvider;
         this.phenomenonProvider = phenomenonProvider;
+        this.channelSpecProvider = channelSpecProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -304,6 +307,31 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public List<Phenomenon> findPhenomenonByEdiCode(String ediCode) {
         return this.getDataModel().mapper(Phenomenon.class).find("ediCode", ediCode);
+    }
+
+    @Override
+    public ChannelSpec findChannelSpecForLoadProfileSpecAndRegisterMapping(LoadProfileSpec loadProfileSpec, RegisterMapping registerMapping) {
+        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "registerMapping", registerMapping).orNull();
+    }
+
+    @Override
+    public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfiguration, String name) {
+        return this.getDataModel().mapper(ChannelSpec.class).getUnique("deviceConfiguration", deviceConfiguration, "name", name).orNull();
+    }
+
+    @Override
+    public ChannelSpec newChannelSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        return this.channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+    }
+
+    @Override
+    public List<ChannelSpec> findChannelSpecsByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        return this.getDataModel().mapper(ChannelSpec.class).find("deviceConfiguration", deviceConfiguration);
+    }
+
+    @Override
+    public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
+        return this.getDataModel().mapper(ChannelSpec.class).find("deviceConfiguration", deviceConfiguration, "registerMapping", registerMapping);
     }
 
     @Reference

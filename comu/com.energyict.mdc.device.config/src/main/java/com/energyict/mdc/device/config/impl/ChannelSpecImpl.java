@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterMapping;
@@ -68,6 +69,14 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
         super(ChannelSpec.class, dataModel, eventService, thesaurus);
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    public ChannelSpec initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        setDeviceConfiguration(deviceConfiguration);
+        setRegisterMapping(registerMapping);
+        setLoadProfileSpec(loadProfileSpec);
+        setPhenomenon(phenomenon);
+        return this;
     }
 
     @Override
@@ -350,7 +359,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
 
     @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
-        if(overruledObisCode != null){
+        if (overruledObisCode != null) {
             this.overruledObisCodeString = overruledObisCode.toString();
         }
         this.overruledObisCode = overruledObisCode;
@@ -417,4 +426,5 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     public ProductSpec getProductSpec() {
         return productSpec;
     }
+
 }
