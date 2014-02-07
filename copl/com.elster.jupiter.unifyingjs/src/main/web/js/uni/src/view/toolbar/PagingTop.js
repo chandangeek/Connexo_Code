@@ -1,5 +1,34 @@
 /**
  * @class Uni.view.toolbar.PagingTop
+ *
+ *  this.dockedItems = [
+ {
+     xtype: 'pagingtoolbartop',
+     store: this.store,
+     dock: 'top',
+     items: [
+         {
+             xtype: 'component',
+             flex: 1
+         },
+         {
+             text: 'Create device type',
+             itemId: 'createDeviceType',
+             xtype: 'button',
+             action: 'createDeviceType'
+         },
+         {
+             text: 'Bulk action',
+             itemId: 'deviceTypesBulkAction',
+             xtype: 'button'
+         }
+     ]
+ },
+ {
+ xtype: 'pagingtoolbarbottom',
+ store: this.store,
+ dock: 'bottom'
+}];
  */
 Ext.define('Uni.view.toolbar.PagingTop', {
     extend: 'Ext.toolbar.Paging',
