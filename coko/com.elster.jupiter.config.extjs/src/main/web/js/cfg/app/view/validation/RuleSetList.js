@@ -74,16 +74,37 @@ Ext.define('Cfg.view.validation.RuleSetList', {
 
 
     initComponent: function () {
+
         this.dockedItems = [
             {
-                xtype: 'pagingtoolbar',
+                xtype: 'pagingtoolbartop',
                 store: this.store,
-                dock: 'bottom',
-                displayInfo: true,
-                afterPageText: '',
-                displayMsg: 'Displaying {0} - {1}'
-            }
-        ];
+                dock: 'top',
+                items: [
+                    {
+                        xtype: 'component',
+                        flex: 1
+                    },
+                    {
+                        text: 'Create new rule set',
+                        itemId: 'newRuleset',
+                        xtype: 'button',
+                        href: '#/validation/createset',
+                        hrefTarget: '_self'
+                    },
+                    {
+                        text: 'Bulk action',
+                        itemId: 'rulesetBulkAction',
+                        action: 'rulesetBulkAction'
+                    }
+                ]
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                dock: 'bottom'
+            }];
+
         this.callParent(arguments);
     }
 });

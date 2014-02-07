@@ -42,7 +42,7 @@ Ext.define('Cfg.controller.Validation', {
 
         {ref: 'ruleSetOverviewLink',selector: 'rulesContainer #ruleSetOverviewLink'} ,
         {ref: 'rulesLink',selector: 'rulesContainer #rulesLink'} ,
-        {ref: 'addRuleLink',selector: 'validationruleBrowse #addRuleLink'} ,
+        {ref: 'addRuleLink',selector: 'validationruleList #addRuleLink'} ,
 
         {ref: 'rulesContainer',selector: 'rulesContainer'} ,
         {ref: 'ruleSetsGrid',selector: 'validationrulesetList'},
@@ -107,45 +107,47 @@ Ext.define('Cfg.controller.Validation', {
 
 
     createNewRule: function(button) {
-        var ruleSetId = this.getRuleSetIdFromHref();
         var me = this;
         var form = button.up('panel');
-        var record = Ext.create(Cfg.model.ValidationRule);
-        var values = form.getValues();
+        if (form.isValid()) {
+            var ruleSetId = this.getRuleSetIdFromHref();
+            var record = Ext.create(Cfg.model.ValidationRule);
+            var values = form.getValues();
 
-        var readingTypes = this.getReadingValuesTextFieldsContainer().items;
-        var rule = values.implementation;
-        var properties = this.getPropertiesContainer().items;
+            var readingTypes = this.getReadingValuesTextFieldsContainer().items;
+            var rule = values.implementation;
+            var properties = this.getPropertiesContainer().items;
 
-        record.set('implementation', rule);
+            record.set('implementation', rule);
 
-        for (var i = 0; i < readingTypes.items.length; i++) {
-            var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
-            readingTypeRecord.set('mRID', readingTypes.items[i].value);
-            record.readingTypes().add(readingTypeRecord);
-        }
-
-        for (var i = 0; i < properties.items.length; i++) {
-            var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
-            propertyRecord.set('value', properties.items[i].value);
-            propertyRecord.set('name', properties.items[i].itemId);
-            record.properties().add(propertyRecord);
-
-        }
-        record.save({
-            params: {
-                id: ruleSetId
-            },
-            success: function (record, operation) {
-                record.commit();
-                me.getValidationRuleSetsStore().reload(
-                    {
-                        callback: function(){
-                            location.href = '#validation/rules/' + ruleSetId;
-                        }
-                    });
+            for (var i = 0; i < readingTypes.items.length; i++) {
+                var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+                readingTypeRecord.set('mRID', readingTypes.items[i].value);
+                record.readingTypes().add(readingTypeRecord);
             }
-        });
+
+            for (var i = 0; i < properties.items.length; i++) {
+                var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
+                propertyRecord.set('value', properties.items[i].value);
+                propertyRecord.set('name', properties.items[i].itemId);
+                record.properties().add(propertyRecord);
+
+            }
+            record.save({
+                params: {
+                    id: ruleSetId
+                },
+                success: function (record, operation) {
+                    record.commit();
+                    me.getValidationRuleSetsStore().reload(
+                        {
+                            callback: function(){
+                                location.href = '#validation/rules/' + ruleSetId;
+                            }
+                        });
+                }
+            });
+        }
     },
 
     updateProperties: function(field, oldValue, newValue) {
@@ -155,21 +157,37 @@ Ext.define('Cfg.controller.Validation', {
         allPropertiesStore.filter('validator', field.value);
         for (var i = 0; i < allPropertiesStore.data.items.length; i++) {
             var property = allPropertiesStore.data.items[i];
-            var label = property.data.name + ':';
+            var label = property.data.name;
             var itemIdValue = property.data.name;
             var optional =  property.data.optional;
-            if (!optional) {
-                optional = '* ' + optional;
+            if (optional) {
+                label = label + ' (optional)';
             }
-            this.getPropertiesContainer().add(
-                {
-                    xtype: 'textfield',
-                    fieldLabel: label,
-                    labelAlign: 'right',
-                    itemId: itemIdValue,
-                    labelWidth:	250
-                }
-            );
+            if (optional) {
+                this.getPropertiesContainer().add(
+                    {
+                        xtype: 'textfield',
+                        fieldLabel: label,
+                        labelAlign: 'right',
+                        itemId: itemIdValue,
+                        labelWidth:	250
+                    }
+                );
+            } else{
+                this.getPropertiesContainer().add(
+                    {
+                        xtype: 'textfield',
+                        fieldLabel: label,
+                        allowBlank: false,  // requires a non-empty value
+                        blankText: 'This is a required field',
+                        msgTarget: 'under',
+                        labelAlign: 'right',
+                        itemId: itemIdValue,
+                        labelWidth:	250
+                    }
+                );
+            }
+
         }
 
 
@@ -183,6 +201,9 @@ Ext.define('Cfg.controller.Validation', {
                 xtype: 'textfield',
                 fieldLabel: '&nbsp',
                 labelAlign: 'right',
+                allowBlank: false,  // requires a non-empty value
+                blankText: 'This is a required field',
+                msgTarget: 'under',
                 labelWidth:	250,
                 itemId: 'readingTypeTextField' + me.readingTypeIndex
             }
@@ -213,23 +234,21 @@ Ext.define('Cfg.controller.Validation', {
     createNewRuleSet: function(button) {
         var me = this;
         var form = button.up('panel');
-        var record = record = Ext.create(Cfg.model.ValidationRuleSet);
-        var values = form.getValues();
-        if (values.name == '') {
-            Ext.MessageBox.alert('Warning', 'Please fill in a name for this rule set.');
-        } else {
-            record.set(values);
-            record.save({
-                success: function (record, operation) {
-                    record.commit();
-                    me.getValidationRuleSetsStore().reload(
-                        {
-                            callback: function(){
-                                location.href = '#validation/rules/' + record.getId();
-                            }
-                        });
-                }
-            });
+        if (form.isValid()) {
+            var record = record = Ext.create(Cfg.model.ValidationRuleSet);
+            var values = form.getValues();
+                record.set(values);
+                record.save({
+                    success: function (record, operation) {
+                        record.commit();
+                        me.getValidationRuleSetsStore().reload(
+                            {
+                                callback: function(){
+                                    location.href = '#validation/rules/' + record.getId();
+                                }
+                            });
+                    }
+            })
         }
     },
 
@@ -259,6 +278,9 @@ Ext.define('Cfg.controller.Validation', {
         var me = this;
         var rulesWidget = Ext.create('Cfg.view.validation.RuleBrowse');
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+
+        //this.getValidationRulesStore().clearFilter();
+        //this.getValidationRulesStore().filter('ruleSetId', id);
 
         ruleSetsStore.load({
             params: {
@@ -380,17 +402,17 @@ Ext.define('Cfg.controller.Validation', {
             var propertyName = property.name;
             var propertyValue = property.value;
             var required = property.required;
-            var label = propertyName + ':';
-            if (required) {
-                label = '* ' + label;
+            var label = propertyName;
+            if (!required) {
+                label = label + ' (optional):';
             }
             this.getPropertiesArea().add(
                 {
                     xtype: 'displayfield',
                     fieldLabel: label,
                     value: propertyValue,
-                    labelAlign: 'right',
-                    labelWidth:	150
+                    //labelAlign: 'right',
+                    labelWidth:	250
                 }
             );
 

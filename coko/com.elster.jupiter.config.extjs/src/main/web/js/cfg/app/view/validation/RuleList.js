@@ -71,14 +71,33 @@ Ext.define('Cfg.view.validation.RuleList', {
     initComponent: function () {
         this.dockedItems = [
             {
-                xtype: 'pagingtoolbar',
+                xtype: 'pagingtoolbartop',
                 store: this.store,
-                dock: 'bottom',
-                displayInfo: true,
-                afterPageText: '',
-                displayMsg: 'Displaying {0} - {1}'
-            }
-        ];
+                dock: 'top',
+                items: [
+                    {
+                        xtype: 'component',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        text: 'Add Rule',
+                        itemId: 'addRuleLink',
+                        href: '#/validation/addRule',
+                        hrefTarget: '_self'
+                    },
+                    {
+                        text: 'Bulk action',
+                        itemId: 'ruleBulkAction',
+                        action: 'ruleBulkAction'
+                    }
+                ]
+            }/*,
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: this.store,
+                dock: 'bottom'
+            }*/];
         this.callParent(arguments);
     }
 

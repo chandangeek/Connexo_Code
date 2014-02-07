@@ -64,14 +64,14 @@ Ext.define('Cfg.view.validation.RulePreview', {
                     name: 'displayName',
                     fieldLabel: 'Rule:',
                     labelAlign: 'right',
-                    labelWidth:	150
+                    labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'active',
                     fieldLabel: 'Active:',
                     labelAlign: 'right',
-                    labelWidth:	150,
+                    labelWidth:	250,
                     renderer:function(value){
                         if (value) {
                             return 'Yes'
@@ -84,7 +84,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                     xtype: 'fieldcontainer',
                     fieldLabel: 'Reading value(s):',
                     labelAlign: 'right',
-                    labelWidth:	150,
+                    labelWidth:	250,
                     layout: 'vbox',
                     defaults: {
                         flex: 1,

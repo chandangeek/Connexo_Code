@@ -35,7 +35,10 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: '* Name:',
+                            allowBlank: false,  // requires a non-empty value
+                            blankText: 'This is a required field',
+                            msgTarget: 'under',
+                            fieldLabel: 'Name *',
                             labelAlign: 'right',
                             labelWidth:	150
                         },
@@ -43,14 +46,12 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             xtype: 'textarea',
                             name: 'description',
                             fieldLabel: 'Description:',
-                            labelAlign: 'right',
                             labelWidth:	150
                         },
                         {
                             xtype: 'fieldcontainer',
                             margin: '20 0 0 0',
                             fieldLabel: '&nbsp',
-                            labelAlign: 'right',
                             labelWidth:	150,
                             layout: 'hbox',
                             defaults: {

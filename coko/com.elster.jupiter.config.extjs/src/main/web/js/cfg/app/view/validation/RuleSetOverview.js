@@ -63,28 +63,28 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                     name: 'name',
                     fieldLabel: 'Name:',
                     labelAlign: 'right',
-                    labelWidth:	150
+                    labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'description',
                     fieldLabel: 'Description:',
                     labelAlign: 'right',
-                    labelWidth:	150
+                    labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfRules',
                     fieldLabel: 'Number of rules:' ,
                     labelAlign: 'right',
-                    labelWidth:	150
+                    labelWidth:	250
                 },
                 {
                     xtype: 'displayfield',
                     name: 'numberOfInactiveRules',
                     fieldLabel: 'Number of inactive rules:',
                     labelAlign: 'right',
-                    labelWidth:	150
+                    labelWidth:	250
                 }
             ]
         }

@@ -25,26 +25,7 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     margins: '10 10 10 10'
                 },
                 {
-                    tbar: [
-                        '->',
-                        {
-                            xtype: 'button',
-                            text: 'Add Rule',
-                            itemId: 'addRuleLink',
-                            href: '#/validation/addRule',
-                            hrefTarget: '_self'
-                        },
-                        {
-                            text: 'Bulk action',
-                            itemId: 'ruleBulkAction',
-                            action: 'ruleBulkAction'
-                        }]
-                },
-                {
                     xtype: 'validationruleList'
-                },
-                {
-                    xtype: 'container'
                 },
                 {
                     xtype: 'component',

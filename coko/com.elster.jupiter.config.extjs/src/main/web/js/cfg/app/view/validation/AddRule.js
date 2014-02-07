@@ -46,6 +46,9 @@ Ext.define('Cfg.view.validation.AddRule', {
                                 {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
+                                    allowBlank: false,  // requires a non-empty value
+                                    blankText: 'This is a required field',
+                                    msgTarget: 'under',
                                     editable: 'false',
                                     name: 'implementation',
                                     store: Ext.create('Cfg.store.Validators'),
@@ -69,9 +72,12 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     items: [
                                         {
                                             xtype: 'textfield',
-                                            fieldLabel: 'Reading value(s):',
+                                            fieldLabel: 'Reading value(s)',
                                             labelAlign: 'right',
                                             itemId: 'readingTypeTextField1',
+                                            allowBlank: false,  // requires a non-empty value
+                                            blankText: 'This is a required field',
+                                            msgTarget: 'under',
                                             labelWidth:	250
                                         }
                                     ]
