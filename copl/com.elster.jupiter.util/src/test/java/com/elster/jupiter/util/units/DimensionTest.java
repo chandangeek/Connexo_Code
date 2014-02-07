@@ -16,27 +16,9 @@ public class DimensionTest {
     public void testName() {
     	Set<String> set = new HashSet<>();
     	for (Dimension dimension : Dimension.values()) {
-    		if (!set.add(dimension.getName())) {
-    			System.out.println("Duplicate name: " + dimension.getName());
-    		}
+    		set.add(dimension.getName());
     	}
     	assertThat(set).hasSize(Dimension.values().length);
     }
 
-    @Test
-    public void testDuplicates() {
-    	List<Dimension> dimensions = new ArrayList<>();
-    	for (Dimension dimension : Dimension.values()) {
-    		boolean match = false;
-    		for (Dimension each : dimensions) {
-    			if (dimension.hasSameDimensions(each)) {
-    				System.out.println(dimension.getName() + " has same dimensions as " + each.getName());
-    				match = true;
-    			}
-    		}
-    		if (!match) {
-    			dimensions.add(dimension);
-    		}
-    	}
-    }
 }

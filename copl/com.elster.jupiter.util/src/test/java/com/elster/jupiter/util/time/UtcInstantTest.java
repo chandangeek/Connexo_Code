@@ -183,8 +183,7 @@ public class UtcInstantTest extends EqualsContractTest {
     @Test
     public void testToString() throws Exception {
         TimeZone toRestore = TimeZone.getDefault();
-        try {
-            System.out.println(Arrays.toString(TimeZone.getAvailableIDs()));
+        try {         
             TimeZone.setDefault(TimeZone.getTimeZone("Asia/Calcutta"));
             assertThat(new UtcInstant(1369926198384L).toString()).isEqualTo("2013-05-30T20:33:18.384+0530");
         } finally {
