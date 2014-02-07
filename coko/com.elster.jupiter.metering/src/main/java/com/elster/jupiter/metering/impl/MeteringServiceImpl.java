@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -271,6 +272,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     		Where.where("accountabilities.party.representations.interval").isEffective(when).and(
     		Where.where("accountabilities.party.representations.delegate").
     			isEqualTo(dataModel.getPrincipal().getName())));
+    }
+
+    @Override
+    public List<EndDeviceEventType> getAvailableEndDeviceEventTypes() {
+        return dataModel.mapper(EndDeviceEventType.class).find();
     }
 
     public Clock getClock() {

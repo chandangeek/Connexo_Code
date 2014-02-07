@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
@@ -58,4 +59,6 @@ public interface MeteringService {
     Query<EndDevice> getEndDeviceQuery();
 
     Optional<EndDevice> findEndDevice(long id);
+
+    List<EndDeviceEventType> getAvailableEndDeviceEventTypes();
 }

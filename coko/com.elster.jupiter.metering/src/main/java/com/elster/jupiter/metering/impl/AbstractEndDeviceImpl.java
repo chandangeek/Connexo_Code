@@ -8,11 +8,15 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Provider;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -145,6 +149,18 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
     @Override
     public EndDeviceEventRecord addEventRecord(EndDeviceEventType type, Date date) {
         return deviceEventFactory.get().init(this, type, date);
+    }
+
+    @Override
+    public List<EndDeviceEventRecord> getDeviceEvents(Interval interval) {
+        Condition thisEndDevice = Operator.EQUAL.compare("endDevice", this);
+        return dataModel.query(EndDeviceEventRecord.class).select(thisEndDevice.and(inInterval(interval)));
+    }
+
+    private Condition inInterval(Interval interval) {
+        Condition notBeforeStart = Operator.GREATERTHANOREQUAL.compare("createdDateTime", interval.dbStart());
+        Condition notAfterEnd = Operator.LESSTHANOREQUAL.compare("createdDateTime", interval.dbEnd());
+        return notBeforeStart.and(notAfterEnd);
     }
 
     DataModel getDataModel() {
