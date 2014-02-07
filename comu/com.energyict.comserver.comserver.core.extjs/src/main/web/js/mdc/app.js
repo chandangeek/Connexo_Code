@@ -15,9 +15,6 @@ Ext.onReady(function () {
         Ext.Loader.setConfig({
             enabled: true,
             disableCaching: true // For debug only.
-//            paths: {
-//                'Chart': 'packages/Highcharts_Sencha/Chart'
-//            }
         });
 
         Ext.application({

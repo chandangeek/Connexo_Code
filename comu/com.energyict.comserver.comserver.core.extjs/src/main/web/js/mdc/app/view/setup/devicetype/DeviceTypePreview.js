@@ -69,44 +69,38 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
+                            defaults:{
+                                labelWidth: 170
+                            },
                             items: [
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: 'Name:',
-                                    labelAlign: 'right',
-                                    labelWidth: 150,
+                                    fieldLabel: 'Name',
                                     itemId: 'deviceName'
 
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'communicationProtocolName',
-                                    fieldLabel: 'Device Communication protocol:',
-                                    labelAlign: 'right',
-                                    labelWidth: 150
+                                    fieldLabel: 'Device Communication protocol'
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceFunction',
-                                    fieldLabel: 'deviceFunction',
-                                    labelAlign: 'right',
-                                    labelWidth: 150
+                                    fieldLabel: 'deviceFunction'
                                 },
                                 {
                                     xtype: 'checkboxfield',
                                     name: 'canBeGateway',
-                                    fieldLabel: 'canBeGateway:',
-                                    readOnly: true,
-                                    labelAlign: 'right',
-                                    labelWidth: 150 },
+                                    fieldLabel: 'canBeGateway',
+                                    readOnly: true
+                                },
                                 {
                                     xtype: 'checkboxfield',
-                                    name: 'isDirectlyAddressable',
-                                    fieldLabel: 'isDirectlyAddressable:',
-                                    readOnly: true,
-                                    labelAlign: 'right',
-                                    labelWidth: 150
+                                    name: 'canBeDirectlyAddressable',
+                                    fieldLabel: 'canBeDirectlyAddressable',
+                                    readOnly: true
                                 }
                             ]
                         },
@@ -117,11 +111,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 type: 'vbox',
                                 align: 'stretch'
                             },
+                            defaults:{
+                                labelWidth: 170
+                            },
                             items: [
                                 {
                                     xtype: 'fieldcontainer',
                                     columnWidth: 0.5,
-                                    fieldLabel: 'Data sources:',
+                                    fieldLabel: 'Data sources',
                                     layout: {
                                         type: 'vbox',
                                         align: 'stretch'
@@ -135,8 +132,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                                 href: '#',
                                                 html: 'Registers'
                                             },
-                                            labelAlign: 'right',
-                                            labelWidth: 150,
                                             itemId: 'deviceTypeRegistersLink'
                                         },
 
@@ -149,8 +144,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                                 href: '#',
                                                 html: 'loadprofiles'
                                             },
-                                            labelAlign: 'right',
-                                            labelWidth: 150,
                                             itemId: 'deviceTypeLoadProfilesLink'
 
                                         },
@@ -162,8 +155,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                                 href: '#',
                                                 html: 'logbooks'
                                             },
-                                            labelAlign: 'right',
-                                            labelWidth: 150,
                                             itemId: 'deviceTypeLogBooksLink'
                                         }
                                     ]
@@ -172,12 +163,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceConfigurationCount',
-                                    fieldLabel: 'deviceConfigurationCount:',
+                                    fieldLabel: 'deviceConfigurationCount',
                                     renderer: function (item, b) {
                                         return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">' + item + ' device configurations</a>';
-                                    },
-                                    labelAlign: 'right',
-                                    labelWidth: 150 }
+                                    }
+                                }
                             ]
                         }
 

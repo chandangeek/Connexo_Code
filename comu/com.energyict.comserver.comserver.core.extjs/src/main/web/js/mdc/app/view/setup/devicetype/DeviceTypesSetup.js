@@ -30,22 +30,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                     margins: '10 10 10 10'
                 },
                 {
-                    border: false,
-                    tbar: [
-                        '->',
-                        {
-                            text: 'Create device type',
-                            itemId: 'createDeviceType',
-                            xtype: 'button',
-                            action: 'createDeviceType'
-                        },
-                        {
-                            text: 'Bulk action',
-                            itemId: 'deviceTypesBulkAction',
-                            xtype: 'button'
-                        }]
-                },
-                {
                     xtype: 'deviceTypesGrid'
                 },
                 {

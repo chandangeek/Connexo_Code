@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                                     click: {
                                         element: 'el',
                                         fn: function(){
-                                            this.fireEvent('edit',grid,grid.getSelectionModel().getSelection());
+                                            this.fireEvent('editItem',grid,grid.getSelectionModel().getSelection());
                                         },
                                         scope: this
                                     }
@@ -74,7 +74,24 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
-                dock: 'top'
+                dock: 'top',
+                items: [
+                    {
+                        xtype: 'component',
+                        flex: 1
+                    },
+                    {
+                        text: 'Create device type',
+                        itemId: 'createDeviceType',
+                        xtype: 'button',
+                        action: 'createDeviceType'
+                    },
+                    {
+                        text: 'Bulk action',
+                        itemId: 'deviceTypesBulkAction',
+                        xtype: 'button'
+                    }
+                ]
             },
             {
             xtype: 'pagingtoolbarbottom',

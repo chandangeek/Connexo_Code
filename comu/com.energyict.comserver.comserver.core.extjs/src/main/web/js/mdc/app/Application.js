@@ -27,6 +27,11 @@ Ext.define('Mdc.Application', {
     ],
 
     stores: [
-    ]
+    ],
+
+    launch: function () {
+        // Removes the loading indicator.
+        Ext.fly('appLoadingWrapper').destroy();
+    }
 
 });

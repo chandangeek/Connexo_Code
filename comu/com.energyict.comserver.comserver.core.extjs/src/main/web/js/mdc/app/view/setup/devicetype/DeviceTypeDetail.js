@@ -63,14 +63,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: 'Name:',
+                                        fieldLabel: 'Name',
                                         labelAlign: 'right',
                                         labelWidth:	150
                                     },
                                     {
                                         xtype: 'displayfield',
                                         name: 'communicationProtocolName',
-                                        fieldLabel: 'Device Communication protocol:',
+                                        fieldLabel: 'Device Communication protocol',
                                         labelAlign: 'right',
                                         labelWidth:	150
                                     },
@@ -84,14 +84,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'checkboxfield',
                                         name: 'canBeGateway',
-                                        fieldLabel: 'canBeGateway:',
+                                        fieldLabel: 'canBeGateway',
                                         readOnly: true,
                                         labelAlign: 'right',
                                         labelWidth:	150 },
                                     {
                                         xtype: 'checkboxfield',
-                                        name: 'isDirectlyAddressable',
-                                        fieldLabel: 'isDirectlyAddressable:',
+                                        name: 'canBeDirectlyAddressable',
+                                        fieldLabel: 'canBeDirectlyAddressable',
                                         readOnly: true,
                                         labelAlign: 'right',
                                         labelWidth:	150
@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'registerCount',
-                                        fieldLabel: 'Data sources:',
+                                        fieldLabel: 'Data sources',
                                         renderer: function(item,b){
                                             return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' registers</a>';
                                         },
@@ -138,7 +138,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                     {
                                         xtype: 'displayfield',
                                         name: 'deviceConfigurationCount',
-                                        fieldLabel: 'deviceConfigurationCount:',
+                                        fieldLabel: 'deviceConfigurationCount',
                                         renderer: function(item,b){
                                             return '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#' + item + '">'+ item  +' device configurations</a>';
                                         },
