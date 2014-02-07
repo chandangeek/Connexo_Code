@@ -48,11 +48,11 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(ValidationRulePropertiesImpl.class);
-            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).map("ruleId").add();
+            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").type("varchar2(80)").notNull().map("name").add();
             table.addQuantityColumns("VALUE", true, "value");
             table.primaryKey("VAL_PK_VALRULEPROPS").on(ruleIdColumn, nameColumn).add();
-            table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(CASCADE).map("rule").on(ruleIdColumn).add();
+            table.foreignKey("VAL_FK_RULEPROPS").references("VAL_VALIDATIONRULE").onDelete(CASCADE).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }
     },
     VAL_MA_VALIDATION(MeterActivationValidation.class) {
@@ -83,10 +83,10 @@ public enum TableSpecs {
     VAL_READINGTYPEINVALRULE(ReadingTypeInValidationRule.class) {
         void describeTable(Table table) {
             table.map(ReadingTypeInValidationRuleImpl.class);
-            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).map("ruleId").add();
+            Column ruleIdColumn = table.column("RULEID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").type("varchar2(80)").notNull().map("readingTypeMRID").add();
             table.primaryKey("VAL_PK_RTYPEINVALRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
-            table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").on(ruleIdColumn).add();
+            table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references("MTR", "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
         }
     };

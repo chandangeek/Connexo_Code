@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -11,23 +13,18 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
     private Quantity value;
-    private long ruleId;
 
-    private transient ValidationRule rule;
-
-    private final DataModel dataModel;
+    private Reference<ValidationRule> rule = ValueReference.absent();
 
     @Inject
-    ValidationRulePropertiesImpl(DataModel dataModel) {
+    ValidationRulePropertiesImpl() {
         //for persistence
-        this.dataModel = dataModel;
     }
 
     ValidationRulePropertiesImpl init(ValidationRule rule, String name, Quantity value) {
-        this.rule = rule;
+        this.rule.set(rule);
         this.name = name;
         this.value = value;
-        this.ruleId = rule.getId();
         return this;
     }
 
@@ -37,10 +34,7 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     @Override
     public ValidationRule getRule() {
-        if (rule == null) {
-            rule = dataModel.mapper(ValidationRule.class).getOptional(ruleId).get();
-        }
-        return rule;
+        return rule.get();
     }
 
     @Override
@@ -60,10 +54,6 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
         return builder.toString();
     }
 
-    public void setRuleId(long ruleId) {
-        this.ruleId = ruleId;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,14 +61,13 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
         ValidationRulePropertiesImpl that = (ValidationRulePropertiesImpl) o;
 
-        if (ruleId != that.ruleId) return false;
-        if (!name.equals(that.name)) return false;
+        return getRule().getId() == that.getRule().getId() && name.equals(that.name);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
+        long ruleId = getRule().getId();
         int result = name.hashCode();
         result = 31 * result + (int) (ruleId ^ (ruleId >>> 32));
         return result;

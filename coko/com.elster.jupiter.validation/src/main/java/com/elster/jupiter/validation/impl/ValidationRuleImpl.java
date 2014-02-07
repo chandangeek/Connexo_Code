@@ -41,7 +41,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private String implementation; //validator classname
 
     // associations
-    private List<ReadingTypeInValidationRule> readingTypesInRule;
+    private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private long ruleSetId;
 
@@ -49,7 +49,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private int position;
     private transient ValidationRuleSet ruleSet;
 
-    private List<ValidationRuleProperties> properties;
+    private List<ValidationRuleProperties> properties = new ArrayList<>();
     private final DataModel dataModel;
     private final ValidatorCreator validatorCreator;
     private final Thesaurus thesaurus;
@@ -82,14 +82,14 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     @Override
     public ValidationRuleProperties addProperty(String name, Quantity value) {
         ValidationRulePropertiesImpl newProperty = ValidationRulePropertiesImpl.from(dataModel, this, name, value);
-        doGetProperties().add(newProperty);
+        properties.add(newProperty);
         return newProperty;
     }
 
     @Override
     public ReadingTypeInValidationRule addReadingType(ReadingType readingType) {
         ReadingTypeInValidationRuleImpl readingTypeInValidationRule = ReadingTypeInValidationRuleImpl.from(dataModel, this, readingType);
-        doGetReadingTypesInValidationRule().add(readingTypeInValidationRule);
+        readingTypesInRule.add(readingTypeInValidationRule);
         return readingTypeInValidationRule;
     }
 
@@ -104,14 +104,14 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     @Override
     public void deleteProperty(ValidationRuleProperties property) {
-        doGetProperties().remove(property);
+        properties.remove(property);
     }
 
     @Override
     public void deleteReadingType(ReadingType readingType) {
         ReadingTypeInValidationRule readingTypeInValidationRule = getReadingTypeInRule(readingType);
         if (readingTypeInValidationRule != null) {
-            doGetReadingTypesInValidationRule().remove(readingTypeInValidationRule);
+            readingTypesInRule.remove(readingTypeInValidationRule);
         }
     }
 
@@ -156,7 +156,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     @Override
     public List<ValidationRuleProperties> getProperties() {
-        return Collections.unmodifiableList(doGetProperties());
+        return Collections.unmodifiableList(properties);
     }
 
     @Override
@@ -169,7 +169,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
-        for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
+        for (ReadingTypeInValidationRule readingTypeInValidationRule : readingTypesInRule) {
             if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
                 return readingTypeInValidationRule;
             }
@@ -187,7 +187,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     }
 
     public List<ReadingTypeInValidationRule> getReadingTypesInRule() {
-        return ImmutableList.copyOf(doGetReadingTypesInValidationRule());
+        return ImmutableList.copyOf(readingTypesInRule);
     }
 
     @Override
@@ -213,24 +213,6 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
             doPersist();
         } else {
             doUpdate();
-            // remove all properties
-            for (ValidationRuleProperties property : loadProperties()) {
-                rulePropertiesFactory().remove(property);
-            }
-            //remove all reading types
-            for (ReadingTypeInValidationRule readingTypeInValidationRule : loadReadingTypesInValidationRule()) {
-                readingTypesInRuleFactory().remove(readingTypeInValidationRule);
-            }
-        }
-        //create new properties
-        for (ValidationRuleProperties property : doGetProperties()) {
-            ((ValidationRulePropertiesImpl) property).setRuleId(id);
-            rulePropertiesFactory().persist(property);
-        }
-        //create new readingTypes
-        for (ReadingTypeInValidationRule readingTypeInValidationRule : this.doGetReadingTypesInValidationRule()) {
-            ((ReadingTypeInValidationRuleImpl) readingTypeInValidationRule).setRuleId(id);
-            readingTypesInRuleFactory().persist(readingTypeInValidationRule);
         }
     }
 
@@ -253,7 +235,7 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getImplementation()).append(' ').append(getAction().name()).append(' ').append(isActive());
-        for (ValidationRuleProperties property : doGetProperties()) {
+        for (ValidationRuleProperties property : properties) {
             builder.append(property.toString()).append('\n');
         }
         return builder.toString();
@@ -284,20 +266,6 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     private ReadingQualityType defaultReadingQualityType() {
         return new ReadingQualityType("3.6." + getId());
-    }
-
-    private List<ValidationRuleProperties> doGetProperties() {
-        if (properties == null) {
-            properties = loadProperties();
-        }
-        return properties;
-    }
-
-    private List<ReadingTypeInValidationRule> doGetReadingTypesInValidationRule() {
-        if (readingTypesInRule == null) {
-            readingTypesInRule = loadReadingTypesInValidationRule();
-        }
-        return readingTypesInRule;
     }
 
     private void doPersist() {

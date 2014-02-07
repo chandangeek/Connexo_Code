@@ -3,6 +3,8 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRule;
 import com.google.common.base.Optional;
@@ -11,11 +13,10 @@ import javax.inject.Inject;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
-    private long ruleId;
     private String readingTypeMRID;
 
     private ReadingType readingType;
-    private ValidationRule rule;
+    private Reference<ValidationRule> rule = ValueReference.absent();
     private final DataModel dataModel;
     private final MeteringService meteringService;
 
@@ -26,8 +27,7 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
     }
 
     ReadingTypeInValidationRuleImpl init(ValidationRule rule, ReadingType readingType) {
-        this.rule = rule;
-        this.ruleId = rule.getId();
+        this.rule.set(rule);
         this.readingType = readingType;
         this.readingTypeMRID = readingType.getMRID();
         return this;
@@ -39,14 +39,7 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
 
     @Override
     public ValidationRule getRule() {
-        if (rule == null) {
-            rule = dataModel.mapper(ValidationRule.class).getExisting(ruleId);
-        }
-        return rule;
-    }
-
-    public void setRuleId(long ruleId) {
-        this.ruleId = ruleId;
+        return rule.get();
     }
 
     @Override
@@ -61,7 +54,7 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
     @Override
     public String toString() {
         return "ReadingTypeInValidationRule{" +
-                "rule=" + rule +
+                "rule=" + rule.get() +
                 ", readingType=" + readingType +
                 '}';
     }
@@ -78,12 +71,13 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
 
         ReadingTypeInValidationRuleImpl that = (ReadingTypeInValidationRuleImpl) o;
 
-        return ruleId == that.ruleId && readingTypeMRID.equals(that.readingTypeMRID);
+        return rule.get().getId() == that.rule.get().getId() && readingTypeMRID.equals(that.readingTypeMRID);
 
     }
 
     @Override
     public int hashCode() {
+        long ruleId = rule.get().getId();
         int result = (int) (ruleId ^ (ruleId >>> 32));
         result = 31 * result + readingTypeMRID.hashCode();
         return result;

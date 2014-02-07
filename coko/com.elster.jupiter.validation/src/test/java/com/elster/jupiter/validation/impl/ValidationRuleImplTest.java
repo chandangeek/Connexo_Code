@@ -105,7 +105,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl(dataModel);
+                return new ValidationRulePropertiesImpl();
             }
         });
         when(dataModel.getInstance(ReadingTypeInValidationRuleImpl.class)).thenAnswer(new Answer<Object>() {
@@ -201,7 +201,6 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         testPersistValidationRule.save();
 
         verify(ruleFactory).persist(testPersistValidationRule);
-        verify(rulePropertiesFactory).persist(property1);
     }
 
     @Test
@@ -227,11 +226,6 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         validationRule.save();
 
         verify(ruleFactory).update(validationRule);
-        verify(rulePropertiesFactory).remove(property1);
-        verify(rulePropertiesFactory).remove(property2);
-        verify(rulePropertiesFactory).persist(property2);
-        verify(rulePropertiesFactory).persist(property3);
-
     }
 
     @Test
@@ -242,7 +236,6 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         newRule.save();
 
         verify(ruleFactory).persist(newRule);
-        verify(readingTypesInRuleFactory).persist(readingTypeInValidationRule);
     }
 
     @Test
@@ -275,10 +268,6 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         validationRule.save();
 
         verify(ruleFactory).update(validationRule);
-        verify(readingTypesInRuleFactory).remove(type1);
-        verify(readingTypesInRuleFactory).remove(type2);
-        verify(readingTypesInRuleFactory).persist(type2);
-        verify(readingTypesInRuleFactory).persist(type3);
 
     }
 
