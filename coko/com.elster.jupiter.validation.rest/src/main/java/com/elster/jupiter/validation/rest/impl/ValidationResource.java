@@ -166,10 +166,10 @@ public class ValidationResource {
         ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
         for (Validator validator : validators) {
             for (String property : validator.getRequiredKeys()) {
-                infos.add(property, true, validator.getClass().getName());
+                infos.add(property, false, validator.getClass().getName());
             }
             for (String property : validator.getOptionalKeys()) {
-                infos.add(property, false, validator.getClass().toString());
+                infos.add(property, true, validator.getClass().toString());
             }
         }
         return infos;
