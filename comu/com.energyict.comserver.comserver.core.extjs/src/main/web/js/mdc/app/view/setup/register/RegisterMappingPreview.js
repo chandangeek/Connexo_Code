@@ -25,27 +25,9 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
             menu: {
                 items: [
                     {
-                        text: 'Clone',
-                        itemId: 'cloneRegisterMapping',
-                        action: 'cloneRegisterMapping'
-
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        text: 'Delete',
+                        text: 'Remove',
                         itemId: 'deleteRegisterMapping',
                         action: 'deleteRegisterMapping'
-
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        text: 'Edit',
-                        itemId: 'editRegisterMapping',
-                        action: 'editRegisterMapping'
 
                     }
                 ]
@@ -57,7 +39,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         {
             xtype: 'form',
             border: false,
-            itemId: 'deviceTypePreviewForm',
+            itemId: 'registerMappingPreviewForm',
             padding: '10 10 0 10',
             layout: {
                 type: 'vbox',
@@ -83,24 +65,76 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: 'Name:',
+                                    fieldLabel: 'Name',
+                                    labelAlign: 'right',
+                                    labelWidth: 150
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'registerIdentifier',
+                                    fieldLabel: 'Reading type',
                                     labelAlign: 'right',
                                     labelWidth: 150
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'obisCode',
-                                    fieldLabel: 'ObisCode:',
+                                    fieldLabel: 'Obis Code',
                                     labelAlign: 'right',
                                     labelWidth: 150
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'unit',
-                                    fieldLabel: 'unit',
+                                    name: 'dataCollectionGroup',
+                                    fieldLabel: 'Data collection group',
                                     labelAlign: 'right',
                                     labelWidth: 150
                                 }
+                            ]
+                        },
+                        {
+                            xtype: 'container',
+                            columnWidth: 0.5,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            items: [
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'overFlowValue',
+                                    fieldLabel: 'Overflow value',
+                                    labelAlign: 'right',
+                                    labelWidth: 150
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'numberOfFractionDigits',
+                                    fieldLabel: 'Number of fraction digits',
+                                    labelAlign: 'right',
+                                    labelWidth: 150
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'multiplier',
+                                    fieldLabel: 'Multiplier',
+                                    labelAlign: 'right',
+                                    labelWidth: 150
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'multiplierMode',
+                                    fieldLabel: 'Multiplier mode',
+                                    labelAlign: 'right',
+                                    labelWidth: 150
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'linkedToChannelAs',
+                                    fieldLabel: 'Linked to channel as',
+                                    labelAlign: 'right',
+                                    labelWidth: 150
+                                },
                             ]
                         }
                     ]

@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
             items:[
                 {
                     xtype: 'component',
-                    html: '<h1>Register mappings</h1>',
+                    html: '<h1>Register types</h1>',
                     margins: '10 10 10 10'
                 },
                 {
@@ -33,10 +33,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                     tbar: [
                         '->',
                         {
-                            text: 'Create new register',
+                            text: 'Add register types',
                             itemId: 'createRegisterMapping',
                             xtype: 'button',
-                            href: '#/setup/createregistermapping',
+                            href: '#/setup/addregistermapping',
                             hrefTarget: '_self'
                         },
                         {

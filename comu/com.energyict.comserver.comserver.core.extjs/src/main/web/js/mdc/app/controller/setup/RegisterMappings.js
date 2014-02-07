@@ -16,18 +16,17 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     ],
 
     refs: [
-        {ref: 'deviceTypeGrid', selector: '#devicetypegrid'},
-        {ref: 'deviceTypePreviewForm', selector: '#deviceTypePreviewForm'},
-        {ref: 'deviceTypePreview', selector: '#deviceTypePreview'},
-        {ref: 'deviceTypeDetailsLink', selector: '#deviceTypeDetailsLink'},
-        {ref: 'deviceTypePreviewTitle', selector: '#deviceTypePreviewTitle'}
+        {ref: 'registerMappingGrid', selector: '#registermappinggrid'},
+        {ref: 'registerMappingPreviewForm', selector: '#registerMappingPreviewForm'},
+        {ref: 'registerMappingPreview', selector: '#registerMappingPreview'},
+        {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'}
     ],
 
     init: function () {
 
         this.control({
-            '#devicetypegrid': {
-                selectionchange: this.previewDeviceType
+            '#registermappinggrid': {
+                selectionchange: this.previewRegisterMapping
             }
         });
     },
@@ -36,21 +35,21 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
     },
 
-    previewDeviceType: function (grid, record) {
-        /* var deviceTypes = this.getDeviceTypeGrid().getSelectionModel().getSelection();
-         if (deviceTypes.length == 1) {
-         this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-         var deviceTypeName = this.getDeviceTypePreviewForm().form.findField('name').getSubmitValue();
-         this.getDeviceTypePreview().show();
-         this.getDeviceTypeDetailsLink().update('<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/setup/devicetypes/' + deviceTypeName + '">View details</a>');
-         this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypeName + '</h4>');
+    previewRegisterMapping: function (grid, record) {
+        console.log('preview register mapping');
+         var registerMappings = this.getRegisterMappingGrid().getSelectionModel().getSelection();
+         if (registerMappings.length == 1) {
+         this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
+         var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('name').getSubmitValue();
+         this.getRegisterMappingPreview().show();
+         this.getRegisterMappingPreviewTitle().update('<h4>' + registerMappingsName + '</h4>');
          } else {
-         this.getDeviceTypePreview().hide();
-         }*/
+         this.getRegisterMappingPreview().hide();
+         }
     },
 
-    showRegisterMappings: function () {
-        this.getRegisterMappingsStore().getProxy().setExtraParam('deviceType', 'WebRTUKP');
+    showRegisterMappings: function (id) {
+        this.getRegisterMappingsStore().getProxy().setExtraParam('deviceType', id);
         var widget = Ext.widget('registerMappingsSetup');
         Mdc.getApplication().getMainController().showContent(widget);
     }
