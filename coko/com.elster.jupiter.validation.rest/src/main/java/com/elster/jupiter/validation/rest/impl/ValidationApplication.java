@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
@@ -18,6 +19,7 @@ public class ValidationApplication extends Application implements ServiceLocator
 	private volatile ValidationService validationService;
 	private volatile TransactionService transactionService;
 	private volatile RestQueryService restQueryService;
+    private volatile MeteringService meteringService;
 
 	public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(ValidationResource.class);
@@ -38,6 +40,11 @@ public class ValidationApplication extends Application implements ServiceLocator
 		return restQueryService;
 	}
 
+    @Override
+    public MeteringService getMeteringService() {
+        return meteringService;
+    }
+
 	@Reference
 	public void setValidationService(ValidationService validationService) {
 		this.validationService = validationService;
@@ -52,6 +59,11 @@ public class ValidationApplication extends Application implements ServiceLocator
 	public void setRestQueryService(RestQueryService restQueryService) {
 		this.restQueryService = restQueryService;
 	}
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
 	
 	@Activate
 	public void activate() {

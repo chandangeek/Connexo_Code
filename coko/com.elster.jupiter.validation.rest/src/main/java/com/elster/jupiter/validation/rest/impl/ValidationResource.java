@@ -1,9 +1,11 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -12,6 +14,7 @@ import com.google.common.base.Optional;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -63,9 +66,9 @@ public class ValidationResource {
     }
 
     @PUT
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRuleSetInfos updateValidationRuleSet(@PathParam("id") long id, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
+     @Path("/{id}")
+     @Produces(MediaType.APPLICATION_JSON)
+     public ValidationRuleSetInfos updateValidationRuleSet(@PathParam("id") long id, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
         info.id = id;
         Bus.getTransactionService().execute(new VoidTransaction() {
             @Override
@@ -81,6 +84,35 @@ public class ValidationResource {
             }
         });
         return getValidationRuleSet(info.id, securityContext);
+    }
+
+    @POST
+    @Path("/rules/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidationRuleInfos addRule(@PathParam("id") final long id, final ValidationRuleInfo info, @Context SecurityContext securityContext) {
+        ValidationRuleInfos result = new ValidationRuleInfos();
+        result.add(
+                Bus.getTransactionService().execute(new Transaction<ValidationRule>() {
+                    @Override
+                    public ValidationRule perform() {
+                        Optional<ValidationRuleSet> optional =
+                                Bus.getValidationService().getValidationRuleSet(id);
+                        ValidationRule rule = null;
+                        if (optional.isPresent()) {
+                            ValidationRuleSet set = optional.get();
+                            rule = set.addRule(ValidationAction.FAIL, info.implementation);
+                            for (ReadingTypeInfo readingTypeInfo: info.readingTypes) {
+                                rule.addReadingType(Bus.getMeteringService().getReadingType(readingTypeInfo.mRID).get());
+                            }
+                            for (ValidationRulePropertyInfo propertyInfo: info.properties) {
+                                rule.addProperty(propertyInfo.name, Unit.WATT_HOUR.amount(propertyInfo.value));
+                            }
+                            set.save();
+                        }
+                        return rule;
+                    }
+                }));
+        return result;
     }
 
     @GET
@@ -126,7 +158,7 @@ public class ValidationResource {
         }
     }     */
 
-    /*@GET
+    @GET
     @Path("/propertyspecs")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidationRulePropertySpecInfos getAllAvailableProperties(@Context UriInfo uriInfo) {
@@ -141,7 +173,7 @@ public class ValidationResource {
             }
         }
         return infos;
-    }    */
+    }
 
             @GET
             @Path("/actions")
