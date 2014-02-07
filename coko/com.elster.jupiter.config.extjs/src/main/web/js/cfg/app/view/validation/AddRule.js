@@ -10,6 +10,8 @@ Ext.define('Cfg.view.validation.AddRule', {
     ],
 
 
+    readingTypeIndex : 1,
+
 
     items: [
         {
@@ -25,102 +27,126 @@ Ext.define('Cfg.view.validation.AddRule', {
                     margins: '10 10 10 10'
                 },
                 {
-                    xtype: 'form',
-                    itemId: 'addRuleForm',
-                    padding: '10 10 0 10',
-                    //width: 500,
+                    xtype: 'container',
+                    cls: 'content-container',
                     layout: {
-                        type: 'vbox',
-                        align: 'stretch'
+                        type: 'hbox'
                     },
-                    items:[
+                    items: [
                         {
-                            xtype: 'combobox',
-                            name: 'implementation',
-                            store: Ext.create('Cfg.store.Validators'),
-                            valueField: 'implementation',
-                            displayField: 'displayName',
-                            queryMode: 'local',
-                            fieldLabel: 'Rule:',
-                            labelAlign: 'right',
-                            forceSelection: false,
-                            emptyText: 'Select a rule...',
-                            labelWidth:	150,
-                            width: 400
-                        },
-                        {
-                            xtype: 'textfield',
-                            fieldLabel: 'Reading value(s):',
-                            labelAlign: 'right',
-                            labelWidth:	150,
-                            width: 400
-                        },
-
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: '&nbsp',
-                            labelAlign: 'right',
-                            labelWidth:	150,
-                            //width: 430,
+                            xtype: 'form',
+                            itemId: 'addRuleForm',
+                            padding: '10 10 0 10',
+                            width: 700,
                             layout: {
-                                type: 'hbox',
+                                type: 'vbox',
                                 align: 'stretch'
                             },
-                            items: [
+                            items:[
                                 {
-                                    xtype: 'textfield',
-                                    /*fieldLabel: '&nbsp',
+                                    xtype: 'combobox',
+                                    itemId: 'validatorCombo',
+                                    editable: 'false',
+                                    name: 'implementation',
+                                    store: Ext.create('Cfg.store.Validators'),
+                                    valueField: 'implementation',
+                                    displayField: 'displayName',
+                                    queryMode: 'local',
+                                    fieldLabel: 'Rule:',
                                     labelAlign: 'right',
-                                    labelWidth:	150,   */
-                                    width: 400
+                                    forceSelection: false,
+                                    emptyText: 'Select a rule...',
+                                    labelWidth:	250
                                 },
                                 {
-                                    text: '-',
-                                    xtype: 'button',
-                                    action: 'removeReadingTypeAction',
-                                    itemId: 'removeReadingTypeAction',
-                                    margin: '0 0 0 10',
-                                    width: 30
-                                }
-                            ]
-                        },
+                                    xtype: 'container',
+                                    itemId: 'readingValuesTextFieldsContainer',
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
 
-                        {
-                            xtype: 'fieldcontainer',
-                            fieldLabel: '&nbsp',
-                            labelAlign: 'right',
-                            labelWidth:	150,
-                            layout: 'hbox',
-                            items: [
+                                    items: [
+                                        {
+                                            xtype: 'textfield',
+                                            fieldLabel: 'Reading value(s):',
+                                            labelAlign: 'right',
+                                            itemId: 'readingTypeTextField1',
+                                            labelWidth:	250
+                                        }
+                                    ]
+                                },
                                 {
-                                    text: '+ Add another',
-                                    xtype: 'button',
-                                    action: 'addReadingTypeAction',
-                                    itemId: 'addReadingTypeAction',
-                                    width: 100
+                                    xtype: 'fieldcontainer',
+                                    fieldLabel: '&nbsp',
+                                    labelAlign: 'right',
+                                    labelWidth:	250,
+                                    layout: 'hbox',
+                                    items: [
+                                        {
+                                            text: '+ Add another',
+                                            xtype: 'button',
+                                            action: 'addReadingTypeAction',
+                                            itemId: 'addReadingTypeAction',
+                                            width: 100
+                                        }
+                                    ]
+                                },
+
+                                {
+                                    xtype: 'container',
+                                    itemId: 'propertiesContainer',
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
+                                    margin: '20 0 0 0',
+
+                                    items: []
+                                },
+
+                                {
+                                    xtype: 'fieldcontainer',
+                                    margin: '20 0 0 0',
+                                    fieldLabel: '&nbsp',
+                                    labelAlign: 'right',
+                                    labelWidth:	250,
+                                    layout: 'hbox',
+                                    items: [
+                                        {
+                                            text: 'Create',
+                                            xtype: 'button',
+                                            action: 'createRuleAction',
+                                            itemId: 'createRuleAction',
+                                            width: 100
+                                        },
+                                        {
+                                            xtype: 'component',
+                                            html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Cancel</a>',
+                                            margin: '0 0 0 20',
+                                            width: 100
+                                        }
+                                    ]
                                 }
                             ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            margin: '20 0 0 0',
-                            fieldLabel: '&nbsp',
-                            labelAlign: 'right',
-                            labelWidth:	150,
-                            layout: 'hbox',
+                        }, {
+                            xtype: 'container',
+                            itemId: 'removeReadingTypesButtonsContainer',
+                            layout: {
+                                type: 'vbox',
+                                pack: 'center'
+                            },
+                            padding: '16 0 10 0',
                             items: [
                                 {
-                                    text: 'Create',
-                                    xtype: 'button',
-                                    action: 'addRuleAction',
-                                    itemId: 'addRuleAction',
-                                    width: 100
+                                    xtype: 'component',
+                                    margin:'0 0 10 0',
+                                    html: '&nbsp'
                                 },
                                 {
                                     xtype: 'component',
-                                    html: '<a style="font-family:VAGRoundedStdLight,Arial,Helvetica,Sans-Serif;color:#007dc3" href="#/validation">Cancel</a>',
-                                    margin: '0 0 0 20',
-                                    width: 100
+                                    margin:'0 0 10 0',
+                                    html: '&nbsp'
                                 }
                             ]
                         }

@@ -45,11 +45,9 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                     xtype: 'validationrulesetList'
                 },
                 {
-                    xtype: 'container'
-                },
-                {
                     xtype: 'component',
-                    height : 50},
+                    height : 50
+                },
                 {
                     xtype: 'component',
                     html: '<h3>Selected rule set preview</h3>',

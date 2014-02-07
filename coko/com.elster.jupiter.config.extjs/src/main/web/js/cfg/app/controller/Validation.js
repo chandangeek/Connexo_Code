@@ -3,12 +3,15 @@ Ext.define('Cfg.controller.Validation', {
 
     stores: [
         'ValidationRuleSets',
-        'ValidationRules'
+        'ValidationRules',
+        'ValidationPropertySpecs'
     ],
 
     models: [
         'ValidationRuleSet',
-        'ValidationRule'
+        'ValidationRule',
+        'ReadingType',
+        'ValidationRuleProperty'
     ],
 
     views: [
@@ -54,10 +57,18 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
 
         {ref: 'createRuleSet',selector: 'createRuleSet'},
-        {ref: 'addRule',selector: 'addRule'}
+        {ref: 'addRule',selector: 'addRule'},
+
+        {ref: 'readingValuesTextFieldsContainer',selector: 'addRule #readingValuesTextFieldsContainer'} ,
+        {ref: 'propertiesContainer',selector: 'addRule #propertiesContainer'},
+        {ref: 'removeReadingTypesButtonsContainer',selector: 'addRule #removeReadingTypesButtonsContainer'},
+        {ref: 'validatorCombo',selector: 'addRule #validatorCombo'}
 
 
     ],
+
+    readingTypeIndex: 2,
+
 
     init: function () {
         this.initMenu();
@@ -72,11 +83,126 @@ Ext.define('Cfg.controller.Validation', {
             'createRuleSet button[action=createNewRuleSet]': {
                 click: this.createNewRuleSet
             },
+            'addRule button[action=createRuleAction]': {
+            click: this.createNewRule
+            },
             'addRule button[action=addRuleAction]': {
                 click: this.addRule
+            },
+            'addRule button[action=addReadingTypeAction]': {
+                click: this.addReadingType
+            },
+            'addRule combobox[itemId=validatorCombo]': {
+                change: this.updateProperties
             }
 
         });
+    },
+
+    getRuleSetIdFromHref: function() {
+        var urlPart = 'validation/addRule/';
+        var index = location.href.indexOf(urlPart);
+        return parseInt(location.href.substring(index + urlPart.length));
+    },
+
+
+    createNewRule: function(button) {
+        var ruleSetId = this.getRuleSetIdFromHref();
+        var me = this;
+        var form = button.up('panel');
+        var record = Ext.create(Cfg.model.ValidationRule);
+        var values = form.getValues();
+
+        var readingTypes = this.getReadingValuesTextFieldsContainer().items;
+        var rule = values.implementation;
+        var properties = this.getPropertiesContainer().items;
+
+        record.set('implementation', rule);
+
+        for (var i = 0; i < readingTypes.items.length; i++) {
+            var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+            readingTypeRecord.set('mRID', readingTypes.items[i].value);
+            record.readingTypes().add(readingTypeRecord);
+        }
+
+        for (var i = 0; i < properties.items.length; i++) {
+            var propertyRecord = Ext.create(Cfg.model.ValidationRuleProperty);
+            propertyRecord.set('value', properties.items[i].value);
+            propertyRecord.set('name', properties.items[i].itemId);
+            record.properties().add(propertyRecord);
+
+        }
+        record.save({
+            params: {
+                id: ruleSetId
+            },
+            success: function (record, operation) {
+                record.commit();
+                me.getValidationRuleSetsStore().reload(
+                    {
+                        callback: function(){
+                            location.href = '#validation/rules/' + ruleSetId;
+                        }
+                    });
+            }
+        });
+    },
+
+    updateProperties: function(field, oldValue, newValue) {
+        this.getPropertiesContainer().removeAll();
+        var allPropertiesStore = this.getValidationPropertySpecsStore();
+        allPropertiesStore.clearFilter();
+        allPropertiesStore.filter('validator', field.value);
+        for (var i = 0; i < allPropertiesStore.data.items.length; i++) {
+            var property = allPropertiesStore.data.items[i];
+            var label = property.data.name + ':';
+            var itemIdValue = property.data.name;
+            var optional =  property.data.optional;
+            if (!optional) {
+                optional = '* ' + optional;
+            }
+            this.getPropertiesContainer().add(
+                {
+                    xtype: 'textfield',
+                    fieldLabel: label,
+                    labelAlign: 'right',
+                    itemId: itemIdValue,
+                    labelWidth:	250
+                }
+            );
+        }
+
+
+    },
+
+    addReadingType: function() {
+        var me = this;
+        var indexToRemove = me.readingTypeIndex;
+        this.getReadingValuesTextFieldsContainer().add(
+            {
+                xtype: 'textfield',
+                fieldLabel: '&nbsp',
+                labelAlign: 'right',
+                labelWidth:	250,
+                itemId: 'readingTypeTextField' + me.readingTypeIndex
+            }
+        );
+        this.getRemoveReadingTypesButtonsContainer().add(
+            {
+                text: '-',
+                xtype: 'button',
+                action: 'removeReadingTypeAction',
+                pack: 'center',
+                margin:'0 0 5 0',
+                width: 30,
+                itemId: 'readingTypeRemoveButton'  + me.readingTypeIndex,
+                handler: function() {
+                    me.getReadingValuesTextFieldsContainer().remove(Ext.ComponentQuery.query('#readingTypeTextField'  + indexToRemove)[0]);
+                    me.getRemoveReadingTypesButtonsContainer().remove(Ext.ComponentQuery.query('#readingTypeRemoveButton'  + indexToRemove)[0]);
+                }
+            }
+        );
+        me.readingTypeIndex = me.readingTypeIndex + 1;
     },
 
     addRule: function(id) {
@@ -89,18 +215,22 @@ Ext.define('Cfg.controller.Validation', {
         var form = button.up('panel');
         var record = record = Ext.create(Cfg.model.ValidationRuleSet);
         var values = form.getValues();
-        record.set(values);
-        record.save({
-            success: function (record, operation) {
-                record.commit();
-                me.getValidationRuleSetsStore().reload(
-                    {
-                        callback: function(){
-                            location.href = '#validation/rules/' + record.getId();
-                        }
-                    });
-            }
-        });
+        if (values.name == '') {
+            Ext.MessageBox.alert('Warning', 'Please fill in a name for this rule set.');
+        } else {
+            record.set(values);
+            record.save({
+                success: function (record, operation) {
+                    record.commit();
+                    me.getValidationRuleSetsStore().reload(
+                        {
+                            callback: function(){
+                                location.href = '#validation/rules/' + record.getId();
+                            }
+                        });
+                }
+            });
+        }
     },
 
     initMenu: function () {
