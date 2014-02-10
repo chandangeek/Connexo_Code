@@ -326,7 +326,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    protected void notifyDelete() {
+    protected void notifyDeleted() {
 //        if (ManagerFactory.getCurrent().getConnectionTaskFactory().existsWithConnectionType(this)) {
 //            throw new BusinessException(
 //                    "connectionTypeXIsStillUsedByConnectionTasks",

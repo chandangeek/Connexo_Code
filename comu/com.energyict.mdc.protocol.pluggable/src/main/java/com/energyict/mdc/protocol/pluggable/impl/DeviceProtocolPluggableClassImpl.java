@@ -210,7 +210,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public void notifyDelete() {
+    public void notifyDeleted() {
         // Todo: throw event that will allow the DeviceType factory to check if this protocol is still used or not
         //       until then, this method is using old school dependency mechanism of Environment
         List<DeviceProtocolPluggableClassDependent> dependents = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceProtocolPluggableClassDependent.class);

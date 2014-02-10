@@ -14,8 +14,6 @@ import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesExcep
 
 import javax.inject.Inject;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -126,15 +124,15 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     }
 
     public void delete() {
-        this.notifyDelete();
         this.getPluggableClass().delete();
+        this.notifyDeleted();
     }
 
     protected abstract Discriminator discriminator();
 
     protected abstract void validateLicense ();
 
-    protected void notifyDelete() {
+    protected void notifyDeleted() {
         this.eventService.postEvent(EventType.DELETED.topic(), this);
     }
 

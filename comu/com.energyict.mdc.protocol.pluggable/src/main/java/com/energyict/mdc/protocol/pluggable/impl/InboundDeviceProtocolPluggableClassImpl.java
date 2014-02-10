@@ -72,7 +72,7 @@ public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClas
     }
 
     @Override
-    public void notifyDelete() {
+    public void notifyDeleted() {
 //        List<InboundComPortPool> inboundComPortPools = ManagerFactory.getCurrent().getComPortPoolFactory().findByDiscoveryProtocol(this);
 //        if (!inboundComPortPools.isEmpty()) {
 //            throw new BusinessException(
