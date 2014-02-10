@@ -12,9 +12,11 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Calendar;
 
 /**
@@ -60,29 +62,25 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(2024,2,ObisCode.fromString("1.1.9.8.0.255"), Unit.get("kWh")).setParser("DINT")); // Apparent energy
 
         // Active power
-        getRegisters().add(new HoldingRegister(1034,1,ObisCode.fromString("1.1.21.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase1
-        getRegisters().add(new HoldingRegister(1035,1,ObisCode.fromString("1.1.41.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase2
-        getRegisters().add(new HoldingRegister(1036,1,ObisCode.fromString("1.1.61.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase3
-        getRegisters().add(new HoldingRegister(1037,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Total
+        getRegisters().add(new HoldingRegister(1034,1,ObisCode.fromString("1.1.21.7.0.255"),Unit.get("kW")).setParser("Power")); // Active power Phase1
+        getRegisters().add(new HoldingRegister(1035,1,ObisCode.fromString("1.1.41.7.0.255"),Unit.get("kW")).setParser("Power")); // Active power Phase2
+        getRegisters().add(new HoldingRegister(1036,1,ObisCode.fromString("1.1.61.7.0.255"),Unit.get("kW")).setParser("Power")); // Active power Phase3
+        getRegisters().add(new HoldingRegister(1037,1,ObisCode.fromString("1.1.1.7.0.255"),Unit.get("kW")).setParser("Power")); // Active power Total
         
         // Reactive power
-        getRegisters().add(new HoldingRegister(1038,1,ObisCode.fromString("1.1.23.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Phase1
-        getRegisters().add(new HoldingRegister(1039,1,ObisCode.fromString("1.1.43.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Phase2
-        getRegisters().add(new HoldingRegister(1040,1,ObisCode.fromString("1.1.63.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Phase3
-        getRegisters().add(new HoldingRegister(1041,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("PowerSign")); // Reactive power Total 
+        getRegisters().add(new HoldingRegister(1038,1,ObisCode.fromString("1.1.23.7.0.255"),Unit.get("kvar")).setParser("Power")); // Reactive power Phase1
+        getRegisters().add(new HoldingRegister(1039,1,ObisCode.fromString("1.1.43.7.0.255"),Unit.get("kvar")).setParser("Power")); // Reactive power Phase2
+        getRegisters().add(new HoldingRegister(1040,1,ObisCode.fromString("1.1.63.7.0.255"),Unit.get("kvar")).setParser("Power")); // Reactive power Phase3
+        getRegisters().add(new HoldingRegister(1041,1,ObisCode.fromString("1.1.3.7.0.255"),Unit.get("kvar")).setParser("Power")); // Reactive power Total
         
         // Apparent power
-        getRegisters().add(new HoldingRegister(1045,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("VA"))); // Apparent power Total
+        getRegisters().add(new HoldingRegister(1045,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("kVA")).setParser("ApparentPower")); // Apparent power Total
 
         // Power Factors
-        getRegisters().add(new HoldingRegister(1046,1,ObisCode.fromString("1.1.33.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase A
-        getRegisters().add(new HoldingRegister(1047,1,ObisCode.fromString("1.1.53.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase B
-        getRegisters().add(new HoldingRegister(1048,1,ObisCode.fromString("1.1.73.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase C
-        getRegisters().add(new HoldingRegister(1049,1,ObisCode.fromString("1.1.13.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // Total power factor
-        
-        // Signers
-        getRegisters().add(new HoldingRegister(3316, 1, "PowerSign"));
-        getRegisters().add(new HoldingRegister(3318, 1, "PowerFactorSign"));
+        getRegisters().add(new HoldingRegister(1046,1,ObisCode.fromString("1.1.33.7.0.255"),Unit.get("")).setParser("PowerFactor")); // powerfactor phase A
+        getRegisters().add(new HoldingRegister(1047,1,ObisCode.fromString("1.1.53.7.0.255"),Unit.get("")).setParser("PowerFactor")); // powerfactor phase B
+        getRegisters().add(new HoldingRegister(1048,1,ObisCode.fromString("1.1.73.7.0.255"),Unit.get("")).setParser("PowerFactor")); // powerfactor phase C
+        getRegisters().add(new HoldingRegister(1049,1,ObisCode.fromString("1.1.13.7.0.255"),Unit.get("")).setParser("PowerFactor")); // Total power factor
         
         // Clock
         getRegisters().add(new HoldingRegister(8023,4, "Date"));
@@ -130,42 +128,51 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return new BigDecimal(0);
             }
         });
-
-        getParserFactory().addParser("PowerSign",new Parser() {
+    	
+        getParserFactory().addParser("Power",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
-            	long val = 0;
-            	for(int i = 0; i < values.length; i++){
-            		val += values[i]<<(16*i);
-            	}
-            	if((val != 0x8000) && (val != 0x80000000)){
-            		BigDecimal bd;
-            		if((Integer)getModBus().getRegisterFactory().findRegister("PowerSign").objectValueWithParser("IntegerParser") == 1){
-            			bd = new BigDecimal("-" + val);
-            		} else {
-            			bd = new BigDecimal("+" + val);
-            		}
-                    return bd.movePointLeft(1);
-            	} else {
+                long val = 0;
+                for (int i = 0; i < values.length; i++) {
+                    val += values[i] << (16 * i);
+                }
+                if ((val != 0x8000) && (val != 0x80000000)) {
+                    byte[] intBitsArray = {(byte) (values[0] >> 8 & 0xFF), (byte) values[0]};
+                    BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
+                    return new BigDecimal(bigInteger).movePointLeft(1);
+                } else {
                     getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
-            		throw new ModbusException("Not supported when Systemtype is 30 or 31");
-            	}
+                    throw new ModbusException("Not supported when Systemtype is 30 or 31");
+                }
+            }
+        });
+
+        getParserFactory().addParser("ApparentPower",new Parser() {
+            public Object val(int[] values, AbstractRegister register) throws IOException {
+                long val = 0;
+                for (int i = 0; i < values.length; i++) {
+                    val += values[i] << (16 * i);
+                }
+                if ((val != 0x8000) && (val != 0x80000000)) {
+                    byte[] intBitsArray = {(byte) (values[0] >> 8 & 0xFF), (byte) values[0]};
+                    BigInteger bigInteger = ProtocolTools.getUnsignedBigIntegerFromBytes(intBitsArray);
+                    return new BigDecimal(bigInteger).movePointLeft(1);
+                } else {
+                    getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
+                    throw new ModbusException("Not supported when Systemtype is 30 or 31");
+                }
             }
         });
         
-        getParserFactory().addParser("PowerFactorSign",new Parser() {
+        getParserFactory().addParser("PowerFactor",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
             	long val = 0;
             	for(int i = 0; i < values.length; i++){
             		val += values[i]<<(16*i);
             	}
             	if((val != 0x8000) && (val != 0x80000000)){
-            		BigDecimal bd;
-            		if((Integer)getModBus().getRegisterFactory().findRegister("PowerFactorSign").objectValueWithParser("IntegerParser") == 1){
-            			bd = new BigDecimal("-" + val);
-            		} else {
-            			bd = new BigDecimal("+" + val);
-            		}
-                    return bd.movePointLeft(2);
+                    byte[] intBitsArray = {(byte) (values[0] >> 8 & 0xFF), (byte) values[0]};
+                    BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
+                    return new BigDecimal(bigInteger).movePointLeft(2);
             	} else {
                     getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
             		throw new ModbusException("Not supported when Systemtype is 30 or 31");
