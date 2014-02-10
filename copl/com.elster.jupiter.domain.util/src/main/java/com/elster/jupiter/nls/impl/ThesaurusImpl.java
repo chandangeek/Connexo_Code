@@ -98,6 +98,9 @@ class ThesaurusImpl implements Thesaurus {
             nlsKey.clearTranslations();
             for (Translation translation : entry.getValue()) {
                 nlsKey.add(translation.getLocale(), translation.getTranslation());
+                if (Locale.ENGLISH.equals(translation.getLocale())) {
+                    nlsKey.setDefaultMessage(translation.getTranslation());
+                }
             }
             nlsKey.save();
             this.translations.put(nlsKey.getKey(), nlsKey);
