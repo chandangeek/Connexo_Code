@@ -1,11 +1,16 @@
 package com.elster.jupiter.metering.readings;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static com.elster.jupiter.metering.readings.ProfileStatus.Flag.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProfileStatusTest {
+public class ProfileStatusTest extends EqualsContractTest {
+
+    private ProfileStatus instanceA;
 
     @Test
     public void testConstruction() {
@@ -61,4 +66,36 @@ public class ProfileStatusTest {
         ProfileStatus status = new ProfileStatus(1L << LONG.ordinal());
     }
 
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            instanceA = ProfileStatus.of(BATTERY_LOW, OVERFLOW);
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        return ProfileStatus.of(BATTERY_LOW, OVERFLOW);
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return Arrays.asList(
+                ProfileStatus.of(),
+                ProfileStatus.of(BATTERY_LOW),
+                ProfileStatus.of(BATTERY_LOW, REVERSERUN),
+                ProfileStatus.of(BATTERY_LOW, OVERFLOW, REVERSERUN)
+        );
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
+    }
 }
