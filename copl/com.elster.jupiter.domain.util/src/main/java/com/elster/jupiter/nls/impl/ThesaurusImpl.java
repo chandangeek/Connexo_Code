@@ -10,6 +10,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.base.Optional;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -91,7 +92,10 @@ class ThesaurusImpl implements Thesaurus {
             map.get(translation.getNlsKey()).add(translation);
         }
         for (Map.Entry<NlsKey, List<Translation>> entry : map.entrySet()) {
-            NlsKeyImpl nlsKey = nlsKeyProvider.get().init(entry.getKey());
+            NlsKey entryKey = entry.getKey();
+            Optional<NlsKey> found = dataModel.mapper(NlsKey.class).getOptional(entryKey.getComponent(), entryKey.getLayer(), entryKey.getKey());
+            NlsKeyImpl nlsKey = (NlsKeyImpl) found.or(nlsKeyProvider.get().init(entryKey));
+            nlsKey.clearTranslations();
             for (Translation translation : entry.getValue()) {
                 nlsKey.add(translation.getLocale(), translation.getTranslation());
             }

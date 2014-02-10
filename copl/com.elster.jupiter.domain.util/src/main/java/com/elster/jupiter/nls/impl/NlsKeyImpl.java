@@ -49,6 +49,10 @@ final class NlsKeyImpl implements NlsKey {
         entries.add(new NlsEntry(this, locale).translation(translation));
     }
 
+    public void clearTranslations() {
+        entries.clear();
+    }
+
     void save() {
         dataModel.mapper(NlsKeyImpl.class).persist(this);
     }
