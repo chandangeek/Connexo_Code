@@ -164,7 +164,32 @@ public class DeviceTypeResource {
 
         return getRegistersForDeviceType(id);
     }
-    
+
+    @POST
+    @Path("/{id}/registers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RegisterMappingInfo> createRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
+        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+
+        addRegisterMappingToDeviceType(deviceType.getShadow(), registerMappingInfo);
+
+        return getRegistersForDeviceType(id);
+    }
+
+    @DELETE
+    @Path("/{id}/registers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public RegisterMappingInfo deleteRegistersForDeviceType(@PathParam("id") long id, RegisterMappingInfo registerMappingInfo) {
+        DeviceType deviceType = findDeviceTypeByNameOrThrowException(id);
+
+        removeRegisterMappingFromDeviceType(deviceType.getShadow(), registerMappingInfo.id);
+
+        return registerMappingInfo;
+    }
+
+
     private void updateRegisterMappings(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
         DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
         Map<Long, RegisterMappingInfo> newRegisterMappingsIdMap = asIdz(newRegisterMappings);
@@ -173,19 +198,27 @@ public class DeviceTypeResource {
                 // We don't update anything about RegisterMapping in the resource
                 newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId()));
             } else {
-                deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), existingRegisterMapping.getId()));
+                removeRegisterMappingFromDeviceType(deviceTypeShadow, existingRegisterMapping.getId());
             }
         }
 
         for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
-            RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingInfo.id);
-            if (registerMapping==null) {
-                throw new WebApplicationException("No register mapping with id " + registerMappingInfo.id,
-                        Response.status(Response.Status.BAD_REQUEST).build());
-
-            }
-            deviceTypeShadow.getRegisterMappingShadows().add(registerMapping.getShadow());
+            addRegisterMappingToDeviceType(deviceTypeShadow, registerMappingInfo);
         }
+    }
+
+    private void removeRegisterMappingFromDeviceType(DeviceTypeShadow deviceTypeShadow, long existingRegisterMappingId) {
+        deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), (int)existingRegisterMappingId));
+    }
+
+    private void addRegisterMappingToDeviceType(DeviceTypeShadow deviceTypeShadow, RegisterMappingInfo registerMappingInfo) {
+        RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingInfo.id);
+        if (registerMapping==null) {
+            throw new WebApplicationException("No register mapping with id " + registerMappingInfo.id,
+                    Response.status(Response.Status.BAD_REQUEST).build());
+
+        }
+        deviceTypeShadow.getRegisterMappingShadows().add(registerMapping.getShadow());
     }
 
     private RegisterMappingShadow getRegisterMappingById(List<RegisterMappingShadow> registerMappingShadows, int id) {
