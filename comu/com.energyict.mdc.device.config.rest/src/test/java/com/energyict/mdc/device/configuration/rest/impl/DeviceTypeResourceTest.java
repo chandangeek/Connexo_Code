@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.ShadowList;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.SortOrder;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -11,6 +12,8 @@ import com.energyict.mdc.services.DeviceConfigurationService;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterMappingFactory;
 import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
+import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +29,6 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -92,7 +94,7 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
     @Test
     public void testGetAllDeviceTypesWithoutPaging() throws Exception {
-        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66),mockDeviceType("device type 2", 66),mockDeviceType("device type 3", 66),mockDeviceType("device type 4", 66)));
+        Finder<DeviceType> finder = mockFinder(Arrays.asList(mockDeviceType("device type 1", 66), mockDeviceType("device type 2", 66), mockDeviceType("device type 3", 66), mockDeviceType("device type 4", 66)));
         when(deviceConfigurationService.allDeviceTypes()).thenReturn(finder);
 
         Map<String, Object> map = target("/devicetypes/").request().get(Map.class);
@@ -199,26 +201,139 @@ public class DeviceTypeResourceTest extends JerseyTest {
     }
 
     @Test
-    @Ignore
-    public void testUpdateRegisters() throws Exception {
+    public void testUpdateRegistersWithoutChanges() throws Exception {
+        // Backend has RM 101 and 102, UI sets for 101 and 102: no changes
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+
         RegisterMappingInfo registerMappingInfo1 = new RegisterMappingInfo();
+        registerMappingInfo1.id=RM_ID_1;
         registerMappingInfo1.name="mapping 1";
         registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
         RegisterMappingInfo registerMappingInfo2 = new RegisterMappingInfo();
+        registerMappingInfo2.id=RM_ID_2;
         registerMappingInfo2.name="mapping 2";
         registerMappingInfo2.obisCode=new ObisCode(11,111,12,112,13,113);
 
         DeviceType deviceType = mockDeviceType("updater", 31);
+        DeviceTypeShadow deviceTypeShadow = mock(DeviceTypeShadow.class);
+        RegisterMappingShadow registerMappingShadow1 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow1.getId()).thenReturn((int)RM_ID_1);
+        RegisterMappingShadow registerMappingShadow2 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow2.getId()).thenReturn((int)RM_ID_2);
+        ShadowList<RegisterMappingShadow> registerMappingShadows = new ShadowList<>();
+        registerMappingShadows.basicAdd(registerMappingShadow1);
+        registerMappingShadows.basicAdd(registerMappingShadow2);
+        when(deviceTypeShadow.getRegisterMappingShadows()).thenReturn(registerMappingShadows);
+        when(deviceType.getShadow()).thenReturn(deviceTypeShadow);
         RegisterMapping registerMapping101 = mock(RegisterMapping.class);
-        when(registerMapping101.getId()).thenReturn(101);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        when(registerMapping101.getShadow()).thenReturn(registerMappingShadow1);
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
-        when(registerMapping102.getId()).thenReturn(102);
+        when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
+        when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
+        when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
 
         Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
         Response response = target("/devicetypes/31/registers").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        // Nothing deleted, nothing updated
+        assertThat(registerMappingShadows.getDeletedShadows()).isEmpty();
+        assertThat(registerMappingShadows.getNewShadows()).isEmpty();
+    }
+
+    @Test
+    public void testUpdateRegistersAddOneRegister() throws Exception {
+        // Backend has RM 101, UI sets for 101 and 102: 102 should be added
+        RegisterMappingInfo registerMappingInfo1 = new RegisterMappingInfo();
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+        registerMappingInfo1.id= RM_ID_1;
+        registerMappingInfo1.name="mapping 1";
+        registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
+        RegisterMappingInfo registerMappingInfo2 = new RegisterMappingInfo();
+        registerMappingInfo2.id=RM_ID_2;
+        registerMappingInfo2.name="mapping 2";
+        registerMappingInfo2.obisCode=new ObisCode(11,111,12,112,13,113);
+
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        DeviceTypeShadow deviceTypeShadow = mock(DeviceTypeShadow.class);
+        RegisterMappingShadow registerMappingShadow1 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow1.getId()).thenReturn((int)RM_ID_1);
+        RegisterMappingShadow registerMappingShadow2 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow2.getId()).thenReturn((int)RM_ID_2);
+        ShadowList<RegisterMappingShadow> registerMappingShadows = new ShadowList<>();
+        registerMappingShadows.basicAdd(registerMappingShadow1);
+        when(deviceTypeShadow.getRegisterMappingShadows()).thenReturn(registerMappingShadows);
+        when(deviceType.getShadow()).thenReturn(deviceTypeShadow);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        when(registerMapping101.getShadow()).thenReturn(registerMappingShadow1);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
+        when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
+        RegisterMapping registerMapping103 = mock(RegisterMapping.class);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
+        when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
+        when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
+
+        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
+        Response response = target("/devicetypes/31/registers").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        assertThat(registerMappingShadows.getDeletedShadows()).isEmpty();
+        assertThat(registerMappingShadows.getNewShadows()).contains(registerMappingShadow2);
+    }
+
+    @Test
+    public void testUpdateRegistersDeleteOneMapping() throws Exception {
+        // Backend has RM 101 and 102, UI sets for 101: delete 102
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+
+        RegisterMappingInfo registerMappingInfo1 = new RegisterMappingInfo();
+        registerMappingInfo1.id=RM_ID_1;
+        registerMappingInfo1.name="mapping 1";
+        registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
+        RegisterMappingInfo registerMappingInfo2 = new RegisterMappingInfo();
+        registerMappingInfo2.id=RM_ID_2;
+        registerMappingInfo2.name="mapping 2";
+        registerMappingInfo2.obisCode=new ObisCode(11,111,12,112,13,113);
+
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        DeviceTypeShadow deviceTypeShadow = mock(DeviceTypeShadow.class);
+        RegisterMappingShadow registerMappingShadow1 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow1.getId()).thenReturn((int)RM_ID_1);
+        RegisterMappingShadow registerMappingShadow2 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow2.getId()).thenReturn((int)RM_ID_2);
+        ShadowList<RegisterMappingShadow> registerMappingShadows = new ShadowList<>();
+        registerMappingShadows.basicAdd(registerMappingShadow1);
+        registerMappingShadows.basicAdd(registerMappingShadow2);
+        when(deviceTypeShadow.getRegisterMappingShadows()).thenReturn(registerMappingShadows);
+        when(deviceType.getShadow()).thenReturn(deviceTypeShadow);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        when(registerMapping101.getShadow()).thenReturn(registerMappingShadow1);
+        RegisterMapping registerMapping102 = mock(RegisterMapping.class);
+        when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
+        when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101, registerMapping102));
+        when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
+        when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(registerMapping102);
+
+        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1));
+        Response response = target("/devicetypes/31/registers").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        // Nothing deleted, nothing updated
+        assertThat(registerMappingShadows.getDeletedShadows()).hasSize(1).contains(registerMappingShadow2);
+        assertThat(registerMappingShadows.getNewShadows()).isEmpty();
     }
 
 

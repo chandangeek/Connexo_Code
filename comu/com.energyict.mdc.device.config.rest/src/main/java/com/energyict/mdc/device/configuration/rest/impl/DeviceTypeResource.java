@@ -11,19 +11,27 @@ import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.LoadProfileType;
 import com.energyict.mdw.core.LogBookType;
-
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
-import java.util.HashMap;
-import java.util.Map;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/devicetypes")
 public class DeviceTypeResource {
@@ -158,12 +166,12 @@ public class DeviceTypeResource {
     }
     
     private void updateRegisterMappings(DeviceType deviceType, List<RegisterMappingInfo> newRegisterMappings) {
-
         DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
         Map<Long, RegisterMappingInfo> newRegisterMappingsIdMap = asIdz(newRegisterMappings);
         for (RegisterMapping existingRegisterMapping : deviceType.getRegisterMappings()) {
             if (newRegisterMappingsIdMap.containsKey(Long.valueOf(existingRegisterMapping.getId()))) {
-                newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId())); // We don't update anything in the resource
+                // We don't update anything about RegisterMapping in the resource
+                newRegisterMappingsIdMap.remove(Long.valueOf(existingRegisterMapping.getId()));
             } else {
                 deviceTypeShadow.getRegisterMappingShadows().remove(getRegisterMappingById(deviceTypeShadow.getRegisterMappingShadows(), existingRegisterMapping.getId()));
             }
