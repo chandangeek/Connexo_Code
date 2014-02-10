@@ -18,12 +18,13 @@ final class NlsKeyImpl implements NlsKey {
     private final DataModel dataModel;
 
     // persistent fields
-	private String componentName;
-	private String key;
+    private String componentName;
+    private String key;
     private Layer layer;
-	private String defaultMessage;
+    private String defaultMessage;
     // composite association
     private List<NlsEntry> entries = new ArrayList<>();
+    private boolean fromDB = true;
 
     @Inject
     NlsKeyImpl(DataModel dataModel) {
@@ -34,6 +35,7 @@ final class NlsKeyImpl implements NlsKey {
         this.componentName = requireNonNull(componentName);
         this.layer = requireNonNull(layer);
         this.key = requireNonNull(key);
+        fromDB = false;
         return this;
     }
 
@@ -42,10 +44,11 @@ final class NlsKeyImpl implements NlsKey {
         this.layer = key.getLayer();
         this.key = key.getKey();
         this.defaultMessage = key.getDefaultMessage();
+        fromDB = false;
         return this;
     }
 
-    void add(Locale locale , String translation) {
+    void add(Locale locale, String translation) {
         entries.add(new NlsEntry(this, locale).translation(translation));
     }
 
@@ -54,7 +57,11 @@ final class NlsKeyImpl implements NlsKey {
     }
 
     void save() {
-        dataModel.mapper(NlsKeyImpl.class).persist(this);
+        if (fromDB) {
+            dataModel.mapper(NlsKeyImpl.class).update(this);
+        } else {
+            dataModel.mapper(NlsKeyImpl.class).persist(this);
+        }
     }
 
     @Override
@@ -96,6 +103,7 @@ final class NlsKeyImpl implements NlsKey {
     }
 
     private static class Scorer {
+
         private final String requestedLanguageTag;
 
         Scorer(Locale requested) {
