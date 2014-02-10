@@ -7,6 +7,7 @@ import java.util.logging.Level;
 
 /**
  * Insert your comments here.
+ * TODO create test that checks if all numbers and keys are unique (to prevent coding exceptions)
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-29 (16:04)
@@ -101,6 +102,8 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_ALREADY_EXISTS_27_CHAR(11022, "channelSpec.duplicateName.27", "A channel specification with the same first 27 characters '{0}' already exists", Level.SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_REGISTER_MAPPING(11023, "channelSpec.change.registerMapping", "You can not change the register mapping of an existing channel specification", Level.SEVERE),
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can not change the load profile specification of an existing channel specification", Level.SEVERE),
+    DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required", Level.SEVERE),
+    DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required", Level.SEVERE),
     ;
 
     private final int number;

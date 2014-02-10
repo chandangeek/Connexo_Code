@@ -96,6 +96,18 @@ public class NameIsRequiredException extends LocalizedException {
         return new NameIsRequiredException(thesaurus, MessageSeeds.CHANNEL_SPEC_NAME_IS_REQUIRED);
     }
 
+    /**
+     * Creates a new NameIsRequiredException that models the exceptional
+     * situation that occurs when an attempt is made to create a
+     * {@link com.energyict.mdc.device.config.DeviceConfiguration} without a name.
+     *
+     * @param thesaurus the Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static NameIsRequiredException deviceConfigurationNameIsRequired(Thesaurus thesaurus) {
+        return new NameIsRequiredException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_NAME_IS_REQUIRED);
+    }
+
     private NameIsRequiredException(Thesaurus thesaurus, MessageSeeds messageSeeds) {
         super(thesaurus, messageSeeds);
     }

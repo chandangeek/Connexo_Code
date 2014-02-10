@@ -4,11 +4,13 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
@@ -96,7 +98,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private boolean hasActiveConfigurations() {
         for (DeviceConfiguration configuration : this.getConfigurations()) {
-            if (configuration.isActive()) {
+            if (configuration.getActive()) {
                 return true;
             }
         }

@@ -3,7 +3,9 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
@@ -174,17 +176,17 @@ public enum TableSpecs {
     EISDEVICECONFIG {
         @Override
         public void addTo(DataModel dataModel) {
-//            Table<Api> table = dataModel.add(name(), Api.class);
-//            table.map(Implementation.class);
-//            Column id = table.addAutoIdColumn();
-//            table.column("NAME").varChar(80).notNull().map("name").add();
-//            table.column("DESCRIPTION").varChar(4000).map("description").add();
-//            table.column("PROTOTYPEID").number().map("prototypeid").add();
-//            Column devicetypeid = table.column("DEVICETYPEID").number().notNull().add();
-//            table.column("MOD_DATE").type("DATE").notNull().map("modDate").add();
-//            table.column("ACTIVE").number().map("active").add();
-//            table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
-//            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(devicetypeid).references(EISSYSRTUTYPE.name()).map("eissysrtutype").add();
+            Table<DeviceConfiguration> table = dataModel.addTable(name(), DeviceConfiguration.class);
+            table.map(DeviceConfigurationImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.column("NAME").varChar(80).notNull().map("name").add();
+            table.column("DESCRIPTION").varChar(4000).map("description").add();
+            table.column("PROTOTYPEID").number().map("prototype").add();
+            Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
+            table.column("MOD_DATE").type("DATE").notNull().conversion(ColumnConversion.DATE2DATE).map("modificationDate").add();
+            table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
+            table.primaryKey("PK_EISDEVICECONFIG").on(id).add();
+            table.foreignKey("FK_EISDEVCFG_DEVTYPE").on(deviceTypeId).references(EISSYSRTUTYPE.name()).map("deviceType").add();
         }
     },
 
@@ -225,7 +227,7 @@ public enum TableSpecs {
             table.column("INTERVAL").number().notNull().map("interval.count").add();
             table.column("INTERVALCODE").number().notNull().map("interval.timeUnitCode").add();
             table.primaryKey("PK_EISCHANNELSPECID").on(id).add();
-            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().add();
+            table.foreignKey("FK_EISCHNSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("channelSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_EISCHNSPEC_REGMAP").on(rturegistermappingid).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
             table.foreignKey("FK_EISCHNSPEC_PHENOM").on(phenomenonid).references(EISPHENOMENON.name()).map("phenomenon").add();
             table.foreignKey("FK_EISCHNSPEC_LPROFSPEC").on(loadprofilespecid).references(EISLOADPROFILESPEC.name()).map("loadProfileSpec").add();
@@ -251,7 +253,7 @@ public enum TableSpecs {
             table.column("CHANNELLINKTYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map("channelSpecLinkType").add();
             table.primaryKey("PK_RTUREGISTERSPEC").on(id).add();
             table.foreignKey("FK_EISRTUREGSPEC_REGMAP").on(registerMapping).references(EISRTUREGISTERMAPPING.name()).map("registerMapping").add();
-            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().add();
+            table.foreignKey("FK_EISRTUREGSPEC_DEVCFG").on(deviceConfiguration).references(EISDEVICECONFIG.name()).map("deviceConfig").reverseMap("registerSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_REGSPEC_CHANNELSPEC").on(channelSpec).references(EISCHANNELSPEC.name()).map("linkedChannelSpec").add();
         }
     },
@@ -267,7 +269,7 @@ public enum TableSpecs {
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.primaryKey("PK_EISLOADPROFILESPECID").on(id).add();
             table.foreignKey("FK_EISLPRFSPEC_LOADPROFTYPE").on(loadprofiletypeid).references(EISLOADPROFILETYPE.name()).map("loadProfileType").add();
-            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().add();
+            table.foreignKey("FK_EISLPRFSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("loadProfileSpecs").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
 
@@ -281,7 +283,7 @@ public enum TableSpecs {
             Column logbooktypeid = table.column("LOGBOOKTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.primaryKey("PK_EISLOGBOOKSPECID").on(id).add();
-            table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().add();
+            table.foreignKey("FK_EISLGBSPEC_DEVCONFIG").on(deviceconfigid).references(EISDEVICECONFIG.name()).map("deviceConfiguration").reverseMap("logBookSpecs").composition().onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FK_EISLGBSPEC_LOGBOOKTYPE").on(logbooktypeid).references(EISLOGBOOKTYPE.name()).map("logBookType").add();
         }
     },

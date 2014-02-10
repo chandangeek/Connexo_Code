@@ -1,15 +1,7 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NamedBusinessObject;
-import com.energyict.mdc.devices.configuration.DeviceCommunicationConfiguration;
 import com.energyict.mdc.protocol.api.device.Device;
-import com.energyict.mdw.core.configchange.DeviceConfigurationChanges;
-import com.energyict.mdw.shadow.DeviceConfigurationShadow;
-import com.energyict.mdw.task.CreateDeviceTransaction;
-import com.energyict.mdw.xml.Exportable;
 
-import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -18,14 +10,22 @@ import java.util.List;
  */
 public interface DeviceConfiguration {
 
-    long getId();
 
     /**
-     * Gets the name of the DeviceConfiguration which will be unique within a DeviceType
+     * Returns the object's unique id
      *
-     * @return the name of the DeviceConfiguration
+     * @return the id
      */
-    String getName();
+    public long getId();
+
+    /**
+     * Returns the object's name
+     *
+     * @return the name
+     */
+    public String getName();
+
+    void setName(String name);
 
     /**
      * Returns a description of the receiver
@@ -57,11 +57,27 @@ public interface DeviceConfiguration {
 
     List<RegisterSpec> getRegisterSpecs();
 
+    void createRegisterSpec(RegisterMapping registerMapping);
+
+    void deleteRegisterSpec(RegisterSpec registerSpec);
+
     List<ChannelSpec> getChannelSpecs();
+
+    void createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec);
+
+    void deleteChannelSpec(ChannelSpec channelSpec);
 
     List<LoadProfileSpec> getLoadProfileSpecs();
 
+    void createLoadProfileSpec(LoadProfileType loadProfileType);
+
+    void deleteLoadProfileSpec(LoadProfileSpec loadProfileSpec);
+
     List<LogBookSpec> getLogBookSpecs();
+
+    void createLogBookSpec(LogBookType logBookType);
+
+    void deleteLogBookSpec(LogBookSpec logBookSpec);
 
     /**
      * tests if the receiver is active
@@ -70,9 +86,9 @@ public interface DeviceConfiguration {
      */
     boolean getActive();
 
-    void activate() throws SQLException, BusinessException;
+    void activate();
 
-    void deactivate() throws SQLException, BusinessException;
+    void deactivate();
 
     boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId);
 
@@ -83,35 +99,5 @@ public interface DeviceConfiguration {
      */
     public DeviceCommunicationConfiguration getCommunicationConfiguration();
 
-    /**
-     * Returns a new {@link CreateDeviceTransaction transaction}
-     * that allows the creation of a new {@link Device} from this DeviceConfiguration
-     * according to the specification that are laid out in the prototype.
-     * All of the properties and settings of the prototype are copied
-     * into this transaction. If there is not prototype then obviously
-     * only the specifications of this DeviceConfiguration are copied
-     * into this transaction.
-     *
-     * @return The CreateDeviceTransaction
-     */
-    public CreateDeviceTransaction newDeviceTransaction();
-
-    /**
-     * Returns a new {@link CreateDeviceTransaction transaction}
-     * that allows the creation of a clone of the specified {@link Device}.
-     * All of the properties and settings of the prototype are copied
-     * into this transaction.
-     *
-     * @param device The original Device
-     * @return The cloned device
-     */
-    public CreateDeviceTransaction newDeviceTransactionForCloning(Device device);
-
-    /**
-     * Creates a DeviceConfigurationChanges object that allows to perform a device configuration change
-     * from a device having this configuration to a device having the target configuration
-     * (cf. the method Device.changeConfiguration())
-     */
-    DeviceConfigurationChanges constructDeviceConfigurationChanges(DeviceConfiguration targetConfiguration);
-
+    //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 }

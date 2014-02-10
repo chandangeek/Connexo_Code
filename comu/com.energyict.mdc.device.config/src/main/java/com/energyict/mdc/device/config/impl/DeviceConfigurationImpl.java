@@ -1,53 +1,38 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.Clock;
 import com.energyict.cpo.AuditTrail;
-import com.energyict.cpo.AuditTrailFactory;
-import com.energyict.cpo.PersistentNamedObject;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DuplicateException;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdObjectShadow;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.PrimaryKeyExternalRepresentationConvertor;
 import com.energyict.mdc.common.ShadowList;
-import com.energyict.mdc.common.SoftTypeId;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.common.TypeId;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.devices.configuration.DeviceCommunicationConfiguration;
-import com.energyict.mdc.protocol.api.device.Device;
-import com.energyict.mdw.amr.RegisterMappingFactoryProvider;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdw.amr.RegisterSpecFactory;
-import com.energyict.mdw.amr.RegisterSpecFactoryProvider;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdw.core.ChannelSpecFactory;
-import com.energyict.mdw.core.ChannelSpecFactoryProvider;
-import com.energyict.mdw.core.DeviceCollectionMethodType;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdw.core.DeviceConfigurationFactory;
-import com.energyict.mdw.core.DeviceConfigurationFactoryProvider;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdw.core.DeviceTypeFactory;
-import com.energyict.mdw.core.DeviceTypeFactoryProvider;
-import com.energyict.mdw.core.EndDevice;
-import com.energyict.mdw.core.LoadProfileSpec;
-import com.energyict.mdw.core.LoadProfileSpecFactory;
-import com.energyict.mdw.core.LoadProfileSpecFactoryProvider;
-import com.energyict.mdw.core.LoadProfileTypeFactoryProvider;
-import com.energyict.mdw.core.LogBookSpec;
-import com.energyict.mdw.core.LogBookSpecFactory;
-import com.energyict.mdw.core.LogBookSpecFactoryProvider;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
-import com.energyict.mdw.core.LogBookTypeFactoryProvider;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.configchange.DeviceConfigurationChanges;
-import com.energyict.mdw.coreimpl.configchange.DeviceConfigurationChangesImpl;
+import com.energyict.mdc.device.config.Phenomenon;
+import com.energyict.mdc.device.config.RegisterMapping;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
+import com.energyict.mdc.protocol.api.device.Device;
+import com.energyict.mdw.amr.RegisterSpecFactory;
+import com.energyict.mdw.core.ChannelSpecFactory;
+import com.energyict.mdw.core.DeviceCollectionMethodType;
+import com.energyict.mdw.core.EndDevice;
+import com.energyict.mdw.core.LoadProfileSpecFactory;
+import com.energyict.mdw.core.LogBookSpecFactory;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
-import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.ChannelSpecShadow;
 import com.energyict.mdw.shadow.DeviceConfigurationShadow;
@@ -58,18 +43,12 @@ import com.energyict.mdw.shadow.LogBookShadow;
 import com.energyict.mdw.shadow.LogBookSpecShadow;
 import com.energyict.mdw.shadow.amr.RegisterShadow;
 import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
-import com.energyict.mdw.task.CreateDeviceTransaction;
-import com.energyict.mdw.taskimpl.CloneDeviceTransaction;
-import com.energyict.mdw.taskimpl.CreateDeviceFromPrototypeTransaction;
-import com.energyict.mdw.taskimpl.CreateDeviceFromSpecsTransaction;
-import com.energyict.mdw.xml.Command;
-import com.energyict.mdw.xml.DeviceConfigurationCommand;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import javax.inject.Inject;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -80,34 +59,29 @@ import java.util.Set;
  * User: gde
  * Date: 5/11/12
  */
-public class DeviceConfigurationImpl extends PersistentNamedObject implements DeviceConfiguration, ServerDeviceConfiguration {
+public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfiguration> implements DeviceConfiguration, ServerDeviceConfiguration {
 
     private String description;
-    private int prototypeId;
-    private int deviceTypeId;
     private boolean active;
 
     private Device prototype;
-    private List<RegisterSpec> registerSpecs;
-    private List<ChannelSpec> channelSpecs;
-    private List<LoadProfileSpec> loadProfileSpecs;
-    private List<LogBookSpec> logBookSpecs;
+    private DeviceType deviceType;
+    private List<RegisterSpec> registerSpecs = new ArrayList<>();
+    private List<ChannelSpec> channelSpecs = new ArrayList<>();
+    private List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>();
+    private List<LogBookSpec> logBookSpecs = new ArrayList<>();
     private DeviceCommunicationConfiguration communicationConfiguration;
+    private Date modificationDate;
+    private Clock clock;
 
-    /**
-     * The type ID of the objects this factory manages.
-     */
-    private final TypeId typeId;
+    @Inject
+    protected DeviceConfigurationImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock) {
+        super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
+        this.clock = clock;
 
-    protected DeviceConfigurationImpl(ResultSet resultSet) throws SQLException {
-        doLoad(resultSet);
-        this.typeId = new SoftTypeId(MeteringWarehouse.FACTORYID_DEVICECONFIGURATION, PrimaryKeyExternalRepresentationConvertor.intToBytes(this.getId()));
+        // TODO See if it is required to inject Providers/Builders for the specs
     }
 
-    protected DeviceConfigurationImpl(int id) {
-        super(id);
-        this.typeId = new SoftTypeId(MeteringWarehouse.FACTORYID_DEVICECONFIGURATION, PrimaryKeyExternalRepresentationConvertor.intToBytes(this.getId()));
-    }
 
     @Override
     public DeviceCommunicationConfiguration getCommunicationConfiguration() {
@@ -126,78 +100,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
     }
 
     public int getPrototypeId() {
-        return this.prototypeId;
+        return getPrototypeDevice() == null ? 0 : getPrototypeDevice().getId();
     }
 
     public Device getPrototypeDevice() {
-        if (this.prototypeId == 0) {
-            return null;
-        }
-        if (this.prototype == null) {
-            this.prototype = getBaseFactory().find(this.prototypeId);
-        }
         return this.prototype;
-    }
-
-    @Override
-    protected void doLoad(ResultSet resultSet) throws SQLException {
-        super.doLoad(resultSet);
-        this.description = resultSet.getString(3);
-        this.prototypeId = resultSet.getInt(4);
-        this.deviceTypeId = resultSet.getInt(5);
-        this.active = resultSet.getInt(6) != 0;
-    }
-
-    @Override
-    protected int bindBody(PreparedStatement preparedStatement, int offset) throws SQLException {
-        preparedStatement.setString(offset++, this.description);
-        if (this.prototypeId == 0) {
-            preparedStatement.setNull(offset++, Types.INTEGER);
-        } else {
-            preparedStatement.setInt(offset++, this.prototypeId);
-        }
-        preparedStatement.setInt(offset++, this.deviceTypeId);
-        preparedStatement.setInt(offset++, this.getActive() ? 1 : 0);
-        return offset;
-    }
-
-    private DeviceFactory getBaseFactory() {
-        return DeviceFactoryProvider.instance.get().getDeviceFactory();
-    }
-
-    protected String getTableName() {
-        return DeviceConfigurationFactoryImpl.TABLENAME;
-    }
-
-    protected String[] getColumns() {
-        return DeviceConfigurationFactoryImpl.COLUMNS;
-    }
-
-    public void init(final DeviceConfigurationShadow shadow) throws SQLException, BusinessException {
-        execute(new Transaction<Void>() {
-            public Void doExecute() throws BusinessException, SQLException {
-                doInit(shadow);
-                return null;
-            }
-        });
-    }
-
-    @Override
-    public void collectionMethodChanged(DeviceCollectionMethodType currentType) throws BusinessException, SQLException {
-        switch (currentType) {
-            case DeviceCollectionMethodType.HEADEND_SYSTEM:
-                DeviceCommunicationConfiguration comConfiguration = this.getCommunicationConfiguration();
-                if (comConfiguration != null) {
-                    comConfiguration.delete();
-                    this.communicationConfiguration = null;
-                }
-                break;
-            default:
-                if (this.getCommunicationConfiguration() == null) {
-                    createCommunicationConfiguration(getDeviceType().getNewDeviceConfigurationShadow());
-                }
-        }
-        updatePerformed();
     }
 
     @Override
@@ -230,7 +137,18 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         }
     }
 
+    @Override
+    protected NameIsRequiredException nameIsRequiredException(Thesaurus thesaurus) {
+        return NameIsRequiredException.deviceConfigurationNameIsRequired(this.thesaurus);
+    }
+
+    @Override
+    public void notifyDelete() {
+        //TODO
+    }
+
     private interface ShadowSpecIdProvider<T extends IdObjectShadow> {
+
         public int getSpecID(T shadow);
     }
 
@@ -306,30 +224,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         logBookSpecs = null;
     }
 
-    private RegisterSpecFactory getRtuRegisterSpecFactory() {
-        return RegisterSpecFactoryProvider.instance.get().getRegisterSpecFactory();
-    }
-
-    private ChannelSpecFactory getChannelSpecFactory() {
-        return ChannelSpecFactoryProvider.instance.get().getChannelSpecFactory();
-    }
-
-    private DeviceConfigurationFactory getDeviceConfigFactory() {
-        return DeviceConfigurationFactoryProvider.instance.get().getDeviceConfigurationFactory();
-    }
-
-    private DeviceTypeFactory getRtuTypeFactory() {
-        return DeviceTypeFactoryProvider.instance.get().getDeviceTypeFactory();
-    }
-
-    private LoadProfileSpecFactory getLoadProfileSpecFactory() {
-        return LoadProfileSpecFactoryProvider.instance.get().getLoadProfileSpecFactory();
-    }
-
-    private LogBookSpecFactory getLogBookSpecFactory() {
-        return LogBookSpecFactoryProvider.instance.get().getLogBookSpecFactory();
-    }
-
     protected void validateNew(DeviceConfigurationShadow shadow) throws BusinessException {
         validate(shadow);
         validateConstraint(shadow);
@@ -344,20 +238,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
     }
 
     protected void validate(DeviceConfigurationShadow shadow) throws BusinessException {
-        validate(shadow.getName());
-        int prototypeId = shadow.getPrototypeId();
-        if (getRtuTypeFactory().find(deviceTypeId) == null) {
-            throw new BusinessException("deviceTypeXDoesntExist", "Device type with id {0,number} does not exist", deviceTypeId);
-        }
-        if (prototypeId != 0) {
-            EndDevice rtu = (EndDevice) getBaseFactory().find(prototypeId);
-            if (rtu == null) {
-                throw new BusinessException("prototypeRtuXDoesntExist", "Prototype device with id {0,number} does not exist", prototypeId);
-            }
-            if (rtu.getDeviceType().getId() != getDeviceType().getId()) {
-                throw new BusinessException("prototypeRtuHasWrongTypeX", "Prototype device has wrong type: \"{0}\"", rtu.getDeviceType().getName());
-            }
-        }
         if (getActive() && !shadow.getRegisterSpecShadows().getDeletedShadows().isEmpty()) {
             throw new BusinessException("deleteRegisterSpecsFromActiveDeviceConfigIsNotAllowed",
                     "It's not allowed to delete register specifications of an active device configuration");
@@ -466,27 +346,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         }
     }
 
-    private LogBookType findLogBookType(LogBookSpecShadow logBookSpecShadow) {
-        return LogBookTypeFactoryProvider.instance.get().getLogBookTypeFactory().find(logBookSpecShadow.getLogBookTypeId());
-    }
-
-    private ObisCode findObisCodeFromChannelSpecShadow(ChannelSpecShadow channelSpecShadow) {
-        return RegisterMappingFactoryProvider.instance.get().getRegisterMappingFactory().find(channelSpecShadow.getRtuRegisterMappingId()).getObisCode();
-    }
-
-
-    private ObisCode findObisCodeFromLoadProfileSpecShadow(LoadProfileSpecShadow loadProfileSpecShadow) {
-        return LoadProfileTypeFactoryProvider.instance.get().getLoadProfileTypeFactory().find(loadProfileSpecShadow.getLoadProfileTypeId()).getObisCode();
-    }
-
-    private ObisCode findObisCodeFromRegisterSpecShadow(RegisterSpecShadow registerSpecShadow) {
-        if (registerSpecShadow.getOverruledObisCode() != null) {
-            return registerSpecShadow.getOverruledObisCode();
-        } else {
-            return registerSpecShadow.getObisCode();
-        }
-    }
-
     private void throwExistingObisForLoadProfileSpecError(String obisCodeValue) throws BusinessException {
         throw new BusinessException("noDuplicateObiscodesAllowedForLoadProfile",
                 "It's not allowed to have load profile specifications with the same obis code {0} for device config {1}",
@@ -522,44 +381,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         }
     }
 
-    protected void copyNew(DeviceConfigurationShadow shadow) {
-        copy(shadow);
-        this.active = false;
-    }
-
-    protected void copyUpdate(DeviceConfigurationShadow shadow) {
-        copy(shadow);
-    }
-
-    protected void copy(DeviceConfigurationShadow shadow) {
-        setName(shadow.getName());
-        this.description = shadow.getDescription();
-        this.prototypeId = shadow.getPrototypeId();
-        this.prototype = null;
-        this.deviceTypeId = shadow.getDeviceTypeId();
-    }
-
-    private int getDeviceTypeId() {
-        return deviceTypeId;
-    }
-
     public DeviceType getDeviceType() {
-        return getRtuTypeFactory().find(deviceTypeId);
+        return this.deviceType;
     }
 
     public DeviceConfigurationShadow getShadow() {
         DeviceConfigurationShadow deviceConfigurationShadow = new DeviceConfigurationShadow(this);
         deviceConfigurationShadow.setDeviceCommunicationConfigurationConstructionValidation(new DeviceCommunicationConfigurationConstructionValidationImpl());
         return deviceConfigurationShadow;
-    }
-
-    public void update(final DeviceConfigurationShadow shadow) throws SQLException, BusinessException {
-        execute(new Transaction<Void>() {
-            public Void doExecute () throws BusinessException, SQLException {
-                doUpdate(shadow);
-                return null;
-            }
-        });
     }
 
     protected void doUpdate(DeviceConfigurationShadow shadow) throws BusinessException, SQLException {
@@ -611,7 +440,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         for (RegisterSpecShadow specShadow : specsTocreate) {
             specShadow.setDeviceConfigId(getId());
             // Make sure the linked channels are the newly created ones:
-            if (specShadow.getLinkedChannelSpecShadow()!=null) {
+            if (specShadow.getLinkedChannelSpecShadow() != null) {
                 for (ChannelSpec channelSpec : getChannelSpecs()) {
                     if (channelSpec.getName().equals(specShadow.getLinkedChannelSpecShadow().getName())) {
                         specShadow.setLinkedChannelSpecId(channelSpec.getId());
@@ -783,50 +612,68 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         loadProfileSpecs = null;
     }
 
-    @Override
-    protected void doUpdateAuditInfo(char action) throws SQLException, BusinessException {
-        IdObjectShadow auditCopy = getShadow().getAuditCopy();
-        new AuditTrailFactory().create(auditCopy, MeteringWarehouse.FACTORYID_DEVICECONFIGURATION, action);
+    public List<RegisterSpec> getRegisterSpecs() {
+        return Collections.unmodifiableList(this.registerSpecs);
     }
 
-    public List<RegisterSpec> getRegisterSpecs() {
-        if (registerSpecs == null) {
-            registerSpecs = getRtuRegisterSpecFactory().findByDeviceConfig(this);
-        }
-        return registerSpecs;
+    @Override
+    public void createRegisterSpec(RegisterMapping registerMapping) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void deleteRegisterSpec(RegisterSpec registerSpec) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public List<ChannelSpec> getChannelSpecs() {
-        if (channelSpecs == null) {
-            channelSpecs = getChannelSpecFactory().findByDeviceConfig(this);
-        }
-        return channelSpecs;
+        return Collections.unmodifiableList(this.channelSpecs);
+    }
+
+    @Override
+    public void createChannelSpec(RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void deleteChannelSpec(ChannelSpec channelSpec) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public List<LoadProfileSpec> getLoadProfileSpecs() {
-        if (loadProfileSpecs == null) {
-            loadProfileSpecs = getLoadProfileSpecFactory().findByDeviceConfig(this);
-        }
-        return loadProfileSpecs;
+        return Collections.unmodifiableList(this.loadProfileSpecs);
+    }
+
+    @Override
+    public void createLoadProfileSpec(LoadProfileType loadProfileType) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void deleteLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public List<LogBookSpec> getLogBookSpecs() {
-        if (logBookSpecs == null) {
-            logBookSpecs = getLogBookSpecFactory().findByDeviceConfig(this);
-        }
-        return logBookSpecs;
+        return Collections.unmodifiableList(this.logBookSpecs);
     }
 
-    private MdcInterface getMdcInterface() {
-        return MdcInterfaceProvider.instance.get().getMdcInterface();
+    @Override
+    public void createLogBookSpec(LogBookType logBookType) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void deleteLogBookSpec(LogBookSpec logBookSpec) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public boolean getActive() {
         return active;
     }
 
-    public void activate() throws SQLException, BusinessException {
+    public void activate() {
         execute(new Transaction<Object>() {
             public Object doExecute() throws SQLException, BusinessException {
                 doActivate();
@@ -835,15 +682,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         });
     }
 
-    public void doActivate() throws SQLException, BusinessException {
+    public void doActivate() {
         this.active = true;
         updateField("active", 1);
         updateAuditInfo(AuditTrail.ACTION_UPDATE);
-    }
-
-    @Override
-    protected void updatePerformed() {
-        ((ServerDeviceConfigurationFactory) getDeviceConfigFactory()).clearFromCache(this);
     }
 
     public void deactivate() throws SQLException, BusinessException {
@@ -866,7 +708,39 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
     }
 
     @Override
-    protected void validateDelete() throws SQLException, BusinessException {
+    public void save() {
+        this.modificationDate = this.clock.now();
+        super.save();
+    }
+
+    @Override
+    protected void postNew() {
+        validateRequiredFields();
+        this.getDataMapper().persist(this);
+    }
+
+    private void validateRequiredFields() {
+        validateDeviceTypeExists();
+    }
+
+    private void validateDeviceTypeExists() {
+        if (this.deviceType == null) {
+            throw new DeviceTypeIsRequiredException(this.thesaurus);
+        }
+    }
+
+    @Override
+    protected void post() {
+        this.getDataMapper().update(this);
+    }
+
+    @Override
+    protected void doDelete() {
+        this.getDataMapper().remove(this);
+    }
+
+    @Override
+    protected void validateDelete() {
         if (getActive()) {
             throw new BusinessException("cannotDeleteDeviceConfigSinceActive",
                     "Device configuration '{0}' cannot be deleted because it is still active", this.getName());
@@ -894,17 +768,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         }
     }
 
-    // Exportable Interface
-    @Override
-    public Command<DeviceConfiguration> createConstructor() {
-        return new DeviceConfigurationCommand(this);
-    }
-
-    @Override
-    public boolean isExportAllowed() {
-        return true;
-    }
-
     public boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId) {
         if (getLogBookSpecs() != null && !getLogBookSpecs().isEmpty()) {
             for (LogBookSpec logBookSpec : getLogBookSpecs()) {
@@ -916,31 +779,5 @@ public class DeviceConfigurationImpl extends PersistentNamedObject implements De
         return false;
     }
 
-    @Override
-    public CreateDeviceTransaction newDeviceTransaction () {
-        Device prototype = getPrototypeDevice();
-        if (prototype == null) {
-            return new CreateDeviceFromSpecsTransaction(this);
-        }
-        else {
-            return new CreateDeviceFromPrototypeTransaction(this);
-        }
-    }
-
-    @Override
-    public CreateDeviceTransaction newDeviceTransactionForCloning (Device device) {
-        return new CloneDeviceTransaction(this, (EndDevice) device);
-    }
-
-    @Override
-    public void validateCollectionUpdate(DeviceCollectionMethodType collectionMethodType) throws BusinessException {
-        for (ChannelSpec channelSpec : getChannelSpecs()) {
-            ((EndDeviceChannelSpec) channelSpec).validateFor(collectionMethodType);
-        }
-    }
-
-    public DeviceConfigurationChanges constructDeviceConfigurationChanges(DeviceConfiguration targetConfiguration) {
-        return new DeviceConfigurationChangesImpl(this, targetConfiguration);
-    }
 
 }
