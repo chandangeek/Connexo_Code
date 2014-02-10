@@ -276,7 +276,6 @@ public class DeviceTypeResourceTest extends JerseyTest {
         RegisterMapping registerMapping102 = mock(RegisterMapping.class);
         when(registerMapping102.getId()).thenReturn((int)RM_ID_2);
         when(registerMapping102.getShadow()).thenReturn(registerMappingShadow2);
-        RegisterMapping registerMapping103 = mock(RegisterMapping.class);
         when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
         when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
         when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
@@ -288,6 +287,42 @@ public class DeviceTypeResourceTest extends JerseyTest {
 
         assertThat(registerMappingShadows.getDeletedShadows()).isEmpty();
         assertThat(registerMappingShadows.getNewShadows()).contains(registerMappingShadow2);
+    }
+
+    @Test
+    public void testUpdateRegistersAddNoneExistingRegisterMapping() throws Exception {
+        // Backend has RM 101, UI sets for 101 and 102: 102 should be added but does not exist
+        RegisterMappingInfo registerMappingInfo1 = new RegisterMappingInfo();
+        long RM_ID_1 = 101L;
+        long RM_ID_2 = 102L;
+        registerMappingInfo1.id= RM_ID_1;
+        registerMappingInfo1.name="mapping 1";
+        registerMappingInfo1.obisCode=new ObisCode(1,11,2,12,3,13);
+        RegisterMappingInfo registerMappingInfo2 = new RegisterMappingInfo();
+        registerMappingInfo2.id=RM_ID_2;
+        registerMappingInfo2.name="mapping 2";
+        registerMappingInfo2.obisCode=new ObisCode(11,111,12,112,13,113);
+
+        DeviceType deviceType = mockDeviceType("updater", 31);
+        DeviceTypeShadow deviceTypeShadow = mock(DeviceTypeShadow.class);
+        RegisterMappingShadow registerMappingShadow1 = mock(RegisterMappingShadow.class);
+        when(registerMappingShadow1.getId()).thenReturn((int)RM_ID_1);
+        ShadowList<RegisterMappingShadow> registerMappingShadows = new ShadowList<>();
+        registerMappingShadows.basicAdd(registerMappingShadow1);
+        when(deviceTypeShadow.getRegisterMappingShadows()).thenReturn(registerMappingShadows);
+        when(deviceType.getShadow()).thenReturn(deviceTypeShadow);
+        RegisterMapping registerMapping101 = mock(RegisterMapping.class);
+        when(registerMapping101.getId()).thenReturn((int)RM_ID_1);
+        when(registerMapping101.getShadow()).thenReturn(registerMappingShadow1);
+        when(deviceType.getRegisterMappings()).thenReturn(Arrays.asList(registerMapping101));
+        when(deviceConfigurationService.findDeviceType(31)).thenReturn(deviceType);
+        when(registerMappingFactory.find((int)RM_ID_1)).thenReturn(registerMapping101);
+        when(registerMappingFactory.find((int)RM_ID_2)).thenReturn(null);
+
+        Entity<List<RegisterMappingInfo>> json = Entity.json(Arrays.asList(registerMappingInfo1, registerMappingInfo2));
+        Response response = target("/devicetypes/31/registers").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
     }
 
     @Test

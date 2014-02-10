@@ -178,7 +178,13 @@ public class DeviceTypeResource {
         }
 
         for (RegisterMappingInfo registerMappingInfo : newRegisterMappingsIdMap.values()) {
-            deviceTypeShadow.getRegisterMappingShadows().add(registerMappingFactory.find((int) registerMappingInfo.id).getShadow());
+            RegisterMapping registerMapping = registerMappingFactory.find((int) registerMappingInfo.id);
+            if (registerMapping==null) {
+                throw new WebApplicationException("No register mapping with id " + registerMappingInfo.id,
+                        Response.status(Response.Status.BAD_REQUEST).build());
+
+            }
+            deviceTypeShadow.getRegisterMappingShadows().add(registerMapping.getShadow());
         }
     }
 
