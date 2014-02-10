@@ -188,7 +188,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     public DestinationSpec createDestinationSpec(String name, int retryDelay) {
         DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay);
         spec.save();
-        spec.activate();
+//        spec.activate();
         return spec;
     }
 
