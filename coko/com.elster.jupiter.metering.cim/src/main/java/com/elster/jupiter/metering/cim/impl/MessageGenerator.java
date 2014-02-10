@@ -64,7 +64,7 @@ public class MessageGenerator {
     }
 
     MeterReading createMeterReading(MeterReadings meterReadings, Meter meter) {
-        return meterReadingsGenerator.createMeterReading(meterReadings, meter);
+        return meterReadingsGenerator.createMeterReading(meterReadings, meter, null);
     }
 
     Meter createMeter(com.elster.jupiter.metering.Meter meter) {
