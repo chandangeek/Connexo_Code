@@ -109,10 +109,6 @@ public interface RegisterSpec {
      */
     public BigDecimal getOverflowValue();
 
-    public void save ();
-
-    public void delete ();
-
     void setDeviceConfig(DeviceConfiguration deviceConfig);
 
     void setRegisterMapping(RegisterMapping registerMapping);

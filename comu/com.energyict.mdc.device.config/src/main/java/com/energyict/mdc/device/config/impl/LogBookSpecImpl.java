@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Provider;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -36,7 +37,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         super(LogBookSpec.class, dataModel, eventService, thesaurus);
     }
 
-    LogBookSpec initialize(DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
+    private LogBookSpecImpl initialize(DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
         setDeviceConfiguration(deviceConfiguration);
         setLogBookType(logBookType);
         return this;
@@ -120,10 +121,8 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     }
 
     @Override
-    protected void validateDelete() {
-        if (getDeviceConfig().getActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.thesaurus, this, getDeviceConfig());
-        }
+    public void validateDelete() {
+        // the configuration will validate the 'active' part
     }
 
     @Override
@@ -164,5 +163,25 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
         if(this.deviceConfiguration != null && !this.deviceConfiguration.equals(deviceConfiguration)){
             throw CannotChangeDeviceConfigurationReferenceException.forLogbookSpec(this.thesaurus, this);
         }
+    }
+
+    public static class LogBookSpecBuilder {
+
+        final LogBookSpecImpl logBookSpec;
+
+        LogBookSpecBuilder(Provider<LogBookSpecImpl> logBookSpecProvider, DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
+            this.logBookSpec = logBookSpecProvider.get().initialize(deviceConfiguration, logBookType);
+        }
+
+        public LogBookSpecBuilder setOverruledObisCode(ObisCode overruledObisCode){
+            this.logBookSpec.setOverruledObisCode(overruledObisCode);
+            return this;
+        }
+
+        public LogBookSpecImpl add(){
+            this.logBookSpec.validateRequiredFields();
+            return this.logBookSpec;
+        }
+
     }
 }

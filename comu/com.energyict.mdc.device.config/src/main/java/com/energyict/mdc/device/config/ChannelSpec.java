@@ -57,10 +57,6 @@ public interface ChannelSpec {
 
     DeviceConfiguration getDeviceConfig();
 
-    public void save ();
-
-    public void delete ();
-
     void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
     void setRegisterMapping(RegisterMapping registerMapping);
@@ -88,4 +84,6 @@ public interface ChannelSpec {
     void setProductSpec(ProductSpec productSpec);
 
     ProductSpec getProductSpec();
+
+    void validateDelete();
 }

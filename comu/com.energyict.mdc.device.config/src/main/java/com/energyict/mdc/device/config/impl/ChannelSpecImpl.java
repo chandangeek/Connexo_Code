@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Provider;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -71,7 +72,7 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    public ChannelSpec initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+    private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
         setDeviceConfiguration(deviceConfiguration);
         setRegisterMapping(registerMapping);
         setLoadProfileSpec(loadProfileSpec);
@@ -300,10 +301,8 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     @Override
-    protected void validateDelete() {
-        if (getDeviceConfig().getActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.thesaurus, this, getDeviceConfig());
-        }
+    public void validateDelete() {
+        // the configuration will validate the active 'part'
     }
 
     protected void validateUniqueName(String name) {
@@ -425,6 +424,70 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     @Override
     public ProductSpec getProductSpec() {
         return productSpec;
+    }
+
+    public static class ChannelSpecBuilder {
+
+        final ChannelSpecImpl channelSpec;
+
+        public ChannelSpecBuilder(Provider<ChannelSpecImpl> channelSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
+            this.channelSpec = channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
+        }
+
+        public ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
+            this.channelSpec.setOverruledObisCode(overruledObisCode);
+            return this;
+        }
+
+        public ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits) {
+            this.channelSpec.setNbrOfFractionDigits(nbrOfFractionDigits);
+            return this;
+        }
+
+        public ChannelSpecBuilder setOverflow(BigDecimal overflow) {
+            this.channelSpec.setOverflow(overflow);
+            return this;
+        }
+
+        public ChannelSpecBuilder setPhenomenon(Phenomenon phenomenon) {
+            this.channelSpec.setPhenomenon(phenomenon);
+            return this;
+        }
+
+        public ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod) {
+            this.channelSpec.setReadingMethod(readingMethod);
+            return this;
+        }
+
+        public ChannelSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
+            this.channelSpec.setMultiplierMode(multiplierMode);
+            return this;
+        }
+
+        public ChannelSpecBuilder setMultiplier(BigDecimal multiplier) {
+            this.channelSpec.setMultiplier(multiplier);
+            return this;
+        }
+
+        public ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
+            this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
+            return this;
+        }
+
+        public ChannelSpecBuilder setInterval(TimeDuration interval) {
+            this.channelSpec.setInterval(interval);
+            return this;
+        }
+
+        public ChannelSpecBuilder setProductSpec(ProductSpec productSpec) {
+            this.channelSpec.setProductSpec(productSpec);
+            return this;
+        }
+
+        public ChannelSpec add(){
+            this.channelSpec.validateRequiredFields();
+            return this.channelSpec;
+        }
     }
 
 }

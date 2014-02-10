@@ -37,14 +37,11 @@ public interface LogBookSpec {
      */
     public ObisCode getObisCode();
 
-
-    public void save ();
-
-    public void delete ();
-
     void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
     void setLogBookType(LogBookType logBookType);
 
     void setOverruledObisCode(ObisCode overruledObisCode);
+
+    void validateDelete();
 }

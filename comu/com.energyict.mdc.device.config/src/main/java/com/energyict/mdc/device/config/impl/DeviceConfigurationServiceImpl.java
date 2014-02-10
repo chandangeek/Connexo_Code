@@ -47,12 +47,8 @@ import java.util.List;
 @Component(name="com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, InstallService.class})
 public class DeviceConfigurationServiceImpl implements DeviceConfigurationService, InstallService {
 
-    private Provider<RegisterSpecImpl> registerSpecProvider;
-    private Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
-    private Provider<LogBookSpecImpl> logBookSpecProvider;
     private Provider<PhenomenonImpl> phenomenonProvider;
-    private Provider<ChannelSpecImpl> channelSpecProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -63,19 +59,11 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     @Inject
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
-                                          Provider<RegisterSpecImpl> registerSpecProvider,
-                                          Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
                                           Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
-                                          Provider<LogBookSpecImpl> logBookSpecProvider,
-                                          Provider<PhenomenonImpl> phenomenonProvider,
-                                          Provider<ChannelSpecImpl> channelSpecProvider) {
+                                          Provider<PhenomenonImpl> phenomenonProvider) {
         this();
-        this.registerSpecProvider = registerSpecProvider;
-        this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.loadProfileTypeProvider = loadProfileTypeProvider;
-        this.logBookSpecProvider = logBookSpecProvider;
         this.phenomenonProvider = phenomenonProvider;
-        this.channelSpecProvider = channelSpecProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -167,11 +155,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public RegisterSpec newRegisterSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
-        return this.registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
-    }
-
-    @Override
     public ChannelSpec findChannelSpec(long channelSpecId) {
         return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId).orNull();
     }
@@ -240,11 +223,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Override
-    public LoadProfileSpec newLoadProfileSpec(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType) {
-        return this.loadProfileSpecProvider.get().initialize(deviceConfiguration, loadProfileType);
-    }
-
-    @Override
     public LoadProfileSpec findLoadProfileSpec(int loadProfileSpecId) {
         return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId).orNull();
     }
@@ -262,11 +240,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public LogBookType findLogBookType(long logBookTypeId) {
         return this.getDataModel().mapper(LogBookType.class).getUnique("id", logBookTypeId).orNull();
-    }
-
-    @Override
-    public LogBookSpec newLogBookSpec(DeviceConfiguration deviceConfiguration, LogBookType logBookType) {
-        return this.logBookSpecProvider.get().initialize(deviceConfiguration, logBookType);
     }
 
     @Override
@@ -317,11 +290,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfiguration, String name) {
         return this.getDataModel().mapper(ChannelSpec.class).getUnique("deviceConfiguration", deviceConfiguration, "name", name).orNull();
-    }
-
-    @Override
-    public ChannelSpec newChannelSpec(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping, Phenomenon phenomenon, LoadProfileSpec loadProfileSpec) {
-        return this.channelSpecProvider.get().initialize(deviceConfiguration, registerMapping, phenomenon, loadProfileSpec);
     }
 
     @Override

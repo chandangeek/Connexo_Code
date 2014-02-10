@@ -30,8 +30,5 @@ public interface LoadProfileSpec {
 
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
-    public void save ();
-
-    public void delete ();
-
+    void validateDelete();
 }

@@ -7,6 +7,8 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.impl.RegisterSpecImpl;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -69,6 +71,24 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
     public static CannotDeleteFromActiveDeviceConfigurationException forChannelSpec(Thesaurus thesaurus, ChannelSpec channelSpec, DeviceConfiguration deviceConfiguration) {
         CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG, channelSpec, deviceConfiguration);
         cannotDeleteFromActiveDeviceConfigurationException.set("channelSpec", channelSpec);
+        cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
+        return cannotDeleteFromActiveDeviceConfigurationException;
+    }
+
+    /**
+     * Creates a new CannotDeleteFromActiveDeviceConfigurationException that models the
+     * exceptional situation that occurs when an attempt is made
+     * to delete a {@link com.energyict.mdc.device.config.RegisterSpec} from an
+     * <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     *
+     * @param thesaurus           The Thesaurus
+     * @param deviceConfiguration
+     * @param registerSpec
+     * @return The CannotDeleteFromActiveDeviceConfigurationException
+     */
+    public static CannotDeleteFromActiveDeviceConfigurationException canNotDeleteRegisterSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, RegisterSpec registerSpec) {
+        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG);
+        cannotDeleteFromActiveDeviceConfigurationException.set("registerSpec", registerSpec);
         cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
         return cannotDeleteFromActiveDeviceConfigurationException;
     }

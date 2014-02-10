@@ -113,7 +113,7 @@ public class RegisterMappingImpl extends PersistentNamedObject<RegisterMapping> 
             }
             RegisterMapping otherRegisterMapping = this.findOtherByObisCode(obisCode);
             if (otherRegisterMapping != null) {
-                throw new DuplicateObisCodeException(this.getThesaurus(), obisCode, otherRegisterMapping);
+                throw DuplicateObisCodeException.forRegisterMapping(this.getThesaurus(), obisCode, otherRegisterMapping);
             }
             this.obisCodeString = obisCode.toString();
             this.obisCode = obisCode;

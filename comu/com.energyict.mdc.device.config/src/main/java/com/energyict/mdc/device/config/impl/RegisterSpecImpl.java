@@ -3,8 +3,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Provider;
 import com.elster.jupiter.util.time.Clock;
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -14,8 +14,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigIsRequiredException;
-import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DuplicatePrimeRegisterSpecException;
 import com.energyict.mdc.device.config.exceptions.InCorrectDeviceConfigOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.InvalidValueException;
@@ -26,7 +26,6 @@ import com.energyict.mdc.protocol.api.device.MultiplierMode;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +56,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
+    private RegisterSpecImpl initialize(DeviceConfiguration deviceConfig, RegisterMapping registerMapping) {
         this.setDeviceConfig(deviceConfig);
         this.setRegisterMapping(registerMapping);
         return this;
@@ -130,11 +129,11 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     public void save() {
         this.modificationDate = this.clock.now();
-        validateDependentAttributes();
+        validateRequired();
         super.save();
     }
 
-    private void validateDependentAttributes() {
+    private void validateRequired() {
         validateLinkedChannelSpec();
         validateOverFlowAndNumberOfDigits();
         validateNumberOfFractionDigitsOfOverFlowValue();
@@ -149,8 +148,8 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     @Override
     protected void validateDelete() {
         // we should rely on the 'Activation' state of the Configuration. If the Configuration is not active, then we must be able to delete them.
-        if(getDeviceConfiguration().getActive()){
-            throw DeviceConfigurationIsActiveException.canNotDeleteRegisterSpec(this.thesaurus);
+        if (getDeviceConfiguration().getActive()) {
+            throw CannotDeleteFromActiveDeviceConfigurationException.canNotDeleteRegisterSpec(this.thesaurus, getDeviceConfiguration(), this);
         }
     }
 
@@ -247,7 +246,7 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
         if (this.overflow != null) {
             int scale = this.overflow.scale();
             if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, this.overflow, scale,this. numberOfFractionDigits);
+                throw new OverFlowValueHasIncorrectFractionDigitsException(this.thesaurus, this.overflow, scale, this.numberOfFractionDigits);
             }
         }
     }
@@ -295,12 +294,71 @@ public class RegisterSpecImpl extends PersistentIdObject<RegisterSpec> implement
     private void validateChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType, ChannelSpec channelSpec) {
         if (channelSpec != null && channelSpecLinkType != null) {
             List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByChannelSpecAndLinkType(channelSpec, channelSpecLinkType);
-            if(registerSpecs.size() > 0){
+            if (registerSpecs.size() > 0) {
                 RegisterSpec currentPrimeRegisterSpec = registerSpecs.get(0);
                 if (currentPrimeRegisterSpec != null && channelSpecLinkType == ChannelSpecLinkType.PRIME) {
                     throw new DuplicatePrimeRegisterSpecException(this.thesaurus, channelSpec, currentPrimeRegisterSpec);
                 }
             }
+        }
+    }
+
+    public static class RegisterSpecBuilder {
+
+        final RegisterSpecImpl registerSpec;
+
+        public RegisterSpecBuilder(Provider<RegisterSpecImpl> registerSpecProvider, DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
+            registerSpec = registerSpecProvider.get().initialize(deviceConfiguration, registerMapping);
+        }
+
+        public RegisterSpecBuilder setRegisterMapping(RegisterMapping registerMapping) {
+            this.registerSpec.setRegisterMapping(registerMapping);
+            return this;
+        }
+
+        public RegisterSpecBuilder setLinkedChannelSpec(ChannelSpec linkedChannelSpec) {
+            this.registerSpec.setLinkedChannelSpec(linkedChannelSpec);
+            return this;
+        }
+
+        public RegisterSpecBuilder setNumberOfDigits(int numberOfDigits) {
+            this.registerSpec.setNumberOfDigits(numberOfDigits);
+            return this;
+        }
+
+        public RegisterSpecBuilder setNumberOfFractionDigits(int numberOfFractionDigits) {
+            this.registerSpec.setNumberOfFractionDigits(numberOfFractionDigits);
+            return this;
+        }
+
+        public RegisterSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
+            this.registerSpec.setOverruledObisCode(overruledObisCode);
+            return this;
+        }
+
+        public RegisterSpecBuilder setOverflow(BigDecimal overflow) {
+            this.registerSpec.setOverflow(overflow);
+            return this;
+        }
+
+        public RegisterSpecBuilder setMultiplier(BigDecimal multiplier) {
+            this.registerSpec.setMultiplier(multiplier);
+            return this;
+        }
+
+        public RegisterSpecBuilder setMultiplierMode(MultiplierMode multiplierMode) {
+            this.registerSpec.setMultiplierMode(multiplierMode);
+            return this;
+        }
+
+        public RegisterSpecBuilder setChannelSpecLinkType(ChannelSpecLinkType channelSpecLinkType) {
+            this.registerSpec.setChannelSpecLinkType(channelSpecLinkType);
+            return this;
+        }
+
+        public RegisterSpec add() {
+            this.registerSpec.validateRequired();
+            return this.registerSpec;
         }
     }
 }

@@ -33,7 +33,7 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
         this.name = name;
     }
 
-    private void validateName(String newName) {
+    protected void validateName(String newName) {
         if (newName == null) {
             throw nameIsRequiredException(this.getThesaurus());
         }
