@@ -2,7 +2,10 @@ package com.elster.jupiter.nls.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -14,8 +17,10 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.Locale;
 
-@Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = "name=" + NlsService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
 public class NlsServiceImpl implements NlsService, InstallService {
 
     private volatile DataModel dataModel;
@@ -76,5 +81,22 @@ public class NlsServiceImpl implements NlsService, InstallService {
     @Override
     public void install() {
         dataModel.install(true, true);
+    }
+
+    public void addTranslation(String componentName, String layerName, String key, String defaultMessage) {
+        try {
+            Layer layer = Layer.valueOf(layerName);
+            Thesaurus thesaurus = getThesaurus(componentName, layer);
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(componentName, layer, key).defaultMessage(defaultMessage);
+            Translation translation = SimpleTranslation.translation(nlsKey, Locale.ENGLISH, defaultMessage);
+            thesaurus.addTranslations(Arrays.asList(translation));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public void addTranslation(Object... args) {
+        System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
     }
 }
