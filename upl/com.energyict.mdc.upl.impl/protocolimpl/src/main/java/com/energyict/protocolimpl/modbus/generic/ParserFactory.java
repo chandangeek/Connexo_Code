@@ -88,10 +88,10 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                         BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
                         return new BigDecimal(bigInteger);
                     } else {
-                        throw new ModbusException("ParserFactory, UnsignedValueParser, received data has invalid length (" + values.length + ")");
+                        throw new ModbusException("ParserFactory, SignedValueParser, received data has invalid length (" + values.length + ")");
                     }
                 } catch (IOException e) {
-                    throw new ModbusException("ParserFactory, UnsignedValueParser, failed to parse the value: " + e.getMessage());
+                    throw new ModbusException("ParserFactory, SignedValueParser, failed to parse the value: " + e.getMessage());
                 }
             }
         };
@@ -109,7 +109,7 @@ public class ParserFactory extends com.energyict.protocolimpl.modbus.core.Parser
                     BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
                     return new BigDecimal(Double.toString(Double.longBitsToDouble(bigInteger.longValue())));
                 } else {
-                    throw new ModbusException("ParserFactory, UnsignedValueParser, received data has invalid length (" + values.length + ")");
+                    throw new ModbusException("ParserFactory, FloatingPointParser, received data has invalid length (" + values.length + ")");
                 }
             }
         };
