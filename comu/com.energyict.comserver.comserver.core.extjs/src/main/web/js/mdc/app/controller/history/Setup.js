@@ -91,6 +91,10 @@ Ext.define('Mdc.controller.history.Setup', {
     handleRegisterMappingTokens: function (tokens) {
         if (tokens.length === 4) {
             Mdc.getApplication().getSetupRegisterMappingsController().showRegisterMappings(tokens[2]);
+        } else if (tokens.length === 5) {
+            if (tokens[4] === 'add') {
+                Mdc.getApplication().getSetupRegisterMappingsController().addRegisterMappings(tokens[2]);
+            }
         }
     },
 
