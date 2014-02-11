@@ -15,40 +15,85 @@
  */
 Ext.define('Uni.view.container.ContentContainer', {
     extend: 'Ext.container.Container',
-    xtype: 'contentcontainer',
-    overflowY: 'auto',
+    alias: 'widget.contentcontainer',
 
     requires: [
-        'Ext.layout.component.Dock'
+        'Uni.view.breadcrumb.Trail'
     ],
 
-    baseCls: 'content-wrapper',
+    baseCls: Uni.About.baseCssPrefix + 'content-container',
+    layout: 'border',
 
-    renderTpl: [
-//        '<div style="clear: both;">Breadcrumbs</div>',
-//        '<div>',
-//        '<div style="position: relative; float: left;">Menu</div>',
-//        '<div style="position: relative; float: left;">',
-        '{%this.renderContainer(out,values);%}'
-//        '</div>',
-//        '</div>'
+    /**
+     * @cfg {Object/Ext.Component}
+     *
+     * Configuration of the content panel. Used just as if you would use the items configuration.
+     */
+    content: null,
+
+    items: [
+        {
+            region: 'north',
+            xtype: 'container',
+            itemId: 'northContainer',
+            cls: 'north',
+            layout: 'hbox',
+            items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    itemId: 'breadcrumbTrail'
+                }
+            ]
+        },
+        {
+            region: 'west',
+            xtype: 'container',
+            itemId: 'westContainer',
+            cls: 'west'
+        },
+        {
+            region: 'center',
+            xtype: 'container',
+            cls: 'center',
+            overflowY: 'auto',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: []
+        }
     ],
 
-    header: Ext.create('Ext.Component', {
-        html: 'Header'
-    }),
-    menu: Ext.create('Ext.Component', {
-        html: 'Menu'
-    })
+    initComponent: function () {
+        var content = this.content;
 
-    // @private
-//    getDefaultContentTarget: function () {
-//        return this.body;
-//    },
+        if (content) {
+            if (!(content instanceof Ext.Component)) {
+                // Never modify a passed config object, that could break the expectations of the using code.
+                content = Ext.clone(content);
+            }
 
-    // @private
-//    getTargetEl: function () {
-//        return this.body;
-//    }
+            this.items[2].items = content;
+        }
+        // Else use the default config already in place.
+
+        this.callParent(arguments);
+    },
+
+    getNorthContainer: function () {
+        return this.down('#northContainer');
+    },
+
+    getBreadcrumbTrail: function () {
+        return this.down('#breadcrumbTrail');
+    },
+
+    getWestContainer: function () {
+        return this.down('#westContainer');
+    },
+
+    getCenterContainer: function () {
+        return this.down('#centerContainer');
+    }
 
 });
