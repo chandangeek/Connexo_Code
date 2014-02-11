@@ -1,5 +1,6 @@
 Ext.define('Cfg.view.validation.RuleBrowse', {
     extend: 'Ext.panel.Panel',
+    ruleSetId: null,
     alias: 'widget.validationruleBrowse',
     itemId: 'validationruleBrowse',
     cls: 'content-container',
@@ -25,7 +26,9 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                     margins: '10 10 10 10'
                 },
                 {
-                    xtype: 'validationruleList'
+                    xtype: 'container',
+                    items: [],
+                    itemId: 'validationruleListContainer'
                 },
                 {
                     xtype: 'component',
@@ -45,6 +48,12 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
 
     initComponent: function () {
         this.callParent(arguments);
+        this.down('#validationruleListContainer').add(
+            {
+                xtype: 'validationruleList',
+                ruleSetId: this.ruleSetId
+            }
+        );
     }
 });
 

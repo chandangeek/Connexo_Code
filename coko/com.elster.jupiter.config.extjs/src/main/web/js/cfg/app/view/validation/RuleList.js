@@ -11,6 +11,12 @@ Ext.define('Cfg.view.validation.RuleList', {
         'Uni.view.toolbar.PagingBottom'
     ],
 
+    ruleSetId: 9001,
+
+    setRuleSetId: function(value) {
+        this.ruleSetId = value;
+    },
+
     columns: {
 
         items: [
@@ -97,7 +103,9 @@ Ext.define('Cfg.view.validation.RuleList', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
-                dock: 'bottom'
+                dock: 'bottom',
+                itemId: 'rulesListBottomPagingToolbar',
+                param: this.ruleSetId
             }];
         this.callParent(arguments);
     }

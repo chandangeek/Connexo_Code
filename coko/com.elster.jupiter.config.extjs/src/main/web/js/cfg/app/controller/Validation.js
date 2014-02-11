@@ -278,7 +278,7 @@ Ext.define('Cfg.controller.Validation', {
 
     showRules: function(id) {
         var me = this;
-        var rulesWidget = Ext.create('Cfg.view.validation.RuleBrowse');
+        var rulesWidget = Ext.create('Cfg.view.validation.RuleBrowse', {ruleSetId: id});
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
 
         this.getValidationRulesStore().clearFilter();
@@ -292,10 +292,10 @@ Ext.define('Cfg.controller.Validation', {
                 var selectedRuleSet = ruleSetsStore.getById(id);
                 var ruleSetName = selectedRuleSet.get("name");
                 me.getRuleBrowseTitle().update('<h1>' + ruleSetName + ' - Rules</h1>');
-                me.getValidationRulesStore().load({
+                /*me.getValidationRulesStore().load({
                     params: {
                         id: id
-                    }});
+                    }});        */
                 var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
                 Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
 
