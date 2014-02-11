@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
     itemId: 'deviceTypeSetup',
     requires: [
         'Mdc.view.setup.devicetype.DeviceTypesGrid',
-        'Mdc.view.setup.devicetype.DeviceTypePreview'
+        'Mdc.view.setup.devicetype.DeviceTypePreview',
+        'Uni.view.breadcrumb.Trail'
     ],
     layout: {
         type: 'vbox',
@@ -23,7 +24,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            items:[
+            items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
                 {
                     xtype: 'component',
                     html: '<h1>Device types</h1>',
@@ -39,7 +45,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                 {
                     xtype: 'deviceTypePreview'
                 }
-    ]}],
+            ]}
+    ],
 
 
     initComponent: function () {

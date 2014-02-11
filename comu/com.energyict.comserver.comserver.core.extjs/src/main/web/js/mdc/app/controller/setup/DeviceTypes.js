@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceTypes', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
+
     views: [
         'setup.devicetype.DeviceTypesSetup',
         'setup.devicetype.DeviceTypesGrid',
@@ -33,6 +37,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             '#devicetypegrid': {
                 selectionchange: this.previewDeviceType
             },
+            '#deviceTypeSetup breadcrumbTrail': {
+                afterrender: this.onAfterRender
+            },
             '#devicetypegrid actioncolumn':{
                 editItem: this.editDeviceTypeHistory,
                 deleteItem: this.deleteDeviceType
@@ -61,7 +68,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             '#deviceTypeEdit #communicationProtocolComboBox': {
                 change: this.proposeDeviceTypeName
             }
-
         });
     },
 
@@ -168,6 +174,20 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             });
 
         }
+    },
+
+    onAfterRender: function (breadcrumbs) {
+        var breadcrumbChild = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Device types',
+            href: '#setup/devicetypes'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Administration',
+            href: '#setup'
+        });
+        breadcrumbParent.setChild(breadcrumbChild);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     editDeviceTypeFromDetails: function(){
