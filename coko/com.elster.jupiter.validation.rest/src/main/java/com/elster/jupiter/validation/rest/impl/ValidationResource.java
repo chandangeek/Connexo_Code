@@ -100,7 +100,7 @@ public class ValidationResource {
                         ValidationRule rule = null;
                         if (optional.isPresent()) {
                             ValidationRuleSet set = optional.get();
-                            rule = set.addRule(ValidationAction.FAIL, info.implementation);
+                            rule = set.addRule(ValidationAction.FAIL, info.implementation, info.name);
                             for (ReadingTypeInfo readingTypeInfo: info.readingTypes) {
                                 rule.addReadingType(Bus.getMeteringService().getReadingType(readingTypeInfo.mRID).get());
                             }
