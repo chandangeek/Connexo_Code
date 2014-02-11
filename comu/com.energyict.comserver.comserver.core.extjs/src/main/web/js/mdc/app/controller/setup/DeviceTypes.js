@@ -120,7 +120,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     deleteDeviceTypeFromDetails: function () {
-        debugger;
         var deviceTypeToDelete = this.getDeviceTypeDetailForm().getRecord();
         deviceTypeToDelete.destroy({
             callback: function(){

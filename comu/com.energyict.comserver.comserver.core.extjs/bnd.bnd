@@ -1,4 +1,4 @@
 -classpath: target/classes
-Bundle-Activator: com.energyict.comserver.core.extjs.Activator
+-dsannotations: *
 Private-Package: com.energyict.comserver.core.extjs
-Include-Resource: src/main/web
+Include-Resource: src/main/web,src/main/resources
