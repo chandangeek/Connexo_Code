@@ -227,7 +227,8 @@ public class DeviceTypeResource {
                 return registerMappingShadow;
             }
         }
-        return null;
+        throw new WebApplicationException("This situation should never have happened: error looking up shadow in internal list: " + id,
+                Response.status(Response.Status.INTERNAL_SERVER_ERROR).build());
     }
 
     private Map<Long, RegisterMappingInfo> asIdz(List<RegisterMappingInfo> registerMappingInfos) {
