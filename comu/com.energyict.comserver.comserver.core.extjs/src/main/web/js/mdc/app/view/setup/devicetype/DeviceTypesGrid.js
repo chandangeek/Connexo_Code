@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
         var me = this;
         this.columns = [
             {
-                header : 'Name',
+                header : I18n.translate('devicetype.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
                 flex: 1
             },
             {
-                header: 'Protocol',
+                header: I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device communication protocol'),
                 dataIndex: 'communicationProtocolName',
                 sortable: false,
                 hideable: false,
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 xtype:'actioncolumn',
                 tdCls:'view',
-                header : 'Actions',
+                header : I18n.translate('general.actions', 'MDC', 'Actions'),
                 sortable: false,
                 hideable: false,
                 items: [{

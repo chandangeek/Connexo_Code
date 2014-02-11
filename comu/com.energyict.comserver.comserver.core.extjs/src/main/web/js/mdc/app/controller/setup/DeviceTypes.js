@@ -80,14 +80,14 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         if (deviceTypes.length == 1) {
             var deviceTypeId = deviceTypes[0].get('id');
             this.getDeviceTypeRegisterLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/registermappings'});
-            this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' registers');
+            this.getDeviceTypeRegisterLink().getEl().setHTML(deviceTypes[0].get('registerCount') + ' ' + I18n.translate('devicetype.registers', 'MDC', 'registers'));
             this.getDeviceTypeLogBookLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/logbooks'});
-            this.getDeviceTypeLogBookLink().getEl().setHTML(deviceTypes[0].get('logBookCount') + ' logbooks');
+            this.getDeviceTypeLogBookLink().getEl().setHTML(deviceTypes[0].get('logBookCount') + ' '+ I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'));
             this.getDeviceTypeLoadProfilesLink().getEl().set({href: '#/setup/devicetypes/' + deviceTypeId + '/loadprofiles'});
-            this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' loadprofiles');
+            this.getDeviceTypeLoadProfilesLink().getEl().setHTML(deviceTypes[0].get('loadProfileCount') + ' ' + I18n.translate('deviceType.loadProfiles', 'MDC', 'loadprofiles'));
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
             this.getDeviceTypePreview().getLayout().setActiveItem(1);
-            this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">View details</a>');
+            this.getDeviceTypeDetailsLink().update('<a href="#/setup/devicetypes/' + deviceTypeId + '">'+ I18n.translate('general.viewDetails', 'MDC', 'View details')+'</a>');
             this.getDeviceTypePreviewTitle().update('<h4>' + deviceTypes[0].get('name') + '</h4>');
         } else {
             this.getDeviceTypePreview().getLayout().setActiveItem(0);
@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceType, {
             success: function (deviceType) {
                 widget.down('form').loadRecord(deviceType);
-                me.getDeviceTypePreviewTitle().update('<h4>' + deviceType.get('name') + ' Overview' + '</h4>');
+                me.getDeviceTypePreviewTitle().update('<h4>' + deviceType.get('name') + ' ' + I18n.translate('general.overview', 'MDC', 'Overview') + '</h4>');
             }
         });
         Mdc.getApplication().getMainController().showContent(widget);

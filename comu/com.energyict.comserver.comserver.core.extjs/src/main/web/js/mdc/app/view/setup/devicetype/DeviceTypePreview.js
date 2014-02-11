@@ -1,207 +1,3 @@
-var items = [
-    {
-        xtype: 'panel',
-        border: false,
-        padding: '0 10 0 10',
-        tbar: [
-            {
-                xtype: 'component',
-                html: '<H4>No device type selected</H4>'
-            }
-        ],
-        items: [
-            {
-                xtype: 'component',
-                height: '100px',
-                html: '<H5>Select a device type to view its detail.</H5>'
-            }
-        ]
-
-    },
-    {
-        xtype: 'form',
-        border: false,
-        itemId: 'deviceTypePreviewForm',
-        padding: '0 10 0 10',
-        layout: {
-            type: 'vbox',
-            align: 'stretch'
-        },
-        tbar: [
-            {
-                xtype: 'component',
-                html: '<h4>Device type</h4>',
-                itemId: 'deviceTypePreviewTitle'
-            },
-            '->',
-            {
-                icon: 'resources/images/gear-16x16.png',
-                text: 'Actions',
-                menu: {
-                    items: [
-                        {
-                            text: 'Edit',
-                            itemId: 'editDeviceType',
-                            action: 'editDeviceType'
-
-                        },
-                        {
-                            xtype: 'menuseparator'
-                        },
-                        {
-                            text: 'Delete',
-                            itemId: 'deleteDeviceType',
-                            action: 'deleteDeviceType'
-
-                        }
-                    ]
-                }
-            }
-        ],
-        items: [
-            {
-                xtype: 'container',
-                layout: {
-                    type: 'column'
-//                        align: 'stretch'
-                },
-                padding: '10 0 0 0',
-                items: [
-                    {
-                        xtype: 'container',
-                        columnWidth: 0.5,
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults:{
-                            labelWidth: 250
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'name',
-                                fieldLabel: 'Name',
-                                itemId: 'deviceName'
-
-                            },
-                            {
-                                xtype: 'displayfield',
-                                name: 'communicationProtocolName',
-                                fieldLabel: 'Device Communication protocol'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                name: 'deviceFunction',
-                                fieldLabel: 'deviceFunction'
-                            },
-                            {
-                                xtype: 'displayfield',
-                                name: 'canBeGateway',
-                                fieldLabel: 'canBeGateway',
-                                renderer: function (item) {
-                                    return item?'Yes':'No';
-                                },
-                                readOnly: true
-                            },
-                            {
-                                xtype: 'displayfield',
-                                name: 'canBeDirectlyAddressable',
-                                fieldLabel: 'canBeDirectlyAddressable',
-                                renderer: function (item) {
-                                    return item?'Yes':'No';
-                                },
-                                readOnly: true
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'container',
-                        columnWidth: 0.5,
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults:{
-                            labelWidth: 250
-                        },
-                        items: [
-                            {
-                                xtype: 'fieldcontainer',
-                                columnWidth: 0.5,
-                                fieldLabel: 'Data sources',
-                                layout: {
-                                    type: 'vbox',
-                                    align: 'stretch'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'component',
-                                        name: 'registerCount',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: 'Registers'
-                                        },
-                                        itemId: 'deviceTypeRegistersLink'
-                                    },
-
-
-                                    {
-                                        xtype: 'component',
-                                        name: 'loadProfileCount',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: 'loadprofiles'
-                                        },
-                                        itemId: 'deviceTypeLoadProfilesLink'
-
-                                    },
-                                    {
-                                        xtype: 'component',
-                                        name: 'logBookCount',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: '#',
-                                            html: 'logbooks'
-                                        },
-                                        itemId: 'deviceTypeLogBooksLink'
-                                    }
-                                ]
-                            },
-
-                            {
-                                xtype: 'displayfield',
-                                name: 'deviceConfigurationCount',
-                                fieldLabel: 'deviceConfigurationCount',
-                                renderer: function (item, b) {
-                                    return '<a href="#' + item + '">' + item + ' device configurations</a>';
-                                }
-                            }
-                        ]
-                    }
-
-                ]
-            },
-            {
-                xtype: 'toolbar',
-                docked: 'bottom',
-                border: false,
-                title: 'Bottom Toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'component',
-                        itemId: 'deviceTypeDetailsLink',
-                        html: '' // filled in in Controller
-                    }
-
-                ]
-            }
-        ]
-    }
-];
 Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
     extend: 'Ext.panel.Panel',
     border: true,
@@ -224,14 +20,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<H4>No device type selected</H4>'
+                    html: '<H4>'+I18n.translate('devicetype.noDeviceTypeSelected', 'MDC', 'No device type selected')+'</H4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<H5>Select a device type to view its detail.</H5>'
+                    html: '<H5>'+I18n.translate('devicetype.selectDeviceType', 'MDC', 'Select a device type to see its details')+'</H5>'
                 }
             ]
 
@@ -254,11 +50,11 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                 '->',
                 {
                     icon: 'resources/images/gear-16x16.png',
-                    text: 'Actions',
+                    text: I18n.translate('general.actions', 'MDC', 'Actions'),
                     menu: {
                         items: [
                             {
-                                text: 'Edit',
+                                text: I18n.translate('general.edit', 'MDC', 'Edit'),
                                 itemId: 'editDeviceType',
                                 action: 'editDeviceType'
 
@@ -267,7 +63,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 xtype: 'menuseparator'
                             },
                             {
-                                text: 'Delete',
+                                text: I18n.translate('general.delete', 'MDC', 'Delete'),
                                 itemId: 'deleteDeviceType',
                                 action: 'deleteDeviceType'
 
@@ -299,35 +95,35 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: 'Name',
+                                    fieldLabel: I18n.translate('devicetype.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'communicationProtocolName',
-                                    fieldLabel: 'Device Communication protocol'
+                                    fieldLabel: I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceFunction',
-                                    fieldLabel: 'deviceFunction'
+                                    fieldLabel: I18n.translate('devicetype.deviceFunction', 'MDC', 'Device function')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'canBeGateway',
-                                    fieldLabel: 'canBeGateway',
+                                    fieldLabel: I18n.translate('devicetype.canBeGateway', 'MDC', 'Device can be a gateway'),
                                     renderer: function (item) {
-                                        return item?'Yes':'No';
+                                        return item? I18n.translate('general.yes', 'MDC', 'Yes'): I18n.translate('general.no', 'MDC', 'No');
                                     },
                                     readOnly: true
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'canBeDirectlyAddressable',
-                                    fieldLabel: 'canBeDirectlyAddressable',
+                                    fieldLabel: I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
                                     renderer: function (item) {
-                                        return item?'Yes':'No';
+                                        return item? I18n.translate('general.yes', 'MDC', 'Yes'): I18n.translate('general.no', 'MDC', 'No');
                                     },
                                     readOnly: true
                                 }
@@ -347,7 +143,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 {
                                     xtype: 'fieldcontainer',
                                     columnWidth: 0.5,
-                                    fieldLabel: 'Data sources',
+                                    fieldLabel: I18n.translate('devicetype.dataSources', 'MDC', 'Data sources'),
                                     layout: {
                                         type: 'vbox',
                                         align: 'stretch'
@@ -392,9 +188,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceConfigurationCount',
-                                    fieldLabel: 'deviceConfigurationCount',
+                                    fieldLabel: I18n.translate('devicetype.deviceConfigurationCount', 'MDC', 'Device configuration count'),
                                     renderer: function (item, b) {
-                                        return '<a href="#' + item + '">' + item + ' device configurations</a>';
+                                        return '<a href="#' + item + '">' + item + ' ' + I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations')
+                                        + '</a>';
                                     }
                                 }
                             ]

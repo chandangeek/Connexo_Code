@@ -419,9 +419,6 @@ Ext.ClassManager.addNameAlternateMappings({
   "Ext.grid.column.Boolean": [
     "Ext.grid.BooleanColumn"
   ],
-  "Ext.grid.column.CheckColumn": [
-    "Ext.ux.CheckColumn"
-  ],
   "Ext.grid.column.Column": [
     "Ext.grid.Column"
   ],
@@ -1276,9 +1273,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Ext.grid.column.Boolean": [
     "widget.booleancolumn"
   ],
-  "Ext.grid.column.CheckColumn": [
-    "widget.checkcolumn"
-  ],
+
   "Ext.grid.column.Column": [
     "widget.gridcolumn"
   ],
