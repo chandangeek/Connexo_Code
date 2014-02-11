@@ -67,6 +67,10 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.activate();
+        if (!this.dataModel.isInstalled()) {
+            this.install();
+        }
     }
 
     @Override
