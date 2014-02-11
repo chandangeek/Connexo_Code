@@ -70,7 +70,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         super(DeviceConfiguration.class, dataModel, eventService, thesaurus);
         this.clock = clock;
 
-        // TODO See if it is required to inject Providers/Builders for the specs
         this.loadProfileSpecProvider = loadProfileSpecProvider;
         this.registerSpecProvider = registerSpecProvider;
         this.logBookSpecProvider = logBookSpecProvider;
