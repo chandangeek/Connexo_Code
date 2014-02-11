@@ -24,6 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypePreview', selector: '#deviceTypePreview'},
         {ref: 'deviceTypeDetailsLink', selector: '#deviceTypeDetailsLink'},
         {ref: 'deviceTypePreviewTitle', selector: '#deviceTypePreviewTitle'},
+        {ref: 'deviceTypeEditView', selector: '#deviceTypeEdit'},
         {ref: 'deviceTypeEditForm', selector: '#deviceTypeEditForm'},
         {ref: 'deviceTypeRegisterLink', selector: '#deviceTypeRegistersLink'},
         {ref: 'deviceTypeLogBookLink', selector: '#deviceTypeLogBooksLink'},
@@ -59,10 +60,10 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             '#createEditButton[action=editDeviceType]': {
                 click: this.editDeviceType
             },
-            '#deviceTypeDetail #deleteButtonFromDetails[action=deleteDeviceType]': {
+            '#deviceTypeDetail menuitem[action=deleteDeviceType]': {
                 click: this.deleteDeviceTypeFromDetails
             },
-            '#deviceTypeDetail #editButtonFromDetails[action=editDeviceType]': {
+            '#deviceTypeDetail menuitem[action=editDeviceType]': {
                 click: this.editDeviceTypeFromDetails
             },
             '#deviceTypeEdit #communicationProtocolComboBox': {
@@ -129,12 +130,19 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeEditView: function (deviceTypeId) {
-        var widget = Ext.widget('deviceTypeEdit');
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
-                widget.down('form').loadRecord(deviceType);
-                widget.setEdit(true, '#setup/devicetypes/' + deviceType.get('id'));
-                Mdc.getApplication().getMainController().showContent(widget);
+                this.dt = deviceType;
+                var me = this;
+                var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
+                protocolStore.load({
+                    callback: function(){
+                        var widget = Ext.widget('deviceTypeEdit');
+                        widget.down('form').loadRecord(me.dt);
+                        widget.setEdit(true, '#setup/devicetypes/' + me.dt.get('id'));
+                        Mdc.getApplication().getMainController().showContent(widget);
+                    }
+                })
             }
         });
 
@@ -192,12 +200,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     editDeviceTypeFromDetails: function(){
         var record = this.getDeviceTypeDetailForm().getRecord();
         location.href = '#setup/devicetypes/' + record.get('id')+'/edit';
-
     },
 
     proposeDeviceTypeName: function(t,newValue){
-        console.log('propostion');
-        this.getEditDeviceTypeNameField().setValue(newValue);
+        if(!this.getDeviceTypeEditView().isEdit()){
+            this.getEditDeviceTypeNameField().setValue(newValue);
+        }
 
     }
 });

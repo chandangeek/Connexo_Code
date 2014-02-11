@@ -11,11 +11,17 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         align: 'stretch'
     },
     cls: 'content-wrapper',
+    edit: false,
+    isEdit: function(){
+        return this.edit
+    },
     setEdit: function(edit,returnLink){
         if(edit){
+            this.edit = edit;
             this.down('#createEditButton').setText(I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editDeviceType';
         } else {
+            this.edit = edit;
             this.down('#createEditButton').setText(I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceType';
         }

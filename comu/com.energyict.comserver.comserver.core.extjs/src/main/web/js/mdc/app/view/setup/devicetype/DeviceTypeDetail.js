@@ -44,17 +44,29 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                             xtype: 'component',
                             flex: 1
                         },
+                        '->',
                         {
-                            xtype: 'button',
-                            text: I18n.translate('general.delete', 'MDC', 'Delete'),
-                            itemId: 'deleteButtonFromDetails',
-                            action: 'deleteDeviceType'
-                        },
-                        {
-                            xtype: 'button',
-                            text: I18n.translate('general.edit', 'MDC', 'Edit'),
-                            itemId: 'editButtonFromDetails',
-                            action: 'editDeviceType'
+                            icon: 'resources/images/gear-16x16.png',
+                            text: I18n.translate('general.actions', 'MDC', 'Actions'),
+                            menu: {
+                                items: [
+                                    {
+                                        text: I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        itemId: 'editDeviceType',
+                                        action: 'editDeviceType'
+
+                                    },
+                                    {
+                                        xtype: 'menuseparator'
+                                    },
+                                    {
+                                        text: I18n.translate('general.delete', 'MDC', 'Delete'),
+                                        itemId: 'deleteDeviceType',
+                                        action: 'deleteDeviceType'
+
+                                    }
+                                ]
+                            }
                         }
                     ],
 
