@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'canBeDirectlyAddressable',
-                                            fieldLabel: I18n.translate('devicetype.canBeDiractlyAddressable', 'MDC', 'Device can be directly addressable'),
+                                            fieldLabel: I18n.translate('devicetype.canBeDirectlyAddressable', 'MDC', 'Device can be directly addressable'),
                                             renderer: function (item) {
                                                 return item ? 'Yes' : 'No';
                                             },

@@ -13,10 +13,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     cls: 'content-wrapper',
     setEdit: function(edit,returnLink){
         if(edit){
-            this.down('#createEditButton').setText('Edit');
+            this.down('#createEditButton').setText(I18n.translate('general.edit', 'MDC', 'Edit'));
             this.down('#createEditButton').action = 'editDeviceType';
         } else {
-            this.down('#createEditButton').setText('Create');
+            this.down('#createEditButton').setText(I18n.translate('general.create', 'MDC', 'Create'));
             this.down('#createEditButton').action = 'createDeviceType';
         }
         this.down('#cancelLink').autoEl.href=returnLink;
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'combobox',
                                                 name: 'communicationProtocolName',
-                                                fieldLabel: 'Device Communication protocol',
+                                                fieldLabel: I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol'),
                                                 itemId: 'communicationProtocolComboBox',
                                                 store: deviceCommunicationProtocols,
                                                 queryMode: 'local',
@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
-                                                fieldLabel: 'Name',
+                                                fieldLabel: I18n.translate('devicetype.name', 'MDC', 'Name'),
                                                 itemId: 'editDeviceTypeNameField'
                                             },
                                             {
@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 },
                                                 items: [
                                                     {
-                                                        text: 'Create',
+                                                        text: I18n.translate('general.create', 'MDC', 'Create'),
                                                         xtype: 'button',
                                                         action: 'createAction',
                                                         itemId: 'createEditButton'
@@ -102,7 +102,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                         autoEl: {
                                                             tag: 'a',
                                                             href: '#setup/devicetypes/',
-                                                            html: 'Cancel'
+                                                            html: I18n.translate('general.cancel', 'MDC', 'Cancel')
                                                         }
                                                     }
                                                 ]
