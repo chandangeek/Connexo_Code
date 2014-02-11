@@ -19,6 +19,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 header: 'Name',
                 dataIndex: 'name',
+                sortable: false,
+                hideable: false,
+
+                renderer: function (value, b, record) {
+                    return '<a href="registermappings/' + record.get('id') + '">' + value + '</a>';
+                },
                 flex: 1
             },
             {

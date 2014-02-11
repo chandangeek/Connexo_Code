@@ -2,9 +2,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
     extend: 'Ext.container.Container',
     alias: 'widget.registerMappingsSetup',
     autoScroll: true,
+    itemId: 'registerMappingSetup',
     requires: [
         'Mdc.view.setup.register.RegisterMappingsGrid',
-        'Mdc.view.setup.register.RegisterMappingPreview'
+        'Mdc.view.setup.register.RegisterMappingPreview',
+        'Uni.view.breadcrumb.Trail'
     ],
     layout: {
         type: 'vbox',
@@ -22,11 +24,22 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 type: 'vbox',
                 align: 'stretch'
             },
-            items:[
+            items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
+                {
+                    xtype: 'component',
+                    html: 'Device type',
+                    margins: '10 10 0 20'
+                },
                 {
                     xtype: 'component',
                     html: '<h1>Register types</h1>',
-                    margins: '10 10 10 10'
+                    margins: '10 10 10 10',
+                    itemId: 'registerTypeTitle'
                 },
                 {
                     border: false,
@@ -34,10 +47,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                         '->',
                         {
                             text: 'Add register types',
-                            itemId: 'createRegisterMapping',
+                            itemId: 'addRegisterMappingBtn',
                             xtype: 'button',
-                            href: '#/setup/addregistermapping',
-                            hrefTarget: '_self'
+                            href: '',
+                            hrefTarget: '_self',
+                            action: 'addRegisterMapping'
                         },
                         {
                             text: 'Bulk action',
@@ -50,12 +64,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 },
                 {
                     xtype: 'component',
-                    height : 50
+                    height: 50
                 },
                 {
                     xtype: 'registerMappingPreview'
                 }
-    ]}],
+            ]}
+    ],
 
 
     initComponent: function () {
