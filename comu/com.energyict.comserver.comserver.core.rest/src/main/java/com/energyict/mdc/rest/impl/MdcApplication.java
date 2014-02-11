@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
+@Component(name = "com.energyict.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
 public class MdcApplication extends Application {
 
     private static final Logger LOGGER = Logger.getLogger(MdcApplication.class.getSimpleName());
