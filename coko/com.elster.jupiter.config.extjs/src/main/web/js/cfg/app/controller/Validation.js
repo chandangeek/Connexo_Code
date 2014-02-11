@@ -382,11 +382,6 @@ Ext.define('Cfg.controller.Validation', {
             callback: function () {
                 var selectedRuleSet = ruleSetsStore.getById(id);
                 var ruleSetName = selectedRuleSet.get("name");
-                me.getRuleBrowseTitle().update('<h1>' + ruleSetName + ' - Rules</h1>');
-                /*me.getValidationRulesStore().load({
-                    params: {
-                        id: id
-                    }});        */
                 var rulesContainerWidget = Ext.create('Cfg.view.validation.RulesContainer');
                 Cfg.getApplication().getMainController().showContent(rulesContainerWidget);
 
@@ -397,6 +392,7 @@ Ext.define('Cfg.controller.Validation', {
                 me.getRulesListContainer().doComponentLayout();
                 me.getAddRuleLink().setHref('#/validation/addRule/' + id);
                 me.createRulesBreadCrumbs(id, ruleSetName);
+                me.getRuleBrowseTitle().update('<h1>' + ruleSetName + ' - Rules</h1>');
             }
         });
     },
