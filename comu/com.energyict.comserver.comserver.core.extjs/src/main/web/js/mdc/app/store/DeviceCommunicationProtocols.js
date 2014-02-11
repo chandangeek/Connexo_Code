@@ -6,7 +6,10 @@ Ext.define('Mdc.store.DeviceCommunicationProtocols', {
     ],
     model: 'Mdc.model.DeviceCommunicationProtocol',
     storeId: 'DeviceCommunicationProtocols',
-
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
     proxy: {
         type: 'rest',
         url: '../../api/mdc/devicecommunicationprotocols',
