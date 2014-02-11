@@ -36,6 +36,7 @@ import java.util.Set;
 
 final class ValidationRuleImpl implements ValidationRule, IValidationRule {
     private long id;
+    private String name;
     private boolean active;
     private ValidationAction action;
     private String implementation; //validator classname
@@ -61,17 +62,18 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
         this.thesaurus = thesaurus;
     }
 
-    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
+    ValidationRuleImpl init(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
         this.ruleSet = ruleSet;
         this.action = action;
         this.implementation = implementation;
         this.position = position;
         this.ruleSetId = ruleSet.getId();
+        this.name = name;
         return this;
     }
 
-    static ValidationRuleImpl from(DataModel dataModel, ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
-        return dataModel.getInstance(ValidationRuleImpl.class).init(ruleSet, action, implementation, position);
+    static ValidationRuleImpl from(DataModel dataModel, ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position, String name) {
+        return dataModel.getInstance(ValidationRuleImpl.class).init(ruleSet, action, implementation, position, name);
     }
 
     @Override
@@ -310,6 +312,15 @@ final class ValidationRuleImpl implements ValidationRule, IValidationRule {
 
     private void setActive(boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    private void setName(String name) {
+        this.name = name;
     }
 
     private Date validateIntervalReadings(Channel channel, Interval interval) {

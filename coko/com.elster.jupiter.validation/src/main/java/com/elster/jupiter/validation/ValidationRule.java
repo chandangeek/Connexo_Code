@@ -45,4 +45,6 @@ public interface ValidationRule {
     void deleteReadingType(ReadingType readingType);
 
     boolean isRequired(String propertyKey);
+
+    String getName();
 }

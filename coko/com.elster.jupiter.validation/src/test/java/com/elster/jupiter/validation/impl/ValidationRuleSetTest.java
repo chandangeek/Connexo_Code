@@ -131,7 +131,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithRules() {
-        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
 
         validationRuleSet.save();
 
@@ -141,7 +141,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testDeleteWithRules() {
-        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
         setId(validationRuleSet, ID);
         setId(rule1, 1001L);
 
@@ -153,14 +153,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
         setId(validationRuleSet, ID);
-        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
         setId(rule1, 1001L);
-        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
+        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B", "rulename");
         setId(rule2, 1002L);
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSet.deleteRule(rule1);
-        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
+        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C", "rulename");
 
         validationRuleSet.save();
 
@@ -172,14 +172,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Test
     public void testUpdateWithRulesProperlyUpdatesPositions() {
         setId(validationRuleSet, ID);
-        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
         setId(rule1, 1001L);
-        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
+        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B", "rulename");
         setId(rule2, 1002L);
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSet.deleteRule(rule1);
-        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
+        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C", "rulename");
 
         validationRuleSet.save();
 

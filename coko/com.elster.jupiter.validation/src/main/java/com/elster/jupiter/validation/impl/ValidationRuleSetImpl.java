@@ -204,8 +204,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public IValidationRule addRule(ValidationAction action, String implementation) {
-        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, this, action, implementation, doGetRules().size() + 1);
+    public IValidationRule addRule(ValidationAction action, String implementation, String name) {
+        ValidationRuleImpl newRule = ValidationRuleImpl.from(dataModel, this, action, implementation, doGetRules().size() + 1, name);
         rules.add(newRule);
         return newRule;
     }

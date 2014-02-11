@@ -257,12 +257,12 @@ public class ValidationIT {
         validationEventHandler.setValidationService(validationService);
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
-        ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES);
+        ValidationRule zeroesRule = validationRuleSet.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros");
         zeroesRule.addReadingType(readingType1);
         zeroesRule.addReadingType(readingType2);
         zeroesRule.addProperty(MAX_NUMBER_IN_SEQUENCE, Unit.UNITLESS.amount(BigDecimal.valueOf(20)));
         zeroesRule.activate();
-        ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX);
+        ValidationRule minMaxRule = validationRuleSet.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax");
         minMaxRule.addReadingType(readingType3);
         minMaxRule.addReadingType(readingType2);
         minMaxRule.addProperty(MIN, Unit.WATT_HOUR.amount(BigDecimal.valueOf(1), 3));
