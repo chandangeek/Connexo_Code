@@ -16,21 +16,29 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesGrid', {
             {
                 header : 'Name',
                 dataIndex: 'name',
+                sortable: false,
+                hideable: false,
+                renderer: function(value,b,record){
+                    return '<a href="#/setup/devicetypes/' + record.get('id') + '">' + value + '</a>';;
+                },
                 flex: 1
             },
             {
                 header: 'Protocol',
                 dataIndex: 'communicationProtocolName',
+                sortable: false,
+                hideable: false,
                 flex: 1
             },
 
             {
                 xtype:'actioncolumn',
                 tdCls:'view',
-                width:24,
+                header : 'Actions',
+                sortable: false,
+                hideable: false,
                 items: [{
                     icon: 'resources/images/gear-16x16.png',
-                    tooltip: 'View',
                     handler: function(grid, rowIndex, colIndex,item,e) {
                         var menu = Ext.widget('menu', {
                             items: [{
