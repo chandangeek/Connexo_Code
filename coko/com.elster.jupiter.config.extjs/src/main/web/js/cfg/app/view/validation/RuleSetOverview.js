@@ -8,45 +8,54 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
     alias: 'widget.ruleSetOverview',
     itemId: 'ruleSetOverview',
     requires: [
-        'Cfg.model.ValidationRuleSet'
+        'Cfg.model.ValidationRuleSet' ,
+        'Uni.view.breadcrumb.Trail'
     ],
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
-    tbar: [
-        {
-            xtype: 'component',
-            html: '<h4>Validation rule sets</h4>',
-            itemId: 'rulesetOverviewTitle',
-            margins: '0 0 10 0'
-        },
-        '->',
-        {
-            icon: 'resources/images/gear-16x16.png',
-            text: 'Actions',
-            menu:{
-                items:[
-                    {
-                        text: 'Edit',
-                        itemId: 'editRuleset',
-                        action: 'editRuleset'
 
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        text: 'Delete',
-                        itemId: 'deleteRuleset',
-                        action: 'deleteRuleset'
-
-                    }
-                ]
-            }
-        }],
 
     items: [
+        {
+            xtype: 'breadcrumbTrail',
+            region: 'north',
+            padding: 6
+        },
+        {
+            tbar: [
+                {
+                    xtype: 'component',
+                    html: '<h4>Validation rule sets</h4>',
+                    itemId: 'rulesetOverviewTitle',
+                    margins: '0 0 10 0'
+                },
+                '->',
+                {
+                    icon: 'resources/images/gear-16x16.png',
+                    text: 'Actions',
+                    menu:{
+                        items:[
+                            {
+                                text: 'Edit',
+                                itemId: 'editRuleset',
+                                action: 'editRuleset'
+
+                            },
+                            {
+                                xtype: 'menuseparator'
+                            },
+                            {
+                                text: 'Delete',
+                                itemId: 'deleteRuleset',
+                                action: 'deleteRuleset'
+
+                            }
+                        ]
+                    }
+                }]
+        },
         {
             xtype: 'form',
             itemId: 'rulesetOverviewForm',

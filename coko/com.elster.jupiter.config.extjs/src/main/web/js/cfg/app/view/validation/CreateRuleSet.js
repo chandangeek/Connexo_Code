@@ -5,7 +5,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
     cls: 'content-container',
     overflowY: 'auto',
     requires: [
-
+        'Uni.view.breadcrumb.Trail'
     ],
 
     items: [
@@ -16,6 +16,11 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                 type: 'vbox'
             },
             items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
                 {
                     xtype: 'component',
                     html: '<h1>Create new rule set</h1>',

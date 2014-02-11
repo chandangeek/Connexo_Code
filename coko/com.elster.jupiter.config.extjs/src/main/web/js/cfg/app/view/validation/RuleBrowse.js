@@ -7,7 +7,8 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
     overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleList',
-        'Cfg.view.validation.RulePreview'
+        'Cfg.view.validation.RulePreview',
+        'Uni.view.breadcrumb.Trail'
     ],
 
     items: [
@@ -19,6 +20,11 @@ Ext.define('Cfg.view.validation.RuleBrowse', {
                 align: 'stretch'
             },
             items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
                 {
                     xtype: 'component',
                     html: '<h1>Rules</h1>',

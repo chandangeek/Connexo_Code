@@ -6,7 +6,8 @@ Ext.define('Cfg.view.validation.AddRule', {
     overflowY: 'auto',
     requires: [
         'Cfg.store.Validators',
-        'Cfg.model.Validator'
+        'Cfg.model.Validator',
+        'Uni.view.breadcrumb.Trail'
     ],
 
 
@@ -21,6 +22,11 @@ Ext.define('Cfg.view.validation.AddRule', {
                 type: 'vbox'
             },
             items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
                 {
                     xtype: 'component',
                     html: '<h1>Add Rule</h1>',

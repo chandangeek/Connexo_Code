@@ -6,7 +6,8 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
     overflowY: 'auto',
     requires: [
         'Cfg.view.validation.RuleSetList',
-        'Cfg.view.validation.RuleSetPreview'
+        'Cfg.view.validation.RuleSetPreview',
+        'Uni.view.breadcrumb.Trail'
     ],
     region: 'center',
 
@@ -20,6 +21,12 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                 align: 'stretch'
             },
             items: [
+                {
+                    xtype: 'breadcrumbTrail',
+                    region: 'north',
+                    padding: 6
+                },
+
                 {
                     xtype: 'component',
                     html: '<h1>Validation rule sets</h1>',

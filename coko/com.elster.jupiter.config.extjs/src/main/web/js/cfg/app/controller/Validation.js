@@ -7,6 +7,10 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationPropertySpecs'
     ],
 
+    requires: [
+        'Uni.model.BreadcrumbItem'
+    ],
+
     models: [
         'ValidationRuleSet',
         'ValidationRule',
@@ -62,7 +66,9 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'readingValuesTextFieldsContainer',selector: 'addRule #readingValuesTextFieldsContainer'} ,
         {ref: 'propertiesContainer',selector: 'addRule #propertiesContainer'},
         {ref: 'removeReadingTypesButtonsContainer',selector: 'addRule #removeReadingTypesButtonsContainer'},
-        {ref: 'validatorCombo',selector: 'addRule #validatorCombo'}
+        {ref: 'validatorCombo',selector: 'addRule #validatorCombo'},
+
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
 
 
     ],
@@ -229,8 +235,49 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     addRule: function(id) {
+        var me = this;
         var view = Ext.create('Cfg.view.validation.AddRule');
         Cfg.getApplication().getMainController().showContent(view);
+        var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+        ruleSetsStore.load({
+            params: {
+                id: id
+            },
+            callback: function () {
+                var selectedRuleSet = ruleSetsStore.getById(id);
+                var ruleSetName = selectedRuleSet.get("name");
+                me.createAddRuleBreadCrumbs(id, ruleSetName);
+            }
+        });
+    },
+
+    createAddRuleBreadCrumbs: function(ruleSetId, ruleSetName) {
+        var me = this;
+
+        var breadcrumbs = me.getBreadCrumbs();
+        var breadcrumbRules = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Add rule'
+        });
+
+        var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
+            text: ruleSetName,
+            href: '#validation/overview/' + ruleSetId
+        });
+
+        var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Validation rule sets',
+            href: '#validation'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Administration',
+            href: '#administration'
+        });
+        breadcrumbRuleSet.setChild(breadcrumbRules);
+        breadcrumbRuleSets.setChild(breadcrumbRuleSet);
+        breadcrumbParent.setChild(breadcrumbRuleSets);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+
     },
 
     createNewRuleSet: function(button) {
@@ -268,12 +315,56 @@ Ext.define('Cfg.controller.Validation', {
     newRuleSet: function () {
         var view = Ext.create('Cfg.view.validation.CreateRuleSet');
         Cfg.getApplication().getMainController().showContent(view);
+        this.createNewRuleSetBreadCrumbs();
+
+    },
+
+    createNewRuleSetBreadCrumbs: function() {
+        var me = this;
+
+        var breadcrumbs = me.getBreadCrumbs();
+
+        var breadcrumbNewRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Create new rule set'
+        });
+
+        var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Validation rule sets',
+            href: '#validation'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Administration',
+            href: '#administration'
+        });
+        breadcrumbRuleSets.setChild(breadcrumbNewRuleSet);
+        breadcrumbParent.setChild(breadcrumbRuleSets);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
     },
 
     showOverview: function () {
         this.initMenu();
         var widget = Ext.widget('validationrulesetBrowse');
         Cfg.getApplication().getMainController().showContent(widget);
+        this.createRuleSetsBreadCrumbs();
+    },
+
+    createRuleSetsBreadCrumbs: function() {
+        var me = this;
+
+        var breadcrumbs = me.getBreadCrumbs();
+
+        var breadcrumbRulesets = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Validation rule sets'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Administration',
+            href: '#administration'
+        });
+        breadcrumbParent.setChild(breadcrumbRulesets);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+
     },
 
     showRules: function(id) {
@@ -305,10 +396,69 @@ Ext.define('Cfg.controller.Validation', {
                 me.getRulesListContainer().add(rulesWidget);
                 me.getRulesListContainer().doComponentLayout();
                 me.getAddRuleLink().setHref('#/validation/addRule/' + id);
-
+                me.createRulesBreadCrumbs(id, ruleSetName);
             }
         });
     },
+
+    createRulesBreadCrumbs: function(ruleSetId, ruleSetName) {
+        var me = this;
+
+        var breadcrumbs = me.getBreadCrumbs();
+        var breadcrumbRules = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Rules'
+        });
+
+        var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
+            text: ruleSetName,
+            href: '#validation/overview/' + ruleSetId
+        });
+
+        var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Validation rule sets',
+            href: '#validation'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Administration',
+            href: '#administration'
+        });
+        breadcrumbRuleSet.setChild(breadcrumbRules);
+        breadcrumbRuleSets.setChild(breadcrumbRuleSet);
+        breadcrumbParent.setChild(breadcrumbRuleSets);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+
+    },
+
+    createRulesOverviewBreadCrumbs: function(ruleSetId, ruleSetName) {
+        var me = this;
+
+        var breadcrumbs = me.getBreadCrumbs();
+        var breadcrumbRulesOverview = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Rules'
+        });
+
+        var breadcrumbRuleSet = Ext.create('Uni.model.BreadcrumbItem', {
+            text: ruleSetName,
+            href: '#validation/overview/' + ruleSetId
+        });
+
+        var breadcrumbRuleSets = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Validation rule sets',
+            href: '#validation'
+        });
+        var breadcrumbParent = Ext.create('Uni.model.BreadcrumbItem', {
+            text: 'Administration',
+            href: '#administration'
+        });
+        breadcrumbRuleSet.setChild(breadcrumbRulesOverview);
+        breadcrumbRuleSets.setChild(breadcrumbRuleSet);
+        breadcrumbParent.setChild(breadcrumbRuleSets);
+
+        breadcrumbs.setBreadcrumbItem(breadcrumbParent);
+
+    },
+
 
     highlightRuleSetOverviewButton: function() {
         this.getRuleSetOverviewLink().setBorder(1);
@@ -343,6 +493,7 @@ Ext.define('Cfg.controller.Validation', {
 
                 me.getRulesListContainer().add(ruleSetOverviewWidget);
                 me.getRulesListContainer().doComponentLayout();
+                me.createRulesOverviewBreadCrumbs(id, ruleSetName);
 
             }
         });
