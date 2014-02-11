@@ -6,6 +6,7 @@ import ch.iec.tc57._2011.meterreadings_.MeterReading;
 import ch.iec.tc57._2011.meterreadings_.MeterReadings;
 import ch.iec.tc57._2011.meterreadings_.ObjectFactory;
 import ch.iec.tc57._2011.meterreadings_.Reading;
+import ch.iec.tc57._2011.meterreadings_.ReadingQuality;
 import ch.iec.tc57._2011.meterreadings_.UsagePoint;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -15,6 +16,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.FluentIterable;
 
@@ -65,7 +68,13 @@ public class MeterReadingsGenerator {
         return point;
     }
 
-    public void addEndDeviceEvents(MeterReading meterReading, EndDevice endDevice, Interval interval) {
+    public void addEndDeviceEvents(MeterReadings meterReadings, EndDevice endDevice, Interval interval) {
+        MeterReading meterReading = payloadObjectFactory.createMeterReading();
+        meterReadings.getMeterReading().add(meterReading);
+        meterReading.setMeter(createMeter(endDevice));
+        addEndDeviceEvents(meterReading, endDevice, interval);
+    }
+    private void addEndDeviceEvents(MeterReading meterReading, EndDevice endDevice, Interval interval) {
         List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(interval);
         for (EndDeviceEventRecord deviceEvent : deviceEvents) {
             EndDeviceEvent endDeviceEvent = payloadObjectFactory.createEndDeviceEvent();
@@ -139,6 +148,18 @@ public class MeterReadingsGenerator {
         reading.setReadingType(readingType);
         reading.setReportedDateTime(baseReading.getTimeStamp());
         reading.setValue(baseReading.getValue().toString());
+        if (baseReading instanceof IntervalReading) {
+            ProfileStatus profileStatus = ((IntervalReading) baseReading).getProfileStatus();
+            for (ProfileStatus.Flag flag : profileStatus.getFlags()) {
+                if (flag.getCimCode().isPresent()) {
+                    ReadingQuality readingQuality = payloadObjectFactory.createReadingQuality();
+                    ReadingQuality.ReadingQualityType qualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
+                    qualityType.setRef(flag.getCimCode().get());
+                    readingQuality.setReadingQualityType(qualityType);
+                    readingQuality.setTimeStamp(baseReading.getTimeStamp());
+                }
+            }
+        }
         meterReading.getReadings().add(reading);
         return reading;
     }

@@ -44,6 +44,6 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
     }
 
     private GetMeterReadingsHandler newHandler() {
-        return new GetMeterReadingsHandler(meteringService, meteringGroupsService, clock);
+        return new GetMeterReadingsHandler(meteringService, meteringGroupsService);
     }
 }

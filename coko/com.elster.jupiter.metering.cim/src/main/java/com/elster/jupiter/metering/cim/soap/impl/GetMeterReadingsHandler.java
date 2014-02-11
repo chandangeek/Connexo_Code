@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
@@ -43,13 +42,11 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
     private final ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
-    private final Clock clock;
     private MeterReadingsGenerator meterReadingsGenerator = new MeterReadingsGenerator();
 
-    public GetMeterReadingsHandler(MeteringService meteringService, MeteringGroupsService meteringGroupsService, Clock clock) {
+    public GetMeterReadingsHandler(MeteringService meteringService, MeteringGroupsService meteringGroupsService) {
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
-        this.clock = clock;
     }
 
     @Override
@@ -100,6 +97,8 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private void addForEndDevice(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.EndDevice endDevice, Interval interval) {
         if (endDevice instanceof Meter) {
             addForMeter(meterReadingsPayloadType, (Meter) endDevice, interval);
+        } else {
+            meterReadingsGenerator.addEndDeviceEvents(meterReadingsPayloadType.getMeterReadings(), endDevice, interval);
         }
     }
 
