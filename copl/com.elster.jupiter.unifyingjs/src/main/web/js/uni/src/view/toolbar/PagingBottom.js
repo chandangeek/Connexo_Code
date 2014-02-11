@@ -10,6 +10,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         'Uni.util.History'
     ],
 
+    param: 0,
     totalCount: 0,
     totalPages: 0,
     isFullTotalCount: false,
@@ -70,6 +71,10 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         }
 
         this.store.load({
+            params: {
+                id: me.param
+                //id: 9001
+            },
             callback: function (records) {
                 if (records !== null && records.length === 0 && pageNum > 1) {
                     me.initPageSizeAndStart(pageSize, pageStart - pageSize);
