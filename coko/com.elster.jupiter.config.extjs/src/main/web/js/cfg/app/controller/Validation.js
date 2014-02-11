@@ -116,9 +116,11 @@ Ext.define('Cfg.controller.Validation', {
 
             var readingTypes = this.getReadingValuesTextFieldsContainer().items;
             var rule = values.implementation;
+            var name = values.name;
             var properties = this.getPropertiesContainer().items;
 
             record.set('implementation', rule);
+            record.set('name', name);
 
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
@@ -279,8 +281,8 @@ Ext.define('Cfg.controller.Validation', {
         var rulesWidget = Ext.create('Cfg.view.validation.RuleBrowse');
         var ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
 
-        //this.getValidationRulesStore().clearFilter();
-        //this.getValidationRulesStore().filter('ruleSetId', id);
+        this.getValidationRulesStore().clearFilter();
+        this.getValidationRulesStore().filter('ruleSetId', id);
 
         ruleSetsStore.load({
             params: {
@@ -302,7 +304,6 @@ Ext.define('Cfg.controller.Validation', {
 
                 me.getRulesListContainer().add(rulesWidget);
                 me.getRulesListContainer().doComponentLayout();
-                //me.getAddRuleLink().el.dom.href = '#/validation/addRule/';
                 me.getAddRuleLink().setHref('#/validation/addRule/' + id);
 
             }

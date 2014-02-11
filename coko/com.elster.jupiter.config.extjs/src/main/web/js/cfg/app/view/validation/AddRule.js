@@ -44,6 +44,16 @@ Ext.define('Cfg.view.validation.AddRule', {
                             },
                             items:[
                                 {
+                                    xtype: 'textfield',
+                                    fieldLabel: 'Name:',
+                                    labelAlign: 'right',
+                                    allowBlank: false,  // requires a non-empty value
+                                    blankText: 'This is a required field',
+                                    msgTarget: 'under',
+                                    labelWidth:	250,
+                                    name: 'name'
+                                },
+                                {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
                                     allowBlank: false,  // requires a non-empty value

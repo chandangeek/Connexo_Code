@@ -14,6 +14,7 @@ Ext.define('Cfg.view.validation.RuleList', {
     columns: {
 
         items: [
+            { header: 'Name', dataIndex: 'name', flex: 1},
             { header: 'Rule', dataIndex: 'displayName', flex: 1},
             { header: 'Active', dataIndex: 'active', flex: 1,
                 renderer:function(value){
@@ -92,12 +93,12 @@ Ext.define('Cfg.view.validation.RuleList', {
                         action: 'ruleBulkAction'
                     }
                 ]
-            }/*,
+            },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
                 dock: 'bottom'
-            }*/];
+            }];
         this.callParent(arguments);
     }
 

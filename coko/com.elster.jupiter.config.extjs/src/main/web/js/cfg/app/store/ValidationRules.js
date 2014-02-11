@@ -5,7 +5,8 @@ Ext.define('Cfg.store.ValidationRules', {
 
     proxy: {
         type: 'rest',
-        url: '/api/val/validation',
+        url: '/api/val/validation/rules'
+        /*url: '/api/val/validation',
         appendId: false,
         reader: {
             type: 'json',
@@ -39,7 +40,7 @@ Ext.define('Cfg.store.ValidationRules', {
             request.url = url;
 
             return url;
-        }
+        }   */
     }
 
 
