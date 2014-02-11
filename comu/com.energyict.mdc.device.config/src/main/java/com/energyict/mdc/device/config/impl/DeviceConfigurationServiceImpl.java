@@ -49,6 +49,7 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
 
     private Provider<LoadProfileTypeImpl> loadProfileTypeProvider;
     private Provider<PhenomenonImpl> phenomenonProvider;
+    private Provider<DeviceConfigurationImpl> deviceConfigurationProvider;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -60,10 +61,12 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Inject
     public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
                                           Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
-                                          Provider<PhenomenonImpl> phenomenonProvider) {
+                                          Provider<PhenomenonImpl> phenomenonProvider,
+                                          Provider<DeviceConfigurationImpl> deviceConfigurationProvider) {
         this();
         this.loadProfileTypeProvider = loadProfileTypeProvider;
         this.phenomenonProvider = phenomenonProvider;
+        this.deviceConfigurationProvider = deviceConfigurationProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -304,6 +307,26 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     @Override
     public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping) {
         return this.getDataModel().mapper(ChannelSpec.class).find("deviceConfiguration", deviceConfiguration, "registerMapping", registerMapping);
+    }
+
+    @Override
+    public DeviceConfiguration newDeviceConfiguration(DeviceType deviceType, String name) {
+        return this.deviceConfigurationProvider.get().initialize(deviceType, name);
+    }
+
+    @Override
+    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType) {
+        return this.getDataModel().mapper(DeviceConfiguration.class).getUnique("name", name, "deviceType", deviceType).orNull();
+    }
+
+    @Override
+    public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType) {
+        return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType, "active", true);
+    }
+
+    @Override
+    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType) {
+        return this.getDataModel().mapper(DeviceConfiguration.class).find("deviceType", deviceType);
     }
 
     @Reference

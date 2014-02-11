@@ -334,5 +334,11 @@ public interface DeviceConfigurationService {
 
     public List<ChannelSpec> findChannelSpecsByDeviceConfigurationAndRegisterMapping(DeviceConfiguration deviceConfiguration, RegisterMapping registerMapping);
 
-    public DeviceConfiguration findDeviceConfigurationByName(String name);
+    public DeviceConfiguration newDeviceConfiguration(DeviceType deviceType, String name);
+
+    public DeviceConfiguration findDeviceConfigurationByNameAndDeviceType(String name, DeviceType deviceType);
+
+    public List<DeviceConfiguration> findActiveDeviceConfigurationsByDeviceType(DeviceType deviceType);
+
+    public List<DeviceConfiguration> findDeviceConfigurationsByDeviceType(DeviceType deviceType);
 }

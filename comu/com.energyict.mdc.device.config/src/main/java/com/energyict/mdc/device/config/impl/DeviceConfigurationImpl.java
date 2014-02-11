@@ -77,6 +77,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
+    DeviceConfigurationImpl initialize(DeviceType deviceType, String name){
+        this.deviceType = deviceType;
+        setName(name);
+        return this;
+    }
+
 
     @Override
     public DeviceCommunicationConfiguration getCommunicationConfiguration() {
@@ -134,7 +140,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     protected void validateName(String newName) {
         super.validateName(newName);
-        DeviceConfiguration deviceConfiguration = this.deviceConfigurationService.findDeviceConfigurationByName(newName);
+        DeviceConfiguration deviceConfiguration = this.deviceConfigurationService.findDeviceConfigurationByNameAndDeviceType(newName, deviceType);
         if (deviceConfiguration != null) {
             throw DuplicateNameException.deviceConfigurationExists(thesaurus, newName);
         }
