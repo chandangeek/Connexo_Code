@@ -29,7 +29,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     },
 
     initComponent: function () {
-        var deviceCommunicationProtocols = Ext.create('Mdc.store.DeviceCommunicationProtocols');
         this.items = [
             {
                 xtype: 'container',
@@ -75,7 +74,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 name: 'communicationProtocolName',
                                                 fieldLabel: I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol'),
                                                 itemId: 'communicationProtocolComboBox',
-                                                store: deviceCommunicationProtocols,
+                                                store: this.deviceCommunicationProtocols,
                                                 queryMode: 'local',
                                                 displayField: 'name',
                                                 valueField: 'name'
@@ -125,6 +124,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
             }
         ];
         this.callParent(arguments);
+        if(this.isEdit()){
+            this.down('#createEditButton').setText(I18n.translate('general.edit', 'MDC', 'Edit'));
+            this.down('#createEditButton').action = 'editDeviceType';
+        } else {
+            this.down('#createEditButton').setText(I18n.translate('general.create', 'MDC', 'Create'));
+            this.down('#createEditButton').action = 'createDeviceType';
+        }
+        this.down('#cancelLink').autoEl.href=this.returnLink;
+
     }
 
 

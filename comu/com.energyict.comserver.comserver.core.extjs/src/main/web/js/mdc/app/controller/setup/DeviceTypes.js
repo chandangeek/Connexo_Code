@@ -136,10 +136,13 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 var me = this;
                 var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
                 protocolStore.load({
-                    callback: function(){
-                        var widget = Ext.widget('deviceTypeEdit');
+                    callback: function(store){
+                        var widget = Ext.widget('deviceTypeEdit',{
+                            edit: true,
+                            returnLink: '#setup/devicetypes/' + me.dt.get('id'),
+                            deviceCommunicationProtocols: protocolStore
+                        });
                         widget.down('form').loadRecord(me.dt);
-                        widget.setEdit(true, '#setup/devicetypes/' + me.dt.get('id'));
                         Mdc.getApplication().getMainController().showContent(widget);
                     }
                 })
@@ -150,9 +153,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     showDeviceTypeCreateView: function () {
-        var widget = Ext.widget('deviceTypeEdit');
-        widget.setEdit(false, '#setup/devicetypes/');
-        Mdc.getApplication().getMainController().showContent(widget);
+        var protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols');
+        protocolStore.load({
+            callback: function(store){
+                var widget = Ext.widget('deviceTypeEdit',{
+                    edit: false,
+                    returnLink: '#setup/devicetypes/',
+                    deviceCommunicationProtocols: protocolStore
+                });
+                Mdc.getApplication().getMainController().showContent(widget);
+            }
+        });
     },
 
     createDeviceType: function () {
