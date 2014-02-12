@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.energyict.comserver.core.extjs
-Include-Resource: src/main/web,src/main/resources
+-include: -../../development.bnd
