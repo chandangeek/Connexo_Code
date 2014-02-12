@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
 
@@ -20,6 +21,24 @@ public interface DeviceConfigurationService {
     public static String COMPONENTNAME = "DTC";
 
     public List<DeviceType> findAllDeviceTypes();
+
+    public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
+    /**
+     * Find the {@link DeviceType} which is uniquely identified by the provided ID.
+     *
+     * @param deviceTypeId the ID of the DeviceType
+     * @return the DeviceType or <code>null</code> if there is no such DeviceType
+     */
+    public DeviceType findDeviceType(long deviceTypeId);
+
+    /**
+     * Find the {@link DeviceType} with the specified name.
+     *
+     * @param name The name
+     * @return the DeviceType or <code>null</code> if there is no such DeviceType
+     */
+    public DeviceType findDeviceType(String name);
 
     /**
      * Finds the {@link ProductSpec} that is uniquely identified by the specified number.
@@ -188,14 +207,6 @@ public interface DeviceConfigurationService {
      * @return the list of RegisterSpecs
      */
     public List<RegisterSpec> findRegisterSpecsByRegisterMappings(List<RegisterMapping> mappings);
-
-    /**
-     * Find the {@link DeviceType} which is uniquely identified by the provided ID
-     *
-     * @param deviceTypeId the ID of the {@link DeviceType}
-     * @return the DeviceType or <code>null</code> if there is no such DeviceType
-     */
-    public DeviceType findDeviceType(long deviceTypeId);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modeled by the given {@link RegisterMapping RegisterMappings}

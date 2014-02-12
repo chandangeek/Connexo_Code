@@ -12,4 +12,16 @@ import com.energyict.mdc.device.config.RegisterMapping;
 class DeviceTypeRegisterMappingUsage {
     DeviceType deviceType;
     RegisterMapping registerMapping;
+
+    // For orm service only
+    DeviceTypeRegisterMappingUsage() {
+        super();
+    }
+
+    DeviceTypeRegisterMappingUsage(DeviceType deviceType, RegisterMapping registerMapping) {
+        this();
+        this.deviceType = deviceType;
+        this.registerMapping = registerMapping;
+    }
+
 }

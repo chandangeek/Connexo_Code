@@ -12,4 +12,16 @@ import com.energyict.mdc.device.config.LogBookType;
 class DeviceTypeLogBookTypeUsage {
     DeviceType deviceType;
     LogBookType logBookType;
+
+    // For orm service only
+    DeviceTypeLogBookTypeUsage() {
+        super();
+    }
+
+    DeviceTypeLogBookTypeUsage(DeviceType deviceType, LogBookType logBookType) {
+        this();
+        this.deviceType = deviceType;
+        this.logBookType = logBookType;
+    }
+
 }

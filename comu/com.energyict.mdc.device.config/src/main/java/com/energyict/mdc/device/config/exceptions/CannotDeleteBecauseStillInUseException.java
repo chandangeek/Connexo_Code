@@ -6,12 +6,13 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.Phenomenon;
 import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.impl.PhenomenonImpl;
 
 import java.util.List;
 
@@ -95,6 +96,18 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      */
     public static CannotDeleteBecauseStillInUseException registerMappingIsStillInUseByDeviceTypes(Thesaurus thesaurus, RegisterMapping registerMapping, List<DeviceType> deviceTypes) {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_DEVICE_TYPE, registerMapping.getDescription(), namesToStringListForDeviceTypes(deviceTypes));
+    }
+
+    /**
+     * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
+     * situation that occurs when an attempt is made to delete a {@link LogBookType}
+     * while it is still used by the specified {@link LogBookSpec}s.
+     *
+     * @param thesaurus The Thesaurus
+     * @return The NameIsRequiredException
+     */
+    public static CannotDeleteBecauseStillInUseException logBookTypeIsStillInUseByLogBookSpec(Thesaurus thesaurus, LogBookType logBookType, List<LogBookSpec> logBookSpecs) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS, logBookType.getName(), namesToStringListForLogBookSpecs(logBookSpecs));
     }
 
     /**
@@ -198,6 +211,21 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
                 builder.append(", ");
             }
             builder.append(deviceType.getName());
+            notFirst = true;
+        }
+        return builder.toString();
+    }
+
+    private static String namesToStringListForLogBookSpecs(List<LogBookSpec> logBookSpecs) {
+        StringBuilder builder = new StringBuilder();
+        boolean notFirst = false;
+        for (LogBookSpec logBookSpec : logBookSpecs) {
+            if (notFirst) {
+                builder.append(", ");
+            }
+            builder.append(logBookSpec.getDeviceConfig().getName());
+            builder.append(":");
+            builder.append(logBookSpec.getDeviceObisCode().toString());
             notFirst = true;
         }
         return builder.toString();

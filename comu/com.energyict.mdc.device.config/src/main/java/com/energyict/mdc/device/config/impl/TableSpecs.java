@@ -40,8 +40,8 @@ public enum TableSpecs {
             table.column("USECHANNELJOURNAL").number().conversion(ColumnConversion.NUMBER2BOOLEAN).notNull().map("useChannelJournal").add();
             table.column("NEEDSPROXY").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("needsproxy").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2INT).map("deviceProtocolPluggableClassId").add();
-            table.column("DEVICEUSAGETYPE").number().map("deviceUsageType").add();
-            table.column("COMMUNICATIONFUNCTIONMASK").number().map("communicationfunctionmask").add();
+            table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
+            table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.unique("UK_SYSRTUTYPE").on(name).add();
             table.primaryKey("PK_SYSRTUTYPE").on(id).add();
         }

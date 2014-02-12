@@ -29,6 +29,7 @@ import com.energyict.mdc.device.config.ProductSpec;
 import com.energyict.mdc.device.config.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -62,20 +63,8 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
-                                          Provider<RegisterSpecImpl> registerSpecProvider,
-                                          Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
-                                          Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
-                                          Provider<LogBookSpecImpl> logBookSpecProvider,
-                                          Provider<PhenomenonImpl> phenomenonProvider,
-                                          Provider<ChannelSpecImpl> channelSpecProvider) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService) {
         this();
-        this.registerSpecProvider = registerSpecProvider;
-        this.loadProfileSpecProvider = loadProfileSpecProvider;
-        this.loadProfileTypeProvider = loadProfileTypeProvider;
-        this.logBookSpecProvider = logBookSpecProvider;
-        this.phenomenonProvider = phenomenonProvider;
-        this.channelSpecProvider = channelSpecProvider;
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -85,9 +74,41 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
         }
     }
 
+    @Inject
+    public DeviceConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService,
+                                          Provider<RegisterSpecImpl> registerSpecProvider,
+                                          Provider<LoadProfileSpecImpl> loadProfileSpecProvider,
+                                          Provider<LoadProfileTypeImpl> loadProfileTypeProvider,
+                                          Provider<LogBookSpecImpl> logBookSpecProvider,
+                                          Provider<PhenomenonImpl> phenomenonProvider,
+                                          Provider<ChannelSpecImpl> channelSpecProvider) {
+        this(ormService, eventService, nlsService);
+        this.registerSpecProvider = registerSpecProvider;
+        this.loadProfileSpecProvider = loadProfileSpecProvider;
+        this.loadProfileTypeProvider = loadProfileTypeProvider;
+        this.logBookSpecProvider = logBookSpecProvider;
+        this.phenomenonProvider = phenomenonProvider;
+        this.channelSpecProvider = channelSpecProvider;
+    }
+
     @Override
     public List<DeviceType> findAllDeviceTypes() {
         return this.getDataModel().mapper(DeviceType.class).find();
+    }
+
+    @Override
+    public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        return DeviceTypeImpl.from(this.getDataModel(), name, deviceProtocolPluggableClass);
+    }
+
+    @Override
+    public DeviceType findDeviceType(long deviceTypeId) {
+        return this.getDataModel().mapper((DeviceType.class)).getUnique("id", deviceTypeId).orNull();
+    }
+
+    @Override
+    public DeviceType findDeviceType(String name) {
+        return this.getDataModel().mapper((DeviceType.class)).getUnique("name", name).orNull();
     }
 
     @Override
@@ -195,11 +216,6 @@ public class DeviceConfigurationServiceImpl implements DeviceConfigurationServic
     public List<RegisterSpec> findRegisterSpecsByRegisterMappings(List<RegisterMapping> mappings) {
         Condition condition = ListOperator.IN.contains("registerMapping", mappings);
         return this.getDataModel().query(RegisterSpec.class, RegisterMapping.class).select(condition);
-    }
-
-    @Override
-    public DeviceType findDeviceType(long deviceTypeId) {
-        return this.getDataModel().mapper((DeviceType.class)).getUnique("id", deviceTypeId).orNull();
     }
 
     @Override

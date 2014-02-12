@@ -8,12 +8,17 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.LoadProfileType;
+import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.LogBookType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.CannotChangeDeviceProtocolWithActiveConfigurationsException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DeviceProtocolIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
+import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.NameIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.RegisterMappingAlreadyInDeviceTypeException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -21,15 +26,20 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
 
     private int channelCount;
     private String description;
     private boolean channelJournalUsed;
+    private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     private int communicationFunctionMask;
+    private Set<DeviceCommunicationFunction> deviceCommunicationFunctions;
     private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
@@ -105,10 +115,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return false;
     }
 
-    public int getChannelCount() {
-        return this.channelCount;
-    }
-
     public String getDescription() {
         return this.description;
     }
@@ -116,6 +122,44 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void setDescription(String newDescription) {
         this.description = newDescription;
+    }
+
+    @Override
+    public DeviceUsageType getDeviceUsageType() {
+        if (this.deviceUsageType == null) {
+            this.deviceUsageType = PersistentDeviceUsageType.fromDb(this.deviceUsageTypeId).toActualType();
+        }
+        return this.deviceUsageType;
+    }
+
+    @Override
+    public Set<DeviceCommunicationFunction> getCommunicationFunctions() {
+        if (this.deviceCommunicationFunctions == null) {
+            this.deviceCommunicationFunctions = this.createSetFromMasks(this.communicationFunctionMask);
+        }
+        return EnumSet.copyOf(this.deviceCommunicationFunctions);
+    }
+
+    private Set<DeviceCommunicationFunction> createSetFromMasks(int communicationFunctionMask) {
+        return new DeviceCommunicationFunctionSetPersister().fromDb(communicationFunctionMask);
+    }
+
+    public boolean hasCommunicationFunction(DeviceCommunicationFunction function) {
+        return this.getCommunicationFunctions().contains(function);
+    }
+
+    @Override
+    public void addCommunicationFunction(DeviceCommunicationFunction function) {
+        this.getCommunicationFunctions();   // Load the current set
+        this.deviceCommunicationFunctions.add(function);
+        this.communicationFunctionMask = new DeviceCommunicationFunctionSetPersister().toDb(this.deviceCommunicationFunctions);
+    }
+
+    @Override
+    public void removeCommunicationFunction(DeviceCommunicationFunction function) {
+        this.getCommunicationFunctions();   // Load the current set
+        this.deviceCommunicationFunctions.remove(function);
+        this.communicationFunctionMask = new DeviceCommunicationFunctionSetPersister().toDb(this.deviceCommunicationFunctions);
     }
 
     @Override
@@ -139,6 +183,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         if (deviceProtocolPluggableClass == null) {
             throw new DeviceProtocolIsRequiredException(this.getThesaurus());
+        }
+        if (this.hasActiveConfigurations()) {
+            throw new CannotChangeDeviceProtocolWithActiveConfigurationsException(this.thesaurus, this);
         }
         this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
@@ -181,12 +228,71 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void addLoadProfileType(LoadProfileType loadProfileType) {
-
+        for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
+            if (loadProfileTypeUsage.loadProfileType.getId() == loadProfileType.getId()) {
+                throw new LoadProfileTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, loadProfileType);
+            }
+        }
+        this.loadProfileTypeUsages.add(new DeviceTypeLoadProfileTypeUsage(this, loadProfileType));
     }
 
     @Override
     public void removeLoadProfileType(LoadProfileType loadProfileType) {
+        Iterator<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsageIterator = this.loadProfileTypeUsages.iterator();
+        while (loadProfileTypeUsageIterator.hasNext()) {
+            DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage = loadProfileTypeUsageIterator.next();
+            if (loadProfileTypeUsage.loadProfileType.getId() == loadProfileType.getId()) {
+                loadProfileTypeUsageIterator.remove();
+            }
+        }
+    }
 
+    @Override
+    public void addLogBookType(LogBookType logBookType) {
+        for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
+            if (logBookTypeUsage.logBookType.getId() == logBookType.getId()) {
+                throw new LogBookTypeAlreadyInDeviceTypeException(this.thesaurus, this, logBookType);
+            }
+        }
+        this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
+    }
+
+    @Override
+    public void addRegisterMapping(RegisterMapping registerMapping) {
+        for (DeviceTypeRegisterMappingUsage registerMappingUsage : this.registerMappingUsages) {
+            if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+                throw new RegisterMappingAlreadyInDeviceTypeException(this.getThesaurus(), this, registerMapping);
+            }
+        }
+        this.registerMappingUsages.add(new DeviceTypeRegisterMappingUsage(this, registerMapping));
+    }
+
+    @Override
+    public void removeRegisterMapping(RegisterMapping registerMapping) {
+        Iterator<DeviceTypeRegisterMappingUsage> iterator = this.registerMappingUsages.iterator();
+        while (iterator.hasNext()) {
+            DeviceTypeRegisterMappingUsage registerMappingUsage = iterator.next();
+            if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    @Override
+    public void removeLogBookType(LogBookType logBookType) {
+        Iterator<DeviceTypeLogBookTypeUsage> logBookTypeUsageIterator = this.logBookTypeUsages.iterator();
+        while (logBookTypeUsageIterator.hasNext()) {
+            DeviceTypeLogBookTypeUsage logBookTypeUsage = logBookTypeUsageIterator.next();
+            if (logBookTypeUsage.logBookType.getId() == logBookType.getId()) {
+                this.validateLogBookTypeNotUsedByLogBookSpec(logBookType);
+                logBookTypeUsageIterator.remove();
+            }
+        }
+    }
+
+    private void validateLogBookTypeNotUsedByLogBookSpec(LogBookType logBookType) {
+        // Todo: wait for DeviceConfiguration implementation to be completed
+        throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.thesaurus, logBookType, new ArrayList<LogBookSpec>(0));
     }
 
     public boolean supportsMessaging() {
@@ -198,12 +304,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public boolean isLogicalSlave() {
-        if (this.getDeviceProtocolPluggableClass() != null) {
-            final List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getLocalDeviceProtocol().getDeviceProtocolCapabilities();
-            return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SLAVE) && deviceProtocolCapabilities.size() == 1;
-        } else {
-            return false;
-        }
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = this.getLocalDeviceProtocol().getDeviceProtocolCapabilities();
+        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SLAVE) && deviceProtocolCapabilities.size() == 1;
     }
 
     private DeviceProtocol getLocalDeviceProtocol() {
@@ -215,10 +317,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public int getCommunicationFunctionMask() {
         return communicationFunctionMask;
-    }
-
-    public boolean hasCommunicationFunction(DeviceCommunicationFunction function) {
-        return (getCommunicationFunctionMask() & function.getCode()) != 0;
     }
 
     public List<DeviceConfiguration> getConfigurations() {

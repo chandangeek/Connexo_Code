@@ -8,6 +8,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LoadProfileType;
 import com.energyict.mdc.device.config.RegisterMapping;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -181,7 +182,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         while (iterator.hasNext()) {
             LoadProfileTypeRegisterMappingUsage registerMappingUsage = iterator.next();
             if (registerMappingUsage.registerMapping.getId() == registerMapping.getId()) {
-                /* Legacy code validated that there were not Channels that used the mapping
+                /* Legacy code validated that there were no Channels that used the mapping
                  * by calling ChannelFactory#hasChannelsForLoadProfileTypeAndMapping(this, registerMapping).
                  * This will now have to be dealt with via events. */
                 /* Todo: Check that no ChannelSpec is using the RegisterMapping.
@@ -199,11 +200,11 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
             for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : loadProfileTypeUsages) {
                 deviceTypes.add(loadProfileTypeUsage.deviceType);
             }
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.getThesaurus(), this, deviceTypes);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByDeviceType(this.getThesaurus(), this, deviceTypes);
         }
         List<LoadProfileSpec> loadProfileSpecs = this.mapper(LoadProfileSpec.class).find("loadProfileType", this);
         if (!loadProfileSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByDeviceType(this.getThesaurus(), this, loadProfileSpecs);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.getThesaurus(), this, loadProfileSpecs);
         }
     }
 

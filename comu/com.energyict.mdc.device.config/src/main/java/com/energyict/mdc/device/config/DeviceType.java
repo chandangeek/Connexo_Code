@@ -99,6 +99,10 @@ public interface DeviceType {
 
     public boolean hasCommunicationFunction(DeviceCommunicationFunction function);
 
+    public void addCommunicationFunction(DeviceCommunicationFunction function);
+
+    public void removeCommunicationFunction(DeviceCommunicationFunction function);
+
     public void save ();
 
     public void delete ();

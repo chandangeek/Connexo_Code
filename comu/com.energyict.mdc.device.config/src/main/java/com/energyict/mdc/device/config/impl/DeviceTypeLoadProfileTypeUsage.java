@@ -12,4 +12,16 @@ import com.energyict.mdc.device.config.LoadProfileType;
 class DeviceTypeLoadProfileTypeUsage {
     DeviceType deviceType;
     LoadProfileType loadProfileType;
+
+    // For orm service only
+    DeviceTypeLoadProfileTypeUsage() {
+        super();
+    }
+
+    DeviceTypeLoadProfileTypeUsage(DeviceType deviceType, LoadProfileType loadProfileType) {
+        this();
+        this.deviceType = deviceType;
+        this.loadProfileType = loadProfileType;
+    }
+
 }
