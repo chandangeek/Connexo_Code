@@ -2,7 +2,6 @@ package com.energyict.mdc.common.interval;
 
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Phenomenon;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.Unit;
 
@@ -176,22 +175,6 @@ public interface TimeSeries {
      * @return the TimeSeries with the given index
      */
     SingleTimeSeries getTimeSeries(int index);
-
-    /**
-     * Returns the Phenomenon for the field with the given name
-     *
-     * @param name the field name.
-     * @return the Phenomenon for the given field name.
-     */
-    Phenomenon getPhenomenon(String name);
-
-    /**
-     * Returns the phenomenon for the given field index.
-     *
-     * @param index the zero based field index
-     * @return the phenomenon for the field with the given index.
-     */
-    Phenomenon getPhenomenon(int index);
 
     /**
      * Returns the receiver's time zone.
