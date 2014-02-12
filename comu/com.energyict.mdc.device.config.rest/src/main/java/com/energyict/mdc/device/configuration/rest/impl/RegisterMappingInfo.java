@@ -46,7 +46,7 @@ public class RegisterMappingInfo {
         readingTypeInfo.metricMultiplier = MetricMultiplier.EXA;
         readingTypeInfo.phase = Phase.PHASEB;
         readingTypeInfo.consumptionTier = 2;
-        readingTypeInfo.accumulation = Accumulation.NOTAPPLICABLE;
+        readingTypeInfo.accumulation = Accumulation.CUMULATIVE;
         readingTypeInfo.aggregate = Aggregate.FOURTHMAXIMUM;
         readingTypeInfo.argumentReference = new RationalNumber(1L,11L);
         readingTypeInfo.commodity = Commodity.CO2;
