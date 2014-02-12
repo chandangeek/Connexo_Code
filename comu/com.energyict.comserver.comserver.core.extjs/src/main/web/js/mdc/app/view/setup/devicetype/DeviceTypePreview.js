@@ -106,11 +106,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'deviceFunction',
-                                    fieldLabel: I18n.translate('devicetype.deviceFunction', 'MDC', 'Device function')
-                                },
-                                {
-                                    xtype: 'displayfield',
                                     name: 'canBeGateway',
                                     fieldLabel: I18n.translate('devicetype.canBeGateway', 'MDC', 'Device can be a gateway'),
                                     renderer: function (item) {

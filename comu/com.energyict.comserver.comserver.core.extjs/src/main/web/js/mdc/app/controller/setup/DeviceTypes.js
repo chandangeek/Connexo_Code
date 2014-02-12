@@ -252,6 +252,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         });
         breadcrumb3.setChild(breadcrumb4);
         breadcrumb2.setChild(breadcrumb3);
+        breadcrumb1.setChild(breadcrumb3);
         this.getBreadCrumbs().setBreadcrumbItem(breadcrumb1);
     },
 

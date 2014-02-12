@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         align: 'stretch'
                                     },
                                     defaults: {
-                                        labelWidth: 200
+                                        labelWidth: 250
                                     },
                                     items: [
                                         {
@@ -103,11 +103,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             xtype: 'displayfield',
                                             name: 'communicationProtocolName',
                                             fieldLabel: I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device communication protocol')
-                                        },
-                                        {
-                                            xtype: 'displayfield',
-                                            name: 'deviceFunction',
-                                            fieldLabel: I18n.translate('devicetype.deviceFunction', 'MDC', 'Device function')
                                         },
                                         {
                                             xtype: 'displayfield',

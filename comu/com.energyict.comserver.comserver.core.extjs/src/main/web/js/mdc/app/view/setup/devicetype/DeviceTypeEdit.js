@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
 //                        }
 //                    ],
                                         defaults:{
-                                            labelWidth: 170
+                                            labelWidth: 250
                                         },
                                         items: [
                                             {
@@ -82,11 +82,14 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                 store: this.deviceCommunicationProtocols,
                                                 queryMode: 'local',
                                                 displayField: 'name',
-                                                valueField: 'name'
+                                                valueField: 'name',
+                                                required: true
                                             },
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',
+                                                vtype: 'nonemptystring',
+                                                required: true,
                                                 fieldLabel: I18n.translate('devicetype.name', 'MDC', 'Name'),
                                                 itemId: 'editDeviceTypeNameField'
                                             },
@@ -107,7 +110,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                                     },
                                                     {
                                                         xtype: 'component',
-                                                        padding: '2 0 0 10',
+                                                        padding: '3 0 0 10',
                                                         itemId: 'cancelLink',
                                                         autoEl: {
                                                             tag: 'a',
