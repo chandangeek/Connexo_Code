@@ -553,3 +553,13 @@ $menu-width-collapsed: 55px;
 .uni-form-item-bold {
     font-weight: bold;
 }
+
+.x-form-item-label {
+  padding-right: 14px;
+}
+
+.uni-form-item-label-required{
+  background-image: url('../images/form/mandatory.png');
+  background-repeat:no-repeat;
+  background-position:right;
+}
