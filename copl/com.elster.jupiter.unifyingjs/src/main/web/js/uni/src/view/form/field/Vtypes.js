@@ -19,9 +19,12 @@ Ext.define('Uni.view.form.field.Vtypes', {
         Ext.apply(Ext.form.field.VTypes, {
             nonemptystring: function (val) {
                 //check value
+                if ((val==null || val==undefined || val=='')) {
+                    return false;
+                }
                 return val.trim().length > 0;
             },
-            nonemptystringText: 'This is a required field'
+            nonemptystringText: 'This field is required'
         });
     },
 

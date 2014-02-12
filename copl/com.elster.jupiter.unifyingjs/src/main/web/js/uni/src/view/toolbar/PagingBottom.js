@@ -118,7 +118,19 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         me.store.currentPage = newPage;
         me.store.pageSize = pageSize;
         me.totalPages = 0;
-        me.store.load();
+        me.params.forEach(function(entry) {
+            var key = Object.keys(entry)[0];
+            var value = entry[key];
+            me.store.getProxy().setExtraParam(key,value);
+        });
+        me.store.load({
+            params: me.params,
+            callback: function (records) {
+                if (records !== null && records.length === 0 && pageNum > 1) {
+                    me.initPageSizeAndStart(pageSize, pageStart - pageSize);
+                }
+            }
+        });
     },
 
     resetQueryString: function (start) {
