@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
     alias: 'widget.registerMappingsSetup',
     autoScroll: true,
     itemId: 'registerMappingSetup',
+    deviceTypeId: null,
     requires: [
         'Mdc.view.setup.register.RegisterMappingsGrid',
         'Mdc.view.setup.register.RegisterMappingPreview',
@@ -60,11 +61,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                         }]
                 },
                 {
-                    xtype: 'registerMappingsGrid'
+                    xtype: 'container',
+                    items: [],
+                    itemId: 'registerMappingGridContainer'
                 },
                 {
                     xtype: 'component',
-                    height: 50
+                    height: 25
                 },
                 {
                     xtype: 'registerMappingPreview'
@@ -75,6 +78,12 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
 
     initComponent: function () {
         this.callParent(arguments);
+        this.down('#registerMappingGridContainer').add(
+            {
+                xtype: 'registerMappingsGrid',
+                deviceTypeId: this.deviceTypeId
+            }
+        );
     }
 });
 

@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.registerMappingsGrid',
     overflowY: 'auto',
+    deviceTypeId: null,
     itemId: 'registermappinggrid',
     selModel: {
         mode: 'MULTI'
@@ -21,9 +22,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 dataIndex: 'name',
                 sortable: false,
                 hideable: false,
-
                 renderer: function (value, b, record) {
-                    return '<a href="registermappings/' + record.get('id') + '">' + value + '</a>';
+                    return '<a href="#setup/devicetypes/' + me.deviceTypeId + '/registermappings/' + record.get('id') + '">' + value + '</a>';
                 },
                 flex: 1
             },
@@ -75,7 +75,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
                 ]
             }
         ];
-
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
@@ -88,7 +87,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: this.store,
-                dock: 'bottom'
+                dock: 'bottom',
+                params: [
+                    {deviceType: me.deviceTypeId}
+                ]
             }
         ];
 

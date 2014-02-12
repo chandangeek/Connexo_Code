@@ -1,41 +1,40 @@
 Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     extend: 'Ext.panel.Panel',
-    border: false,
+    border: true,
     margins: '0 10 10 10',
     alias: 'widget.registerMappingPreview',
     itemId: 'registerMappingPreview',
-    hidden: true,
     requires: [
         'Mdc.model.RegisterMapping'
     ],
     layout: {
-        type: 'vbox',
+        type: 'card',
         align: 'stretch'
     },
-    tbar: [
-        {
-            xtype: 'component',
-            html: '<h4>Selected register preview</h4>',
-            itemId: 'registerMappingPreviewTitle'
-        },
-        '->',
-        {
-            icon: 'resources/images/gear-16x16.png',
-            text: 'Actions',
-            menu: {
-                items: [
-                    {
-                        text: 'Remove',
-                        itemId: 'deleteRegisterMapping',
-                        action: 'deleteRegisterMapping'
 
-                    }
-                ]
-            }
-        }
-    ],
 
     items: [
+        {
+            xtype: 'panel',
+            border: false,
+            padding: '0 10 0 10',
+            tbar: [
+                {
+                    xtype: 'component',
+                    html: '<H4>' + I18n.translate('registermapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</H4>'
+                }
+            ],
+            items: [
+                {
+                    xtype: 'component',
+                    height: '100px',
+                    html: '<H5>' + I18n.translate('registermapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</H5>'
+                }
+            ]
+
+        },
+
+
         {
             xtype: 'form',
             border: false,
@@ -45,7 +44,28 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                 type: 'vbox',
                 align: 'stretch'
             },
+            tbar: [
+                    {
+                        xtype: 'component',
+                        html: '<h4>Selected register preview</h4>',
+                        itemId: 'registerMappingPreviewTitle'
+                    },
+                    '->',
+                    {
+                        icon: 'resources/images/gear-16x16.png',
+                        text: 'Actions',
+                        menu: {
+                            items: [
+                                {
+                                    text: 'Remove',
+                                    itemId: 'deleteRegisterMapping',
+                                    action: 'deleteRegisterMapping'
 
+                                }
+                            ]
+                        }
+                    }
+                ],
             items: [
                 {
                     xtype: 'container',
@@ -134,11 +154,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                     fieldLabel: 'Linked to channel as',
                                     labelAlign: 'right',
                                     labelWidth: 150
-                                },
+                                }
                             ]
                         }
                     ]
-                },
+                }/*,
                 {
                     xtype: 'toolbar',
                     docked: 'bottom',
@@ -152,7 +172,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                         }
 
                     ]
-                }
+                }*/
             ]
         }
     ],
