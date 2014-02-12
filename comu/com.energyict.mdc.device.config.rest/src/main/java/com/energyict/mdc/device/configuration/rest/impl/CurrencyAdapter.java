@@ -3,15 +3,15 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import java.util.Currency;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class CurrencyAdapter extends XmlAdapter<Currency, String>{
+public class CurrencyAdapter extends XmlAdapter<String, Currency>{
 
     @Override
-    public String unmarshal(Currency currency) throws Exception {
-        return currency.toString();
+    public Currency unmarshal(String jsonValue) throws Exception {
+        return Currency.getInstance(jsonValue);
     }
 
     @Override
-    public Currency marshal(String jsonValue) throws Exception {
-        return Currency.getInstance(jsonValue);
+    public String marshal(Currency currency) throws Exception {
+        return currency.toString();
     }
 }
