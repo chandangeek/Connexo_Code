@@ -5,18 +5,27 @@ Ext.define('Uni.model.BreadcrumbItem', {
     extend: 'Ext.data.Model',
     fields: [
         'text',
-        'href'
+        'href',
+        {name: 'relative', type: 'boolean', defaultValue: true}
     ],
+
     associations: [
         {
             type: 'hasOne',
             model: 'Uni.model.BreadcrumbItem',
             associationKey: 'child',
             getterName: 'getChild',
-            setterName: 'setChild'
+            setterName: 'doSetChild'
         }
     ],
+
     proxy: {
         type: 'memory'
+    },
+
+    setChild: function (value, options, scope) {
+        this.doSetChild(value, options, scope);
+        return value;
     }
+
 });
