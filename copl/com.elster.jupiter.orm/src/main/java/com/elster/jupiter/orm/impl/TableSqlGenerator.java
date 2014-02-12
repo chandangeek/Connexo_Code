@@ -127,8 +127,16 @@ public class TableSqlGenerator {
 		StringBuilder sb = new StringBuilder("insert into ");
 		sb.append(table.getQualifiedName(table.getJournalTableName()));
 		sb.append(" (");
-		sb.append(" select ");
 		String separator = "";
+		for (Column each : table.getColumns()) {
+			sb.append(separator);
+			sb.append(each.getName());
+			separator = ", ";
+		}
+		sb.append(separator);
+		sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
+		sb.append(") ( select ");
+		separator = "";
 		for (Column each : table.getColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
