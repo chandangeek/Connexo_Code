@@ -7,7 +7,8 @@ Ext.define('Uni.view.breadcrumb.Trail', {
 
     requires: [
         'Uni.view.breadcrumb.Link',
-        'Uni.view.breadcrumb.Separator'
+        'Uni.view.breadcrumb.Separator',
+        'Uni.controller.history.Settings'
     ],
 
     layout: {
@@ -20,12 +21,20 @@ Ext.define('Uni.view.breadcrumb.Trail', {
         this.addBreadcrumbItem(item);
     },
 
-    addBreadcrumbItem: function (item) {
-        var link = Ext.widget('breadcrumbLink', {
-            text: item.data.text
-        });
+    addBreadcrumbItem: function (item, baseHref) {
+        // TODO Append '#/' when necessary.
+        baseHref = baseHref || '';
 
-        var child;
+        if (item.data.relative && baseHref.length > 0) {
+            baseHref += Uni.controller.history.Settings.tokenDelimiter;
+        }
+
+        var child,
+            href = item.data.href,
+            link = Ext.widget('breadcrumbLink', {
+                text: item.data.text
+            });
+
         try {
             child = item.getChild();
         } catch (ex) {
@@ -33,16 +42,20 @@ Ext.define('Uni.view.breadcrumb.Trail', {
         }
 
         if (child !== undefined && child.rendered) {
-            link.setHref(item.data.href);
+            link.setHref(baseHref + href);
         } else if (child !== undefined && !child.rendered) {
-            link.href = item.data.href;
+            link.href = baseHref + href;
         }
 
         this.addBreadcrumbComponent(link);
 
         // Recursively add the children.
         if (child !== undefined && child !== null) {
-            this.addBreadcrumbItem(child);
+            if (item.data.relative) {
+                baseHref += href;
+            }
+
+            this.addBreadcrumbItem(child, baseHref);
         }
     },
 
