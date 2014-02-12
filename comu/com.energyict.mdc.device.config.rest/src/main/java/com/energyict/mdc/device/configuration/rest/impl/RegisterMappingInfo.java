@@ -39,6 +39,7 @@ public class RegisterMappingInfo {
         id = registerMapping.getId();
         name = registerMapping.getName();
         obisCode = registerMapping.getObisCode();
+//        readingTypeInfo = new ReadingTypeInfo(registerMapping.getReadingType());
         readingTypeInfo = new ReadingTypeInfo(); // TODO read from RegisterMapping
         readingTypeInfo.mrid = "10.2.5.3.2.8.1.1.12.1.0.255.6.65.978.0.0.0";
         readingTypeInfo.readingTypeUnit = ReadingTypeUnit.CUBICFEET;
