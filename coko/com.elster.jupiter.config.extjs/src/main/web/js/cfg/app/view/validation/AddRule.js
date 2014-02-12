@@ -53,8 +53,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'textfield',
                                     fieldLabel: 'Name:',
                                     labelAlign: 'right',
-                                    allowBlank: false,  // requires a non-empty value
-                                    blankText: 'This is a required field',
+                                    vtype: 'nonemptystring',
                                     msgTarget: 'under',
                                     labelWidth:	250,
                                     name: 'name'
@@ -62,8 +61,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                 {
                                     xtype: 'combobox',
                                     itemId: 'validatorCombo',
-                                    allowBlank: false,  // requires a non-empty value
-                                    blankText: 'This is a required field',
+                                    vtype: 'nonemptystring',
                                     msgTarget: 'under',
                                     editable: 'false',
                                     name: 'implementation',
@@ -91,8 +89,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             fieldLabel: 'Reading value(s)',
                                             labelAlign: 'right',
                                             itemId: 'readingTypeTextField1',
-                                            allowBlank: false,  // requires a non-empty value
-                                            blankText: 'This is a required field',
+                                            vtype: 'nonemptystring',
                                             msgTarget: 'under',
                                             labelWidth:	250
                                         }

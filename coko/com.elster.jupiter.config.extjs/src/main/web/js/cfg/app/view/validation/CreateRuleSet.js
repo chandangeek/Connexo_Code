@@ -40,8 +40,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            allowBlank: false,  // requires a non-empty value
-                            blankText: 'This is a required field',
+                            vtype: 'nonemptystring',
                             msgTarget: 'under',
                             fieldLabel: 'Name *',
                             labelAlign: 'right',
