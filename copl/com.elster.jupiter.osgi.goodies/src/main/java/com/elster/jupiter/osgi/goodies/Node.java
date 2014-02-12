@@ -108,7 +108,7 @@ public class Node {
 			builder.append(quote(toString()));
 			builder.append(" [shape=box label=\"");
 			builder.append(base.get().getClass().getSimpleName().replace("Impl",""));
-			builder.append("\n");
+			builder.append("\\n");
 			for (Object part : base.getPrimaryKey()) {
 				builder.append(escape("" + part));
 				builder.append("/");

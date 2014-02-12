@@ -16,7 +16,7 @@ public class BundleDependencyConsolePlugin extends HttpServlet {
 	
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		URL url = context.getBundle().getResource("/js/d3.html");
+		URL url = context.getBundle().getResource("/js/dep.html");
 		PrintWriter writer = response.getWriter();
 		InputStream in = url.openConnection().getInputStream();
 		byte[] buffer = new byte[4096];
