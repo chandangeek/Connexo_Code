@@ -1,16 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.amrimpl.RegisterMappingImpl;
-import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
-import java.sql.SQLException;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @XmlRootElement
 public class RegisterMappingInfo {
@@ -22,6 +17,8 @@ public class RegisterMappingInfo {
     @JsonProperty("obisCode")
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
+    @JsonUnwrapped
+    public ReadingTypeInfo readingTypeInfo;
 
     public RegisterMappingInfo() {
     }
@@ -30,5 +27,6 @@ public class RegisterMappingInfo {
         id = registerMapping.getId();
         name = registerMapping.getName();
         obisCode = registerMapping.getObisCode();
+        readingTypeInfo = null; // TODO read from RegisterMapping
     }
 }

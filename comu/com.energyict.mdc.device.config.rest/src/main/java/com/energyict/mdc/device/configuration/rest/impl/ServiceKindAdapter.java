@@ -18,6 +18,5 @@ public class ServiceKindAdapter extends MapBasedXmlAdapter<ServiceKind> {
         register("Time", ServiceKind.TIME);
         register("Refuse", ServiceKind.REFUSE);
         register("Sewerage", ServiceKind.SEWERAGE);
-        register("Other", ServiceKind.OTHER);
     }
 }
